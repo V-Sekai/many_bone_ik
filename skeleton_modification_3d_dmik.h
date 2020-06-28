@@ -157,11 +157,11 @@ public:
 	void create_headings_arrays();
 };
 
-class BoneEndEffector : public Reference {
-	GDCLASS(BoneEndEffector, Reference);
+class BoneEffectorTransform : public Reference {
+	GDCLASS(BoneEffectorTransform, Reference);
 
 public:
-	int effector_bone;
+	int effector_bone = -1;
 	Transform goal_transform;
 };
 class BoneChainTarget : public Reference {
@@ -169,13 +169,13 @@ class BoneChainTarget : public Reference {
 
 public:
 	Ref<BoneChainItem> chain_item = nullptr;
-	Ref<BoneEndEffector> end_effector = nullptr;
+	Ref<BoneEffectorTransform> end_effector = nullptr;
 
 	BoneChainTarget() :
 			chain_item(NULL),
 			end_effector(NULL) {}
 
-	BoneChainTarget(Ref<BoneChainItem> p_chain_item, const Ref<BoneEndEffector> p_end_effector) :
+	BoneChainTarget(Ref<BoneChainItem> p_chain_item, const Ref<BoneEffectorTransform> p_end_effector) :
 			chain_item(p_chain_item),
 			end_effector(p_end_effector) {}
 
@@ -183,7 +183,7 @@ public:
 			chain_item(p_other_ct->chain_item),
 			end_effector(p_other_ct->end_effector) {}
 
-	BoneChainTarget(Ref<BoneChainItem> p_chain_item, const Ref<BoneEndEffector> p_end_effector, bool p_enabled) {
+	BoneChainTarget(Ref<BoneChainItem> p_chain_item, const Ref<BoneEffectorTransform> p_end_effector, bool p_enabled) {
 		enabled = p_enabled;
 		set_target_priorities(x_priority, y_priority, z_priority);
 	}
@@ -346,7 +346,7 @@ public:
 
 	// Bone data
 	int root_bone = -1;
-	Vector<Ref<BoneEndEffector>> end_effectors;
+	Vector<Ref<BoneEffectorTransform>> end_effectors;
 };
 
 class SkeletonModification3D_DMIK : public SkeletonModification3D {

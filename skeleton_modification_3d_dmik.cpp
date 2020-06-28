@@ -143,7 +143,10 @@ bool SkeletonModification3D_DMIK::_set(const StringName &p_name, const Variant &
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, effector_count, false);
 		Ref<BoneEffector> effector = get_effector(index);
-		ERR_FAIL_COND_V(effector.is_null(), false);
+		if (effector.is_null()) {
+			effector.instance();
+			set_effector(index, effector);
+		}
 		if (what == "name") {
 			name = p_value;
 			ERR_FAIL_COND_V(name.empty(), false);
@@ -340,44 +343,61 @@ void SkeletonModification3D_DMIK::execute(float delta) {
 	if (!enabled) {
 		return;
 	}
+	task.instance();
+	Skeleton3D *skeleton = stack->skeleton;
+	task->skeleton = skeleton;
+	if (!multi_effector.size()) {
+		return;
+	}
+	task->end_effectors.resize(multi_effector.size());
+	for (int32_t effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
+		Transform xform;
+		Ref<BoneEffector> bone_effector = multi_effector[effector_i];
+		if (bone_effector.is_null()) {
+			continue;
+		}
+		String bone_name = bone_effector->get_name();
+		if (bone_name.empty()) {
+			continue;
+		}
+		int32_t bone = skeleton->find_bone(bone_name);
+		if (bone == -1) {
+			continue;
+		}
+		Ref<BoneEffectorTransform> bone_end_effector;
+		bone_end_effector.instance();
+		bone_end_effector->effector_bone = bone;
+		NodePath path = bone_effector->get_target_node();
+		// TODO Add an path to object_id cache.
+		Node *node = skeleton->get_node(path);
+		if (node) {
+			ERR_FAIL_COND_MSG(!node || skeleton == node,
+					"Cannot update cache: Target node is this modification's skeleton or cannot be found!");
+			Node3D *node_3d = Object::cast_to<Node3D>(node);
+			if (node_3d) {
+				xform = skeleton->world_transform_to_global_pose(node_3d->get_global_transform());
+			}
+		}
+		bone_end_effector->goal_transform = xform * bone_effector->get_target_transform();
+		task->end_effectors.write[effector_i] = bone_end_effector;
+	}
+	build_chain(task);
 	if (task.is_valid()) {
 		solve_simple(task, false);
 	}
 }
 
 void SkeletonModification3D_DMIK::setup_modification(SkeletonModificationStack3D *p_stack) {
-	if (constraint_count == 0) {
-		register_constraint(p_stack->get_skeleton());
-	}
 	stack = p_stack;
 	if (!stack) {
-		is_setup = true;
-		task.instance();
-		task->skeleton = stack->get_skeleton();
-		task->end_effectors.resize(multi_effector.size());
-		for (int32_t effector_i = 0; multi_effector.size(); effector_i++) {
-			Ref<BoneEndEffector> bone_end_effector = task->end_effectors[effector_i];
-			int32_t bone = stack->get_skeleton()->find_bone(multi_effector[effector_i]->get_name());
-			if (bone == -1) {
-				continue;				
-			}
-			bone_end_effector->effector_bone = bone;
-			Ref<BoneEffector> bone_effector =  multi_effector[effector_i];
-			Transform xform;
-			NodePath path = bone_effector->get_target_node();
-			// TODO Add an path to object_id cache.
-			Node *node = stack->get_skeleton()->get_node_or_null(path);
-			if (node) {
-				Node3D *node_3d = Object::cast_to<Node3D>(node);
-				if (node_3d) {
-					xform = node_3d->get_relative_transform(stack->skeleton);
-				}
-			}
-			Transform bone_global_xform = stack->skeleton->local_pose_to_global_pose(bone, Transform());
-			bone_end_effector->goal_transform = xform.affine_inverse() * bone_global_xform;
-		}
-		build_chain(task);
+		return;
 	}
+	Skeleton3D *skeleton = stack->get_skeleton();
+	ERR_FAIL_COND(!skeleton);
+	if (constraint_count == 0) {
+		register_constraint(skeleton);
+	}
+	is_setup = true;
 }
 
 void SkeletonModification3D_DMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
@@ -546,7 +566,7 @@ bool SkeletonModification3D_DMIK::build_chain(Ref<DMIKTask> p_task) {
 	chain_ids.resize(p_task->skeleton->get_bone_count());
 
 	for (int effector_i = p_task->end_effectors.size() - 1; 0 <= effector_i; --effector_i) {
-		const Ref<BoneEndEffector> ee(p_task->end_effectors[effector_i]);
+		const Ref<BoneEffectorTransform> ee(p_task->end_effectors[effector_i]);
 		ERR_FAIL_COND_V(p_task->root_bone >= ee->effector_bone, false);
 		ERR_FAIL_INDEX_V(ee->effector_bone, p_task->skeleton->get_bone_count(), false);
 
@@ -660,7 +680,7 @@ Ref<DMIKTask> SkeletonModification3D_DMIK::create_simple_task(Skeleton3D *p_sk,
 		if (effector.is_null()) {
 			continue;
 		}
-		Ref<BoneEndEffector> ee;
+		Ref<BoneEffectorTransform> ee;
 		ee.instance();
 		Node *target_node = task->skeleton->get_node_or_null(effector->get_target_node());
 		Node3D *spatial_node = Object::cast_to<Node3D>(target_node);
