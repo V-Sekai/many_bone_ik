@@ -1,4 +1,6 @@
-# IK Cyclic Mean Deviation Descent (CMDD)
+# DMIK
+
+A new IK system.
 
 ## Effectors section
 * name
