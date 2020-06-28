@@ -433,6 +433,4 @@ public:
                       const Vector3 &p_magnet_position);
 };
 
-#include "kusudama_constraint.h"
-
 #endif //GODOT_DMIK_H

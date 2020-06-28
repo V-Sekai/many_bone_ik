@@ -28,11 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "core/object.h"
-
-#include "dmik.h"
 #include "kusudama_constraint.h"
+#include "core/object.h"
 #include "direction_constraint.h"
+#include "dmik.h"
 #include "ik_quat.h"
 
 void KusudamaConstraint::optimize_limiting_axes() {
@@ -207,7 +206,6 @@ real_t KusudamaConstraint::signed_angle_difference(real_t p_min_angle, real_t p_
 }
 
 real_t KusudamaConstraint::snap_to_twist_limits(IKAxes p_to_set, IKAxes p_limiting_axes) {
-
 	if (!axial_constrained) {
 		return 0.0f;
 	}
@@ -437,7 +435,6 @@ bool KusudamaConstraint::_set(const StringName &p_name, const Variant &p_value) 
 }
 
 bool KusudamaConstraint::_get(const StringName &p_name, Variant &r_ret) const {
-
 	String name = p_name;
 	if (name == "direction_count") {
 		r_ret = get_direction_count();
@@ -470,11 +467,11 @@ void KusudamaConstraint::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 }
 
-void KusudamaConstraint::_bind_methods() {	
+void KusudamaConstraint::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constraint_axes", "axes"), &KusudamaConstraint::set_constraint_axes);
 	ClassDB::bind_method(D_METHOD("get_constraint_axes"), &KusudamaConstraint::get_constraint_axes);
 	ClassDB::bind_method(D_METHOD("set_twist_constraint", "twist"), &KusudamaConstraint::set_twist_constraint);
-	ClassDB::bind_method(D_METHOD("get_twist_constraint"), &KusudamaConstraint::get_twist_constraint);	
+	ClassDB::bind_method(D_METHOD("get_twist_constraint"), &KusudamaConstraint::get_twist_constraint);
 	ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM, "constraint_axes"), "set_constraint_axes", "get_constraint_axes");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "twist", PROPERTY_HINT_RESOURCE_TYPE, "IKTwistConstraint"), "set_twist_constraint", "get_twist_constraint");
 }
