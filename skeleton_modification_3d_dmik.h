@@ -34,10 +34,10 @@
 #include "bone_effector.h"
 #include "core/os/memory.h"
 #include "core/reference.h"
-#include "kusudama_constraint.h"
-#include "scene/resources/skeleton_modification_3d.h"
-#include "qcp.h"
 #include "ik_axes.h"
+#include "kusudama_constraint.h"
+#include "qcp.h"
+#include "scene/resources/skeleton_modification_3d.h"
 
 class Skeleton3D;
 class KusudamaConstraint;
@@ -322,7 +322,13 @@ public:
 };
 
 class Skeleton3D;
-struct DMIKTask {
+class DMIKTask : public Reference {
+	GDCLASS(DMIKTask, Reference);
+
+protected:
+	static void _bind_methods() {}
+
+public:
 	Skeleton3D *skeleton = nullptr;
 
 	Ref<BoneChain> chain = memnew(BoneChain);
@@ -391,9 +397,7 @@ private:
      * @param damp
      */
 	static void set_default_dampening(Ref<BoneChain> r_chain, float p_damp);
-
 	static void update_armature_segments(Ref<BoneChain> r_chain);
-
 	static void update_optimal_rotation_to_target_descendants(
 			Ref<BoneChainItem> p_chain_item,
 			float p_dampening,
@@ -404,9 +408,7 @@ private:
 			Ref<QCP> p_qcp_orientation_aligner,
 			int p_iteration,
 			float p_total_iterations);
-
 	static void recursively_update_bone_segment_map_from(Ref<BoneChain> r_chain, Ref<BoneChainItem> p_start_from);
-
 	static void QCPSolver(
 			Ref<BoneChain> p_chain,
 			float p_dampening,
@@ -414,12 +416,9 @@ private:
 			int p_stabilization_passes,
 			int p_iteration,
 			float p_total_iterations);
-
-	static bool build_chain(DMIKTask *p_task);
-
+	static bool build_chain(Ref<DMIKTask> p_task);
 	static void update_chain(const Skeleton3D *p_sk, Ref<BoneChainItem> p_chain_item);
-
-	static void solve_simple(DMIKTask *p_task, bool p_solve_magnet);
+	static void solve_simple(Ref<DMIKTask> p_task, bool p_solve_magnet);
 
 public:
 	static const int32_t x_axis = 0;
@@ -454,15 +453,13 @@ public:
 	static void update_effector_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
 
-	static DMIKTask *create_simple_task(Skeleton3D *p_sk, const Transform &goal_transform,
+	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, const Transform &goal_transform,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3D_DMIK> p_constraints = NULL);
 
-	static void free_task(DMIKTask *p_task);
+	static void make_goal(Ref<DMIKTask> p_task, const Transform &p_inverse_transf, float blending_delta);
 
-	static void make_goal(DMIKTask *p_task, const Transform &p_inverse_transf, float blending_delta);
-
-	static void solve(DMIKTask *p_task, float blending_delta, bool override_effector_basis, bool p_use_magnet,
+	static void solve(Ref<DMIKTask> p_task, float blending_delta, bool override_effector_basis, bool p_use_magnet,
 			const Vector3 &p_magnet_position);
 };
 
