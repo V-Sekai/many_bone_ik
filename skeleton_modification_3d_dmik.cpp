@@ -30,27 +30,27 @@
 
 #include "direction_constraint.h"
 #include "kusudama_constraint.h"
-#include "multi_constraint.h"
+#include "skeleton_modification_3d_dmik.h"
 #include "scene/3d/skeleton_3d.h"
 
-void MultiConstraint::_bind_methods() {
+void SkeletonModification3D_DMIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constraint_count", "constraint_count"),
-			&MultiConstraint::set_constraint_count);
-	ClassDB::bind_method(D_METHOD("get_constraint_count"), &MultiConstraint::get_constraint_count);
-	ClassDB::bind_method(D_METHOD("get_effector_count"), &MultiConstraint::get_effector_count);
+			&SkeletonModification3D_DMIK::set_constraint_count);
+	ClassDB::bind_method(D_METHOD("get_constraint_count"), &SkeletonModification3D_DMIK::get_constraint_count);
+	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3D_DMIK::get_effector_count);
 	ClassDB::bind_method(D_METHOD("set_effector_count", "count"),
-			&MultiConstraint::set_effector_count);
-	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node", "target_transform", "budget"), &MultiConstraint::add_effector);
-	ClassDB::bind_method(D_METHOD("get_effector", "index"), &MultiConstraint::get_effector);
-	ClassDB::bind_method(D_METHOD("get_constraint", "index"), &MultiConstraint::get_constraint);
-	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &MultiConstraint::set_effector);
-	ClassDB::bind_method(D_METHOD("set_constraint", "index", "constraint"), &MultiConstraint::set_constraint);
+			&SkeletonModification3D_DMIK::set_effector_count);
+	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node", "target_transform", "budget"), &SkeletonModification3D_DMIK::add_effector);
+	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3D_DMIK::get_effector);
+	ClassDB::bind_method(D_METHOD("get_constraint", "index"), &SkeletonModification3D_DMIK::get_constraint);
+	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3D_DMIK::set_effector);
+	ClassDB::bind_method(D_METHOD("set_constraint", "index", "constraint"), &SkeletonModification3D_DMIK::set_constraint);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,65535,or_greater"), "set_constraint_count", "get_constraint_count");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,or_greater"), "set_effector_count", "get_effector_count");
 	ADD_SIGNAL(MethodInfo("ik_changed"));
 }
 
-void MultiConstraint::_get_property_list(List<PropertyInfo> *p_list) const {
+void SkeletonModification3D_DMIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int i = 0; i < constraint_count; i++) {
 		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(i) + "/name"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_min_angle"));
@@ -75,7 +75,7 @@ void MultiConstraint::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 }
 
-bool MultiConstraint::_get(const StringName &p_name, Variant &r_ret) const {
+bool SkeletonModification3D_DMIK::_get(const StringName &p_name, Variant &r_ret) const {
 
 	String name = p_name;
 	if (name.begins_with("effectors/")) {
@@ -137,7 +137,7 @@ bool MultiConstraint::_get(const StringName &p_name, Variant &r_ret) const {
 	return false;
 }
 
-bool MultiConstraint::_set(const StringName &p_name, const Variant &p_value) {
+bool SkeletonModification3D_DMIK::_set(const StringName &p_name, const Variant &p_value) {
 	String name = p_name;
 	if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
@@ -238,19 +238,19 @@ bool MultiConstraint::_set(const StringName &p_name, const Variant &p_value) {
 	return false;
 }
 
-Ref<KusudamaConstraint> MultiConstraint::get_constraint(int32_t p_index) const {
+Ref<KusudamaConstraint> SkeletonModification3D_DMIK::get_constraint(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, multi_constraint.size(), Ref<KusudamaConstraint>());
 	ERR_FAIL_COND_V(multi_constraint[p_index].is_null(), Ref<KusudamaConstraint>());
 	return multi_constraint[p_index];
 }
 
-MultiConstraint::MultiConstraint() {
+SkeletonModification3D_DMIK::SkeletonModification3D_DMIK() {
 }
 
-MultiConstraint::~MultiConstraint() {
+SkeletonModification3D_DMIK::~SkeletonModification3D_DMIK() {
 }
 
-int32_t MultiConstraint::find_constraint(String p_name) {
+int32_t SkeletonModification3D_DMIK::find_constraint(String p_name) {
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		Ref<KusudamaConstraint> constraint = get_constraint(constraint_i);
 		if (constraint.is_null()) {
@@ -263,7 +263,7 @@ int32_t MultiConstraint::find_constraint(String p_name) {
 	return -1;
 }
 
-void MultiConstraint::set_effector_count(int32_t p_value) {
+void SkeletonModification3D_DMIK::set_effector_count(int32_t p_value) {
 	multi_effector.resize(p_value);
 	effector_count = p_value;
 	_change_notify();
@@ -271,17 +271,17 @@ void MultiConstraint::set_effector_count(int32_t p_value) {
 	emit_signal("ik_changed");
 }
 
-int32_t MultiConstraint::get_effector_count() const {
+int32_t SkeletonModification3D_DMIK::get_effector_count() const {
 	return effector_count;
 }
 
-Ref<BoneEffector> MultiConstraint::get_effector(int32_t p_index) const {
+Ref<BoneEffector> SkeletonModification3D_DMIK::get_effector(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, multi_effector.size(), NULL);
 	Ref<BoneEffector> effector = multi_effector[p_index];
 	return effector;
 }
 
-void MultiConstraint::set_effector(int32_t p_index, Ref<BoneEffector> p_effector) {
+void SkeletonModification3D_DMIK::set_effector(int32_t p_index, Ref<BoneEffector> p_effector) {
 	ERR_FAIL_COND(p_effector.is_null());
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.write[p_index] = p_effector;
@@ -290,7 +290,7 @@ void MultiConstraint::set_effector(int32_t p_index, Ref<BoneEffector> p_effector
 	emit_signal("ik_changed");
 }
 
-void MultiConstraint::set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint) {
+void SkeletonModification3D_DMIK::set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint) {
 
 	ERR_FAIL_INDEX(p_index, multi_constraint.size());
 	multi_constraint.write[p_index] = p_constraint;
@@ -299,11 +299,11 @@ void MultiConstraint::set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_
 	emit_signal("ik_changed");
 }
 
-Vector<Ref<BoneEffector> > MultiConstraint::get_bone_effectors() const {
+Vector<Ref<BoneEffector> > SkeletonModification3D_DMIK::get_bone_effectors() const {
 	return multi_effector;
 }
 
-int32_t MultiConstraint::find_effector(String p_name) {
+int32_t SkeletonModification3D_DMIK::find_effector(String p_name) {
 	for (int32_t effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
 		if (multi_effector[effector_i].is_valid() && multi_effector[effector_i]->get_name() == p_name) {
 			return effector_i;
@@ -312,7 +312,7 @@ int32_t MultiConstraint::find_effector(String p_name) {
 	return -1;
 }
 
-void MultiConstraint::remove_effector(int32_t p_index) {
+void SkeletonModification3D_DMIK::remove_effector(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.remove(p_index);
 	effector_count--;
@@ -321,11 +321,11 @@ void MultiConstraint::remove_effector(int32_t p_index) {
 	emit_signal("ik_changed");
 }
 
-int32_t MultiConstraint::get_constraint_count() const {
+int32_t SkeletonModification3D_DMIK::get_constraint_count() const {
 	return constraint_count;
 }
 
-void MultiConstraint::set_constraint_count(int32_t p_value) {
+void SkeletonModification3D_DMIK::set_constraint_count(int32_t p_value) {
 	multi_constraint.resize(p_value);
 	for (int32_t i = 0; i < p_value; i++) {
 		multi_constraint.write[i].instance();
@@ -336,7 +336,7 @@ void MultiConstraint::set_constraint_count(int32_t p_value) {
 	emit_signal("ik_changed");
 }
 
-void MultiConstraint::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
+void SkeletonModification3D_DMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
 	Ref<BoneEffector> effector;
 	effector.instance();
 	effector->set_name(p_name);
@@ -350,7 +350,7 @@ void MultiConstraint::add_effector(String p_name, NodePath p_node, Transform p_t
 	emit_signal("ik_changed");
 }
 
-void MultiConstraint::register_constraint(Skeleton3D *p_skeleton) {
+void SkeletonModification3D_DMIK::register_constraint(Skeleton3D *p_skeleton) {
 	ERR_FAIL_COND(!p_skeleton);
 	for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
 		Ref<KusudamaConstraint> constraint;

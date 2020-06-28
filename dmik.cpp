@@ -225,7 +225,7 @@ void DMIK::solve_simple(DMIKTask *p_task, bool p_solve_magnet) {
 DMIKTask *DMIK::create_simple_task(Skeleton3D *p_sk,
 		const Transform &goal_transform,
 		float p_dampening, int p_stabilizing_passes,
-		Ref<MultiConstraint> p_constraints) {
+		Ref<SkeletonModification3D_DMIK> p_constraints) {
 
 	DMIKTask *task(memnew(DMIKTask));
 	task->skeleton = p_sk;

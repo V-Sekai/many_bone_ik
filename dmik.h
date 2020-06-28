@@ -40,7 +40,7 @@
 #include "ik_axes.h"
 #include "direction_constraint.h"
 #include "qcp.h"
-#include "multi_constraint.h"
+#include "skeleton_modification_3d_dmik.h"
 
 class Axes : public Reference {
 public:
@@ -136,7 +136,7 @@ public:
 };
 
 class BoneChainTarget;
-class MultiConstraint;
+class SkeletonModification3D_DMIK;
 class BoneChain : public Reference {
 	GDCLASS(BoneChain, Reference);
 
@@ -148,7 +148,7 @@ public:
 	Vector<Vector3> localized_target_headings;
 	Vector<Vector3> localized_effector_headings;
 	Vector<real_t> weights;
-	Ref<MultiConstraint> constraints = nullptr;
+	Ref<SkeletonModification3D_DMIK> constraints = nullptr;
 	float dampening = Math::deg2rad(5.0f);
 	Map<int, Ref<BoneChainItem> > bone_segment_map;
 	int ik_iterations = 15;
@@ -423,7 +423,7 @@ public:
 
 	static DMIKTask * create_simple_task(Skeleton3D *p_sk, const Transform &goal_transform,
                                          float p_dampening = -1, int p_stabilizing_passes = -1,
-                                         Ref<MultiConstraint> p_constraints = NULL);
+                                         Ref<SkeletonModification3D_DMIK> p_constraints = NULL);
 
 	static void free_task(DMIKTask *p_task);
 

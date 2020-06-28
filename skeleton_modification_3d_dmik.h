@@ -40,8 +40,8 @@
 class Skeleton3D;
 class KusudamaConstraint;
 
-class MultiConstraint : public SkeletonModification3D {
-	GDCLASS(MultiConstraint, SkeletonModification3D);
+class SkeletonModification3D_DMIK : public SkeletonModification3D {
+	GDCLASS(SkeletonModification3D_DMIK, SkeletonModification3D);
 
 	Vector<Ref<BoneEffector>> multi_effector;
 	Vector<Ref<KusudamaConstraint>> multi_constraint;
@@ -72,8 +72,8 @@ public:
 	void set_effector(int32_t p_index, Ref<BoneEffector> p_effector);
 	void set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint);
 	Ref<KusudamaConstraint> get_constraint(int32_t p_index) const;
-	MultiConstraint();
-	~MultiConstraint();
+	SkeletonModification3D_DMIK();
+	~SkeletonModification3D_DMIK();
 };
 
 #endif //MULTI_CONSTRAINT_H

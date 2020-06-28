@@ -32,13 +32,13 @@
 #include "twist_constraint.h"
 #include "direction_constraint.h"
 #include "kusudama_constraint.h"
-#include "multi_constraint.h"
+#include "skeleton_modification_3d_dmik.h"
 
 void register_dmik_types() {	
 	ClassDB::register_class<TwistConstraint>();
 	ClassDB::register_class<DirectionConstraint>();
 	ClassDB::register_class<KusudamaConstraint>();
-	ClassDB::register_class<MultiConstraint>();
+	ClassDB::register_class<SkeletonModification3D_DMIK>();
 }
 
 void unregister_dmik_types() {
