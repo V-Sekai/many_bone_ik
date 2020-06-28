@@ -347,10 +347,32 @@ void SkeletonModification3D_DMIK::setup_modification(SkeletonModificationStack3D
 		register_constraint(p_stack->get_skeleton());
 	}
 	stack = p_stack;
-	if (stack != nullptr) {
+	if (!stack) {
 		is_setup = true;
 		Ref<DMIKTask> task;
 		task.instance();
+		task->skeleton = stack->get_skeleton();
+		task->end_effectors.resize(multi_effector.size());
+		for (int32_t effector_i = 0; multi_effector.size(); effector_i++) {
+			Ref<BoneEndEffector> bone_end_effector = task->end_effectors[effector_i];
+			int32_t bone = stack->get_skeleton()->find_bone(multi_effector[effector_i]->get_name());
+			if (bone == -1) {
+				continue;				
+			}
+			bone_end_effector->effector_bone = bone;
+			Ref<BoneEffector> bone_effector =  multi_effector[effector_i];
+			Transform xform;
+			NodePath path = bone_effector->get_target_node();
+			Node *node = stack->get_skeleton()->get_node_or_null(path);
+			if (node) {
+				Node3D *node_3d = Object::cast_to<Node3D>(node);
+				if (node_3d) {
+					xform = node_3d->get_relative_transform(stack->skeleton);
+				}
+			}
+			Transform bone_global_xform = stack->skeleton->local_pose_to_global_pose(bone, Transform());
+			bone_end_effector->goal_transform = xform.affine_inverse() * bone_global_xform;
+		}
 		build_chain(task);
 	}
 }
