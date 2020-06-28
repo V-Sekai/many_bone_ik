@@ -33,12 +33,12 @@
 
 #include "core/object.h"
 
-#include "dmik.h"
 #include "core/class_db.h"
 #include "core/os/memory.h"
 #include "direction_constraint.h"
 #include "twist_constraint.h"
 #include "ray.h"
+#include "ik_axes.h"
 
 class BoneChainItem;
 class DirectionConstraint;

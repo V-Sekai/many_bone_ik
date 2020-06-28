@@ -29,7 +29,6 @@
 /*************************************************************************/
 
 #include "twist_constraint.h"
-#include "dmik.h"
 #include "direction_constraint.h"
 
 void TwistConstraint::set_min_twist_angle(real_t p_min_axial_angle) {
