@@ -340,6 +340,9 @@ void SkeletonModification3D_DMIK::execute(float delta) {
 	if (!enabled) {
 		return;
 	}
+	if (task.is_valid()) {
+		solve_simple(task, false);
+	}
 }
 
 void SkeletonModification3D_DMIK::setup_modification(SkeletonModificationStack3D *p_stack) {
@@ -349,7 +352,6 @@ void SkeletonModification3D_DMIK::setup_modification(SkeletonModificationStack3D
 	stack = p_stack;
 	if (!stack) {
 		is_setup = true;
-		Ref<DMIKTask> task;
 		task.instance();
 		task->skeleton = stack->get_skeleton();
 		task->end_effectors.resize(multi_effector.size());

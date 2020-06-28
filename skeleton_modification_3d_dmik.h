@@ -356,6 +356,7 @@ class SkeletonModification3D_DMIK : public SkeletonModification3D {
 	Vector<Ref<KusudamaConstraint>> multi_constraint;
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
+	Ref<DMIKTask> task;
 
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
