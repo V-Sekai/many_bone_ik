@@ -50,5 +50,3 @@ Clicking on an effector bone name will show:
 ## Notes
 
 Transform orientating the kusudama wants the y axis to be point in the oppositing direction of most disallowed. Do not allow 360 rotation because of singularity.
-
-Name it constraint axes. (Limiting Axes in Java code.)
