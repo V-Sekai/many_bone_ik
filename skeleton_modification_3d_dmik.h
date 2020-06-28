@@ -56,7 +56,7 @@ protected:
 
 public:
 	virtual void execute(float delta) {}
-	virtual void setup_modification(SkeletonModificationStack3D *p_stack) {}
+	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
 
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);

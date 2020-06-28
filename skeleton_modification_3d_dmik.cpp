@@ -336,6 +336,15 @@ void SkeletonModification3D_DMIK::set_constraint_count(int32_t p_value) {
 	emit_signal("ik_changed");
 }
 
+void SkeletonModification3D_DMIK::execute(float delta) {
+}
+
+void SkeletonModification3D_DMIK::setup_modification(SkeletonModificationStack3D *p_stack) {
+	if (constraint_count == 0) {
+		register_constraint(p_stack->get_skeleton());
+	}
+}
+
 void SkeletonModification3D_DMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
 	Ref<BoneEffector> effector;
 	effector.instance();
