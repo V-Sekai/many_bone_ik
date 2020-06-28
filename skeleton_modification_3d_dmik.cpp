@@ -363,6 +363,7 @@ void SkeletonModification3D_DMIK::setup_modification(SkeletonModificationStack3D
 			Ref<BoneEffector> bone_effector =  multi_effector[effector_i];
 			Transform xform;
 			NodePath path = bone_effector->get_target_node();
+			// TODO Add an path to object_id cache.
 			Node *node = stack->get_skeleton()->get_node_or_null(path);
 			if (node) {
 				Node3D *node_3d = Object::cast_to<Node3D>(node);
