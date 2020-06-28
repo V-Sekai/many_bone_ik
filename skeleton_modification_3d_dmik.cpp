@@ -346,9 +346,13 @@ void SkeletonModification3D_DMIK::setup_modification(SkeletonModificationStack3D
 	if (constraint_count == 0) {
 		register_constraint(p_stack->get_skeleton());
 	}
-	Ref<DMIKTask> task;
-	task.instance();
-	build_chain(task);
+	stack = p_stack;
+	if (stack != nullptr) {
+		is_setup = true;
+		Ref<DMIKTask> task;
+		task.instance();
+		build_chain(task);
+	}
 }
 
 void SkeletonModification3D_DMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
