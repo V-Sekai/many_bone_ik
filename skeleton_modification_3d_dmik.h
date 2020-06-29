@@ -357,6 +357,7 @@ class SkeletonModification3D_DMIK : public SkeletonModification3D {
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
+	String root_bone;
 
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -382,6 +383,8 @@ public:
 	void set_effector(int32_t p_index, Ref<BoneEffector> p_effector);
 	void set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint);
 	Ref<KusudamaConstraint> get_constraint(int32_t p_index) const;
+	String get_root_bone() const { return root_bone; }
+	void set_root_bone(String p_root_bone) { root_bone = p_root_bone; }
 	SkeletonModification3D_DMIK();
 	~SkeletonModification3D_DMIK();
 

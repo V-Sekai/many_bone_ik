@@ -73,11 +73,16 @@ void SkeletonModification3D_DMIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "effectors/" + itos(i) + "/budget", PROPERTY_HINT_RANGE, "0,16,or_greater"));
 	}
+	p_list->push_back(
+			PropertyInfo(Variant::STRING, "root_bone"));
 }
 
 bool SkeletonModification3D_DMIK::_get(const StringName &p_name, Variant &r_ret) const {
 	String name = p_name;
-	if (name.begins_with("effectors/")) {
+	if (name == "root_bone") {
+		r_ret = get_root_bone();
+		return true;
+	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, get_effector_count(), false);
@@ -138,7 +143,11 @@ bool SkeletonModification3D_DMIK::_get(const StringName &p_name, Variant &r_ret)
 
 bool SkeletonModification3D_DMIK::_set(const StringName &p_name, const Variant &p_value) {
 	String name = p_name;
-	if (name.begins_with("effectors/")) {
+
+	if (name == "root_bone") {
+		set_root_bone(p_value);
+		return true;
+	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, effector_count, false);
@@ -349,6 +358,8 @@ void SkeletonModification3D_DMIK::execute(float delta) {
 	if (!multi_effector.size()) {
 		return;
 	}
+	String root_bone_name = get_root_bone();
+	task->root_bone = skeleton->find_bone(root_bone_name);
 	task->end_effectors.resize(multi_effector.size());
 	for (int32_t effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
 		Transform xform;
