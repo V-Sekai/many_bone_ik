@@ -33,24 +33,24 @@
 #include "kusudama_constraint.h"
 #include "scene/3d/skeleton_3d.h"
 
-void SkeletonModification3D_DMIK::_bind_methods() {
+void SkeletonModification3DDMIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constraint_count", "constraint_count"),
-			&SkeletonModification3D_DMIK::set_constraint_count);
-	ClassDB::bind_method(D_METHOD("get_constraint_count"), &SkeletonModification3D_DMIK::get_constraint_count);
-	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3D_DMIK::get_effector_count);
+			&SkeletonModification3DDMIK::set_constraint_count);
+	ClassDB::bind_method(D_METHOD("get_constraint_count"), &SkeletonModification3DDMIK::get_constraint_count);
+	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3DDMIK::get_effector_count);
 	ClassDB::bind_method(D_METHOD("set_effector_count", "count"),
-			&SkeletonModification3D_DMIK::set_effector_count);
-	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node", "target_transform", "budget"), &SkeletonModification3D_DMIK::add_effector);
-	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3D_DMIK::get_effector);
-	ClassDB::bind_method(D_METHOD("get_constraint", "index"), &SkeletonModification3D_DMIK::get_constraint);
-	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3D_DMIK::set_effector);
-	ClassDB::bind_method(D_METHOD("set_constraint", "index", "constraint"), &SkeletonModification3D_DMIK::set_constraint);
+			&SkeletonModification3DDMIK::set_effector_count);
+	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node", "target_transform", "budget"), &SkeletonModification3DDMIK::add_effector);
+	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3DDMIK::get_effector);
+	ClassDB::bind_method(D_METHOD("get_constraint", "index"), &SkeletonModification3DDMIK::get_constraint);
+	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DDMIK::set_effector);
+	ClassDB::bind_method(D_METHOD("set_constraint", "index", "constraint"), &SkeletonModification3DDMIK::set_constraint);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,65535,or_greater"), "set_constraint_count", "get_constraint_count");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,or_greater"), "set_effector_count", "get_effector_count");
 	ADD_SIGNAL(MethodInfo("ik_changed"));
 }
 
-void SkeletonModification3D_DMIK::_get_property_list(List<PropertyInfo> *p_list) const {
+void SkeletonModification3DDMIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int i = 0; i < constraint_count; i++) {
 		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(i) + "/name"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_min_angle"));
@@ -77,7 +77,7 @@ void SkeletonModification3D_DMIK::_get_property_list(List<PropertyInfo> *p_list)
 			PropertyInfo(Variant::STRING, "root_bone"));
 }
 
-bool SkeletonModification3D_DMIK::_get(const StringName &p_name, Variant &r_ret) const {
+bool SkeletonModification3DDMIK::_get(const StringName &p_name, Variant &r_ret) const {
 	String name = p_name;
 	if (name == "root_bone") {
 		r_ret = get_root_bone();
@@ -141,7 +141,7 @@ bool SkeletonModification3D_DMIK::_get(const StringName &p_name, Variant &r_ret)
 	return false;
 }
 
-bool SkeletonModification3D_DMIK::_set(const StringName &p_name, const Variant &p_value) {
+bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p_value) {
 	String name = p_name;
 
 	if (name == "root_bone") {
@@ -249,19 +249,19 @@ bool SkeletonModification3D_DMIK::_set(const StringName &p_name, const Variant &
 	return false;
 }
 
-Ref<KusudamaConstraint> SkeletonModification3D_DMIK::get_constraint(int32_t p_index) const {
+Ref<KusudamaConstraint> SkeletonModification3DDMIK::get_constraint(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, multi_constraint.size(), Ref<KusudamaConstraint>());
 	ERR_FAIL_COND_V(multi_constraint[p_index].is_null(), Ref<KusudamaConstraint>());
 	return multi_constraint[p_index];
 }
 
-SkeletonModification3D_DMIK::SkeletonModification3D_DMIK() {
+SkeletonModification3DDMIK::SkeletonModification3DDMIK() {
 }
 
-SkeletonModification3D_DMIK::~SkeletonModification3D_DMIK() {
+SkeletonModification3DDMIK::~SkeletonModification3DDMIK() {
 }
 
-int32_t SkeletonModification3D_DMIK::find_constraint(String p_name) {
+int32_t SkeletonModification3DDMIK::find_constraint(String p_name) {
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		Ref<KusudamaConstraint> constraint = get_constraint(constraint_i);
 		if (constraint.is_null()) {
@@ -274,7 +274,7 @@ int32_t SkeletonModification3D_DMIK::find_constraint(String p_name) {
 	return -1;
 }
 
-void SkeletonModification3D_DMIK::set_effector_count(int32_t p_value) {
+void SkeletonModification3DDMIK::set_effector_count(int32_t p_value) {
 	multi_effector.resize(p_value);
 	effector_count = p_value;
 	_change_notify();
@@ -282,17 +282,17 @@ void SkeletonModification3D_DMIK::set_effector_count(int32_t p_value) {
 	emit_signal("ik_changed");
 }
 
-int32_t SkeletonModification3D_DMIK::get_effector_count() const {
+int32_t SkeletonModification3DDMIK::get_effector_count() const {
 	return effector_count;
 }
 
-Ref<BoneEffector> SkeletonModification3D_DMIK::get_effector(int32_t p_index) const {
+Ref<BoneEffector> SkeletonModification3DDMIK::get_effector(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, multi_effector.size(), NULL);
 	Ref<BoneEffector> effector = multi_effector[p_index];
 	return effector;
 }
 
-void SkeletonModification3D_DMIK::set_effector(int32_t p_index, Ref<BoneEffector> p_effector) {
+void SkeletonModification3DDMIK::set_effector(int32_t p_index, Ref<BoneEffector> p_effector) {
 	ERR_FAIL_COND(p_effector.is_null());
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.write[p_index] = p_effector;
@@ -301,7 +301,7 @@ void SkeletonModification3D_DMIK::set_effector(int32_t p_index, Ref<BoneEffector
 	emit_signal("ik_changed");
 }
 
-void SkeletonModification3D_DMIK::set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint) {
+void SkeletonModification3DDMIK::set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint) {
 	ERR_FAIL_INDEX(p_index, multi_constraint.size());
 	multi_constraint.write[p_index] = p_constraint;
 	_change_notify();
@@ -309,11 +309,11 @@ void SkeletonModification3D_DMIK::set_constraint(int32_t p_index, Ref<KusudamaCo
 	emit_signal("ik_changed");
 }
 
-Vector<Ref<BoneEffector>> SkeletonModification3D_DMIK::get_bone_effectors() const {
+Vector<Ref<BoneEffector>> SkeletonModification3DDMIK::get_bone_effectors() const {
 	return multi_effector;
 }
 
-int32_t SkeletonModification3D_DMIK::find_effector(String p_name) {
+int32_t SkeletonModification3DDMIK::find_effector(String p_name) {
 	for (int32_t effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
 		if (multi_effector[effector_i].is_valid() && multi_effector[effector_i]->get_name() == p_name) {
 			return effector_i;
@@ -322,7 +322,7 @@ int32_t SkeletonModification3D_DMIK::find_effector(String p_name) {
 	return -1;
 }
 
-void SkeletonModification3D_DMIK::remove_effector(int32_t p_index) {
+void SkeletonModification3DDMIK::remove_effector(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.remove(p_index);
 	effector_count--;
@@ -331,11 +331,11 @@ void SkeletonModification3D_DMIK::remove_effector(int32_t p_index) {
 	emit_signal("ik_changed");
 }
 
-int32_t SkeletonModification3D_DMIK::get_constraint_count() const {
+int32_t SkeletonModification3DDMIK::get_constraint_count() const {
 	return constraint_count;
 }
 
-void SkeletonModification3D_DMIK::set_constraint_count(int32_t p_value) {
+void SkeletonModification3DDMIK::set_constraint_count(int32_t p_value) {
 	multi_constraint.resize(p_value);
 	for (int32_t i = 0; i < p_value; i++) {
 		multi_constraint.write[i].instance();
@@ -346,7 +346,7 @@ void SkeletonModification3D_DMIK::set_constraint_count(int32_t p_value) {
 	emit_signal("ik_changed");
 }
 
-void SkeletonModification3D_DMIK::execute(float delta) {
+void SkeletonModification3DDMIK::execute(float delta) {
 	ERR_FAIL_COND_MSG(!stack || !is_setup || stack->skeleton == nullptr,
 			"Modification is not setup and therefore cannot execute!");
 	if (!enabled) {
@@ -398,7 +398,7 @@ void SkeletonModification3D_DMIK::execute(float delta) {
 	}
 }
 
-void SkeletonModification3D_DMIK::setup_modification(SkeletonModificationStack3D *p_stack) {
+void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D *p_stack) {
 	stack = p_stack;
 	if (!stack) {
 		return;
@@ -411,7 +411,7 @@ void SkeletonModification3D_DMIK::setup_modification(SkeletonModificationStack3D
 	is_setup = true;
 }
 
-void SkeletonModification3D_DMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
+void SkeletonModification3DDMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
 	Ref<BoneEffector> effector;
 	effector.instance();
 	effector->set_name(p_name);
@@ -425,7 +425,7 @@ void SkeletonModification3D_DMIK::add_effector(String p_name, NodePath p_node, T
 	emit_signal("ik_changed");
 }
 
-void SkeletonModification3D_DMIK::register_constraint(Skeleton3D *p_skeleton) {
+void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
 	ERR_FAIL_COND(!p_skeleton);
 	for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
 		Ref<KusudamaConstraint> constraint;
@@ -472,7 +472,7 @@ void SkeletonModification3D_DMIK::register_constraint(Skeleton3D *p_skeleton) {
 
 #include "scene/3d/skeleton_3d.h"
 
-void SkeletonModification3D_DMIK::QCPSolver(
+void SkeletonModification3DDMIK::QCPSolver(
 		Ref<BoneChain> p_chain,
 		float p_dampening,
 		bool p_inverse_weighting,
@@ -559,7 +559,7 @@ void BoneChainItem::set_stiffness(float p_stiffness) {
 }
 
 /// Build a chain that starts from the root to tip
-bool SkeletonModification3D_DMIK::build_chain(Ref<DMIKTask> p_task) {
+bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
 
 	Ref<BoneChain> chain = p_task->chain;
@@ -634,7 +634,7 @@ bool SkeletonModification3D_DMIK::build_chain(Ref<DMIKTask> p_task) {
 	return true;
 }
 
-void SkeletonModification3D_DMIK::update_chain(const Skeleton3D *p_sk, Ref<BoneChainItem> p_chain_item) {
+void SkeletonModification3DDMIK::update_chain(const Skeleton3D *p_sk, Ref<BoneChainItem> p_chain_item) {
 	if (p_chain_item.is_null()) {
 		return;
 	}
@@ -648,7 +648,7 @@ void SkeletonModification3D_DMIK::update_chain(const Skeleton3D *p_sk, Ref<BoneC
 	}
 }
 
-void SkeletonModification3D_DMIK::solve_simple(Ref<DMIKTask> p_task, bool p_solve_magnet) {
+void SkeletonModification3DDMIK::solve_simple(Ref<DMIKTask> p_task, bool p_solve_magnet) {
 	QCPSolver(
 			p_task->chain,
 			p_task->dampening,
@@ -658,10 +658,10 @@ void SkeletonModification3D_DMIK::solve_simple(Ref<DMIKTask> p_task, bool p_solv
 			p_task->max_iterations);
 }
 
-Ref<DMIKTask> SkeletonModification3D_DMIK::create_simple_task(Skeleton3D *p_sk,
+Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk,
 		const Transform &goal_transform,
 		float p_dampening, int p_stabilizing_passes,
-		Ref<SkeletonModification3D_DMIK> p_constraints) {
+		Ref<SkeletonModification3DDMIK> p_constraints) {
 	Ref<DMIKTask> task;
 	task.instance();
 	task->skeleton = p_sk;
@@ -731,7 +731,7 @@ Ref<DMIKTask> SkeletonModification3D_DMIK::create_simple_task(Skeleton3D *p_sk,
 	return task;
 }
 
-void SkeletonModification3D_DMIK::make_goal(Ref<DMIKTask> p_task, const Transform &p_inverse_transf, float blending_delta) {
+void SkeletonModification3DDMIK::make_goal(Ref<DMIKTask> p_task, const Transform &p_inverse_transf, float blending_delta) {
 	if (!p_task->end_effectors.size()) {
 		return;
 	}
@@ -752,7 +752,7 @@ void SkeletonModification3D_DMIK::make_goal(Ref<DMIKTask> p_task, const Transfor
 	}
 }
 
-void SkeletonModification3D_DMIK::solve(Ref<DMIKTask> p_task, float blending_delta, bool override_tip_basis, bool p_use_magnet,
+void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delta, bool override_tip_basis, bool p_use_magnet,
 		const Vector3 &p_magnet_position) {
 	if (blending_delta <= 0.01f) {
 		return; // Skip solving
@@ -810,18 +810,18 @@ void SkeletonModification3D_DMIK::solve(Ref<DMIKTask> p_task, float blending_del
 	}
 }
 
-void SkeletonModification3D_DMIK::set_default_dampening(Ref<BoneChain> r_chain, float p_damp) {
+void SkeletonModification3DDMIK::set_default_dampening(Ref<BoneChain> r_chain, float p_damp) {
 	r_chain->dampening =
 			MIN(Math_PI * 3.0f, MAX(Math::absf(std::numeric_limits<real_t>::epsilon()), Math::absf(p_damp)));
 	update_armature_segments(r_chain);
 }
 
-void SkeletonModification3D_DMIK::update_armature_segments(Ref<BoneChain> r_chain) {
+void SkeletonModification3DDMIK::update_armature_segments(Ref<BoneChain> r_chain) {
 	r_chain->bone_segment_map.clear();
 	recursively_update_bone_segment_map_from(r_chain, r_chain->chain_root);
 }
 
-void SkeletonModification3D_DMIK::update_optimal_rotation_to_target_descendants(Ref<BoneChainItem> p_chain_item,
+void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Ref<BoneChainItem> p_chain_item,
 		float p_dampening, bool p_is_translate,
 		Vector<Vector3> p_localized_tip_headings,
 		Vector<Vector3> p_localized_target_headings,
@@ -853,14 +853,14 @@ void SkeletonModification3D_DMIK::update_optimal_rotation_to_target_descendants(
 	p_chain_item->constraint->set_limiting_axes(p_chain_item->constraint->get_limiting_axes().translated(translate_by));
 }
 
-void SkeletonModification3D_DMIK::recursively_update_bone_segment_map_from(Ref<BoneChain> r_chain,
+void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<BoneChain> r_chain,
 		Ref<BoneChainItem> p_start_from) {
 	for (int32_t child_i = 0; child_i < p_start_from->children.size(); child_i++) {
 		r_chain->bone_segment_map.insert(p_start_from->children[child_i]->bone, p_start_from);
 	}
 }
 
-void SkeletonModification3D_DMIK::update_optimal_rotation_to_target_descendants(Ref<BoneChain> r_chain,
+void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Ref<BoneChain> r_chain,
 		Ref<BoneChainItem> p_for_bone,
 		float p_dampening, bool p_translate,
 		int p_stabilization_passes, int p_iteration,
@@ -947,7 +947,7 @@ void SkeletonModification3D_DMIK::update_optimal_rotation_to_target_descendants(
 	}
 }
 
-float SkeletonModification3D_DMIK::get_manual_msd(Vector<Vector3> &r_localized_effector_headings,
+float SkeletonModification3DDMIK::get_manual_msd(Vector<Vector3> &r_localized_effector_headings,
 		Vector<Vector3> &r_localized_target_headings,
 		const Vector<real_t> &p_weights) {
 	float manual_rmsd = 0.0f;
@@ -964,7 +964,7 @@ float SkeletonModification3D_DMIK::get_manual_msd(Vector<Vector3> &r_localized_e
 	return manual_rmsd;
 }
 
-void SkeletonModification3D_DMIK::update_target_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_target_headings,
+void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_target_headings,
 		Vector<real_t> p_weights, Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
@@ -1004,7 +1004,7 @@ void SkeletonModification3D_DMIK::update_target_headings(Ref<BoneChain> r_chain,
 	}
 }
 
-void SkeletonModification3D_DMIK::update_effector_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_effector_headings,
+void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_effector_headings,
 		Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {

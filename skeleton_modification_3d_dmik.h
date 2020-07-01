@@ -135,7 +135,7 @@ public:
 };
 
 class BoneChainTarget;
-class SkeletonModification3D_DMIK;
+class SkeletonModification3DDMIK;
 class BoneChain : public Reference {
 	GDCLASS(BoneChain, Reference);
 
@@ -147,7 +147,7 @@ public:
 	Vector<Vector3> localized_target_headings;
 	Vector<Vector3> localized_effector_headings;
 	Vector<real_t> weights;
-	Ref<SkeletonModification3D_DMIK> constraints = nullptr;
+	Ref<SkeletonModification3DDMIK> constraints = nullptr;
 	float dampening = Math::deg2rad(5.0f);
 	Map<int, Ref<BoneChainItem>> bone_segment_map;
 	int ik_iterations = 15;
@@ -349,8 +349,8 @@ public:
 	Vector<Ref<BoneEffectorTransform>> end_effectors;
 };
 
-class SkeletonModification3D_DMIK : public SkeletonModification3D {
-	GDCLASS(SkeletonModification3D_DMIK, SkeletonModification3D);
+class SkeletonModification3DDMIK : public SkeletonModification3D {
+	GDCLASS(SkeletonModification3DDMIK, SkeletonModification3D);
 
 	Vector<Ref<BoneEffector>> multi_effector;
 	Vector<Ref<KusudamaConstraint>> multi_constraint;
@@ -385,8 +385,8 @@ public:
 	Ref<KusudamaConstraint> get_constraint(int32_t p_index) const;
 	String get_root_bone() const { return root_bone; }
 	void set_root_bone(String p_root_bone) { root_bone = p_root_bone; }
-	SkeletonModification3D_DMIK();
-	~SkeletonModification3D_DMIK();
+	SkeletonModification3DDMIK();
+	~SkeletonModification3DDMIK();
 
 private:
 	/**
@@ -459,7 +459,7 @@ public:
 
 	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, const Transform &goal_transform,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
-			Ref<SkeletonModification3D_DMIK> p_constraints = NULL);
+			Ref<SkeletonModification3DDMIK> p_constraints = NULL);
 
 	static void make_goal(Ref<DMIKTask> p_task, const Transform &p_inverse_transf, float blending_delta);
 

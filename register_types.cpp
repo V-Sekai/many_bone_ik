@@ -38,7 +38,7 @@ void register_dmik_types() {
 	ClassDB::register_class<TwistConstraint>();
 	ClassDB::register_class<DirectionConstraint>();
 	ClassDB::register_class<KusudamaConstraint>();
-	ClassDB::register_class<SkeletonModification3D_DMIK>();
+	ClassDB::register_class<SkeletonModification3DDMIK>();
 }
 
 void unregister_dmik_types() {
