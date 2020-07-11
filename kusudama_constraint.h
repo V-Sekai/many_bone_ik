@@ -36,12 +36,13 @@
 #include "core/class_db.h"
 #include "core/os/memory.h"
 #include "direction_constraint.h"
-#include "twist_constraint.h"
-#include "ray.h"
 #include "ik_axes.h"
+#include "ray.h"
+#include "skeleton_modification_3d_dmik.h"
+#include "twist_constraint.h"
 
-class BoneChainItem;
 class DirectionConstraint;
+class BoneChainItem;
 
 // Kusudama is a papercraft ball with a bunch of cones sticking out of it. The Kusudama constraint is also a ball with a bunch of cones sticking out of it.
 class KusudamaConstraint : public Resource {
@@ -54,12 +55,12 @@ private:
      * and the directional limit at the next element in the array.
      */
 	Transform constraint_axes;
-	Vector<Ref<DirectionConstraint> > multi_direction;
+	Vector<Ref<DirectionConstraint>> multi_direction;
 	int32_t direction_count = 0;
 	bool orientation_constrained = false;
 	bool axial_constrained = false;
 	IKAxes limiting_axes;
-	Ref<BoneChainItem> attached_to = nullptr;
+	Ref<BoneChainItem> attached_to;
 	Ray bone_ray;
 	Ray constrained_ray;
 
@@ -91,7 +92,7 @@ public:
 	Transform get_constraint_axes() const {
 		return constraint_axes;
 	}
-	void set_constraint_axes(Transform p_axes)  {
+	void set_constraint_axes(Transform p_axes) {
 		constraint_axes = p_axes;
 	}
 

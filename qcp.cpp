@@ -32,6 +32,7 @@
 #include "direction_constraint.h"
 #include "ik_quat.h"
 #include "kusudama_constraint.h"
+#include "skeleton_modification_3d_dmik.h"
 
 void QCP::set_max_iterations(int p_max) {
 	max_iterations = p_max;
