@@ -342,7 +342,7 @@ private:
 				}
 			}
 			Vector<int32_t> current_bone_children = get_bone_children(skeleton, current_bone);
-			if (current_bone_children.size() != 1 || has_effector) {
+			if (current_bone_children.size() != 1 || is_in_multi_effectors) {
 				create_child_chains(current_bone);
 				if (is_in_multi_effectors) {
 					has_effector = true;
