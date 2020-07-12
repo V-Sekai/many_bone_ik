@@ -321,7 +321,7 @@ protected:
 public:
 	virtual void execute(float delta);
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
-	void _mark_nodes(Skeleton3D *p_skeleton, Vector<Vector<String>> &r_bone_chains) {
+	void _create_bone_chains(Skeleton3D *p_skeleton, Vector<Vector<String>> &r_bone_chains) {
 		Map<int32_t, Vector<int32_t>> parent_child_bones;
 		for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
 			int32_t parent = p_skeleton->get_bone_parent(bone_i);
@@ -393,7 +393,7 @@ public:
 	}
 	void print_bone_chains(Skeleton3D *p_skeleton) {
 		Vector<Vector<String>> bone_chains;
-		_mark_nodes(p_skeleton, bone_chains);
+		_create_bone_chains(p_skeleton, bone_chains);
 		for (int32_t bone_chains_i = 0; bone_chains_i < bone_chains.size(); bone_chains_i++) {
 			Vector<String> chain = bone_chains[bone_chains_i];
 			print_line("Chain " + itos(bone_chains_i));
