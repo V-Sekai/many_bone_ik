@@ -127,7 +127,9 @@ bool SkeletonModification3DDMIK::_get(const StringName &p_name, Variant &r_ret) 
 		} else if (what == "direction") {
 			int direction_index = name.get_slicec('/', 3).to_int();
 			ERR_FAIL_INDEX_V(direction_index, get_constraint(index)->get_direction_count(), false);
-			ERR_FAIL_COND_V(get_constraint(index)->get_direction(direction_index).is_null(), false);
+			if (get_constraint(index)->get_direction(direction_index).is_null()) {
+				return false;
+			}
 			String direction_what = name.get_slicec('/', 4);
 			if (direction_what == "radius") {
 				r_ret = get_constraint(index)->get_direction(direction_index)->get_radius();
