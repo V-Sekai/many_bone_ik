@@ -323,28 +323,31 @@ private:
 	//will be set to true if the tip of this chain is an effector.
 	bool has_effector = false;
 
+	bool is_bone_effector(BoneId current_bone) {
+		bool is_effector = false;
+		Ref<BoneEffector> effector;
+		for (int32_t i = 0; i < multi_effector.size(); i++) {
+			effector = multi_effector[i];
+			if (effector.is_null()) {
+				continue;
+			}
+			String bone_name = skeleton->get_bone_name(current_bone);
+			if (effector->get_name() == bone_name) {
+				is_effector = true;
+				break;
+			}
+		}
+		return is_effector;
+	}
 	void build_chain(BoneId p_start_from) {
 		BoneId current_bone = p_start_from;
 		while (true) {
 			bones.push_back(current_bone);
 			tip_bone = current_bone;
-			bool is_in_multi_effectors = false;
-			Ref<BoneEffector> effector;
-			for (int32_t i = 0; i < multi_effector.size(); i++) {
-				effector = multi_effector[i];
-				if (effector.is_null()) {
-					continue;
-				}
-				String bone_name = skeleton->get_bone_name(current_bone);
-				if (effector->get_name() == bone_name) {
-					is_in_multi_effectors = true;
-					break;
-				}
-			}
 			Vector<int32_t> current_bone_children = get_bone_children(skeleton, current_bone);
-			if (current_bone_children.size() != 1 || is_in_multi_effectors) {
+			if (current_bone_children.size() != 1 || is_bone_effector(current_bone)) {
 				create_child_chains(current_bone);
-				if (is_in_multi_effectors) {
+				if (is_bone_effector(current_bone)) {
 					has_effector = true;
 					set_active();
 				}
