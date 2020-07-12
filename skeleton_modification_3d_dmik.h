@@ -391,6 +391,8 @@ public:
 				print_verbose("Bone " + chain[bone_i]);
 				if (bone_i < chain.size() - 1) {
 					print_verbose(" - ");
+				} else {
+					print_line("");
 				}
 			}
 		}
@@ -407,6 +409,31 @@ public:
 			bone_effector->set_name(chain[0]);
 			multi_effector.push_back(bone_effector);
 			effector_count++;
+		}
+		Map<String, Vector<String>> parent_child_bones;
+		for (int32_t effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
+			ERR_FAIL_COND(multi_effector[effector_i].is_null());
+			String effector_name = multi_effector[effector_i]->get_name();
+			int32_t bone = p_skeleton->find_bone(effector_name);
+			Vector<String> bones;
+			while (bone != -1) {
+				String bone_name = p_skeleton->get_bone_name(bone);
+				bones.push_back(bone_name);
+				bone = p_skeleton->get_bone_parent(bone);
+			}
+			parent_child_bones[effector_name] = bones;
+		}
+		for (Map<String, Vector<String>>::Element *E = parent_child_bones.front(); E; E = E->next()) {
+			print_line("Effector " + E->key());
+			Vector<String> chain = E->get();
+			for (int32_t bone_i = 0; bone_i < chain.size(); bone_i++) {
+				print_line("Bone " + chain[bone_i]);
+				if (bone_i < chain.size() - 1) {
+					print_line(" - ");
+				} else {
+					print_line("");
+				}
+			}
 		}
 		_change_notify();
 		emit_changed();
