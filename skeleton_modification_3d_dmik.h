@@ -408,6 +408,7 @@ public:
 		return parent_child_bones[p_bone];
 	}
 	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> &p_multi_effector, Ref<BoneChainTwo> p_parent_chain, BoneId p_base_bone) {
+		ERR_FAIL_COND(this == parent_chain.ptr());
 		multi_effector = p_multi_effector;
 		parent_chain = p_parent_chain;
 		base_bone = p_base_bone;
@@ -419,7 +420,7 @@ public:
 
 	void set_active() {
 		is_active = true;
-		if (this != parent_chain.ptr()) {
+		if (parent_chain.is_valid()) {
 			parent_chain->set_active();
 		}
 	}
@@ -492,7 +493,7 @@ public:
 		Ref<BoneChainTwo> bone_chain_two;
 		bone_chain_two.instance();
 		BoneId bone = p_skeleton->find_bone(root_bone);
-		bone_chain_two->init(p_skeleton, multi_effector, bone_chain_two, bone);
+		bone_chain_two->init(p_skeleton, multi_effector, nullptr, bone);
 		bone_chain_two->filter_and_merge_child_chains();
 		print_bone_chains(bone_chain_two);
 		_change_notify();
