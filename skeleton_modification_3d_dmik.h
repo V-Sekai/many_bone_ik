@@ -384,7 +384,7 @@ private:
 			for (int i = 0; i < child_bones.size(); i++) {
 				bones.push_back(child_bones[i]);
 			}
-			child_chains.append_array(child->child_chains);
+			child_chains = child->child_chains;
 		}
 	}
 
