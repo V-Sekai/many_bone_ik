@@ -433,11 +433,11 @@ public:
      * This is done recursively.
      * @return
      */
-	void filterAndMergeChildChains() {
+	void filter_and_merge_child_chains() {
 		remove_inactive_children();
 		merge_with_child_if_appropriate();
 		for (int i = 0; i < child_chains.size(); i++) {
-			child_chains.write[i]->filterAndMergeChildChains();
+			child_chains.write[i]->filter_and_merge_child_chains();
 		}
 	}
 };
@@ -493,6 +493,7 @@ public:
 		bone_chain_two.instance();
 		BoneId bone = p_skeleton->find_bone(root_bone);
 		bone_chain_two->init(p_skeleton, multi_effector, bone_chain_two, bone);
+		bone_chain_two->filter_and_merge_child_chains();
 		print_bone_chains(bone_chain_two);
 		_change_notify();
 		emit_changed();
