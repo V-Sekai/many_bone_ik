@@ -321,13 +321,81 @@ protected:
 public:
 	virtual void execute(float delta);
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
+	void _mark_nodes(Skeleton3D *p_skeleton, Vector<Vector<String>> &r_bone_chains) {
+		Map<int32_t, Vector<int32_t>> parent_child_bones;
+		for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
+			int32_t parent = p_skeleton->get_bone_parent(bone_i);
+			Vector<int32_t> children;
+			if (parent_child_bones.has(parent)) {
+				children = parent_child_bones[parent];
+			}
+			children.push_back(bone_i);
+			parent_child_bones[parent] = children;
+		}
+		ERR_FAIL_COND(!parent_child_bones.has(-1));
+		List<int32_t> queue;
+		queue.push_back(-1);
+		List<int32_t> reversed_depth_bones;
+		while (queue.size()) {
+			int32_t bone = queue.back()->get();
+			queue.pop_back();
+			if (!parent_child_bones.has(bone)) {
+				continue;
+			}
+			Vector<int32_t> children_bones = parent_child_bones[bone];
+			for (int32_t child_i = 0; child_i < children_bones.size(); child_i++) {
+				int32_t child_bone = children_bones[child_i];
+				reversed_depth_bones.push_back(child_bone);
+				queue.push_front(child_bone);
+			}
+		}
+		if (!reversed_depth_bones.size()) {
+			return;
+		}
+		reversed_depth_bones.invert();
+
+		// Vector<String> new_bone_chain;
+		// while (reversed_depth_bones.size()) {
+		// 	int32_t new_bone = reversed_depth_bones[0];
+		// 	reversed_depth_bones.pop_front();
+		// 	String new_bone_name = p_skeleton->get_bone_name(new_bone);
+		// 	new_bone_chain.push_back(new_bone_name);
+		// }
+		// r_bone_chains.push_back(new_bone_chain);
+
+		while (reversed_depth_bones.size()) {
+			int32_t new_bone = reversed_depth_bones[0];
+			reversed_depth_bones.pop_front();
+			String bone_name = p_skeleton->get_bone_name(new_bone);
+			bool found = false;
+			for (int32_t chain_i = 0; chain_i < r_bone_chains.size(); chain_i++) {
+				Vector<String> bone_chain = r_bone_chains[chain_i];
+				ERR_FAIL_INDEX(bone_chain.size() - 1, bone_chain.size());
+				String last_bone_name = bone_chain[bone_chain.size() - 1];
+				int32_t last_bone = p_skeleton->find_bone(last_bone_name);
+				if (parent_child_bones.has(new_bone) && parent_child_bones[new_bone].has(last_bone)) {
+					bone_chain.push_back(bone_name);
+					r_bone_chains.write[chain_i] = bone_chain;
+					found = true;
+					break;
+				}
+			}
+			if (found) {
+				continue;
+			}
+			Vector<String> new_bone_chain;
+			new_bone_chain.push_back(bone_name);
+			r_bone_chains.push_back(new_bone_chain);
+		}
+	}
 	void print_bone_chains(Skeleton3D *p_skeleton) {
 		Vector<Vector<String>> bone_chains;
-		for (int32_t chain_i = 0; chain_i < bone_chains.size(); chain_i++) {
-			Vector<String> chain = bone_chains[chain_i];
-			print_line("Bone Chain " + itos(chain_i));
+		_mark_nodes(p_skeleton, bone_chains);
+		for (int32_t bone_chains_i = 0; bone_chains_i < bone_chains.size(); bone_chains_i++) {
+			Vector<String> chain = bone_chains[bone_chains_i];
+			print_line("Chain " + itos(bone_chains_i));
 			for (int32_t bone_i = 0; bone_i < chain.size(); bone_i++) {
-				print_line(chain[bone_i]);
+				print_line("Bone " + chain[bone_i]);
 				print_line(" - ");
 			}
 		}

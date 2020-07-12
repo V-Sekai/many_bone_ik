@@ -407,10 +407,11 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 	}
 	Skeleton3D *skeleton = stack->get_skeleton();
 	ERR_FAIL_COND(!skeleton);
-	if (constraint_count == 0) {
+	if (!constraint_count) {
 		register_constraint(skeleton);
 	}
 	is_setup = true;
+	print_bone_chains(stack->skeleton);
 }
 
 void SkeletonModification3DDMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
