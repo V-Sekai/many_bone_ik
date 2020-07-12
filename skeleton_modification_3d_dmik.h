@@ -321,7 +321,17 @@ protected:
 public:
 	virtual void execute(float delta);
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
-
+	void print_bone_chains(Skeleton3D *p_skeleton) {
+		Vector<Vector<String>> bone_chains;
+		for (int32_t chain_i = 0; chain_i < bone_chains.size(); chain_i++) {
+			Vector<String> chain = bone_chains[chain_i];
+			print_line("Bone Chain " + itos(chain_i));
+			for (int32_t bone_i = 0; bone_i < chain.size(); bone_i++) {
+				print_line(chain[bone_i]);
+				print_line(" - ");
+			}
+		}
+	}
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);
 	void set_constraint_count(int32_t p_value);
