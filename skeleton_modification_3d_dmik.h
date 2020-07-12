@@ -466,30 +466,22 @@ protected:
 public:
 	virtual void execute(float delta);
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
-	void print_bone_chains(Ref<BoneChainTwo> p_bone_chain) {
-		int32_t count = 0;
-		List<Ref<BoneChainTwo>> queue;
-		queue.push_back(p_bone_chain);
-		while (queue.size()) {
-			Ref<BoneChainTwo> bone_chain = queue[0];
-			queue.pop_front();
-			ERR_CONTINUE(!bone_chain->is_chain_active());
-			Vector<int32_t> bones = bone_chain->get_bones();
-			print_line("Chain " + itos(count));
-			for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-				String bone_name = stack->skeleton->get_bone_name(bones[bone_i]);
-				print_line("Bone " + bone_name);
-				if (bone_i < bones.size() - 1) {
-					print_line(" - ");
-				} else {
-					print_line("");
-				}
+	void print_bone_chains(Ref<BoneChainTwo> p_bone_chain, Ref<BoneChainTwo> p_current_chain) {
+		Vector<int32_t> bones = p_current_chain->get_bones();
+		ERR_FAIL_COND(!p_current_chain->is_chain_active());
+		print_line("Chain");
+		for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
+			String bone_name = stack->skeleton->get_bone_name(bones[bone_i]);
+			print_line("Bone " + bone_name);
+			if (bone_i < bones.size() - 1) {
+				print_line(" - ");
+			} else {
+				print_line("");
 			}
-			Vector<Ref<BoneChainTwo>> bone_chains = bone_chain->get_child_chains();
-			for (int32_t i = 0; i < bone_chains.size(); i++) {
-				queue.push_back(bone_chains[i]);
-			}
-			count++;
+		}
+		Vector<Ref<BoneChainTwo>> bone_chains = p_current_chain->get_child_chains();
+		for (int32_t i = 0; i < bone_chains.size(); i++) {
+			print_bone_chains(p_bone_chain, bone_chains[i]);
 		}
 	}
 	void register_effectors(Skeleton3D *p_skeleton) {
@@ -499,7 +491,7 @@ public:
 		BoneId bone = p_skeleton->find_bone(root_bone);
 		bone_chain_two->init(p_skeleton, multi_effector, nullptr, bone);
 		bone_chain_two->filter_and_merge_child_chains();
-		print_bone_chains(bone_chain_two);
+		print_bone_chains(bone_chain_two, bone_chain_two);
 		_change_notify();
 		emit_changed();
 		emit_signal("ik_changed");
