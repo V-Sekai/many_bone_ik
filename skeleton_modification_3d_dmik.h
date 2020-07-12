@@ -369,14 +369,14 @@ private:
 
 	void remove_inactive_children() {
 		for (int i = 0; i < child_chains.size(); i++) {
-			if (!child_chains[i]->is_active) {
+			if (!child_chains[i]->is_chain_active()) {
 				child_chains.remove(i);
 			}
 		}
 	}
 
 	void merge_with_child_if_appropriate() {
-		if (child_chains.size() == 1 && has_effector != true) {
+		if (child_chains.size() == 1 && !has_effector) {
 			Ref<BoneChainTwo> child = child_chains[0];
 			tip_bone = child->tip_bone;
 			has_effector = child->has_effector;
@@ -384,11 +384,14 @@ private:
 			for (int i = 0; i < child_bones.size(); i++) {
 				bones.push_back(child_bones[i]);
 			}
-			child_chains.append_array(child_chains);
+			child_chains.append_array(child->child_chains);
 		}
 	}
 
 public:
+	bool is_chain_active() const {
+		return is_active;
+	}
 	// TODO REMOVE
 	Vector<int32_t> get_bones() {
 		return bones;
@@ -398,17 +401,14 @@ public:
 		return child_chains;
 	}
 	static Vector<int32_t> get_bone_children(Skeleton3D *p_skeleton, int32_t p_bone) {
-		Map<int32_t, Vector<int32_t>> parent_child_bones;
+		Vector<int32_t> bones;
 		for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
 			int32_t parent = p_skeleton->get_bone_parent(bone_i);
-			Vector<int32_t> children;
-			if (parent_child_bones.has(parent)) {
-				children = parent_child_bones[parent];
+			if (parent == p_bone) {
+				bones.push_back(bone_i);
 			}
-			children.push_back(bone_i);
-			parent_child_bones[parent] = children;
 		}
-		return parent_child_bones[p_bone];
+		return bones;
 	}
 	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> &p_multi_effector, Ref<BoneChainTwo> p_parent_chain, BoneId p_base_bone) {
 		ERR_FAIL_COND(this == parent_chain.ptr());
@@ -473,6 +473,7 @@ public:
 		while (queue.size()) {
 			Ref<BoneChainTwo> bone_chain = queue[0];
 			queue.pop_front();
+			ERR_CONTINUE(!bone_chain->is_chain_active());
 			Vector<int32_t> bones = bone_chain->get_bones();
 			print_line("Chain " + itos(count));
 			for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
