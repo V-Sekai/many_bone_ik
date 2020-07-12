@@ -311,6 +311,7 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
 	String root_bone;
+	Vector<Vector<String>> bone_chains;
 
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -354,26 +355,17 @@ public:
 		}
 		reversed_depth_bones.invert();
 
-		// Vector<String> new_bone_chain;
-		// while (reversed_depth_bones.size()) {
-		// 	int32_t new_bone = reversed_depth_bones[0];
-		// 	reversed_depth_bones.pop_front();
-		// 	String new_bone_name = p_skeleton->get_bone_name(new_bone);
-		// 	new_bone_chain.push_back(new_bone_name);
-		// }
-		// r_bone_chains.push_back(new_bone_chain);
-
 		while (reversed_depth_bones.size()) {
 			int32_t new_bone = reversed_depth_bones[0];
 			reversed_depth_bones.pop_front();
 			String bone_name = p_skeleton->get_bone_name(new_bone);
 			bool found = false;
 			for (int32_t chain_i = 0; chain_i < r_bone_chains.size(); chain_i++) {
-				Vector<String> bone_chain = r_bone_chains[chain_i];	
+				Vector<String> bone_chain = r_bone_chains[chain_i];
 				ERR_FAIL_INDEX(bone_chain.size() - 1, bone_chain.size());
 				String last_bone_name = bone_chain[bone_chain.size() - 1];
 				int32_t last_bone = p_skeleton->find_bone(last_bone_name);
-				if (parent_child_bones.has(new_bone) && parent_child_bones[new_bone].has(last_bone)) {			
+				if (parent_child_bones.has(new_bone) && parent_child_bones[new_bone].has(last_bone)) {
 					if (parent_child_bones[new_bone].size() > 1) {
 						continue;
 					}
@@ -392,16 +384,33 @@ public:
 		}
 	}
 	void print_bone_chains(Skeleton3D *p_skeleton) {
-		Vector<Vector<String>> bone_chains;
+		for (int32_t bone_chains_i = 0; bone_chains_i < bone_chains.size(); bone_chains_i++) {
+			Vector<String> chain = bone_chains[bone_chains_i];
+			print_verbose("Chain " + itos(bone_chains_i));
+			for (int32_t bone_i = 0; bone_i < chain.size(); bone_i++) {
+				print_verbose("Bone " + chain[bone_i]);
+				if (bone_i < chain.size() - 1) {
+					print_verbose(" - ");
+				}
+			}
+		}
+	}
+	void register_effectors(Skeleton3D *p_skeleton) {
+		ERR_FAIL_COND(!p_skeleton);
+		bone_chains.clear();
 		_create_bone_chains(p_skeleton, bone_chains);
 		for (int32_t bone_chains_i = 0; bone_chains_i < bone_chains.size(); bone_chains_i++) {
 			Vector<String> chain = bone_chains[bone_chains_i];
-			print_line("Chain " + itos(bone_chains_i));
-			for (int32_t bone_i = 0; bone_i < chain.size(); bone_i++) {
-				print_line("Bone " + chain[bone_i]);
-				print_line(" - ");
-			}
+			Ref<BoneEffector> bone_effector;
+			bone_effector.instance();
+			ERR_CONTINUE(!chain.size());
+			bone_effector->set_name(chain[0]);
+			multi_effector.push_back(bone_effector);
+			effector_count++;
 		}
+		_change_notify();
+		emit_changed();
+		emit_signal("ik_changed");
 	}
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);

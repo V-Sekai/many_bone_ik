@@ -409,6 +409,7 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 	ERR_FAIL_COND(!skeleton);
 	if (!constraint_count) {
 		register_constraint(skeleton);
+		register_effectors(skeleton);
 	}
 	is_setup = true;
 	print_bone_chains(stack->skeleton);
