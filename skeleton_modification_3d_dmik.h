@@ -302,6 +302,146 @@ public:
 	Vector<Ref<BoneEffectorTransform>> end_effectors;
 };
 
+class BoneChainTwo : public Resource {
+	GDCLASS(BoneChainTwo, Resource);
+
+private:
+	Vector<Ref<BoneEffector>> multi_effector;
+	// a list of bonechains which are children of this chain
+	Vector<Ref<BoneChainTwo>> child_chains;
+	// a list of Bones contained in this chain.
+	Vector<BoneId> bones;
+	BoneId base_bone = -1;
+	BoneId tip_bone = -1;
+	Skeleton3D *skeleton = nullptr;
+	Ref<BoneChainTwo> parent_chain; //contains the parentChain of this Bonechain, if any.
+
+	//will be set to true if this chain or any of its descendants have an effector.
+	//a postprocessing step will remove any chains which are not active
+	bool is_active = false;
+
+	//will be set to true if the tip of this chain is an effector.
+	bool has_effector = false;
+
+	void build_chain(BoneId p_start_from) {
+		BoneId current_bone = p_start_from;
+		while (true) {
+			bones.push_back(current_bone);
+			tip_bone = current_bone;
+			bool is_in_multi_effectors = false;
+			Ref<BoneEffector> effector;
+			for (int32_t i = 0; i < multi_effector.size(); i++) {
+				effector = multi_effector[i];
+				if (effector.is_null()) {
+					continue;
+				}
+				String bone_name = skeleton->get_bone_name(current_bone);
+				if (effector->get_name() == bone_name) {
+					is_in_multi_effectors = true;
+					break;
+				}
+			}
+			Vector<int32_t> current_bone_children = get_bone_children(skeleton, current_bone);
+			if (current_bone_children.size() != 1 || has_effector) {
+				create_child_chains(current_bone);
+				if (is_in_multi_effectors) {
+					has_effector = true;
+					set_active();
+				}
+				break;
+			}
+			current_bone = current_bone_children[0]; //by definition, there is only one child to this bone if we reach this line.
+		}
+	}
+	void create_child_chains(BoneId p_from_bone) {
+		Vector<int32_t> children = get_bone_children(skeleton, p_from_bone);
+		for (int i = 0; i < children.size(); i++) {
+			Ref<BoneChainTwo> bone_chain;
+			bone_chain.instance();
+			BoneId child = children[i];
+			bone_chain->init(skeleton, multi_effector, this, child);
+			child_chains.push_back(bone_chain);
+		}
+	}
+
+	void remove_inactive_children() {
+		for (int i = 0; i < child_chains.size(); i++) {
+			if (!child_chains[i]->is_active) {
+				child_chains.remove(i);
+			}
+		}
+	}
+
+	void merge_with_child_if_appropriate() {
+		if (child_chains.size() == 1 && has_effector != true) {
+			Ref<BoneChainTwo> child = child_chains[0];
+			tip_bone = child->tip_bone;
+			has_effector = child->has_effector;
+			Vector<BoneId> child_bones = child->bones;
+			for (int i = 0; i < child_bones.size(); i++) {
+				bones.push_back(child_bones[i]);
+			}
+			child_chains.append_array(child_chains);
+		}
+	}
+
+public:
+	// TODO REMOVE
+	Vector<int32_t> get_bones() {
+		return bones;
+	}
+	// TODO REMOVE
+	Vector<Ref<BoneChainTwo>> get_child_chains() {
+		return child_chains;
+	}
+	static Vector<int32_t> get_bone_children(Skeleton3D *p_skeleton, int32_t p_bone) {
+		Map<int32_t, Vector<int32_t>> parent_child_bones;
+		for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
+			int32_t parent = p_skeleton->get_bone_parent(bone_i);
+			Vector<int32_t> children;
+			if (parent_child_bones.has(parent)) {
+				children = parent_child_bones[parent];
+			}
+			children.push_back(bone_i);
+			parent_child_bones[parent] = children;
+		}
+		return parent_child_bones[p_bone];
+	}
+	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> &p_multi_effector, Ref<BoneChainTwo> p_parent_chain, BoneId p_base_bone) {
+		multi_effector = p_multi_effector;
+		parent_chain = p_parent_chain;
+		base_bone = p_base_bone;
+		skeleton = p_skeleton;
+		build_chain(p_base_bone);
+	}
+
+	/**sets this bonechain and all of its ancestors to active */
+
+	void set_active() {
+		is_active = true;
+		if (this != parent_chain.ptr()) {
+			parent_chain->set_active();
+		}
+	}
+
+	/**
+     * removes any child chains which are not active.
+     *
+     * if this chain's tip isn't effectored, and it only has one active childchain,
+     * it also merges this chain with the child chain.
+     *
+     * This is done recursively.
+     * @return
+     */
+	void filterAndMergeChildChains() {
+		remove_inactive_children();
+		merge_with_child_if_appropriate();
+		for (int i = 0; i < child_chains.size(); i++) {
+			child_chains.write[i]->filterAndMergeChildChains();
+		}
+	}
+};
+
 class SkeletonModification3DDMIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DDMIK, SkeletonModification3D);
 
@@ -322,119 +462,38 @@ protected:
 public:
 	virtual void execute(float delta);
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
-	void _create_bone_chains(Skeleton3D *p_skeleton, Vector<Vector<String>> &r_bone_chains) {
-		Map<int32_t, Vector<int32_t>> parent_child_bones;
-		for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
-			int32_t parent = p_skeleton->get_bone_parent(bone_i);
-			Vector<int32_t> children;
-			if (parent_child_bones.has(parent)) {
-				children = parent_child_bones[parent];
-			}
-			children.push_back(bone_i);
-			parent_child_bones[parent] = children;
-		}
-		ERR_FAIL_COND(!parent_child_bones.has(-1));
-		List<int32_t> queue;
-		queue.push_back(-1);
-		List<int32_t> reversed_depth_bones;
+	void print_bone_chains(Ref<BoneChainTwo> p_bone_chain) {
+		int32_t count = 0;
+		List<Ref<BoneChainTwo>> queue;
+		queue.push_back(p_bone_chain);
 		while (queue.size()) {
-			int32_t bone = queue.front()->get();
+			Ref<BoneChainTwo> bone_chain = queue[0];
 			queue.pop_front();
-			if (!parent_child_bones.has(bone)) {
-				continue;
-			}
-			Vector<int32_t> children_bones = parent_child_bones[bone];
-			for (int32_t child_i = 0; child_i < children_bones.size(); child_i++) {
-				int32_t child_bone = children_bones[child_i];
-				reversed_depth_bones.push_back(child_bone);
-				queue.push_back(child_bone);
-			}
-		}
-		if (!reversed_depth_bones.size()) {
-			return;
-		}
-		reversed_depth_bones.invert();
-
-		while (reversed_depth_bones.size()) {
-			int32_t new_bone = reversed_depth_bones[0];
-			reversed_depth_bones.pop_front();
-			String bone_name = p_skeleton->get_bone_name(new_bone);
-			bool found = false;
-			for (int32_t chain_i = 0; chain_i < r_bone_chains.size(); chain_i++) {
-				Vector<String> bone_chain = r_bone_chains[chain_i];
-				ERR_FAIL_INDEX(bone_chain.size() - 1, bone_chain.size());
-				String last_bone_name = bone_chain[bone_chain.size() - 1];
-				int32_t last_bone = p_skeleton->find_bone(last_bone_name);
-				if (parent_child_bones.has(new_bone) && parent_child_bones[new_bone].has(last_bone)) {
-					if (parent_child_bones[new_bone].size() > 1) {
-						continue;
-					}
-					bone_chain.push_back(bone_name);
-					r_bone_chains.write[chain_i] = bone_chain;
-					found = true;
-					break;
-				}
-			}
-			if (found) {
-				continue;
-			}
-			Vector<String> new_bone_chain;
-			new_bone_chain.push_back(bone_name);
-			r_bone_chains.push_back(new_bone_chain);
-		}
-	}
-	void print_bone_chains(Skeleton3D *p_skeleton) {
-		for (int32_t bone_chains_i = 0; bone_chains_i < bone_chains.size(); bone_chains_i++) {
-			Vector<String> chain = bone_chains[bone_chains_i];
-			print_verbose("Chain " + itos(bone_chains_i));
-			for (int32_t bone_i = 0; bone_i < chain.size(); bone_i++) {
-				print_verbose("Bone " + chain[bone_i]);
-				if (bone_i < chain.size() - 1) {
-					print_verbose(" - ");
-				} else {
-					print_line("");
-				}
-			}
-		}
-	}
-	void register_effectors(Skeleton3D *p_skeleton) {
-		ERR_FAIL_COND(!p_skeleton);
-		bone_chains.clear();
-		_create_bone_chains(p_skeleton, bone_chains);
-		for (int32_t bone_chains_i = 0; bone_chains_i < bone_chains.size(); bone_chains_i++) {
-			Vector<String> chain = bone_chains[bone_chains_i];
-			Ref<BoneEffector> bone_effector;
-			bone_effector.instance();
-			ERR_CONTINUE(!chain.size());
-			bone_effector->set_name(chain[0]);
-			multi_effector.push_back(bone_effector);
-			effector_count++;
-		}
-		Map<String, Vector<String>> parent_child_bones;
-		for (int32_t effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
-			ERR_FAIL_COND(multi_effector[effector_i].is_null());
-			String effector_name = multi_effector[effector_i]->get_name();
-			int32_t bone = p_skeleton->find_bone(effector_name);
-			Vector<String> bones;
-			while (bone != -1) {
-				String bone_name = p_skeleton->get_bone_name(bone);
-				bones.push_back(bone_name);
-				bone = p_skeleton->get_bone_parent(bone);
-			}
-			parent_child_bones[effector_name] = bones;
-		}
-		for (Map<String, Vector<String>>::Element *E = parent_child_bones.front(); E; E = E->next()) {
-			print_line("Effector " + E->key());
-			Vector<String> chain = E->get();
-			for (int32_t bone_i = 0; bone_i < chain.size(); bone_i++) {
-				print_line("Bone " + chain[bone_i]);
-				if (bone_i < chain.size() - 1) {
+			Vector<int32_t> bones = bone_chain->get_bones();
+			print_line("Chain " + itos(count));
+			for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
+				String bone_name = stack->skeleton->get_bone_name(bones[bone_i]);
+				print_line("Bone " + bone_name);
+				if (bone_i < bones.size() - 1) {
 					print_line(" - ");
 				} else {
 					print_line("");
 				}
 			}
+			Vector<Ref<BoneChainTwo>> bone_chains = bone_chain->get_child_chains();
+			for (int32_t i = 0; i < bone_chains.size(); i++) {
+				queue.push_back(bone_chains[i]);
+			}
+			count++;
 		}
+	}
+	void register_effectors(Skeleton3D *p_skeleton) {
+		ERR_FAIL_COND(!p_skeleton);
+		Ref<BoneChainTwo> bone_chain_two;
+		bone_chain_two.instance();
+		BoneId bone = p_skeleton->find_bone(root_bone);
+		bone_chain_two->init(p_skeleton, multi_effector, bone_chain_two, bone);
+		print_bone_chains(bone_chain_two);
 		_change_notify();
 		emit_changed();
 		emit_signal("ik_changed");
