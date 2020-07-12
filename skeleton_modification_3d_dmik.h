@@ -42,37 +42,6 @@
 class Skeleton3D;
 class KusudamaConstraint;
 
-class Axes : public Reference {
-public:
-	Transform local_transform;
-	Transform global_transform;
-	bool dirty = false;
-	Ref<Axes> parent;
-	Vector<Ref<Axes>> children;
-	void mark_dirty() {
-		dirty = true;
-		for (int32_t i = 0; i < children.size(); i++) {
-			children.write[i]->mark_dirty();
-		}
-	}
-	bool is_dirty() const {
-		return dirty;
-	}
-	void update_global_transform() {
-		if (parent.is_valid()) {
-			global_transform = parent->get_global_transform() * local_transform;
-		} else {
-			global_transform = local_transform;
-		}
-	}
-	Transform get_global_transform() {
-		if (is_dirty()) {
-			update_global_transform();
-		}
-		return global_transform;
-	}
-};
-
 class BoneChain;
 class PhysicalBone3D;
 class BoneChainItem : public Reference {
@@ -94,21 +63,11 @@ public:
 	float bone_height = 0.0f;
 	float length = 0.0f;
 
-	Ref<Axes> axes = nullptr;
+	Transform axes;
 
 	Ref<KusudamaConstraint> constraint = nullptr;
 
-	BoneChainItem() { axes.instance(); }
-
-	Transform get_global_transform() const {
-		Transform xform;
-		Ref<BoneChainItem> item = parent_item;
-		while (item.is_valid()) {
-			xform = item->axes->local_transform * xform;
-			item = item->parent_item;
-		}
-		return xform;
-	}
+	BoneChainItem() {}
 
 	float get_bone_height() const;
 
@@ -284,12 +243,6 @@ public:
 	void align_to_axes(IKAxes inAxes);
 
 	/**
-     * translates the pin to the location specified in global coordinates
-     * @param location
-     */
-	void translate_global(Vector3 location);
-
-	/**
      * translates the pin to the location specified in local coordinates
      * (relative to any other Axes objects the pin may be parented to)
      * @param location
@@ -403,6 +356,7 @@ private:
 	static void set_default_dampening(Ref<BoneChain> r_chain, float p_damp);
 	static void update_armature_segments(Ref<BoneChain> r_chain);
 	static void update_optimal_rotation_to_target_descendants(
+			Skeleton3D *p_skeleton,
 			Ref<BoneChainItem> p_chain_item,
 			float p_dampening,
 			bool p_is_translate,
@@ -414,6 +368,7 @@ private:
 			float p_total_iterations);
 	static void recursively_update_bone_segment_map_from(Ref<BoneChain> r_chain, Ref<BoneChainItem> p_start_from);
 	static void QCPSolver(
+			Skeleton3D *p_skeleton,
 			Ref<BoneChain> p_chain,
 			float p_dampening,
 			bool p_inverse_weighting,
@@ -439,6 +394,7 @@ public:
      * as a value of 0, however, it might result in small levels of robotic looking jerk. The higher the value, the less jerk there will be (but at potentially significant computation cost).
      */
 	static void update_optimal_rotation_to_target_descendants(
+			Skeleton3D *p_skeleton,
 			Ref<BoneChain> r_chain,
 			Ref<BoneChainItem> p_for_bone,
 			float p_dampening,

@@ -473,6 +473,7 @@ void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
 #include "scene/3d/skeleton_3d.h"
 
 void SkeletonModification3DDMIK::QCPSolver(
+		Skeleton3D *p_skeleton,
 		Ref<BoneChain> p_chain,
 		float p_dampening,
 		bool p_inverse_weighting,
@@ -487,7 +488,7 @@ void SkeletonModification3DDMIK::QCPSolver(
 		//if the tip is pinned, it should have already been oriented before this function was called.
 		while (current_bone.is_valid() && current_bone != stop_after) {
 			if (!current_bone->ik_orientation_lock) {
-				update_optimal_rotation_to_target_descendants(p_chain, current_bone, p_dampening, false,
+				update_optimal_rotation_to_target_descendants(p_skeleton, p_chain, current_bone, p_dampening, false,
 						p_stabilization_passes, p_iteration, p_total_iterations);
 			}
 			current_bone = current_bone->parent_item;
@@ -565,7 +566,7 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	Ref<BoneChain> chain = p_task->chain;
 	chain->targets.resize(p_task->end_effectors.size());
 	chain->chain_root->bone = p_task->root_bone;
-	chain->chain_root->axes->local_transform = p_task->skeleton->get_bone_rest(chain->chain_root->bone) * p_task->skeleton->get_bone_pose(chain->chain_root->bone);
+	chain->chain_root->axes = p_task->skeleton->get_bone_rest(chain->chain_root->bone) * p_task->skeleton->get_bone_pose(chain->chain_root->bone);
 	chain->chain_root->pb = p_task->skeleton->get_physical_bone(chain->chain_root->bone);
 	chain->middle_chain_item = Ref<BoneChainItem>();
 
@@ -604,10 +605,10 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 				//	child_ci->axes->parent = child_ci->parent_item->axes;
 				//	child_ci->parent_item->children.push_back(child_ci->axes);
 				//}
-				child_ci->axes->local_transform = p_task->skeleton->get_bone_rest(child_ci->bone) * p_task->skeleton->get_bone_pose(child_ci->bone);
+				child_ci->axes = p_task->skeleton->get_bone_rest(child_ci->bone) * p_task->skeleton->get_bone_pose(child_ci->bone);
 
 				if (child_ci->parent_item.is_valid()) {
-					child_ci->length = (child_ci->axes->local_transform.origin - child_ci->parent_item->axes->local_transform.origin).length();
+					child_ci->length = (child_ci->axes.origin - child_ci->parent_item->axes.origin).length();
 				}
 			}
 
@@ -638,7 +639,7 @@ void SkeletonModification3DDMIK::update_chain(const Skeleton3D *p_sk, Ref<BoneCh
 	if (p_chain_item.is_null()) {
 		return;
 	}
-	p_chain_item->axes->local_transform =
+	p_chain_item->axes =
 			p_sk->get_bone_rest(p_chain_item->bone) * p_sk->get_bone_pose(p_chain_item->bone);
 	if (!p_chain_item->children.size()) {
 		return;
@@ -650,6 +651,7 @@ void SkeletonModification3DDMIK::update_chain(const Skeleton3D *p_sk, Ref<BoneCh
 
 void SkeletonModification3DDMIK::solve_simple(Ref<DMIKTask> p_task, bool p_solve_magnet) {
 	QCPSolver(
+			p_task->skeleton,
 			p_task->chain,
 			p_task->dampening,
 			false,
@@ -779,17 +781,17 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 	// Assign new bone position.
 	Ref<BoneChainItem> ci(p_task->chain->chain_root);
 	while (ci.is_valid()) {
-		Transform new_bone_pose(ci->get_global_transform());
-		new_bone_pose.origin = ci->axes->local_transform.origin;
+		Transform new_bone_pose(p_task->skeleton->get_bone_global_pose(ci->bone));
+		new_bone_pose.origin = ci->axes.origin;
 
 		if (!ci->children.empty()) {
-			/// Rotate basis
-			const Vector3 initial_ori(
-					(ci->children[0]->get_global_transform().origin - ci->get_global_transform().origin).normalized());
-			const Vector3 rot_axis(initial_ori.cross(ci->axes->local_transform.get_basis().get_rotation_euler()).normalized());
+			Vector3 child_pose = p_task->skeleton->get_bone_global_pose(ci->children[0]->bone).origin;
+			Vector3 current_pose = p_task->skeleton->get_bone_global_pose(ci->bone).origin;
+			const Vector3 initial_ori = (child_pose - current_pose).normalized();
+			const Vector3 rot_axis = (initial_ori.cross(ci->axes.get_basis().get_rotation_euler()).normalized());
 
 			if (rot_axis[0] != 0 && rot_axis[1] != 0 && rot_axis[2] != 0) {
-				const float rot_angle(Math::acos(CLAMP(initial_ori.dot(ci->axes->local_transform.get_basis().get_rotation_euler()), -1, 1)));
+				const float rot_angle(Math::acos(CLAMP(initial_ori.dot(ci->axes.get_basis().get_rotation_euler()), -1, 1)));
 				new_bone_pose.basis.rotate(rot_axis, rot_angle);
 			}
 		} else {
@@ -821,7 +823,7 @@ void SkeletonModification3DDMIK::update_armature_segments(Ref<BoneChain> r_chain
 	recursively_update_bone_segment_map_from(r_chain, r_chain->chain_root);
 }
 
-void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Ref<BoneChainItem> p_chain_item,
+void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_chain_item,
 		float p_dampening, bool p_is_translate,
 		Vector<Vector3> p_localized_tip_headings,
 		Vector<Vector3> p_localized_target_headings,
@@ -841,15 +843,15 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(R
 	} else {
 		qcp_rot.clamp_to_quadrance_angle(bone_damp);
 	}
-	p_chain_item->axes->local_transform.origin *= translate_by;
-	p_chain_item->axes->local_transform.basis *= Basis(qcp_rot);
+	p_chain_item->axes.origin *= translate_by;
+	p_chain_item->axes.basis *= Basis(qcp_rot);
 	IKAxes xform;
-	xform.basis = p_chain_item->axes->local_transform.get_basis();
+	xform.basis = p_chain_item->axes.get_basis();
 	if (p_chain_item->constraint.is_null()) {
 		return;
 	}
 	p_chain_item->set_axes_to_be_snapped(xform, p_chain_item->constraint->get_limiting_axes(), bone_damp);
-	xform.origin = p_chain_item->axes->local_transform.origin;
+	xform.origin = p_chain_item->axes.origin;
 	p_chain_item->constraint->set_limiting_axes(p_chain_item->constraint->get_limiting_axes().translated(translate_by));
 }
 
@@ -860,7 +862,8 @@ void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<Bo
 	}
 }
 
-void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Ref<BoneChain> r_chain,
+void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Skeleton3D *p_skeleton,
+		Ref<BoneChain> r_chain,
 		Ref<BoneChainItem> p_for_bone,
 		float p_dampening, bool p_translate,
 		int p_stabilization_passes, int p_iteration,
@@ -869,7 +872,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(R
 		return;
 	}
 
-	Quat best_orientation = p_for_bone->axes->local_transform.get_basis().get_rotation_quat();
+	Quat best_orientation = p_for_bone->axes.get_basis().get_rotation_quat();
 	float new_dampening = -1;
 	if (p_for_bone->parent_item == NULL)
 		p_stabilization_passes = 0;
@@ -877,7 +880,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(R
 		new_dampening = Math_PI;
 	}
 	IKAxes bone_xform;
-	Quat quat = p_for_bone->axes->local_transform.basis.get_rotation_quat();
+	Quat quat = p_for_bone->axes.basis.get_rotation_quat();
 	bone_xform.basis = Basis(quat);
 	update_target_headings(r_chain, r_chain->localized_target_headings, r_chain->weights, bone_xform);
 	update_effector_headings(r_chain, r_chain->localized_effector_headings, bone_xform);
@@ -895,6 +898,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(R
 
 	for (int stabilization_i = 0; stabilization_i < p_stabilization_passes + 1; stabilization_i++) {
 		update_optimal_rotation_to_target_descendants(
+				p_skeleton,
 				p_for_bone, new_dampening,
 				p_translate,
 				r_chain->localized_effector_headings,
@@ -919,11 +923,11 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(R
 													  ((total_iterations_sq - (p_iteration * p_iteration)) /
 															  total_iterations_sq);
 						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);
-						p_for_bone->set_axes_to_returned(p_for_bone->get_global_transform(), bone_xform,
+						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(p_for_bone->bone), bone_xform,
 								p_for_bone->constraint->get_limiting_axes(), cos_half_angle,
 								scaled_dampened_angle);
 					} else {
-						p_for_bone->set_axes_to_returned(p_for_bone->get_global_transform(), bone_xform,
+						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(p_for_bone->bone), bone_xform,
 								p_for_bone->constraint->get_limiting_axes(),
 								p_for_bone->cos_half_returnful_dampened[p_iteration],
 								p_for_bone->half_returnful_dampened[p_iteration]);
@@ -942,8 +946,8 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(R
 	}
 	if (p_stabilization_passes > 0) {
 		bone_xform.basis = Basis(best_orientation);
-		p_for_bone->axes->local_transform.origin = bone_xform.origin;
-		p_for_bone->axes->local_transform.basis = bone_xform.basis;
+		p_for_bone->axes.origin = bone_xform.origin;
+		p_for_bone->axes.basis = bone_xform.basis;
 	}
 }
 
@@ -973,7 +977,7 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChain> r_chain, 
 			continue;
 		}
 		IKAxes targetAxes = sb->constraint->get_limiting_axes();
-		Vector3 origin = sb->axes->local_transform.origin;
+		Vector3 origin = sb->axes.origin;
 		r_localized_target_headings.write[hdx] = targetAxes.origin - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
@@ -1010,8 +1014,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
 		Ref<BoneChainItem> sb = r_chain->targets[target_i]->chain_item;
 		IKAxes effector = r_chain->targets[target_i]->end_effector->goal_transform;
-		// tipAxes.updateGlobal();
-		Vector3 origin = sb->axes->local_transform.origin;
+		Vector3 origin = sb->axes.origin;
 		r_localized_effector_headings.write[hdx] = effector.origin - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
@@ -1128,7 +1131,7 @@ float BoneChainTarget::get_z_priority() const {
 }
 
 IKAxes BoneChainTarget::get_axes() const {
-	return IKAxes(chain_item->axes->local_transform.basis, chain_item->axes->local_transform.origin);
+	return chain_item->axes;
 }
 
 void BoneChainTarget::align_to_axes(IKAxes inAxes) {
@@ -1136,18 +1139,12 @@ void BoneChainTarget::align_to_axes(IKAxes inAxes) {
 	//axes.alignGlobalsTo(inAxes);
 }
 
-void BoneChainTarget::translate_global(Vector3 location) {
-	//TODO
-	//Remove
-	chain_item->axes->local_transform.origin *= location;
-}
-
 void BoneChainTarget::translate(Vector3 location) {
-	chain_item->axes->local_transform.origin *= location;
+	chain_item->axes.origin *= location;
 }
 
 Vector3 BoneChainTarget::get_location() {
-	return chain_item->axes->local_transform.origin;
+	return chain_item->axes.origin;
 }
 Ref<BoneChainItem> BoneChainTarget::for_bone() {
 	return chain_item;
