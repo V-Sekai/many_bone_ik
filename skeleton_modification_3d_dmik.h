@@ -337,8 +337,8 @@ public:
 		queue.push_back(-1);
 		List<int32_t> reversed_depth_bones;
 		while (queue.size()) {
-			int32_t bone = queue.back()->get();
-			queue.pop_back();
+			int32_t bone = queue.front()->get();
+			queue.pop_front();
 			if (!parent_child_bones.has(bone)) {
 				continue;
 			}
@@ -346,7 +346,7 @@ public:
 			for (int32_t child_i = 0; child_i < children_bones.size(); child_i++) {
 				int32_t child_bone = children_bones[child_i];
 				reversed_depth_bones.push_back(child_bone);
-				queue.push_front(child_bone);
+				queue.push_back(child_bone);
 			}
 		}
 		if (!reversed_depth_bones.size()) {
@@ -369,11 +369,14 @@ public:
 			String bone_name = p_skeleton->get_bone_name(new_bone);
 			bool found = false;
 			for (int32_t chain_i = 0; chain_i < r_bone_chains.size(); chain_i++) {
-				Vector<String> bone_chain = r_bone_chains[chain_i];
+				Vector<String> bone_chain = r_bone_chains[chain_i];	
 				ERR_FAIL_INDEX(bone_chain.size() - 1, bone_chain.size());
 				String last_bone_name = bone_chain[bone_chain.size() - 1];
 				int32_t last_bone = p_skeleton->find_bone(last_bone_name);
-				if (parent_child_bones.has(new_bone) && parent_child_bones[new_bone].has(last_bone)) {
+				if (parent_child_bones.has(new_bone) && parent_child_bones[new_bone].has(last_bone)) {			
+					if (parent_child_bones[new_bone].size() > 1) {
+						continue;
+					}
 					bone_chain.push_back(bone_name);
 					r_bone_chains.write[chain_i] = bone_chain;
 					found = true;
