@@ -100,28 +100,24 @@ class BoneChain : public Reference {
 
 private:
 	Vector<Ref<BoneEffector>> multi_effector;
-	// a list of bonechains which are children of this chain
+	// a list of bone chains which are children of this chain
 	Vector<Ref<BoneChain>> child_chains;
 	// a list of Bones contained in this chain.
 	Vector<BoneId> bones;
 	BoneId base_bone = -1;
 	BoneId tip_bone = -1;
-	Skeleton3D *skeleton = nullptr;
-	Ref<BoneChain> parent_chain; //contains the parentChain of this Bonechain, if any.
-
+	Skeleton3D *skeleton = nullptr; 
+	//contains the parentChain of this bone chain, if any.
+	Ref<BoneChain> parent_chain;
 	//will be set to true if this chain or any of its descendants have an effector.
-	//a postprocessing step will remove any chains which are not active
+	//a post processing step will remove any chains which are not active
 	bool is_active = false;
-
 	//will be set to true if the tip of this chain is an effector.
 	bool has_effector = false;
-
 	bool is_bone_effector(BoneId current_bone);
 	void build_chain(BoneId p_start_from);
 	void create_child_chains(BoneId p_from_bone);
-
 	void remove_inactive_children();
-
 	void merge_with_child_if_appropriate();
 
 public:
@@ -138,7 +134,7 @@ public:
 	/**
      * removes any child chains which are not active.
      *
-     * if this chain's tip isn't effectored, and it only has one active childchain,
+     * if this chain's tip doesn't have effectors, and it only has one active child chain,
      * it also merges this chain with the child chain.
      *
      * This is done recursively.
