@@ -242,7 +242,6 @@ public:
 	Ref<BoneChainItem> chain_root = memnew(BoneChainItem);
 	Ref<BoneChainItem> middle_chain_item = nullptr;
 	Vector<Ref<BoneChainTarget>> targets;
-	Vector3 magnet_position;
 	Vector<Vector3> localized_target_headings;
 	Vector<Vector3> localized_effector_headings;
 	Vector<real_t> weights;
@@ -462,37 +461,9 @@ protected:
 
 public:
 	virtual void execute(float delta);
-	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
-	void print_bone_chains(Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain) {
-		Vector<int32_t> bones = p_current_chain->get_bones();
-		ERR_FAIL_COND(!p_current_chain->is_chain_active());
-		print_line("Chain");
-		for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-			String bone_name = stack->skeleton->get_bone_name(bones[bone_i]);
-			print_line("Bone " + bone_name);
-			if (bone_i < bones.size() - 1) {
-				print_line(" - ");
-			} else {
-				print_line("");
-			}
-		}
-		Vector<Ref<BoneChain>> bone_chains = p_current_chain->get_child_chains();
-		for (int32_t i = 0; i < bone_chains.size(); i++) {
-			print_bone_chains(p_bone_chain, bone_chains[i]);
-		}
-	}
-	void register_effectors(Skeleton3D *p_skeleton) {
-		ERR_FAIL_COND(!p_skeleton);
-		Ref<BoneChain> bone_chain;
-		bone_chain.instance();
-		BoneId bone = p_skeleton->find_bone(root_bone);
-		bone_chain->init(p_skeleton, multi_effector, nullptr, bone);
-		bone_chain->filter_and_merge_child_chains();
-		print_bone_chains(bone_chain, bone_chain);
-		_change_notify();
-		emit_changed();
-		emit_signal("ik_changed");
-	}
+	virtual void setup_modification(SkeletonModificationStack3D *p_stack);	
+	static void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);	
+	void register_effectors(Skeleton3D *p_skeleton);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);
 	void set_constraint_count(int32_t p_value);
