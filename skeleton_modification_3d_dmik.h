@@ -108,6 +108,7 @@ private:
 
 public:
 	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);
+	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);	
 	bool is_chain_active() const;
 	Vector<int32_t> get_bones();
 	Vector<Ref<BoneChain>> get_child_chains();
@@ -334,6 +335,7 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
+	Ref<BoneChain> bone_chain;
 	String root_bone;
 
 protected:
@@ -345,7 +347,6 @@ protected:
 public:
 	virtual void execute(float delta);
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
-	void register_effectors(Skeleton3D *p_skeleton);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);
 	void set_constraint_count(int32_t p_value);

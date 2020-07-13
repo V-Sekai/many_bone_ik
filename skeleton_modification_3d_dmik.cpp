@@ -136,6 +136,19 @@ void BoneChain::print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_
 	}
 }
 
+Vector<String> BoneChain::get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain) {
+	Vector<String> effectors;
+	Vector<int32_t> bones = p_current_chain->get_bones();
+	BoneId bone = p_current_chain->tip_bone;
+	String bone_name = p_skeleton->get_bone_name(bone);
+	effectors.push_back(bone_name);
+	Vector<Ref<BoneChain>> bone_chains = p_current_chain->get_child_chains();
+	for (int32_t i = 0; i < bone_chains.size(); i++) {
+		effectors.append_array(get_default_effectors(p_skeleton, p_bone_chain, bone_chains[i]));
+	}
+	return effectors;
+}
+
 bool BoneChain::is_chain_active() const {
 	return is_active;
 }
@@ -181,19 +194,6 @@ void BoneChain::filter_and_merge_child_chains() {
 	for (int i = 0; i < child_chains.size(); i++) {
 		child_chains.write[i]->filter_and_merge_child_chains();
 	}
-}
-
-void SkeletonModification3DDMIK::register_effectors(Skeleton3D *p_skeleton) {
-	ERR_FAIL_COND(!p_skeleton);
-	Ref<BoneChain> bone_chain;
-	bone_chain.instance();
-	BoneId bone = p_skeleton->find_bone(root_bone);
-	bone_chain->init(p_skeleton, multi_effector, nullptr, bone);
-	bone_chain->filter_and_merge_child_chains();
-	bone_chain->print_bone_chains(stack->skeleton, bone_chain, bone_chain);
-	_change_notify();
-	emit_changed();
-	emit_signal("ik_changed");
 }
 
 void SkeletonModification3DDMIK::_get_property_list(List<PropertyInfo> *p_list) const {
@@ -554,14 +554,25 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 	Skeleton3D *skeleton = stack->get_skeleton();
 	ERR_FAIL_COND(!skeleton);
 	if (!constraint_count) {
-		register_constraint(skeleton);
 		Vector<int32_t> roots = BoneChain::get_bone_children(stack->skeleton, -1);
 		if (roots.size()) {
 			String root_name = stack->skeleton->get_bone_name(roots[0]);
 			root_bone = root_name;
 		}
 	}
-	register_effectors(skeleton);
+	BoneId _bone = skeleton->find_bone(root_bone);
+	bone_chain.instance();
+	if (!constraint_count) {
+		bone_chain->init(skeleton, multi_effector, nullptr, _bone);
+		Vector<String> effectors = bone_chain->get_default_effectors(stack->skeleton, bone_chain, bone_chain);
+		for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
+			add_effector(effectors[effector_i]);
+		}
+		register_constraint(skeleton);
+	}
+	bone_chain->init(skeleton, multi_effector, nullptr, _bone);
+	bone_chain->filter_and_merge_child_chains();
+	bone_chain->print_bone_chains(stack->skeleton, bone_chain, bone_chain);
 	is_setup = true;
 }
 
