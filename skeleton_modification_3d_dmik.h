@@ -452,7 +452,6 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
 	String root_bone;
-	Vector<Vector<String>> bone_chains;
 
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
