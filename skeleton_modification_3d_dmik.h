@@ -51,7 +51,6 @@ public:
 	Ref<BoneChain> parent_armature = nullptr;
 	Vector<Ref<BoneChainItem>> children;
 	Ref<BoneChainItem> parent_item = nullptr;
-	// Bone info
 	int bone = -1;
 	PhysicalBone3D *pb = nullptr;
 	bool springy = false;
@@ -62,33 +61,20 @@ public:
 	float stiffness_scalar = 0.0f;
 	float bone_height = 0.0f;
 	float length = 0.0f;
-
 	Transform axes;
-
 	Ref<KusudamaConstraint> constraint = nullptr;
-
 	BoneChainItem() {}
-
 	float get_bone_height() const;
-
 	void set_bone_height(const float p_bone_height);
-
 	Ref<BoneChainItem> find_child(const int p_bone_id);
-
 	Ref<BoneChainItem> add_child(const int p_bone_id);
-
 	void set_stiffness(float p_stiffness);
-
 	float get_stiffness() const;
-
 	void update_cos_dampening();
-
 	void
 	set_axes_to_returned(IKAxes p_global, IKAxes p_to_set, IKAxes p_limiting_axes, float p_cos_half_angle_dampen,
 			float p_angle_dampen);
-
 	void set_axes_to_be_snapped(IKAxes p_to_set, IKAxes p_limiting_axes, float p_cos_half_angle_dampen);
-
 	void populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k);
 	void rootwardly_update_falloff_cache_from(Ref<BoneChainItem> p_current);
 };
@@ -128,11 +114,11 @@ public:
 	static Vector<int32_t> get_bone_children(Skeleton3D *p_skeleton, int32_t p_bone);
 	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> &p_multi_effector, Ref<BoneChain> p_parent_chain, BoneId p_base_bone);
 
-	/**sets this bonechain and all of its ancestors to active */
+	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
 
 	/**
-     * removes any child chains which are not active.
+     * Remove any child chains which are not active.
      *
      * if this chain's tip doesn't have effectors, and it only has one active child chain,
      * it also merges this chain with the child chain.
@@ -304,17 +290,11 @@ public:
      * called when this target is being removed entirely from the Armature. (as opposed to just being disabled)
      */
 	void removal_notification();
-
 	void set_parent_target(BoneChainTarget *parent);
-
 	void remove_child_target(BoneChainTarget *child);
-
 	void add_child_target(BoneChainTarget *new_child);
-
 	BoneChainTarget *get_parent_target();
-
 	bool is_ancestor_of(BoneChainTarget *potential_descendent);
-
 	float get_target_weight();
 };
 
@@ -446,23 +426,17 @@ public:
 			int p_stabilization_passes,
 			int p_iteration,
 			int p_total_iterations);
-
 	static float
 	get_manual_msd(Vector<Vector3> &r_localized_effector_headings, Vector<Vector3> &r_localized_target_headings,
 			const Vector<real_t> &p_weights);
-
 	static void update_target_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_target_headings,
 			Vector<real_t> p_weights, Transform p_bone_xform);
-
 	static void update_effector_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
-
 	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, const Transform &goal_transform,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3DDMIK> p_constraints = NULL);
-
 	static void make_goal(Ref<DMIKTask> p_task, const Transform &p_inverse_transf, float blending_delta);
-
 	static void solve(Ref<DMIKTask> p_task, float blending_delta, bool override_effector_basis, bool p_use_magnet,
 			const Vector3 &p_magnet_position);
 };
