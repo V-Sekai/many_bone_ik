@@ -380,10 +380,7 @@ private:
 			Ref<BoneChainTwo> child = child_chains[0];
 			tip_bone = child->tip_bone;
 			has_effector = child->has_effector;
-			Vector<BoneId> child_bones = child->bones;
-			for (int i = 0; i < child_bones.size(); i++) {
-				bones.push_back(child_bones[i]);
-			}
+			bones.append_array(child->bones);
 			child_chains = child->child_chains;
 		}
 	}
