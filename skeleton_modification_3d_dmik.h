@@ -368,11 +368,13 @@ private:
 	}
 
 	void remove_inactive_children() {
+		Vector<Ref<BoneChainTwo>> new_child_chains;
 		for (int i = 0; i < child_chains.size(); i++) {
-			if (!child_chains[i]->is_chain_active()) {
-				child_chains.remove(i);
+			if (child_chains[i]->is_chain_active()) {
+				new_child_chains.push_back(child_chains[i]);
 			}
 		}
+		child_chains = new_child_chains;
 	}
 
 	void merge_with_child_if_appropriate() {
@@ -437,6 +439,7 @@ public:
 	void filter_and_merge_child_chains() {
 		remove_inactive_children();
 		merge_with_child_if_appropriate();
+		remove_inactive_children();
 		for (int i = 0; i < child_chains.size(); i++) {
 			child_chains.write[i]->filter_and_merge_child_chains();
 		}
