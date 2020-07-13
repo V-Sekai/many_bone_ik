@@ -116,111 +116,24 @@ private:
 	//will be set to true if the tip of this chain is an effector.
 	bool has_effector = false;
 
-	bool is_bone_effector(BoneId current_bone) {
-		bool is_effector = false;
-		Ref<BoneEffector> effector;
-		for (int32_t i = 0; i < multi_effector.size(); i++) {
-			effector = multi_effector[i];
-			if (effector.is_null()) {
-				continue;
-			}
-			String bone_name = skeleton->get_bone_name(current_bone);
-			if (effector->get_name() == bone_name) {
-				is_effector = true;
-				break;
-			}
-		}
-		return is_effector;
-	}
-	void build_chain(BoneId p_start_from) {
-		BoneId current_bone = p_start_from;
-		while (true) {
-			bones.push_back(current_bone);
-			tip_bone = current_bone;
-			Vector<int32_t> current_bone_children = get_bone_children(skeleton, current_bone);
-			if (current_bone_children.size() != 1 || is_bone_effector(current_bone)) {
-				create_child_chains(current_bone);
-				if (is_bone_effector(current_bone)) {
-					has_effector = true;
-					set_active();
-				}
-				break;
-			}
-			current_bone = current_bone_children[0]; //by definition, there is only one child to this bone if we reach this line.
-		}
-	}
-	void create_child_chains(BoneId p_from_bone) {
-		Vector<int32_t> children = get_bone_children(skeleton, p_from_bone);
-		for (int i = 0; i < children.size(); i++) {
-			Ref<BoneChain> bone_chain;
-			bone_chain.instance();
-			BoneId child = children[i];
-			bone_chain->init(skeleton, multi_effector, this, child);
-			child_chains.push_back(bone_chain);
-		}
-	}
+	bool is_bone_effector(BoneId current_bone);
+	void build_chain(BoneId p_start_from);
+	void create_child_chains(BoneId p_from_bone);
 
-	void remove_inactive_children() {
-		Vector<Ref<BoneChain>> new_child_chains;
-		for (int i = 0; i < child_chains.size(); i++) {
-			if (child_chains[i]->is_chain_active()) {
-				new_child_chains.push_back(child_chains[i]);
-			}
-		}
-		child_chains = new_child_chains;
-	}
+	void remove_inactive_children();
 
-	void merge_with_child_if_appropriate() {
-		if (child_chains.size() == 1 && !has_effector) {
-			Ref<BoneChain> child = child_chains[0];
-			tip_bone = child->tip_bone;
-			has_effector = child->has_effector;
-			bones.append_array(child->bones);
-			child_chains = child->child_chains;
-			remove_inactive_children();
-		}
-	}
+	void merge_with_child_if_appropriate();
 
 public:
 	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);
-	bool is_chain_active() const {
-		return is_active;
-	}
-	// TODO REMOVE
-	Vector<int32_t> get_bones() {
-		return bones;
-	}
-	// TODO REMOVE
-	Vector<Ref<BoneChain>> get_child_chains() {
-		return child_chains;
-	}
-	static Vector<int32_t> get_bone_children(Skeleton3D *p_skeleton, int32_t p_bone) {
-		Vector<int32_t> bones;
-		for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
-			int32_t parent = p_skeleton->get_bone_parent(bone_i);
-			if (parent == p_bone) {
-				bones.push_back(bone_i);
-			}
-		}
-		return bones;
-	}
-	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> &p_multi_effector, Ref<BoneChain> p_parent_chain, BoneId p_base_bone) {
-		ERR_FAIL_COND(this == parent_chain.ptr());
-		multi_effector = p_multi_effector;
-		parent_chain = p_parent_chain;
-		base_bone = p_base_bone;
-		skeleton = p_skeleton;
-		build_chain(p_base_bone);
-	}
+	bool is_chain_active() const;
+	Vector<int32_t> get_bones();
+	Vector<Ref<BoneChain>> get_child_chains();
+	static Vector<int32_t> get_bone_children(Skeleton3D *p_skeleton, int32_t p_bone);
+	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> &p_multi_effector, Ref<BoneChain> p_parent_chain, BoneId p_base_bone);
 
 	/**sets this bonechain and all of its ancestors to active */
-
-	void set_active() {
-		is_active = true;
-		if (parent_chain.is_valid()) {
-			parent_chain->set_active();
-		}
-	}
+	void set_active();
 
 	/**
      * removes any child chains which are not active.
@@ -231,13 +144,7 @@ public:
      * This is done recursively.
      * @return
      */
-	void filter_and_merge_child_chains() {
-		remove_inactive_children();
-		merge_with_child_if_appropriate();
-		for (int i = 0; i < child_chains.size(); i++) {
-			child_chains.write[i]->filter_and_merge_child_chains();
-		}
-	}
+	void filter_and_merge_child_chains();
 
 public:
 	Ref<BoneChainItem> chain_root = memnew(BoneChainItem);
