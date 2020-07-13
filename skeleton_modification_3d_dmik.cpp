@@ -555,6 +555,11 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 	ERR_FAIL_COND(!skeleton);
 	if (!constraint_count) {
 		register_constraint(skeleton);
+		Vector<int32_t> roots = BoneChain::get_bone_children(stack->skeleton, -1);
+		if (roots.size()) {
+			String root_name = stack->skeleton->get_bone_name(roots[0]);
+			root_bone = root_name;
+		}
 	}
 	register_effectors(skeleton);
 	is_setup = true;
