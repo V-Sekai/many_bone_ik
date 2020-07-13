@@ -182,6 +182,7 @@ private:
 	}
 
 public:
+	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);
 	bool is_chain_active() const {
 		return is_active;
 	}
@@ -461,8 +462,7 @@ protected:
 
 public:
 	virtual void execute(float delta);
-	virtual void setup_modification(SkeletonModificationStack3D *p_stack);	
-	static void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);	
+	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
 	void register_effectors(Skeleton3D *p_skeleton);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);

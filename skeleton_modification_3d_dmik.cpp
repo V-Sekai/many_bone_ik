@@ -50,7 +50,7 @@ void SkeletonModification3DDMIK::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("ik_changed"));
 }
 
-void SkeletonModification3DDMIK::print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain) {
+void BoneChain::print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain) {
 	Vector<int32_t> bones = p_current_chain->get_bones();
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	print_line("Chain");
@@ -76,7 +76,7 @@ void SkeletonModification3DDMIK::register_effectors(Skeleton3D *p_skeleton) {
 	BoneId bone = p_skeleton->find_bone(root_bone);
 	bone_chain->init(p_skeleton, multi_effector, nullptr, bone);
 	bone_chain->filter_and_merge_child_chains();
-	print_bone_chains(stack->skeleton, bone_chain, bone_chain);
+	bone_chain->print_bone_chains(stack->skeleton, bone_chain, bone_chain);
 	_change_notify();
 	emit_changed();
 	emit_signal("ik_changed");
