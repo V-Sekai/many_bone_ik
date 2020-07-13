@@ -384,6 +384,7 @@ private:
 			has_effector = child->has_effector;
 			bones.append_array(child->bones);
 			child_chains = child->child_chains;
+			remove_inactive_children();
 		}
 	}
 
@@ -439,7 +440,6 @@ public:
 	void filter_and_merge_child_chains() {
 		remove_inactive_children();
 		merge_with_child_if_appropriate();
-		remove_inactive_children();
 		for (int i = 0; i < child_chains.size(); i++) {
 			child_chains.write[i]->filter_and_merge_child_chains();
 		}
