@@ -77,7 +77,7 @@ public:
 	void set_axes_to_be_snapped(IKAxes p_to_set, IKAxes p_limiting_axes, float p_cos_half_angle_dampen);
 	void populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k);
 	void rootwardly_update_falloff_cache_from(Ref<BoneChainItem> p_current);
-	
+
 	Ref<BoneChainItem> base_bone;
 	Ref<BoneChainItem> tip_bone;
 	Skeleton3D *skeleton = nullptr;
@@ -93,16 +93,15 @@ public:
 	void create_child_chains(Ref<BoneChainItem> p_from_bone);
 	void remove_inactive_children();
 	void merge_with_child_if_appropriate();
-	Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> bone_chain_items;
 
 public:
 	Vector<Ref<BoneChainItem>> get_child_chains();
 	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
-	static Vector<Ref<BoneChainItem>> get_bone_children(Skeleton3D *p_skeleton, Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> &r_bone_chain_items, Ref<BoneChainItem> p_bone);
+	Vector<Ref<BoneChainItem>> get_bone_children(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone);
 	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
 	bool is_chain_active() const;
 	Vector<Ref<BoneChainItem>> get_bones();
-	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
+	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChain> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
 
 	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
@@ -117,6 +116,9 @@ public:
      * @return
      */
 	void filter_and_merge_child_chains();
+
+	void recursively_create_penalty_array(Ref<BoneChain> from, Vector<Vector<real_t>> &r_weight_array, Vector<Ref<BoneChainItem>> pin_sequence, float current_falloff);
+
 private:
 	Vector<Ref<BoneEffector>> multi_effector;
 	// a list of bone chains which are children of this chain
@@ -141,7 +143,6 @@ public:
 	int ik_iterations = 15;
 
 	int get_default_iterations() const;
-	void recursively_create_penalty_array(Ref<BoneChain> from, Vector<Vector<real_t>> &r_weight_array, Vector<Ref<BoneChainItem>> pin_sequence, float current_falloff);
 	void create_headings_arrays();
 };
 
@@ -335,6 +336,7 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
 	String root_bone;
+	Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> bone_chain_items;
 
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
