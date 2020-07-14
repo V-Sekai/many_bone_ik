@@ -70,11 +70,12 @@ bool BoneChainItem::is_bone_effector(Ref<BoneChainItem> current_bone) {
 void BoneChainItem::build_chain(Ref<BoneChainItem> p_start_from) {
 	Ref<BoneChainItem> current_bone = p_start_from;
 	while (true) {
+		Vector<Ref<BoneChainItem>> current_bone_children = get_bone_children(skeleton, current_bone);
 		children.push_back(current_bone);
 		tip_bone = current_bone;
 		current_bone->pb = skeleton->get_physical_bone(current_bone->bone);
 		current_bone->axes = skeleton->get_bone_pose(current_bone->bone);
-		if (current_bone->children.size() != 1 || is_bone_effector(current_bone)) {
+		if (current_bone_children.size() != 1 || is_bone_effector(current_bone)) {
 			create_child_chains(current_bone);
 			if (is_bone_effector(current_bone)) {
 				has_effector = true;
@@ -82,7 +83,7 @@ void BoneChainItem::build_chain(Ref<BoneChainItem> p_start_from) {
 			}
 			break;
 		}
-		current_bone = parent_armature->bone_segment_map[current_bone->bone]; //by definition, there is only one child to this bone if we reach this line.
+		current_bone = current_bone_children[0]; //by definition, there is only one child to this bone if we reach this line.
 	}
 }
 
@@ -708,7 +709,6 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	chain->chain_root.instance();
 	chain->chain_root->init(p_task->skeleton, p_task->dmik->multi_effector, chain, nullptr, chain_item);
 	chain->chain_root->filter_and_merge_child_chains();
-	chain->chain_root->print_bone_chains(p_task->skeleton, chain->chain_root, chain->chain_root);
 	chain->chain_root->bone = p_task->root_bone;
 	chain->chain_root->axes = p_task->skeleton->get_bone_rest(chain->chain_root->bone) * p_task->skeleton->get_bone_pose(chain->chain_root->bone);
 	chain->chain_root->pb = p_task->skeleton->get_physical_bone(chain->chain_root->bone);
@@ -820,7 +820,7 @@ Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, S
 	if (!build_chain(task)) {
 		return NULL;
 	}
-
+	task->chain->chain_root->print_bone_chains(task->skeleton, task->chain->chain_root, task->chain->chain_root);
 	return task;
 }
 
