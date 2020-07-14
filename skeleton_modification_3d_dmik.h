@@ -46,7 +46,11 @@ class BoneChain;
 class PhysicalBone3D;
 class BoneChainItem : public Reference {
 	GDCLASS(BoneChainItem, Reference);
-
+private:
+	Vector<Ref<BoneEffector>> multi_effector;
+	// a list of bone chains which are children of this chain
+	Vector<Ref<BoneChainItem>> child_chains;
+	// a list of Bones contained in this chain.
 public:
 	Ref<BoneChain> parent_armature = nullptr;
 	Vector<Ref<BoneChainItem>> children;
@@ -93,8 +97,6 @@ public:
 	void create_child_chains(Ref<BoneChainItem> p_from_bone);
 	void remove_inactive_children();
 	void merge_with_child_if_appropriate();
-
-public:
 	Vector<Ref<BoneChainItem>> get_child_chains();
 	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
 	Vector<Ref<BoneChainItem>> get_bone_children(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone);
@@ -102,7 +104,6 @@ public:
 	bool is_chain_active() const;
 	Vector<Ref<BoneChainItem>> get_bones();
 	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChain> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
-
 	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
 
@@ -116,14 +117,8 @@ public:
      * @return
      */
 	void filter_and_merge_child_chains();
-
 	void recursively_create_penalty_array(Ref<BoneChain> from, Vector<Vector<real_t>> &r_weight_array, Vector<Ref<BoneChainItem>> pin_sequence, float current_falloff);
 
-private:
-	Vector<Ref<BoneEffector>> multi_effector;
-	// a list of bone chains which are children of this chain
-	Vector<Ref<BoneChainItem>> child_chains;
-	// a list of Bones contained in this chain.
 };
 
 class BoneChainTarget;
