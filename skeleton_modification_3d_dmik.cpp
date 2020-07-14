@@ -111,7 +111,7 @@ void BoneChainItem::create_child_chains(Ref<BoneChainItem> p_from_bone) {
 	Vector<Ref<BoneChainItem>> children = get_bone_children(skeleton, bone_chain_items, p_from_bone);
 	for (int i = 0; i < children.size(); i++) {
 		Ref<BoneChainItem> child = children[i];
-		child->init(skeleton, this, child);
+		child->init(skeleton, multi_effector, this, child);
 		child_chains.push_back(child);
 	}
 }
@@ -181,11 +181,12 @@ Vector<Ref<BoneChainItem>> BoneChainItem::get_child_chains() {
 	return child_chains;
 }
 
-void BoneChainItem::init(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone) {
+void BoneChainItem::init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone) {
 	ERR_FAIL_COND(this == parent_chain.ptr());
 	parent_chain = p_parent_chain;
 	base_bone = p_base_bone;
 	skeleton = p_skeleton;
+	multi_effector = p_multi_effector;
 	build_chain(p_base_bone);
 }
 
@@ -580,7 +581,7 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 		Ref<BoneChainItem> chain_item;
 		chain_item.instance();
 		chain_item->bone = _bone;
-		bone_chain->init(skeleton, nullptr, chain_item);
+		bone_chain->init(skeleton, multi_effector, nullptr, chain_item);
 		Vector<String> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
 		for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
 			add_effector(effectors[effector_i]);
@@ -710,9 +711,9 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	chain_item.instance();
 	chain_item->bone = p_task->root_bone;
 	chain->chain_root.instance();
-	chain->chain_root->init(p_task->skeleton, nullptr, chain_item);
+	chain->chain_root->init(p_task->skeleton, p_task->dmik->multi_effector, nullptr, chain_item);
 	chain->chain_root->filter_and_merge_child_chains();
-	chain->chain_root->print_bone_chains(p_task->skeleton, chain->chain_root, chain_item);
+	chain->chain_root->print_bone_chains(p_task->skeleton, chain->chain_root, chain->chain_root);
 	chain->targets.resize(p_task->end_effectors.size());
 	chain->chain_root->bone = p_task->root_bone;
 	chain->chain_root->axes = p_task->skeleton->get_bone_rest(chain->chain_root->bone) * p_task->skeleton->get_bone_pose(chain->chain_root->bone);
@@ -726,7 +727,8 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 		target->chain_item = bone_chain_item;
 		chain->targets.push_back(target);
 	}
-	chain->create_headings_arrays();
+	// TODO Optional
+	// chain->create_headings_arrays();
 	return true;
 }
 
@@ -816,6 +818,8 @@ Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, S
 
 	task->dampening = p_dampening;
 	task->stabilizing_passes = p_stabilizing_passes;
+	ERR_FAIL_COND_V(!p_constraints->multi_effector.size(), nullptr);
+	task->dmik = p_constraints;
 	if (!build_chain(task)) {
 		return NULL;
 	}
@@ -1308,8 +1312,7 @@ void BoneChain::recursively_create_penalty_array(Ref<BoneChain> from,
 void BoneChain::create_headings_arrays() {
 	Vector<Vector<real_t>> penalty_array;
 	Vector<Ref<BoneChainItem>> target_sequence;
-	// TODO Optional? Disabled for now
-	// recursively_create_penalty_array(this, penalty_array, target_sequence, 1.0f);
+	recursively_create_penalty_array(this, penalty_array, target_sequence, 1.0f);
 	Vector<Ref<BoneChainItem>> target_bones;
 	target_bones.resize(target_sequence.size());
 	int total_headings = 0;

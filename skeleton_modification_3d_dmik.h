@@ -102,7 +102,7 @@ public:
 	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
 	bool is_chain_active() const;
 	Vector<Ref<BoneChainItem>> get_bones();
-	void init(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
+	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
 
 	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
@@ -323,6 +323,7 @@ public:
 	// Bone data
 	int root_bone = -1;
 	Vector<Ref<BoneEffectorTransform>> end_effectors;
+	Ref<SkeletonModification3DDMIK> dmik;
 };
 
 class SkeletonModification3DDMIK : public SkeletonModification3D {
