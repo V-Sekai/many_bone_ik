@@ -479,6 +479,9 @@ void SkeletonModification3DDMIK::execute(float delta) {
 		return;
 	}
 	Skeleton3D *skeleton = stack->skeleton;
+	if (task.is_null()) {
+		return;
+	}
 	task->skeleton = skeleton;
 	if (!multi_effector.size()) {
 		return;
