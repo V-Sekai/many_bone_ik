@@ -601,9 +601,6 @@ void SkeletonModification3DDMIK::add_effector(String p_name, NodePath p_node, Tr
 	effector->set_budget_ms(p_budget);
 	multi_effector.push_back(effector);
 	effector_count++;
-	_change_notify();
-	emit_changed();
-	emit_signal("ik_changed");
 }
 
 void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
@@ -616,9 +613,6 @@ void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
 		multi_constraint.push_back(constraint);
 		constraint_count++;
 	}
-	_change_notify();
-	emit_changed();
-	emit_signal("ik_changed");
 }
 
 void SkeletonModification3DDMIK::QCPSolver(
