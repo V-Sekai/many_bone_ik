@@ -97,6 +97,7 @@ Vector<Ref<BoneChainItem>> BoneChainItem::get_bone_children(Skeleton3D *p_skelet
 				item->bone = bone_i;
 				parent_armature->bone_segment_map[bone_i] = item;
 				item->parent_armature = parent_armature;
+				item->parent_item = parent_armature->bone_segment_map[parent];
 				bone_chain_items.push_back(item);
 			}
 		}
@@ -534,7 +535,7 @@ void SkeletonModification3DDMIK::execute(float delta) {
 		bone_end_effector->effector_bone = bone;
 		NodePath path = bone_effector->get_target_node();
 		// TODO Add an path to object_id cache.
-		Node *node = skeleton->get_node(path);
+		Node *node = skeleton->get_node_or_null(path);
 		if (node) {
 			ERR_FAIL_COND_MSG(!node || skeleton == node,
 					"Cannot update cache: Target node is this modification's skeleton or cannot be found!");
@@ -720,6 +721,7 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 		target->end_effector = ee;
 		Ref<BoneChainItem> bone_chain_item = chain->chain_root->find_child(ee->effector_bone);
 		ERR_FAIL_COND_V(bone_chain_item.is_null(), false);
+		target->chain_item = bone_chain_item;
 		chain->targets.write[effector_i] = target;
 	}
 	chain->create_headings_arrays();
@@ -963,8 +965,9 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 
 	Quat best_orientation = p_for_bone->axes.get_basis().get_rotation_quat();
 	float new_dampening = -1;
-	if (p_for_bone->parent_item == NULL)
+	if (p_for_bone->parent_item == NULL) {
 		p_stabilization_passes = 0;
+	}
 	if (p_translate == true) {
 		new_dampening = Math_PI;
 	}
