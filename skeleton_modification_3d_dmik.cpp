@@ -47,6 +47,7 @@ void SkeletonModification3DDMIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constraint", "index", "constraint"), &SkeletonModification3DDMIK::set_constraint);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,65535,or_greater"), "set_constraint_count", "get_constraint_count");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,or_greater"), "set_effector_count", "get_effector_count");
+	ADD_SIGNAL(MethodInfo("ik_changed"));
 }
 
 bool BoneChainItem::is_bone_effector(Ref<BoneChainItem> current_bone) {
@@ -316,15 +317,19 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 			name = p_value;
 			ERR_FAIL_COND_V(name.empty(), false);
 			effector->set_name(name);
+			emit_signal("ik_changed");
 			return true;
 		} else if (what == "target_node") {
 			effector->set_target_node(p_value);
+			emit_signal("ik_changed");
 			return true;
 		} else if (what == "target_transform") {
 			effector->set_target_transform(p_value);
+			emit_signal("ik_changed");
 			return true;
 		} else if (what == "budget") {
 			effector->set_budget_ms(p_value);
+			emit_signal("ik_changed");
 			return true;
 		}
 	} else if (name.begins_with("kusudama_constraints/")) {
@@ -336,6 +341,7 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 		}
 		if (what == "name") {
 			multi_constraint.write[index]->set_name(p_value);
+			emit_signal("ik_changed");
 			return true;
 		} else if (what == "twist_min_angle") {
 			Ref<KusudamaConstraint> constraint = get_constraint(index);
@@ -345,6 +351,7 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
 			twist->set_min_twist_angle(p_value);
 			constraint->set_twist_constraint(twist);
+			emit_signal("ik_changed");
 			return true;
 		} else if (what == "twist_range") {
 			Ref<KusudamaConstraint> constraint = get_constraint(index);
@@ -354,6 +361,7 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
 			twist->set_range(p_value);
 			constraint->set_twist_constraint(twist);
+			emit_signal("ik_changed");
 			return true;
 		} else if (what == "constraint_axes") {
 			Ref<KusudamaConstraint> constraint = multi_constraint[index];
@@ -361,6 +369,9 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 				constraint.instance();
 			}
 			constraint->set_constraint_axes(p_value);
+			_change_notify();
+			emit_changed();
+			emit_signal("ik_changed");
 			return true;
 		} else if (what == "direction_count") {
 			Ref<KusudamaConstraint> constraint = multi_constraint[index];
@@ -368,6 +379,9 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 				constraint.instance();
 			}
 			constraint->set_direction_count(p_value);
+			_change_notify();
+			emit_changed();
+			emit_signal("ik_changed");
 			return true;
 		} else if (what == "direction") {
 			int direction_index = name.get_slicec('/', 3).to_int();
@@ -383,6 +397,9 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 			} else {
 				return false;
 			}
+			_change_notify();
+			emit_changed();
+			emit_signal("ik_changed");
 			return true;
 		}
 	}
@@ -418,6 +435,9 @@ int32_t SkeletonModification3DDMIK::find_constraint(String p_name) {
 void SkeletonModification3DDMIK::set_effector_count(int32_t p_value) {
 	multi_effector.resize(p_value);
 	effector_count = p_value;
+	_change_notify();
+	emit_changed();
+	emit_signal("ik_changed");
 }
 
 int32_t SkeletonModification3DDMIK::get_effector_count() const {
@@ -434,11 +454,17 @@ void SkeletonModification3DDMIK::set_effector(int32_t p_index, Ref<BoneEffector>
 	ERR_FAIL_COND(p_effector.is_null());
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.write[p_index] = p_effector;
+	_change_notify();
+	emit_changed();
+	emit_signal("ik_changed");
 }
 
 void SkeletonModification3DDMIK::set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint) {
 	ERR_FAIL_INDEX(p_index, multi_constraint.size());
 	multi_constraint.write[p_index] = p_constraint;
+	_change_notify();
+	emit_changed();
+	emit_signal("ik_changed");
 }
 
 Vector<Ref<BoneEffector>> SkeletonModification3DDMIK::get_bone_effectors() const {
@@ -458,6 +484,9 @@ void SkeletonModification3DDMIK::remove_effector(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.remove(p_index);
 	effector_count--;
+	_change_notify();
+	emit_changed();
+	emit_signal("ik_changed");
 }
 
 int32_t SkeletonModification3DDMIK::get_constraint_count() const {
@@ -470,6 +499,9 @@ void SkeletonModification3DDMIK::set_constraint_count(int32_t p_value) {
 		multi_constraint.write[i].instance();
 	}
 	constraint_count = p_value;
+	_change_notify();
+	emit_changed();
+	emit_signal("ik_changed");
 }
 
 void SkeletonModification3DDMIK::execute(float delta) {
