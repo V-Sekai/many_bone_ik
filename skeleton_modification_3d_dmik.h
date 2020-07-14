@@ -89,10 +89,10 @@ private:
 	// a list of bone chains which are children of this chain
 	Vector<Ref<BoneChain>> child_chains;
 	// a list of Bones contained in this chain.
-	Vector<BoneId> bones;
-	BoneId base_bone = -1;
-	BoneId tip_bone = -1;
-	Skeleton3D *skeleton = nullptr; 
+	Vector<Ref<BoneChainItem>> bones;
+	Ref<BoneChainItem> base_bone;
+	Ref<BoneChainItem> tip_bone;
+	Skeleton3D *skeleton = nullptr;
 	//contains the parentChain of this bone chain, if any.
 	Ref<BoneChain> parent_chain;
 	//will be set to true if this chain or any of its descendants have an effector.
@@ -100,20 +100,21 @@ private:
 	bool is_active = false;
 	//will be set to true if the tip of this chain is an effector.
 	bool has_effector = false;
-	bool is_bone_effector(BoneId current_bone);
-	void build_chain(BoneId p_start_from);
-	void create_child_chains(BoneId p_from_bone);
+	bool is_bone_effector(Ref<BoneChainItem> current_bone);
+	void build_chain(Ref<BoneChainItem> p_start_from);
+	void create_child_chains(Ref<BoneChainItem> p_from_bone);
 	void remove_inactive_children();
 	void merge_with_child_if_appropriate();
+	Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> bone_chain_items;
 
 public:
-	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);
-	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);	
-	bool is_chain_active() const;
-	Vector<int32_t> get_bones();
 	Vector<Ref<BoneChain>> get_child_chains();
-	static Vector<int32_t> get_bone_children(Skeleton3D *p_skeleton, int32_t p_bone);
-	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> &p_multi_effector, Ref<BoneChain> p_parent_chain, BoneId p_base_bone);
+	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);
+	static Vector<Ref<BoneChainItem>> get_bone_children(Skeleton3D *p_skeleton, Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> &r_bone_chain_items, Ref<BoneChainItem> p_bone);
+	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);
+	bool is_chain_active() const;
+	Vector<Ref<BoneChainItem>> get_bones();
+	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> &p_multi_effector, Ref<BoneChain> p_parent_chain, Ref<BoneChainItem> p_base_bone);
 
 	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
