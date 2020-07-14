@@ -77,24 +77,12 @@ public:
 	void set_axes_to_be_snapped(IKAxes p_to_set, IKAxes p_limiting_axes, float p_cos_half_angle_dampen);
 	void populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k);
 	void rootwardly_update_falloff_cache_from(Ref<BoneChainItem> p_current);
-};
-
-class BoneChainTarget;
-class SkeletonModification3DDMIK;
-class BoneChain : public Reference {
-	GDCLASS(BoneChain, Reference);
-
-private:
-	Vector<Ref<BoneEffector>> multi_effector;
-	// a list of bone chains which are children of this chain
-	Vector<Ref<BoneChain>> child_chains;
-	// a list of Bones contained in this chain.
-	Vector<Ref<BoneChainItem>> bones;
+	
 	Ref<BoneChainItem> base_bone;
 	Ref<BoneChainItem> tip_bone;
 	Skeleton3D *skeleton = nullptr;
 	//contains the parentChain of this bone chain, if any.
-	Ref<BoneChain> parent_chain;
+	Ref<BoneChainItem> parent_chain;
 	//will be set to true if this chain or any of its descendants have an effector.
 	//a post processing step will remove any chains which are not active
 	bool is_active = false;
@@ -108,13 +96,13 @@ private:
 	Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> bone_chain_items;
 
 public:
-	Vector<Ref<BoneChain>> get_child_chains();
-	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);
+	Vector<Ref<BoneChainItem>> get_child_chains();
+	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
 	static Vector<Ref<BoneChainItem>> get_bone_children(Skeleton3D *p_skeleton, Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> &r_bone_chain_items, Ref<BoneChainItem> p_bone);
-	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChain> p_bone_chain, Ref<BoneChain> p_current_chain);
+	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
 	bool is_chain_active() const;
 	Vector<Ref<BoneChainItem>> get_bones();
-	void init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> &p_multi_effector, Ref<BoneChain> p_parent_chain, Ref<BoneChainItem> p_base_bone);
+	void init(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
 
 	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
@@ -129,10 +117,20 @@ public:
      * @return
      */
 	void filter_and_merge_child_chains();
+private:
+	Vector<Ref<BoneEffector>> multi_effector;
+	// a list of bone chains which are children of this chain
+	Vector<Ref<BoneChainItem>> child_chains;
+	// a list of Bones contained in this chain.
+};
+
+class BoneChainTarget;
+class SkeletonModification3DDMIK;
+class BoneChain : public Reference {
+	GDCLASS(BoneChain, Reference);
 
 public:
 	Ref<BoneChainItem> chain_root = memnew(BoneChainItem);
-	Ref<BoneChainItem> middle_chain_item = nullptr;
 	Vector<Ref<BoneChainTarget>> targets;
 	Vector<Vector3> localized_target_headings;
 	Vector<Vector3> localized_effector_headings;
@@ -311,7 +309,6 @@ public:
 	Skeleton3D *skeleton = nullptr;
 
 	Ref<BoneChain> chain = memnew(BoneChain);
-
 	// Settings
 	float min_distance = 0.01f;
 	int iterations = 4;
@@ -434,7 +431,7 @@ public:
 			Vector<real_t> p_weights, Transform p_bone_xform);
 	static void update_effector_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
-	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone, Vector<Ref<BoneEffector>> p_multi_effector, const Transform &goal_transform,
+	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone, const Transform &goal_transform,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3DDMIK> p_constraints = NULL);
 	static void make_goal(Ref<DMIKTask> p_task, const Transform &p_inverse_transf, float blending_delta);
