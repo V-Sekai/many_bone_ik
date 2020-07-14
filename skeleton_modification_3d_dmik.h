@@ -336,7 +336,6 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
-	Ref<BoneChain> bone_chain;
 	String root_bone;
 
 protected:
@@ -435,7 +434,7 @@ public:
 			Vector<real_t> p_weights, Transform p_bone_xform);
 	static void update_effector_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
-	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, const Transform &goal_transform,
+	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone, Vector<Ref<BoneEffector>> p_multi_effector, const Transform &goal_transform,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3DDMIK> p_constraints = NULL);
 	static void make_goal(Ref<DMIKTask> p_task, const Transform &p_inverse_transf, float blending_delta);

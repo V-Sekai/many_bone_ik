@@ -573,23 +573,22 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 			root_bone = root_name;
 		}
 	}
-	ERR_FAIL_COND(root_name.empty());
-	BoneId _bone = skeleton->find_bone(root_bone);
-	Ref<BoneChainItem> bone_item;
-	bone_item.instance();
-	bone_item->bone = _bone;
-	bone_chain.instance();
+	ERR_FAIL_COND(root_bone.empty());
 	if (!constraint_count) {
-		bone_chain->init(skeleton, multi_effector, nullptr, bone_item);
-		Vector<String> effectors = bone_chain->get_default_effectors(stack->skeleton, bone_chain, bone_chain);
+		Ref<BoneChain> bone_chain;
+		bone_chain.instance();
+		BoneId _bone = skeleton->find_bone(root_bone);
+		Ref<BoneChainItem> chain_item;
+		chain_item.instance();
+		chain_item->bone = _bone;
+		bone_chain->init(skeleton, multi_effector, nullptr, chain_item);
+		Vector<String> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
 		for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
 			add_effector(effectors[effector_i]);
 		}
 		register_constraint(skeleton);
 	}
-	bone_chain->init(skeleton, multi_effector, nullptr, bone_item);
-	bone_chain->filter_and_merge_child_chains();
-	bone_chain->print_bone_chains(stack->skeleton, bone_chain, bone_chain);
+	task = create_simple_task(skeleton, root_bone, multi_effector, Transform());
 	is_setup = true;
 }
 
@@ -810,21 +809,23 @@ void SkeletonModification3DDMIK::solve_simple(Ref<DMIKTask> p_task, bool p_solve
 			p_task->max_iterations);
 }
 
-Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk,
+Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, String p_root_bone, Vector<Ref<BoneEffector>> p_multi_effector,
 		const Transform &goal_transform,
 		float p_dampening, int p_stabilizing_passes,
 		Ref<SkeletonModification3DDMIK> p_constraints) {
 	Ref<DMIKTask> task;
 	task.instance();
 	task->skeleton = p_sk;
-
-	for (int32_t root_i = 0; root_i < p_sk->get_bone_count(); root_i++) {
-		if (p_sk->get_bone_parent(root_i) != -1) {
-			continue;
-		}
-		task->root_bone = root_i;
-		break;
-	}
+	BoneId _bone = p_sk->find_bone(p_root_bone);
+	Ref<BoneChainItem> bone_item;
+	bone_item.instance();
+	bone_item->bone = _bone;
+	Ref<BoneChain> chain;
+	chain.instance();
+	task->chain = chain;
+	chain->init(p_sk, p_multi_effector, nullptr, bone_item);
+	chain->filter_and_merge_child_chains();
+	chain->print_bone_chains(p_sk, chain, chain);
 
 	ERR_FAIL_COND_V(task->root_bone == -1, NULL);
 	ERR_FAIL_COND_V(p_constraints.is_null(), NULL);
