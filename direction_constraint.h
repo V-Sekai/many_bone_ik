@@ -63,7 +63,7 @@ private:
 	Vector<Vector3> first_triangle_next;
 	Vector<Vector3> second_triangle_next;
 
-	//radius stored as  cosine to save on the acos call necessary for angleBetween.
+	//radius stored as cosine to save on the acos call necessary for angleBetween.
 	float radius = 1.0f;
 	float radius_cosine = Math::cos(radius);
 	Ref<KusudamaConstraint> parent_kusudama = nullptr;

@@ -426,11 +426,6 @@ int32_t KusudamaConstraint::get_direction_count() const {
 void KusudamaConstraint::set_direction_count(int32_t p_count) {
 	direction_count = p_count;
 	multi_direction.resize(p_count);
-	for (int32_t i = 0; i < p_count; i++) {
-		Ref<DirectionConstraint> constraint;
-		constraint.instance();
-		set_direction(i, constraint);
-	}
 	_change_notify();
 }
 

@@ -264,24 +264,23 @@ bool SkeletonModification3DDMIK::_get(const StringName &p_name, Variant &r_ret) 
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, get_constraint_count(), false);
+		ERR_FAIL_COND_V(get_constraint(index).is_null(), false);
 		if (what == "name") {
-			ERR_FAIL_COND_V(get_constraint(index).is_null(), false);
 			r_ret = get_constraint(index)->get_name();
 			return true;
 		} else if (what == "twist_min_angle") {
-			ERR_FAIL_COND_V(get_constraint(index).is_null(), false);
 			r_ret = get_constraint(index)->get_twist_constraint()->get_min_twist_angle();
 			return true;
 		} else if (what == "twist_range") {
-			ERR_FAIL_COND_V(get_constraint(index).is_null(), false);
 			r_ret = get_constraint(index)->get_twist_constraint()->get_range();
 			return true;
 		} else if (what == "limiting") {
-			ERR_FAIL_COND_V(get_constraint(index).is_null(), false);
 			r_ret = get_constraint(index)->get_twist_constraint()->get_range();
 			return true;
+		} else if (what == "direction_count") {
+			r_ret = get_constraint(index)->get_direction_count();
+			return true;
 		} else if (what == "constraint_axes") {
-			ERR_FAIL_COND_V(get_constraint(index).is_null(), false);
 			r_ret = get_constraint(index)->get_constraint_axes();
 			return true;
 		} else if (what == "direction") {
@@ -328,70 +327,69 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 			name = p_value;
 			ERR_FAIL_COND_V(name.empty(), false);
 			effector->set_name(name);
+			_change_notify();
 			return true;
 		} else if (what == "target_node") {
 			effector->set_target_node(p_value);
+			_change_notify();
 			return true;
 		} else if (what == "target_transform") {
 			effector->set_target_transform(p_value);
+			_change_notify();
 			return true;
 		} else if (what == "budget") {
 			effector->set_budget_ms(p_value);
+			_change_notify();
 			return true;
 		}
 	} else if (name.begins_with("kusudama_constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, multi_constraint.size(), false);
-		if (multi_constraint[index].is_null()) {
-			multi_constraint.write[index].instance();
+		Ref<KusudamaConstraint> constraint = multi_constraint[index];
+		if (constraint.is_null()) {
+			constraint.instance();
+			set_constraint(index, constraint);
 		}
 		if (what == "name") {
-			multi_constraint.write[index]->set_name(p_value);
+			constraint->set_name(p_value);
+			_change_notify();
 			return true;
 		} else if (what == "twist_min_angle") {
-			Ref<KusudamaConstraint> constraint = get_constraint(index);
-			if (constraint.is_null()) {
-				constraint.instance();
-			}
 			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
 			twist->set_min_twist_angle(p_value);
 			constraint->set_twist_constraint(twist);
+			_change_notify();
 			return true;
 		} else if (what == "twist_range") {
-			Ref<KusudamaConstraint> constraint = get_constraint(index);
-			if (constraint.is_null()) {
-				constraint.instance();
-			}
 			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
 			twist->set_range(p_value);
 			constraint->set_twist_constraint(twist);
+			_change_notify();
 			return true;
 		} else if (what == "constraint_axes") {
-			Ref<KusudamaConstraint> constraint = multi_constraint[index];
-			if (constraint.is_null()) {
-				constraint.instance();
-			}
 			constraint->set_constraint_axes(p_value);
+			_change_notify();
 			return true;
 		} else if (what == "direction_count") {
-			Ref<KusudamaConstraint> constraint = multi_constraint[index];
-			if (constraint.is_null()) {
-				constraint.instance();
-			}
 			constraint->set_direction_count(p_value);
+			_change_notify();
 			return true;
 		} else if (what == "direction") {
 			int direction_index = name.get_slicec('/', 3).to_int();
-			ERR_FAIL_INDEX_V(direction_index, multi_constraint[index]->get_direction_count(), false);
-			ERR_FAIL_COND_V(multi_constraint[index]->get_direction(direction_index).is_null(), false);
+			ERR_FAIL_INDEX_V(direction_index, constraint->get_direction_count(), false);
+			Ref<DirectionConstraint> direction = constraint->get_direction(direction_index);
+			if (direction.is_null()) {
+				direction.instance();
+				constraint->set_direction(direction_index, direction);
+			}
 			String direction_what = name.get_slicec('/', 4);
 			if (direction_what == "radius") {
-				Ref<DirectionConstraint> constraint = multi_constraint[index]->get_direction(direction_index);
-				constraint->set_radius(p_value);
+				direction->set_radius(p_value);
+				_change_notify();
 			} else if (direction_what == "control_point") {
-				Ref<DirectionConstraint> constraint = multi_constraint[index]->get_direction(direction_index);
-				constraint->set_control_point(p_value);
+				direction->set_control_point(p_value);
+				_change_notify();
 			} else {
 				return false;
 			}
