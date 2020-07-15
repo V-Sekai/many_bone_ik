@@ -553,9 +553,9 @@ void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D 
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
 		String bone_name = p_skeleton->get_bone_name(bones[bone_i]->bone);
 		Ref<BoneChainItem> item = bones[bone_i];
-		print_line(bone_name);
-		print_line(item->axes.basis.get_rotation_euler());
-		print_line(item->axes.origin);
+		// print_line(bone_name);
+		// print_line(item->axes.basis.get_rotation_euler());
+		// print_line(item->axes.origin);
 		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(item->bone);
 	}
