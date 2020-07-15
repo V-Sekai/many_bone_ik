@@ -132,7 +132,7 @@ void BoneChainItem::merge_with_child_if_appropriate() {
 	}
 }
 
-void BoneChainItem::print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
+void BoneChainItem::print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain) {
 	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	print_line("Chain");
@@ -147,7 +147,7 @@ void BoneChainItem::print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem>
 	}
 	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
-		print_bone_chains(p_skeleton, p_bone_chain, bone_chains[i]);
+		print_bone_chains(p_skeleton, bone_chains[i]);
 	}
 }
 
@@ -817,7 +817,7 @@ Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, S
 	if (!build_chain(task)) {
 		return NULL;
 	}
-	task->chain->chain_root->print_bone_chains(task->skeleton, task->chain->chain_root, task->chain->chain_root);
+	task->chain->chain_root->print_bone_chains(task->skeleton, task->chain->chain_root);
 	return task;
 }
 
