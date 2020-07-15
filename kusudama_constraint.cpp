@@ -409,64 +409,6 @@ void KusudamaConstraint::set_pain(real_t p_amount) {
 	wb->update_cos_dampening();
 }
 
-bool KusudamaConstraint::_set(const StringName &p_name, const Variant &p_value) {
-	String name = p_name;
-	if (name == "direction_count") {
-		set_direction_count(p_value);
-		return true;
-	} else if (name.begins_with("multi_direction_constraint/")) {
-		int index = name.get_slicec('/', 1).to_int();
-		String what = name.get_slicec('/', 2);
-		if (what == "control_point") {
-			ERR_FAIL_INDEX_V(index, direction_count, false);
-			Ref<DirectionConstraint> direction_limit = multi_direction[index];
-			ERR_FAIL_COND_V(direction_limit.is_null(), false);
-			direction_limit->set_control_point(p_value);
-			return true;
-		} else if (what == "radius") {
-			ERR_FAIL_INDEX_V(index, direction_count, false);
-			Ref<DirectionConstraint> direction_limit = multi_direction[index];
-			ERR_FAIL_COND_V(direction_limit.is_null(), false);
-			direction_limit->set_radius(p_value);
-			return true;
-		}
-	}
-	return false;
-}
-
-bool KusudamaConstraint::_get(const StringName &p_name, Variant &r_ret) const {
-	String name = p_name;
-	if (name == "direction_count") {
-		r_ret = get_direction_count();
-		return true;
-	} else if (name.begins_with("multi_direction_constraint/")) {
-		int index = name.get_slicec('/', 1).to_int();
-		String what = name.get_slicec('/', 2);
-		if (what == "control_point") {
-			ERR_FAIL_INDEX_V(index, direction_count, false);
-			Ref<DirectionConstraint> direction_limit = get_direction(index);
-			ERR_FAIL_COND_V(direction_limit.is_null(), false);
-			r_ret = direction_limit->get_control_point();
-			return true;
-		} else if (what == "radius") {
-			ERR_FAIL_INDEX_V(index, direction_count, false);
-			Ref<DirectionConstraint> direction_limit = get_direction(index);
-			ERR_FAIL_COND_V(direction_limit.is_null(), false);
-			r_ret = direction_limit->get_radius();
-			return true;
-		}
-	}
-	return false;
-}
-void KusudamaConstraint::_get_property_list(List<PropertyInfo> *p_list) const {
-	p_list->push_back(PropertyInfo(Variant::INT, "direction_count", PROPERTY_HINT_RANGE, "0,16384,1,or_greater"));
-	for (int i = 0; i < multi_direction.size(); i++) {
-		p_list->push_back(PropertyInfo(Variant::VECTOR3, "multi_direction_constraint/" + itos(i) + "/control_point"));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "multi_direction_constraint/" + itos(i) + "/radius"));
-	}
-}
-
 void KusudamaConstraint::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constraint_axes", "axes"), &KusudamaConstraint::set_constraint_axes);
 	ClassDB::bind_method(D_METHOD("get_constraint_axes"), &KusudamaConstraint::get_constraint_axes);
