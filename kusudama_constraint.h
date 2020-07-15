@@ -36,7 +36,6 @@
 #include "core/class_db.h"
 #include "core/os/memory.h"
 #include "direction_constraint.h"
-#include "ik_axes.h"
 #include "ray.h"
 #include "skeleton_modification_3d_dmik.h"
 #include "twist_constraint.h"
@@ -59,7 +58,7 @@ private:
 	int32_t direction_count = 0;
 	bool orientation_constrained = false;
 	bool axial_constrained = false;
-	IKAxes limiting_axes;
+	Transform limiting_axes;
 	Ref<BoneChainItem> attached_to;
 	Ray bone_ray;
 	Ray constrained_ray;
@@ -121,9 +120,9 @@ public:
 	//false otherwise.
 	virtual bool is_in_limits_(const Vector3 p_global_point) const;
 
-	virtual IKAxes get_limiting_axes() const;
+	virtual Transform get_limiting_axes() const;
 
-	virtual void set_limiting_axes(const IKAxes &p_limiting_axes);
+	virtual void set_limiting_axes(const Transform &p_limiting_axes);
 
 	virtual float get_pain();
 
@@ -159,15 +158,15 @@ public:
 	 * the point is outside of the boundary, but does not signify anything about how far from the boundary the point is.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	virtual Vector3 point_in_limits(Vector3 inPoint, Vector<real_t> inBounds, IKAxes limitingAxes);
+	virtual Vector3 point_in_limits(Vector3 inPoint, Vector<real_t> inBounds, Transform limitingAxes);
 
-	virtual Vector3 point_on_path_sequence(IKAxes p_global_xform, Vector3 p_in_point, IKAxes p_limiting_axes);
+	virtual Vector3 point_on_path_sequence(Transform p_global_xform, Vector3 p_in_point, Transform p_limiting_axes);
 
 	virtual float signed_angle_difference(float p_min_angle, float p_base);
 
-	virtual float angle_to_twist_center(IKAxes p_global_xform, IKAxes p_to_set, IKAxes p_limiting_axes);
+	virtual float angle_to_twist_center(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes);
 
-	virtual void set_axes_to_returnful(IKAxes p_global_xform, IKAxes p_to_set, IKAxes p_limiting_axes,
+	virtual void set_axes_to_returnful(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes,
 			float p_cos_half_angle_dampen, float p_angle_dampen);
 
 	/**
@@ -176,7 +175,7 @@ public:
      * @param p_limiting_axes
      * @return radians of twist required to snap bone into twist limits (0 if bone is already in twist limits)
      */
-	virtual float snap_to_twist_limits(IKAxes p_to_set, IKAxes p_limiting_axes);
+	virtual float snap_to_twist_limits(Transform p_to_set, Transform p_limiting_axes);
 
 	/**
      * Presumes the input axes are the bone's localAxes, and rotates
@@ -184,10 +183,10 @@ public:
      *
      * @param p_to_set
      */
-	virtual void set_axes_to_orientation_snap(IKAxes p_to_set, IKAxes p_limiting_axes, float p_cos_half_angle_dampen);
+	virtual void set_axes_to_orientation_snap(Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen);
 	;
 
-	virtual void set_axes_to_snapped(IKAxes p_to_set, IKAxes p_limiting_axes, float p_cos_half_angle_dampen);
+	virtual void set_axes_to_snapped(Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen);
 	;
 
 	virtual void constraint_update_notification();

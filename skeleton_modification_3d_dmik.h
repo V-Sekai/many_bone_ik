@@ -34,7 +34,6 @@
 #include "bone_effector.h"
 #include "core/os/memory.h"
 #include "core/reference.h"
-#include "ik_axes.h"
 #include "kusudama_constraint.h"
 #include "qcp.h"
 #include "scene/resources/skeleton_modification_3d.h"
@@ -76,9 +75,9 @@ public:
 	float get_stiffness() const;
 	void update_cos_dampening();
 	void
-	set_axes_to_returned(IKAxes p_global, IKAxes p_to_set, IKAxes p_limiting_axes, float p_cos_half_angle_dampen,
+	set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen,
 			float p_angle_dampen);
-	void set_axes_to_be_snapped(IKAxes p_to_set, IKAxes p_limiting_axes, float p_cos_half_angle_dampen);
+	void set_axes_to_be_snapped(Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen);
 	void populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k);
 	void rootwardly_update_falloff_cache_from(Ref<BoneChainItem> p_current);
 
@@ -258,7 +257,7 @@ public:
      */
 	float get_z_priority() const;
 
-	IKAxes get_axes() const;
+	Transform get_axes() const;
 
 	/**
      * translates and rotates the target to match the position
@@ -266,7 +265,7 @@ public:
      * is only relevant for orientation aware solvers.
      * @param inAxes
      */
-	void align_to_axes(IKAxes inAxes);
+	void align_to_axes(Transform inAxes);
 
 	/**
      * translates the pin to the location specified in local coordinates
@@ -331,6 +330,7 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
 	String root_bone;
+	// TODO remove if not being used.
 	Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> bone_chain_items;
 
 protected:
@@ -342,6 +342,37 @@ protected:
 public:
 	virtual void execute(float delta);
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
+	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
+		ERR_FAIL_COND(!p_current_chain->is_chain_active());
+		//print_line("IK solve bone " + p_task->skeleton->get_bone_name(p_task->end_effectors[0]->effector_bone));
+		//print_line("IK solve bone goal local location " + p_task->end_effectors[0]->goal_transform.origin);
+		//print_line("IK solve bone local location " + effector_chain_item->axes.origin);
+		//print_line("IK solve bone global location " + p_task->skeleton->get_bone_global_pose(effector_chain_item->bone).origin);
+
+		Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
+		for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
+			String bone_name = p_skeleton->get_bone_name(bones[bone_i]->bone);
+			Ref<BoneChainItem> item = bones[bone_i];
+			print_line(bone_name);
+			print_line(item->axes.basis.get_rotation_euler());
+			print_line(item->axes.origin);
+			p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true);
+			p_skeleton->force_update_bone_children_transforms(item->bone);
+		}
+		//if (p_current_chain->tip_bone == p_current_chain->bone) {
+		//	// Set target orientation to tip
+		//	if (override_tip_basis) {
+		//		new_bone_pose.basis = p_task->chain->targets[0]->end_effector->goal_transform.basis;
+		//	} else {
+		//		new_bone_pose.basis =
+		//				new_bone_pose.basis * p_task->chain->targets[0]->end_effector->goal_transform.basis;
+		//	}
+		//}
+		Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
+		for (int32_t i = 0; i < bone_chains.size(); i++) {
+			apply_bone_chains(p_strength, p_skeleton, p_bone_chain, bone_chains[i]);
+		}
+	}
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);
 	void set_constraint_count(int32_t p_value);
@@ -396,7 +427,7 @@ private:
 			int p_iteration,
 			float p_total_iterations);
 	static bool build_chain(Ref<DMIKTask> p_task);
-	static void update_chain(const Skeleton3D *p_sk, Ref<BoneChainItem> p_chain_item);
+	static void update_chain(Skeleton3D *p_sk, Ref<BoneChainItem> p_chain_item);
 	static void solve_simple(Ref<DMIKTask> p_task, bool p_solve_magnet);
 
 public:
@@ -429,10 +460,9 @@ public:
 			Vector<real_t> p_weights, Transform p_bone_xform);
 	static void update_effector_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
-	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone, const Transform &goal_transform,
+	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3DDMIK> p_constraints = NULL);
-	static void make_goal(Ref<DMIKTask> p_task, const Transform &p_inverse_transf, float blending_delta);
 	static void solve(Ref<DMIKTask> p_task, float blending_delta, bool override_effector_basis, bool p_use_magnet,
 			const Vector3 &p_magnet_position);
 };

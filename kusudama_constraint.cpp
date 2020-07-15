@@ -35,7 +35,7 @@
 #include "skeleton_modification_3d_dmik.h"
 
 void KusudamaConstraint::optimize_limiting_axes() {
-	const IKAxes original_limiting_axes = limiting_axes;
+	const Transform original_limiting_axes = limiting_axes;
 
 	Vector<Vector3> directions;
 	if (multi_direction.size() == 1) {
@@ -136,7 +136,7 @@ real_t KusudamaConstraint::from_tau(real_t p_tau) const {
 	return result;
 }
 
-Vector3 KusudamaConstraint::point_in_limits(Vector3 inPoint, Vector<real_t> inBounds, IKAxes limitingAxes) {
+Vector3 KusudamaConstraint::point_in_limits(Vector3 inPoint, Vector<real_t> inBounds, Transform limitingAxes) {
 	Vector3 point = inPoint;
 	//TODO
 	// limitingAxes.setToLocalOf(inPoint, point);
@@ -205,7 +205,7 @@ real_t KusudamaConstraint::signed_angle_difference(real_t p_min_angle, real_t p_
 	return r;
 }
 
-real_t KusudamaConstraint::snap_to_twist_limits(IKAxes p_to_set, IKAxes p_limiting_axes) {
+real_t KusudamaConstraint::snap_to_twist_limits(Transform p_to_set, Transform p_limiting_axes) {
 	if (!axial_constrained) {
 		return 0.0f;
 	}
@@ -223,7 +223,8 @@ real_t KusudamaConstraint::snap_to_twist_limits(IKAxes p_to_set, IKAxes p_limiti
 																							   twist->get_min_twist_angle()) +
 																							  to_tau(twist->get_range()))));
 		real_t turnDiff = 1.0f;
-		turnDiff *= p_limiting_axes.get_global_chirality();
+		// Chirality
+		turnDiff *= 1;
 		if (distToMin < distToMax) {
 			turnDiff = turnDiff * (fromMinToAngleDelta);
 			p_to_set.rotate_basis(Vector3(0, 1, 0), turnDiff);
@@ -259,7 +260,7 @@ void KusudamaConstraint::constraint_update_notification() {
 	update_rotational_freedom();
 }
 
-void KusudamaConstraint::set_axes_to_snapped(IKAxes p_to_set, IKAxes p_limiting_axes, float p_cos_half_angle_dampen) {
+void KusudamaConstraint::set_axes_to_snapped(Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen) {
 	if (!p_limiting_axes.is_equal_approx(Transform())) {
 		if (orientation_constrained) {
 			set_axes_to_orientation_snap(p_to_set, p_limiting_axes, p_cos_half_angle_dampen);
@@ -270,7 +271,7 @@ void KusudamaConstraint::set_axes_to_snapped(IKAxes p_to_set, IKAxes p_limiting_
 	}
 }
 
-void KusudamaConstraint::set_axes_to_orientation_snap(IKAxes p_to_set, IKAxes p_limiting_axes,
+void KusudamaConstraint::set_axes_to_orientation_snap(Transform p_to_set, Transform p_limiting_axes,
 		float p_cos_half_angle_dampen) {
 	Vector<real_t> inBounds;
 	inBounds.push_back(1.f);
@@ -288,7 +289,7 @@ void KusudamaConstraint::set_axes_to_orientation_snap(IKAxes p_to_set, IKAxes p_
 	// }
 }
 
-void KusudamaConstraint::set_axes_to_returnful(IKAxes p_global_xform, IKAxes p_to_set, IKAxes p_limiting_axes,
+void KusudamaConstraint::set_axes_to_returnful(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes,
 		real_t p_cos_half_angle_dampen, real_t p_angle_dampen) {
 	if (!p_limiting_axes.is_equal_approx(Transform()) && pain > 0.0f) {
 		const int32_t y_axis = 1;
@@ -310,12 +311,12 @@ void KusudamaConstraint::set_axes_to_returnful(IKAxes p_global_xform, IKAxes p_t
 	}
 }
 
-real_t KusudamaConstraint::angle_to_twist_center(IKAxes p_global_xform, IKAxes p_to_set, IKAxes p_limiting_axes) {
+real_t KusudamaConstraint::angle_to_twist_center(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes) {
 	if (!axial_constrained) {
 		return 0.0f;
 	}
-	IKAxes limiting_axes_global = p_global_xform * limiting_axes;
-	IKAxes to_set_global = p_global_xform * p_to_set;
+	Transform limiting_axes_global = p_global_xform * limiting_axes;
+	Transform to_set_global = p_global_xform * p_to_set;
 	IKQuat align_rot =
 			limiting_axes_global.basis.get_rotation_quat().inverse() * to_set_global.basis.get_rotation_quat();
 	Vector<IKQuat> decomposition = align_rot.get_swing_twist(Vector3(0, 1, 0));
@@ -328,7 +329,7 @@ real_t KusudamaConstraint::angle_to_twist_center(IKAxes p_global_xform, IKAxes p
 }
 
 Vector3
-KusudamaConstraint::point_on_path_sequence(IKAxes p_global_xform, Vector3 p_in_point, IKAxes p_limiting_axes) {
+KusudamaConstraint::point_on_path_sequence(Transform p_global_xform, Vector3 p_in_point, Transform p_limiting_axes) {
 	real_t closestPointDot = 0.0f;
 	Vector3 point = p_limiting_axes.origin;
 	point.normalize();
@@ -357,11 +358,11 @@ real_t KusudamaConstraint::get_pain() {
 	return pain;
 }
 
-void KusudamaConstraint::set_limiting_axes(const IKAxes &p_limiting_axes) {
+void KusudamaConstraint::set_limiting_axes(const Transform &p_limiting_axes) {
 	limiting_axes = p_limiting_axes;
 }
 
-IKAxes KusudamaConstraint::get_limiting_axes() const {
+Transform KusudamaConstraint::get_limiting_axes() const {
 	return limiting_axes;
 }
 
