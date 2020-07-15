@@ -74,11 +74,7 @@ void KusudamaConstraint::optimize_limiting_axes() {
 		newY = Vector3(0.0, 1.0f, 0.0);
 	}
 
-	// Ray newYRay = Ray(Vector3(0.0, 0.0, 0.0), newY);
-
-	// TODO
-	// Skeleton3D *skeleton = attached_to->parent_armature->constraints->stack->get_skeleton();
-	// Transform global_pose = skeleton->get_bone_global_pose(attached_to->bone);
+	Ray newYRay = Ray(Vector3(0.0, 0.0, 0.0), newY);
 
 	// TODO
 	// Quat old_y_to_new_y = Quat(limiting_axes.y_().heading(), original_limiting_axes.getGlobalOf(newYRay).heading());

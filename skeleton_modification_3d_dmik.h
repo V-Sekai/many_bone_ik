@@ -198,7 +198,7 @@ public:
      * Targets can be ultimate targets, or intermediary targets.
      * By default, each target is treated as an ultimate target, meaning
      * any bones which are ancestors to that target's end-effector
-     * are not aware of any target wich are target of bones descending from that end effector.
+     * are not aware of any target which are target of bones descending from that end effector.
      *
      * Changing this value makes ancestor bones aware, and also determines how much less
      * they care with each level down.
@@ -223,7 +223,7 @@ public:
 	float get_depth_falloff() const;
 
 	/**
-     * Sets  the priority of the orientation bases which effectors reaching for this target will and won't align with.
+     * Sets the priority of the orientation bases which effectors reaching for this target will and won't align with.
      * If all are set to 0, then the target is treated as a simple position target.
      * It's usually better to set at least on of these three values to 0, as giving a nonzero value to all three is most often redundant.
      *
