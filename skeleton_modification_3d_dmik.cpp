@@ -998,6 +998,7 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_cha
 		Vector<real_t> p_weights, Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
+		// TODO Shadowbones?
 		Ref<BoneChainItem> sb = r_chain->targets[target_i]->chain_item;
 		if (sb->constraint.is_null()) {
 			continue;
@@ -1039,6 +1040,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_c
 		Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
+		// TODO Shadowbones?
 		Ref<BoneChainItem> sb = r_chain->targets[target_i]->chain_item;
 		Transform effector_xform = r_chain->targets[target_i]->end_effector->goal_transform;
 		BoneId bone = r_chain->targets[target_i]->end_effector->effector_bone;
