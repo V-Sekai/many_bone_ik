@@ -212,6 +212,7 @@ void SkeletonModification3DDMIK::_get_property_list(List<PropertyInfo> *p_list) 
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_range"));
 		p_list->push_back(PropertyInfo(Variant::INT, "kusudama_constraints/" + itos(i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "kusudama_constraints/" + itos(i) + "/constraint_axes"));
+		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "kusudama_constraints/" + itos(i) + "/limiting_axes"));		
 		ERR_CONTINUE(get_constraint(i).is_null());
 		for (int j = 0; j < get_constraint(i)->get_direction_count(); j++) {
 			p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/direction" + "/" + itos(j) + "/radius", PROPERTY_HINT_RANGE, "0,65535,or_greater"));
@@ -283,6 +284,9 @@ bool SkeletonModification3DDMIK::_get(const StringName &p_name, Variant &r_ret) 
 			return true;
 		} else if (what == "constraint_axes") {
 			r_ret = get_constraint(index)->get_constraint_axes();
+			return true;
+		} else if (what == "limiting_axes") {
+			r_ret = get_constraint(index)->get_limiting_axes();
 			return true;
 		} else if (what == "direction") {
 			int direction_index = name.get_slicec('/', 3).to_int();
@@ -370,6 +374,10 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 			return true;
 		} else if (what == "constraint_axes") {
 			constraint->set_constraint_axes(p_value);
+			_change_notify();
+			return true;
+		} else if (what == "limiting_axes") {
+			constraint->set_limiting_axes(p_value);
 			_change_notify();
 			return true;
 		} else if (what == "direction_count") {
@@ -566,7 +574,7 @@ void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
 		BoneId parent = p_skeleton->get_bone_parent(bone_i);
 		if (parent == -1) {
 			// TODO May be wrong. Debugging note 2020-07-14
-			Transform xform = p_skeleton->get_transform();
+			Transform xform = p_skeleton->get_global_transform();
 			constraint->set_limiting_axes(xform);
 		} else {
 			// TODO May be wrong. Debugging note 2020-07-14
@@ -580,6 +588,7 @@ void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
 		multi_constraint.push_back(constraint);
 		constraint_count++;
 	}
+	_change_notify();
 }
 
 void SkeletonModification3DDMIK::QCPSolver(
@@ -674,6 +683,37 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	chain->chain_root->filter_and_merge_child_chains();
 	chain->chain_root->bone = p_task->root_bone;
 	chain->chain_root->pb = p_task->skeleton->get_physical_bone(chain->chain_root->bone);
+
+	p_task->end_effectors.resize(p_task->dmik->get_effector_count());
+	for (int32_t name_i = 0; name_i < p_task->dmik->get_effector_count(); name_i++) {
+		Ref<BoneEffector> effector = p_task->dmik->get_effector(name_i);
+		if (effector.is_null()) {
+			continue;
+		}
+		Ref<BoneEffectorTransform> ee;
+		ee.instance();
+		// TODO Cache as object id
+		Transform xform;
+		Node *target_node = p_task->skeleton->get_node_or_null(effector->get_target_node());
+		if (target_node) {
+			Node3D *current_node = Object::cast_to<Node3D>(target_node);
+			xform = current_node->get_global_transform();
+			xform = p_task->skeleton->world_transform_to_global_pose(xform);
+		}
+		int32_t bone = p_task->skeleton->find_bone(effector->get_name());
+		xform = p_task->skeleton->global_pose_to_local_pose(bone, xform);
+		Transform target_xform = effector->get_target_transform();
+		target_xform = p_task->skeleton->world_transform_to_global_pose(target_xform);
+		target_xform = p_task->skeleton->global_pose_to_local_pose(bone, target_xform);
+		xform *= target_xform;
+		if (bone == -1) {
+			continue;
+		}
+		ee->goal_transform = xform;
+		ee->effector_bone = bone;
+		p_task->end_effectors.write[name_i] = ee;
+	}
+
 	chain->targets.resize(p_task->end_effectors.size());
 	for (int32_t effector_i = 0; effector_i < p_task->end_effectors.size(); effector_i++) {
 		Ref<BoneEffectorTransform> ee = p_task->end_effectors[effector_i];
@@ -685,6 +725,20 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 		ERR_FAIL_COND_V(bone_chain_item.is_null(), false);
 		target->chain_item = bone_chain_item;
 		chain->targets.write[effector_i] = target;
+	}
+
+	for (int32_t constraint_i = 0; constraint_i < p_task->dmik->get_constraint_count(); constraint_i++) {
+		Ref<KusudamaConstraint> constraint = p_task->dmik->get_constraint(constraint_i);
+		ERR_CONTINUE(constraint.is_null());
+		for (int32_t direction_i = 0; direction_i < constraint->get_direction_count(); direction_i++) {
+			Ref<DirectionConstraint> direction = constraint->get_direction(direction_i);
+			if (direction.is_null()) {
+				continue;
+			}
+			Vector3 cp = direction->get_control_point();
+			direction->set_control_point(cp.normalized());
+			constraint->set_direction(direction_i, direction);
+		}
 	}
 	chain->create_headings_arrays();
 	return true;
@@ -738,49 +792,6 @@ Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, S
 		}
 		p_constraints->set_constraint(0, constraint);
 	}
-	task->end_effectors.resize(p_constraints->get_effector_count());
-	for (int32_t name_i = 0; name_i < p_constraints->get_effector_count(); name_i++) {
-		Ref<BoneEffector> effector = p_constraints->get_effector(name_i);
-		if (effector.is_null()) {
-			continue;
-		}
-		Ref<BoneEffectorTransform> ee;
-		ee.instance();
-		Node *target_node = task->skeleton->get_node_or_null(effector->get_target_node());
-		Transform xform;
-		Node3D *spatial_node = Object::cast_to<Node3D>(target_node);
-		if (spatial_node) {
-			xform = spatial_node->get_global_transform();
-			xform = p_sk->world_transform_to_global_pose(xform);
-			xform = p_sk->global_pose_to_local_pose(bone, xform);
-		}
-		Transform target_xform = effector->get_target_transform();
-		target_xform = p_sk->world_transform_to_global_pose(target_xform);
-		target_xform = p_sk->global_pose_to_local_pose(bone, target_xform);
-		xform *= target_xform;
-		int32_t bone = task->skeleton->find_bone(effector->get_name());
-		if (bone == -1) {
-			continue;
-		}
-		ee->goal_transform = xform;
-		ee->effector_bone = bone;
-		task->end_effectors.write[name_i] = ee;
-	}
-
-	for (int32_t constraint_i = 0; constraint_i < p_constraints->get_constraint_count(); constraint_i++) {
-		Ref<KusudamaConstraint> constraint = p_constraints->get_constraint(constraint_i);
-		ERR_CONTINUE(constraint.is_null());
-		for (int32_t direction_i = 0; direction_i < constraint->get_direction_count(); direction_i++) {
-			Ref<DirectionConstraint> direction = constraint->get_direction(direction_i);
-			if (direction.is_null()) {
-				continue;
-			}
-			Vector3 cp = direction->get_control_point();
-			direction->set_control_point(cp.normalized());
-			constraint->set_direction(direction_i, direction);
-		}
-	}
-
 	task->dampening = p_dampening;
 	task->stabilizing_passes = p_stabilizing_passes;
 	ERR_FAIL_COND_V(!p_constraints->multi_effector.size(), nullptr);

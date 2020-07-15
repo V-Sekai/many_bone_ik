@@ -360,6 +360,7 @@ real_t KusudamaConstraint::get_pain() {
 
 void KusudamaConstraint::set_limiting_axes(const Transform &p_limiting_axes) {
 	limiting_axes = p_limiting_axes;
+	_change_notify();
 }
 
 Transform KusudamaConstraint::get_limiting_axes() const {
