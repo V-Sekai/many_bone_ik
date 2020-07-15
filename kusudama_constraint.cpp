@@ -407,6 +407,7 @@ void KusudamaConstraint::set_pain(real_t p_amount) {
 		return;
 	}
 	wb->update_cos_dampening();
+	_change_notify();
 }
 
 void KusudamaConstraint::_bind_methods() {
@@ -431,21 +432,19 @@ void KusudamaConstraint::set_direction_count(int32_t p_count) {
 		set_direction(i, constraint);
 	}
 	_change_notify();
-	emit_changed();
-	emit_signal("ik_changed");
 }
 
 void KusudamaConstraint::set_direction(int32_t p_index, Ref<DirectionConstraint> p_constraint) {
 	ERR_FAIL_INDEX(p_index, multi_direction.size());
 	multi_direction.write[p_index] = p_constraint;
-	emit_signal("ik_changed");
+	_change_notify();
 }
 
 void KusudamaConstraint::remove_direction(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_direction.size());
 	multi_direction.remove(p_index);
 	set_direction_count(direction_count - 1);
-	emit_signal("ik_changed");
+	_change_notify();
 }
 
 KusudamaConstraint::KusudamaConstraint(Ref<BoneChainItem> p_for_bone) {
@@ -478,7 +477,6 @@ void KusudamaConstraint::set_twist_constraint(Ref<TwistConstraint> p_twist_const
 	ERR_FAIL_COND(p_twist_constraint.is_null());
 	set_twist_limits(twist->get_min_twist_angle(), from_tau(twist->get_range()));
 	_change_notify();
-	emit_changed();
 }
 
 void KusudamaConstraint::snap_to_limits() {

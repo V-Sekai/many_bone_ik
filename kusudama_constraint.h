@@ -89,6 +89,7 @@ public:
 	}
 	void set_constraint_axes(Transform p_axes) {
 		constraint_axes = p_axes;
+		_change_notify();
 	}
 
 	int32_t get_direction_count() const;

@@ -45,8 +45,6 @@ void SkeletonModification3DDMIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_constraint", "index"), &SkeletonModification3DDMIK::get_constraint);
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DDMIK::set_effector);
 	ClassDB::bind_method(D_METHOD("set_constraint", "index", "constraint"), &SkeletonModification3DDMIK::set_constraint);
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,65535,1"), "set_constraint_count", "get_constraint_count");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"), "set_effector_count", "get_effector_count");
 }
 
 bool BoneChainItem::is_bone_effector(Ref<BoneChainItem> current_bone) {
@@ -205,6 +203,8 @@ void BoneChainItem::filter_and_merge_child_chains() {
 }
 
 void SkeletonModification3DDMIK::_get_property_list(List<PropertyInfo> *p_list) const {
+	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,65535,1"));
+	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	for (int i = 0; i < constraint_count; i++) {
 		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(i) + "/name"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_min_angle"));
@@ -235,6 +235,12 @@ bool SkeletonModification3DDMIK::_get(const StringName &p_name, Variant &r_ret) 
 	String name = p_name;
 	if (name == "root_bone") {
 		r_ret = get_root_bone();
+		return true;
+	} else if (name == "constraint_count") {
+		r_ret = get_constraint_count();
+		return true;
+	} else if (name == "effector_count") {
+		r_ret = get_effector_count();
 		return true;
 	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
@@ -302,6 +308,12 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 
 	if (name == "root_bone") {
 		set_root_bone(p_value);
+		return true;
+	} else if (name == "constraint_count") {
+		set_constraint_count(p_value);
+		return true;
+	} else if (name == "effector_count") {
+		set_effector_count(p_value);
 		return true;
 	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
@@ -418,6 +430,7 @@ int32_t SkeletonModification3DDMIK::find_constraint(String p_name) {
 void SkeletonModification3DDMIK::set_effector_count(int32_t p_value) {
 	multi_effector.resize(p_value);
 	effector_count = p_value;
+	_change_notify();
 }
 
 int32_t SkeletonModification3DDMIK::get_effector_count() const {
@@ -434,11 +447,13 @@ void SkeletonModification3DDMIK::set_effector(int32_t p_index, Ref<BoneEffector>
 	ERR_FAIL_COND(p_effector.is_null());
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.write[p_index] = p_effector;
+	_change_notify();
 }
 
 void SkeletonModification3DDMIK::set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint) {
 	ERR_FAIL_INDEX(p_index, multi_constraint.size());
 	multi_constraint.write[p_index] = p_constraint;
+	_change_notify();
 }
 
 Vector<Ref<BoneEffector>> SkeletonModification3DDMIK::get_bone_effectors() const {
@@ -458,6 +473,7 @@ void SkeletonModification3DDMIK::remove_effector(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.remove(p_index);
 	effector_count--;
+	_change_notify();
 }
 
 int32_t SkeletonModification3DDMIK::get_constraint_count() const {
@@ -470,6 +486,7 @@ void SkeletonModification3DDMIK::set_constraint_count(int32_t p_value) {
 		multi_constraint.write[i].instance();
 	}
 	constraint_count = p_value;
+	_change_notify();
 }
 
 void SkeletonModification3DDMIK::execute(float delta) {
@@ -576,6 +593,7 @@ void SkeletonModification3DDMIK::add_effector(String p_name, NodePath p_node, Tr
 	effector->set_budget_ms(p_budget);
 	multi_effector.push_back(effector);
 	effector_count++;
+	_change_notify();
 }
 
 void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
