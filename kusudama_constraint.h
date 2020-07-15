@@ -58,7 +58,6 @@ private:
 	int32_t direction_count = 0;
 	bool orientation_constrained = false;
 	bool axial_constrained = false;
-	Transform limiting_axes;
 	Ref<BoneChainItem> attached_to;
 	Ray bone_ray;
 	Ray constrained_ray;
@@ -119,11 +118,6 @@ public:
 	//returns true if the ray from the constraint origin to the globalPoint is within the constraint's limits
 	//false otherwise.
 	virtual bool is_in_limits_(const Vector3 p_global_point) const;
-
-	virtual Transform get_limiting_axes() const;
-
-	virtual void set_limiting_axes(const Transform &p_limiting_axes);
-
 	virtual float get_pain();
 
 	/**

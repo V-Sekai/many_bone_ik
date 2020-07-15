@@ -35,7 +35,7 @@
 #include "skeleton_modification_3d_dmik.h"
 
 void KusudamaConstraint::optimize_limiting_axes() {
-	const Transform original_limiting_axes = limiting_axes;
+	const Transform original_constraint_axes = get_constraint_axes();
 
 	Vector<Vector3> directions;
 	if (multi_direction.size() == 1) {
@@ -79,9 +79,9 @@ void KusudamaConstraint::optimize_limiting_axes() {
 	// TODO
 	// Quat old_y_to_new_y = Quat(limiting_axes.y_().heading(), original_limiting_axes.getGlobalOf(newYRay).heading());
 	Transform xform;
-	xform.basis = original_limiting_axes.get_basis();
-	Quat old_y_to_new_y = limiting_axes.get_basis() * xform.get_basis();
-	limiting_axes.basis.rotate(old_y_to_new_y);
+	xform.basis = original_constraint_axes.get_basis();
+	Quat old_y_to_new_y = get_constraint_axes().get_basis() * xform.get_basis();
+	get_constraint_axes().basis.rotate(old_y_to_new_y);
 	for (int32_t direction_limit_i = 0; direction_limit_i < multi_direction.size(); direction_limit_i++) {
 		Ref<DirectionConstraint> direction_limit = multi_direction[direction_limit_i];
 		// original_limiting_axes.setToGlobalOf(direction_limit->get_control_point(), direction_limit->get_control_point().normalized());
@@ -315,10 +315,10 @@ real_t KusudamaConstraint::angle_to_twist_center(Transform p_global_xform, Trans
 	if (!axial_constrained) {
 		return 0.0f;
 	}
-	Transform limiting_axes_global = p_global_xform * limiting_axes;
+	Transform constraint_axes_global = p_global_xform * get_constraint_axes();
 	Transform to_set_global = p_global_xform * p_to_set;
 	IKQuat align_rot =
-			limiting_axes_global.basis.get_rotation_quat().inverse() * to_set_global.basis.get_rotation_quat();
+			constraint_axes_global.basis.get_rotation_quat().inverse() * to_set_global.basis.get_rotation_quat();
 	Vector<IKQuat> decomposition = align_rot.get_swing_twist(Vector3(0, 1, 0));
 	const int32_t axis_y = 1;
 	real_t angle_delta_2 = Basis(decomposition[1]).get_axis(axis_y).y * -1.0f;
@@ -356,15 +356,6 @@ KusudamaConstraint::point_on_path_sequence(Transform p_global_xform, Vector3 p_i
 
 real_t KusudamaConstraint::get_pain() {
 	return pain;
-}
-
-void KusudamaConstraint::set_limiting_axes(const Transform &p_limiting_axes) {
-	limiting_axes = p_limiting_axes;
-	_change_notify();
-}
-
-Transform KusudamaConstraint::get_limiting_axes() const {
-	return limiting_axes;
 }
 
 void KusudamaConstraint::disable() {

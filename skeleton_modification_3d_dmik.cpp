@@ -212,7 +212,6 @@ void SkeletonModification3DDMIK::_get_property_list(List<PropertyInfo> *p_list) 
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_range"));
 		p_list->push_back(PropertyInfo(Variant::INT, "kusudama_constraints/" + itos(i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "kusudama_constraints/" + itos(i) + "/constraint_axes"));
-		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "kusudama_constraints/" + itos(i) + "/limiting_axes"));		
 		ERR_CONTINUE(get_constraint(i).is_null());
 		for (int j = 0; j < get_constraint(i)->get_direction_count(); j++) {
 			p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/direction" + "/" + itos(j) + "/radius", PROPERTY_HINT_RANGE, "0,65535,or_greater"));
@@ -284,9 +283,6 @@ bool SkeletonModification3DDMIK::_get(const StringName &p_name, Variant &r_ret) 
 			return true;
 		} else if (what == "constraint_axes") {
 			r_ret = get_constraint(index)->get_constraint_axes();
-			return true;
-		} else if (what == "limiting_axes") {
-			r_ret = get_constraint(index)->get_limiting_axes();
 			return true;
 		} else if (what == "direction") {
 			int direction_index = name.get_slicec('/', 3).to_int();
@@ -374,10 +370,6 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 			return true;
 		} else if (what == "constraint_axes") {
 			constraint->set_constraint_axes(p_value);
-			_change_notify();
-			return true;
-		} else if (what == "limiting_axes") {
-			constraint->set_limiting_axes(p_value);
 			_change_notify();
 			return true;
 		} else if (what == "direction_count") {
@@ -575,7 +567,7 @@ void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
 		if (parent == -1) {
 			// TODO May be wrong. Debugging note 2020-07-14
 			Transform xform = p_skeleton->get_global_transform();
-			constraint->set_limiting_axes(xform);
+			constraint->set_constraint_axes(xform);
 		} else {
 			// TODO May be wrong. Debugging note 2020-07-14
 			// Relative to the transform axes of the parent bone
@@ -583,7 +575,7 @@ void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
 			Transform global_pose_xform = p_skeleton->get_bone_global_pose_override(parent);
 			Transform pose_xform = p_skeleton->get_bone_local_pose_override(bone_i);
 			global_pose_xform = global_pose_xform * pose_xform.affine_inverse();
-			constraint->set_limiting_axes(global_pose_xform);
+			constraint->set_constraint_axes(global_pose_xform);
 		}
 		multi_constraint.push_back(constraint);
 		constraint_count++;
@@ -857,9 +849,9 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 	if (p_chain_item->constraint.is_null()) {
 		return;
 	}
-	p_chain_item->set_axes_to_be_snapped(xform, p_chain_item->constraint->get_limiting_axes(), bone_damp);
+	p_chain_item->set_axes_to_be_snapped(xform, p_chain_item->constraint->get_constraint_axes(), bone_damp);
 	xform.origin = p_chain_item->axes.origin;
-	p_chain_item->constraint->set_limiting_axes(p_chain_item->constraint->get_limiting_axes().translated(translate_by));
+	p_chain_item->constraint->set_constraint_axes(p_chain_item->constraint->get_constraint_axes().translated(translate_by));
 }
 
 void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<BoneChain> r_chain,
@@ -981,7 +973,7 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChain> r_chain, 
 		if (sb->constraint.is_null()) {
 			continue;
 		}
-		Transform targetAxes = sb->constraint->get_limiting_axes();
+		Transform targetAxes = sb->constraint->get_constraint_axes();
 		Vector3 &origin = sb->axes.origin;
 		r_localized_target_headings.write[hdx] = targetAxes.origin - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
