@@ -388,10 +388,10 @@ void KusudamaConstraint::update_rotational_freedom() {
 
 void KusudamaConstraint::set_pain(real_t p_amount) {
 	pain = p_amount;
-	if (attached_to == NULL || attached_to->parent_armature == NULL) {
+	if (attached_to == NULL || attached_to->chain_root == NULL) {
 		return;
 	}
-	Ref<BoneChain> s = attached_to->parent_armature;
+	Ref<BoneChainItem> s = attached_to->chain_root;
 	if (s == NULL) {
 		return;
 	}

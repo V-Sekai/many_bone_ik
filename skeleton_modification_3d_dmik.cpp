@@ -92,9 +92,9 @@ Vector<Ref<BoneChainItem>> BoneChainItem::get_bone_children(Skeleton3D *p_skelet
 				Ref<BoneChainItem> item;
 				item.instance();
 				item->bone = bone_i;
-				parent_armature->bone_segment_map[bone_i] = item;
-				item->parent_armature = parent_armature;
-				item->parent_item = parent_armature->bone_segment_map[parent];
+				chain_root->bone_segment_map[bone_i] = item;
+				item->chain_root = chain_root;
+				item->parent_item = chain_root->bone_segment_map[parent];
 				bone_chain_items.push_back(item);
 			}
 		}
@@ -106,7 +106,7 @@ void BoneChainItem::create_child_chains(Ref<BoneChainItem> p_from_bone) {
 	Vector<Ref<BoneChainItem>> children = get_bone_children(skeleton, p_from_bone);
 	for (int i = 0; i < children.size(); i++) {
 		Ref<BoneChainItem> child = children[i];
-		child->init(skeleton, multi_effector, parent_armature, this, child);
+		child->init(skeleton, multi_effector, chain_root, this, child);
 		child_chains.push_back(child);
 	}
 }
@@ -176,13 +176,13 @@ Vector<Ref<BoneChainItem>> BoneChainItem::get_child_chains() {
 	return child_chains;
 }
 
-void BoneChainItem::init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChain> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone) {
+void BoneChainItem::init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone) {
 	ERR_FAIL_COND(this == parent_chain.ptr());
 	parent_chain = p_parent_chain;
 	base_bone = p_base_bone;
 	skeleton = p_skeleton;
 	multi_effector = p_multi_effector;
-	parent_armature = p_chain;
+	chain_root = p_chain;
 	build_chain(p_base_bone);
 }
 
@@ -525,11 +525,9 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 		Ref<BoneChainItem> chain_item;
 		chain_item.instance();
 		chain_item->bone = _bone;
-		Ref<BoneChain> chain;
-		chain.instance();
 		Ref<BoneChainItem> bone_chain;
 		bone_chain.instance();
-		bone_chain->init(skeleton, multi_effector, chain, nullptr, chain_item);
+		bone_chain->init(skeleton, multi_effector, bone_chain, nullptr, chain_item);
 		Vector<String> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
 		set_effector_count(0);
 		for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
@@ -617,7 +615,7 @@ void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
 
 void SkeletonModification3DDMIK::QCPSolver(
 		Skeleton3D *p_skeleton,
-		Ref<BoneChain> p_chain,
+		Ref<BoneChainItem> p_chain,
 		float p_dampening,
 		bool p_inverse_weighting,
 		int p_stabilization_passes,
@@ -640,7 +638,7 @@ void SkeletonModification3DDMIK::QCPSolver(
 }
 
 Ref<BoneChainItem> BoneChainItem::find_child(const int p_bone_id) {
-	return parent_armature->bone_segment_map[p_bone_id];
+	return chain_root->bone_segment_map[p_bone_id];
 }
 
 Ref<BoneChainItem> BoneChainItem::add_child(const int p_bone_id) {
@@ -656,7 +654,7 @@ Ref<BoneChainItem> BoneChainItem::add_child(const int p_bone_id) {
 
 void BoneChainItem::update_cos_dampening() {
 	float predampening = 1.0f - get_stiffness();
-	float default_dampening = parent_armature->dampening;
+	float default_dampening = chain_root->dampening;
 	float dampening = parent_item == NULL ? Math_PI : predampening * default_dampening;
 	cos_half_dampen = Math::cos(dampening / 2.0f);
 	Ref<KusudamaConstraint> k = constraint;
@@ -696,18 +694,14 @@ void BoneChainItem::set_stiffness(float p_stiffness) {
 
 bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
-	Ref<BoneChain> chain;
-	chain.instance();
+	Ref<BoneChainItem> chain = p_task->chain;
+	chain->chain_root = chain;
 	chain->constraints = p_task->dmik;
-	p_task->chain = chain;
-	Ref<BoneChainItem> chain_item;
-	chain_item.instance();
-	chain_item->bone = p_task->root_bone;
-	chain->chain_root.instance();
-	chain->chain_root->init(p_task->skeleton, p_task->dmik->multi_effector, chain, nullptr, chain_item);
-	chain->chain_root->filter_and_merge_child_chains();
-	chain->chain_root->bone = p_task->root_bone;
-	chain->chain_root->pb = p_task->skeleton->get_physical_bone(chain->chain_root->bone);
+	chain->bone = p_task->root_bone;
+	chain->init(p_task->skeleton, p_task->dmik->multi_effector, chain, nullptr, chain);
+	chain->filter_and_merge_child_chains();
+	chain->bone = p_task->root_bone;
+	chain->pb = p_task->skeleton->get_physical_bone(chain->bone);
 
 	p_task->end_effectors.resize(p_task->dmik->get_effector_count());
 	for (int32_t name_i = 0; name_i < p_task->dmik->get_effector_count(); name_i++) {
@@ -777,8 +771,9 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainIte
 	if (!p_chain_item->children.size()) {
 		return;
 	}
-	for (int i = p_chain_item->children.size() - 1; 0 <= i; --i) {
-		update_chain(p_sk, p_chain_item->children.write[i]);
+	Vector<Ref<BoneChainItem>> bones = p_chain_item->get_bone_children(p_sk, p_chain_item);
+	for (int i = 0; i < bones.size(); i++) {
+		update_chain(p_sk, bones[i]);
 	}
 }
 
@@ -832,7 +827,7 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 		return; // Skip solving
 	}
 
-	update_chain(p_task->skeleton, p_task->chain->chain_root);
+	update_chain(p_task->skeleton, p_task->chain);
 
 	if (!p_task->end_effectors.size()) {
 		return;
@@ -842,13 +837,13 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 	apply_bone_chains(p_task->dmik->stack->get_strength(), p_task->skeleton, p_task->chain->chain_root, p_task->chain->chain_root);
 }
 
-void SkeletonModification3DDMIK::set_default_dampening(Ref<BoneChain> r_chain, float p_damp) {
+void SkeletonModification3DDMIK::set_default_dampening(Ref<BoneChainItem> r_chain, float p_damp) {
 	r_chain->dampening =
 			MIN(Math_PI * 3.0f, MAX(Math::absf(std::numeric_limits<real_t>::epsilon()), Math::absf(p_damp)));
 	update_armature_segments(r_chain);
 }
 
-void SkeletonModification3DDMIK::update_armature_segments(Ref<BoneChain> r_chain) {
+void SkeletonModification3DDMIK::update_armature_segments(Ref<BoneChainItem> r_chain) {
 	r_chain->bone_segment_map.clear();
 	recursively_update_bone_segment_map_from(r_chain, r_chain->chain_root);
 }
@@ -885,7 +880,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 	p_chain_item->constraint->set_constraint_axes(p_chain_item->constraint->get_constraint_axes().translated(translate_by));
 }
 
-void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<BoneChain> r_chain,
+void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<BoneChainItem> r_chain,
 		Ref<BoneChainItem> p_start_from) {
 	for (int32_t child_i = 0; child_i < p_start_from->children.size(); child_i++) {
 		r_chain->bone_segment_map.insert(p_start_from->children[child_i]->bone, p_start_from);
@@ -893,7 +888,7 @@ void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<Bo
 }
 
 void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Skeleton3D *p_skeleton,
-		Ref<BoneChain> r_chain,
+		Ref<BoneChainItem> r_chain,
 		Ref<BoneChainItem> p_for_bone,
 		float p_dampening, bool p_translate,
 		int p_stabilization_passes, int p_iteration,
@@ -996,7 +991,7 @@ float SkeletonModification3DDMIK::get_manual_msd(Vector<Vector3> &r_localized_ef
 	return manual_rmsd;
 }
 
-void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_target_headings,
+void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_chain, Vector<Vector3> &r_localized_target_headings,
 		Vector<real_t> p_weights, Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
@@ -1005,6 +1000,7 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChain> r_chain, 
 			continue;
 		}
 		Transform targetAxes = sb->constraint->get_constraint_axes();
+
 		Vector3 &origin = sb->axes.origin;
 		r_localized_target_headings.write[hdx] = targetAxes.origin - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
@@ -1012,7 +1008,7 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChain> r_chain, 
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
 			Ray xTarget;
 			xTarget.normal = Vector3(1, 0, 0);
-			xTarget.position = xTarget.normal * targetAxes.basis.get_axis(x_axis);
+			xTarget.position = xTarget.normal * targetAxes.origin.get_axis(x_axis);
 			r_localized_target_headings.write[hdx] = xTarget.position - origin;
 			origin = xTarget.set_to_inverted_tip(r_localized_target_headings[hdx + 1]) - origin;
 			hdx += 2;
@@ -1020,7 +1016,7 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChain> r_chain, 
 		if ((modeCode & BoneChainTarget::YDir) != 0) {
 			Ray yTarget;
 			yTarget.normal = Vector3(0, 1, 0);
-			yTarget.position = yTarget.normal * targetAxes.basis.get_axis(y_axis);
+			yTarget.position = yTarget.normal * targetAxes.origin.get_axis(y_axis);
 			r_localized_target_headings.write[hdx] = yTarget.position - origin;
 			origin = yTarget.set_to_inverted_tip(r_localized_target_headings[hdx + 1]) - origin;
 			hdx += 2;
@@ -1028,7 +1024,7 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChain> r_chain, 
 		if ((modeCode & BoneChainTarget::ZDir) != 0) {
 			Ray zTarget;
 			zTarget.normal = Vector3(0, 0, 1);
-			zTarget.position = zTarget.normal * targetAxes.basis.get_axis(z_axis);
+			zTarget.position = zTarget.normal * targetAxes.origin.get_axis(z_axis);
 			r_localized_target_headings.write[hdx] = zTarget.position - origin;
 			origin = zTarget.set_to_inverted_tip(r_localized_target_headings[hdx + 1]) - origin;
 			hdx += 2;
@@ -1036,14 +1032,13 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChain> r_chain, 
 	}
 }
 
-void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain, Vector<Vector3> &r_localized_effector_headings,
+void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_chain, Vector<Vector3> &r_localized_effector_headings,
 		Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
 		Ref<BoneChainItem> sb = r_chain->targets[target_i]->chain_item;
 		Transform effector_xform = r_chain->targets[target_i]->end_effector->goal_transform;
 		BoneId bone = r_chain->targets[target_i]->end_effector->effector_bone;
-		effector_xform = r_chain->constraints->stack->get_skeleton()->global_pose_to_local_pose(bone, effector_xform);
 		Vector3 &origin = sb->axes.origin;
 		r_localized_effector_headings.write[hdx] = effector_xform.origin - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
@@ -1052,7 +1047,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
 			Ray xEffector;
 			xEffector.normal = Vector3(1, 0, 0);
-			xEffector.position = xEffector.normal * effector_xform.basis.get_axis(x_axis);
+			xEffector.position = xEffector.normal * effector_xform.origin.get_axis(x_axis);
 
 			r_localized_effector_headings.write[hdx] = xEffector.position - origin;
 			origin = xEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]) - origin;
@@ -1062,7 +1057,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain
 			Ray yEffector;
 
 			yEffector.normal = Vector3(0, 1, 0);
-			yEffector.position = yEffector.normal * effector_xform.basis.get_axis(y_axis);
+			yEffector.position = yEffector.normal * effector_xform.origin.get_axis(y_axis);
 
 			r_localized_effector_headings.write[hdx] = yEffector.position - origin;
 			origin = yEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]) - origin;
@@ -1072,7 +1067,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain
 			Ray zEffector;
 
 			zEffector.normal = Vector3(0, 0, 1);
-			zEffector.position = zEffector.normal * effector_xform.basis.get_axis(z_axis);
+			zEffector.position = zEffector.normal * effector_xform.origin.get_axis(z_axis);
 
 			r_localized_effector_headings.write[hdx] = zEffector.position - origin;
 			origin = zEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]) - origin;
@@ -1081,7 +1076,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain
 	}
 }
 
-int BoneChain::get_default_iterations() const {
+int BoneChainItem::get_default_iterations() const {
 	return ik_iterations;
 }
 
@@ -1189,12 +1184,12 @@ void BoneChainTarget::removal_notification() {
 void BoneChainItem::rootwardly_update_falloff_cache_from(Ref<BoneChainItem> p_current) {
 	Ref<BoneChainItem> current = p_current;
 	while (current.is_valid()) {
-		current->parent_armature->create_headings_arrays();
+		current->chain_root->create_headings_arrays();
 		current = current->parent_item;
 	}
 }
 
-void BoneChainItem::recursively_create_penalty_array(Ref<BoneChain> from,
+void BoneChainItem::recursively_create_penalty_array(Ref<BoneChainItem> from,
 		Vector<Vector<real_t>> &r_weight_array,
 		Vector<Ref<BoneChainItem>>
 				pin_sequence,
@@ -1247,7 +1242,7 @@ void BoneChainItem::recursively_create_penalty_array(Ref<BoneChain> from,
 	}
 }
 
-void BoneChain::create_headings_arrays() {
+void BoneChainItem::create_headings_arrays() {
 	Vector<Vector<real_t>> penalty_array;
 	Vector<Ref<BoneChainItem>> target_sequence;
 	chain_root->recursively_create_penalty_array(this, penalty_array, target_sequence, 1.0f);
@@ -1327,9 +1322,9 @@ float BoneChainTarget::get_target_weight() {
 
 void BoneChainItem::populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k) {
 	float predampen = 1.0f - get_stiffness();
-	float default_dampening = parent_armature->dampening;
+	float default_dampening = chain_root->dampening;
 	float dampening = parent_item == NULL ? Math_PI : predampen * default_dampening;
-	float iterations = parent_armature->get_default_iterations();
+	float iterations = chain_root->get_default_iterations();
 	float returnful = k->get_pain();
 	float falloff = 0.2f;
 	half_returnful_dampened.resize(iterations);
