@@ -246,10 +246,9 @@ void DirectionConstraint::compute_triangles(Ref<DirectionConstraint> p_next) {
 
 void DirectionConstraint::set_control_point(Vector3 p_control_point) {
 	control_point = p_control_point;
-	//TODO
-	// if (parent_kusudama.is_valid()) {
-	// 	parent_kusudama->constraint_update_notification();
-	// }
+	if (parent_kusudama.is_valid()) {
+		parent_kusudama->constraint_update_notification();
+	}
 }
 
 void DirectionConstraint::_bind_methods() {

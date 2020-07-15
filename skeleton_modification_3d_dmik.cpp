@@ -389,6 +389,7 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 				_change_notify();
 			} else if (direction_what == "control_point") {
 				direction->set_control_point(p_value);
+				constraint->optimize_limiting_axes();
 				_change_notify();
 			} else {
 				return false;

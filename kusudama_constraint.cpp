@@ -39,6 +39,7 @@ void KusudamaConstraint::optimize_limiting_axes() {
 
 	Vector<Vector3> directions;
 	if (multi_direction.size() == 1) {
+		ERR_FAIL_INDEX(1, multi_direction.size());
 		Ref<DirectionConstraint> direction_limit = multi_direction[0];
 		directions.push_back(directions.write[0] + direction_limit->get_control_point().normalized());
 	} else {
@@ -61,8 +62,7 @@ void KusudamaConstraint::optimize_limiting_axes() {
 	}
 
 	Vector3 newY;
-	for (int32_t direction_i = 0; direction_i <
-								  directions.size();
+	for (int32_t direction_i = 0; direction_i < directions.size();
 			direction_i++) {
 		newY += directions[direction_i];
 	}
@@ -76,21 +76,25 @@ void KusudamaConstraint::optimize_limiting_axes() {
 
 	// Ray newYRay = Ray(Vector3(0.0, 0.0, 0.0), newY);
 
-	//TODO
-	//Quat old_y_to_new_y = Quat(limiting_axes.y_().heading(), original_limiting_axes.getGlobalOf(newYRay).heading());
+	// TODO
+	// Skeleton3D *skeleton = attached_to->parent_armature->constraints->stack->get_skeleton();
+	// Transform global_pose = skeleton->get_bone_global_pose(attached_to->bone);
+
+	// TODO
+	// Quat old_y_to_new_y = Quat(limiting_axes.y_().heading(), original_limiting_axes.getGlobalOf(newYRay).heading());
 	Transform xform;
 	xform.basis = original_limiting_axes.get_basis();
 	Quat old_y_to_new_y = limiting_axes.get_basis() * xform.get_basis();
 	limiting_axes.basis.rotate(old_y_to_new_y);
-
 	for (int32_t direction_limit_i = 0; direction_limit_i < multi_direction.size(); direction_limit_i++) {
 		Ref<DirectionConstraint> direction_limit = multi_direction[direction_limit_i];
-		// TODO
 		// original_limiting_axes.setToGlobalOf(direction_limit->get_control_point(), direction_limit->get_control_point().normalized());
 		// limiting_axes.setToLocalOf(direction_limit->get_control_point(), direction_limit->get_control_point().normalized());
+
 		direction_limit->get_control_point().normalize();
 	}
 	update_tangent_radii();
+	_change_notify();
 }
 
 void KusudamaConstraint::set_twist_limits(float p_min_angle, float p_in_range) {
@@ -451,9 +455,6 @@ KusudamaConstraint::KusudamaConstraint(Ref<BoneChainItem> p_for_bone) {
 }
 
 KusudamaConstraint::KusudamaConstraint() {
-	twist.instance();
-	direction_count++;
-	multi_direction.resize(1);
 }
 
 KusudamaConstraint::~KusudamaConstraint() {
