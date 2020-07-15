@@ -70,6 +70,9 @@ void BoneChainItem::build_chain(Ref<BoneChainItem> p_start_from) {
 		Vector<Ref<BoneChainItem>> current_bone_children = get_bone_children(skeleton, current_bone);
 		children.push_back(current_bone);
 		tip_bone = current_bone;
+		String constraint_name = skeleton->get_bone_name(current_bone->bone);
+		int32_t constraint_i = constraints->find_constraint(constraint_name);
+		current_bone->constraint = constraints->get_constraint(constraint_i);
 		current_bone->pb = skeleton->get_physical_bone(current_bone->bone);
 		if (current_bone_children.size() != 1 || is_bone_effector(current_bone)) {
 			create_child_chains(current_bone);
