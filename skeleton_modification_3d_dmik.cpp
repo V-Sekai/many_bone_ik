@@ -71,8 +71,6 @@ void BoneChainItem::build_chain(Ref<BoneChainItem> p_start_from) {
 		children.push_back(current_bone);
 		tip_bone = current_bone;
 		current_bone->pb = skeleton->get_physical_bone(current_bone->bone);
-		Transform global_xform = skeleton->get_bone_global_pose_override(current_bone->bone);
-		current_bone->axes = skeleton->global_pose_to_local_pose(current_bone->bone, global_xform);
 		if (current_bone_children.size() != 1 || is_bone_effector(current_bone)) {
 			create_child_chains(current_bone);
 			if (is_bone_effector(current_bone)) {
@@ -544,6 +542,40 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 	is_setup = true;
 }
 
+void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
+	ERR_FAIL_COND(!p_current_chain->is_chain_active());
+	//print_line("IK solve bone " + p_task->skeleton->get_bone_name(p_task->end_effectors[0]->effector_bone));
+	//print_line("IK solve bone goal local location " + p_task->end_effectors[0]->goal_transform.origin);
+	//print_line("IK solve bone local location " + effector_chain_item->axes.origin);
+	//print_line("IK solve bone global location " + p_task->skeleton->get_bone_global_pose(effector_chain_item->bone).origin);
+
+	p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true);
+	p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
+	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
+	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
+		String bone_name = p_skeleton->get_bone_name(bones[bone_i]->bone);
+		Ref<BoneChainItem> item = bones[bone_i];
+		print_line(bone_name);
+		print_line(item->axes.basis.get_rotation_euler());
+		print_line(item->axes.origin);
+		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true);
+		p_skeleton->force_update_bone_children_transforms(item->bone);
+	}
+	//if (p_current_chain->tip_bone == p_current_chain->bone) {
+	//	// Set target orientation to tip
+	//	if (override_tip_basis) {
+	//		new_bone_pose.basis = p_task->chain->targets[0]->end_effector->goal_transform.basis;
+	//	} else {
+	//		new_bone_pose.basis =
+	//				new_bone_pose.basis * p_task->chain->targets[0]->end_effector->goal_transform.basis;
+	//	}
+	//}
+	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
+	for (int32_t i = 0; i < bone_chains.size(); i++) {
+		apply_bone_chains(p_strength, p_skeleton, p_bone_chain, bone_chains[i]);
+	}
+}
+
 void SkeletonModification3DDMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
 	Ref<BoneEffector> effector;
 	effector.instance();
@@ -666,6 +698,7 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
 	Ref<BoneChain> chain;
 	chain.instance();
+	chain->constraints = p_task->dmik;
 	p_task->chain = chain;
 	Ref<BoneChainItem> chain_item;
 	chain_item.instance();
@@ -687,20 +720,19 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 		// TODO Cache as object id
 		Transform xform;
 		Node *target_node = p_task->skeleton->get_node_or_null(effector->get_target_node());
+		int32_t bone = p_task->skeleton->find_bone(effector->get_name());
+		if (bone == -1) {
+			continue;
+		}
+		Transform target_xform = effector->get_target_transform();
 		if (target_node) {
 			Node3D *current_node = Object::cast_to<Node3D>(target_node);
 			xform = current_node->get_global_transform();
 			xform = p_task->skeleton->world_transform_to_global_pose(xform);
+		} else {
+			xform = p_task->skeleton->get_bone_global_pose(bone);
 		}
-		int32_t bone = p_task->skeleton->find_bone(effector->get_name());
-		xform = p_task->skeleton->global_pose_to_local_pose(bone, xform);
-		Transform target_xform = effector->get_target_transform();
-		target_xform = p_task->skeleton->world_transform_to_global_pose(target_xform);
-		target_xform = p_task->skeleton->global_pose_to_local_pose(bone, target_xform);
-		xform *= target_xform;
-		if (bone == -1) {
-			continue;
-		}
+		xform = xform * target_xform;
 		ee->goal_transform = xform;
 		ee->effector_bone = bone;
 		p_task->end_effectors.write[name_i] = ee;
@@ -740,8 +772,7 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainIte
 	if (p_chain_item.is_null()) {
 		return;
 	}
-	Transform global_xform = p_sk->get_bone_global_pose(p_chain_item->bone) * p_sk->get_bone_rest(p_chain_item->bone);
-	p_chain_item->axes = p_sk->global_pose_to_local_pose(p_chain_item->bone, global_xform);
+	p_chain_item->axes = p_sk->get_bone_local_pose_override(p_chain_item->bone);
 
 	if (!p_chain_item->children.size()) {
 		return;
@@ -1010,16 +1041,18 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
 		Ref<BoneChainItem> sb = r_chain->targets[target_i]->chain_item;
-		Transform effector = r_chain->targets[target_i]->end_effector->goal_transform;
+		Transform effector_xform = r_chain->targets[target_i]->end_effector->goal_transform;
+		BoneId bone = r_chain->targets[target_i]->end_effector->effector_bone;
+		effector_xform = r_chain->constraints->stack->get_skeleton()->global_pose_to_local_pose(bone, effector_xform);
 		Vector3 &origin = sb->axes.origin;
-		r_localized_effector_headings.write[hdx] = effector.origin - origin;
+		r_localized_effector_headings.write[hdx] = effector_xform.origin - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
 			Ray xEffector;
 			xEffector.normal = Vector3(1, 0, 0);
-			xEffector.position = xEffector.normal * effector.basis.get_axis(x_axis);
+			xEffector.position = xEffector.normal * effector_xform.basis.get_axis(x_axis);
 
 			r_localized_effector_headings.write[hdx] = xEffector.position - origin;
 			origin = xEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]) - origin;
@@ -1029,7 +1062,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain
 			Ray yEffector;
 
 			yEffector.normal = Vector3(0, 1, 0);
-			yEffector.position = yEffector.normal * effector.basis.get_axis(y_axis);
+			yEffector.position = yEffector.normal * effector_xform.basis.get_axis(y_axis);
 
 			r_localized_effector_headings.write[hdx] = yEffector.position - origin;
 			origin = yEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]) - origin;
@@ -1039,7 +1072,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChain> r_chain
 			Ray zEffector;
 
 			zEffector.normal = Vector3(0, 0, 1);
-			zEffector.position = zEffector.normal * effector.basis.get_axis(z_axis);
+			zEffector.position = zEffector.normal * effector_xform.basis.get_axis(z_axis);
 
 			r_localized_effector_headings.write[hdx] = zEffector.position - origin;
 			origin = zEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]) - origin;

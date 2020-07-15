@@ -342,37 +342,7 @@ protected:
 public:
 	virtual void execute(float delta);
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
-	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
-		ERR_FAIL_COND(!p_current_chain->is_chain_active());
-		//print_line("IK solve bone " + p_task->skeleton->get_bone_name(p_task->end_effectors[0]->effector_bone));
-		//print_line("IK solve bone goal local location " + p_task->end_effectors[0]->goal_transform.origin);
-		//print_line("IK solve bone local location " + effector_chain_item->axes.origin);
-		//print_line("IK solve bone global location " + p_task->skeleton->get_bone_global_pose(effector_chain_item->bone).origin);
-
-		Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
-		for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-			String bone_name = p_skeleton->get_bone_name(bones[bone_i]->bone);
-			Ref<BoneChainItem> item = bones[bone_i];
-			print_line(bone_name);
-			print_line(item->axes.basis.get_rotation_euler());
-			print_line(item->axes.origin);
-			p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true);
-			p_skeleton->force_update_bone_children_transforms(item->bone);
-		}
-		//if (p_current_chain->tip_bone == p_current_chain->bone) {
-		//	// Set target orientation to tip
-		//	if (override_tip_basis) {
-		//		new_bone_pose.basis = p_task->chain->targets[0]->end_effector->goal_transform.basis;
-		//	} else {
-		//		new_bone_pose.basis =
-		//				new_bone_pose.basis * p_task->chain->targets[0]->end_effector->goal_transform.basis;
-		//	}
-		//}
-		Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
-		for (int32_t i = 0; i < bone_chains.size(); i++) {
-			apply_bone_chains(p_strength, p_skeleton, p_bone_chain, bone_chains[i]);
-		}
-	}
+	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);
 	void set_constraint_count(int32_t p_value);
