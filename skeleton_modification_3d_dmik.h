@@ -143,7 +143,7 @@ class BoneChainTarget : public Reference {
 	GDCLASS(BoneChainTarget, Reference);
 
 protected:
-	bool enabled;
+	bool enabled = true;
 	BoneChainTarget *parent_target = nullptr;
 	Vector<BoneChainTarget *> child_targets;
 	float target_weight = 1;
