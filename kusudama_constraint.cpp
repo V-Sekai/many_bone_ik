@@ -412,6 +412,15 @@ void KusudamaConstraint::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "twist", PROPERTY_HINT_RESOURCE_TYPE, "IKTwistConstraint"), "set_twist_constraint", "get_twist_constraint");
 }
 
+Transform KusudamaConstraint::get_constraint_axes() const {
+	return constraint_axes;
+}
+
+void KusudamaConstraint::set_constraint_axes(Transform p_axes) {
+	constraint_axes = p_axes;
+	_change_notify();
+}
+
 int32_t KusudamaConstraint::get_direction_count() const {
 	return direction_count;
 }

@@ -82,13 +82,8 @@ private:
 protected:
 	static void _bind_methods();
 public:
-	Transform get_constraint_axes() const {
-		return constraint_axes;
-	}
-	void set_constraint_axes(Transform p_axes) {
-		constraint_axes = p_axes;
-		_change_notify();
-	}
+	Transform get_constraint_axes() const;
+	void set_constraint_axes(Transform p_axes);
 
 	int32_t get_direction_count() const;
 	void set_direction_count(int32_t p_count);

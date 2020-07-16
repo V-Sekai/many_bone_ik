@@ -72,10 +72,12 @@ void BoneChainItem::build_chain(Ref<BoneChainItem> p_start_from) {
 		tip_bone = current_bone;
 		String constraint_name = skeleton->get_bone_name(current_bone->bone);
 		int32_t constraint_i = constraints->find_constraint(constraint_name);
+		current_bone->constraints = constraints;
 		current_bone->constraint = constraints->get_constraint(constraint_i);
 		current_bone->pb = skeleton->get_physical_bone(current_bone->bone);
 		if (current_bone_children.size() != 1 || is_bone_effector(current_bone)) {
 			create_child_chains(current_bone);
+			create_child_shadow_chains(current_bone);
 			if (is_bone_effector(current_bone)) {
 				has_effector = true;
 				set_active();
@@ -109,8 +111,17 @@ void BoneChainItem::create_child_chains(Ref<BoneChainItem> p_from_bone) {
 	Vector<Ref<BoneChainItem>> children = get_bone_children(skeleton, p_from_bone);
 	for (int i = 0; i < children.size(); i++) {
 		Ref<BoneChainItem> child = children[i];
-		child->init(skeleton, multi_effector, chain_root, this, child);
+		child->init(skeleton, constraints, multi_effector, chain_root, this, child);
 		child_chains.push_back(child);
+	}
+}
+
+void BoneChainItem::create_child_shadow_chains(Ref<BoneChainItem> p_from_bone) {
+	Vector<Ref<BoneChainItem>> children = get_shadow_bone_children(skeleton, p_from_bone);
+	for (int i = 0; i < children.size(); i++) {
+		Ref<BoneChainItem> child = children[i];
+		child->init(skeleton, constraints, multi_effector, chain_root, this, child);
+		shadow_child_chains.push_back(child);
 	}
 }
 
@@ -133,6 +144,25 @@ void BoneChainItem::merge_with_child_if_appropriate() {
 		child_chains = child->child_chains;
 		remove_inactive_children();
 	}
+}
+
+Vector<Ref<BoneChainItem>> BoneChainItem::get_shadow_bone_children(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone) {
+	Vector<Ref<BoneChainItem>> bone_chain_items;
+	for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
+		int32_t parent = p_skeleton->get_bone_parent(bone_i);
+		if (parent == p_bone->bone) {
+			if (bone_chain_items.find(p_bone) == -1) {
+				Ref<BoneChainItem> item;
+				item.instance();
+				item->bone = bone_i;
+				chain_root->shadow_bone_segment_map[bone_i] = item;
+				item->chain_root = chain_root;
+				item->parent_item = chain_root->shadow_bone_segment_map[parent];
+				bone_chain_items.push_back(item);
+			}
+		}
+	}
+	return bone_chain_items;
 }
 
 void BoneChainItem::print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain) {
@@ -179,13 +209,18 @@ Vector<Ref<BoneChainItem>> BoneChainItem::get_child_chains() {
 	return child_chains;
 }
 
-void BoneChainItem::init(Skeleton3D *p_skeleton, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone) {
+Vector<Ref<BoneChainItem>> BoneChainItem::get_child_shadow_chains() {
+	return shadow_child_chains;
+}
+
+void BoneChainItem::init(Skeleton3D *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone) {
 	ERR_FAIL_COND(this == parent_chain.ptr());
 	parent_chain = p_parent_chain;
 	base_bone = p_base_bone;
 	skeleton = p_skeleton;
 	multi_effector = p_multi_effector;
 	chain_root = p_chain;
+	constraints = p_constraints;
 	build_chain(p_base_bone);
 }
 
@@ -199,6 +234,8 @@ void BoneChainItem::set_active() {
 void BoneChainItem::filter_and_merge_child_chains() {
 	remove_inactive_children();
 	merge_with_child_if_appropriate();
+	remove_inactive_shadow_children();
+	merge_with_shadow_child_if_appropriate();
 	for (int i = 0; i < child_chains.size(); i++) {
 		child_chains.write[i]->filter_and_merge_child_chains();
 	}
@@ -530,7 +567,7 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 		chain_item->bone = _bone;
 		Ref<BoneChainItem> bone_chain;
 		bone_chain.instance();
-		bone_chain->init(skeleton, multi_effector, bone_chain, nullptr, chain_item);
+		bone_chain->init(skeleton, Ref<SkeletonModification3DDMIK>(this), multi_effector, bone_chain, nullptr, chain_item);
 		Vector<String> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
 		set_effector_count(0);
 		for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
@@ -545,20 +582,12 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 
 void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
-	//print_line("IK solve bone " + p_task->skeleton->get_bone_name(p_task->end_effectors[0]->effector_bone));
-	//print_line("IK solve bone goal local location " + p_task->end_effectors[0]->goal_transform.origin);
-	//print_line("IK solve bone local location " + effector_chain_item->axes.origin);
-	//print_line("IK solve bone global location " + p_task->skeleton->get_bone_global_pose(effector_chain_item->bone).origin);
-
 	p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true);
 	p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
 	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
 		String bone_name = p_skeleton->get_bone_name(bones[bone_i]->bone);
 		Ref<BoneChainItem> item = bones[bone_i];
-		// print_line(bone_name);
-		// print_line(item->axes.basis.get_rotation_euler());
-		// print_line(item->axes.origin);
 		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(item->bone);
 	}
@@ -701,7 +730,7 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	chain->chain_root = chain;
 	chain->constraints = p_task->dmik;
 	chain->bone = p_task->root_bone;
-	chain->init(p_task->skeleton, p_task->dmik->multi_effector, chain, nullptr, chain);
+	chain->init(p_task->skeleton, p_task->dmik, p_task->dmik->multi_effector, chain, nullptr, chain);
 	chain->filter_and_merge_child_chains();
 	chain->bone = p_task->root_bone;
 	chain->pb = p_task->skeleton->get_physical_bone(chain->bone);
@@ -770,7 +799,7 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainIte
 		return;
 	}
 	p_chain_item->axes = p_sk->get_bone_local_pose_override(p_chain_item->bone);
-
+	p_chain_item->force_update_bone_children_transforms(p_chain_item->bone);
 	if (!p_chain_item->children.size()) {
 		return;
 	}
@@ -900,7 +929,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 		return;
 	}
 
-	Transform bone_xform = p_skeleton->local_pose_to_global_pose(p_for_bone->bone, p_for_bone->axes);
+	Transform bone_xform = p_for_bone->axes_global;
 	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
 	float new_dampening = -1;
 	if (p_for_bone->parent_item == NULL) {
@@ -972,8 +1001,8 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 		}
 	}
 	if (p_stabilization_passes > 0) {
-		Transform local_xform = p_skeleton->global_pose_to_local_pose(p_for_bone->bone, bone_xform);
-		p_for_bone->axes.basis.set_quat_scale(local_xform.basis.get_rotation_quat(), p_for_bone->axes.basis.get_scale());
+		p_for_bone->axes.basis.set_quat_scale(bone_xform.basis.get_rotation_quat(), p_for_bone->axes.basis.get_scale());
+		p_for_bone->force_update_bone_children_transforms(p_for_bone->bone);
 	}
 }
 
@@ -1274,6 +1303,34 @@ void BoneChainItem::create_headings_arrays() {
 	}
 }
 
+void BoneChainItem::force_update_bone_children_transforms(int p_bone_idx) {
+	List<int> bones_to_process = List<int>();
+	bones_to_process.push_back(p_bone_idx);
+
+	while (bones_to_process.size() > 0) {
+		int current_bone_idx = bones_to_process[0];
+		bones_to_process.erase(current_bone_idx);
+
+		Ref<BoneChainItem> b = find_child(current_bone_idx);
+		if (b.is_null() || !b->is_active) {
+			continue;
+		}
+		Transform pose = b->axes;
+		if (b->parent_item.is_valid()) {
+			b->axes_global = b->parent_item->axes_global * pose;
+		} else {
+			b->axes_global = pose;
+		}
+
+		// Add the bone's children to the list of bones to be processed
+		Vector<Ref<BoneChainItem>> children = get_bone_children(skeleton, b);
+		int child_bone_size = children.size();
+		for (int i = 0; i < child_bone_size; i++) {
+			bones_to_process.push_back(children[i]->bone);
+		}
+	}
+}
+
 void BoneChainTarget::set_parent_target(BoneChainTarget *parent) {
 	if (parent_target != NULL) {
 		parent_target->remove_child_target(this);
@@ -1343,6 +1400,9 @@ void BoneChainItem::populate_return_dampening_iteration_array(Ref<KusudamaConstr
 		half_returnful_dampened.write[iter_i] = iteration_return_clamp;
 		cos_half_returnful_dampened.write[iter_i] = cos_iteration_return_clamp;
 	}
+}
+
+BoneChainItem::BoneChainItem() {
 }
 
 float BoneChainItem::get_bone_height() const {
