@@ -499,6 +499,12 @@ void SkeletonModification3DDMIK::execute(float delta) {
 	if (!enabled) {
 		return;
 	}
+	execute_next += delta;
+	if (execute_next > 2.0f) {
+		execute_next = 0.0f;
+	} else {
+		return;
+	}
 	if (task.is_valid()) {
 		solve(task, stack->get_strength(), false, false, Vector3());
 	}
@@ -548,13 +554,13 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	{
-		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true);
+		p_skeleton->set_bone_pose(p_current_chain->bone, p_current_chain->axes);
 	}
 	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
 		String bone_name = p_skeleton->get_bone_name(bones[bone_i]->bone);
 		Ref<BoneChainItem> item = bones[bone_i];
-		p_skeleton->set_bone_local_pose_override(item->bone, p_current_chain->axes, p_strength, true);
+		p_skeleton->set_bone_pose(item->bone, item->axes);
 	}
 	//if (p_current_chain->tip_bone == p_current_chain->bone) {
 	//	// Set target orientation to tip
@@ -683,7 +689,7 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	Ref<BoneChainItem> chain = p_task->chain;
 	chain->chain_root = chain;
 	chain->constraints = p_task->dmik;
-	chain->bone = p_task->root_bone;	
+	chain->bone = p_task->root_bone;
 	chain->init(p_task->skeleton, p_task->dmik, p_task->dmik->multi_effector, chain, nullptr, chain);
 	chain->filter_and_merge_child_chains();
 	chain->bone = p_task->root_bone;
@@ -697,9 +703,9 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainIte
 	int32_t found_i = bones.find(p_chain_item);
 	ERR_FAIL_COND(found_i == -1);
 	for (int32_t bone_i = found_i; bone_i < bones.size(); bone_i++) {
-		Transform local_xform =  p_sk->get_bone_local_pose_override(bones[bone_i]->bone);
-		Transform global_xform = p_sk->local_pose_to_global_pose(bones[bone_i]->bone, local_xform);
-		p_chain_item->axes = p_sk->global_pose_to_local_pose(bones[bone_i]->bone, global_xform);
+		// Transform local_xform = p_sk->get_bone_local_pose_override(bones[bone_i]->bone);
+		// Transform global_xform = p_sk->local_pose_to_global_pose(bones[bone_i]->bone, local_xform);
+		p_chain_item->axes = p_sk->get_bone_pose(bones[bone_i]->bone);
 	}
 	Vector<Ref<BoneChainItem>> bone_chains = p_chain_item->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
@@ -856,8 +862,28 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 		Ref<QCP> p_qcp_orientation_aligner, int p_iteration,
 		float p_total_iterations) {
 	p_qcp_orientation_aligner->set_max_iterations(10);
+	if (p_chain_item->bone == 4) {
+		print_line("effector");
+		for (int32_t i = 0; i < p_localized_effector_headings.size(); i++) {
+			String heading = p_localized_effector_headings[i];
+			print_line(heading);
+		}
+		print_line("target");
+		for (int32_t i = 0; i < p_localized_target_headings.size(); i++) {
+			String heading = p_localized_target_headings[i];
+			print_line(heading);
+		}
+	}
 	IKQuat qcp_rot = p_qcp_orientation_aligner->weighted_superpose(p_localized_effector_headings, p_localized_target_headings,
 			p_weights, p_is_translate);
+	String bone_name = p_skeleton->get_bone_name(p_chain_item->bone);
+	if (p_chain_item->bone == 4) {
+		print_line(bone_name + " " + qcp_rot);
+	}
+	// print_line("effector headings");
+	// print_line(p_localized_effector_headings);
+	// print_line("target headings");
+	// print_line(p_localized_target_headings);
 	Vector3 translate_by = p_qcp_orientation_aligner->get_translation();
 	float bone_damp = p_chain_item->cos_half_dampen;
 
@@ -868,15 +894,27 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 		qcp_rot.clamp_to_quadrance_angle(bone_damp);
 	}
 	p_chain_item->axes.origin *= translate_by;
-	p_chain_item->axes.basis *= Basis(qcp_rot);
-	Transform xform;
-	xform.basis = p_chain_item->axes.get_basis();
+	Basis basis_rot = qcp_rot;
+	if (p_chain_item->bone == 4) {
+		print_line("QCP Basis");
+		print_line(basis_rot);
+		print_line("Before");
+		print_line(p_chain_item->axes.basis);
+	}
+	p_chain_item->axes.basis *= basis_rot;
+	if (p_chain_item->bone == 4) {
+		print_line("After");
+		print_line(p_chain_item->axes.basis);
+	}
+
 	if (p_chain_item->constraint.is_null()) {
 		return;
 	}
-	p_chain_item->set_axes_to_be_snapped(xform, p_chain_item->constraint->get_constraint_axes(), bone_damp);
-	xform.origin = p_chain_item->axes.origin;
-	p_chain_item->constraint->set_constraint_axes(p_chain_item->constraint->get_constraint_axes().translated(translate_by));
+	// Transform xform;
+	// xform.basis = p_chain_item->axes.get_basis();
+	// xform.origin = p_chain_item->axes.origin;
+	// p_chain_item->set_axes_to_be_snapped(xform, p_chain_item->constraint->get_constraint_axes(), bone_damp);
+	// p_chain_item->constraint->set_constraint_axes(p_chain_item->constraint->get_constraint_axes().translated(translate_by));
 }
 
 void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<BoneChainItem> r_chain,
@@ -968,8 +1006,9 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 		}
 	}
 	if (p_stabilization_passes > 0) {
-		Transform local_xform = r_chain->skeleton->global_pose_to_local_pose(p_for_bone->bone, bone_xform);
-		p_for_bone->axes.basis.set_quat_scale(local_xform.basis.get_rotation_quat(), p_for_bone->axes.basis.get_scale());
+		Transform local_xform = r_chain->skeleton->global_pose_to_local_pose(p_for_bone->bone, bone_xform);		
+		p_for_bone->axes.basis.set_quat_scale(p_for_bone->axes.basis.get_rotation_quat() * local_xform.basis.get_rotation_quat(), p_for_bone->axes.basis.get_scale());
+		p_for_bone->axes.basis += local_xform.origin;
 	}
 }
 

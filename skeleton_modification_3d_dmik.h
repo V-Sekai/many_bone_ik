@@ -62,7 +62,9 @@ public:
 	Ref<SkeletonModification3DDMIK> constraints = nullptr;
 	float dampening = Math::deg2rad(5.0f);
 	Map<int, Ref<BoneChainItem>> bone_segment_map;
-	int ik_iterations = 15;
+	// TODO Restore to 15
+	// TODO expose through ui
+	int ik_iterations = 1;
 	Vector<Ref<BoneChainItem>> children;
 	Ref<BoneChainItem> parent_item = nullptr;
 	int bone = -1;
@@ -352,6 +354,8 @@ public:
 	void set_root_bone(String p_root_bone) { root_bone = p_root_bone; }
 	SkeletonModification3DDMIK();
 	~SkeletonModification3DDMIK();
+
+	float execute_next = 0.0f;
 
 private:
 	/**
