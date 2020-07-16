@@ -43,7 +43,6 @@ class PhysicalBone3D;
 class BoneChainTarget;
 class SkeletonModification3DDMIK;
 class BoneChainItem;
-class ShadowBoneChainItem;
 class KusudamaConstraint;
 class BoneChainItem : public Reference {
 	GDCLASS(BoneChainItem, Reference);
@@ -51,7 +50,6 @@ class BoneChainItem : public Reference {
 private:
 	Vector<Ref<BoneEffector>> multi_effector;
 	Vector<Ref<BoneChainItem>> child_chains;
-	Vector<Ref<BoneChainItem>> shadow_child_chains;
 
 public:
 	Transform axes;
@@ -64,7 +62,6 @@ public:
 	Ref<SkeletonModification3DDMIK> constraints = nullptr;
 	float dampening = Math::deg2rad(5.0f);
 	Map<int, Ref<BoneChainItem>> bone_segment_map;
-	Map<int, Ref<BoneChainItem>> shadow_bone_segment_map;
 	int ik_iterations = 15;
 	Vector<Ref<BoneChainItem>> children;
 	Ref<BoneChainItem> parent_item = nullptr;
@@ -93,9 +90,6 @@ public:
 	float get_bone_height() const;
 	void set_bone_height(const float p_bone_height);
 	Ref<BoneChainItem> find_child(const int p_bone_id);
-	Ref<BoneChainItem> find_shadow_child(const int p_bone_id) {
-		return chain_root->shadow_bone_segment_map[p_bone_id];
-	}
 	Ref<BoneChainItem> add_child(const int p_bone_id);
 	void set_stiffness(float p_stiffness);
 	float get_stiffness() const;
@@ -109,35 +103,13 @@ public:
 	bool is_bone_effector(Ref<BoneChainItem> current_bone);
 	void build_chain(Ref<BoneChainItem> p_start_from);
 	void create_child_chains(Ref<BoneChainItem> p_from_bone);
-	void create_child_shadow_chains(Ref<BoneChainItem> p_from_bone);
 	void remove_inactive_children();
-	void remove_inactive_shadow_children() {
-		Vector<Ref<BoneChainItem>> new_child_chains;
-		for (int i = 0; i < shadow_child_chains.size(); i++) {
-			if (shadow_child_chains[i]->is_chain_active()) {
-				new_child_chains.push_back(shadow_child_chains[i]);
-			}
-		}
-		shadow_child_chains = new_child_chains;
-	}
-	void merge_with_shadow_child_if_appropriate() {
-		if (child_chains.size() == 1 && !has_effector) {
-			Ref<BoneChainItem> child = shadow_child_chains[0];
-			tip_bone = child->tip_bone;
-			has_effector = child->has_effector;
-			children.append_array(child->children);
-			child_chains = child->shadow_child_chains;
-			remove_inactive_shadow_children();
-		}
-	}
 	void merge_with_child_if_appropriate();
-	Vector<Ref<BoneChainItem>> get_shadow_bone_children(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone);
-	Vector<Ref<BoneChainItem>> get_child_chains();
-	Vector<Ref<BoneChainItem>> get_child_shadow_chains();
 	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain);
 	Vector<Ref<BoneChainItem>> get_bone_children(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone);
 	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
 	bool is_chain_active() const;
+	Vector<Ref<BoneChainItem>> get_child_chains();
 	Vector<Ref<BoneChainItem>> get_bones();
 	void init(Skeleton3D *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
 	/**sets this bone chain and all of its ancestors to active */
@@ -155,7 +127,7 @@ public:
 	void recursively_create_penalty_array(Ref<BoneChainItem> from, Vector<Vector<real_t>> &r_weight_array, Vector<Ref<BoneChainItem>> pin_sequence, float current_falloff);
 	int get_default_iterations() const;
 	void create_headings_arrays();
-	void force_update_bone_children_transforms(int p_bone_idx);
+	void force_update_bone_children_transforms(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain, Ref<BoneChainItem> p_bone);
 };
 class BoneChainTarget;
 class SkeletonModification3DDMIK;
