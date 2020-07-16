@@ -58,6 +58,7 @@ private:
 	int32_t direction_count = 0;
 	bool orientation_constrained = false;
 	bool axial_constrained = false;
+	bool enabled = false;
 	Ref<BoneChainItem> attached_to;
 	Ray bone_ray;
 	Ray constrained_ray;

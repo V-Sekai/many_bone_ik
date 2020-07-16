@@ -205,7 +205,10 @@ real_t KusudamaConstraint::signed_angle_difference(real_t p_min_angle, real_t p_
 	return r;
 }
 
-real_t KusudamaConstraint::snap_to_twist_limits(Transform p_to_set, Transform p_limiting_axes) {
+real_t KusudamaConstraint::snap_to_twist_limits(Transform p_to_set, Transform p_limiting_axes) {	
+	if (!is_enabled()) {
+		return 0.0f;
+	}
 	if (!axial_constrained) {
 		return 0.0f;
 	}
@@ -256,6 +259,9 @@ void KusudamaConstraint::update_tangent_radii() {
 }
 
 void KusudamaConstraint::constraint_update_notification() {
+	if(!is_enabled()) {
+		return;
+	}
 	update_tangent_radii();
 	update_rotational_freedom();
 }
@@ -359,13 +365,15 @@ real_t KusudamaConstraint::get_pain() {
 }
 
 void KusudamaConstraint::disable() {
+	enabled = false;
 }
 
 void KusudamaConstraint::enable() {
+	enabled = true;
 }
 
 bool KusudamaConstraint::is_enabled() const {
-	return false;
+	return enabled;
 }
 
 bool KusudamaConstraint::is_in_limits_(const Vector3 p_global_point) const {
