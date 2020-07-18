@@ -40,10 +40,10 @@ struct Ray {
 	/**
      * sets the values of the given vector to where the
      * tip of this Ray would be if the ray were inverted
-     * @param p_vec
+     * 
      * @return the vector that was passed in after modification (for chaining)
      */
-	Vector3 set_to_inverted_tip(Vector3 p_vec);
+	Vector3 set_to_inverted_tip();
 
 	Ray();
 

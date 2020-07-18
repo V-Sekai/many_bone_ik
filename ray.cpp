@@ -30,11 +30,12 @@
 
 #include "ray.h"
 
-Vector3 Ray::set_to_inverted_tip(Vector3 p_vec) {
-	p_vec.x = (position.x - normal.x) + position.x;
-	p_vec.y = (position.y - normal.y) + position.y;
-	p_vec.z = (position.z - normal.z) + position.z;
-	return p_vec;
+Vector3 Ray::set_to_inverted_tip() {
+	Vector3 vec;
+	vec.x = (position.x - normal.x) + position.x;
+	vec.y = (position.y - normal.y) + position.y;
+	vec.z = (position.z - normal.z) + position.z;
+	return vec;
 }
 
 
