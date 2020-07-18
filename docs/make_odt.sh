@@ -1,1 +1,0 @@
-pandoc DMIK_\ A\ Highly\ General\,\ Fast\,\ Constrainable\,\ and\ Stable\ Inverse\ Kinematics\ algorithm.md -o dmik_how_to_build_a_freaky_good_ik_system_easily.odt --metadata title="How to Build a Freaky Good IK System, Easily"
