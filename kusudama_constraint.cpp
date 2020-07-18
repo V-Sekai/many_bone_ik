@@ -284,7 +284,7 @@ void KusudamaConstraint::set_axes_to_orientation_snap(Transform p_to_set, Transf
 	bone_ray.position = Vector3(p_to_set.origin);
 
 	// toSet.y_().getScaledTo(attachedTo.boneHeight);
-	bone_ray.normal = p_to_set.basis.get_axis(SkeletonModification3DDMIK::y_axis) * attached_to->get_bone_height();
+	bone_ray.normal = p_to_set.basis.get_axis(y_axis) * attached_to->get_bone_height();
 	// Vector3 in_limits = point_in_limits(bone_ray.normal, inBounds, limiting_axes);
 
 	// if (inBounds[0] == -1 && inLimits != Vector3()) {

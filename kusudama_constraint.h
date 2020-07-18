@@ -80,6 +80,10 @@ private:
      */
 	virtual void update_rotational_freedom();
 
+private:
+	static const int32_t x_axis = 0;
+	static const int32_t y_axis = 1;
+	static const int32_t z_axis = 2;
 protected:
 	static void _bind_methods();
 public:

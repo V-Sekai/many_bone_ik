@@ -42,7 +42,6 @@ class Skeleton3D;
 class PhysicalBone3D;
 class BoneChainTarget;
 class SkeletonModification3DDMIK;
-class BoneChainItem;
 class KusudamaConstraint;
 class BoneChainItem : public Reference {
 	GDCLASS(BoneChainItem, Reference);
@@ -129,7 +128,7 @@ public:
 	void recursively_create_penalty_array(Ref<BoneChainItem> from, Vector<Vector<real_t>> &r_weight_array, Vector<Ref<BoneChainItem>> pin_sequence, float current_falloff);
 	int get_default_iterations() const;
 	void create_headings_arrays();
-	void force_update_bone_children_transforms(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain, Ref<BoneChainItem> p_bone);
+	void force_update_bone_children_transforms(Ref<BoneChainItem> p_current_chain, Ref<BoneChainItem> p_bone);
 };
 class BoneChainTarget;
 class SkeletonModification3DDMIK;
@@ -326,6 +325,10 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	// TODO remove if not being used.
 	Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> bone_chain_items;
 
+private:
+	static const int32_t x_axis = 0;
+	static const int32_t y_axis = 1;
+	static const int32_t z_axis = 2;
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -396,10 +399,6 @@ private:
 	static void solve_simple(Ref<DMIKTask> p_task, bool p_solve_magnet);
 
 public:
-	static const int32_t x_axis = 0;
-	static const int32_t y_axis = 1;
-	static const int32_t z_axis = 2;
-
 	/**
      *
      * @param for_bone
@@ -422,7 +421,7 @@ public:
 	get_manual_msd(Vector<Vector3> &r_localized_effector_headings, Vector<Vector3> &r_localized_target_headings,
 			const Vector<real_t> &p_weights);
 	static void update_target_headings(Ref<BoneChainItem> r_chain, Vector<Vector3> &r_localized_target_headings,
-			Vector<real_t> p_weights, Transform p_bone_xform);
+			Vector<real_t> &p_weights, Transform p_bone_xform);
 	static void update_effector_headings(Ref<BoneChainItem> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
 	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,

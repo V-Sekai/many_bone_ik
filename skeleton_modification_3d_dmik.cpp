@@ -554,13 +554,18 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	{
-		p_skeleton->set_bone_pose(p_current_chain->bone, p_current_chain->axes);
+		Transform global_pose_xform = p_skeleton->local_pose_to_global_pose(p_current_chain->bone, p_current_chain->axes);
+		Transform final_local_pose_xform = p_skeleton->global_pose_to_local_pose(p_current_chain->bone, global_pose_xform);
+		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, final_local_pose_xform, p_strength, true);
+		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
 	}
 	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-		String bone_name = p_skeleton->get_bone_name(bones[bone_i]->bone);
 		Ref<BoneChainItem> item = bones[bone_i];
-		p_skeleton->set_bone_pose(item->bone, item->axes);
+		Transform global_pose_xform = p_skeleton->local_pose_to_global_pose(item->bone, item->axes);
+		Transform final_local_pose_xform = p_skeleton->global_pose_to_local_pose(item->bone, global_pose_xform);
+		p_skeleton->set_bone_local_pose_override(item->bone, final_local_pose_xform, p_strength, true);
+		p_skeleton->force_update_bone_children_transforms(item->bone);
 	}
 	//if (p_current_chain->tip_bone == p_current_chain->bone) {
 	//	// Set target orientation to tip
@@ -703,9 +708,10 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainIte
 	int32_t found_i = bones.find(p_chain_item);
 	ERR_FAIL_COND(found_i == -1);
 	for (int32_t bone_i = found_i; bone_i < bones.size(); bone_i++) {
-		// Transform local_xform = p_sk->get_bone_local_pose_override(bones[bone_i]->bone);
-		// Transform global_xform = p_sk->local_pose_to_global_pose(bones[bone_i]->bone, local_xform);
-		p_chain_item->axes = p_sk->get_bone_pose(bones[bone_i]->bone);
+		Transform local_pose_xform = p_sk->get_bone_local_pose_override(bones[bone_i]->bone);
+		Transform global_pose_xform = p_sk->local_pose_to_global_pose(bones[bone_i]->bone, local_pose_xform);
+		Transform final_local_pose_xform = p_sk->global_pose_to_local_pose(bones[bone_i]->bone, global_pose_xform);
+		p_chain_item->axes = final_local_pose_xform;
 	}
 	Vector<Ref<BoneChainItem>> bone_chains = p_chain_item->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
@@ -770,15 +776,16 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 		if (parent == -1) {
 			// TODO May be wrong. Debugging note 2020-07-14
 			Transform xform = p_task->skeleton->get_global_transform();
+			xform = p_task->skeleton->world_transform_to_global_pose(xform);
+			xform = p_task->skeleton->global_pose_to_local_pose(bone, xform);
 			constraint->set_constraint_axes(xform);
 		} else {
 			// TODO May be wrong. Debugging note 2020-07-14
 			// Relative to the transform axes of the parent bone
 			// The parent transform propagated to the child
-			Transform global_pose_xform = p_task->skeleton->get_bone_global_pose(parent);
-			Transform pose_xform = p_task->skeleton->get_bone_local_pose_override(bone);
-			global_pose_xform = global_pose_xform * pose_xform.affine_inverse();
-			constraint->set_constraint_axes(global_pose_xform);
+			Transform pose_xform = p_task->skeleton->get_bone_global_pose(parent);
+			pose_xform = p_task->skeleton->global_pose_to_local_pose(parent, pose_xform);
+			constraint->set_constraint_axes(pose_xform);
 		}
 		for (int32_t direction_i = 0; direction_i < constraint->get_direction_count(); direction_i++) {
 			Ref<DirectionConstraint> direction = constraint->get_direction(direction_i);
@@ -799,27 +806,27 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 		Ref<BoneEffectorTransform> ee;
 		ee.instance();
 		// TODO Cache as object id
-		Transform xform;
 		Node *target_node = p_task->skeleton->get_node_or_null(effector->get_target_node());
 		Transform node_xform;
+		int32_t bone = p_task->skeleton->find_bone(effector->get_name());
 		if (target_node) {
 			Node3D *current_node = Object::cast_to<Node3D>(target_node);
-			node_xform = current_node->get_global_transform();
-		} else {
-			node_xform = p_task->skeleton->get_global_transform();
+			node_xform = p_task->skeleton->world_transform_to_global_pose(current_node->get_global_transform());
+			node_xform = p_task->skeleton->global_pose_to_local_pose(bone, node_xform);
 		}
-		int32_t bone = p_task->skeleton->find_bone(effector->get_name());
 		if (bone == -1) {
 			continue;
 		}
-		node_xform = p_task->skeleton->world_transform_to_global_pose(node_xform);
-		xform = node_xform * p_task->skeleton->local_pose_to_global_pose(bone, effector->get_target_transform());
-		ee->goal_transform = xform;
+		node_xform = node_xform * effector->get_target_transform();
+		Transform bone_xform = p_task->skeleton->get_bone_global_pose(bone);
+		bone_xform = p_task->skeleton->global_pose_to_local_pose(bone, bone_xform);
+		ee->goal_transform = bone_xform.affine_inverse() * node_xform;
 		ee->effector_bone = bone;
 		p_task->end_effectors.write[name_i] = ee;
 	}
 
 	Vector<Ref<BoneChainTarget>> targets;
+	targets.resize(p_task->end_effectors.size());
 	for (int32_t effector_i = 0; effector_i < p_task->end_effectors.size(); effector_i++) {
 		Ref<BoneEffectorTransform> ee = p_task->end_effectors[effector_i];
 		ERR_FAIL_COND(ee.is_null());
@@ -831,7 +838,7 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 			continue;
 		}
 		target->chain_item = bone_chain_item;
-		targets.push_back(target);
+		targets.write[effector_i] = target;
 	}
 	p_task->chain->targets = targets;
 	p_task->chain->create_headings_arrays();
@@ -862,28 +869,13 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 		Ref<QCP> p_qcp_orientation_aligner, int p_iteration,
 		float p_total_iterations) {
 	p_qcp_orientation_aligner->set_max_iterations(10);
-	if (p_chain_item->bone == 4) {
-		print_line("effector");
-		for (int32_t i = 0; i < p_localized_effector_headings.size(); i++) {
-			String heading = p_localized_effector_headings[i];
-			print_line(heading);
-		}
-		print_line("target");
-		for (int32_t i = 0; i < p_localized_target_headings.size(); i++) {
-			String heading = p_localized_target_headings[i];
-			print_line(heading);
-		}
-	}
 	IKQuat qcp_rot = p_qcp_orientation_aligner->weighted_superpose(p_localized_effector_headings, p_localized_target_headings,
 			p_weights, p_is_translate);
 	String bone_name = p_skeleton->get_bone_name(p_chain_item->bone);
 	if (p_chain_item->bone == 4) {
-		print_line(bone_name + " " + qcp_rot);
+		print_line(bone_name + " euler " + qcp_rot.get_euler());
+		print_line(p_chain_item->axes.origin);
 	}
-	// print_line("effector headings");
-	// print_line(p_localized_effector_headings);
-	// print_line("target headings");
-	// print_line(p_localized_target_headings);
 	Vector3 translate_by = p_qcp_orientation_aligner->get_translation();
 	float bone_damp = p_chain_item->cos_half_dampen;
 
@@ -893,20 +885,10 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 	} else {
 		qcp_rot.clamp_to_quadrance_angle(bone_damp);
 	}
-	p_chain_item->axes.origin *= translate_by;
-	Basis basis_rot = qcp_rot;
-	if (p_chain_item->bone == 4) {
-		print_line("QCP Basis");
-		print_line(basis_rot);
-		print_line("Before");
-		print_line(p_chain_item->axes.basis);
-	}
-	p_chain_item->axes.basis *= basis_rot;
-	if (p_chain_item->bone == 4) {
-		print_line("After");
-		print_line(p_chain_item->axes.basis);
-	}
-
+	Transform xform;
+	xform.basis.set_quat_scale(qcp_rot, p_chain_item->axes.basis.get_scale());
+	xform.origin = translate_by;
+	p_chain_item->axes = p_chain_item->axes * xform;
 	if (p_chain_item->constraint.is_null()) {
 		return;
 	}
@@ -933,7 +915,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 	if (p_for_bone.is_null()) {
 		return;
 	}
-	r_chain->force_update_bone_children_transforms(p_skeleton, r_chain, p_for_bone);
+	r_chain->force_update_bone_children_transforms(r_chain, p_for_bone);
 	Transform bone_xform = p_for_bone->axes_global;
 	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
 	float new_dampening = -1;
@@ -997,7 +979,8 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 				//	new_rmsd = get_manual_msd(r_chain->localized_effector_headings, r_chain->localized_target_headings,
 				//			r_chain->weights);
 				//}
-				best_orientation = bone_xform.get_basis().get_rotation_quat();
+				r_chain->force_update_bone_children_transforms(r_chain, p_for_bone);
+				best_orientation = p_for_bone->axes_global.get_basis().get_rotation_quat();
 				best_rmsd = new_rmsd;
 				break;
 			}
@@ -1006,9 +989,8 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 		}
 	}
 	if (p_stabilization_passes > 0) {
-		Transform local_xform = r_chain->skeleton->global_pose_to_local_pose(p_for_bone->bone, bone_xform);		
-		p_for_bone->axes.basis.set_quat_scale(p_for_bone->axes.basis.get_rotation_quat() * local_xform.basis.get_rotation_quat(), p_for_bone->axes.basis.get_scale());
-		p_for_bone->axes.basis += local_xform.origin;
+		p_for_bone->axes.basis.set_quat_scale(best_orientation, p_for_bone->axes.basis.get_scale());
+		p_for_bone->axes.basis += bone_xform.origin;
 	}
 }
 
@@ -1030,7 +1012,7 @@ float SkeletonModification3DDMIK::get_manual_msd(Vector<Vector3> &r_localized_ef
 }
 
 void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_chain, Vector<Vector3> &r_localized_target_headings,
-		Vector<real_t> p_weights, Transform p_bone_xform) {
+		Vector<real_t> &p_weights, Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
 		Ref<BoneChainItem> sb = r_chain->find_child(r_chain->targets[target_i]->end_effector->effector_bone);
@@ -1041,33 +1023,42 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_cha
 			continue;
 		}
 		Transform targetAxes = sb->constraint->get_constraint_axes();
-
-		Vector3 &origin = sb->axes.origin;
-		r_localized_target_headings.write[hdx] = origin - targetAxes.origin;
+		Vector3 origin = p_bone_xform.origin;
+		r_localized_target_headings.write[hdx] = targetAxes.origin - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
+		print_line("target");
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
 			Ray xTarget;
-			xTarget.normal = Vector3(1, 0, 0);
 			xTarget.position = xTarget.normal * targetAxes.origin.get_axis(x_axis);
-			r_localized_target_headings.write[hdx] = xTarget.position - origin;
-			origin = xTarget.set_to_inverted_tip(r_localized_target_headings[hdx + 1]) - origin;
+			r_localized_target_headings.write[hdx] = xTarget.position ;		
+			origin = r_localized_target_headings.write[hdx] - origin;
+			r_localized_target_headings.write[hdx + 1] = xTarget.set_to_inverted_tip(r_localized_target_headings[hdx + 1]);
+			origin = r_localized_target_headings[hdx + 1] - origin;
+			print_line(r_localized_target_headings[hdx]);
+			print_line(r_localized_target_headings[hdx + 1]);
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::YDir) != 0) {
 			Ray yTarget;
-			yTarget.normal = Vector3(0, 1, 0);
 			yTarget.position = yTarget.normal * targetAxes.origin.get_axis(y_axis);
-			r_localized_target_headings.write[hdx] = yTarget.position - origin;
-			origin = yTarget.set_to_inverted_tip(r_localized_target_headings[hdx + 1]) - origin;
+			r_localized_target_headings.write[hdx] = yTarget.position;			
+			origin = r_localized_target_headings.write[hdx] - origin;
+			r_localized_target_headings.write[hdx + 1] = yTarget.set_to_inverted_tip(r_localized_target_headings[hdx + 1]);
+			origin = r_localized_target_headings[hdx + 1] - origin;
+			print_line(r_localized_target_headings[hdx]);
+			print_line(r_localized_target_headings[hdx + 1]);
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::ZDir) != 0) {
 			Ray zTarget;
-			zTarget.normal = Vector3(0, 0, 1);
 			zTarget.position = zTarget.normal * targetAxes.origin.get_axis(z_axis);
-			r_localized_target_headings.write[hdx] = zTarget.position - origin;
-			origin = zTarget.set_to_inverted_tip(r_localized_target_headings[hdx + 1]) - origin;
+			r_localized_target_headings.write[hdx] = zTarget.position;
+			origin = r_localized_target_headings.write[hdx] - origin;
+			r_localized_target_headings.write[hdx + 1] = zTarget.set_to_inverted_tip(r_localized_target_headings[hdx + 1]);			
+			origin = r_localized_target_headings[hdx + 1] - origin;
+			print_line(r_localized_target_headings[hdx]);
+			print_line(r_localized_target_headings[hdx + 1]);
 			hdx += 2;
 		}
 	}
@@ -1083,38 +1074,47 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_c
 		}
 		Transform effector_xform = r_chain->targets[target_i]->end_effector->goal_transform;
 		BoneId bone = r_chain->targets[target_i]->end_effector->effector_bone;
-		Vector3 &origin = sb->axes.origin;
-		r_localized_effector_headings.write[hdx] = effector_xform.origin - origin;
+		Vector3 origin = p_bone_xform.origin;
+		r_localized_effector_headings.write[hdx] = effector_xform.origin;
+		origin = r_localized_effector_headings.write[hdx] - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 
+		print_line("effector");
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
 			Ray xEffector;
-			xEffector.normal = Vector3(1, 0, 0);
 			xEffector.position = xEffector.normal * effector_xform.origin.get_axis(x_axis);
 
-			r_localized_effector_headings.write[hdx] = xEffector.position - origin;
-			origin = xEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]) - origin;
+			r_localized_effector_headings.write[hdx] = xEffector.position;
+			origin = r_localized_effector_headings.write[hdx] - origin;
+			r_localized_effector_headings.write[hdx + 1] = xEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]);
+			origin = r_localized_effector_headings.write[hdx + 1] - origin;
+			print_line(r_localized_effector_headings[hdx]);
+			print_line(r_localized_effector_headings[hdx + 1]);
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::YDir) != 0) {
 			Ray yEffector;
-
-			yEffector.normal = Vector3(0, 1, 0);
 			yEffector.position = yEffector.normal * effector_xform.origin.get_axis(y_axis);
 
-			r_localized_effector_headings.write[hdx] = yEffector.position - origin;
-			origin = yEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]) - origin;
+			r_localized_effector_headings.write[hdx] = yEffector.position;
+			origin = r_localized_effector_headings.write[hdx] - origin;
+			r_localized_effector_headings.write[hdx + 1] = yEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]);
+			origin = r_localized_effector_headings.write[hdx + 1] - origin;
+			print_line(r_localized_effector_headings[hdx]);
+			print_line(r_localized_effector_headings[hdx + 1]);
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::ZDir) != 0) {
 			Ray zEffector;
-
-			zEffector.normal = Vector3(0, 0, 1);
 			zEffector.position = zEffector.normal * effector_xform.origin.get_axis(z_axis);
 
-			r_localized_effector_headings.write[hdx] = zEffector.position - origin;
-			origin = zEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]) - origin;
+			r_localized_effector_headings.write[hdx] = zEffector.position;
+			origin = r_localized_effector_headings.write[hdx] - origin;
+			r_localized_effector_headings.write[hdx + 1] = zEffector.set_to_inverted_tip(r_localized_effector_headings[hdx + 1]);
+			origin = r_localized_effector_headings.write[hdx + 1] - origin;
+			print_line(r_localized_effector_headings[hdx]);
+			print_line(r_localized_effector_headings[hdx + 1]);
 			hdx += 2;
 		}
 	}
@@ -1314,7 +1314,7 @@ void BoneChainItem::create_headings_arrays() {
 	}
 }
 
-void BoneChainItem::force_update_bone_children_transforms(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain, Ref<BoneChainItem> p_bone) {
+void BoneChainItem::force_update_bone_children_transforms(Ref<BoneChainItem> p_current_chain, Ref<BoneChainItem> p_bone) {
 	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	int32_t found_i = bones.find(p_bone);
@@ -1329,7 +1329,7 @@ void BoneChainItem::force_update_bone_children_transforms(Skeleton3D *p_skeleton
 	}
 	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
-		force_update_bone_children_transforms(p_skeleton, bone_chains[i], bone_chains[i]);
+		force_update_bone_children_transforms(bone_chains[i], bone_chains[i]);
 	}
 }
 
