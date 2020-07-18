@@ -1019,9 +1019,6 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_cha
 		Transform targetAxes = sb->constraint->get_constraint_axes();
 		r_localized_target_headings.write[hdx] = targetAxes.origin;
 		print_line(r_localized_target_headings[hdx]);
-		const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
-		const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
-		const Vector3 z_orientation = Vector3(0.0f, 0.0f, 1.0f);
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
@@ -1058,9 +1055,6 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_c
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		Transform targetAxes = sb->constraint->get_constraint_axes();
-		const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
-		const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
-		const Vector3 z_orientation = Vector3(0.0f, 0.0f, 1.0f);
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
 			r_localized_effector_headings.write[hdx] += p_bone_xform.origin * x_orientation;
 			print_line(r_localized_effector_headings[hdx]);

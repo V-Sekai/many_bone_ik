@@ -326,9 +326,13 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> bone_chain_items;
 
 private:
+	inline static const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
+	inline static const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
+	inline static const Vector3 z_orientation = Vector3(0.0f, 0.0f, 1.0f);
 	static const int32_t x_axis = 0;
 	static const int32_t y_axis = 1;
 	static const int32_t z_axis = 2;
+
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
