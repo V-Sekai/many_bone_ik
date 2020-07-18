@@ -1021,25 +1021,25 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_cha
 		r_localized_target_headings.write[hdx] = target_axes.origin;
 		print_line("origin " + r_localized_target_headings[hdx]);
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
-		Vector3 origin = sb->axes.origin;
+		Vector3 origin = Vector3(1.0f, 1.0f, 1.0f) + sb->axes.origin;
 		hdx++;
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
-			r_localized_target_headings.write[hdx] += target_axes.origin * x_orientation;
-			r_localized_target_headings.write[hdx + 1] = origin;
+			r_localized_target_headings.write[hdx] += (origin + target_axes.origin) * x_orientation;
+			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			print_line("x " + String(r_localized_target_headings[hdx]));
 			print_line("x inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::YDir) != 0) {
-			r_localized_target_headings.write[hdx] += target_axes.origin * y_orientation;
-			r_localized_target_headings.write[hdx + 1] = origin;
+			r_localized_target_headings.write[hdx] += (origin + target_axes.origin) * y_orientation;
+			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			print_line("y " + String(r_localized_target_headings[hdx]));
 			print_line("y inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::ZDir) != 0) {
-			r_localized_target_headings.write[hdx] += target_axes.origin * z_orientation;
-			r_localized_target_headings.write[hdx + 1] = origin;
+			r_localized_target_headings.write[hdx] += (origin + target_axes.origin) * z_orientation;
+			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			print_line("z " + String(r_localized_target_headings[hdx]));
 			print_line("z inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
@@ -1058,28 +1058,29 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_c
 		BoneId bone = r_chain->targets[target_i]->end_effector->effector_bone;
 		Vector3 origin = sb->axes.origin;
 		r_localized_effector_headings.write[hdx] = origin;
+		origin +=  Vector3(1.0f, 1.0f, 1.0f);
 		print_line("effector " + r_chain->skeleton->get_bone_name(sb->bone));
 		print_line("origin " + r_localized_effector_headings[hdx]);
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		Transform target_axes = sb->constraint->get_constraint_axes();
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
-			r_localized_effector_headings.write[hdx] += p_bone_xform.origin * x_orientation;
-			r_localized_effector_headings.write[hdx + 1] = origin;
+			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * x_orientation;
+			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			print_line("x " + String(r_localized_effector_headings[hdx]));
 			print_line("x inv " + String(r_localized_effector_headings[hdx + 1]));
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::YDir) != 0) {
-			r_localized_effector_headings.write[hdx] += p_bone_xform.origin * y_orientation;
-			r_localized_effector_headings.write[hdx + 1] = origin;
+			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * y_orientation;
+			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			print_line("y " + String(r_localized_effector_headings[hdx]));
 			print_line("y inv " + String(r_localized_effector_headings[hdx + 1]));
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::ZDir) != 0) {
-			r_localized_effector_headings.write[hdx] += p_bone_xform.origin * z_orientation;
-			r_localized_effector_headings.write[hdx + 1] = origin;
+			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * z_orientation;
+			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			print_line("z " + String(r_localized_effector_headings[hdx]));
 			print_line("z inv " + String(r_localized_effector_headings[hdx + 1]));
 			hdx += 2;
