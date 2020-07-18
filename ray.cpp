@@ -30,22 +30,12 @@
 
 #include "ray.h"
 
-Vector3 Ray::set_to_inverted_tip() {
-	Vector3 vec;
-	vec.x = (position.x - normal.x) + position.x;
-	vec.y = (position.y - normal.y) + position.y;
-	vec.z = (position.z - normal.z) + position.z;
-	return vec;
-}
-
-
- Ray::Ray(Vector3 p_position, Vector3 p_normal) {
+Ray::Ray(Vector3 p_position, Vector3 p_normal) {
 	position = p_position;
 	normal = p_normal;
 }
 
-
- Ray::Ray() {
+Ray::Ray() {
 }
 
 void Ray::elongate(real_t p_amount) {

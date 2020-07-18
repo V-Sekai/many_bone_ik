@@ -37,14 +37,6 @@ struct Ray {
 	Vector3 position = Vector3();
 	Vector3 normal = Vector3();
 
-	/**
-     * sets the values of the given vector to where the
-     * tip of this Ray would be if the ray were inverted
-     * 
-     * @return the vector that was passed in after modification (for chaining)
-     */
-	Vector3 set_to_inverted_tip();
-
 	Ray();
 
 	Ray(Vector3 p_position, Vector3 p_normal);
