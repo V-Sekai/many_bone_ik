@@ -505,6 +505,9 @@ void SkeletonModification3DDMIK::execute(float delta) {
 	} else {
 		return;
 	}
+	stack->get_skeleton()->clear_bones_local_pose_override();
+	stack->get_skeleton()->clear_bones_global_pose_override();
+
 	if (task.is_valid()) {
 		solve(task, stack->get_strength(), false, false, Vector3());
 	}
@@ -1031,24 +1034,24 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_cha
 		// (0,1,1)
 		// (0,0,2)
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
-			r_localized_target_headings.write[hdx] += (origin) * x_orientation + target_axes.origin;
+			r_localized_target_headings.write[hdx] += (origin)*x_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			print_line("x " + String(r_localized_target_headings[hdx]));
 			print_line("x inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::YDir) != 0) {
-			r_localized_target_headings.write[hdx] += -origin * z_orientation + target_axes.origin;
-			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
-			print_line("z " + String(r_localized_target_headings[hdx]));
-			print_line("z inv " + String(r_localized_target_headings[hdx + 1]));
-			hdx += 2;
-		}
-		if ((modeCode & BoneChainTarget::ZDir) != 0) {
-			r_localized_target_headings.write[hdx] += (origin) * y_orientation + target_axes.origin;
+			r_localized_target_headings.write[hdx] += (origin)*y_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			print_line("y " + String(r_localized_target_headings[hdx]));
 			print_line("y inv " + String(r_localized_target_headings[hdx + 1]));
+			hdx += 2;
+		}
+		if ((modeCode & BoneChainTarget::ZDir) != 0) {
+			r_localized_target_headings.write[hdx] += origin * z_orientation + target_axes.origin;
+			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
+			print_line("z " + String(r_localized_target_headings[hdx]));
+			print_line("z inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
 		}
 	}
@@ -1086,17 +1089,17 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_c
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::YDir) != 0) {
-			r_localized_effector_headings.write[hdx] += -(origin + p_bone_xform.origin) * z_orientation;
-			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
-			print_line("z " + String(r_localized_effector_headings[hdx]));
-			print_line("z inv " + String(r_localized_effector_headings[hdx + 1]));
-			hdx += 2;
-		}
-		if ((modeCode & BoneChainTarget::ZDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * y_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			print_line("y " + String(r_localized_effector_headings[hdx]));
 			print_line("y inv " + String(r_localized_effector_headings[hdx + 1]));
+			hdx += 2;
+		}
+		if ((modeCode & BoneChainTarget::ZDir) != 0) {
+			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * z_orientation;
+			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
+			print_line("z " + String(r_localized_effector_headings[hdx]));
+			print_line("z inv " + String(r_localized_effector_headings[hdx + 1]));
 			hdx += 2;
 		}
 	}

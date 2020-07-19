@@ -322,9 +322,7 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
 	String root_bone;
-	// TODO remove if not being used.
-	Map<Ref<BoneChainItem>, Vector<Ref<BoneChainItem>>> bone_chain_items;
-
+	float execute_next = 0.0f;
 private:
 	inline static const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
 	inline static const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
@@ -361,9 +359,6 @@ public:
 	void set_root_bone(String p_root_bone) { root_bone = p_root_bone; }
 	SkeletonModification3DDMIK();
 	~SkeletonModification3DDMIK();
-
-	float execute_next = 0.0f;
-
 private:
 	/**
      * The default maximum number of radians a bone is allowed to rotate per solver iteration.
