@@ -499,15 +499,15 @@ void SkeletonModification3DDMIK::execute(float delta) {
 	if (!enabled) {
 		return;
 	}
-	execute_next += delta;
-	if (execute_next > 2.0f) {
-		execute_next = 0.0f;
-	} else {
-		return;
-	}
+	// execute_next += delta;
+	// if (execute_next > 2.0f) {
+	// 	execute_next = 0.0f;
+	// } else {
+	// 	return;
+	// }
 	stack->get_skeleton()->clear_bones_local_pose_override();
 	stack->get_skeleton()->clear_bones_global_pose_override();
-	setup_modification(stack);
+
 	if (task.is_valid()) {
 		solve(task, stack->get_strength(), false, false, Vector3());
 	}
@@ -629,7 +629,7 @@ void SkeletonModification3DDMIK::QCPSolver(
 						p_stabilization_passes, p_iteration, p_total_iterations);
 			}
 			String bone_name = p_skeleton->get_bone_name(current_bone->bone);
-			print_line(bone_name + " euler " + current_bone->axes.basis.get_euler());
+			// print_line(bone_name + " euler " + current_bone->axes.basis.get_euler());
 			current_bone = current_bone->parent_item;
 		}
 	}
@@ -898,7 +898,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 	if (p_for_bone.is_null()) {
 		return;
 	}
-	print_line("Affected bone " + r_chain->skeleton->get_bone_name(p_for_bone->bone));
+	// print_line("Affected bone " + r_chain->skeleton->get_bone_name(p_for_bone->bone));
 	Transform bone_xform = p_for_bone->axes;
 	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
 	float new_dampening = -1;
@@ -1012,19 +1012,29 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_cha
 		Vector<real_t> &p_weights, Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
-		Ref<BoneChainItem> sb = r_chain->find_child(r_chain->targets[target_i]->end_effector->effector_bone);
+		Ref<BoneChainTarget> bct = r_chain->targets[target_i];
+		if (bct.is_null()) {
+			continue;
+		}
+		Ref<BoneEffectorTransform> ee = bct->end_effector;
+		if (ee.is_null()) {
+			continue;
+		}
+		Ref<BoneChainItem> sb = r_chain->find_child(ee->effector_bone);
 		if (sb.is_null()) {
 			continue;
 		}
 		if (sb->constraint.is_null()) {
 			continue;
 		}
-		print_line("target " + r_chain->skeleton->get_bone_name(sb->bone));
+		// print_line("target " + r_chain->skeleton->get_bone_name(sb->bone));
 		Transform target_axes = sb->constraint->get_constraint_axes();
 		r_localized_target_headings.write[hdx] = target_axes.origin;
-		print_line("origin " + r_localized_target_headings[hdx]);
+		// print_line("origin " + r_localized_target_headings[hdx]);
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
-		Vector3 origin = Vector3(1.0f, 1.0f, 1.0f) + sb->axes.origin;
+		Vector3 origin = sb->axes.origin;
+		Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
+		origin += godot_to_libgdx;
 		hdx++;
 		// one effector pointing to one meter in front
 		// and their headings
@@ -1034,24 +1044,24 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_cha
 		// (0,1,1)
 		// (0,0,2)
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
-			r_localized_target_headings.write[hdx] += (origin)*x_orientation + target_axes.origin;
+			r_localized_target_headings.write[hdx] += origin * x_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
-			print_line("x " + String(r_localized_target_headings[hdx]));
-			print_line("x inv " + String(r_localized_target_headings[hdx + 1]));
+			// print_line("x " + String(r_localized_target_headings[hdx]));
+			// print_line("x inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::YDir) != 0) {
-			r_localized_target_headings.write[hdx] += (origin)*y_orientation + target_axes.origin;
+			r_localized_target_headings.write[hdx] += origin * y_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
-			print_line("y " + String(r_localized_target_headings[hdx]));
-			print_line("y inv " + String(r_localized_target_headings[hdx + 1]));
+			// print_line("y " + String(r_localized_target_headings[hdx]));
+			// print_line("y inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::ZDir) != 0) {
 			r_localized_target_headings.write[hdx] += origin * z_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
-			print_line("z " + String(r_localized_target_headings[hdx]));
-			print_line("z inv " + String(r_localized_target_headings[hdx + 1]));
+			// print_line("z " + String(r_localized_target_headings[hdx]));
+			// print_line("z inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
 		}
 	}
@@ -1061,16 +1071,25 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_c
 		Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
-		Ref<BoneChainItem> sb = r_chain->find_child(r_chain->targets[target_i]->end_effector->effector_bone);
+		Ref<BoneChainTarget> bct = r_chain->targets[target_i];
+		if (bct.is_null()) {
+			continue;
+		}
+		Ref<BoneEffectorTransform> ee = bct->end_effector;
+		if (ee.is_null()) {
+			continue;
+		}
+		Ref<BoneChainItem> sb = r_chain->find_child(ee->effector_bone);
 		if (sb.is_null()) {
 			continue;
 		}
 		BoneId bone = r_chain->targets[target_i]->end_effector->effector_bone;
 		Vector3 origin = sb->axes.origin;
+		Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
 		r_localized_effector_headings.write[hdx] = origin;
-		origin += Vector3(1.0f, 1.0f, 1.0f);
-		print_line("effector " + r_chain->skeleton->get_bone_name(sb->bone));
-		print_line("origin " + r_localized_effector_headings[hdx]);
+		origin += godot_to_libgdx;
+		// print_line("effector " + r_chain->skeleton->get_bone_name(sb->bone));
+		// print_line("origin " + r_localized_effector_headings[hdx]);
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		Transform target_axes = sb->constraint->get_constraint_axes();
@@ -1084,22 +1103,22 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_c
 		if ((modeCode & BoneChainTarget::XDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * x_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
-			print_line("x " + String(r_localized_effector_headings[hdx]));
-			print_line("x inv " + String(r_localized_effector_headings[hdx + 1]));
+			// print_line("x " + String(r_localized_effector_headings[hdx]));
+			// print_line("x inv " + String(r_localized_effector_headings[hdx + 1]));
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::YDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * y_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
-			print_line("y " + String(r_localized_effector_headings[hdx]));
-			print_line("y inv " + String(r_localized_effector_headings[hdx + 1]));
+			// print_line("y " + String(r_localized_effector_headings[hdx]));
+			// print_line("y inv " + String(r_localized_effector_headings[hdx + 1]));
 			hdx += 2;
 		}
 		if ((modeCode & BoneChainTarget::ZDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * z_orientation;
-			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
-			print_line("z " + String(r_localized_effector_headings[hdx]));
-			print_line("z inv " + String(r_localized_effector_headings[hdx + 1]));
+			// r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
+			// print_line("z " + String(r_localized_effector_headings[hdx]));
+			// print_line("z inv " + String(r_localized_effector_headings[hdx + 1]));
 			hdx += 2;
 		}
 	}
