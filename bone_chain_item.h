@@ -33,20 +33,13 @@
 #include "core/reference.h"
 #include "bone_effector.h"
 #include "bone_chain_target.h"
+#include "bone_effector_transform.h"
 
 class BoneChainTarget;
 class SkeletonModification3DDMIK;
 class Skeleton3D;
 class KusudamaConstraint;
 class PhysicalBone3D;
-
-class BoneEffectorTransform : public Reference {
-	GDCLASS(BoneEffectorTransform, Reference);
-
-public:
-	int effector_bone = -1;
-	Transform goal_transform;
-};
 
 class BoneChainItem : public Reference {
 	GDCLASS(BoneChainItem, Reference);
