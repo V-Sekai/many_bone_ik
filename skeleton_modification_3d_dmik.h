@@ -321,7 +321,6 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
 	String root_bone;
-	float execute_next = 0.0f;
 private:
 	inline static const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
 	inline static const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);

@@ -499,15 +499,8 @@ void SkeletonModification3DDMIK::execute(float delta) {
 	if (!enabled) {
 		return;
 	}
-	// execute_next += delta;
-	// if (execute_next > 2.0f) {
-	// 	execute_next = 0.0f;
-	// } else {
-	// 	return;
-	// }
 	stack->get_skeleton()->clear_bones_local_pose_override();
 	stack->get_skeleton()->clear_bones_global_pose_override();
-
 	if (task.is_valid()) {
 		solve(task, stack->get_strength(), false, false, Vector3());
 	}
