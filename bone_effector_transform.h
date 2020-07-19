@@ -27,8 +27,8 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-
-#pragma once
+#ifndef bone_effector_transform_h__
+#define bone_effector_transform_h__
 
 class BoneEffectorTransform : public Reference {
 	GDCLASS(BoneEffectorTransform, Reference);
@@ -38,4 +38,4 @@ public:
 	Transform goal_transform;
 };
 
-
+#endif // bone_effector_transform_h__

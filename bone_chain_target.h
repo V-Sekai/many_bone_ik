@@ -27,10 +27,11 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+#ifndef bone_chain_target_h__
+#define bone_chain_target_h__
 
-#pragma once
-#include "core/reference.h"
 #include "bone_chain_item.h"
+#include "core/reference.h"
 
 class BoneEffectorTransform;
 class BoneChainItem;
@@ -170,3 +171,5 @@ public:
 	bool is_ancestor_of(BoneChainTarget *potential_descendent);
 	float get_target_weight();
 };
+
+#endif // bone_chain_target_h__

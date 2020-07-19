@@ -27,11 +27,11 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+#ifndef bone_effector_h__
+#define bone_effector_h__
 
-#pragma once
-
-#include "core/resource.h"
 #include "core/engine.h"
+#include "core/resource.h"
 
 class BoneEffector : public Resource {
 	GDCLASS(BoneEffector, Resource);
@@ -50,3 +50,4 @@ public:
 	real_t get_budget_ms() const;
 	void set_budget_ms(real_t p_budget_ms);
 };
+#endif // bone_effector_h__

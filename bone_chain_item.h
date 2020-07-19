@@ -28,12 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#pragma once
+#ifndef bone_chain_item_h__
+#define bone_chain_item_h__
 
-#include "core/reference.h"
-#include "bone_effector.h"
 #include "bone_chain_target.h"
+#include "bone_effector.h"
 #include "bone_effector_transform.h"
+#include "core/reference.h"
 
 class BoneChainTarget;
 class SkeletonModification3DDMIK;
@@ -127,3 +128,5 @@ public:
 	void create_headings_arrays();
 	void force_update_bone_children_transforms(Ref<BoneChainItem> p_current_chain, Ref<BoneChainItem> p_bone);
 };
+
+#endif // bone_chain_item_h__
