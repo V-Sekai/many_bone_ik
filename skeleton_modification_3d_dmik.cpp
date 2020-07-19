@@ -566,15 +566,6 @@ void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D 
 		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(item->bone);
 	}
-	//if (p_current_chain->tip_bone == p_current_chain->bone) {
-	//	// Set target orientation to tip
-	//	if (override_tip_basis) {
-	//		new_bone_pose.basis = p_task->chain->targets[0]->end_effector->goal_transform.basis;
-	//	} else {
-	//		new_bone_pose.basis =
-	//				new_bone_pose.basis * p_task->chain->targets[0]->end_effector->goal_transform.basis;
-	//	}
-	//}
 	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
 		apply_bone_chains(p_strength, p_skeleton, p_bone_chain, bone_chains[i]);
