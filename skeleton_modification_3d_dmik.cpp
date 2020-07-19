@@ -605,10 +605,6 @@ void SkeletonModification3DDMIK::QCPSolver(
 		Ref<BoneChainItem> start_from = p_chain->targets[tip_i]->chain_item;
 		Ref<BoneChainItem> stop_after = p_chain->chain_root;
 
-		if (start_from->get_bones().size() < 2) {
-			continue;
-		}
-
 		Ref<BoneChainItem> current_bone = start_from;
 		//if the tip is pinned, it should have already been oriented before this function was called.
 		while (current_bone.is_valid()) {
