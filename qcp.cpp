@@ -80,8 +80,7 @@ float QCP::get_rmsd() {
 IKQuat
 QCP::weighted_superpose(Vector<Vector3> p_moved, Vector<Vector3> p_target, Vector<real_t> p_weight, bool p_translate) {
 	set(p_moved, p_target, p_weight, p_translate);
-	Quat result = get_rotation();
-	return result;
+	return get_rotation();
 }
 
 IKQuat QCP::get_rotation() {
@@ -237,9 +236,9 @@ int QCP::calc_rmsd(real_t p_len) {
 	}
 
 	/*if (i == max_iterations) {
-        System.out.println(String.format("More than %d iterations needed!", i));
+        print_line("More than " + itos(i) + " iterations needed!"));
     } else {
-        System.out.println(String.format("%d iterations needed!", i));
+        print_line(itos(i) + " iterations needed!"));
     }*/
 
 	/*
@@ -258,7 +257,7 @@ IKQuat QCP::calc_rotation() {
 		single_moved.set_euler(moved[0]);
 		IKQuat single_target;
 		single_target.set_euler(target[0]);
-		return IKQuat(single_moved * single_target);
+		return single_moved * single_target;
 	} else {
 		real_t a11 = SxxpSyy + Szz - mxEigenV;
 		real_t a12 = SyzmSzy;
