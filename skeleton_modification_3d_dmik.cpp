@@ -507,7 +507,7 @@ void SkeletonModification3DDMIK::execute(float delta) {
 	}
 	stack->get_skeleton()->clear_bones_local_pose_override();
 	stack->get_skeleton()->clear_bones_global_pose_override();
-
+	setup_modification(stack);
 	if (task.is_valid()) {
 		solve(task, stack->get_strength(), false, false, Vector3());
 	}
