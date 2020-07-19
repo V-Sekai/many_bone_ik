@@ -792,7 +792,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 	if (p_for_bone.is_null()) {
 		return;
 	}
-	print_line("Affected bone " + r_chain->skeleton->get_bone_name(p_for_bone->bone));
+	// print_line("Affected bone " + r_chain->skeleton->get_bone_name(p_for_bone->bone));
 	Transform bone_xform = p_for_bone->axes;
 	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
 	float new_dampening = -1;
