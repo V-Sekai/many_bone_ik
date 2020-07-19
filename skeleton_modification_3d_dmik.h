@@ -393,7 +393,7 @@ private:
 			float p_total_iterations);
 	static bool build_chain(Ref<DMIKTask> p_task);
 	static void update_chain(Skeleton3D *p_sk, Ref<BoneChainItem> p_chain_item);
-	static void solve_simple(Ref<DMIKTask> p_task, bool p_solve_magnet);
+	static void solve_simple(Ref<DMIKTask> p_task);
 
 public:
 	/**

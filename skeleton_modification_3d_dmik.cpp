@@ -605,16 +605,22 @@ void SkeletonModification3DDMIK::QCPSolver(
 		Ref<BoneChainItem> start_from = p_chain->targets[tip_i]->chain_item;
 		Ref<BoneChainItem> stop_after = p_chain->chain_root;
 
+		if (start_from->get_bones().size() < 2) {
+			continue;
+		}
+
 		Ref<BoneChainItem> current_bone = start_from;
 		//if the tip is pinned, it should have already been oriented before this function was called.
-		while (current_bone.is_valid() && current_bone != stop_after) {
+		while (current_bone.is_valid()) {
 			if (!current_bone->ik_orientation_lock) {
 				update_optimal_rotation_to_target_descendants(p_skeleton, p_chain, current_bone, p_dampening, false,
 						p_stabilization_passes, p_iteration, p_total_iterations);
 			}
-			String bone_name = p_skeleton->get_bone_name(current_bone->bone);
-			// print_line(bone_name + " euler " + current_bone->axes.basis.get_euler());
-			current_bone = current_bone->parent_item;
+			if (current_bone == stop_after) {
+				current_bone = nullptr;
+			} else {
+				current_bone = current_bone->parent_item;
+			}
 		}
 	}
 }
@@ -707,7 +713,7 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainIte
 	}
 }
 
-void SkeletonModification3DDMIK::solve_simple(Ref<DMIKTask> p_task, bool p_solve_magnet) {
+void SkeletonModification3DDMIK::solve_simple(Ref<DMIKTask> p_task) {
 	QCPSolver(
 			p_task->skeleton,
 			p_task->chain,
@@ -821,7 +827,7 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 		return;
 	}
 	update_chain(p_task->skeleton, p_task->chain);
-	solve_simple(p_task, false);
+	solve_simple(p_task);
 	// Strength is always full strength
 	apply_bone_chains(1.0f, p_task->skeleton, p_task->chain->chain_root);
 }
