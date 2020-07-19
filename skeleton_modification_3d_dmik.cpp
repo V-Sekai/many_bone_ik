@@ -547,7 +547,7 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 	is_setup = true;
 }
 
-void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
+void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	{
 		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true);
@@ -561,7 +561,7 @@ void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D 
 	}
 	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
-		apply_bone_chains(p_strength, p_skeleton, p_bone_chain, bone_chains[i]);
+		apply_bone_chains(p_strength, p_skeleton, bone_chains[i]);
 	}
 }
 
@@ -688,12 +688,18 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 }
 
 void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainItem> p_chain_item) {
+	Transform xform = p_sk->get_bone_global_pose(p_chain_item->bone);
+	xform = p_sk->global_pose_to_local_pose(p_chain_item->bone, xform);
+	p_chain_item->axes = xform;
+
 	Vector<Ref<BoneChainItem>> bones = p_chain_item->get_bones();
 	ERR_FAIL_COND(!p_chain_item->is_chain_active());
 	int32_t found_i = bones.find(p_chain_item);
 	ERR_FAIL_COND(found_i == -1);
 	for (int32_t bone_i = found_i; bone_i < bones.size(); bone_i++) {
-		p_chain_item->axes = p_sk->get_bone_local_pose_override(bones[bone_i]->bone);
+		Transform xform = p_sk->get_bone_global_pose(bones[bone_i]->bone);
+		xform = p_sk->global_pose_to_local_pose(bones[bone_i]->bone, xform);
+		p_chain_item->axes = xform;
 	}
 	Vector<Ref<BoneChainItem>> bone_chains = p_chain_item->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
@@ -817,7 +823,7 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 	update_chain(p_task->skeleton, p_task->chain);
 	solve_simple(p_task, false);
 	// Strength is always full strength
-	apply_bone_chains(1.0f, p_task->skeleton, p_task->chain->chain_root, p_task->chain->chain_root);
+	apply_bone_chains(1.0f, p_task->skeleton, p_task->chain->chain_root);
 }
 
 void SkeletonModification3DDMIK::set_default_dampening(Ref<BoneChainItem> r_chain, float p_damp) {
