@@ -92,8 +92,8 @@ public:
 	BoneChainItem();
 	void recursively_align_axes_outward_from(Ref<BoneChainItem> b);
 	/**
-	 * aligns all simulation axes from this root of this chain  up until the pinned tips
-	 * of any child chains  with the constraint an local axes of their corresponding bone. 
+	 * aligns all simulation axes from this root of this chain up until the pinned tips
+	 * of any child chains with the constraint are local axes of their corresponding bone. 
 	 */
 	void align_axes_to_bones();
 	void set_processed(bool p_b);
