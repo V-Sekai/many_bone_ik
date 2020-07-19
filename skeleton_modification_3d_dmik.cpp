@@ -502,7 +502,7 @@ void SkeletonModification3DDMIK::execute(float delta) {
 	stack->get_skeleton()->clear_bones_local_pose_override();
 	stack->get_skeleton()->clear_bones_global_pose_override();
 	if (task.is_valid()) {
-		solve(task, stack->get_strength(), false, false, Vector3());
+		solve(task, stack->get_strength());
 	}
 }
 
@@ -693,8 +693,7 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainIte
 	int32_t found_i = bones.find(p_chain_item);
 	ERR_FAIL_COND(found_i == -1);
 	for (int32_t bone_i = found_i; bone_i < bones.size(); bone_i++) {
-		Transform local_pose_xform = p_sk->get_bone_local_pose_override(bones[bone_i]->bone);
-		p_chain_item->axes = local_pose_xform;
+		p_chain_item->axes = p_sk->get_bone_local_pose_override(bones[bone_i]->bone);
 	}
 	Vector<Ref<BoneChainItem>> bone_chains = p_chain_item->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
@@ -746,8 +745,7 @@ Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, S
 	return task;
 }
 
-void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delta, bool override_tip_basis, bool p_use_magnet,
-		const Vector3 &p_magnet_position) {
+void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delta) {
 	if (blending_delta <= 0.01f) {
 		return; // Skip solving
 	}
@@ -859,11 +857,10 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 	if (p_chain_item->constraint.is_null()) {
 		return;
 	}
-	// Transform xform;
-	// xform.basis = p_chain_item->axes.get_basis();
-	// xform.origin = p_chain_item->axes.origin;
-	// p_chain_item->set_axes_to_be_snapped(xform, p_chain_item->constraint->get_constraint_axes(), bone_damp);
-	// p_chain_item->constraint->set_constraint_axes(p_chain_item->constraint->get_constraint_axes().translated(translate_by));
+	xform.basis = p_chain_item->axes.get_basis();
+	xform.origin = p_chain_item->axes.origin;
+	p_chain_item->set_axes_to_be_snapped(xform, p_chain_item->constraint->get_constraint_axes(), bone_damp);
+	p_chain_item->constraint->set_constraint_axes(p_chain_item->constraint->get_constraint_axes().translated(translate_by));
 }
 
 void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<BoneChainItem> r_chain,

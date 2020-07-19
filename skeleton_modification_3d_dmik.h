@@ -424,8 +424,7 @@ public:
 	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3DDMIK> p_constraints = NULL);
-	static void solve(Ref<DMIKTask> p_task, float blending_delta, bool override_effector_basis, bool p_use_magnet,
-			const Vector3 &p_magnet_position);
+	static void solve(Ref<DMIKTask> p_task, float blending_delta);
 };
 
 #endif //MULTI_CONSTRAINT_H
