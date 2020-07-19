@@ -28,7 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#pragma once
+
 #include "core/resource.h"
+#include "core/engine.h"
 
 class BoneEffector : public Resource {
 	GDCLASS(BoneEffector, Resource);

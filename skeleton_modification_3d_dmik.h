@@ -31,286 +31,26 @@
 #ifndef MULTI_CONSTRAINT_H
 #define MULTI_CONSTRAINT_H
 
-#include "bone_effector.h"
-#include "core/os/memory.h"
 #include "core/reference.h"
+#include "core/os/memory.h"
+#include "scene/resources/skeleton_modification_3d.h"
+
+#include "bone_effector.h"
 #include "kusudama_constraint.h"
 #include "qcp.h"
-#include "scene/resources/skeleton_modification_3d.h"
+#include "dmik_task.h"
 
 class Skeleton3D;
 class PhysicalBone3D;
 class BoneChainTarget;
 class SkeletonModification3DDMIK;
 class KusudamaConstraint;
-class BoneChainItem : public Reference {
-	GDCLASS(BoneChainItem, Reference);
-
-private:
-	Vector<Ref<BoneEffector>> multi_effector;
-	Vector<Ref<BoneChainItem>> child_chains;
-
-public:
-	Transform axes;
-	Transform axes_global;
-	Ref<BoneChainItem> chain_root = nullptr;
-	Vector<Ref<BoneChainTarget>> targets;
-	Vector<Vector3> localized_target_headings;
-	Vector<Vector3> localized_effector_headings;
-	Vector<real_t> weights;
-	Ref<SkeletonModification3DDMIK> constraints = nullptr;
-	float dampening = Math::deg2rad(5.0f);
-	Map<int, Ref<BoneChainItem>> bone_segment_map;
-	// TODO expose through ui
-	int ik_iterations = 15;
-	Vector<Ref<BoneChainItem>> children;
-	Ref<BoneChainItem> parent_item = nullptr;
-	int bone = -1;
-	PhysicalBone3D *pb = nullptr;
-	bool springy = false;
-	float cos_half_dampen = 0.0f;
-	Vector<real_t> cos_half_returnful_dampened;
-	Vector<real_t> half_returnful_dampened;
-	bool ik_orientation_lock = false;
-	float stiffness_scalar = 0.0f;
-	float bone_height = 0.0f;
-	float length = 0.0f;
-	Ref<KusudamaConstraint> constraint = nullptr;
-	Ref<BoneChainItem> base_bone;
-	Ref<BoneChainItem> tip_bone;
-	Skeleton3D *skeleton = nullptr;
-	//contains the parentChain of this bone chain, if any.
-	Ref<BoneChainItem> parent_chain;
-	//will be set to true if this chain or any of its descendants have an effector.
-	//a post processing step will remove any chains which are not active
-	bool is_active = false;
-	//will be set to true if the tip of this chain is an effector.
-	bool has_effector = false;
-	BoneChainItem();
-	float get_bone_height() const;
-	void set_bone_height(const float p_bone_height);
-	Ref<BoneChainItem> find_child(const int p_bone_id);
-	Ref<BoneChainItem> add_child(const int p_bone_id);
-	void set_stiffness(float p_stiffness);
-	float get_stiffness() const;
-	void update_cos_dampening();
-	void
-	set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen,
-			float p_angle_dampen);
-	void set_axes_to_be_snapped(Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen);
-	void populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k);
-	void rootwardly_update_falloff_cache_from(Ref<BoneChainItem> p_current);
-	bool is_bone_effector(Ref<BoneChainItem> current_bone);
-	void build_chain(Ref<BoneChainItem> p_start_from);
-	void create_child_chains(Ref<BoneChainItem> p_from_bone);
-	void remove_inactive_children();
-	void merge_with_child_if_appropriate();
-	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain);
-	Vector<Ref<BoneChainItem>> get_bone_children(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone);
-	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
-	bool is_chain_active() const;
-	Vector<Ref<BoneChainItem>> get_child_chains();
-	Vector<Ref<BoneChainItem>> get_bones();
-	void init(Skeleton3D *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
-	/**sets this bone chain and all of its ancestors to active */
-	void set_active();
-	/**
-     * Remove any child chains which are not active.
-     *
-     * if this chain's tip doesn't have effectors, and it only has one active child chain,
-     * it also merges this chain with the child chain.
-     *
-     * This is done recursively.
-     * @return
-     */
-	void filter_and_merge_child_chains();
-	void recursively_create_penalty_array(Ref<BoneChainItem> from, Vector<Vector<real_t>> &r_weight_array, Vector<Ref<BoneChainItem>> pin_sequence, float current_falloff);
-	int get_default_iterations() const;
-	void create_headings_arrays();
-	void force_update_bone_children_transforms(Ref<BoneChainItem> p_current_chain, Ref<BoneChainItem> p_bone);
-};
 class BoneChainTarget;
 class SkeletonModification3DDMIK;
-class BoneEffectorTransform : public Reference {
-	GDCLASS(BoneEffectorTransform, Reference);
-
-public:
-	int effector_bone = -1;
-	Transform goal_transform;
-};
-
-class BoneChainTarget : public Reference {
-	GDCLASS(BoneChainTarget, Reference);
-
-protected:
-	bool enabled = true;
-	BoneChainTarget *parent_target = nullptr;
-	Vector<BoneChainTarget *> child_targets;
-	float target_weight = 1;
-	uint8_t mode_code = 7;
-	int sub_target_count = 4;
-	float x_priority = 1.0f, y_priority = 1.0f, z_priority = 1.0f;
-	float depthFalloff = 0.0f;
-
-public:
-	Ref<BoneChainItem> chain_item = nullptr;
-	Ref<BoneEffectorTransform> end_effector = nullptr;
-
-	BoneChainTarget() :
-			chain_item(NULL),
-			end_effector(NULL) {}
-
-	BoneChainTarget(Ref<BoneChainItem> p_chain_item, const Ref<BoneEffectorTransform> p_end_effector) :
-			chain_item(p_chain_item),
-			end_effector(p_end_effector) {}
-
-	BoneChainTarget(const Ref<BoneChainTarget> p_other_ct) :
-			chain_item(p_other_ct->chain_item),
-			end_effector(p_other_ct->end_effector) {}
-
-	BoneChainTarget(Ref<BoneChainItem> p_chain_item, const Ref<BoneEffectorTransform> p_end_effector, bool p_enabled) {
-		enabled = p_enabled;
-		set_target_priorities(x_priority, y_priority, z_priority);
-	}
-
-public:
-	static const short XDir = 1, YDir = 2, ZDir = 4;
-
-	bool is_enabled() const;
-
-	void toggle();
-
-	void enable();
-
-	void disable();
-
-	/**
-     * Targets can be ultimate targets, or intermediary targets.
-     * By default, each target is treated as an ultimate target, meaning
-     * any bones which are ancestors to that target's end-effector
-     * are not aware of any target which are target of bones descending from that end effector.
-     *
-     * Changing this value makes ancestor bones aware, and also determines how much less
-     * they care with each level down.
-     *
-     * Presuming all descendants of this target have a falloff of 1, then:
-     * A target falloff of 0 on this target means only this target is reported to ancestors.
-     * A target falloff of 1 on this target means ancestors care about all descendant target equally (after accounting for their pinWeight),
-     * regardless of how many levels down they are.
-     * A target falloff of 0.5 means each descendant target is cared about half as much as its ancestor.
-     *
-     * With each level, the target falloff of a descendant is taken account for each level.
-     *  Meaning, if this target has a falloff of 1, and its descendent has a falloff of 0.5
-     *  then this target will be reported with full weight,
-     *  it descendant will be reported with full weight,
-     *  the descendant of that target will be reported with half weight.
-     *  the desecendant of that one's descendant will be reported with quarter weight.
-     *
-     * @param p_depth
-     */
-	void set_depth_falloff(float p_depth);
-
-	float get_depth_falloff() const;
-
-	/**
-     * Sets the priority of the orientation bases which effectors reaching for this target will and won't align with.
-     * If all are set to 0, then the target is treated as a simple position target.
-     * It's usually better to set at least on of these three values to 0, as giving a nonzero value to all three is most often redundant.
-     *
-     *  This values this function sets are only considered by the orientation aware solver.
-     *
-     * @param position
-     * @param p_x_priority set to a positive value (recommended between 0 and 1) if you want the bone's x basis to point in the same direction as this target's x basis (by this library's convention the x basis corresponds to a limb's twist)
-     * @param p_y_priority set to a positive value (recommended between 0 and 1)  if you want the bone's y basis to point in the same direction as this target's y basis (by this library's convention the y basis corresponds to a limb's direction)
-     * @param p_z_priority set to a positive value (recommended between 0 and 1)  if you want the bone's z basis to point in the same direction as this target's z basis (by this library's convention the z basis corresponds to a limb's twist)
-     */
-	void set_target_priorities(float p_x_priority, float p_y_priority, float p_z_priority);
-
-	/**
-     * @return the number of bases an effector to this target will attempt to align on.
-     */
-	int get_subtarget_count();
-
-	uint8_t get_mode_code() const;
-
-	/**
-     * @return the priority of this target's x axis;
-     */
-	float get_x_priority() const;
-
-	/**
-     * @return the priority of this target's y axis;
-     */
-	float get_y_priority() const;
-
-	/**
-     * @return the priority of this target's z axis;
-     */
-	float get_z_priority() const;
-
-	Transform get_axes() const;
-
-	/**
-     * translates and rotates the target to match the position
-     * and orientation of the input Axes. The orientation
-     * is only relevant for orientation aware solvers.
-     * @param inAxes
-     */
-	void align_to_axes(Transform inAxes);
-
-	/**
-     * translates the pin to the location specified in local coordinates
-     * (relative to any other Axes objects the pin may be parented to)
-     * @param location
-     */
-	void translate(Vector3 location);
-
-	/**
-     * @return the target location in global coordinates
-     */
-	Vector3 get_location();
-
-	Ref<BoneChainItem> for_bone();
-
-	/**
-     * called when this target is being removed entirely from the Armature. (as opposed to just being disabled)
-     */
-	void removal_notification();
-	void set_parent_target(BoneChainTarget *parent);
-	void remove_child_target(BoneChainTarget *child);
-	void add_child_target(BoneChainTarget *new_child);
-	BoneChainTarget *get_parent_target();
-	bool is_ancestor_of(BoneChainTarget *potential_descendent);
-	float get_target_weight();
-};
-
+class BoneEffector;
 class Skeleton3D;
-class DMIKTask : public Reference {
-	GDCLASS(DMIKTask, Reference);
+class BoneChainItem;
 
-protected:
-	static void _bind_methods() {}
-
-public:
-	Skeleton3D *skeleton = nullptr;
-
-	Ref<BoneChainItem> chain = memnew(BoneChainItem);
-	// Settings
-	float min_distance = 0.01f;
-	int iterations = 4;
-	int max_iterations = 1.0f;
-	// dampening dampening angle in radians.
-	// Set this to -1 if you want to use the armature's default.
-	float dampening = 0.05f;
-	// stabilizing_passes number of stabilization passes to run.
-	// Set this to -1 if you want to use the armature's default.
-	int stabilizing_passes = -1;
-
-	// Bone data
-	int root_bone = -1;
-	Vector<Ref<BoneEffectorTransform>> end_effectors;
-	Ref<SkeletonModification3DDMIK> dmik;
-};
 
 class SkeletonModification3DDMIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DDMIK, SkeletonModification3D);
@@ -336,8 +76,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual void execute(float delta);
-	virtual void setup_modification(SkeletonModificationStack3D *p_stack);
+	virtual void execute(float delta) override;
+	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
 	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);

@@ -33,8 +33,10 @@
 #include "direction_constraint.h"
 #include "kusudama_constraint.h"
 #include "skeleton_modification_3d_dmik.h"
+#include "bone_chain_item.h"
 
-void register_dmik_types() {	
+void register_dmik_types() {
+	ClassDB::register_class<BoneChainItem>();
 	ClassDB::register_class<TwistConstraint>();
 	ClassDB::register_class<DirectionConstraint>();
 	ClassDB::register_class<KusudamaConstraint>();
