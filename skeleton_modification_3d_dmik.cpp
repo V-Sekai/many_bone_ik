@@ -738,20 +738,6 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 		new_dampening = Math_PI;
 	}
 
-	// one effector pointing to one meter in front
-	// and their headings
-	// Effector:
-	// (0,0,0)
-	// (1,0,0)
-	// (0,1,0)
-	// (0,0,1)
-
-	// Target
-	// (0,0,1)
-	// (1,0,1)
-	// (0,1,1)
-	// (0,0,2)
-
 	update_target_headings(r_chain, r_chain->localized_target_headings, r_chain->weights, bone_xform);
 	update_effector_headings(r_chain, r_chain->localized_effector_headings, bone_xform);
 
