@@ -31,14 +31,14 @@
 #ifndef MULTI_CONSTRAINT_H
 #define MULTI_CONSTRAINT_H
 
-#include "core/reference.h"
 #include "core/os/memory.h"
+#include "core/reference.h"
 #include "scene/resources/skeleton_modification_3d.h"
 
 #include "bone_effector.h"
+#include "dmik_task.h"
 #include "kusudama_constraint.h"
 #include "qcp.h"
-#include "dmik_task.h"
 
 class Skeleton3D;
 class PhysicalBone3D;
@@ -51,7 +51,6 @@ class BoneEffector;
 class Skeleton3D;
 class BoneChainItem;
 
-
 class SkeletonModification3DDMIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DDMIK, SkeletonModification3D);
 
@@ -61,6 +60,9 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
 	String root_bone;
+	int32_t default_stabilizing_pass_count = 4;
+	Ref<QCP> qcp_convergence_check;
+
 private:
 	inline static const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
 	inline static const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
@@ -78,6 +80,9 @@ protected:
 public:
 	virtual void execute(float delta) override;
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
+	static void iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<BoneChainItem> start_from, float dampening, int iterations, int p_stabilization_passes);
+	static void grouped_recursive_chain_solver(Ref<BoneChainItem> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
+	static void recursive_chain_solver(Ref<BoneChainItem> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
 	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);
@@ -97,6 +102,7 @@ public:
 	void set_root_bone(String p_root_bone) { root_bone = p_root_bone; }
 	SkeletonModification3DDMIK();
 	~SkeletonModification3DDMIK();
+
 private:
 	/**
      * The default maximum number of radians a bone is allowed to rotate per solver iteration.

@@ -29,11 +29,11 @@
 /*************************************************************************/
 
 #include "skeleton_modification_3d_dmik.h"
+#include "bone_chain_item.h"
+#include "bone_effector.h"
 #include "direction_constraint.h"
 #include "kusudama_constraint.h"
 #include "scene/3d/skeleton_3d.h"
-#include "bone_chain_item.h"
-#include "bone_effector.h"
 
 void SkeletonModification3DDMIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constraint_count", "constraint_count"),
@@ -256,6 +256,8 @@ Ref<KusudamaConstraint> SkeletonModification3DDMIK::get_constraint(int32_t p_ind
 
 SkeletonModification3DDMIK::SkeletonModification3DDMIK() {
 	enabled = true;
+	qcp_convergence_check.instance();
+	qcp_convergence_check->set_precision(FLT_EPSILON, FLT_EPSILON);
 }
 
 SkeletonModification3DDMIK::~SkeletonModification3DDMIK() {
@@ -385,6 +387,76 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 	}
 	task = create_simple_task(skeleton, root_bone, -1.0f, 10, this);
 	is_setup = true;
+}
+
+void SkeletonModification3DDMIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<BoneChainItem> start_from, float dampening, int iterations, int p_stabilization_passes) {
+	Ref<BoneChainItem> armature = start_from;
+	if (armature.is_null()) {
+		return;
+	}
+	Ref<BoneChainItem> pinned_root_chain = armature;
+	if (pinned_root_chain.is_null() && p_root_bone != -1) {
+		armature = armature->chain_root->find_child(p_root_bone);
+	} else {
+		armature = pinned_root_chain;
+	}
+	if (armature.is_valid() && armature->get_bones().size() > 0) {
+		// TODO
+		// armature.alignAxesToBones();
+		if (iterations == -1) {
+			iterations = armature->ik_iterations;
+		} else {
+			iterations = iterations;
+		}
+		float totalIterations = iterations;
+		if (p_stabilization_passes == -1) {
+			p_stabilization_passes = armature->stabilization_passes;
+		}
+		for (int i = 0; i < iterations; i++) {
+			if (!armature->base_bone->is_bone_effector(armature->base_bone) && armature->get_child_chains().size()) {
+				update_optimal_rotation_to_target_descendants(armature->skeleton, armature, armature->dampening, true, armature->localized_target_headings, armature->localized_effector_headings, armature->weights, p_qcp, i, totalIterations);
+				armature->setProcessed(false);
+				Vector<Ref<BoneChainItem>> segmented_armature = armature->get_child_chains();
+				for (int32_t i = 0; i < segmented_armature.size(); i++) {
+					grouped_recursive_chain_solver(segmented_armature[i], armature->dampening, armature->stabilization_passes, i, totalIterations);
+				}
+			} else {
+				grouped_recursive_chain_solver(armature, dampening, p_stabilization_passes, i, totalIterations);
+			}
+		}
+		// TODO
+		// armature.recursivelyAlignBonesToSimAxesFrom(armature.segmentRoot);
+		// TODO
+		// recursivelyNotifyBonesOfCompletedIKSolution(armature);
+	}
+}
+
+void SkeletonModification3DDMIK::grouped_recursive_chain_solver(Ref<BoneChainItem> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations) {
+	recursive_chain_solver(p_start_from, p_dampening, p_stabilization_passes, p_iteration, p_total_iterations);
+	Vector<Ref<BoneChainItem>> chains = p_start_from->get_child_chains();
+	for (int32_t i = 0; i < chains.size(); i++) {
+		grouped_recursive_chain_solver(chains[i], p_dampening, p_stabilization_passes, p_iteration, p_total_iterations);
+	}
+}
+
+void SkeletonModification3DDMIK::recursive_chain_solver(Ref<BoneChainItem> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations) {
+	if (!p_armature->get_child_chains().size() && p_armature->is_bone_effector(p_armature)) {
+		return;
+	} else if (!p_armature->is_bone_effector(p_armature)) {
+		Vector<Ref<BoneChainItem>> chains = p_armature->get_child_chains();
+		for (int32_t i = 0; i < chains.size(); i++) {
+			recursive_chain_solver(chains[i], p_dampening, p_stabilization_passes, p_iteration, p_total_iterations);
+			chains.write[i]->setProcessed(true);
+		}
+	}
+	QCPSolver(
+			p_armature->skeleton,
+			p_armature,
+			p_armature->dampening,
+			false,
+			p_iteration,
+			p_stabilization_passes,
+			p_total_iterations);
 }
 
 void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain) {
@@ -550,14 +622,7 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainIte
 }
 
 void SkeletonModification3DDMIK::solve_simple(Ref<DMIKTask> p_task) {
-	QCPSolver(
-			p_task->skeleton,
-			p_task->chain,
-			p_task->dampening,
-			1.0f,
-			p_task->iterations,
-			p_task->stabilizing_passes,
-			p_task->max_iterations);
+	iterated_improved_solver(p_task->qcp, p_task->root_bone, p_task->chain, p_task->dampening, p_task->max_iterations, p_task->stabilizing_passes);
 }
 
 Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, String p_root_bone,
@@ -565,6 +630,7 @@ Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, S
 		Ref<SkeletonModification3DDMIK> p_constraints) {
 	Ref<DMIKTask> task;
 	task.instance();
+	task->qcp = p_constraints->qcp_convergence_check;
 	task->skeleton = p_sk;
 	BoneId bone = p_sk->find_bone(p_root_bone);
 	task->root_bone = bone;
@@ -731,7 +797,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 	Transform bone_xform = p_for_bone->axes;
 	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
 	float new_dampening = -1;
-	if (p_for_bone->parent_item == NULL) {
+	if (p_for_bone->parent_item == NULL || !r_chain->localized_target_headings.size()) {
 		p_stabilization_passes = 0;
 	}
 	if (p_translate == true) {

@@ -50,6 +50,7 @@ private:
 	Vector<Ref<BoneChainItem>> child_chains;
 
 public:
+	bool processed = false;
 	Transform axes;
 	Transform axes_global;
 	Ref<BoneChainItem> chain_root = nullptr;
@@ -62,6 +63,8 @@ public:
 	Map<int, Ref<BoneChainItem>> bone_segment_map;
 	// TODO expose through ui
 	int ik_iterations = 15;
+	// TODO expose through ui
+	int stabilization_passes = 4;
 	Vector<Ref<BoneChainItem>> children;
 	Ref<BoneChainItem> parent_item = nullptr;
 	int bone = -1;
@@ -86,6 +89,7 @@ public:
 	//will be set to true if the tip of this chain is an effector.
 	bool has_effector = false;
 	BoneChainItem();
+	void set_processed(bool p_b);
 	float get_bone_height() const;
 	void set_bone_height(const float p_bone_height);
 	Ref<BoneChainItem> find_child(const int p_bone_id);

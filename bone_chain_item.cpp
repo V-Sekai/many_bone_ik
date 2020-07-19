@@ -33,6 +33,16 @@
 #include "skeleton_modification_3d_dmik.h"
 #include "bone_effector.h"
 
+void BoneChainItem::set_processed(bool p_b) {
+	processed = p_b;
+	if (processed == false) {
+		Vector<Ref<BoneChainItem>> chains = get_child_chains();
+		for (int32_t i = 0; i < chains.size(); i++) {
+			chains.write[i]->set_processed(false);
+		}
+	}
+}
+
 bool BoneChainItem::is_bone_effector(Ref<BoneChainItem> current_bone) {
 	bool is_effector = false;
 	Ref<BoneEffector> effector;

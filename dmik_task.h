@@ -32,6 +32,7 @@
 #define dmik_task_h__
 
 #include "bone_chain_item.h"
+#include "qcp.h"
 
 class DMIKTask : public Reference {
 	GDCLASS(DMIKTask, Reference);
@@ -41,7 +42,7 @@ protected:
 
 public:
 	Skeleton3D *skeleton = nullptr;
-
+	Ref<QCP> qcp;
 	Ref<BoneChainItem> chain = memnew(BoneChainItem);
 	// Settings
 	float min_distance = 0.01f;
