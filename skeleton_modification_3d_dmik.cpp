@@ -415,7 +415,7 @@ void SkeletonModification3DDMIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_
 		for (int i = 0; i < iterations; i++) {
 			if (!armature->base_bone->is_bone_effector(armature->base_bone) && armature->get_child_chains().size()) {
 				update_optimal_rotation_to_target_descendants(armature->skeleton, armature, armature->dampening, true, armature->localized_target_headings, armature->localized_effector_headings, armature->weights, p_qcp, i, totalIterations);
-				armature->setProcessed(false);
+				armature->set_processed(false);
 				Vector<Ref<BoneChainItem>> segmented_armature = armature->get_child_chains();
 				for (int32_t i = 0; i < segmented_armature.size(); i++) {
 					grouped_recursive_chain_solver(segmented_armature[i], armature->dampening, armature->stabilization_passes, i, totalIterations);
@@ -446,7 +446,7 @@ void SkeletonModification3DDMIK::recursive_chain_solver(Ref<BoneChainItem> p_arm
 		Vector<Ref<BoneChainItem>> chains = p_armature->get_child_chains();
 		for (int32_t i = 0; i < chains.size(); i++) {
 			recursive_chain_solver(chains[i], p_dampening, p_stabilization_passes, p_iteration, p_total_iterations);
-			chains.write[i]->setProcessed(true);
+			chains.write[i]->set_processed(true);
 		}
 	}
 	QCPSolver(
