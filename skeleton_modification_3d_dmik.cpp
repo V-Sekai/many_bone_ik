@@ -1299,25 +1299,6 @@ void BoneChainItem::create_headings_arrays() {
 	}
 }
 
-void BoneChainItem::force_update_bone_children_transforms(Ref<BoneChainItem> p_current_chain, Ref<BoneChainItem> p_bone) {
-	// Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
-	// ERR_FAIL_COND(!p_current_chain->is_chain_active());
-	// int32_t found_i = bones.find(p_bone);
-	// ERR_FAIL_COND(found_i == -1);
-	// for (int32_t bone_i = found_i; bone_i < bones.size(); bone_i++) {
-	// 	Transform pose = bones[bone_i]->axes;
-	// 	if (bones[bone_i]->parent_item.is_valid()) {
-	// 		bones.write[bone_i]->axes_global = bones[bone_i]->parent_item->axes_global * pose;
-	// 	} else {
-	// 		bones.write[bone_i]->axes_global = pose;
-	// 	}
-	// }
-	// Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
-	// for (int32_t i = 0; i < bone_chains.size(); i++) {
-	// 	force_update_bone_children_transforms(bone_chains[i], bone_chains[i]);
-	// }
-}
-
 void BoneChainTarget::set_parent_target(BoneChainTarget *parent) {
 	if (parent_target != NULL) {
 		parent_target->remove_child_target(this);
