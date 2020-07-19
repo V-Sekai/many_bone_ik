@@ -707,7 +707,7 @@ void SkeletonModification3DDMIK::solve_simple(Ref<DMIKTask> p_task, bool p_solve
 			p_task->skeleton,
 			p_task->chain,
 			p_task->dampening,
-			false,
+			1.0f,
 			p_task->iterations,
 			p_task->stabilizing_passes,
 			p_task->max_iterations);

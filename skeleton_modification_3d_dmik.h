@@ -360,7 +360,7 @@ public:
 private:
 	/**
      * The default maximum number of radians a bone is allowed to rotate per solver iteration.
-     * The lower this value, the more natural the pose results. However, this will  the number of iterations
+     * The lower this value, the more natural the pose results. However, this will increase the number of iterations
      * the solver requires to converge.
      *
      * !!THIS IS AN EXPENSIVE OPERATION.
