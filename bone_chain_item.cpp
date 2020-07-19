@@ -46,6 +46,7 @@ void BoneChainItem::recursively_align_axes_outward_from(Ref<BoneChainItem> sb) {
 	//cAxes.alignGlobalsTo(b.getMajorRotationAxes());
 	//cAxes.markDirty();
 	//cAxes.updateGlobal();
+	sb->constraint->set_constraint_axes(cAxes);
 	Vector<Ref<BoneChainItem>> bones = sb->base_bone->get_bones();
 	for (int32_t bones_i = 0; bones_i < bones.size(); bones_i++) {
 		//bAxes.alignGlobalsTo(b.localAxes());
@@ -54,6 +55,7 @@ void BoneChainItem::recursively_align_axes_outward_from(Ref<BoneChainItem> sb) {
 		//cAxes.alignGlobalsTo(b.getMajorRotationAxes());
 		//cAxes.markDirty();
 		//cAxes.updateGlobal();
+		bones.write[bones_i]->constraint->set_constraint_axes(cAxes);
 	}
 	Vector<Ref<BoneChainItem>> children = sb->get_child_chains();
 	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
