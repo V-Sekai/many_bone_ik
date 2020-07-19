@@ -51,6 +51,7 @@ private:
 
 public:
 	bool processed = false;
+	bool aligned = false;
 	Transform axes;
 	Transform axes_global;
 	Ref<BoneChainItem> chain_root = nullptr;
@@ -89,6 +90,12 @@ public:
 	//will be set to true if the tip of this chain is an effector.
 	bool has_effector = false;
 	BoneChainItem();
+	void recursively_align_axes_outward_from(Ref<BoneChainItem> b);
+	/**
+	 * aligns all simulation axes from this root of this chain  up until the pinned tips
+	 * of any child chains  with the constraint an local axes of their corresponding bone. 
+	 */
+	void align_axes_to_bones();
 	void set_processed(bool p_b);
 	float get_bone_height() const;
 	void set_bone_height(const float p_bone_height);

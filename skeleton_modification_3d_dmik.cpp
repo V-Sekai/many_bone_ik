@@ -401,8 +401,7 @@ void SkeletonModification3DDMIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_
 		armature = pinned_root_chain;
 	}
 	if (armature.is_valid() && armature->get_bones().size() > 0) {
-		// TODO
-		// armature.alignAxesToBones();
+		armature->align_axes_to_bones();
 		if (iterations == -1) {
 			iterations = armature->ik_iterations;
 		} else {

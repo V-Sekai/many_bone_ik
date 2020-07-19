@@ -29,9 +29,45 @@
 /*************************************************************************/
 
 #include "bone_chain_item.h"
+#include "bone_effector.h"
 #include "scene/3d/skeleton_3d.h"
 #include "skeleton_modification_3d_dmik.h"
-#include "bone_effector.h"
+
+
+void BoneChainItem::recursively_align_axes_outward_from(Ref<BoneChainItem> sb) {
+	Transform bAxes = sb->axes;
+	Transform cAxes = sb->constraint->get_constraint_axes();
+	if (sb->base_bone.is_null()) {
+		return;
+	}
+	//bAxes.alignGlobalsTo(b.localAxes());
+	//bAxes.markDirty();
+	//bAxes.updateGlobal();
+	//cAxes.alignGlobalsTo(b.getMajorRotationAxes());
+	//cAxes.markDirty();
+	//cAxes.updateGlobal();
+	Vector<Ref<BoneChainItem>> bones = sb->base_bone->get_bones();
+	for (int32_t bones_i = 0; bones_i < bones.size(); bones_i++) {
+		//bAxes.alignGlobalsTo(b.localAxes());
+		//bAxes.markDirty();
+		//bAxes.updateGlobal();
+		//cAxes.alignGlobalsTo(b.getMajorRotationAxes());
+		//cAxes.markDirty();
+		//cAxes.updateGlobal();
+	}
+	Vector<Ref<BoneChainItem>> children = sb->get_child_chains();
+	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
+		sb->recursively_align_axes_outward_from(children[child_i]);
+	}
+}
+
+void BoneChainItem::align_axes_to_bones() {
+	if (!is_bone_effector(base_bone) && parent_chain.is_valid()) {
+		parent_chain->align_axes_to_bones();
+	} else {
+		recursively_align_axes_outward_from(base_bone);
+	}
+}
 
 void BoneChainItem::set_processed(bool p_b) {
 	processed = p_b;
