@@ -459,21 +459,29 @@ void SkeletonModification3DDMIK::recursive_chain_solver(Ref<BoneChainItem> p_arm
 }
 
 void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain) {
-	ERR_FAIL_COND(!p_current_chain->is_chain_active());
-	{
-		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true);
-		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
-	}
-	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
-	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-		Ref<BoneChainItem> item = bones[bone_i];
-		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true);
-		p_skeleton->force_update_bone_children_transforms(item->bone);
-	}
-	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
-	for (int32_t i = 0; i < bone_chains.size(); i++) {
-		apply_bone_chains(p_strength, p_skeleton, bone_chains[i]);
-	}
+	ERR_FAIL_COND(!p_current_chain->is_chain_active()); 
+	{ 
+		Transform parent_xform; 
+		if (p_current_chain->parent_item.is_valid()) { 
+			parent_xform = p_current_chain->parent_item->axes; 
+		} 
+		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, parent_xform.affine_inverse() * p_current_chain->axes, p_strength, true); 
+		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone); 
+	} 
+	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones(); 
+	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) { 
+		Ref<BoneChainItem> item = bones[bone_i]; 
+		Transform parent_xform; 
+		if (item->parent_item.is_valid()) { 
+			parent_xform = item->parent_item->axes; 
+		} 
+		p_skeleton->set_bone_local_pose_override(item->bone, parent_xform.affine_inverse() * item->axes, p_strength, true); 
+		p_skeleton->force_update_bone_children_transforms(item->bone); 
+	} 
+	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains(); 
+	for (int32_t i = 0; i < bone_chains.size(); i++) { 
+		apply_bone_chains(p_strength, p_skeleton, bone_chains[i]); 
+	} 
 }
 
 void SkeletonModification3DDMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
