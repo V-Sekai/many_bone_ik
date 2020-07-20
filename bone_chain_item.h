@@ -137,7 +137,7 @@ public:
 	void recursively_create_penalty_array(Ref<BoneChainItem> from, Vector<Vector<real_t>> &r_weight_array, Vector<Ref<BoneChainItem>> pin_sequence, float current_falloff);
 	int get_default_iterations() const;
 	void create_headings_arrays();
-	void force_update_bone_children_transforms(Ref<BoneChainItem> p_current_chain, Ref<BoneChainItem> p_bone);
+	void force_update_bone_children_transforms(Ref<BoneChainItem> p_current_chain);
 };
 
 #endif // bone_chain_item_h__

@@ -42,6 +42,7 @@ void BoneChainItem::recursively_align_axes_outward_from(Ref<BoneChainItem> sb) {
 	}
 	//bAxes.alignGlobalsTo(b.localAxes());
 	//bAxes.markDirty();
+	sb->force_update_bone_children_transforms(sb->base_bone);
 	//bAxes.updateGlobal();
 	//cAxes.alignGlobalsTo(b.getMajorRotationAxes());
 	//cAxes.markDirty();
