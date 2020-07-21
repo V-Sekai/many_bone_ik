@@ -461,21 +461,13 @@ void SkeletonModification3DDMIK::recursive_chain_solver(Ref<BoneChainItem> p_arm
 void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active()); 
 	{ 
-		Transform parent_xform; 
-		if (p_current_chain->parent_item.is_valid()) { 
-			parent_xform = p_current_chain->parent_item->axes; 
-		} 
-		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, parent_xform.affine_inverse() * p_current_chain->axes, p_strength, true); 
+		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true); 
 		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone); 
 	} 
 	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones(); 
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) { 
 		Ref<BoneChainItem> item = bones[bone_i]; 
-		Transform parent_xform; 
-		if (item->parent_item.is_valid()) { 
-			parent_xform = item->parent_item->axes; 
-		} 
-		p_skeleton->set_bone_local_pose_override(item->bone, parent_xform.affine_inverse() * item->axes, p_strength, true); 
+		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true); 
 		p_skeleton->force_update_bone_children_transforms(item->bone); 
 	} 
 	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains(); 
@@ -609,8 +601,8 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 }
 
 void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainItem> p_chain_item) {
-	Transform xform = p_sk->get_bone_global_pose(p_chain_item->bone);
-	xform = p_sk->global_pose_to_local_pose(p_chain_item->bone, xform);
+	Transform xform = p_sk->get_bone_pose(p_chain_item->bone);
+	xform = xform * p_sk->get_bone_rest(p_chain_item->bone);
 	p_chain_item->axes = xform;
 
 	Vector<Ref<BoneChainItem>> bones = p_chain_item->get_bones();
@@ -618,8 +610,8 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<BoneChainIte
 	int32_t found_i = bones.find(p_chain_item);
 	ERR_FAIL_COND(found_i == -1);
 	for (int32_t bone_i = found_i; bone_i < bones.size(); bone_i++) {
-		Transform xform = p_sk->get_bone_global_pose(bones[bone_i]->bone);
-		xform = p_sk->global_pose_to_local_pose(bones[bone_i]->bone, xform);
+		Transform xform = p_sk->get_bone_pose(bones[bone_i]->bone);
+		xform = xform * p_sk->get_bone_rest(bones[bone_i]->bone);
 		p_chain_item->axes = xform;
 	}
 	Vector<Ref<BoneChainItem>> bone_chains = p_chain_item->get_child_chains();
@@ -670,19 +662,19 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 	if (blending_delta <= 0.01f) {
 		return; // Skip solving
 	}
-	for (int32_t constraint_i = 0; constraint_i < p_task->dmik->get_constraint_count(); constraint_i++) {
-		Ref<KusudamaConstraint> constraint = p_task->dmik->get_constraint(constraint_i);
-		ERR_CONTINUE(constraint.is_null());
-		for (int32_t direction_i = 0; direction_i < constraint->get_direction_count(); direction_i++) {
-			Ref<DirectionConstraint> direction = constraint->get_direction(direction_i);
-			if (direction.is_null()) {
-				continue;
-			}
-			Vector3 cp = direction->get_control_point();
-			direction->set_control_point(cp.normalized());
-			constraint->set_direction(direction_i, direction);
-		}
-	}
+	// for (int32_t constraint_i = 0; constraint_i < p_task->dmik->get_constraint_count(); constraint_i++) {
+	// 	Ref<KusudamaConstraint> constraint = p_task->dmik->get_constraint(constraint_i);
+	// 	ERR_CONTINUE(constraint.is_null());
+	// 	for (int32_t direction_i = 0; direction_i < constraint->get_direction_count(); direction_i++) {
+	// 		Ref<DirectionConstraint> direction = constraint->get_direction(direction_i);
+	// 		if (direction.is_null()) {
+	// 			continue;
+	// 		}
+	// 		Vector3 cp = direction->get_control_point();
+	// 		direction->set_control_point(cp.normalized());
+	// 		constraint->set_direction(direction_i, direction);
+	// 	}
+	// }
 	p_task->end_effectors.resize(p_task->dmik->get_effector_count());
 	for (int32_t name_i = 0; name_i < p_task->end_effectors.size(); name_i++) {
 		Ref<BoneEffector> effector = p_task->dmik->get_effector(name_i);

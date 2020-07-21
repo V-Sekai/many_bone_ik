@@ -63,7 +63,7 @@ public:
 	float dampening = Math::deg2rad(5.0f);
 	Map<int, Ref<BoneChainItem>> bone_segment_map;
 	// TODO expose through ui
-	int ik_iterations = 15;
+	int ik_iterations = 1;
 	// TODO expose through ui
 	int stabilization_passes = 4;
 	Vector<Ref<BoneChainItem>> children;
