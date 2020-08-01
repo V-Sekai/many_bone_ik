@@ -2,10 +2,21 @@
 #include "core/reference.h"
 #include "ray.h"
 
+class AxisDependency: public Reference {
+public:
+	virtual void emancipate() = 0;
+	virtual void axisSlipWarning(Ref<AxisDependency> globalPriorToSlipping, Ref<AxisDependency> globalAfterSlipping, Ref<AxisDependency> thisAxis) = 0;
+	virtual void axisSlipCompletionNnotice(Ref<AxisDependency> globalPriorToSlipping, Ref<AxisDependency> globalAfterSlipping, Ref<AxisDependency> thisAxis) = 0;
+	virtual void parentChangeWarning(Ref<AxisDependency> warningBy, Ref<AxisDependency> oldParent, Ref<AxisDependency> intendedParent, Object requestedBy) = 0;
+	virtual void parentChangeCompletionNotice(Ref<AxisDependency> warningBy, Ref<AxisDependency> oldParent, Ref<AxisDependency> intendedParent, Object requestedBy) = 0; 
+	virtual void markDirty() = 0;
+	virtual void markDependentsDirty() = 0;
+	virtual Ref<AxisDependency> getParentAxes() = 0;
+};
 
-class AbstractAxes : public Reference {
+class AbstractAxes : public AxisDependency {
 private:
-	Ref<AbstractAxes> parent = null;
+	Ref<AbstractAxes> parent;
 	int slipType = 0;
 	List<Ref<AbstractAxes>> dependentsRegistry;
 
@@ -23,11 +34,16 @@ protected:
 	bool areGlobal = true;
 
 public:
-	void emancipate();
-	void axisSlipWarning(AbstractAxes p_globalPriorToSlipping, AbstractAxes p_globalAfterSlipping, AbstractAxes thisAxis);
-	void axisSlipCompletionNotice(AbstractAxes p_globalPriorToSlipping, AbstractAxes p_globalAfterSlipping, AbstractAxes p_thisAxis);
-	void parentChangeWarning(AbstractAxes p_warningBy, AbstractAxes p_oldParent, AbstractAxes p_intendedParent, Object p_requestedBy);
-	void parentChangeCompletionNotice(AbstractAxes p_warningBy, AbstractAxes p_oldParent, AbstractAxes p_intendedParent, Object p_requestedBy);
+	Ref<AxisDependency> getParentAxes() {
+		if(parent.is_null()) 
+			return Ref<AbstractAxes>();
+		else 
+			return parent;
+	}
+	void axis_slip_warning(Ref<AbstractAxes> p_globalPriorToSlipping, Ref<AbstractAxes> p_globalAfterSlipping, Ref<AbstractAxes> thisAxis);
+	void axisSlipCompletionNotice(Ref<AbstractAxes> p_globalPriorToSlipping, Ref<AbstractAxes> p_globalAfterSlipping, Ref<AbstractAxes> p_thisAxis);
+	void parentChangeWarning(Ref<AbstractAxes> p_warningBy, Ref<AbstractAxes> p_oldParent, Ref<AbstractAxes> p_intendedParent, Object p_requestedBy);
+	void parentChangeCompletionNotice(Ref<AbstractAxes> p_warningBy, Ref<AbstractAxes> p_oldParent, Ref<AbstractAxes> p_intendedParent, Object p_requestedBy);
 	void markDirty();
 	void createTempVars(Vector3 type);
 
@@ -35,7 +51,7 @@ public:
 	 * @param globalMBasis a Basis object for this Axes to adopt the values of
 	 * @param customBases set to true if you intend to use a custom Bases class, in which case, this constructor will not initialize them.
 	 */
-	AbstractAxes(Transform p_globalBasis, AbstractAxes p_parent);
+	AbstractAxes(Transform p_globalBasis, Ref<AbstractAxes> p_parent);
 
 	/**
 	 * @param origin the center of this axes basis. The basis vector parameters will be automatically ADDED to the origin in order to create this basis vector.
@@ -45,9 +61,7 @@ public:
 	 * @param forceOrthoNormality
 	 * @param customBases set to true if you intend to use a custom Bases class, in which case, this constructor will not initialize them.
 	 */
-	AbstractAxes(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ, AbstractAxes p_parent, bool customBases);
-
-	AbstractAxes getParentAxes();
+	AbstractAxes(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ, Ref<AbstractAxes> p_parent, bool customBases);
 
 	void updateGlobal();
 
@@ -58,7 +72,7 @@ public:
 	 * Make a GlobalCopy of these Axes. 
 	 * @return
 	 */
-	AbstractAxes getGlobalCopy();
+	Ref<AbstractAxes> getGlobalCopy();
 
 	/**
 	 * Sets the parentAxes for this axis globally.  
@@ -67,7 +81,7 @@ public:
 	 * 
 	 *   @param par the new parent Axes
 	 **/
-	void setParent(AbstractAxes par);
+	void setParent(Ref<AbstractAxes> par);
 
 	/**
 	 * Sets the parentAxes for this axis globally.  
@@ -76,9 +90,9 @@ public:
 	 * 
 	 *   @param intendedParent the new parent Axes
 	 *   @param requestedBy the object making thisRequest, will be passed on to parentChangeWarning 
-	 *   for any AxisDependancy objects registered with this AbstractAxes  (can be null if not important)
+	 *   for any AxisDependancy objects registered with this Ref<AbstractAxes>  (can be null if not important)
 	 **/
-	void setParent(AbstractAxes intendedParent, Object requestedBy);
+	void setParent(Ref<AbstractAxes> intendedParent, Object requestedBy);
 
 	/**
 	 * runs the given runnable on each dependent axis,
@@ -119,7 +133,7 @@ public:
 	 * parent is set to this Axes' parent, prior to this axes setting the input axes
 	 * as its parent.   
 	 **/
-	void setRelativeToParent(AbstractAxes par);
+	void setRelativeToParent(Ref<AbstractAxes> par);
 
 	bool needsUpdate();
 
@@ -156,7 +170,7 @@ public:
 	 * @param in
 	 * @return
 	 */
-	AbstractAxes relativeTo(AbstractAxes in);
+	Ref<AbstractAxes> relativeTo(Ref<AbstractAxes> in);
 
 	Vector3 getLocalOf(Vector3 in);
 
@@ -185,20 +199,20 @@ public:
 	void setToLocalOf(Transform input, Transform output);
 
 	Ray getLocalOf(Ray in) {
-		Ray result = in.copy();
-		result.normal = this.getLocalOf(in.normal());
-		result.position = this.getLocalOf(in.position());
+		Ray result = in;
+		result.normal = getLocalOf(in.normal);
+		result.position = getLocalOf(in.position);
 		return result;
 	}
 
-	AbstractAxes getLocalOf(AbstractAxes input);
+	Ref<AbstractAxes> getLocalOf(Ref<AbstractAxes> input);
 
 	Transform getLocalOf(Transform input);
 
 	void translateByLocal(Vector3 translate) {
-		this.updateGlobal();
-		getLocalMBasis().translateBy(translate);
-		this.markDirty();
+		updateGlobal();
+		getLocalMBasis().translate(translate);
+		markDirty();
 	}
 	void translateByGlobal(Vector3 translate);
 
@@ -213,7 +227,7 @@ public:
 	 * global coordinates will likely be drastically different from the original's global coordinates. 
 	 *   
 	 */
-	AbstractAxes freeCopy();
+	Ref<AbstractAxes> freeCopy();
 
 	/**
 	 *  return a ray / segment representing this Axes global x basis position and direction and magnitude
@@ -231,14 +245,14 @@ public:
 	 *  return a ray / segment representing this Axes global z basis position and direction and magnitude
 	 * @return a ray / segment representing this Axes global z basis position and direction and magnitude
 	 */
-	abstract Ray z_();
+	Ray z_();
 
 	/**
  * Creates an exact copy of this Axes object. Attached to the same parent as this Axes object
  * @param slipAware
  * @return
  */
-	AbstractAxes attachedCopy(bool slipAware);
+	Ref<AbstractAxes> attachedCopy(bool slipAware);
 
 	void setSlipType(int type);
 
@@ -273,7 +287,7 @@ public:
 	 * 
 	 * @param targetAxes the Axes to make this Axis identical to
 	 */
-	void alignLocalsTo(AbstractAxes targetAxes);
+	void alignLocalsTo(Ref<AbstractAxes> targetAxes);
 
 	/**
 	 * sets the bases to the Identity basis and Identity rotation relative to its parent, and translates 
@@ -296,9 +310,9 @@ public:
 	 * axis is orthonormalized and the target axes are not.
 	 * @param targetAxes
 	 */
-	void alignGlobalsTo(AbstractAxes targetAxes);
+	void alignGlobalsTo(Ref<AbstractAxes> targetAxes);
 
-	void alignOrientationTo(AbstractAxes targetAxes);
+	void alignOrientationTo(Ref<AbstractAxes> targetAxes);
 
 	/**
 	 * updates the axes object such that its global orientation 
@@ -307,32 +321,26 @@ public:
 	 */
 	void setGlobalOrientationTo(Quat rotation);
 
-	void registerDependent(AxisDependency newDependent);
+	void registerDependent(Ref<AxisDependency> newDependent);
 
-	bool isAncestorOf(AbstractAxes potentialDescendent);
+	bool isAncestorOf(Ref<AbstractAxes> potentialDescendent);
 
 	/**
-	 * unregisters this AbstractAxes from its current parent and 
+	 * unregisters this Ref<AbstractAxes> from its current parent and 
 	 * registers it to a new parent without changing its global position or orientation 
 	 * when doing so.
 	 * @param newParent
 	 */
 
-	void transferToParent(AbstractAxes newParent);
+	void transferToParent(Ref<AbstractAxes> newParent);
 
-	/**
-	 * unregisters this AbstractAxes from its parent, 
-	 * but keeps its global position the same.
-	 */
-	void emancipate();
+	void disown(Ref<AxisDependency> child);
 
-	void disown(AxisDependency child);
+	Transform getGlobalMBasis() const;
 
-	Transform getGlobalMBasis();
+	Transform getLocalMBasis() const;
 
-	Transform getLocalMBasis();
-
-	void axisSlipWarning(AbstractAxes p_globalPriorToSlipping, AbstractAxes p_globalAfterSlipping, AbstractAxes actualAxis, List<Object> dontWarn);
+	void axisSlipWarning(Ref<AbstractAxes> p_globalPriorToSlipping, Ref<AbstractAxes> p_globalAfterSlipping, Ref<AbstractAxes> actualAxis, List<Object> dontWarn);
 
 	/**
 	 * if the input axes have have the same global
@@ -343,37 +351,22 @@ public:
 	 * will be used in the comparison. 
 	 * @param ax
 	 */
-	bool equals(AbstractAxes ax);
-
-	void axisSlipWarning(AbstractAxes p_globalPriorToSlipping, AbstractAxes p_globalAfterSlipping, AbstractAxes actualAxis);
-
-	void axisSlipCompletionNotice(AbstractAxes p_globalPriorToSlipping, AbstractAxes p_globalAfterSlipping, AbstractAxes thisAxis);
-
-	void slipTo(AbstractAxes newAxisGlobal);
-
-	void slipTo(AbstractAxes newAxisGlobal, List<Object> dontWarn);
-
-	void notifyDependentsOfSlip(AbstractAxes newAxisGlobal, List<Object> dontWarn);
-
-	void notifyDependentsOfSlipCompletion(AbstractAxes globalAxisPriorToSlipping, List<Object> dontWarn);
-
-	void notifyDependentsOfSlip(AbstractAxes newAxisGlobal);
-
-	void notifyDependentsOfSlipCompletion(AbstractAxes globalAxisPriorToSlipping);
-
-	void markDirty();
-
+	bool equals(Ref<AbstractAxes> ax);
+	void axisSlipWarning(Ref<AbstractAxes> p_globalPriorToSlipping, Ref<AbstractAxes> p_globalAfterSlipping, Ref<AbstractAxes> actualAxis);
+	void slipTo(Ref<AbstractAxes> newAxisGlobal);
+	void slipTo(Ref<AbstractAxes> newAxisGlobal, List<Object> dontWarn);
+	void notifyDependentsOfSlip(Ref<AbstractAxes> newAxisGlobal, List<Object> dontWarn);
+	void notifyDependentsOfSlipCompletion(Ref<AbstractAxes> globalAxisPriorToSlipping, List<Object> dontWarn);
+	void notifyDependentsOfSlip(Ref<AbstractAxes> newAxisGlobal);
+	void notifyDependentsOfSlipCompletion(Ref<AbstractAxes> globalAxisPriorToSlipping);
 	void markDependentsDirty();
-
 	String toString();
-
-	Transform getLocalOf(Transform input);
 };
 
-class CartesianAxes : public AbstractAxes {
-	CartesianAxes(Transform p_globalBasis, AbstractAxes p_parent);
+class CartesianAxes : public Ref<AbstractAxes> {
+	CartesianAxes(Transform p_globalBasis, Ref<AbstractAxes> p_parent);
 	CartesianAxes(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ,
-			AbstractAxes p_parent);
+			Ref<AbstractAxes> p_parent);
 
 	Ray x_();
 
@@ -381,15 +374,15 @@ class CartesianAxes : public AbstractAxes {
 
 	Ray z_();
 
-	bool equals(AbstractAxes ax);
+	bool equals(Ref<AbstractAxes> ax);
 
 	CartesianAxes getGlobalCopy();
 
-	AbstractAxes relativeTo(AbstractAxes in);
+	Ref<AbstractAxes> relativeTo(Ref<AbstractAxes> in);
 
-	AbstractAxes getLocalOf(AbstractAxes input);
+	Ref<AbstractAxes> getLocalOf(Ref<AbstractAxes> input);
 
-	AbstractAxes freeCopy();
+	Ref<AbstractAxes> freeCopy();
 
 	/**
 	 * Creates an exact copy of this Axes object. Attached to the same parent as this Axes object
@@ -400,4 +393,3 @@ class CartesianAxes : public AbstractAxes {
 
 	Transform getLocalOf(Transform input);
 };
-
