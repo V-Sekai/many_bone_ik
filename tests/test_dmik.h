@@ -31,12 +31,42 @@
 #ifndef TEST_DMIK_H
 #define TEST_DMIK_H
 
+#include "../qcp.h"
+
 #include "tests/test_macros.h"
 
 namespace TestDMIK {
 
-TEST_CASE("[DMIK] DMIK failure") {
-	FAIL("fail");
+	TEST_CASE("[DMIK] DMIK qcp single target") {
+	Ref<QCP> qcp;
+	qcp.instance();
+	qcp->set_max_iterations(10);
+	Vector<Vector3> localized_effector_headings;
+	localized_effector_headings.push_back(Vector3(0, 0, 0));
+	Vector<Vector3> localized_target_headings;
+	localized_target_headings.push_back(Vector3(1, 1, 1));
+	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
+			Vector<float>(), false);
+	Vector3 euler = rot.get_euler();
+	INFO(vformat("New orientation in degrees %s x, %s y, %s z", euler.x, euler.y, euler.z).utf8().ptr());
+	CHECK_FALSE_MESSAGE(rot.is_equal_approx(Quat()), vformat("%s does not match quat identity", rot).utf8().ptr());
+}
+
+TEST_CASE("[DMIK] DMIK qcp two targets") {
+	Ref<QCP> qcp;
+	qcp.instance();
+	qcp->set_max_iterations(10);
+	Vector<Vector3> localized_effector_headings;
+	localized_effector_headings.push_back(Vector3(0, 0, 0));
+	localized_effector_headings.push_back(Vector3(0, 0, 0));
+	Vector<Vector3> localized_target_headings;
+	localized_target_headings.push_back(Vector3(1, 1, 1));
+	localized_target_headings.push_back(Vector3(1, 1, 1));
+	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
+			Vector<float>(), false);
+	Vector3 euler = rot.get_euler();
+	INFO(vformat("New orientation in degrees %s x, %s y, %s z", euler.x, euler.y, euler.z).utf8().ptr());
+	CHECK_MESSAGE(rot.is_equal_approx(Quat()), vformat("%s does not match quat identity", rot).utf8().ptr());
 }
 
 } // namespace TestDMIK
