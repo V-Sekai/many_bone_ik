@@ -49,7 +49,7 @@ namespace TestDMIK {
 			Vector<float>(), false);
 	Vector3 euler = rot.get_euler();
 	INFO(vformat("New orientation in degrees %s x, %s y, %s z", euler.x, euler.y, euler.z).utf8().ptr());
-	CHECK_FALSE_MESSAGE(rot.is_equal_approx(Quat()), vformat("%s does not match quat identity", rot).utf8().ptr());
+	CHECK_FALSE_MESSAGE(euler.is_equal_approx(Vector3()), vformat("%s does not match angle identity", euler).utf8().ptr());
 }
 
 TEST_CASE("[DMIK] DMIK qcp two targets") {
@@ -66,7 +66,7 @@ TEST_CASE("[DMIK] DMIK qcp two targets") {
 			Vector<float>(), false);
 	Vector3 euler = rot.get_euler();
 	INFO(vformat("New orientation in degrees %s x, %s y, %s z", euler.x, euler.y, euler.z).utf8().ptr());
-	CHECK_MESSAGE(rot.is_equal_approx(Quat()), vformat("%s does not match quat identity", rot).utf8().ptr());
+	CHECK_MESSAGE(euler.is_equal_approx(Vector3()), vformat("%s does not match angle identity", euler).utf8().ptr());
 }
 
 } // namespace TestDMIK
