@@ -37,22 +37,31 @@
 
 namespace TestDMIK {
 
-	TEST_CASE("[DMIK] DMIK qcp single target") {
-	Ref<QCP> qcp;
-	qcp.instance();
-	qcp->set_max_iterations(10);
-	Vector<Vector3> localized_effector_headings;
-	localized_effector_headings.push_back(Vector3(0, 0, 0));
-	Vector<Vector3> localized_target_headings;
-	localized_target_headings.push_back(Vector3(1, 1, 1));
-	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
-			Vector<float>(), false);
-	Vector3 euler = rot.get_euler();
-	INFO(vformat("New orientation in degrees %s x, %s y, %s z", euler.x, euler.y, euler.z).utf8().ptr());
-	CHECK_FALSE_MESSAGE(euler.is_equal_approx(Vector3()), vformat("%s does not match angle identity", euler).utf8().ptr());
+Vector3 deg2rad(const Vector3 &p_rotation) {
+	return p_rotation / 180.0 * Math_PI;
 }
 
-TEST_CASE("[DMIK] DMIK qcp two targets") {
+Vector3 rad2deg(const Vector3 &p_rotation) {
+	return p_rotation / Math_PI * 180.0;
+}
+TEST_CASE("[DMIK] qcp single target") {
+	Ref<QCP> qcp;
+	qcp.instance();
+	qcp->set_max_iterations(10);
+	Vector<Vector3> localized_effector_headings;
+	localized_effector_headings.push_back(Vector3(0, 0, 0));
+	Vector<Vector3> localized_target_headings;
+	localized_target_headings.push_back(Vector3(1, 1, 1));
+	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
+			Vector<float>(), false);
+	Vector3 euler_deg = rot.get_euler();
+	euler_deg.normalize();
+	euler_deg = rad2deg(euler_deg);
+	INFO(vformat("New orientation in degrees %s", String(euler_deg)).utf8().ptr());
+	CHECK_FALSE_MESSAGE(euler_deg.is_equal_approx(Vector3()), vformat("%s does not match degree angle identity", String(euler_deg)).utf8().ptr());
+}
+
+TEST_CASE("[DMIK] qcp two targets") {
 	Ref<QCP> qcp;
 	qcp.instance();
 	qcp->set_max_iterations(10);
@@ -64,9 +73,11 @@ TEST_CASE("[DMIK] DMIK qcp two targets") {
 	localized_target_headings.push_back(Vector3(1, 1, 1));
 	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
 			Vector<float>(), false);
-	Vector3 euler = rot.get_euler();
-	INFO(vformat("New orientation in degrees %s x, %s y, %s z", euler.x, euler.y, euler.z).utf8().ptr());
-	CHECK_MESSAGE(euler.is_equal_approx(Vector3()), vformat("%s does not match angle identity", euler).utf8().ptr());
+	Vector3 euler_deg = rot.get_euler();
+	euler_deg.normalize();
+	euler_deg = rad2deg(euler_deg);
+	INFO(vformat("New orientation in degrees %s", String(euler_deg)).utf8().ptr());
+	CHECK_MESSAGE(euler_deg.is_equal_approx(Vector3()), vformat("%s does not match degree angle identity ", String(euler_deg)).utf8().ptr());
 }
 
 } // namespace TestDMIK
