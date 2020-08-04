@@ -80,13 +80,12 @@ TEST_CASE("[DMIK] qcp target 180 degrees turn") {
 	localized_effector_headings.push_back(Vector3(0, 0, 1));
 	Vector<Vector3> localized_target_headings;
 	localized_target_headings.push_back(Vector3(0, 0, 0));
-	localized_target_headings.push_back(Vector3(-1, 0, 0));
-	localized_target_headings.push_back(Vector3(0, -1, 0));
+	localized_target_headings.push_back(Vector3(-0.9999f, 0.0001f, 0.0f));
+	localized_target_headings.push_back(Vector3(-0.0001f, -0.9999f, 0.0f));
 	localized_target_headings.push_back(Vector3(0, 0, 1));
 	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
 			Vector<float>(), false);
-	Basis basis = Basis(rot);
-	CHECK_MESSAGE(basis.is_equal_approx(Basis()), vformat("%s does not match basis ", String(basis)).utf8().ptr());
+	CHECK_MESSAGE(rot.is_equal_approx(Quat()), vformat("%s does not match quaternion identity ", String(rot)).utf8().ptr());
 }
 
 } // namespace TestDMIK

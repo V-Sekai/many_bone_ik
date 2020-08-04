@@ -30,7 +30,6 @@
 
 #include "qcp.h"
 #include "direction_constraint.h"
-#include "ik_quat.h"
 #include "kusudama_constraint.h"
 #include "skeleton_modification_3d_dmik.h"
 
@@ -77,15 +76,15 @@ float QCP::get_rmsd() {
 	return rmsd;
 }
 
-IKQuat
+Quat
 QCP::weighted_superpose(Vector<Vector3> p_moved, Vector<Vector3> p_target, Vector<real_t> p_weight, bool p_translate) {
 	set(p_moved, p_target, p_weight, p_translate);
 	return get_rotation();
 }
 
-IKQuat QCP::get_rotation() {
+Quat QCP::get_rotation() {
 	get_rmsd();
-	IKQuat result;
+	Quat result;
 	if (!transformation_calculated) {
 		result = calc_rotation();
 		transformation_calculated = true;
@@ -239,12 +238,12 @@ int QCP::calc_rmsd(real_t p_len) {
 	return 1;
 }
 
-IKQuat QCP::calc_rotation() {
+Quat QCP::calc_rotation() {
 	//QCP doesn't handle single targets, so if we only have one point and one target, we just rotate by the angular distance between them
 	if (moved.size() == 1) {
-		IKQuat single_moved;
+		Quat single_moved;
 		single_moved.set_euler(moved[0]);
-		IKQuat single_target;
+		Quat single_target;
 		single_target.set_euler(target[0]);
 		return single_moved * single_target;
 	} else {

@@ -208,10 +208,10 @@ public:
      *            array of weigths for each equivalent point position
      * @return
      */
-	IKQuat weighted_superpose(Vector<Vector3> p_moved, Vector<Vector3> p_target, Vector<real_t> p_weight, bool p_translate);
+	Quat weighted_superpose(Vector<Vector3> p_moved, Vector<Vector3> p_target, Vector<real_t> p_weight, bool p_translate);
 
 private:
-	IKQuat get_rotation();
+	Quat get_rotation();
 
 	/**
      * Calculates the RMSD value for superposition of y onto x. This requires
@@ -239,7 +239,7 @@ private:
 
 	int calc_rmsd(float p_len);
 
-	IKQuat calc_rotation();
+	Quat calc_rotation();
 
 public:
 	float get_rmsd(Vector<Vector3> p_fixed, Vector<Vector3> p_moved);
