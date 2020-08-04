@@ -62,10 +62,7 @@ TEST_CASE("[DMIK] qcp") {
 	localized_target_headings.push_back(Vector3(0, 0, 1));
 	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
 			Vector<float>(), false);
-	Vector3 euler_deg = rot.get_euler();
-	euler_deg.normalize();
-	euler_deg = rad2deg(euler_deg);
-	CHECK_MESSAGE(euler_deg.is_equal_approx(Vector3()), vformat("%s does not match degree angle identity ", String(euler_deg)).utf8().ptr());
+	CHECK_MESSAGE(rot.is_equal_approx(Quat()), vformat("%s does not match quaternion identity ", String(rot)).utf8().ptr());
 }
 
 TEST_CASE("[DMIK] qcp target 180 degrees turn") {
