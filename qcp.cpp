@@ -100,17 +100,6 @@ void QCP::calc_rmsd(Vector<Vector3> p_x, Vector<Vector3> p_y) {
 		rmsd = p_x[0].distance_to(p_y[0]);
 		rmsd_calculated = true;
 	} else {
-		// GODOT Conventions
-		for (int32_t i = 0; i < p_x.size(); i++) {
-			p_x.write[i].x = -p_x[i].x;
-			p_x.write[i].z = -p_x[i].z;
-		}
-		for (int32_t i = 0; i < p_y.size(); i++) {
-			p_y.write[i].x = -p_y[i].x;
-			p_y.write[i].z = -p_y[i].z;
-		}
-		// End Godot Conventions
-
 		inner_product(p_y, p_x);
 		calc_rmsd(wsum);
 	}

@@ -65,11 +65,10 @@ TEST_CASE("[DMIK] qcp") {
 	Vector3 euler_deg = rot.get_euler();
 	euler_deg.normalize();
 	euler_deg = rad2deg(euler_deg);
-	INFO(vformat("New orientation in degrees %s", String(euler_deg)).utf8().ptr());
 	CHECK_MESSAGE(euler_deg.is_equal_approx(Vector3()), vformat("%s does not match degree angle identity ", String(euler_deg)).utf8().ptr());
 }
 
-TEST_CASE("[DMIK] qcp target 1 meter z") {
+TEST_CASE("[DMIK] qcp target 180 degrees turn") {
 	Ref<QCP> qcp;
 	qcp.instance();
 	qcp->set_max_iterations(10);
@@ -80,17 +79,14 @@ TEST_CASE("[DMIK] qcp target 1 meter z") {
 	localized_effector_headings.push_back(Vector3(0, 1, 0));
 	localized_effector_headings.push_back(Vector3(0, 0, 1));
 	Vector<Vector3> localized_target_headings;
+	localized_target_headings.push_back(Vector3(0, 0, 0));
+	localized_target_headings.push_back(Vector3(-1, 0, 0));
+	localized_target_headings.push_back(Vector3(0, -1, 0));
 	localized_target_headings.push_back(Vector3(0, 0, 1));
-	localized_target_headings.push_back(Vector3(1, 0, 1));
-	localized_target_headings.push_back(Vector3(0, 1, 1));
-	localized_target_headings.push_back(Vector3(0, 0, 2));
 	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
 			Vector<float>(), false);
-	Vector3 euler_deg = rot.get_euler();
-	euler_deg.normalize();
-	euler_deg = rad2deg(euler_deg);
-	INFO(vformat("New orientation in degrees %s", String(euler_deg)).utf8().ptr());
-	CHECK_MESSAGE(euler_deg.is_equal_approx(Vector3()), vformat("%s does not match degree angle identity ", String(euler_deg)).utf8().ptr());
+	Basis basis = Basis(rot);
+	CHECK_MESSAGE(basis.is_equal_approx(Basis()), vformat("%s does not match basis ", String(basis)).utf8().ptr());
 }
 
 } // namespace TestDMIK
