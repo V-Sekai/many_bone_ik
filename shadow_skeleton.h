@@ -205,7 +205,7 @@ public:
 		return result;
 	}
 
-	Ref<AbstractAxes> getLocalOf(Ref<AbstractAxes> input);
+	Ref<AbstractAxes> getLocalOf(Ref<AbstractAxes> input) = 0;
 
 	Transform getLocalOf(Transform input);
 
@@ -253,7 +253,7 @@ public:
  * @return
  */
 	Ref<AbstractAxes> attachedCopy(bool slipAware);
-
+	
 	void setSlipType(int type);
 
 	int getSlipType();
@@ -363,8 +363,8 @@ public:
 	String toString();
 };
 
-class CartesianAxes : public Ref<AbstractAxes> {
-	CartesianAxes(Transform p_globalBasis, Ref<AbstractAxes> p_parent);
+class CartesianAxes : public AbstractAxes {
+	CartesianAxes(Transform p_globalBasis, Ref<AbstractAxes> p_parent = nullptr);
 	CartesianAxes(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ,
 			Ref<AbstractAxes> p_parent);
 
