@@ -30,7 +30,7 @@
 
 #include "bone_chain_item.h"
 #include "bone_effector.h"
-#include "scene/3d/skeleton_3d.h"
+#include "scene/3d/skeleton.h"
 #include "skeleton_modification_3d_dmik.h"
 
 
@@ -119,7 +119,7 @@ void BoneChainItem::build_chain(Ref<BoneChainItem> p_start_from) {
 	}
 }
 
-Vector<Ref<BoneChainItem>> BoneChainItem::get_bone_children(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone) {
+Vector<Ref<BoneChainItem>> BoneChainItem::get_bone_children(Skeleton *p_skeleton, Ref<BoneChainItem> p_bone) {
 	Vector<Ref<BoneChainItem>> bone_chain_items;
 	for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
 		int32_t parent = p_skeleton->get_bone_parent(bone_i);
@@ -168,7 +168,7 @@ void BoneChainItem::merge_with_child_if_appropriate() {
 	}
 }
 
-void BoneChainItem::print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain) {
+void BoneChainItem::print_bone_chains(Skeleton *p_skeleton, Ref<BoneChainItem> p_current_chain) {
 	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	print_line("Chain");
@@ -187,7 +187,7 @@ void BoneChainItem::print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem>
 	}
 }
 
-Vector<String> BoneChainItem::get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
+Vector<String> BoneChainItem::get_default_effectors(Skeleton *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain) {
 	Vector<String> effectors;
 	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
 	BoneId bone = p_current_chain->tip_bone->bone;
@@ -212,7 +212,7 @@ Vector<Ref<BoneChainItem>> BoneChainItem::get_child_chains() {
 	return child_chains;
 }
 
-void BoneChainItem::init(Skeleton3D *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone) {
+void BoneChainItem::init(Skeleton *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone) {
 	ERR_FAIL_COND(this == parent_chain.ptr());
 	parent_chain = p_parent_chain;
 	base_bone = p_base_bone;

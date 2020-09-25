@@ -38,9 +38,9 @@
 
 class BoneChainTarget;
 class SkeletonModification3DDMIK;
-class Skeleton3D;
+class Skeleton;
 class KusudamaConstraint;
-class PhysicalBone3D;
+class PhysicalBone;
 
 class BoneChainItem : public Reference {
 	GDCLASS(BoneChainItem, Reference);
@@ -69,7 +69,7 @@ public:
 	Vector<Ref<BoneChainItem>> children;
 	Ref<BoneChainItem> parent_item = nullptr;
 	int bone = -1;
-	PhysicalBone3D *pb = nullptr;
+	PhysicalBone *pb = nullptr;
 	bool springy = false;
 	float cos_half_dampen = 0.0f;
 	Vector<real_t> cos_half_returnful_dampened;
@@ -81,7 +81,7 @@ public:
 	Ref<KusudamaConstraint> constraint = nullptr;
 	Ref<BoneChainItem> base_bone;
 	Ref<BoneChainItem> tip_bone;
-	Skeleton3D *skeleton = nullptr;
+	Skeleton *skeleton = nullptr;
 	//contains the parentChain of this bone chain, if any.
 	Ref<BoneChainItem> parent_chain;
 	//will be set to true if this chain or any of its descendants have an effector.
@@ -115,13 +115,13 @@ public:
 	void create_child_chains(Ref<BoneChainItem> p_from_bone);
 	void remove_inactive_children();
 	void merge_with_child_if_appropriate();
-	void print_bone_chains(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_current_chain);
-	Vector<Ref<BoneChainItem>> get_bone_children(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone);
-	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
+	void print_bone_chains(Skeleton *p_skeleton, Ref<BoneChainItem> p_current_chain);
+	Vector<Ref<BoneChainItem>> get_bone_children(Skeleton *p_skeleton, Ref<BoneChainItem> p_bone);
+	Vector<String> get_default_effectors(Skeleton *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
 	bool is_chain_active() const;
 	Vector<Ref<BoneChainItem>> get_child_chains();
 	Vector<Ref<BoneChainItem>> get_bones();
-	void init(Skeleton3D *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
+	void init(Skeleton *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
 	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
 	/**

@@ -41,7 +41,7 @@ protected:
 	static void _bind_methods() {}
 
 public:
-	Skeleton3D *skeleton = nullptr;
+	Skeleton *skeleton = nullptr;
 	Ref<QCP> qcp;
 	Ref<BoneChainItem> chain = memnew(BoneChainItem);
 	// Settings

@@ -46,8 +46,8 @@ void TwistConstraint::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_range_degree", "range"), &TwistConstraint::set_range_degree);
 	ClassDB::bind_method(D_METHOD("get_range_degree"), &TwistConstraint::get_range_degree);
 
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "min_angle_degree"), "set_min_angle_degree", "get_min_angle_degree");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "range_degree"), "set_range_degree", "get_range_degree");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "min_angle_degree"), "set_min_angle_degree", "get_min_angle_degree");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "range_degree"), "set_range_degree", "get_range_degree");
 }
 
 real_t TwistConstraint::get_range() const {
