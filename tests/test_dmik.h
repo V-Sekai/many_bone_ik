@@ -31,7 +31,9 @@
 #ifndef TEST_DMIK_H
 #define TEST_DMIK_H
 
-#include "../qcp.h"
+#include "modules/dmik/dmik_skeleton.h"
+#include "modules/dmik/qcp.h"
+
 
 #include "tests/test_macros.h"
 
@@ -45,7 +47,12 @@ Vector3 rad2deg(const Vector3 &p_rotation) {
 	return p_rotation / Math_PI * 180.0;
 }
 
-TEST_CASE("[DMIK] qcp") {
+TEST_CASE("[Modules][DMIK] transform") {
+	DMIKTransform identity;
+	CHECK_MESSAGE(identity.translation == Vector3(), vformat("%s does not match dmik transform translation identity ", String(rot)).utf8().ptr());
+}
+
+TEST_CASE("[Modules][DMIK] qcp") {
 	Ref<QCP> qcp;
 	qcp.instance();
 	qcp->set_max_iterations(10);
@@ -65,7 +72,7 @@ TEST_CASE("[DMIK] qcp") {
 	CHECK_MESSAGE(rot.is_equal_approx(Quat()), vformat("%s does not match quaternion identity ", String(rot)).utf8().ptr());
 }
 
-TEST_CASE("[DMIK] qcp target 180 degrees turn") {
+TEST_CASE("[Modules][DMIK] qcp target 180 degrees turn") {
 	Ref<QCP> qcp;
 	qcp.instance();
 	qcp->set_max_iterations(10);

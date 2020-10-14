@@ -34,8 +34,8 @@
 #include "core/math/vector3.h"
 
 struct Ray {
-	Vector3 position = Vector3();
-	Vector3 normal = Vector3();
+	Vector3 position;
+	Vector3 normal;
 
 	Ray();
 
@@ -62,6 +62,10 @@ struct Ray {
         * @return number of intersections found;
         */
 	int intersects_sphere(Vector3 rp1, Vector3 rp2, double radius, Vector3 &S1, Vector3 &S2);
+
+        Vector3 heading(){
+                return normal - position;
+	}
 };
 
 #endif //GODOT_ANIMATION_UNIFIED_BEZIERS_RAY_H
