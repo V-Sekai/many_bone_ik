@@ -42,19 +42,19 @@
 
 class Skeleton;
 class PhysicalBone3D;
-class BoneChainTarget;
+class DMIKBoneChainTarget;
 class SkeletonModification3DDMIK;
 class KusudamaConstraint;
-class BoneChainTarget;
+class DMIKBoneChainTarget;
 class SkeletonModification3DDMIK;
-class BoneEffector;
+class DMIKBoneEffector;
 class Skeleton;
-class BoneChainItem;
+class DMIKShadowSkeletonBone;
 
 class SkeletonModification3DDMIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DDMIK, SkeletonModification3D);
 
-	Vector<Ref<BoneEffector>> multi_effector;
+	Vector<Ref<DMIKBoneEffector>> multi_effector;
 	Vector<Ref<KusudamaConstraint>> multi_constraint;
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
@@ -77,22 +77,22 @@ protected:
 public:
 	virtual void execute(float delta) override;
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
-	static void iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<BoneChainItem> start_from, float dampening, int iterations, int p_stabilization_passes);
-	static void grouped_recursive_chain_solver(Ref<BoneChainItem> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
-	static void recursive_chain_solver(Ref<BoneChainItem> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
-	static void apply_bone_chains(float p_strength, Skeleton *p_skeleton, Ref<BoneChainItem> p_current_chain);
+	static void iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<DMIKShadowSkeletonBone> start_from, float dampening, int iterations, int p_stabilization_passes);
+	static void grouped_recursive_chain_solver(Ref<DMIKShadowSkeletonBone> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
+	static void recursive_chain_solver(Ref<DMIKShadowSkeletonBone> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
+	static void apply_bone_chains(float p_strength, Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton *p_skeleton);
 	void set_constraint_count(int32_t p_value);
 	int32_t get_constraint_count() const;
-	Vector<Ref<BoneEffector>> get_bone_effectors() const;
+	Vector<Ref<DMIKBoneEffector>> get_bone_effectors() const;
 	int32_t find_effector(String p_name);
 	void remove_effector(int32_t p_index);
 	int32_t find_constraint(String p_name);
 	void set_effector_count(int32_t p_value);
 	int32_t get_effector_count() const;
-	Ref<BoneEffector> get_effector(int32_t p_index) const;
-	void set_effector(int32_t p_index, Ref<BoneEffector> p_effector);
+	Ref<DMIKBoneEffector> get_effector(int32_t p_index) const;
+	void set_effector(int32_t p_index, Ref<DMIKBoneEffector> p_effector);
 	void set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint);
 	Ref<KusudamaConstraint> get_constraint(int32_t p_index) const;
 	String get_root_bone() const { return root_bone; }
@@ -112,11 +112,11 @@ private:
      * the IKSolver(bone, dampening, iterations, stabilizationPasses) function, which clamps rotations on the fly.
      * @param damp
      */
-	static void set_default_dampening(Ref<BoneChainItem> r_chain, float p_damp);
-	static void update_armature_segments(Ref<BoneChainItem> r_chain);
+	static void set_default_dampening(Ref<DMIKShadowSkeletonBone> r_chain, float p_damp);
+	static void update_armature_segments(Ref<DMIKShadowSkeletonBone> r_chain);
 	static void update_optimal_rotation_to_target_descendants(
 			Skeleton *p_skeleton,
-			Ref<BoneChainItem> p_chain_item,
+			Ref<DMIKShadowSkeletonBone> p_chain_item,
 			float p_dampening,
 			bool p_is_translate,
 			Vector<Vector3> p_localized_tip_headings,
@@ -125,17 +125,17 @@ private:
 			Ref<QCP> p_qcp_orientation_aligner,
 			int p_iteration,
 			float p_total_iterations);
-	static void recursively_update_bone_segment_map_from(Ref<BoneChainItem> r_chain, Ref<BoneChainItem> p_start_from);
+	static void recursively_update_bone_segment_map_from(Ref<DMIKShadowSkeletonBone> r_chain, Ref<DMIKShadowSkeletonBone> p_start_from);
 	static void QCPSolver(
 			Skeleton *p_skeleton,
-			Ref<BoneChainItem> p_chain,
+			Ref<DMIKShadowSkeletonBone> p_chain,
 			float p_dampening,
 			bool p_inverse_weighting,
 			int p_stabilization_passes,
 			int p_iteration,
 			float p_total_iterations);
 	static bool build_chain(Ref<DMIKTask> p_task);
-	static void update_chain(Skeleton *p_sk, Ref<BoneChainItem> p_chain_item);
+	static void update_chain(Skeleton *p_sk, Ref<DMIKShadowSkeletonBone> p_chain_item);
 	static void solve_simple(Ref<DMIKTask> p_task);
 
 public:
@@ -150,8 +150,8 @@ public:
      */
 	static void update_optimal_rotation_to_target_descendants(
 			Skeleton *p_skeleton,
-			Ref<BoneChainItem> r_chain,
-			Ref<BoneChainItem> p_for_bone,
+			Ref<DMIKShadowSkeletonBone> r_chain,
+			Ref<DMIKShadowSkeletonBone> p_for_bone,
 			float p_dampening,
 			bool p_translate,
 			int p_stabilization_passes,
@@ -160,9 +160,9 @@ public:
 	static float
 	get_manual_msd(Vector<Vector3> &r_localized_effector_headings, Vector<Vector3> &r_localized_target_headings,
 			const Vector<real_t> &p_weights);
-	static void update_target_headings(Ref<BoneChainItem> r_chain, Vector<Vector3> &r_localized_target_headings,
+	static void update_target_headings(Ref<DMIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_target_headings,
 			Vector<real_t> &p_weights, Transform p_bone_xform);
-	static void update_effector_headings(Ref<BoneChainItem> r_chain, Vector<Vector3> &r_localized_effector_headings,
+	static void update_effector_headings(Ref<DMIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
 	static Ref<DMIKTask> create_simple_task(Skeleton *p_sk, String p_root_bone,
 			float p_dampening = -1, int p_stabilizing_passes = -1,

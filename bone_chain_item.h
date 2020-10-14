@@ -36,38 +36,38 @@
 #include "bone_effector_transform.h"
 #include "core/reference.h"
 
-class BoneChainTarget;
+class DMIKBoneChainTarget;
 class SkeletonModification3DDMIK;
 class Skeleton;
 class KusudamaConstraint;
 class PhysicalBone;
 
-class BoneChainItem : public Reference {
-	GDCLASS(BoneChainItem, Reference);
+class DMIKShadowSkeletonBone : public Reference {
+	GDCLASS(DMIKShadowSkeletonBone, Reference);
 
 private:
-	Vector<Ref<BoneEffector>> multi_effector;
-	Vector<Ref<BoneChainItem>> child_chains;
+	Vector<Ref<DMIKBoneEffector>> multi_effector;
+	Vector<Ref<DMIKShadowSkeletonBone>> child_chains;
 
 public:
 	bool processed = false;
 	bool aligned = false;
 	Transform axes;
 	Transform axes_global;
-	Ref<BoneChainItem> chain_root = nullptr;
-	Vector<Ref<BoneChainTarget>> targets;
+	Ref<DMIKShadowSkeletonBone> chain_root = nullptr;
+	Vector<Ref<DMIKBoneChainTarget>> targets;
 	Vector<Vector3> localized_target_headings;
 	Vector<Vector3> localized_effector_headings;
 	Vector<real_t> weights;
 	Ref<SkeletonModification3DDMIK> constraints = nullptr;
 	float dampening = Math::deg2rad(5.0f);
-	Map<int, Ref<BoneChainItem>> bone_segment_map;
+	Map<int, Ref<DMIKShadowSkeletonBone>> bone_segment_map;
 	// TODO expose through ui
 	int ik_iterations = 1;
 	// TODO expose through ui
 	int stabilization_passes = 4;
-	Vector<Ref<BoneChainItem>> children;
-	Ref<BoneChainItem> parent_item = nullptr;
+	Vector<Ref<DMIKShadowSkeletonBone>> children;
+	Ref<DMIKShadowSkeletonBone> parent_item = nullptr;
 	int bone = -1;
 	PhysicalBone *pb = nullptr;
 	bool springy = false;
@@ -79,18 +79,18 @@ public:
 	float bone_height = 0.0f;
 	float length = 0.0f;
 	Ref<KusudamaConstraint> constraint = nullptr;
-	Ref<BoneChainItem> base_bone;
-	Ref<BoneChainItem> tip_bone;
+	Ref<DMIKShadowSkeletonBone> base_bone;
+	Ref<DMIKShadowSkeletonBone> tip_bone;
 	Skeleton *skeleton = nullptr;
 	//contains the parentChain of this bone chain, if any.
-	Ref<BoneChainItem> parent_chain;
+	Ref<DMIKShadowSkeletonBone> parent_chain;
 	//will be set to true if this chain or any of its descendants have an effector.
 	//a post processing step will remove any chains which are not active
 	bool is_active = false;
 	//will be set to true if the tip of this chain is an effector.
 	bool has_effector = false;
-	BoneChainItem();
-	void recursively_align_axes_outward_from(Ref<BoneChainItem> b);
+	DMIKShadowSkeletonBone();
+	void recursively_align_axes_outward_from(Ref<DMIKShadowSkeletonBone> b);
 	/**
 	 * aligns all simulation axes from this root of this chain up until the pinned tips
 	 * of any child chains with the constraint are local axes of their corresponding bone. 
@@ -99,8 +99,8 @@ public:
 	void set_processed(bool p_b);
 	float get_bone_height() const;
 	void set_bone_height(const float p_bone_height);
-	Ref<BoneChainItem> find_child(const int p_bone_id);
-	Ref<BoneChainItem> add_child(const int p_bone_id);
+	Ref<DMIKShadowSkeletonBone> find_child(const int p_bone_id);
+	Ref<DMIKShadowSkeletonBone> add_child(const int p_bone_id);
 	void set_stiffness(float p_stiffness);
 	float get_stiffness() const;
 	void update_cos_dampening();
@@ -109,19 +109,19 @@ public:
 			float p_angle_dampen);
 	void set_axes_to_be_snapped(Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen);
 	void populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k);
-	void rootwardly_update_falloff_cache_from(Ref<BoneChainItem> p_current);
-	bool is_bone_effector(Ref<BoneChainItem> current_bone);
-	void build_chain(Ref<BoneChainItem> p_start_from);
-	void create_child_chains(Ref<BoneChainItem> p_from_bone);
+	void rootwardly_update_falloff_cache_from(Ref<DMIKShadowSkeletonBone> p_current);
+	bool is_bone_effector(Ref<DMIKShadowSkeletonBone> current_bone);
+	void build_chain(Ref<DMIKShadowSkeletonBone> p_start_from);
+	void create_child_chains(Ref<DMIKShadowSkeletonBone> p_from_bone);
 	void remove_inactive_children();
 	void merge_with_child_if_appropriate();
-	void print_bone_chains(Skeleton *p_skeleton, Ref<BoneChainItem> p_current_chain);
-	Vector<Ref<BoneChainItem>> get_bone_children(Skeleton *p_skeleton, Ref<BoneChainItem> p_bone);
-	Vector<String> get_default_effectors(Skeleton *p_skeleton, Ref<BoneChainItem> p_bone_chain, Ref<BoneChainItem> p_current_chain);
+	void print_bone_chains(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain);
+	Vector<Ref<DMIKShadowSkeletonBone>> get_bone_children(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone);
+	Vector<String> get_default_effectors(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone_chain, Ref<DMIKShadowSkeletonBone> p_current_chain);
 	bool is_chain_active() const;
-	Vector<Ref<BoneChainItem>> get_child_chains();
-	Vector<Ref<BoneChainItem>> get_bones();
-	void init(Skeleton *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<BoneEffector>> p_multi_effector, Ref<BoneChainItem> p_chain, Ref<BoneChainItem> p_parent_chain, Ref<BoneChainItem> p_base_bone);
+	Vector<Ref<DMIKShadowSkeletonBone>> get_child_chains();
+	Vector<Ref<DMIKShadowSkeletonBone>> get_bones();
+	void init(Skeleton *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<DMIKBoneEffector>> p_multi_effector, Ref<DMIKShadowSkeletonBone> p_chain, Ref<DMIKShadowSkeletonBone> p_parent_chain, Ref<DMIKShadowSkeletonBone> p_base_bone);
 	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
 	/**
@@ -134,10 +134,10 @@ public:
      * @return
      */
 	void filter_and_merge_child_chains();
-	void recursively_create_penalty_array(Ref<BoneChainItem> from, Vector<Vector<real_t>> &r_weight_array, Vector<Ref<BoneChainItem>> pin_sequence, float current_falloff);
+	void recursively_create_penalty_array(Ref<DMIKShadowSkeletonBone> from, Vector<Vector<real_t>> &r_weight_array, Vector<Ref<DMIKShadowSkeletonBone>> pin_sequence, float current_falloff);
 	int get_default_iterations() const;
 	void create_headings_arrays();
-	void force_update_bone_children_transforms(Ref<BoneChainItem> p_current_chain);
+	void force_update_bone_children_transforms(Ref<DMIKShadowSkeletonBone> p_current_chain);
 };
 
 #endif // bone_chain_item_h__

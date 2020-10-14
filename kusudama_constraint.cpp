@@ -399,11 +399,11 @@ void KusudamaConstraint::set_pain(real_t p_amount) {
 	if (attached_to == NULL || attached_to->chain_root == NULL) {
 		return;
 	}
-	Ref<BoneChainItem> s = attached_to->chain_root;
+	Ref<DMIKShadowSkeletonBone> s = attached_to->chain_root;
 	if (s == NULL) {
 		return;
 	}
-	Ref<BoneChainItem> wb = s->chain_root->find_child(attached_to->bone);
+	Ref<DMIKShadowSkeletonBone> wb = s->chain_root->find_child(attached_to->bone);
 	if (wb == NULL) {
 		return;
 	}
@@ -452,7 +452,7 @@ void KusudamaConstraint::remove_direction(int32_t p_index) {
 	_change_notify();
 }
 
-KusudamaConstraint::KusudamaConstraint(Ref<BoneChainItem> p_for_bone) {
+KusudamaConstraint::KusudamaConstraint(Ref<DMIKShadowSkeletonBone> p_for_bone) {
 	twist.instance();
 	attached_to = p_for_bone;
 	//     limiting_axes = p_for_bone.getMajorRotationAxes();

@@ -33,16 +33,16 @@
 #include "bone_chain_item.h"
 #include "core/reference.h"
 
-class BoneEffectorTransform;
-class BoneChainItem;
+class DMIKBoneEffectorTransform;
+class DMIKShadowSkeletonBone;
 
-class BoneChainTarget : public Reference {
-	GDCLASS(BoneChainTarget, Reference);
+class DMIKBoneChainTarget : public Reference {
+	GDCLASS(DMIKBoneChainTarget, Reference);
 
 protected:
 	bool enabled = true;
-	BoneChainTarget *parent_target = nullptr;
-	Vector<BoneChainTarget *> child_targets;
+	DMIKBoneChainTarget *parent_target = nullptr;
+	Vector<DMIKBoneChainTarget *> child_targets;
 	float target_weight = 1;
 	uint8_t mode_code = 7;
 	int sub_target_count = 4;
@@ -50,16 +50,16 @@ protected:
 	float depthFalloff = 0.0f;
 
 public:
-	Ref<BoneChainItem> chain_item = nullptr;
-	Ref<BoneEffectorTransform> end_effector = nullptr;
+	Ref<DMIKShadowSkeletonBone> chain_item = nullptr;
+	Ref<DMIKBoneEffectorTransform> end_effector = nullptr;
 
-	BoneChainTarget();
+	DMIKBoneChainTarget();
 
-	BoneChainTarget(Ref<BoneChainItem> p_chain_item, const Ref<BoneEffectorTransform> p_end_effector);
+	DMIKBoneChainTarget(Ref<DMIKShadowSkeletonBone> p_chain_item, const Ref<DMIKBoneEffectorTransform> p_end_effector);
 
-	BoneChainTarget(const Ref<BoneChainTarget> p_other_ct);
+	DMIKBoneChainTarget(const Ref<DMIKBoneChainTarget> p_other_ct);
 
-	BoneChainTarget(Ref<BoneChainItem> p_chain_item, const Ref<BoneEffectorTransform> p_end_effector, bool p_enabled);
+	DMIKBoneChainTarget(Ref<DMIKShadowSkeletonBone> p_chain_item, const Ref<DMIKBoneEffectorTransform> p_end_effector, bool p_enabled);
 
 public:
 	static const short XDir = 1, YDir = 2, ZDir = 4;
@@ -158,17 +158,17 @@ public:
      */
 	Vector3 get_location();
 
-	Ref<BoneChainItem> for_bone();
+	Ref<DMIKShadowSkeletonBone> for_bone();
 
 	/**
      * called when this target is being removed entirely from the Armature. (as opposed to just being disabled)
      */
 	void removal_notification();
-	void set_parent_target(BoneChainTarget *parent);
-	void remove_child_target(BoneChainTarget *child);
-	void add_child_target(BoneChainTarget *new_child);
-	BoneChainTarget *get_parent_target();
-	bool is_ancestor_of(BoneChainTarget *potential_descendent);
+	void set_parent_target(DMIKBoneChainTarget *parent);
+	void remove_child_target(DMIKBoneChainTarget *child);
+	void add_child_target(DMIKBoneChainTarget *new_child);
+	DMIKBoneChainTarget *get_parent_target();
+	bool is_ancestor_of(DMIKBoneChainTarget *potential_descendent);
 	float get_target_weight();
 };
 

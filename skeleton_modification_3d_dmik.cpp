@@ -165,7 +165,7 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, effector_count, false);
-		Ref<BoneEffector> effector = get_effector(index);
+		Ref<DMIKBoneEffector> effector = get_effector(index);
 		if (effector.is_null()) {
 			effector.instance();
 			set_effector(index, effector);
@@ -286,13 +286,13 @@ int32_t SkeletonModification3DDMIK::get_effector_count() const {
 	return effector_count;
 }
 
-Ref<BoneEffector> SkeletonModification3DDMIK::get_effector(int32_t p_index) const {
+Ref<DMIKBoneEffector> SkeletonModification3DDMIK::get_effector(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, multi_effector.size(), NULL);
-	Ref<BoneEffector> effector = multi_effector[p_index];
+	Ref<DMIKBoneEffector> effector = multi_effector[p_index];
 	return effector;
 }
 
-void SkeletonModification3DDMIK::set_effector(int32_t p_index, Ref<BoneEffector> p_effector) {
+void SkeletonModification3DDMIK::set_effector(int32_t p_index, Ref<DMIKBoneEffector> p_effector) {
 	ERR_FAIL_COND(p_effector.is_null());
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.write[p_index] = p_effector;
@@ -305,7 +305,7 @@ void SkeletonModification3DDMIK::set_constraint(int32_t p_index, Ref<KusudamaCon
 	_change_notify();
 }
 
-Vector<Ref<BoneEffector>> SkeletonModification3DDMIK::get_bone_effectors() const {
+Vector<Ref<DMIKBoneEffector>> SkeletonModification3DDMIK::get_bone_effectors() const {
 	return multi_effector;
 }
 
@@ -372,10 +372,10 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 	ERR_FAIL_COND(root_bone.empty());
 	if (!constraint_count) {
 		BoneId _bone = skeleton->find_bone(root_bone);
-		Ref<BoneChainItem> chain_item;
+		Ref<DMIKShadowSkeletonBone> chain_item;
 		chain_item.instance();
 		chain_item->bone = _bone;
-		Ref<BoneChainItem> bone_chain;
+		Ref<DMIKShadowSkeletonBone> bone_chain;
 		bone_chain.instance();
 		bone_chain->init(skeleton, Ref<SkeletonModification3DDMIK>(this), multi_effector, bone_chain, nullptr, chain_item);
 		Vector<String> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
@@ -389,12 +389,12 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 	is_setup = true;
 }
 
-void SkeletonModification3DDMIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<BoneChainItem> start_from, float dampening, int iterations, int p_stabilization_passes) {
-	Ref<BoneChainItem> armature = start_from;
+void SkeletonModification3DDMIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<DMIKShadowSkeletonBone> start_from, float dampening, int iterations, int p_stabilization_passes) {
+	Ref<DMIKShadowSkeletonBone> armature = start_from;
 	if (armature.is_null()) {
 		return;
 	}
-	Ref<BoneChainItem> pinned_root_chain = armature;
+	Ref<DMIKShadowSkeletonBone> pinned_root_chain = armature;
 	if (pinned_root_chain.is_null() && p_root_bone != -1) {
 		armature = armature->chain_root->find_child(p_root_bone);
 	} else {
@@ -415,7 +415,7 @@ void SkeletonModification3DDMIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_
 			if (!armature->base_bone->is_bone_effector(armature->base_bone) && armature->get_child_chains().size()) {
 				update_optimal_rotation_to_target_descendants(armature->skeleton, armature, armature->dampening, true, armature->localized_target_headings, armature->localized_effector_headings, armature->weights, p_qcp, i, totalIterations);
 				armature->set_processed(false);
-				Vector<Ref<BoneChainItem>> segmented_armature = armature->get_child_chains();
+				Vector<Ref<DMIKShadowSkeletonBone>> segmented_armature = armature->get_child_chains();
 				for (int32_t i = 0; i < segmented_armature.size(); i++) {
 					grouped_recursive_chain_solver(segmented_armature[i], armature->dampening, armature->stabilization_passes, i, totalIterations);
 				}
@@ -430,19 +430,19 @@ void SkeletonModification3DDMIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_
 	}
 }
 
-void SkeletonModification3DDMIK::grouped_recursive_chain_solver(Ref<BoneChainItem> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations) {
+void SkeletonModification3DDMIK::grouped_recursive_chain_solver(Ref<DMIKShadowSkeletonBone> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations) {
 	recursive_chain_solver(p_start_from, p_dampening, p_stabilization_passes, p_iteration, p_total_iterations);
-	Vector<Ref<BoneChainItem>> chains = p_start_from->get_child_chains();
+	Vector<Ref<DMIKShadowSkeletonBone>> chains = p_start_from->get_child_chains();
 	for (int32_t i = 0; i < chains.size(); i++) {
 		grouped_recursive_chain_solver(chains[i], p_dampening, p_stabilization_passes, p_iteration, p_total_iterations);
 	}
 }
 
-void SkeletonModification3DDMIK::recursive_chain_solver(Ref<BoneChainItem> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations) {
+void SkeletonModification3DDMIK::recursive_chain_solver(Ref<DMIKShadowSkeletonBone> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations) {
 	if (!p_armature->get_child_chains().size() && p_armature->is_bone_effector(p_armature)) {
 		return;
 	} else if (!p_armature->is_bone_effector(p_armature)) {
-		Vector<Ref<BoneChainItem>> chains = p_armature->get_child_chains();
+		Vector<Ref<DMIKShadowSkeletonBone>> chains = p_armature->get_child_chains();
 		for (int32_t i = 0; i < chains.size(); i++) {
 			recursive_chain_solver(chains[i], p_dampening, p_stabilization_passes, p_iteration, p_total_iterations);
 			chains.write[i]->set_processed(true);
@@ -458,26 +458,26 @@ void SkeletonModification3DDMIK::recursive_chain_solver(Ref<BoneChainItem> p_arm
 			p_total_iterations);
 }
 
-void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton *p_skeleton, Ref<BoneChainItem> p_current_chain) {
+void SkeletonModification3DDMIK::apply_bone_chains(float p_strength, Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active()); 
 	{ 
 		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true); 
 		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone); 
 	} 
-	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones(); 
+	Vector<Ref<DMIKShadowSkeletonBone>> bones = p_current_chain->get_bones(); 
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) { 
-		Ref<BoneChainItem> item = bones[bone_i]; 
+		Ref<DMIKShadowSkeletonBone> item = bones[bone_i]; 
 		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true); 
 		p_skeleton->force_update_bone_children_transforms(item->bone); 
 	} 
-	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains(); 
+	Vector<Ref<DMIKShadowSkeletonBone>> bone_chains = p_current_chain->get_child_chains(); 
 	for (int32_t i = 0; i < bone_chains.size(); i++) { 
 		apply_bone_chains(p_strength, p_skeleton, bone_chains[i]); 
 	} 
 }
 
 void SkeletonModification3DDMIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
-	Ref<BoneEffector> effector;
+	Ref<DMIKBoneEffector> effector;
 	effector.instance();
 	effector->set_name(p_name);
 	effector->set_target_node(p_node);
@@ -503,7 +503,7 @@ void SkeletonModification3DDMIK::register_constraint(Skeleton *p_skeleton) {
 
 void SkeletonModification3DDMIK::QCPSolver(
 		Skeleton *p_skeleton,
-		Ref<BoneChainItem> p_chain,
+		Ref<DMIKShadowSkeletonBone> p_chain,
 		float p_dampening,
 		bool p_inverse_weighting,
 		int p_stabilization_passes,
@@ -513,10 +513,10 @@ void SkeletonModification3DDMIK::QCPSolver(
 		if (p_chain->targets[tip_i].is_null()) {
 			continue;
 		}
-		Ref<BoneChainItem> start_from = p_chain->targets[tip_i]->chain_item;
-		Ref<BoneChainItem> stop_after = p_chain->chain_root;
+		Ref<DMIKShadowSkeletonBone> start_from = p_chain->targets[tip_i]->chain_item;
+		Ref<DMIKShadowSkeletonBone> stop_after = p_chain->chain_root;
 
-		Ref<BoneChainItem> current_bone = start_from;
+		Ref<DMIKShadowSkeletonBone> current_bone = start_from;
 		//if the tip is pinned, it should have already been oriented before this function was called.
 		while (current_bone.is_valid()) {
 			if (!current_bone->ik_orientation_lock) {
@@ -524,7 +524,7 @@ void SkeletonModification3DDMIK::QCPSolver(
 						p_stabilization_passes, p_iteration, p_total_iterations);
 			}
 			if (current_bone == stop_after) {
-				current_bone = Ref<BoneChainItem>(nullptr);
+				current_bone = Ref<DMIKShadowSkeletonBone>(nullptr);
 			} else {
 				current_bone = current_bone->parent_item;
 			}
@@ -532,22 +532,22 @@ void SkeletonModification3DDMIK::QCPSolver(
 	}
 }
 
-Ref<BoneChainItem> BoneChainItem::find_child(const int p_bone_id) {
+Ref<DMIKShadowSkeletonBone> DMIKShadowSkeletonBone::find_child(const int p_bone_id) {
 	return chain_root->bone_segment_map[p_bone_id];
 }
 
-Ref<BoneChainItem> BoneChainItem::add_child(const int p_bone_id) {
+Ref<DMIKShadowSkeletonBone> DMIKShadowSkeletonBone::add_child(const int p_bone_id) {
 	const int infant_child_id = children.size();
 	children.resize(infant_child_id + 1);
 	if (children.write[infant_child_id].is_null()) {
 		children.write[infant_child_id].instance();
 	}
 	children.write[infant_child_id]->bone = p_bone_id;
-	children.write[infant_child_id]->parent_item = Ref<BoneChainItem>(this);
+	children.write[infant_child_id]->parent_item = Ref<DMIKShadowSkeletonBone>(this);
 	return children.write[infant_child_id];
 }
 
-void BoneChainItem::update_cos_dampening() {
+void DMIKShadowSkeletonBone::update_cos_dampening() {
 	float predampening = 1.0f - get_stiffness();
 	float default_dampening = chain_root->dampening;
 	float dampening = parent_item == NULL ? Math_PI : predampening * default_dampening;
@@ -561,11 +561,11 @@ void BoneChainItem::update_cos_dampening() {
 	}
 }
 
-float BoneChainItem::get_stiffness() const {
+float DMIKShadowSkeletonBone::get_stiffness() const {
 	return stiffness_scalar;
 }
 
-void BoneChainItem::set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes,
+void DMIKShadowSkeletonBone::set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes,
 		float p_cos_half_angle_dampen, float p_angle_dampen) {
 	if (constraint.is_valid()) {
 		constraint->set_axes_to_returnful(p_global, p_to_set, p_limiting_axes, p_cos_half_angle_dampen,
@@ -573,14 +573,14 @@ void BoneChainItem::set_axes_to_returned(Transform p_global, Transform p_to_set,
 	}
 }
 
-void BoneChainItem::set_axes_to_be_snapped(Transform p_to_set, Transform p_limiting_axes,
+void DMIKShadowSkeletonBone::set_axes_to_be_snapped(Transform p_to_set, Transform p_limiting_axes,
 		float p_cos_half_angle_dampen) {
 	if (constraint.is_valid()) {
 		constraint->set_axes_to_snapped(p_to_set, p_limiting_axes, p_cos_half_angle_dampen);
 	}
 }
 
-void BoneChainItem::set_stiffness(float p_stiffness) {
+void DMIKShadowSkeletonBone::set_stiffness(float p_stiffness) {
 	stiffness_scalar = p_stiffness;
 	if (parent_item.is_valid()) {
 		parent_item->update_cos_dampening();
@@ -589,7 +589,7 @@ void BoneChainItem::set_stiffness(float p_stiffness) {
 
 bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
-	Ref<BoneChainItem> chain = p_task->chain;
+	Ref<DMIKShadowSkeletonBone> chain = p_task->chain;
 	chain->chain_root = chain;
 	chain->constraints = p_task->dmik;
 	chain->bone = p_task->root_bone;
@@ -600,12 +600,12 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	return true;
 }
 
-void SkeletonModification3DDMIK::update_chain(Skeleton *p_sk, Ref<BoneChainItem> p_chain_item) {
+void SkeletonModification3DDMIK::update_chain(Skeleton *p_sk, Ref<DMIKShadowSkeletonBone> p_chain_item) {
 	
 	Transform xform = p_sk->global_pose_to_local_pose(p_chain_item->bone, p_sk->get_bone_global_pose(p_chain_item->bone));
 	p_chain_item->axes = xform;
 
-	Vector<Ref<BoneChainItem>> bones = p_chain_item->get_bones();
+	Vector<Ref<DMIKShadowSkeletonBone>> bones = p_chain_item->get_bones();
 	ERR_FAIL_COND(!p_chain_item->is_chain_active());
 	int32_t found_i = bones.find(p_chain_item);
 	ERR_FAIL_COND(found_i == -1);
@@ -613,7 +613,7 @@ void SkeletonModification3DDMIK::update_chain(Skeleton *p_sk, Ref<BoneChainItem>
 		Transform xform = p_sk->global_pose_to_local_pose(p_chain_item->bone, p_sk->get_bone_global_pose(p_chain_item->bone));
 		p_chain_item->axes = xform;
 	}
-	Vector<Ref<BoneChainItem>> bone_chains = p_chain_item->get_child_chains();
+	Vector<Ref<DMIKShadowSkeletonBone>> bone_chains = p_chain_item->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
 		update_chain(p_sk, bone_chains[i]);
 	}
@@ -632,7 +632,7 @@ Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton *p_sk, Str
 	task->skeleton = p_sk;
 	BoneId bone = p_sk->find_bone(p_root_bone);
 	task->root_bone = bone;
-	Ref<BoneChainItem> bone_item;
+	Ref<DMIKShadowSkeletonBone> bone_item;
 	bone_item.instance();
 	bone_item->bone = bone;
 	ERR_FAIL_COND_V(task->root_bone == -1, NULL);
@@ -676,11 +676,11 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 	// }
 	p_task->end_effectors.resize(p_task->dmik->get_effector_count());
 	for (int32_t name_i = 0; name_i < p_task->end_effectors.size(); name_i++) {
-		Ref<BoneEffector> effector = p_task->dmik->get_effector(name_i);
+		Ref<DMIKBoneEffector> effector = p_task->dmik->get_effector(name_i);
 		if (effector.is_null()) {
 			continue;
 		}
-		Ref<BoneEffectorTransform> ee;
+		Ref<DMIKBoneEffectorTransform> ee;
 		ee.instance();
 		// TODO Cache as object id
 		Node *target_node = p_task->skeleton->get_node_or_null(effector->get_target_node());
@@ -704,15 +704,15 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 		p_task->end_effectors.write[name_i] = ee;
 	}
 
-	Vector<Ref<BoneChainTarget>> targets;
+	Vector<Ref<DMIKBoneChainTarget>> targets;
 	targets.resize(p_task->end_effectors.size());
 	for (int32_t effector_i = 0; effector_i < p_task->end_effectors.size(); effector_i++) {
-		Ref<BoneEffectorTransform> ee = p_task->end_effectors[effector_i];
+		Ref<DMIKBoneEffectorTransform> ee = p_task->end_effectors[effector_i];
 		ERR_FAIL_COND(ee.is_null());
-		Ref<BoneChainTarget> target;
+		Ref<DMIKBoneChainTarget> target;
 		target.instance();
 		target->end_effector = ee;
-		Ref<BoneChainItem> bone_chain_item = p_task->chain->chain_root->find_child(ee->effector_bone);
+		Ref<DMIKShadowSkeletonBone> bone_chain_item = p_task->chain->chain_root->find_child(ee->effector_bone);
 		if (bone_chain_item.is_null()) {
 			continue;
 		}
@@ -730,18 +730,18 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 	apply_bone_chains(1.0f, p_task->skeleton, p_task->chain->chain_root);
 }
 
-void SkeletonModification3DDMIK::set_default_dampening(Ref<BoneChainItem> r_chain, float p_damp) {
+void SkeletonModification3DDMIK::set_default_dampening(Ref<DMIKShadowSkeletonBone> r_chain, float p_damp) {
 	r_chain->dampening =
 			MIN(Math_PI * 3.0f, MAX(Math::absf(FLT_EPSILON), Math::absf(p_damp)));
 	update_armature_segments(r_chain);
 }
 
-void SkeletonModification3DDMIK::update_armature_segments(Ref<BoneChainItem> r_chain) {
+void SkeletonModification3DDMIK::update_armature_segments(Ref<DMIKShadowSkeletonBone> r_chain) {
 	r_chain->bone_segment_map.clear();
 	recursively_update_bone_segment_map_from(r_chain, r_chain->chain_root);
 }
 
-void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Skeleton *p_skeleton, Ref<BoneChainItem> p_chain_item,
+void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_chain_item,
 		float p_dampening, bool p_is_translate,
 		Vector<Vector3> p_localized_effector_headings,
 		Vector<Vector3> p_localized_target_headings,
@@ -773,16 +773,16 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 	p_chain_item->constraint->set_constraint_axes(p_chain_item->constraint->get_constraint_axes().translated(translate_by));
 }
 
-void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<BoneChainItem> r_chain,
-		Ref<BoneChainItem> p_start_from) {
+void SkeletonModification3DDMIK::recursively_update_bone_segment_map_from(Ref<DMIKShadowSkeletonBone> r_chain,
+		Ref<DMIKShadowSkeletonBone> p_start_from) {
 	for (int32_t child_i = 0; child_i < p_start_from->children.size(); child_i++) {
 		r_chain->bone_segment_map.insert(p_start_from->children[child_i]->bone, p_start_from);
 	}
 }
 
 void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(Skeleton *p_skeleton,
-		Ref<BoneChainItem> r_chain,
-		Ref<BoneChainItem> p_for_bone,
+		Ref<DMIKShadowSkeletonBone> r_chain,
+		Ref<DMIKShadowSkeletonBone> p_for_bone,
 		float p_dampening, bool p_translate,
 		int p_stabilization_passes, int p_iteration,
 		int p_total_iterations) {
@@ -886,22 +886,22 @@ float SkeletonModification3DDMIK::get_manual_msd(Vector<Vector3> &r_localized_ef
 	return manual_rmsd;
 }
 
-void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_chain, Vector<Vector3> &r_localized_target_headings,
+void SkeletonModification3DDMIK::update_target_headings(Ref<DMIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_target_headings,
 		Vector<real_t> &p_weights, Transform p_bone_xform) {
 	int hdx = 0;
 	static const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
 	static const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
 	static const Vector3 z_orientation = Vector3(0.0f, 0.0f, 1.0f);
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
-		Ref<BoneChainTarget> bct = r_chain->targets[target_i];
+		Ref<DMIKBoneChainTarget> bct = r_chain->targets[target_i];
 		if (bct.is_null()) {
 			continue;
 		}
-		Ref<BoneEffectorTransform> ee = bct->end_effector;
+		Ref<DMIKBoneEffectorTransform> ee = bct->end_effector;
 		if (ee.is_null()) {
 			continue;
 		}
-		Ref<BoneChainItem> sb = r_chain->find_child(ee->effector_bone);
+		Ref<DMIKShadowSkeletonBone> sb = r_chain->find_child(ee->effector_bone);
 		if (sb.is_null()) {
 			continue;
 		}
@@ -918,21 +918,21 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_cha
 		Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
 		origin += godot_to_libgdx;
 		hdx++;
-		if ((modeCode & BoneChainTarget::XDir) != 0) {
+		if ((modeCode & DMIKBoneChainTarget::XDir) != 0) {
 			r_localized_target_headings.write[hdx] += origin * x_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			// print_line("x " + String(r_localized_target_headings[hdx]));
 			// print_line("x inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
 		}
-		if ((modeCode & BoneChainTarget::YDir) != 0) {
+		if ((modeCode & DMIKBoneChainTarget::YDir) != 0) {
 			r_localized_target_headings.write[hdx] += origin * y_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			// print_line("y " + String(r_localized_target_headings[hdx]));
 			// print_line("y inv " + String(r_localized_target_headings[hdx + 1]));
 			hdx += 2;
 		}
-		if ((modeCode & BoneChainTarget::ZDir) != 0) {
+		if ((modeCode & DMIKBoneChainTarget::ZDir) != 0) {
 			r_localized_target_headings.write[hdx] += origin * z_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			// print_line("z " + String(r_localized_target_headings[hdx]));
@@ -942,22 +942,22 @@ void SkeletonModification3DDMIK::update_target_headings(Ref<BoneChainItem> r_cha
 	}
 }
 
-void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_chain, Vector<Vector3> &r_localized_effector_headings,
+void SkeletonModification3DDMIK::update_effector_headings(Ref<DMIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_effector_headings,
 		Transform p_bone_xform) {
 	int hdx = 0;	
 	static const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
 	static const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
 	static const Vector3 z_orientation = Vector3(0.0f, 0.0f, 1.0f);
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
-		Ref<BoneChainTarget> bct = r_chain->targets[target_i];
+		Ref<DMIKBoneChainTarget> bct = r_chain->targets[target_i];
 		if (bct.is_null()) {
 			continue;
 		}
-		Ref<BoneEffectorTransform> ee = bct->end_effector;
+		Ref<DMIKBoneEffectorTransform> ee = bct->end_effector;
 		if (ee.is_null()) {
 			continue;
 		}
-		Ref<BoneChainItem> sb = r_chain->find_child(ee->effector_bone);
+		Ref<DMIKShadowSkeletonBone> sb = r_chain->find_child(ee->effector_bone);
 		if (sb.is_null()) {
 			continue;
 		}
@@ -971,21 +971,21 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_c
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		Transform target_axes = sb->constraint->get_constraint_axes();
-		if ((modeCode & BoneChainTarget::XDir) != 0) {
+		if ((modeCode & DMIKBoneChainTarget::XDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * x_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			// print_line("x " + String(r_localized_effector_headings[hdx]));
 			// print_line("x inv " + String(r_localized_effector_headings[hdx + 1]));
 			hdx += 2;
 		}
-		if ((modeCode & BoneChainTarget::YDir) != 0) {
+		if ((modeCode & DMIKBoneChainTarget::YDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * y_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			// print_line("y " + String(r_localized_effector_headings[hdx]));
 			// print_line("y inv " + String(r_localized_effector_headings[hdx + 1]));
 			hdx += 2;
 		}
-		if ((modeCode & BoneChainTarget::ZDir) != 0) {
+		if ((modeCode & DMIKBoneChainTarget::ZDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * z_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			// print_line("z " + String(r_localized_effector_headings[hdx]));
@@ -995,28 +995,28 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<BoneChainItem> r_c
 	}
 }
 
-int BoneChainItem::get_default_iterations() const {
+int DMIKShadowSkeletonBone::get_default_iterations() const {
 	return ik_iterations;
 }
 
-void BoneChainItem::rootwardly_update_falloff_cache_from(Ref<BoneChainItem> p_current) {
-	Ref<BoneChainItem> current = p_current;
+void DMIKShadowSkeletonBone::rootwardly_update_falloff_cache_from(Ref<DMIKShadowSkeletonBone> p_current) {
+	Ref<DMIKShadowSkeletonBone> current = p_current;
 	while (current.is_valid()) {
 		current->chain_root->create_headings_arrays();
 		current = current->parent_item;
 	}
 }
 
-void BoneChainItem::recursively_create_penalty_array(Ref<BoneChainItem> from,
+void DMIKShadowSkeletonBone::recursively_create_penalty_array(Ref<DMIKShadowSkeletonBone> from,
 		Vector<Vector<real_t>> &r_weight_array,
-		Vector<Ref<BoneChainItem>>
+		Vector<Ref<DMIKShadowSkeletonBone>>
 				pin_sequence,
 		float current_falloff) {
 	if (current_falloff == 0) {
 		return;
 	} else {
 		for (int32_t target_i = 0; target_i < from->targets.size(); target_i++) {
-			Ref<BoneChainTarget> target = from->targets[target_i];
+			Ref<DMIKBoneChainTarget> target = from->targets[target_i];
 			if (target.is_null()) {
 				continue;
 			}
@@ -1024,11 +1024,11 @@ void BoneChainItem::recursively_create_penalty_array(Ref<BoneChainItem> from,
 			uint8_t mode_code = target->get_mode_code();
 			inner_weight_array.push_back(target->get_target_weight() * current_falloff);
 			float max_target_weight = 0.0f;
-			if ((mode_code & BoneChainTarget::XDir) != 0)
+			if ((mode_code & DMIKBoneChainTarget::XDir) != 0)
 				max_target_weight = MAX(max_target_weight, target->get_x_priority());
-			if ((mode_code & BoneChainTarget::YDir) != 0)
+			if ((mode_code & DMIKBoneChainTarget::YDir) != 0)
 				max_target_weight = MAX(max_target_weight, target->get_y_priority());
-			if ((mode_code & BoneChainTarget::ZDir) != 0)
+			if ((mode_code & DMIKBoneChainTarget::ZDir) != 0)
 				max_target_weight = MAX(max_target_weight, target->get_z_priority());
 
 			if (max_target_weight == 0.0f)
@@ -1036,17 +1036,17 @@ void BoneChainItem::recursively_create_penalty_array(Ref<BoneChainItem> from,
 
 			max_target_weight = 1.0f;
 
-			if ((mode_code & BoneChainTarget::XDir) != 0) {
+			if ((mode_code & DMIKBoneChainTarget::XDir) != 0) {
 				float sub_target_weight = target->get_target_weight() * (target->get_x_priority() / max_target_weight) * current_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
 			}
-			if ((mode_code & BoneChainTarget::YDir) != 0) {
+			if ((mode_code & DMIKBoneChainTarget::YDir) != 0) {
 				float sub_target_weight = target->get_target_weight() * (target->get_y_priority() / max_target_weight) * current_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
 			}
-			if ((mode_code & BoneChainTarget::ZDir) != 0) {
+			if ((mode_code & DMIKBoneChainTarget::ZDir) != 0) {
 				float sub_target_weight = target->get_target_weight() * (target->get_z_priority() / max_target_weight) * current_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
@@ -1061,11 +1061,11 @@ void BoneChainItem::recursively_create_penalty_array(Ref<BoneChainItem> from,
 	}
 }
 
-void BoneChainItem::create_headings_arrays() {
+void DMIKShadowSkeletonBone::create_headings_arrays() {
 	Vector<Vector<real_t>> penalty_array;
-	Vector<Ref<BoneChainItem>> target_sequence;
+	Vector<Ref<DMIKShadowSkeletonBone>> target_sequence;
 	chain_root->recursively_create_penalty_array(this, penalty_array, target_sequence, 1.0f);
-	Vector<Ref<BoneChainItem>> target_bones;
+	Vector<Ref<DMIKShadowSkeletonBone>> target_bones;
 	target_bones.resize(target_sequence.size());
 	int total_headings = 0;
 	for (int32_t penalty_i = 0; penalty_i < penalty_array.size(); penalty_i++) {
@@ -1088,14 +1088,14 @@ void BoneChainItem::create_headings_arrays() {
 	}
 }
 
-void BoneChainItem::force_update_bone_children_transforms(Ref<BoneChainItem> p_current_chain) {
+void DMIKShadowSkeletonBone::force_update_bone_children_transforms(Ref<DMIKShadowSkeletonBone> p_current_chain) {
 	Transform pose = p_current_chain->axes;
 	if (p_current_chain->parent_item.is_valid()) {
 		p_current_chain->axes_global = p_current_chain->parent_item->axes_global * pose;
 	} else {
 		p_current_chain->axes_global = pose;
 	}
-	Vector<Ref<BoneChainItem>> bones = p_current_chain->get_bones();
+	Vector<Ref<DMIKShadowSkeletonBone>> bones = p_current_chain->get_bones();
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
 		Transform pose = bones[bone_i]->axes;
@@ -1106,13 +1106,13 @@ void BoneChainItem::force_update_bone_children_transforms(Ref<BoneChainItem> p_c
 			bones.write[bone_i]->axes_global = pose;
 		}
 	}
-	Vector<Ref<BoneChainItem>> bone_chains = p_current_chain->get_child_chains();
+	Vector<Ref<DMIKShadowSkeletonBone>> bone_chains = p_current_chain->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
 		force_update_bone_children_transforms(bone_chains[i]);
 	}
 }
 
-void BoneChainTarget::set_parent_target(BoneChainTarget *parent) {
+void DMIKBoneChainTarget::set_parent_target(DMIKBoneChainTarget *parent) {
 	if (parent_target != NULL) {
 		parent_target->remove_child_target(this);
 	}
@@ -1125,14 +1125,14 @@ void BoneChainTarget::set_parent_target(BoneChainTarget *parent) {
 	}
 }
 
-void BoneChainTarget::remove_child_target(BoneChainTarget *child) {
+void DMIKBoneChainTarget::remove_child_target(DMIKBoneChainTarget *child) {
 	int32_t target_i = child_targets.find(child);
 	if (target_i != -1) {
 		child_targets.remove(target_i);
 	}
 }
 
-void BoneChainTarget::add_child_target(BoneChainTarget *newChild) {
+void DMIKBoneChainTarget::add_child_target(DMIKBoneChainTarget *newChild) {
 	if (newChild->is_ancestor_of(this)) {
 		set_parent_target(newChild->get_parent_target());
 	}
@@ -1141,13 +1141,13 @@ void BoneChainTarget::add_child_target(BoneChainTarget *newChild) {
 	}
 }
 
-BoneChainTarget *BoneChainTarget::get_parent_target() {
+DMIKBoneChainTarget *DMIKBoneChainTarget::get_parent_target() {
 	return parent_target;
 }
 
-bool BoneChainTarget::is_ancestor_of(BoneChainTarget *potentialDescendent) {
+bool DMIKBoneChainTarget::is_ancestor_of(DMIKBoneChainTarget *potentialDescendent) {
 	bool result = false;
-	BoneChainTarget *cursor = potentialDescendent->get_parent_target();
+	DMIKBoneChainTarget *cursor = potentialDescendent->get_parent_target();
 	while (cursor) {
 		if (cursor == this) {
 			result = true;
@@ -1159,11 +1159,11 @@ bool BoneChainTarget::is_ancestor_of(BoneChainTarget *potentialDescendent) {
 	return result;
 }
 
-float BoneChainTarget::get_target_weight() {
+float DMIKBoneChainTarget::get_target_weight() {
 	return target_weight;
 }
 
-void BoneChainItem::populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k) {
+void DMIKShadowSkeletonBone::populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k) {
 	float predampen = 1.0f - get_stiffness();
 	float default_dampening = chain_root->dampening;
 	float dampening = parent_item == NULL ? Math_PI : predampen * default_dampening;
@@ -1183,13 +1183,13 @@ void BoneChainItem::populate_return_dampening_iteration_array(Ref<KusudamaConstr
 	}
 }
 
-BoneChainItem::BoneChainItem() {
+DMIKShadowSkeletonBone::DMIKShadowSkeletonBone() {
 }
 
-float BoneChainItem::get_bone_height() const {
+float DMIKShadowSkeletonBone::get_bone_height() const {
 	return bone_height;
 }
 
-void BoneChainItem::set_bone_height(const float p_bone_height) {
+void DMIKShadowSkeletonBone::set_bone_height(const float p_bone_height) {
 	bone_height = p_bone_height;
 }
