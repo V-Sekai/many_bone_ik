@@ -48,7 +48,7 @@ void DMIKBoneEffector::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM, "target_transform"), "set_target_transform", "get_target_transform");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "target_node"), "set_target_node", "get_target_node");
-	ADD_PROPERTY(PropertyInfo(Variant::REAL, "budget"), "set_budget", "get_budget");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "budget"), "set_budget", "get_budget");
 }
 
 void DMIKBoneEffector::set_target_transform(Transform p_target_transform) {

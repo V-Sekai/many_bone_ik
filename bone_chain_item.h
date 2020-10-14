@@ -38,9 +38,9 @@
 
 class DMIKBoneChainTarget;
 class SkeletonModification3DDMIK;
-class Skeleton;
+class Skeleton3D;
 class KusudamaConstraint;
-class PhysicalBone;
+class PhysicalBone3D;
 
 class DMIKShadowSkeletonBone : public Reference {
 	GDCLASS(DMIKShadowSkeletonBone, Reference);
@@ -69,7 +69,7 @@ public:
 	Vector<Ref<DMIKShadowSkeletonBone>> children;
 	Ref<DMIKShadowSkeletonBone> parent_item = nullptr;
 	int bone = -1;
-	PhysicalBone *pb = nullptr;
+	PhysicalBone3D *pb = nullptr;
 	bool springy = false;
 	float cos_half_dampen = 0.0f;
 	Vector<real_t> cos_half_returnful_dampened;
@@ -81,7 +81,7 @@ public:
 	Ref<KusudamaConstraint> constraint = nullptr;
 	Ref<DMIKShadowSkeletonBone> base_bone;
 	Ref<DMIKShadowSkeletonBone> tip_bone;
-	Skeleton *skeleton = nullptr;
+	Skeleton3D *skeleton = nullptr;
 	//contains the parentChain of this bone chain, if any.
 	Ref<DMIKShadowSkeletonBone> parent_chain;
 	//will be set to true if this chain or any of its descendants have an effector.
@@ -115,13 +115,13 @@ public:
 	void create_child_chains(Ref<DMIKShadowSkeletonBone> p_from_bone);
 	void remove_inactive_children();
 	void merge_with_child_if_appropriate();
-	void print_bone_chains(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain);
-	Vector<Ref<DMIKShadowSkeletonBone>> get_bone_children(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone);
-	Vector<String> get_default_effectors(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone_chain, Ref<DMIKShadowSkeletonBone> p_current_chain);
+	void print_bone_chains(Skeleton3D *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain);
+	Vector<Ref<DMIKShadowSkeletonBone>> get_bone_children(Skeleton3D *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone);
+	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone_chain, Ref<DMIKShadowSkeletonBone> p_current_chain);
 	bool is_chain_active() const;
 	Vector<Ref<DMIKShadowSkeletonBone>> get_child_chains();
 	Vector<Ref<DMIKShadowSkeletonBone>> get_bones();
-	void init(Skeleton *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<DMIKBoneEffector>> p_multi_effector, Ref<DMIKShadowSkeletonBone> p_chain, Ref<DMIKShadowSkeletonBone> p_parent_chain, Ref<DMIKShadowSkeletonBone> p_base_bone);
+	void init(Skeleton3D *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<DMIKBoneEffector>> p_multi_effector, Ref<DMIKShadowSkeletonBone> p_chain, Ref<DMIKShadowSkeletonBone> p_parent_chain, Ref<DMIKShadowSkeletonBone> p_base_bone);
 	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
 	/**

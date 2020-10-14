@@ -40,7 +40,7 @@
 #include "kusudama_constraint.h"
 #include "qcp.h"
 
-class Skeleton;
+class Skeleton3D;
 class PhysicalBone3D;
 class DMIKBoneChainTarget;
 class SkeletonModification3DDMIK;
@@ -48,7 +48,7 @@ class KusudamaConstraint;
 class DMIKBoneChainTarget;
 class SkeletonModification3DDMIK;
 class DMIKBoneEffector;
-class Skeleton;
+class Skeleton3D;
 class DMIKShadowSkeletonBone;
 
 class SkeletonModification3DDMIK : public SkeletonModification3D {
@@ -64,6 +64,9 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	Ref<QCP> qcp_convergence_check;
 
 private:
+	inline static const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
+	inline static const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
+	inline static const Vector3 z_orientation = Vector3(0.0f, 0.0f, 1.0f);
 	static const int32_t x_axis = 0;
 	static const int32_t y_axis = 1;
 	static const int32_t z_axis = 2;
@@ -80,9 +83,9 @@ public:
 	static void iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<DMIKShadowSkeletonBone> start_from, float dampening, int iterations, int p_stabilization_passes);
 	static void grouped_recursive_chain_solver(Ref<DMIKShadowSkeletonBone> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
 	static void recursive_chain_solver(Ref<DMIKShadowSkeletonBone> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
-	static void apply_bone_chains(float p_strength, Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain);
+	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
-	void register_constraint(Skeleton *p_skeleton);
+	void register_constraint(Skeleton3D *p_skeleton);
 	void set_constraint_count(int32_t p_value);
 	int32_t get_constraint_count() const;
 	Vector<Ref<DMIKBoneEffector>> get_bone_effectors() const;
@@ -115,7 +118,7 @@ private:
 	static void set_default_dampening(Ref<DMIKShadowSkeletonBone> r_chain, float p_damp);
 	static void update_armature_segments(Ref<DMIKShadowSkeletonBone> r_chain);
 	static void update_optimal_rotation_to_target_descendants(
-			Skeleton *p_skeleton,
+			Skeleton3D *p_skeleton,
 			Ref<DMIKShadowSkeletonBone> p_chain_item,
 			float p_dampening,
 			bool p_is_translate,
@@ -127,7 +130,7 @@ private:
 			float p_total_iterations);
 	static void recursively_update_bone_segment_map_from(Ref<DMIKShadowSkeletonBone> r_chain, Ref<DMIKShadowSkeletonBone> p_start_from);
 	static void QCPSolver(
-			Skeleton *p_skeleton,
+			Skeleton3D *p_skeleton,
 			Ref<DMIKShadowSkeletonBone> p_chain,
 			float p_dampening,
 			bool p_inverse_weighting,
@@ -135,7 +138,7 @@ private:
 			int p_iteration,
 			float p_total_iterations);
 	static bool build_chain(Ref<DMIKTask> p_task);
-	static void update_chain(Skeleton *p_sk, Ref<DMIKShadowSkeletonBone> p_chain_item);
+	static void update_chain(Skeleton3D *p_sk, Ref<DMIKShadowSkeletonBone> p_chain_item);
 	static void solve_simple(Ref<DMIKTask> p_task);
 
 public:
@@ -149,7 +152,7 @@ public:
      * as a value of 0, however, it might result in small levels of robotic looking jerk. The higher the value, the less jerk there will be (but at potentially significant computation cost).
      */
 	static void update_optimal_rotation_to_target_descendants(
-			Skeleton *p_skeleton,
+			Skeleton3D *p_skeleton,
 			Ref<DMIKShadowSkeletonBone> r_chain,
 			Ref<DMIKShadowSkeletonBone> p_for_bone,
 			float p_dampening,
@@ -164,7 +167,7 @@ public:
 			Vector<real_t> &p_weights, Transform p_bone_xform);
 	static void update_effector_headings(Ref<DMIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
-	static Ref<DMIKTask> create_simple_task(Skeleton *p_sk, String p_root_bone,
+	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3DDMIK> p_constraints = NULL);
 	static void solve(Ref<DMIKTask> p_task, float blending_delta);

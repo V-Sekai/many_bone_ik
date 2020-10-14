@@ -41,7 +41,7 @@ protected:
 	static void _bind_methods() {}
 
 public:
-	Skeleton *skeleton = nullptr;
+	Skeleton3D *skeleton = nullptr;
 	Ref<QCP> qcp;
 	Ref<DMIKShadowSkeletonBone> chain = memnew(DMIKShadowSkeletonBone);
 	// Settings

@@ -30,7 +30,7 @@
 
 #include "bone_chain_item.h"
 #include "bone_effector.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 #include "skeleton_modification_3d_dmik.h"
 
 
@@ -119,7 +119,7 @@ void DMIKShadowSkeletonBone::build_chain(Ref<DMIKShadowSkeletonBone> p_start_fro
 	}
 }
 
-Vector<Ref<DMIKShadowSkeletonBone>> DMIKShadowSkeletonBone::get_bone_children(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone) {
+Vector<Ref<DMIKShadowSkeletonBone>> DMIKShadowSkeletonBone::get_bone_children(Skeleton3D *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone) {
 	Vector<Ref<DMIKShadowSkeletonBone>> bone_chain_items;
 	for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
 		int32_t parent = p_skeleton->get_bone_parent(bone_i);
@@ -168,7 +168,7 @@ void DMIKShadowSkeletonBone::merge_with_child_if_appropriate() {
 	}
 }
 
-void DMIKShadowSkeletonBone::print_bone_chains(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain) {
+void DMIKShadowSkeletonBone::print_bone_chains(Skeleton3D *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain) {
 	Vector<Ref<DMIKShadowSkeletonBone>> bones = p_current_chain->get_bones();
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	print_line("Chain");
@@ -187,7 +187,7 @@ void DMIKShadowSkeletonBone::print_bone_chains(Skeleton *p_skeleton, Ref<DMIKSha
 	}
 }
 
-Vector<String> DMIKShadowSkeletonBone::get_default_effectors(Skeleton *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone_chain, Ref<DMIKShadowSkeletonBone> p_current_chain) {
+Vector<String> DMIKShadowSkeletonBone::get_default_effectors(Skeleton3D *p_skeleton, Ref<DMIKShadowSkeletonBone> p_bone_chain, Ref<DMIKShadowSkeletonBone> p_current_chain) {
 	Vector<String> effectors;
 	Vector<Ref<DMIKShadowSkeletonBone>> bones = p_current_chain->get_bones();
 	BoneId bone = p_current_chain->tip_bone->bone;
@@ -212,7 +212,7 @@ Vector<Ref<DMIKShadowSkeletonBone>> DMIKShadowSkeletonBone::get_child_chains() {
 	return child_chains;
 }
 
-void DMIKShadowSkeletonBone::init(Skeleton *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<DMIKBoneEffector>> p_multi_effector, Ref<DMIKShadowSkeletonBone> p_chain, Ref<DMIKShadowSkeletonBone> p_parent_chain, Ref<DMIKShadowSkeletonBone> p_base_bone) {
+void DMIKShadowSkeletonBone::init(Skeleton3D *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<DMIKBoneEffector>> p_multi_effector, Ref<DMIKShadowSkeletonBone> p_chain, Ref<DMIKShadowSkeletonBone> p_parent_chain, Ref<DMIKShadowSkeletonBone> p_base_bone) {
 	ERR_FAIL_COND(this == parent_chain.ptr());
 	parent_chain = p_parent_chain;
 	base_bone = p_base_bone;

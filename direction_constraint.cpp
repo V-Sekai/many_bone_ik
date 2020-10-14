@@ -37,7 +37,7 @@ void DirectionConstraint::initialize(Vector3 p_location, real_t p_rad, Ref<Kusud
 	tangent_circle_center_next_1 = get_orthogonal(p_location);
 	tangent_circle_center_next_2 = tangent_circle_center_next_1 * -1.0f;
 
-	radius = MAX(CMP_EPSILON, p_rad);
+	radius = MAX(std::numeric_limits<real_t>::min(), p_rad);
 	radius_cosine = Math::cos(radius);
 	parent_kusudama = p_attached_to;
 }
@@ -256,7 +256,7 @@ void DirectionConstraint::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_radius"), &DirectionConstraint::get_radius);
 	ClassDB::bind_method(D_METHOD("set_control_point", "control_point"), &DirectionConstraint::set_control_point);
 	ClassDB::bind_method(D_METHOD("get_control_point"), &DirectionConstraint::get_control_point);
-	ADD_PROPERTY(PropertyInfo(Variant::REAL, "radius"), "set_radius", "get_radius");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "radius"), "set_radius", "get_radius");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "control_point"), "set_control_point", "get_control_point");
 }
 
