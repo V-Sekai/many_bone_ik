@@ -34,7 +34,6 @@
 #include "modules/dmik/dmik_skeleton.h"
 #include "modules/dmik/qcp.h"
 
-
 #include "tests/test_macros.h"
 
 namespace TestDMIK {
@@ -57,19 +56,40 @@ TEST_CASE("[Modules][DMIK] qcp") {
 	qcp.instance();
 	qcp->set_max_iterations(10);
 
-	Vector<Vector3> localized_effector_headings;
-	localized_effector_headings.push_back(Vector3(0, 0, 0));
-	localized_effector_headings.push_back(Vector3(1, 0, 0));
-	localized_effector_headings.push_back(Vector3(0, 1, 0));
-	localized_effector_headings.push_back(Vector3(0, 0, 1));
-	Vector<Vector3> localized_target_headings;
-	localized_target_headings.push_back(Vector3(0, 0, 0));
-	localized_target_headings.push_back(Vector3(1, 0, 0));
-	localized_target_headings.push_back(Vector3(0, 1, 0));
-	localized_target_headings.push_back(Vector3(0, 0, 1));
-	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
-			Vector<float>(), false);
-	CHECK_MESSAGE(rot.is_equal_approx(Quat()), vformat("%s does not match quaternion identity ", String(rot)).utf8().ptr());
+	Vector<Vector3> localizedTipHeadings;
+	localizedTipHeadings.push_back(Vector3(0.0, 0.0, 0.0));
+	localizedTipHeadings.push_back(Vector3(0.5219288, 0.1455288, 0.8404827));
+	localizedTipHeadings.push_back(Vector3(-0.5219288, -0.1455288, -0.8404827));
+	localizedTipHeadings.push_back(Vector3(0.0012719706, -0.9854698, 0.16984463));
+	localizedTipHeadings.push_back(Vector3(-0.0012719706, 0.9854698, -0.16984463));
+	localizedTipHeadings.push_back(Vector3(0.8529882, -0.08757782, -0.5145302));
+	localizedTipHeadings.push_back(Vector3(-0.8529882, 0.08757782, 0.5145302));
+
+	Vector<Vector3> localizedTargetHeadings;
+	localizedTargetHeadings.push_back(Vector3(0.014951646, -0.2548256, -0.0037765503));
+	localizedTargetHeadings.push_back(Vector3(0.66200894, -0.12242699, 0.7470808));
+	localizedTargetHeadings.push_back(Vector3(-0.63210565, -0.3872242, -0.7546339));
+	localizedTargetHeadings.push_back(Vector3(0.01495599, -1.2396336, 0.16987133));
+	localizedTargetHeadings.push_back(Vector3(0.014947303, 0.7299824, -0.17742443));
+	localizedTargetHeadings.push_back(Vector3(0.777393, -0.36718178, -0.64100456));
+	localizedTargetHeadings.push_back(Vector3(-0.7474897, -0.1424694, 0.63345146));
+
+	Vector<float> weights;
+	weights.push_back(5.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
+	Quat rot = qcp->weighted_superpose(localizedTipHeadings, localizedTargetHeadings,
+			weights, false);
+	Quat rot_compare;
+	rot_compare.w = 0.99715185;
+	rot_compare.x = 0.0019268756;
+	rot_compare.y = -0.07416658;
+	rot_compare.z = 0.013555937;
+	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion identity ", String(rot)).utf8().ptr());
 }
 
 TEST_CASE("[Modules][DMIK] qcp target 180 degrees turn") {

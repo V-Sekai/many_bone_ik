@@ -156,7 +156,7 @@ public:
 	/**
      * Sets the maximum number of iterations QCP should run before giving up.
      * In most situations QCP converges in 3 or 4 iterations, but in some situations convergence
-     * occurs slowly or not at all, and so an exit condition is used. The default value is 20.
+     * occurs slowly or not at all, and so an exit condition is used. The default value is 5.
      * Increase it for more stability.
      * @param p_max
      */
