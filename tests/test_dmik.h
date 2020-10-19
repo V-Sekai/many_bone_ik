@@ -91,27 +91,6 @@ TEST_CASE("[Modules][DMIK] qcp") {
 	rot_compare.z = 0.013555937;
 	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion identity ", String(rot)).utf8().ptr());
 }
-
-TEST_CASE("[Modules][DMIK] qcp target 180 degrees turn") {
-	Ref<QCP> qcp;
-	qcp.instance();
-	qcp->set_max_iterations(10);
-
-	Vector<Vector3> localized_effector_headings;
-	localized_effector_headings.push_back(Vector3(0, 0, 0));
-	localized_effector_headings.push_back(Vector3(1, 0, 0));
-	localized_effector_headings.push_back(Vector3(0, 1, 0));
-	localized_effector_headings.push_back(Vector3(0, 0, 1));
-	Vector<Vector3> localized_target_headings;
-	localized_target_headings.push_back(Vector3(0, 0, 0));
-	localized_target_headings.push_back(Vector3(-0.9999f, 0.0001f, 0.0f));
-	localized_target_headings.push_back(Vector3(-0.0001f, -0.9999f, 0.0f));
-	localized_target_headings.push_back(Vector3(0, 0, 1));
-	Quat rot = qcp->weighted_superpose(localized_effector_headings, localized_target_headings,
-			Vector<float>(), false);
-	// CHECK_MESSAGE(rot.is_equal_approx(Quat()), vformat("%s does not match quaternion identity ", String(rot)).utf8().ptr());
-}
-
 } // namespace TestDMIK
 
 #endif
