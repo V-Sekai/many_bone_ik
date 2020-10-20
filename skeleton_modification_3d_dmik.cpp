@@ -385,7 +385,7 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 		}
 		register_constraint(skeleton);
 	}
-	task = create_simple_task(skeleton, root_bone, -1.0f, 10, this);
+	task = create_simple_task(skeleton, root_bone, -1.0f, 10.0f, this);
 	is_setup = true;
 }
 
@@ -604,7 +604,7 @@ void SkeletonModification3DDMIK::update_chain(Skeleton3D *p_sk, Ref<DMIKShadowSk
 	
 	Transform xform = p_sk->global_pose_to_local_pose(p_chain_item->bone, p_sk->get_bone_global_pose(p_chain_item->bone));
 	p_chain_item->axes = xform;
-
+	// Ref<DMIKNode3D> node = DMIKNode3D(xform, );
 	Vector<Ref<DMIKShadowSkeletonBone>> bones = p_chain_item->get_bones();
 	ERR_FAIL_COND(!p_chain_item->is_chain_active());
 	int32_t found_i = bones.find(p_chain_item);

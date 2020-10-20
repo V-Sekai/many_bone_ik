@@ -129,6 +129,14 @@ public:
 		this->adoptValues(input);
 	}
 
+	DMIKTransform(const Transform &input) {
+		translate = input.origin;
+		Vector3 x = input.basis.get_axis(0);
+		Vector3 y = input.basis.get_axis(1);
+		Vector3 z = input.basis.get_axis(2);
+		set(x, y, z);
+	}
+
 	/**
 	 * Initialize this basis at the origin.
 	 *  The basis will be backed by a rotation object which presumes right handed chirality. 
@@ -667,4 +675,17 @@ public:
 		 * @param customBases set to true if you intend to use a custom Bases class, in which case, this constructor will not initialize them.
 		 */
 	DMIKNode3D(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ, Ref<DMIKNode3D> parent, bool customBases);
+		
+	DMIKNode3D(Transform p_globalBasis, Ref<DMIKNode3D> p_parent) {
+		globalMBasis = p_globalBasis;
+		createTempVars(p_globalBasis.origin);
+		if (getParentAxes().is_valid()) {
+			setParent(p_parent);
+		} else {
+			areGlobal = true;
+			localMBasis = p_globalBasis;
+		}
+		updateGlobal();
+	}
 };
+

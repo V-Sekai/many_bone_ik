@@ -56,6 +56,25 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 
 	Vector<Ref<DMIKBoneEffector>> multi_effector;
 	Vector<Ref<KusudamaConstraint>> multi_constraint;
+	// Skeleton datastructure
+	// It holds a bunch of references to bones thing
+	// same index as the skeleton bone
+	// ik info object.
+	// ik data has:
+	// kusudama
+	// all of the bone attributes
+	// stiffness
+	// height
+	// references to children and parent
+	// properties of bones. set and get	
+	// float stiffnessScalar = 0.0f;
+	// float get_stiffness() const {
+	// 	return stiffnessScalar;
+	// }
+
+	// void set_stiffness(float p_stiffness_scalar) {
+	// 	stiffnessScalar = p_stiffness_scalar;
+	// }
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
