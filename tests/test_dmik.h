@@ -46,11 +46,6 @@ Vector3 rad2deg(const Vector3 &p_rotation) {
 	return p_rotation / Math_PI * 180.0;
 }
 
-TEST_CASE("[Modules][DMIK] transform") {
-	DMIKTransform identity(Vector3());
-	// CHECK_MESSAGE(identity.getLocalOf(Vector3()) == Vector3(), vformat("%s does not match dmik transform translation identity ", String(identity.getLocalOf(Vector3()))).utf8().ptr());
-}
-
 TEST_CASE("[Modules][DMIK] qcp") {
 	Ref<QCP> qcp;
 	qcp.instance();

@@ -404,8 +404,6 @@ void SkeletonModification3DDMIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_
 		armature->align_axes_to_bones();
 		if (iterations == -1) {
 			iterations = armature->ik_iterations;
-		} else {
-			iterations = iterations;
 		}
 		float totalIterations = iterations;
 		if (p_stabilization_passes == -1) {
@@ -958,7 +956,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<DMIKShadowSkeleton
 		if (sb.is_null()) {
 			continue;
 		}
-		BoneId bone = r_chain->targets[target_i]->end_effector->effector_bone;
+		// int bone = r_chain->targets[target_i]->end_effector->effector_bone;
 		Vector3 origin = sb->axes.origin;
 		Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
 		r_localized_effector_headings.write[hdx] = origin;
@@ -967,7 +965,7 @@ void SkeletonModification3DDMIK::update_effector_headings(Ref<DMIKShadowSkeleton
 		print_line("effector origin " + r_localized_effector_headings[hdx]);
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
-		Transform target_axes = sb->constraint->get_constraint_axes();
+		// Transform target_axes = sb->constraint->get_constraint_axes();
 		if ((modeCode & DMIKBoneChainTarget::XDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * x_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];

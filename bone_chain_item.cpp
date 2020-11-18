@@ -35,8 +35,8 @@
 
 
 void DMIKShadowSkeletonBone::recursively_align_axes_outward_from(Ref<DMIKShadowSkeletonBone> sb) {
-	Transform bAxes = sb->axes;
-	Transform cAxes = sb->constraint->get_constraint_axes();
+	// Transform bAxes = sb->axes;
+	// Transform cAxes = sb->constraint->get_constraint_axes();
 	if (sb->base_bone.is_null()) {
 		return;
 	}

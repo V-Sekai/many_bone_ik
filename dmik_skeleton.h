@@ -609,7 +609,7 @@ public:
 	void disown(Ref<AxisDependency> child);
 	DMIKTransform getGlobalMBasis();
 	DMIKTransform getLocalMBasis();
-	void axisSlipWarning(Ref<DMIKNode3D> globalPriorToSlipping, Ref<DMIKNode3D> globalAfterSlipping, Ref<DMIKNode3D> actualAxis, List<Object> dontWarn);
+	virtual void axisSlipWarning(Ref<AxisDependency> globalPriorToSlipping, Ref<AxisDependency> globalAfterSlipping, Ref<AxisDependency> actualAxis, List<Object> dontWarn);
 
 	/**
 		 * if the input axes have have the same global
@@ -621,8 +621,8 @@ public:
 		 * @param ax
 		 */
 	bool equals(Ref<DMIKNode3D> ax);
-	void axisSlipWarning(Ref<DMIKNode3D> globalPriorToSlipping, Ref<DMIKNode3D> globalAfterSlipping, Ref<DMIKNode3D> actualAxis);
-	void axisSlipCompletionNotice(Ref<DMIKNode3D> globalPriorToSlipping, Ref<DMIKNode3D> globalAfterSlipping, Ref<DMIKNode3D> thisAxis);
+	virtual void axisSlipWarning(Ref<AxisDependency> globalPriorToSlipping, Ref<AxisDependency> globalAfterSlipping, Ref<AxisDependency> actualAxis);
+	virtual void axisSlipCompletionNotice(Ref<AxisDependency> globalPriorToSlipping, Ref<AxisDependency> globalAfterSlipping, Ref<AxisDependency> thisAxis);
 	void slipTo(Ref<DMIKNode3D> newAxisGlobal);
 	void slipTo(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn);
 	// void notifyDependentsOfSlip(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn);

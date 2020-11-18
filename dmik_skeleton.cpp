@@ -94,7 +94,7 @@ void DMIKNode3D::setParent(Ref<DMIKNode3D> intendedParent, Ref<DMIKNode3D> reque
 	} else {
 		if (oldParent != nullptr)
 			oldParent->disown(this);
-		parent = nullptr;
+		parent.unref();
 		areGlobal = true;
 	}
 	markDirty();
@@ -413,7 +413,7 @@ void DMIKNode3D::emancipate() {
 		if (axes.is_valid()) {
 			axes->disown(this);
 		}
-		parent = nullptr;
+		parent.unref();
 		areGlobal = true;
 		markDirty();
 		updateGlobal();
@@ -436,15 +436,16 @@ DMIKTransform DMIKNode3D::getLocalMBasis() {
 	return localMBasis;
 }
 
-void DMIKNode3D::axisSlipWarning(Ref<DMIKNode3D> globalPriorToSlipping, Ref<DMIKNode3D> globalAfterSlipping, Ref<DMIKNode3D> actualAxis) {
+void DMIKNode3D::axisSlipWarning(Ref<AxisDependency> globalPriorToSlipping, Ref<AxisDependency> globalAfterSlipping, Ref<AxisDependency> actualAxis) {
 }
 
-void DMIKNode3D::axisSlipWarning(Ref<DMIKNode3D> globalPriorToSlipping, Ref<DMIKNode3D> globalAfterSlipping, Ref<DMIKNode3D> actualAxis, List<Object> dontWarn) {
+void DMIKNode3D::axisSlipWarning(Ref<AxisDependency> p_global_prior_to_slipping, Ref<AxisDependency> globalAfterSlipping, Ref<AxisDependency> actualAxis, List<Object> dontWarn) {
 	updateGlobal();
 	if (slipType == NORMAL) {
 		if (getParentAxes() != nullptr) {
-			Ref<DMIKNode3D> globalVals = relativeTo(globalPriorToSlipping);
-			globalVals = globalPriorToSlipping->getLocalOf(globalVals);
+			Ref<DMIKNode3D> globalVals = relativeTo(p_global_prior_to_slipping);
+			Ref<DMIKNode3D> global_prior_to_slipping = p_global_prior_to_slipping;
+			globalVals = global_prior_to_slipping->getLocalOf(globalVals);
 			getLocalMBasis().adoptValues(globalMBasis);
 			markDirty();
 		}
@@ -454,7 +455,7 @@ void DMIKNode3D::axisSlipWarning(Ref<DMIKNode3D> globalPriorToSlipping, Ref<DMIK
 	}
 }
 
-void DMIKNode3D::axisSlipCompletionNotice(Ref<DMIKNode3D> globalPriorToSlipping, Ref<DMIKNode3D> globalAfterSlipping, Ref<DMIKNode3D> thisAxis) {
+void DMIKNode3D::axisSlipCompletionNotice(Ref<AxisDependency> globalPriorToSlipping, Ref<AxisDependency> globalAfterSlipping, Ref<AxisDependency> thisAxis) {
 }
 
 void DMIKNode3D::slipTo(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn) {
