@@ -34,7 +34,7 @@
 #include "bone_chain_target.h"
 #include "bone_effector.h"
 #include "bone_effector_transform.h"
-#include "core/reference.h"
+#include "core/object/reference.h"
 
 class DMIKBoneChainTarget;
 class SkeletonModification3DDMIK;

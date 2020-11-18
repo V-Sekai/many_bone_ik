@@ -32,7 +32,7 @@
 #define MULTI_CONSTRAINT_H
 
 #include "core/os/memory.h"
-#include "core/reference.h"
+#include "core/object/reference.h"
 #include "scene/resources/skeleton_modification_3d.h"
 
 #include "bone_effector.h"

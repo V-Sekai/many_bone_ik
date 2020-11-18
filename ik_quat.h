@@ -32,7 +32,7 @@
 #define GODOT_ANIMATION_UNIFIED_BEZIERS_IK_QUAT_H
 
 #include "core/math/quat.h"
-#include "core/vector.h"
+#include "core/templates/vector.h"
 
 class IKQuat : public Quat {
 public:

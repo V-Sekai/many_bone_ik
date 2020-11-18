@@ -31,7 +31,7 @@
 #define bone_chain_target_h__
 
 #include "bone_chain_item.h"
-#include "core/reference.h"
+#include "core/object/reference.h"
 
 class DMIKBoneEffectorTransform;
 class DMIKShadowSkeletonBone;

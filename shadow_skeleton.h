@@ -1,5 +1,5 @@
 #pragma once
-#include "core/reference.h"
+#include "core/object/reference.h"
 #include "ray.h"
 
 class AxisDependency: public Reference {

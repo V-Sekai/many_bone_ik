@@ -31,9 +31,9 @@
 #ifndef IK_TWIST_CONSTRAINT_H
 #define IK_TWIST_CONSTRAINT_H
 
-#include "core/class_db.h"
+#include "core/object/class_db.h"
 #include "core/os/memory.h"
-#include "core/resource.h"
+#include "core/io/resource.h"
 
 class TwistConstraint : public Resource {
 	GDCLASS(TwistConstraint, Resource);

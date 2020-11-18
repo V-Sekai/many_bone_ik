@@ -30,8 +30,8 @@
 #ifndef bone_effector_h__
 #define bone_effector_h__
 
-#include "core/engine.h"
-#include "core/resource.h"
+#include "core/config/engine.h"
+#include "core/io/resource.h"
 
 class DMIKBoneEffector : public Resource {
 	GDCLASS(DMIKBoneEffector, Resource);

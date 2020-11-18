@@ -32,23 +32,22 @@
 #ifndef GODOT_ANIMATION_UNIFIED_BEZIERS_IK_DIRECTION_LIMIT_H
 #define GODOT_ANIMATION_UNIFIED_BEZIERS_IK_DIRECTION_LIMIT_H
 
-#include "core/reference.h"
-#include "core/resource.h"
+#include "core/object/reference.h"
+#include "core/io/resource.h"
 
-#include "core/string_name.h"
-#include "core/ustring.h"
-#include "core/list.h"
-#include "core/variant.h"
-#include "core/object.h"
-#include "core/reference.h"
-#include "core/method_bind.h"
-#include "core/hash_map.h"
-#include "core/set.h"
+#include "core/string/string_name.h"
+#include "core/string/ustring.h"
+#include "core/templates/list.h"
+#include "core/variant/variant.h"
+#include "core/object/object.h"
+#include "core/object/reference.h"
+#include "core/templates/hash_map.h"
+#include "core/templates/set.h"
 #include "core/os/memory.h"
 #include "core/os/rw_lock.h"
-#include "core/class_db.h"
+#include "core/object/class_db.h"
 #include "core/typedefs.h"
-#include "core/error_macros.h"
+#include "core/error/error_macros.h"
 #include "kusudama_constraint.h"
 
 class KusudamaConstraint;

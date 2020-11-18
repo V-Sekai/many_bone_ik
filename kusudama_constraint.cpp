@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "kusudama_constraint.h"
-#include "core/object.h"
+#include "core/object/object.h"
 #include "direction_constraint.h"
 #include "ik_quat.h"
 #include "skeleton_modification_3d_dmik.h"

@@ -31,9 +31,9 @@
 #ifndef GODOT_KUSUDAMA_CONSTRAINT_H
 #define GODOT_KUSUDAMA_CONSTRAINT_H
 
-#include "core/object.h"
+#include "core/object/object.h"
 
-#include "core/class_db.h"
+#include "core/object/class_db.h"
 #include "core/os/memory.h"
 #include "direction_constraint.h"
 #include "ray.h"

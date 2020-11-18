@@ -1,5 +1,5 @@
-#include "core/engine.h"
-#include "core/reference.h"
+#include "core/config/engine.h"
+#include "core/object/reference.h"
 #include "ray.h"
 
 class AxisDependency : public Reference {
@@ -126,7 +126,6 @@ public:
 		xRay = Ray(zero, xBase);
 		yRay = Ray(zero, yBase);
 		zRay = Ray(zero, zBase);
-		this->adoptValues(input);
 	}
 
 	DMIKTransform(const Transform &input) {

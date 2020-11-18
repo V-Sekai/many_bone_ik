@@ -1,5 +1,5 @@
 #include "dmik_skeleton.h"
-#include "core/engine.h"
+#include "core/config/engine.h"
 
 void DMIKNode3D::updateGlobal() {
 	if (dirty) {

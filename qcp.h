@@ -31,7 +31,7 @@
 #ifndef QCP_H
 #define QCP_H
 
-#include "core/engine.h"
+#include "core/config/engine.h"
 #include "ik_quat.h"
 
 class QCP : public Reference {
