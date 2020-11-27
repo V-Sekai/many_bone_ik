@@ -52,8 +52,8 @@ class Skeleton3D;
 class DMIKShadowSkeletonBone;
 
 // Skeleton data structure
-class DMIKSkeletonIKData : public Resource {
-	GDCLASS(DMIKSkeletonIKData, Resource);
+class DMIKSkeletonIKState : public Resource {
+	GDCLASS(DMIKSkeletonIKState, Resource);
 
 public:
 	// It holds a bunch of references to bones thing
@@ -81,7 +81,7 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 
 	Vector<Ref<DMIKBoneEffector>> multi_effector;
 	Vector<Ref<KusudamaConstraint>> multi_constraint;
-	Ref<DMIKSkeletonIKData> skeleton_data;
+	Ref<DMIKSkeletonIKState> skeleton_ik_state;
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
 	Ref<DMIKTask> task;
@@ -129,8 +129,8 @@ public:
 	SkeletonModification3DDMIK();
 	~SkeletonModification3DDMIK();
 
-	Ref<DMIKSkeletonIKData> get_skeleton_ik_data() const { return skeleton_data; }
-	void set_skeleton_ik_data(Ref<DMIKSkeletonIKData> val) { skeleton_data = val; }
+	Ref<DMIKSkeletonIKState> get_skeleton_ik_state() const { return skeleton_ik_state; }
+	void set_skeleton_ik_data(Ref<DMIKSkeletonIKState> val) { skeleton_ik_state = val; }
 
 private:
 	/**
