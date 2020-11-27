@@ -31,7 +31,7 @@
 #ifndef TEST_DMIK_H
 #define TEST_DMIK_H
 
-#include "modules/dmik/dmik_skeleton.h"
+#include "modules/dmik/dmik_axis_dependency.h"
 #include "modules/dmik/qcp.h"
 
 #include "tests/test_macros.h"
