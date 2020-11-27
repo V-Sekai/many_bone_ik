@@ -84,7 +84,7 @@ TEST_CASE("[Modules][DMIK] qcp") {
 	rot_compare.x = 0.0019268756;
 	rot_compare.y = -0.07416658;
 	rot_compare.z = 0.013555937;
-	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion identity ", String(rot)).utf8().ptr());
+	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion.", String(rot)).utf8().ptr());
 }
 } // namespace TestDMIK
 
