@@ -117,8 +117,8 @@ public:
 	void set_effector(int32_t p_index, Ref<DMIKBoneEffector> p_effector);
 	void set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint);
 	Ref<KusudamaConstraint> get_constraint(int32_t p_index) const;
-	String get_root_bone() const { return root_bone; }
-	void set_root_bone(String p_root_bone) { root_bone = p_root_bone; }
+	String get_root_bone() const;
+	void set_root_bone(String p_root_bone);
 	SkeletonModification3DDMIK();
 	~SkeletonModification3DDMIK();
 

@@ -120,10 +120,8 @@ public:
 	 * @return
 	 */
 	bool in_bounds_from_this_to_next(Ref<DirectionConstraint> next, Vector3 input, Vector3 collisionPoint) const;
-
 	Vector3 control_point;
 	Vector3 radial_point;
-
 	Vector3 get_on_path_sequence(Ref<DirectionConstraint> p_next, Vector3 p_input) const;
 	Vector3 closest_directional_limit(Ref<DirectionConstraint> p_next, Vector3 p_input) const;
 	Vector3 get_closest_path_point(Ref<DirectionConstraint> p_next, Vector3 p_input) const;
@@ -134,8 +132,8 @@ public:
 	DirectionConstraint() {}
 	void set_control_point(Vector3 p_control_point);
 	void update_tangent_handles(Ref<DirectionConstraint> p_next);
-	void initialize(Vector3 p_location, float p_rad, Ref<KusudamaConstraint> p_attached_to);
-	void set_radius(float p_radius);
+	void initialize(Vector3 p_location, real_t p_rad, Ref<KusudamaConstraint> p_attached_to);	
+	void set_radius(real_t p_radius);
 };
 
 #endif //GODOT_ANIMATION_UNIFIED_BEZIERS_IK_DIRECTION_LIMIT_H

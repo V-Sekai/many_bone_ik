@@ -254,6 +254,14 @@ Ref<KusudamaConstraint> SkeletonModification3DDMIK::get_constraint(int32_t p_ind
 	return multi_constraint[p_index];
 }
 
+String SkeletonModification3DDMIK::get_root_bone() const {
+	return root_bone;
+}
+
+void SkeletonModification3DDMIK::set_root_bone(String p_root_bone) {
+	root_bone = p_root_bone;
+}
+
 SkeletonModification3DDMIK::SkeletonModification3DDMIK() {
 	enabled = true;
 	qcp_convergence_check.instance();

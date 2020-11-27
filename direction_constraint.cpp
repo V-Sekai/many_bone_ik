@@ -32,16 +32,6 @@
 #include "direction_constraint.h"
 #include "kusudama_constraint.h"
 
-void DirectionConstraint::initialize(Vector3 p_location, real_t p_rad, Ref<KusudamaConstraint> p_attached_to) {
-	set_control_point(p_location);
-	tangent_circle_center_next_1 = get_orthogonal(p_location);
-	tangent_circle_center_next_2 = tangent_circle_center_next_1 * -1.0f;
-
-	radius = MAX(std::numeric_limits<real_t>::min(), p_rad);
-	radius_cosine = Math::cos(radius);
-	parent_kusudama = p_attached_to;
-}
-
 void DirectionConstraint::update_tangent_handles(Ref<DirectionConstraint> p_next) {
 	control_point.normalize();
 
@@ -141,6 +131,16 @@ void DirectionConstraint::update_tangent_handles(Ref<DirectionConstraint> p_next
 		tangent_circle_center_next_2 = (tangent_circle_center_next_1 * -1.0f).normalized();
 	}
 	compute_triangles(p_next);
+}
+
+void DirectionConstraint::initialize(Vector3 p_location, real_t p_rad, Ref<KusudamaConstraint> p_attached_to) {
+	set_control_point(p_location);
+	tangent_circle_center_next_1 = get_orthogonal(p_location);
+	tangent_circle_center_next_2 = tangent_circle_center_next_1 * -1.0f;
+
+	radius = MAX(std::numeric_limits<real_t>::min(), p_rad);
+	radius_cosine = Math::cos(radius);
+	parent_kusudama = p_attached_to;
 }
 
 void DirectionConstraint::set_radius(real_t p_radius) {
