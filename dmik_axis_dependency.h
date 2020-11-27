@@ -1,3 +1,5 @@
+#pragma once
+
 #include "core/config/engine.h"
 #include "core/object/reference.h"
 #include "ray.h"
