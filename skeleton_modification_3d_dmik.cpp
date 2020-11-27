@@ -47,6 +47,9 @@ void SkeletonModification3DDMIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_constraint", "index"), &SkeletonModification3DDMIK::get_constraint);
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DDMIK::set_effector);
 	ClassDB::bind_method(D_METHOD("set_constraint", "index", "constraint"), &SkeletonModification3DDMIK::set_constraint);
+
+	ClassDB::bind_method(D_METHOD("set_skeleton_ik_data", "skeleton_ik_data"), &SkeletonModification3DDMIK::set_skeleton_ik_data);
+	ClassDB::bind_method(D_METHOD("get_skeleton_ik_data"), &SkeletonModification3DDMIK::get_skeleton_ik_data);
 }
 
 void SkeletonModification3DDMIK::_get_property_list(List<PropertyInfo> *p_list) const {
@@ -76,12 +79,17 @@ void SkeletonModification3DDMIK::_get_property_list(List<PropertyInfo> *p_list) 
 	}
 	p_list->push_back(
 			PropertyInfo(Variant::STRING, "root_bone"));
+	p_list->push_back(
+			PropertyInfo(Variant::OBJECT, "data", PROPERTY_HINT_RESOURCE_TYPE, "DMIKSkeletonIKData"));
 }
 
 bool SkeletonModification3DDMIK::_get(const StringName &p_name, Variant &r_ret) const {
 	String name = p_name;
 	if (name == "root_bone") {
 		r_ret = get_root_bone();
+		return true;
+	} else if (name == "data") {
+		r_ret = get_skeleton_ik_data();
 		return true;
 	} else if (name == "constraint_count") {
 		r_ret = get_constraint_count();
@@ -154,6 +162,9 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 
 	if (name == "root_bone") {
 		set_root_bone(p_value);
+		return true;
+	} else if (name == "data") {
+		set_skeleton_ik_data(p_value);
 		return true;
 	} else if (name == "constraint_count") {
 		set_constraint_count(p_value);
@@ -266,6 +277,7 @@ SkeletonModification3DDMIK::SkeletonModification3DDMIK() {
 	enabled = true;
 	qcp_convergence_check.instance();
 	qcp_convergence_check->set_precision(FLT_EPSILON, FLT_EPSILON);
+	skeleton_data.instance();
 }
 
 SkeletonModification3DDMIK::~SkeletonModification3DDMIK() {
