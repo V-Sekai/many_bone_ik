@@ -311,7 +311,7 @@ Quat QCP::calc_rotation() {
 						/*
                          * if qsqr is still too small, return the identity rotation
                          */
-						return IKQuat();
+						return QuatIK();
 					}
 				}
 			}

@@ -34,32 +34,32 @@
 #include "core/math/quat.h"
 #include "core/templates/vector.h"
 
-class IKQuat : public Quat {
+class QuatIK : public Quat {
 public:
-	Vector<IKQuat> get_swing_twist(Vector3 p_axis);
+	Vector<QuatIK> get_swing_twist(Vector3 p_axis);
 
 	void clamp_to_quadrance_angle(float p_cos_half_angle);
 
 	void clamp_to_angle(float p_angle);
 
-	inline IKQuat(float p_x, float p_y, float p_z, float p_w) :
+	inline QuatIK(float p_x, float p_y, float p_z, float p_w) :
 			Quat(p_x,
 					p_y,
 					p_z,
 					p_w) {
 	}
 
-	IKQuat(Quat p_quat) {
+	QuatIK(Quat p_quat) {
 		x = p_quat.x;
 		y = p_quat.y;
 		z = p_quat.z;
 		w = p_quat.w;
 	}
 
-	IKQuat() {
+	QuatIK() {
 	}
 
-	~IKQuat() {
+	~QuatIK() {
 	}
 };
 

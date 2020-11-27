@@ -31,7 +31,7 @@
 #include "kusudama_constraint.h"
 #include "core/object/object.h"
 #include "direction_constraint.h"
-#include "ik_quat.h"
+#include "quat_ik.h"
 #include "skeleton_modification_3d_dmik.h"
 
 void KusudamaConstraint::optimize_limiting_axes() {
@@ -213,8 +213,8 @@ real_t KusudamaConstraint::snap_to_twist_limits(Transform p_to_set, Transform p_
 		return 0.0f;
 	}
 
-	IKQuat alignRot = p_limiting_axes.basis.get_rotation_quat().inverse() * p_to_set.basis.get_rotation_quat();
-	Vector<IKQuat> decomposition = alignRot.get_swing_twist(Vector3(0, 1, 0));
+	QuatIK alignRot = p_limiting_axes.basis.get_rotation_quat().inverse() * p_to_set.basis.get_rotation_quat();
+	Vector<QuatIK> decomposition = alignRot.get_swing_twist(Vector3(0, 1, 0));
 	const int32_t axis_y = 1;
 	real_t angleDelta2 = Basis(decomposition[1]).get_axis(axis_y).y * -1.0f;
 	angleDelta2 = to_tau(angleDelta2);
@@ -305,7 +305,7 @@ void KusudamaConstraint::set_axes_to_returnful(Transform p_global_xform, Transfo
 			Vector3 pathPoint = point_on_path_sequence(p_global_xform, inPoint, p_limiting_axes);
 			inPoint -= origin;
 			pathPoint -= origin;
-			IKQuat toClamp = Quat(inPoint, pathPoint);
+			QuatIK toClamp = Quat(inPoint, pathPoint);
 			toClamp.clamp_to_quadrance_angle(p_cos_half_angle_dampen);
 			p_to_set.basis.rotate(toClamp);
 		}
@@ -323,9 +323,9 @@ real_t KusudamaConstraint::angle_to_twist_center(Transform p_global_xform, Trans
 	}
 	Transform constraint_axes_global = p_global_xform * get_constraint_axes();
 	Transform to_set_global = p_global_xform * p_to_set;
-	IKQuat align_rot =
+	QuatIK align_rot =
 			constraint_axes_global.basis.get_rotation_quat().inverse() * to_set_global.basis.get_rotation_quat();
-	Vector<IKQuat> decomposition = align_rot.get_swing_twist(Vector3(0, 1, 0));
+	Vector<QuatIK> decomposition = align_rot.get_swing_twist(Vector3(0, 1, 0));
 	const int32_t axis_y = 1;
 	real_t angle_delta_2 = Basis(decomposition[1]).get_axis(axis_y).y * -1.0f;
 	angle_delta_2 = to_tau(angle_delta_2);

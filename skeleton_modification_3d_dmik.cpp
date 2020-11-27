@@ -750,7 +750,7 @@ void SkeletonModification3DDMIK::update_optimal_rotation_to_target_descendants(S
 		Ref<QCP> p_qcp_orientation_aligner, int p_iteration,
 		float p_total_iterations) {
 	p_qcp_orientation_aligner->set_max_iterations(10);
-	IKQuat qcp_rot = p_qcp_orientation_aligner->weighted_superpose(p_localized_effector_headings, p_localized_target_headings,
+	QuatIK qcp_rot = p_qcp_orientation_aligner->weighted_superpose(p_localized_effector_headings, p_localized_target_headings,
 			p_weights, p_is_translate);
 	Vector3 translate_by = p_qcp_orientation_aligner->get_translation();
 	float bone_damp = p_chain_item->cos_half_dampen;

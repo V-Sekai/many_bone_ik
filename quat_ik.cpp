@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "ik_quat.h"
+#include "quat_ik.h"
 
 class DirectionConstraint;
-Vector<IKQuat> IKQuat::get_swing_twist(Vector3 p_axis) {
+Vector<QuatIK> QuatIK::get_swing_twist(Vector3 p_axis) {
 	Vector3 euler = get_euler();
 	const real_t d = Vector3(
 			euler.x,
@@ -44,17 +44,17 @@ Vector<IKQuat> IKQuat::get_swing_twist(Vector3 p_axis) {
 		operator*(-1.0f);
 	}
 
-	IKQuat swing = IKQuat(-x, -y, -z, w);
+	QuatIK swing = QuatIK(-x, -y, -z, w);
 	swing = operator*(swing);
 
-	Vector<IKQuat> result;
+	Vector<QuatIK> result;
 	result.resize(2);
 	result.write[0] = swing;
-	result.write[1] = IKQuat(x, y, z, w);
+	result.write[1] = QuatIK(x, y, z, w);
 	return result;
 }
 
-void IKQuat::clamp_to_quadrance_angle(real_t p_cos_half_angle) {
+void QuatIK::clamp_to_quadrance_angle(real_t p_cos_half_angle) {
 	real_t new_coeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
 	real_t current_coeff = y * y + z * z + w * w;
 	if (new_coeff > current_coeff) {
@@ -68,7 +68,7 @@ void IKQuat::clamp_to_quadrance_angle(real_t p_cos_half_angle) {
 	}
 }
 
-void IKQuat::clamp_to_angle(real_t p_angle) {
+void QuatIK::clamp_to_angle(real_t p_angle) {
 	real_t cos_half_angle = Math::cos(0.5f * p_angle);
 	clamp_to_quadrance_angle(cos_half_angle);
 }
