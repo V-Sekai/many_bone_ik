@@ -113,21 +113,6 @@ public:
 		refreshPrecomputed();
 	}
 
-	DMIKTransform(const DMIKTransform &input) {
-		translate = input.translate;
-		xBase = translate;
-		yBase = translate;
-		zBase = translate;
-		xBase = Vector3(1, 0, 0);
-		yBase = Vector3(0, 1, 0);
-		zBase = Vector3(0, 0, 1);
-		Vector3 zero = translate;
-		zero = Vector3(0, 0, 0);
-		xRay = Ray(zero, xBase);
-		yRay = Ray(zero, yBase);
-		zRay = Ray(zero, zBase);
-	}
-
 	DMIKTransform(const Transform &input) {
 		translate = input.origin;
 		Vector3 x = input.basis.get_axis(0);
