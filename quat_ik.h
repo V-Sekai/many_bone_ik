@@ -37,30 +37,12 @@
 class QuatIK : public Quat {
 public:
 	Vector<QuatIK> get_swing_twist(Vector3 p_axis);
-
-	void clamp_to_quadrance_angle(float p_cos_half_angle);
-
-	void clamp_to_angle(float p_angle);
-
-	inline QuatIK(float p_x, float p_y, float p_z, float p_w) :
-			Quat(p_x,
-					p_y,
-					p_z,
-					p_w) {
-	}
-
-	QuatIK(Quat p_quat) {
-		x = p_quat.x;
-		y = p_quat.y;
-		z = p_quat.z;
-		w = p_quat.w;
-	}
-
-	QuatIK() {
-	}
-
-	~QuatIK() {
-	}
+	void clamp_to_quadrance_angle(real_t p_cos_half_angle);
+	void clamp_to_angle(real_t p_angle);
+	inline QuatIK(float p_x, float p_y, float p_z, float p_w);
+	QuatIK(Quat p_quat);
+	QuatIK();
+	~QuatIK();
 };
 
 #endif //GODOT_ANIMATION_UNIFIED_BEZIERS_IK_QUAT_H

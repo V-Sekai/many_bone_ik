@@ -31,13 +31,13 @@
 #include "quat_ik.h"
 
 class DirectionConstraint;
+
 Vector<QuatIK> QuatIK::get_swing_twist(Vector3 p_axis) {
 	Vector3 euler = get_euler();
 	const real_t d = Vector3(
 			euler.x,
 			euler.y,
-			euler.z)
-							 .dot(Vector3(p_axis.x, p_axis.y, p_axis.z));
+			euler.z).dot(Vector3(p_axis.x, p_axis.y, p_axis.z));
 	set(p_axis.x * d, p_axis.y * d, p_axis.z * d, w);
 	normalize();
 	if (d < 0) {
@@ -71,4 +71,24 @@ void QuatIK::clamp_to_quadrance_angle(real_t p_cos_half_angle) {
 void QuatIK::clamp_to_angle(real_t p_angle) {
 	real_t cos_half_angle = Math::cos(0.5f * p_angle);
 	clamp_to_quadrance_angle(cos_half_angle);
+}
+
+QuatIK::QuatIK() {
+}
+
+ QuatIK::QuatIK(Quat p_quat) {
+	x = p_quat.x;
+	y = p_quat.y;
+	z = p_quat.z;
+	w = p_quat.w;
+}
+
+ QuatIK::QuatIK(float p_x, float p_y, float p_z, float p_w) :
+		Quat(p_x,
+				p_y,
+				p_z,
+				p_w) {
+}
+
+QuatIK::~QuatIK() {
 }
