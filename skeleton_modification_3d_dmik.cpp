@@ -672,7 +672,8 @@ Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, S
 	if (!build_chain(task)) {
 		return NULL;
 	}
-	task->chain->chain_root->print_bone_chains(task->skeleton, task->chain->chain_root);
+	// Do not print
+	// task->chain->chain_root->print_bone_chains(task->skeleton, task->chain->chain_root);
 	return task;
 }
 
