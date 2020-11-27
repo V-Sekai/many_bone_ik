@@ -154,8 +154,6 @@ public:
 	void setToLocalOf(Ray in, Ray &out);
 	void setToLocalOf(DMIKTransform input, DMIKTransform &output);
 
-	void setToLocalOf(DMIKNode3D input, DMIKNode3D &output);
-
 	Ray getLocalOf(Ray in);
 	virtual Ref<DMIKNode3D> getLocalOf(Ref<DMIKNode3D> input);
 	;
@@ -230,7 +228,7 @@ public:
 		 * axes as the input's axes do to the input's parent axes.
 		 *
 		 * If the axes on which this function is called are orthonormal,
-		 * this function normalizes and orthogonalizes them regardless of whether the targetAxes are orthonormal.
+		 * this function normalizes and orthogonalized them regardless of whether the targetAxes are orthonormal.
 		 *
 		 * @param targetAxes the Axes to make this Axis identical to
 		 */
@@ -292,7 +290,7 @@ public:
 		 * if the input axes have have the same global
 		 * values as these axes, returns true, otherwise, returns false.
 		 *
-		 * This function is orthonormality aware. Meaning, if the orthonormality
+		 * This function is orthonormal aware. Meaning, if the orthonormal
 		 * constraint is enabled on either axes, that axes' orthonormal version
 		 * will be used in the comparison.
 		 * @param ax
