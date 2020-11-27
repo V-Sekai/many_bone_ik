@@ -53,6 +53,8 @@ class DMIKShadowSkeletonBone;
 
 // Skeleton data structure
 class DMIKSkeletonIKData : public Resource {
+	GDCLASS(DMIKSkeletonIKData, Resource);
+
 public:
 	// It holds a bunch of references to bones thing
 	// same index as the skeleton bone
