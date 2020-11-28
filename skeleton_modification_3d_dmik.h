@@ -36,10 +36,10 @@
 #include "scene/resources/skeleton_modification_3d.h"
 
 #include "bone_effector.h"
+#include "direction_constraint.h"
 #include "dmik_task.h"
 #include "kusudama_constraint.h"
 #include "qcp.h"
-#include "direction_constraint.h"
 #include "twist_constraint.h"
 
 class Skeleton3D;
@@ -189,8 +189,8 @@ public:
 	void set_stiffness(int32_t p_bone, float p_stiffness_scalar);
 	float get_height(int32_t p_bone) const;
 	void set_height(int32_t p_bone, float p_height);
-	Ref<KusudamaConstraint>get_constraint(int32_t p_bone) const;
-	void set_constraint(int32_t p_bone, Ref<KusudamaConstraint>p_constraint);
+	Ref<KusudamaConstraint> get_constraint(int32_t p_bone) const;
+	void set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint);
 	void init(Ref<SkeletonModification3DDMIK> p_mod);
 	~DMIKSkeletonIKState();
 

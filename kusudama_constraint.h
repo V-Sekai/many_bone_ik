@@ -43,7 +43,7 @@
 class DirectionConstraint;
 class DMIKShadowSkeletonBone;
 
-// Kusudama is a papercraft ball with a bunch of cones sticking out of it. The Kusudama constraint is also a ball with a bunch of cones sticking out of it.
+// Kusudama is a papercraft ball with a bunch of cones sticking out of it.
 class KusudamaConstraint : public Resource {
 	GDCLASS(KusudamaConstraint, Resource);
 
