@@ -297,7 +297,7 @@ public:
 		 */
 	bool equals(Ref<DMIKNode3D> ax);
 	virtual void axis_slip_warning(Ref<DMIKAxisDependency> globalPriorToSlipping, Ref<DMIKAxisDependency> globalAfterSlipping, Ref<DMIKAxisDependency> actualAxis);
-	virtual void axisSlipCompletionNotice(Ref<DMIKAxisDependency> globalPriorToSlipping, Ref<DMIKAxisDependency> globalAfterSlipping, Ref<DMIKAxisDependency> thisAxis);
+	virtual void axis_slip_completion_notice(Ref<DMIKAxisDependency> p_global_prior_to_slipping, Ref<DMIKAxisDependency> p_global_after_slipping, Ref<DMIKAxisDependency> p_this_axis);
 	void slipTo(Ref<DMIKNode3D> newAxisGlobal);
 	void slipTo(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn);
 	// void notifyDependentsOfSlip(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn);

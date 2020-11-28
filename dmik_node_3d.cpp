@@ -516,7 +516,7 @@ void DMIKNode3D::axis_slip_warning(Ref<DMIKAxisDependency> p_global_prior_to_sli
 	}
 }
 
-void DMIKNode3D::axisSlipCompletionNotice(Ref<DMIKAxisDependency> globalPriorToSlipping, Ref<DMIKAxisDependency> globalAfterSlipping, Ref<DMIKAxisDependency> thisAxis) {
+void DMIKNode3D::axis_slip_completion_notice(Ref<DMIKAxisDependency> p_global_prior_to_slipping, Ref<DMIKAxisDependency> p_global_after_slipping, Ref<DMIKAxisDependency> p_this_axis) {
 }
 
 void DMIKNode3D::slipTo(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn) {

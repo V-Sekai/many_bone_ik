@@ -8,7 +8,7 @@ class DMIKAxisDependency : public Reference {
 public:
 	virtual void emancipate(){};
 	virtual void axis_slip_warning(Ref<DMIKAxisDependency> p_global_prior_to_slipping, Ref<DMIKAxisDependency> p_global_after_slipping, Ref<DMIKAxisDependency> p_this_axis){};
-	virtual void axisSlipCompletionNotice(Ref<DMIKAxisDependency> globalPriorToSlipping, Ref<DMIKAxisDependency> globalAfterSlipping, Ref<DMIKAxisDependency> thisAxis){};
+	virtual void axis_slip_completion_notice(Ref<DMIKAxisDependency> p_global_prior_to_slipping, Ref<DMIKAxisDependency> p_global_after_slipping, Ref<DMIKAxisDependency> p_this_axis){};
 	virtual void parent_change_warning(Ref<DMIKAxisDependency> p_warning_by, Ref<DMIKAxisDependency> p_old_parent, Ref<DMIKAxisDependency> p_intended_parent, Object p_requested_by){};
 	virtual void parent_change_completion_notice(Ref<DMIKAxisDependency> p_warning_by, Ref<DMIKAxisDependency> p_old_parent, Ref<DMIKAxisDependency> p_intended_parent, Object p_requested_by){};
 	virtual void mark_dirty(){};
