@@ -36,38 +36,18 @@
 #include "scene/3d/skeleton_3d.h"
 
 void SkeletonModification3DDMIK::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_constraint_count", "constraint_count"),
-			&SkeletonModification3DDMIK::set_constraint_count);
-	ClassDB::bind_method(D_METHOD("get_constraint_count"), &SkeletonModification3DDMIK::get_constraint_count);
 	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3DDMIK::get_effector_count);
 	ClassDB::bind_method(D_METHOD("set_effector_count", "count"),
 			&SkeletonModification3DDMIK::set_effector_count);
 	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node", "target_transform", "budget"), &SkeletonModification3DDMIK::add_effector);
 	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3DDMIK::get_effector);
-	ClassDB::bind_method(D_METHOD("get_constraint", "index"), &SkeletonModification3DDMIK::get_constraint);
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DDMIK::set_effector);
-	ClassDB::bind_method(D_METHOD("set_constraint", "index", "constraint"), &SkeletonModification3DDMIK::set_constraint);
-
 	ClassDB::bind_method(D_METHOD("set_skeleton_ik_data", "skeleton_ik_data"), &SkeletonModification3DDMIK::set_skeleton_ik_data);
 	ClassDB::bind_method(D_METHOD("get_skeleton_ik_data"), &SkeletonModification3DDMIK::get_skeleton_ik_state);
 }
 
 void SkeletonModification3DDMIK::_get_property_list(List<PropertyInfo> *p_list) const {
-	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
-	for (int i = 0; i < constraint_count; i++) {
-		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(i) + "/name"));
-		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_min_angle"));
-		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_range"));
-		p_list->push_back(PropertyInfo(Variant::INT, "kusudama_constraints/" + itos(i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
-		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "kusudama_constraints/" + itos(i) + "/constraint_axes"));
-		ERR_CONTINUE(get_constraint(i).is_null());
-		for (int j = 0; j < get_constraint(i)->get_direction_count(); j++) {
-			p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/direction" + "/" + itos(j) + "/radius", PROPERTY_HINT_RANGE, "0,65535,or_greater"));
-			p_list->push_back(PropertyInfo(Variant::VECTOR3, "kusudama_constraints/" + itos(i) + "/direction" + "/" + itos(j) + "/control_point"));
-		}
-	}
-
 	for (int i = 0; i < effector_count; i++) {
 		p_list->push_back(PropertyInfo(Variant::STRING, "effectors/" + itos(i) + "/name"));
 		p_list->push_back(
@@ -91,9 +71,6 @@ bool SkeletonModification3DDMIK::_get(const StringName &p_name, Variant &r_ret) 
 	} else if (name == "state") {
 		r_ret = get_skeleton_ik_state();
 		return true;
-	} else if (name == "constraint_count") {
-		r_ret = get_constraint_count();
-		return true;
 	} else if (name == "effector_count") {
 		r_ret = get_effector_count();
 		return true;
@@ -115,44 +92,6 @@ bool SkeletonModification3DDMIK::_get(const StringName &p_name, Variant &r_ret) 
 			r_ret = get_effector(index)->get_budget_ms();
 			return true;
 		}
-	} else if (name.begins_with("kusudama_constraints/")) {
-		int index = name.get_slicec('/', 1).to_int();
-		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, get_constraint_count(), false);
-		ERR_FAIL_COND_V(get_constraint(index).is_null(), false);
-		if (what == "name") {
-			r_ret = get_constraint(index)->get_name();
-			return true;
-		} else if (what == "twist_min_angle") {
-			r_ret = get_constraint(index)->get_twist_constraint()->get_min_twist_angle();
-			return true;
-		} else if (what == "twist_range") {
-			r_ret = get_constraint(index)->get_twist_constraint()->get_range();
-			return true;
-		} else if (what == "limiting") {
-			r_ret = get_constraint(index)->get_twist_constraint()->get_range();
-			return true;
-		} else if (what == "direction_count") {
-			r_ret = get_constraint(index)->get_direction_count();
-			return true;
-		} else if (what == "constraint_axes") {
-			r_ret = get_constraint(index)->get_constraint_axes();
-			return true;
-		} else if (what == "direction") {
-			int direction_index = name.get_slicec('/', 3).to_int();
-			ERR_FAIL_INDEX_V(direction_index, get_constraint(index)->get_direction_count(), false);
-			if (get_constraint(index)->get_direction(direction_index).is_null()) {
-				return false;
-			}
-			String direction_what = name.get_slicec('/', 4);
-			if (direction_what == "radius") {
-				r_ret = get_constraint(index)->get_direction(direction_index)->get_radius();
-				return true;
-			} else if (direction_what == "control_point") {
-				r_ret = get_constraint(index)->get_direction(direction_index)->get_control_point();
-				return true;
-			}
-		}
 	}
 	return false;
 }
@@ -165,9 +104,6 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 		return true;
 	} else if (name == "state") {
 		set_skeleton_ik_data(p_value);
-		return true;
-	} else if (name == "constraint_count") {
-		set_constraint_count(p_value);
 		return true;
 	} else if (name == "effector_count") {
 		set_effector_count(p_value);
@@ -200,69 +136,8 @@ bool SkeletonModification3DDMIK::_set(const StringName &p_name, const Variant &p
 			_change_notify();
 			return true;
 		}
-	} else if (name.begins_with("kusudama_constraints/")) {
-		int index = name.get_slicec('/', 1).to_int();
-		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, multi_constraint.size(), false);
-		Ref<KusudamaConstraint> constraint = multi_constraint[index];
-		if (constraint.is_null()) {
-			constraint.instance();
-			set_constraint(index, constraint);
-		}
-		if (what == "name") {
-			constraint->set_name(p_value);
-			_change_notify();
-			return true;
-		} else if (what == "twist_min_angle") {
-			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
-			twist->set_min_twist_angle(p_value);
-			constraint->set_twist_constraint(twist);
-			_change_notify();
-			return true;
-		} else if (what == "twist_range") {
-			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
-			twist->set_range(p_value);
-			constraint->set_twist_constraint(twist);
-			_change_notify();
-			return true;
-		} else if (what == "constraint_axes") {
-			constraint->set_constraint_axes(p_value);
-			_change_notify();
-			return true;
-		} else if (what == "direction_count") {
-			constraint->set_direction_count(p_value);
-			_change_notify();
-			return true;
-		} else if (what == "direction") {
-			int direction_index = name.get_slicec('/', 3).to_int();
-			ERR_FAIL_INDEX_V(direction_index, constraint->get_direction_count(), false);
-			Ref<DirectionConstraint> direction = constraint->get_direction(direction_index);
-			if (direction.is_null()) {
-				direction.instance();
-				constraint->set_direction(direction_index, direction);
-			}
-			String direction_what = name.get_slicec('/', 4);
-			if (direction_what == "radius") {
-				direction->set_radius(p_value);
-				_change_notify();
-			} else if (direction_what == "control_point") {
-				direction->set_control_point(p_value);
-				// TODO
-				// constraint->optimize_limiting_axes();
-				_change_notify();
-			} else {
-				return false;
-			}
-			return true;
-		}
 	}
 	return false;
-}
-
-Ref<KusudamaConstraint> SkeletonModification3DDMIK::get_constraint(int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_index, multi_constraint.size(), Ref<KusudamaConstraint>());
-	ERR_FAIL_COND_V(multi_constraint[p_index].is_null(), Ref<KusudamaConstraint>());
-	return multi_constraint[p_index];
 }
 
 String SkeletonModification3DDMIK::get_root_bone() const {
@@ -277,23 +152,9 @@ SkeletonModification3DDMIK::SkeletonModification3DDMIK() {
 	enabled = true;
 	qcp_convergence_check.instance();
 	qcp_convergence_check->set_precision(FLT_EPSILON, FLT_EPSILON);
-	skeleton_ik_state.instance();
 }
 
 SkeletonModification3DDMIK::~SkeletonModification3DDMIK() {
-}
-
-int32_t SkeletonModification3DDMIK::find_constraint(String p_name) {
-	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
-		Ref<KusudamaConstraint> constraint = get_constraint(constraint_i);
-		if (constraint.is_null()) {
-			continue;
-		}
-		if (constraint->get_name() == p_name) {
-			return constraint_i;
-		}
-	}
-	return -1;
 }
 
 void SkeletonModification3DDMIK::set_effector_count(int32_t p_value) {
@@ -319,12 +180,6 @@ void SkeletonModification3DDMIK::set_effector(int32_t p_index, Ref<DMIKBoneEffec
 	_change_notify();
 }
 
-void SkeletonModification3DDMIK::set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint) {
-	ERR_FAIL_INDEX(p_index, multi_constraint.size());
-	multi_constraint.write[p_index] = p_constraint;
-	_change_notify();
-}
-
 Vector<Ref<DMIKBoneEffector>> SkeletonModification3DDMIK::get_bone_effectors() const {
 	return multi_effector;
 }
@@ -342,19 +197,6 @@ void SkeletonModification3DDMIK::remove_effector(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.remove(p_index);
 	effector_count--;
-	_change_notify();
-}
-
-int32_t SkeletonModification3DDMIK::get_constraint_count() const {
-	return constraint_count;
-}
-
-void SkeletonModification3DDMIK::set_constraint_count(int32_t p_value) {
-	multi_constraint.resize(p_value);
-	for (int32_t i = 0; i < p_value; i++) {
-		multi_constraint.write[i].instance();
-	}
-	constraint_count = p_value;
 	_change_notify();
 }
 
@@ -397,7 +239,8 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 		chain_item->bone = _bone;
 		Ref<DMIKShadowSkeletonBone> bone_chain;
 		bone_chain.instance();
-		bone_chain->init(skeleton, Ref<SkeletonModification3DDMIK>(this), multi_effector, bone_chain, nullptr, chain_item);
+		Ref<SkeletonModification3DDMIK> mod = this;
+		bone_chain->init(skeleton, mod, multi_effector, bone_chain, nullptr, chain_item);
 		Vector<String> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
 		set_effector_count(0);
 		for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
@@ -405,6 +248,8 @@ void SkeletonModification3DDMIK::setup_modification(SkeletonModificationStack3D 
 		}
 		register_constraint(skeleton);
 	}
+	skeleton_ik_state.instance();
+	skeleton_ik_state->init(this);
 	task = create_simple_task(skeleton, root_bone, -1.0f, 10.0f, this);
 	is_setup = true;
 }
@@ -513,7 +358,7 @@ void SkeletonModification3DDMIK::register_constraint(Skeleton3D *p_skeleton) {
 		constraint.instance();
 		String bone_name = p_skeleton->get_bone_name(bone_i);
 		constraint->set_name(bone_name);
-		multi_constraint.push_back(constraint);
+		skeleton_ik_state->set_constraint(bone_i, constraint);
 		constraint_count++;
 	}
 	_change_notify();
@@ -609,7 +454,7 @@ bool SkeletonModification3DDMIK::build_chain(Ref<DMIKTask> p_task) {
 	ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
 	Ref<DMIKShadowSkeletonBone> chain = p_task->chain;
 	chain->chain_root = chain;
-	chain->constraints = p_task->dmik;
+	chain->mod = p_task->dmik;
 	chain->bone = p_task->root_bone;
 	chain->init(p_task->skeleton, p_task->dmik, p_task->dmik->multi_effector, chain, nullptr, chain);
 	chain->filter_and_merge_child_chains();
@@ -658,12 +503,9 @@ Ref<DMIKTask> SkeletonModification3DDMIK::create_simple_task(Skeleton3D *p_sk, S
 	ERR_FAIL_COND_V(p_constraints.is_null(), NULL);
 	{
 		Ref<KusudamaConstraint> constraint;
-		constraint.instance();
+		constraint.instance();		;
 		constraint->set_name(p_sk->get_bone_name(task->root_bone));
-		if (!p_constraints->get_constraint_count()) {
-			p_constraints->set_constraint_count(1);
-		}
-		p_constraints->set_constraint(0, constraint);
+		p_constraints->skeleton_ik_state->set_constraint(0, constraint);
 	}
 	task->dampening = p_dampening;
 	task->stabilizing_passes = p_stabilizing_passes;
@@ -715,8 +557,8 @@ void SkeletonModification3DDMIK::solve(Ref<DMIKTask> p_task, float blending_delt
 		}
 		node_xform = node_xform * effector->get_target_transform();
 		ee->goal_transform = node_xform;
-		int32_t constraint_i = p_task->dmik->find_constraint(effector->get_name());
-		Ref<KusudamaConstraint> constraint = p_task->dmik->get_constraint(constraint_i);
+		int32_t constraint_i = p_task->dmik->get_modification_stack()->get_skeleton()->find_bone(effector->get_name());
+		Ref<KusudamaConstraint> constraint = p_task->dmik->skeleton_ik_state->get_constraint(constraint_i);
 		if (constraint.is_null()) {
 			continue;
 		}
@@ -1189,4 +1031,209 @@ float DMIKShadowSkeletonBone::get_bone_height() const {
 
 void DMIKShadowSkeletonBone::set_bone_height(const float p_bone_height) {
 	bone_height = p_bone_height;
+}
+
+float DMIKSkeletonIKState::get_stiffness(int32_t p_bone) const {
+	ERR_FAIL_COND_V(!skeleton, -1);
+	Dictionary meta = skeleton->get_bone_meta(p_bone);
+	if (!meta.has("stiffness")) {
+		return -1;
+	}
+	return meta["stiffness"];
+}
+
+void DMIKSkeletonIKState::set_stiffness(int32_t p_bone, float p_stiffness_scalar) {
+	ERR_FAIL_COND(!skeleton);
+	Dictionary meta = skeleton->get_bone_meta(p_bone);
+	meta["stiffness"] = p_stiffness_scalar;
+}
+
+float DMIKSkeletonIKState::get_height(int32_t p_bone) const {
+	ERR_FAIL_COND_V(!skeleton, -1);
+	Dictionary meta = skeleton->get_bone_meta(p_bone);
+	if (!meta.has("height")) {
+		return -1;
+	}
+	return meta["height"];
+}
+
+void DMIKSkeletonIKState::set_height(int32_t p_bone, float p_height) {
+	ERR_FAIL_COND(!skeleton);
+	Dictionary meta = skeleton->get_bone_meta(p_bone);
+	meta["height"] = p_height;
+}
+
+Ref<KusudamaConstraint> DMIKSkeletonIKState::get_constraint(int32_t p_bone) const {
+	ERR_FAIL_COND_V(!skeleton, nullptr);
+	Dictionary meta = skeleton->get_bone_meta(p_bone);
+	if (!meta.has("kusudama")) {
+		return nullptr;
+	}
+	return meta["kusudama"];
+}
+
+void DMIKSkeletonIKState::set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint) {
+	ERR_FAIL_COND(!skeleton);
+	Dictionary meta = skeleton->get_bone_meta(p_bone);
+	meta["kusudama"] = p_constraint;
+}
+
+void DMIKSkeletonIKState::init(Ref<SkeletonModification3DDMIK> p_mod) {
+	ERR_FAIL_COND(p_mod.is_null());
+	mod = p_mod;
+	Ref<SkeletonModificationStack3D> stack = p_mod->get_modification_stack();
+	ERR_FAIL_COND(stack.is_null());
+	Node *node = stack->get_skeleton()->duplicate();
+	skeleton = Object::cast_to<Skeleton3D>(node);
+	ERR_FAIL_COND(!skeleton);
+	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
+		Dictionary meta = skeleton->get_bone_meta(bone_i);
+		meta["stiffness"] = -1;
+		meta["height"] = -1;
+		Ref<KusudamaConstraint> constraint;
+		constraint.instance();
+		constraint->set_name(skeleton->get_bone_name(bone_i));
+		meta["kusudama"] = constraint;
+		skeleton->set_bone_meta(bone_i, meta);
+	}
+}
+
+DMIKSkeletonIKState::~DMIKSkeletonIKState() {
+	if (skeleton) {
+		skeleton->queue_delete();
+	}
+}
+
+void DMIKSkeletonIKState::_get_property_list(List<PropertyInfo> *p_list) const {
+	ERR_FAIL_COND(!skeleton);
+	for (int i = 0; i < skeleton->get_bone_count(); i++) {
+		Dictionary meta = skeleton->get_bone_meta(i);
+		Ref<KusudamaConstraint> kusudama = meta["kusudama"];
+		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(i) + "/name"));
+		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_min_angle"));
+		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_range"));
+		p_list->push_back(PropertyInfo(Variant::INT, "kusudama_constraints/" + itos(i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
+		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "kusudama_constraints/" + itos(i) + "/constraint_axes"));
+		if (kusudama.is_null()) {
+			continue;
+		}
+		for (int j = 0; j < kusudama->get_direction_count(); j++) {
+			p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/direction" + "/" + itos(j) + "/radius", PROPERTY_HINT_RANGE, "0,65535,or_greater"));
+			p_list->push_back(PropertyInfo(Variant::VECTOR3, "kusudama_constraints/" + itos(i) + "/direction" + "/" + itos(j) + "/control_point"));
+		}
+	}
+}
+
+bool DMIKSkeletonIKState::_get(const StringName &p_name, Variant &r_ret) const {
+	String name = p_name;
+	if (name.begins_with("kusudama_constraints/")) {
+		ERR_FAIL_COND_V(!skeleton, false);
+		int index = name.get_slicec('/', 1).to_int();
+		ERR_FAIL_INDEX_V(index, skeleton->get_bone_count(), false);
+		Dictionary meta = skeleton->get_bone_meta(index);
+		String what = name.get_slicec('/', 2);
+		Ref<KusudamaConstraint> kusudama = meta["kusudama"];
+		if (kusudama.is_null()) {
+			kusudama.instance();
+			meta["kusudama"] = kusudama;
+		}
+		if (what == "name") {
+			r_ret = kusudama->get_name();
+			return true;
+		} else if (what == "twist_min_angle") {
+			r_ret = kusudama->get_twist_constraint()->get_min_twist_angle();
+			return true;
+		} else if (what == "twist_range") {
+			r_ret = kusudama->get_twist_constraint()->get_range();
+			return true;
+		} else if (what == "limiting") {
+			r_ret = kusudama->get_twist_constraint()->get_range();
+			return true;
+		} else if (what == "direction_count") {
+			r_ret = kusudama->get_direction_count();
+			return true;
+		} else if (what == "constraint_axes") {
+			r_ret = kusudama->get_constraint_axes();
+			return true;
+		} else if (what == "direction") {
+			int direction_index = name.get_slicec('/', 3).to_int();
+			ERR_FAIL_INDEX_V(direction_index, kusudama->get_direction_count(), false);
+			Ref<DirectionConstraint> direction = kusudama->get_direction(direction_index);
+			if (direction.is_null()) {
+				return false;
+			}
+			String direction_what = name.get_slicec('/', 4);
+			if (direction_what == "radius") {
+				r_ret = direction->get_radius();
+				return true;
+			} else if (direction_what == "control_point") {
+				r_ret = direction->get_control_point();
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool DMIKSkeletonIKState::_set(const StringName &p_name, const Variant &p_value) {
+	String name = p_name;
+	if (name.begins_with("kusudama_constraints/")) {
+		ERR_FAIL_COND_V(!skeleton, false);
+		int index = name.get_slicec('/', 1).to_int();
+		String what = name.get_slicec('/', 2);
+		ERR_FAIL_INDEX_V(index, skeleton->get_bone_count(), false);
+		Dictionary meta = skeleton->get_bone_meta(index);
+		Ref<KusudamaConstraint> constraint = meta["kusudama"];
+		if (constraint.is_null()) {
+			constraint.instance();
+			meta["kusudama"] = constraint;
+		}
+		if (what == "name") {
+			constraint->set_name(p_value);
+			_change_notify();
+			return true;
+		} else if (what == "twist_min_angle") {
+			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
+			twist->set_min_twist_angle(p_value);
+			constraint->set_twist_constraint(twist);
+			_change_notify();
+			return true;
+		} else if (what == "twist_range") {
+			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
+			twist->set_range(p_value);
+			constraint->set_twist_constraint(twist);
+			_change_notify();
+			return true;
+		} else if (what == "constraint_axes") {
+			constraint->set_constraint_axes(p_value);
+			_change_notify();
+			return true;
+		} else if (what == "direction_count") {
+			constraint->set_direction_count(p_value);
+			_change_notify();
+			return true;
+		} else if (what == "direction") {
+			int direction_index = name.get_slicec('/', 3).to_int();
+			ERR_FAIL_INDEX_V(direction_index, constraint->get_direction_count(), false);
+			Ref<DirectionConstraint> direction = constraint->get_direction(direction_index);
+			if (direction.is_null()) {
+				direction.instance();
+				constraint->set_direction(direction_index, direction);
+			}
+			String direction_what = name.get_slicec('/', 4);
+			if (direction_what == "radius") {
+				direction->set_radius(p_value);
+				_change_notify();
+			} else if (direction_what == "control_point") {
+				direction->set_control_point(p_value);
+				// TODO
+				// constraint->optimize_limiting_axes();
+				_change_notify();
+			} else {
+				return false;
+			}
+			return true;
+		}
+	}
+	return false;
 }

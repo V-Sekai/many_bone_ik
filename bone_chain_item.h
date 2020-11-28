@@ -59,7 +59,7 @@ public:
 	Vector<Vector3> localized_target_headings;
 	Vector<Vector3> localized_effector_headings;
 	Vector<real_t> weights;
-	Ref<SkeletonModification3DDMIK> constraints = nullptr;
+	Ref<SkeletonModification3DDMIK> mod = nullptr;
 	float dampening = Math::deg2rad(5.0f);
 	Map<int, Ref<DMIKShadowSkeletonBone>> bone_segment_map;
 	// TODO expose through ui
@@ -121,7 +121,7 @@ public:
 	bool is_chain_active() const;
 	Vector<Ref<DMIKShadowSkeletonBone>> get_child_chains();
 	Vector<Ref<DMIKShadowSkeletonBone>> get_bones();
-	void init(Skeleton3D *p_skeleton, Ref<SkeletonModification3DDMIK> p_constraints, Vector<Ref<DMIKBoneEffector>> p_multi_effector, Ref<DMIKShadowSkeletonBone> p_chain, Ref<DMIKShadowSkeletonBone> p_parent_chain, Ref<DMIKShadowSkeletonBone> p_base_bone);
+	void init(Skeleton3D *p_skeleton, Ref<SkeletonModification3DDMIK> p_mod, Vector<Ref<DMIKBoneEffector>> p_multi_effector, Ref<DMIKShadowSkeletonBone> p_chain, Ref<DMIKShadowSkeletonBone> p_parent_chain, Ref<DMIKShadowSkeletonBone> p_base_bone);
 	/**sets this bone chain and all of its ancestors to active */
 	void set_active();
 	/**

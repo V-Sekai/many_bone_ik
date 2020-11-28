@@ -31,56 +31,35 @@
 #ifndef MULTI_CONSTRAINT_H
 #define MULTI_CONSTRAINT_H
 
-#include "core/os/memory.h"
 #include "core/object/reference.h"
+#include "core/os/memory.h"
 #include "scene/resources/skeleton_modification_3d.h"
 
 #include "bone_effector.h"
 #include "dmik_task.h"
 #include "kusudama_constraint.h"
 #include "qcp.h"
+#include "direction_constraint.h"
+#include "twist_constraint.h"
 
 class Skeleton3D;
 class PhysicalBone3D;
 class DMIKBoneChainTarget;
 class SkeletonModification3DDMIK;
-class KusudamaConstraint;
 class DMIKBoneChainTarget;
-class SkeletonModification3DDMIK;
 class DMIKBoneEffector;
 class Skeleton3D;
 class DMIKShadowSkeletonBone;
-
-// Skeleton data structure
-class DMIKSkeletonIKState : public Resource {
-	GDCLASS(DMIKSkeletonIKState, Resource);
-
-public:
-	// It holds a bunch of references to bones thing
-	// same index as the skeleton bone
-	// ik info object.
-	// ik data has:
-	// kusudama
-	// all of the bone attributes
-	// stiffness
-	// float stiffnessScalar = 0.0f;
-	// float get_stiffness() const {
-	// 	return stiffnessScalar;
-	// }
-
-	// void set_stiffness(float p_stiffness_scalar) {
-	// 	stiffnessScalar = p_stiffness_scalar;
-	// }
-	// height
-	// references to children and parent
-	// properties of bones. set and gets
-};
+class SkeletonModificationStack3D;
+class DMIKSkeletonIKState;
+class DirectionConstraint;
+class TwistConstraint;
+class KusudamaConstraint;
 
 class SkeletonModification3DDMIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DDMIK, SkeletonModification3D);
 
 	Vector<Ref<DMIKBoneEffector>> multi_effector;
-	Vector<Ref<KusudamaConstraint>> multi_constraint;
 	Ref<DMIKSkeletonIKState> skeleton_ik_state;
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
@@ -88,8 +67,6 @@ class SkeletonModification3DDMIK : public SkeletonModification3D {
 	String root_bone;
 	int32_t default_stabilizing_pass_count = 4;
 	Ref<QCP> qcp_convergence_check;
-
-private:
 	inline static const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
 	inline static const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
 	inline static const Vector3 z_orientation = Vector3(0.0f, 0.0f, 1.0f);
@@ -112,18 +89,13 @@ public:
 	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<DMIKShadowSkeletonBone> p_current_chain);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);
-	void set_constraint_count(int32_t p_value);
-	int32_t get_constraint_count() const;
 	Vector<Ref<DMIKBoneEffector>> get_bone_effectors() const;
 	int32_t find_effector(String p_name);
 	void remove_effector(int32_t p_index);
-	int32_t find_constraint(String p_name);
 	void set_effector_count(int32_t p_value);
 	int32_t get_effector_count() const;
 	Ref<DMIKBoneEffector> get_effector(int32_t p_index) const;
 	void set_effector(int32_t p_index, Ref<DMIKBoneEffector> p_effector);
-	void set_constraint(int32_t p_index, Ref<KusudamaConstraint> p_constraint);
-	Ref<KusudamaConstraint> get_constraint(int32_t p_index) const;
 	String get_root_bone() const;
 	void set_root_bone(String p_root_bone);
 	SkeletonModification3DDMIK();
@@ -201,5 +173,30 @@ public:
 			Ref<SkeletonModification3DDMIK> p_constraints = NULL);
 	static void solve(Ref<DMIKTask> p_task, float blending_delta);
 };
+// Skeleton data structure
+class DMIKSkeletonIKState : public Resource {
+	GDCLASS(DMIKSkeletonIKState, Resource);
+	friend class SkeletonModification3DDMIK;
+	Ref<SkeletonModification3DDMIK> mod;
+	Skeleton3D *skeleton = nullptr;
 
+public:
+	// It holds a bunch of references to bones thing
+	// same index as the skeleton bone
+	// ik info object.
+	// ik data has:
+	float get_stiffness(int32_t p_bone) const;
+	void set_stiffness(int32_t p_bone, float p_stiffness_scalar);
+	float get_height(int32_t p_bone) const;
+	void set_height(int32_t p_bone, float p_height);
+	Ref<KusudamaConstraint>get_constraint(int32_t p_bone) const;
+	void set_constraint(int32_t p_bone, Ref<KusudamaConstraint>p_constraint);
+	void init(Ref<SkeletonModification3DDMIK> p_mod);
+	~DMIKSkeletonIKState();
+
+protected:
+	void _get_property_list(List<PropertyInfo> *p_list) const;
+	bool _get(const StringName &p_name, Variant &r_ret) const;
+	bool _set(const StringName &p_name, const Variant &p_value);
+};
 #endif //MULTI_CONSTRAINT_H
