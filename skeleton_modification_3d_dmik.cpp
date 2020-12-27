@@ -1034,48 +1034,38 @@ void DMIKShadowSkeletonBone::set_bone_height(const float p_bone_height) {
 }
 
 float DMIKSkeletonIKState::get_stiffness(int32_t p_bone) const {
-	ERR_FAIL_COND_V(!skeleton, -1);
-	Dictionary meta = skeleton->get_bone_meta(p_bone);
-	if (!meta.has("stiffness")) {
-		return -1;
-	}
-	return meta["stiffness"];
+	ERR_FAIL_COND_V(!skeleton, 0);
+	ERR_FAIL_INDEX_V(p_bone, skeleton->get_bone_count(), 0);
+	return skeleton->get_bone_meta(p_bone, "stiffness");
 }
 
 void DMIKSkeletonIKState::set_stiffness(int32_t p_bone, float p_stiffness_scalar) {
 	ERR_FAIL_COND(!skeleton);
-	Dictionary meta = skeleton->get_bone_meta(p_bone);
-	meta["stiffness"] = p_stiffness_scalar;
+	skeleton->set_bone_meta(p_bone, "stiffness", p_stiffness_scalar);
 }
 
 float DMIKSkeletonIKState::get_height(int32_t p_bone) const {
 	ERR_FAIL_COND_V(!skeleton, -1);
-	Dictionary meta = skeleton->get_bone_meta(p_bone);
-	if (!meta.has("height")) {
-		return -1;
-	}
-	return meta["height"];
+	ERR_FAIL_INDEX_V(p_bone, skeleton->get_bone_count(), -1);
+	return skeleton->get_bone_meta(p_bone, "height");
 }
 
 void DMIKSkeletonIKState::set_height(int32_t p_bone, float p_height) {
 	ERR_FAIL_COND(!skeleton);
-	Dictionary meta = skeleton->get_bone_meta(p_bone);
-	meta["height"] = p_height;
+	ERR_FAIL_INDEX(p_bone, skeleton->get_bone_count());
+	skeleton->set_bone_meta(p_bone, "height", p_height);
 }
 
 Ref<KusudamaConstraint> DMIKSkeletonIKState::get_constraint(int32_t p_bone) const {
 	ERR_FAIL_COND_V(!skeleton, nullptr);
-	Dictionary meta = skeleton->get_bone_meta(p_bone);
-	if (!meta.has("kusudama")) {
-		return nullptr;
-	}
-	return meta["kusudama"];
+	ERR_FAIL_INDEX_V(p_bone, skeleton->get_bone_count(), nullptr);
+	return skeleton->get_bone_meta(p_bone, "kusudama");
 }
 
 void DMIKSkeletonIKState::set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint) {
 	ERR_FAIL_COND(!skeleton);
-	Dictionary meta = skeleton->get_bone_meta(p_bone);
-	meta["kusudama"] = p_constraint;
+	ERR_FAIL_INDEX(p_bone, skeleton->get_bone_count());
+	skeleton->set_bone_meta(p_bone, "kususdama", p_constraint);
 }
 
 void DMIKSkeletonIKState::init(Ref<SkeletonModification3DDMIK> p_mod) {
@@ -1087,14 +1077,12 @@ void DMIKSkeletonIKState::init(Ref<SkeletonModification3DDMIK> p_mod) {
 	skeleton = Object::cast_to<Skeleton3D>(node);
 	ERR_FAIL_COND(!skeleton);
 	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-		Dictionary meta = skeleton->get_bone_meta(bone_i);
-		meta["stiffness"] = -1;
-		meta["height"] = -1;
+		skeleton->set_bone_meta(bone_i, "stiffness", -1);		
+		skeleton->set_bone_meta(bone_i, "height", -1);
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
 		constraint->set_name(skeleton->get_bone_name(bone_i));
-		meta["kusudama"] = constraint;
-		skeleton->set_bone_meta(bone_i, meta);
+		skeleton->set_bone_meta(bone_i, "kusudama", constraint);
 	}
 }
 
@@ -1107,8 +1095,7 @@ DMIKSkeletonIKState::~DMIKSkeletonIKState() {
 void DMIKSkeletonIKState::_get_property_list(List<PropertyInfo> *p_list) const {
 	ERR_FAIL_COND(!skeleton);
 	for (int i = 0; i < skeleton->get_bone_count(); i++) {
-		Dictionary meta = skeleton->get_bone_meta(i);
-		Ref<KusudamaConstraint> kusudama = meta["kusudama"];
+		Ref<KusudamaConstraint> kusudama = skeleton->get_bone_meta(i, "kusudama");
 		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(i) + "/name"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_min_angle"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_range"));
@@ -1130,12 +1117,11 @@ bool DMIKSkeletonIKState::_get(const StringName &p_name, Variant &r_ret) const {
 		ERR_FAIL_COND_V(!skeleton, false);
 		int index = name.get_slicec('/', 1).to_int();
 		ERR_FAIL_INDEX_V(index, skeleton->get_bone_count(), false);
-		Dictionary meta = skeleton->get_bone_meta(index);
 		String what = name.get_slicec('/', 2);
-		Ref<KusudamaConstraint> kusudama = meta["kusudama"];
+		Ref<KusudamaConstraint> kusudama = skeleton->get_bone_meta(index, "kusudama");
 		if (kusudama.is_null()) {
 			kusudama.instance();
-			meta["kusudama"] = kusudama;
+			skeleton->set_bone_meta(index, "kusudama", kusudama);
 		}
 		if (what == "name") {
 			r_ret = kusudama->get_name();
@@ -1182,12 +1168,9 @@ bool DMIKSkeletonIKState::_set(const StringName &p_name, const Variant &p_value)
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, skeleton->get_bone_count(), false);
-		Dictionary meta = skeleton->get_bone_meta(index);
-		Ref<KusudamaConstraint> constraint = meta["kusudama"];
-		if (constraint.is_null()) {
-			constraint.instance();
-			meta["kusudama"] = constraint;
-		}
+		Ref<KusudamaConstraint> constraint;
+		constraint.instance();
+		skeleton->set_bone_meta(index, "kusudama", constraint);
 		if (what == "name") {
 			constraint->set_name(p_value);
 			_change_notify();
