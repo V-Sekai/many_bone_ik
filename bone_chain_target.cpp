@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "skeleton_modification_3d_dmik.h"
+#include "skeleton_modification_3d_ewbik.h"
 #include "bone_chain_target.h"
 
 void DMIKBoneChainTarget::set_target_priorities(float p_x_priority, float p_y_priority, float p_z_priority) {
@@ -82,7 +82,7 @@ void DMIKBoneChainTarget::toggle() {
 	}
 }
 
- DMIKBoneChainTarget::DMIKBoneChainTarget(Ref<DMIKShadowSkeletonBone> p_chain_item, const Ref<DMIKBoneEffectorTransform> p_end_effector, bool p_enabled) {
+ DMIKBoneChainTarget::DMIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled) {
 	enabled = p_enabled;
 	set_target_priorities(x_priority, y_priority, z_priority);
 }
@@ -92,7 +92,7 @@ void DMIKBoneChainTarget::toggle() {
 		end_effector(p_other_ct->end_effector) {
 }
 
- DMIKBoneChainTarget::DMIKBoneChainTarget(Ref<DMIKShadowSkeletonBone> p_chain_item, const Ref<DMIKBoneEffectorTransform> p_end_effector) :
+ DMIKBoneChainTarget::DMIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector) :
 		chain_item(p_chain_item),
 		end_effector(p_end_effector) {
 }
@@ -142,7 +142,7 @@ void DMIKBoneChainTarget::translate(Vector3 location) {
 Vector3 DMIKBoneChainTarget::get_location() {
 	return chain_item->axes.origin;
 }
-Ref<DMIKShadowSkeletonBone> DMIKBoneChainTarget::for_bone() {
+Ref<EWBIKShadowSkeletonBone> DMIKBoneChainTarget::for_bone() {
 	return chain_item;
 }
 

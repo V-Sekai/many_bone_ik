@@ -30,47 +30,47 @@
 
 #include "bone_effector.h"
 
-void DMIKBoneEffector::_bind_methods() {
+void EWBIKBoneEffector::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_target_transform", "transform"),
-			&DMIKBoneEffector::set_target_transform);
+			&EWBIKBoneEffector::set_target_transform);
 	ClassDB::bind_method(D_METHOD("get_target_transform"),
-			&DMIKBoneEffector::get_target_transform);
+			&EWBIKBoneEffector::get_target_transform);
 
 	ClassDB::bind_method(D_METHOD("set_target_node", "node"),
-			&DMIKBoneEffector::set_target_node);
+			&EWBIKBoneEffector::set_target_node);
 	ClassDB::bind_method(D_METHOD("get_target_node"),
-			&DMIKBoneEffector::get_target_node);
+			&EWBIKBoneEffector::get_target_node);
 
 	ClassDB::bind_method(D_METHOD("set_budget", "ms"),
-			&DMIKBoneEffector::set_budget_ms);
+			&EWBIKBoneEffector::set_budget_ms);
 	ClassDB::bind_method(D_METHOD("get_budget"),
-			&DMIKBoneEffector::get_budget_ms);
+			&EWBIKBoneEffector::get_budget_ms);
 
 	ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM, "target_transform"), "set_target_transform", "get_target_transform");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "target_node"), "set_target_node", "get_target_node");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "budget"), "set_budget", "get_budget");
 }
 
-void DMIKBoneEffector::set_target_transform(Transform p_target_transform) {
+void EWBIKBoneEffector::set_target_transform(Transform p_target_transform) {
 	target_transform = p_target_transform;
 }
 
-Transform DMIKBoneEffector::get_target_transform() const {
+Transform EWBIKBoneEffector::get_target_transform() const {
 	return target_transform;
 }
 
-void DMIKBoneEffector::set_target_node(NodePath p_target_node_path) {
+void EWBIKBoneEffector::set_target_node(NodePath p_target_node_path) {
 	target_node = p_target_node_path;
 }
 
-NodePath DMIKBoneEffector::get_target_node() const {
+NodePath EWBIKBoneEffector::get_target_node() const {
 	return target_node;
 }
 
-real_t DMIKBoneEffector::get_budget_ms() const {
+real_t EWBIKBoneEffector::get_budget_ms() const {
 	return budget_ms;
 }
 
-void DMIKBoneEffector::set_budget_ms(real_t p_budget_ms) {
+void EWBIKBoneEffector::set_budget_ms(real_t p_budget_ms) {
 	budget_ms = p_budget_ms;
 }

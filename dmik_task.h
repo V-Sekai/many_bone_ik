@@ -43,7 +43,7 @@ protected:
 public:
 	Skeleton3D *skeleton = nullptr;
 	Ref<QCP> qcp;
-	Ref<DMIKShadowSkeletonBone> chain = memnew(DMIKShadowSkeletonBone);
+	Ref<EWBIKShadowSkeletonBone> chain = memnew(EWBIKShadowSkeletonBone);
 	// Settings
 	float min_distance = 0.01f;
 	int iterations = 4;
@@ -57,7 +57,7 @@ public:
 
 	// Bone data
 	int root_bone = -1;
-	Vector<Ref<DMIKBoneEffectorTransform>> end_effectors;
-	Ref<SkeletonModification3DDMIK> dmik;
+	Vector<Ref<EWBIKBoneEffectorTransform>> end_effectors;
+	Ref<SkeletonModification3DEWBIK> dmik;
 };
 #endif // dmik_task_h__

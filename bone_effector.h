@@ -33,8 +33,8 @@
 #include "core/config/engine.h"
 #include "core/io/resource.h"
 
-class DMIKBoneEffector : public Resource {
-	GDCLASS(DMIKBoneEffector, Resource);
+class EWBIKBoneEffector : public Resource {
+	GDCLASS(EWBIKBoneEffector, Resource);
 
 protected:
 	Transform target_transform;

@@ -37,11 +37,11 @@
 #include "core/os/memory.h"
 #include "direction_constraint.h"
 #include "ray.h"
-#include "skeleton_modification_3d_dmik.h"
+#include "skeleton_modification_3d_ewbik.h"
 #include "twist_constraint.h"
 
 class DirectionConstraint;
-class DMIKShadowSkeletonBone;
+class EWBIKShadowSkeletonBone;
 
 // Kusudama is a papercraft ball with a bunch of cones sticking out of it.
 class KusudamaConstraint : public Resource {
@@ -59,7 +59,7 @@ private:
 	bool orientation_constrained = false;
 	bool axial_constrained = false;
 	bool enabled = false;
-	Ref<DMIKShadowSkeletonBone> attached_to;
+	Ref<EWBIKShadowSkeletonBone> attached_to;
 	Ray bone_ray;
 	Ray constrained_ray;
 
@@ -101,7 +101,7 @@ public:
 
 	void remove_direction(int32_t p_index);
 
-	KusudamaConstraint(Ref<DMIKShadowSkeletonBone> p_for_bone);
+	KusudamaConstraint(Ref<EWBIKShadowSkeletonBone> p_for_bone);
 
 	virtual Ref<TwistConstraint> get_twist_constraint() const;
 

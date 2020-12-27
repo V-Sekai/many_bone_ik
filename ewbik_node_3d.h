@@ -2,13 +2,13 @@
 #include "core/math/vector3.h"
 #include "core/object/reference.h"
 #include "dmik_axis_dependency.h"
-#include "dmik_transform.h"
+#include "ewbik_transform.h"
 
-class DMIKAxisDependency;
+class EWBIKAxisDependency;
 
-class DMIKNode3D : public DMIKAxisDependency {
+class EWBIKNode3D : public EWBIKAxisDependency {
 private:
-	Ref<DMIKAxisDependency> parent;
+	Ref<EWBIKAxisDependency> parent;
 	int slipType = 0;
 
 protected:
@@ -26,10 +26,10 @@ public:
 
 	Vector3 tempOrigin;
 
-	List<Ref<DMIKAxisDependency>> dependentsRegistry;
+	List<Ref<EWBIKAxisDependency>> dependentsRegistry;
 	void createTempVars(Vector3 type);
 
-	Ref<DMIKAxisDependency> get_parent_axes();
+	Ref<EWBIKAxisDependency> get_parent_axes();
 
 	void updateGlobal();
 
@@ -42,7 +42,7 @@ public:
      *   @param requestedBy the object making thisRequest, will be passed on to parentChangeWarning
      *   for any AxisDependancy objects registered with this Ref<AbstractAxes>  (can be nullptr if not important)
      **/
-	void setParent(Ref<DMIKNode3D> intendedParent, Ref<DMIKNode3D> requestedBy);
+	void setParent(Ref<EWBIKNode3D> intendedParent, Ref<EWBIKNode3D> requestedBy);
 
 	/**
      * Sets the parentAxes for this axis globally.
@@ -51,7 +51,7 @@ public:
      *
      *   @param par the new parent Axes
      **/
-	void setParent(Ref<DMIKNode3D> par);
+	void setParent(Ref<EWBIKNode3D> par);
 
 	Vector3 origin_();
 
@@ -59,7 +59,7 @@ public:
 		 * Make a GlobalCopy of these Axes.
 		 * @return
 		 */
-	Ref<DMIKNode3D> getGlobalCopy();
+	Ref<EWBIKNode3D> getGlobalCopy();
 
 	int getGlobalChirality();
 
@@ -92,7 +92,7 @@ public:
 		 * parent is set to this Axes' parent, prior to this axes setting the input axes
 		 * as its parent.
 		 **/
-	void setRelativeToParent(Ref<DMIKNode3D> par);
+	void setRelativeToParent(Ref<EWBIKNode3D> par);
 
 	bool needsUpdate();
 
@@ -130,7 +130,7 @@ public:
 		 * @param in
 		 * @return
 		 */
-	virtual Ref<DMIKNode3D> relativeTo(Ref<DMIKNode3D> in);
+	virtual Ref<EWBIKNode3D> relativeTo(Ref<EWBIKNode3D> in);
 
 	Vector3 getLocalOf(Vector3 in);
 
@@ -155,10 +155,10 @@ public:
 	void setToLocalOf(DMIKTransform input, DMIKTransform &output);
 
 	Ray getLocalOf(Ray in);
-	virtual Ref<DMIKNode3D> getLocalOf(Ref<DMIKNode3D> input);
+	virtual Ref<EWBIKNode3D> getLocalOf(Ref<EWBIKNode3D> input);
 	;
 
-	virtual DMIKTransform getLocalOf(DMIKNode3D input);
+	virtual DMIKTransform getLocalOf(EWBIKNode3D input);
 	;
 
 	void translateByLocal(Vector3 translate);
@@ -174,7 +174,7 @@ public:
 		 * global coordinates will likely be drastically different from the original's global coordinates.
 		 *
 		 */
-	virtual Ref<DMIKNode3D> freeCopy();
+	virtual Ref<EWBIKNode3D> freeCopy();
 	;
 
 	/**
@@ -203,7 +203,7 @@ public:
 	 * @param slipAware
 	 * @return
 	 */
-	virtual Ref<DMIKNode3D> attachedCopy(bool slipAware);
+	virtual Ref<EWBIKNode3D> attachedCopy(bool slipAware);
 	;
 	void setSlipType(int type);
 	int getSlipType();
@@ -232,7 +232,7 @@ public:
 		 *
 		 * @param targetAxes the Axes to make this Axis identical to
 		 */
-	void alignLocalsTo(Ref<DMIKNode3D> targetAxes);
+	void alignLocalsTo(Ref<EWBIKNode3D> targetAxes);
 
 	/**
 		 * sets the bases to the Identity basis and Identity rotation relative to its parent, and translates
@@ -255,8 +255,8 @@ public:
 		 * axis is orthonormalized and the target axes are not.
 		 * @param targetAxes
 		 */
-	void alignGlobalsTo(Ref<DMIKNode3D> targetAxes);
-	void alignOrientationTo(Ref<DMIKNode3D> targetAxes);
+	void alignGlobalsTo(Ref<EWBIKNode3D> targetAxes);
+	void alignOrientationTo(Ref<EWBIKNode3D> targetAxes);
 
 	/**
 		 * updates the axes object such that its global orientation
@@ -264,8 +264,8 @@ public:
 		 * @param rotation
 		 */
 	void setGlobalOrientationTo(Quat rotation);
-	void registerDependent(Ref<DMIKAxisDependency> newDependent);
-	bool isAncestorOf(Ref<DMIKNode3D> potentialDescendent);
+	void registerDependent(Ref<EWBIKAxisDependency> newDependent);
+	bool isAncestorOf(Ref<EWBIKNode3D> potentialDescendent);
 
 	/**
 		 * unregisters this Ref<AbstractAxes> from its current parent and
@@ -274,17 +274,17 @@ public:
 		 * @param newParent
 		 */
 
-	void transferToParent(Ref<DMIKNode3D> newParent);
+	void transferToParent(Ref<EWBIKNode3D> newParent);
 
 	/**
 		 * unregisters this Ref<AbstractAxes> from its parent,
 		 * but keeps its global position the same.
 		 */
 	void emancipate();
-	void disown(Ref<DMIKAxisDependency> child);
+	void disown(Ref<EWBIKAxisDependency> child);
 	DMIKTransform getGlobalMBasis();
 	DMIKTransform getLocalMBasis();
-	virtual void axis_slip_warning(Ref<DMIKAxisDependency> globalPriorToSlipping, Ref<DMIKAxisDependency> globalAfterSlipping, Ref<DMIKAxisDependency> actualAxis, List<Object> dontWarn);
+	virtual void axis_slip_warning(Ref<EWBIKAxisDependency> globalPriorToSlipping, Ref<EWBIKAxisDependency> globalAfterSlipping, Ref<EWBIKAxisDependency> actualAxis, List<Object> dontWarn);
 
 	/**
 		 * if the input axes have have the same global
@@ -295,11 +295,11 @@ public:
 		 * will be used in the comparison.
 		 * @param ax
 		 */
-	bool equals(Ref<DMIKNode3D> ax);
-	virtual void axis_slip_warning(Ref<DMIKAxisDependency> globalPriorToSlipping, Ref<DMIKAxisDependency> globalAfterSlipping, Ref<DMIKAxisDependency> actualAxis);
-	virtual void axis_slip_completion_notice(Ref<DMIKAxisDependency> p_global_prior_to_slipping, Ref<DMIKAxisDependency> p_global_after_slipping, Ref<DMIKAxisDependency> p_this_axis);
-	void slipTo(Ref<DMIKNode3D> newAxisGlobal);
-	void slipTo(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn);
+	bool equals(Ref<EWBIKNode3D> ax);
+	virtual void axis_slip_warning(Ref<EWBIKAxisDependency> globalPriorToSlipping, Ref<EWBIKAxisDependency> globalAfterSlipping, Ref<EWBIKAxisDependency> actualAxis);
+	virtual void axis_slip_completion_notice(Ref<EWBIKAxisDependency> p_global_prior_to_slipping, Ref<EWBIKAxisDependency> p_global_after_slipping, Ref<EWBIKAxisDependency> p_this_axis);
+	void slipTo(Ref<EWBIKNode3D> newAxisGlobal);
+	void slipTo(Ref<EWBIKNode3D> newAxisGlobal, List<Object> dontWarn);
 	// void notifyDependentsOfSlip(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn);
 	// void notifyDependentsOfSlipCompletion(Ref<DMIKNode3D> globalAxisPriorToSlipping, List<Object> dontWarn) {
 	// 	for (int i = 0; i < dependentsRegistry.size(); i++) {
@@ -319,12 +319,12 @@ public:
 	void mark_dirty();
 
 	void mark_dependents_dirty();
-	DMIKNode3D();
+	EWBIKNode3D();
 	/**
      * @param globalMBasis a Basis object for this Axes to adopt the values of
      * @param customBases set to true if you intend to use a custom Bases class, in which case, this constructor will not initialize them.
      */
-	DMIKNode3D(DMIKTransform p_globalBasis, Ref<DMIKNode3D> p_parent);
+	EWBIKNode3D(DMIKTransform p_globalBasis, Ref<EWBIKNode3D> p_parent);
 
 	/**
 		 * @param origin the center of this axes basis. The basis vector parameters will be automatically ADDED to the origin in order to create this basis vector.
@@ -334,7 +334,7 @@ public:
 		 * @param forceOrthoNormality
 		 * @param customBases set to true if you intend to use a custom Bases class, in which case, this constructor will not initialize them.
 		 */
-	DMIKNode3D(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ, Ref<DMIKNode3D> parent, bool customBases);
+	EWBIKNode3D(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ, Ref<EWBIKNode3D> parent, bool customBases);
 
-	DMIKNode3D(Transform p_globalBasis, Ref<DMIKNode3D> p_parent);
+	EWBIKNode3D(Transform p_globalBasis, Ref<EWBIKNode3D> p_parent);
 };

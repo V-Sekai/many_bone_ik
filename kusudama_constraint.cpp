@@ -32,7 +32,7 @@
 #include "core/object/object.h"
 #include "direction_constraint.h"
 #include "quat_ik.h"
-#include "skeleton_modification_3d_dmik.h"
+#include "skeleton_modification_3d_ewbik.h"
 
 void KusudamaConstraint::optimize_limiting_axes() {
 	const Transform original_constraint_axes = get_constraint_axes();
@@ -399,11 +399,11 @@ void KusudamaConstraint::set_pain(real_t p_amount) {
 	if (attached_to == NULL || attached_to->chain_root == NULL) {
 		return;
 	}
-	Ref<DMIKShadowSkeletonBone> s = attached_to->chain_root;
+	Ref<EWBIKShadowSkeletonBone> s = attached_to->chain_root;
 	if (s == NULL) {
 		return;
 	}
-	Ref<DMIKShadowSkeletonBone> wb = s->chain_root->find_child(attached_to->bone);
+	Ref<EWBIKShadowSkeletonBone> wb = s->chain_root->find_child(attached_to->bone);
 	if (wb == NULL) {
 		return;
 	}
@@ -452,7 +452,7 @@ void KusudamaConstraint::remove_direction(int32_t p_index) {
 	_change_notify();
 }
 
-KusudamaConstraint::KusudamaConstraint(Ref<DMIKShadowSkeletonBone> p_for_bone) {
+KusudamaConstraint::KusudamaConstraint(Ref<EWBIKShadowSkeletonBone> p_for_bone) {
 	twist.instance();
 	attached_to = p_for_bone;
 	//     limiting_axes = p_for_bone.getMajorRotationAxes();

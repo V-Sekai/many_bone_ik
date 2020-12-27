@@ -31,7 +31,7 @@
 #ifndef DMIK_REGISTER_TYPES_H
 #define DMIK_REGISTER_TYPES_H
 
-void register_dmik_types();
-void unregister_dmik_types();
+void register_ewbik_types();
+void unregister_ewbik_types();
 
 #endif // DMIK_REGISTER_TYPES_H

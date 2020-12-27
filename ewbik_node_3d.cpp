@@ -1,48 +1,48 @@
-#include "dmik_node_3d.h"
+#include "ewbik_node_3d.h"
 
-Ref<DMIKNode3D> DMIKNode3D::relativeTo(Ref<DMIKNode3D> in) {
-	return Ref<DMIKNode3D>();
+Ref<EWBIKNode3D> EWBIKNode3D::relativeTo(Ref<EWBIKNode3D> in) {
+	return Ref<EWBIKNode3D>();
 }
 
-DMIKTransform DMIKNode3D::getLocalOf(DMIKNode3D input) {
+DMIKTransform EWBIKNode3D::getLocalOf(EWBIKNode3D input) {
 	return DMIKTransform();
 }
 
-Ref<DMIKNode3D> DMIKNode3D::getLocalOf(Ref<DMIKNode3D> input) {
-	return Ref<DMIKNode3D>();
+Ref<EWBIKNode3D> EWBIKNode3D::getLocalOf(Ref<EWBIKNode3D> input) {
+	return Ref<EWBIKNode3D>();
 }
 
-Ref<DMIKNode3D> DMIKNode3D::freeCopy() {
-	return Ref<DMIKNode3D>();
+Ref<EWBIKNode3D> EWBIKNode3D::freeCopy() {
+	return Ref<EWBIKNode3D>();
 }
 
-Ray DMIKNode3D::x_() {
+Ray EWBIKNode3D::x_() {
 	return Ray();
 }
 
-Ray DMIKNode3D::y_() {
+Ray EWBIKNode3D::y_() {
 	return Ray();
 }
 
-Ray DMIKNode3D::z_() {
+Ray EWBIKNode3D::z_() {
 	return Ray();
 }
 
-Ref<DMIKNode3D> DMIKNode3D::attachedCopy(bool slipAware) {
-	return Ref<DMIKNode3D>();
+Ref<EWBIKNode3D> EWBIKNode3D::attachedCopy(bool slipAware) {
+	return Ref<EWBIKNode3D>();
 }
 
-void DMIKNode3D::mark_dirty() {
+void EWBIKNode3D::mark_dirty() {
 	if (!dirty) {
 		dirty = true;
 		mark_dependents_dirty();
 	}
 }
 
-void DMIKNode3D::mark_dependents_dirty() {
-	List<Ref<DMIKAxisDependency>>::Element *i = dependentsRegistry.front();
+void EWBIKNode3D::mark_dependents_dirty() {
+	List<Ref<EWBIKAxisDependency>>::Element *i = dependentsRegistry.front();
 	while (i) {
-		Ref<DMIKAxisDependency> dr = i->get();
+		Ref<EWBIKAxisDependency> dr = i->get();
 		if (dr.is_valid()) {
 			dr->mark_dirty();
 		}
@@ -50,7 +50,7 @@ void DMIKNode3D::mark_dependents_dirty() {
 	}
 }
 
-DMIKNode3D::DMIKNode3D(Transform p_globalBasis, Ref<DMIKNode3D> p_parent) {
+EWBIKNode3D::EWBIKNode3D(Transform p_globalBasis, Ref<EWBIKNode3D> p_parent) {
 	globalMBasis = p_globalBasis;
 	createTempVars(p_globalBasis.origin);
 	if (get_parent_axes().is_valid()) {
@@ -62,12 +62,12 @@ DMIKNode3D::DMIKNode3D(Transform p_globalBasis, Ref<DMIKNode3D> p_parent) {
 	updateGlobal();
 }
 
-void DMIKNode3D::updateGlobal() {
+void EWBIKNode3D::updateGlobal() {
 	if (dirty) {
 		if (areGlobal) {
 			globalMBasis.adopt_values(localMBasis);
 		} else {
-			Ref<DMIKNode3D> parent_axes = get_parent_axes();
+			Ref<EWBIKNode3D> parent_axes = get_parent_axes();
 			if (parent_axes.is_null()) {
 				return;
 			}
@@ -77,50 +77,50 @@ void DMIKNode3D::updateGlobal() {
 	}
 	dirty = false;
 }
-void DMIKNode3D::setToLocalOf(DMIKTransform input, DMIKTransform &output) {
+void EWBIKNode3D::setToLocalOf(DMIKTransform input, DMIKTransform &output) {
 	updateGlobal();
 	getGlobalMBasis().set_to_local_of(input, output);
 }
-void DMIKNode3D::setToLocalOf(Vector3 in, Vector3 &out) {
+void EWBIKNode3D::setToLocalOf(Vector3 in, Vector3 &out) {
 	updateGlobal();
 	getGlobalMBasis().set_to_local_of(in, out);
 }
 
-void DMIKNode3D::setToLocalOf(Ray in, Ray &out) {
+void EWBIKNode3D::setToLocalOf(Ray in, Ray &out) {
 	setToLocalOf(in.position, out.position);
 	setToLocalOf(in.normal, out.normal);
 }
 
-Vector3 DMIKNode3D::setToLocalOf(Vector3 in) {
+Vector3 EWBIKNode3D::setToLocalOf(Vector3 in) {
 	updateGlobal();
 	Vector3 result;
 	getGlobalMBasis().set_to_local_of(in, result);
 	return result;
 }
 
-void DMIKNode3D::setToGlobalOf(Ray input, Ray &output) {
+void EWBIKNode3D::setToGlobalOf(Ray input, Ray &output) {
 	updateGlobal();
 	setToGlobalOf(input.position, output.position);
 	setToGlobalOf(input.normal, output.normal);
 }
 
-void DMIKNode3D::setToGlobalOf(Vector3 input, Vector3 &output) {
+void EWBIKNode3D::setToGlobalOf(Vector3 input, Vector3 &output) {
 	updateGlobal();
 	getGlobalMBasis().set_to_global_of(input, output);
 }
 
-Vector3 DMIKNode3D::setToGlobalOf(Vector3 in) {
+Vector3 EWBIKNode3D::setToGlobalOf(Vector3 in) {
 	updateGlobal();
 	getGlobalMBasis().set_to_global_of(in, in);
 	return in;
 }
 
-void DMIKNode3D::createTempVars(Vector3 type) {
+void EWBIKNode3D::createTempVars(Vector3 type) {
 	workingVector = type;
 	tempOrigin = type;
 }
 
-Ref<DMIKAxisDependency> DMIKNode3D::get_parent_axes() {
+Ref<EWBIKAxisDependency> EWBIKNode3D::get_parent_axes() {
 	if (parent.is_null()) {
 		return nullptr;
 	} else {
@@ -128,13 +128,13 @@ Ref<DMIKAxisDependency> DMIKNode3D::get_parent_axes() {
 	}
 }
 
-void DMIKNode3D::setParent(Ref<DMIKNode3D> par) {
+void EWBIKNode3D::setParent(Ref<EWBIKNode3D> par) {
 	setParent(par, nullptr);
 }
 
-void DMIKNode3D::setParent(Ref<DMIKNode3D> intendedParent, Ref<DMIKNode3D> requestedBy) {
+void EWBIKNode3D::setParent(Ref<EWBIKNode3D> intendedParent, Ref<EWBIKNode3D> requestedBy) {
 	updateGlobal();
-	Ref<DMIKNode3D> oldParent = get_parent_axes();
+	Ref<EWBIKNode3D> oldParent = get_parent_axes();
 	// forEachDependent(
 	// 		(ad)->ad.get().parentChangeWarning(this, oldParent, intendedParent, requestedBy));
 
@@ -147,7 +147,7 @@ void DMIKNode3D::setParent(Ref<DMIKNode3D> intendedParent, Ref<DMIKNode3D> reque
 		}
 		parent = intendedParent;
 
-		Ref<DMIKNode3D> axes = get_parent_axes();
+		Ref<EWBIKNode3D> axes = get_parent_axes();
 		if (axes.is_valid()) {
 			axes->registerDependent(this);
 		}
@@ -164,7 +164,7 @@ void DMIKNode3D::setParent(Ref<DMIKNode3D> intendedParent, Ref<DMIKNode3D> reque
 	// 		(ad)->ad.get().parentChangeCompletionNotice(this, oldParent, intendedParent, requestedBy));
 }
 
-DMIKNode3D::DMIKNode3D(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ, Ref<DMIKNode3D> parent, bool customBases) {
+EWBIKNode3D::EWBIKNode3D(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ, Ref<EWBIKNode3D> parent, bool customBases) {
 	if (!customBases) {
 		globalMBasis = parent.is_valid() ? parent->getGlobalMBasis() : DMIKTransform(origin);
 		localMBasis = parent.is_valid() ? parent->getLocalMBasis() : DMIKTransform(origin);
@@ -175,12 +175,12 @@ DMIKNode3D::DMIKNode3D(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ, Re
 		areGlobal = true;
 	}
 }
-DMIKNode3D::DMIKNode3D() {
+EWBIKNode3D::EWBIKNode3D() {
 	areGlobal = true;
 	updateGlobal();
 }
 
-DMIKNode3D::DMIKNode3D(DMIKTransform p_globalBasis, Ref<DMIKNode3D> p_parent) {
+EWBIKNode3D::EWBIKNode3D(DMIKTransform p_globalBasis, Ref<EWBIKNode3D> p_parent) {
 	globalMBasis = p_globalBasis;
 	createTempVars(p_globalBasis.get_origin());
 	if (get_parent_axes().is_valid()) {
@@ -192,19 +192,19 @@ DMIKNode3D::DMIKNode3D(DMIKTransform p_globalBasis, Ref<DMIKNode3D> p_parent) {
 	updateGlobal();
 }
 
-Vector3 DMIKNode3D::origin_() {
+Vector3 EWBIKNode3D::origin_() {
 	updateGlobal();
 	tempOrigin = getGlobalMBasis().get_origin();
 	return tempOrigin;
 }
 
-Ref<DMIKNode3D> DMIKNode3D::getGlobalCopy() {
-	Ref<DMIKNode3D> node;
+Ref<EWBIKNode3D> EWBIKNode3D::getGlobalCopy() {
+	Ref<EWBIKNode3D> node;
 	node.instance();
 	DMIKTransform global_basis = this->globalMBasis;
 	node->globalMBasis = global_basis;
 	createTempVars(global_basis.get_origin());
-	Ref<DMIKNode3D> parent_axes = this->get_parent_axes();
+	Ref<EWBIKNode3D> parent_axes = this->get_parent_axes();
 	if (parent_axes.is_valid()) {
 		setParent(parent_axes);
 	} else {
@@ -215,27 +215,27 @@ Ref<DMIKNode3D> DMIKNode3D::getGlobalCopy() {
 	return node;
 }
 
-int DMIKNode3D::getGlobalChirality() {
+int EWBIKNode3D::getGlobalChirality() {
 	updateGlobal();
 	return getGlobalMBasis().chirality;
 }
 
-int DMIKNode3D::getLocalChirality() {
+int EWBIKNode3D::getLocalChirality() {
 	updateGlobal();
 	return getLocalMBasis().chirality;
 }
 
-bool DMIKNode3D::isGlobalAxisFlipped(int axis) {
+bool EWBIKNode3D::isGlobalAxisFlipped(int axis) {
 	updateGlobal();
 	return globalMBasis.is_axis_flipped(axis);
 }
 
-bool DMIKNode3D::isLocalAxisFlipped(int axis) {
+bool EWBIKNode3D::isLocalAxisFlipped(int axis) {
 	return localMBasis.is_axis_flipped(axis);
 }
 
-void DMIKNode3D::setRelativeToParent(Ref<DMIKNode3D> par) {
-	Ref<DMIKNode3D> axes = get_parent_axes();
+void EWBIKNode3D::setRelativeToParent(Ref<EWBIKNode3D> par) {
+	Ref<EWBIKNode3D> axes = get_parent_axes();
 	if (axes.is_valid()) {
 		axes->disown(this);
 	}
@@ -247,42 +247,42 @@ void DMIKNode3D::setRelativeToParent(Ref<DMIKNode3D> par) {
 	mark_dirty();
 }
 
-bool DMIKNode3D::needsUpdate() {
+bool EWBIKNode3D::needsUpdate() {
 	if (dirty)
 		return true;
 	else
 		return false;
 }
 
-Ray DMIKNode3D::getGlobalOf(Ray in) {
+Ray EWBIKNode3D::getGlobalOf(Ray in) {
 	return Ray(getGlobalOf(in.position), getGlobalOf(in.normal));
 }
 
-Vector3 DMIKNode3D::getGlobalOf(Vector3 in) {
+Vector3 EWBIKNode3D::getGlobalOf(Vector3 in) {
 	Vector3 result = in;
 	setToGlobalOf(in, result);
 	return result;
 }
 
-Ray DMIKNode3D::getLocalOf(Ray in) {
+Ray EWBIKNode3D::getLocalOf(Ray in) {
 	Ray result = in;
 	result.position = getLocalOf(in.position);
 	result.normal = getLocalOf(in.normal);
 	return result;
 }
 
-Vector3 DMIKNode3D::getLocalOf(Vector3 in) {
+Vector3 EWBIKNode3D::getLocalOf(Vector3 in) {
 	updateGlobal();
 	return getGlobalMBasis().get_local_of(in);
 }
 
-void DMIKNode3D::translateByLocal(Vector3 translate) {
+void EWBIKNode3D::translateByLocal(Vector3 translate) {
 	updateGlobal();
 	getLocalMBasis().translate_by(translate);
 	mark_dirty();
 }
 
-void DMIKNode3D::translateByGlobal(Vector3 translate) {
+void EWBIKNode3D::translateByGlobal(Vector3 translate) {
 	if (get_parent_axes().is_valid()) {
 		updateGlobal();
 		translateTo(translate + origin_());
@@ -293,8 +293,8 @@ void DMIKNode3D::translateByGlobal(Vector3 translate) {
 	mark_dirty();
 }
 
-void DMIKNode3D::translateTo(Vector3 translate) {
-	Ref<DMIKNode3D> parent_axes = get_parent_axes();
+void EWBIKNode3D::translateTo(Vector3 translate) {
+	Ref<EWBIKNode3D> parent_axes = get_parent_axes();
 	if (parent_axes.is_valid()) {
 		updateGlobal();
 		getLocalMBasis().translate_to(parent_axes->getGlobalMBasis().get_local_of(translate));
@@ -306,10 +306,10 @@ void DMIKNode3D::translateTo(Vector3 translate) {
 	}
 }
 
-void DMIKNode3D::translateTo(Vector3 translate, bool slip) {
+void EWBIKNode3D::translateTo(Vector3 translate, bool slip) {
 	updateGlobal();
 	if (slip) {
-		Ref<DMIKNode3D> tempAbstractAxes = getGlobalCopy();
+		Ref<EWBIKNode3D> tempAbstractAxes = getGlobalCopy();
 		tempAbstractAxes->translateTo(translate);
 		slipTo(tempAbstractAxes);
 	} else {
@@ -317,8 +317,8 @@ void DMIKNode3D::translateTo(Vector3 translate, bool slip) {
 	}
 }
 
-void DMIKNode3D::setSlipType(int type) {
-	Ref<DMIKNode3D> parent_axes = get_parent_axes();
+void EWBIKNode3D::setSlipType(int type) {
+	Ref<EWBIKNode3D> parent_axes = get_parent_axes();
 	if (parent_axes.is_valid()) {
 		if (type == IGNORE) {
 			parent_axes->dependentsRegistry.erase(this);
@@ -329,34 +329,34 @@ void DMIKNode3D::setSlipType(int type) {
 	slipType = type;
 }
 
-int DMIKNode3D::getSlipType() {
+int EWBIKNode3D::getSlipType() {
 	return slipType;
 }
 
-void DMIKNode3D::rotateAboutX(float angle, bool orthonormalized) {
+void EWBIKNode3D::rotateAboutX(float angle, bool orthonormalized) {
 	updateGlobal();
 	Quat xRot = Quat(getGlobalMBasis().get_x_heading(), angle);
 	rotateBy(xRot);
 	mark_dirty();
 }
 
-void DMIKNode3D::rotateAboutY(float angle, bool orthonormalized) {
+void EWBIKNode3D::rotateAboutY(float angle, bool orthonormalized) {
 	updateGlobal();
 	Quat yRot = Quat(getGlobalMBasis().get_y_heading(), angle);
 	rotateBy(yRot);
 	mark_dirty();
 }
 
-void DMIKNode3D::rotateAboutZ(float angle, bool orthonormalized) {
+void EWBIKNode3D::rotateAboutZ(float angle, bool orthonormalized) {
 	updateGlobal();
 	Quat zRot = Quat(getGlobalMBasis().get_z_heading(), angle);
 	rotateBy(zRot);
 	mark_dirty();
 }
 
-void DMIKNode3D::rotateBy(Quat apply) {
+void EWBIKNode3D::rotateBy(Quat apply) {
 	updateGlobal();
-	Ref<DMIKNode3D> parent_axes = get_parent_axes();
+	Ref<EWBIKNode3D> parent_axes = get_parent_axes();
 	if (parent_axes.is_valid()) {
 		Quat newRot = parent_axes->getGlobalMBasis().get_local_of_rotation(apply);
 		getLocalMBasis().rotate_by(newRot);
@@ -367,7 +367,7 @@ void DMIKNode3D::rotateBy(Quat apply) {
 	mark_dirty();
 }
 
-void DMIKNode3D::rotateByLocal(Quat apply) {
+void EWBIKNode3D::rotateByLocal(Quat apply) {
 	updateGlobal();
 	if (parent.is_valid()) {
 		getLocalMBasis().rotate_by(apply);
@@ -375,26 +375,26 @@ void DMIKNode3D::rotateByLocal(Quat apply) {
 	mark_dirty();
 }
 
-void DMIKNode3D::alignLocalsTo(Ref<DMIKNode3D> targetAxes) {
+void EWBIKNode3D::alignLocalsTo(Ref<EWBIKNode3D> targetAxes) {
 	getLocalMBasis().adopt_values(targetAxes->localMBasis);
 	mark_dirty();
 }
 
-void DMIKNode3D::alignToParent() {
+void EWBIKNode3D::alignToParent() {
 	getLocalMBasis().set_identity();
 	mark_dirty();
 }
 
-void DMIKNode3D::rotateToParent() {
+void EWBIKNode3D::rotateToParent() {
 	getLocalMBasis().rotate_to(Quat());
 	mark_dirty();
 }
 
-void DMIKNode3D::alignGlobalsTo(Ref<DMIKNode3D> targetAxes) {
+void EWBIKNode3D::alignGlobalsTo(Ref<EWBIKNode3D> targetAxes) {
 	ERR_FAIL_NULL(targetAxes);
 	targetAxes->updateGlobal();
 	updateGlobal();
-	Ref<DMIKNode3D> parent_axes = get_parent_axes();
+	Ref<EWBIKNode3D> parent_axes = get_parent_axes();
 	if (parent_axes.is_valid()) {
 		parent_axes->getGlobalMBasis().set_to_local_of(targetAxes->globalMBasis, localMBasis);
 	} else {
@@ -404,11 +404,11 @@ void DMIKNode3D::alignGlobalsTo(Ref<DMIKNode3D> targetAxes) {
 	updateGlobal();
 }
 
-void DMIKNode3D::alignOrientationTo(Ref<DMIKNode3D> targetAxes) {
+void EWBIKNode3D::alignOrientationTo(Ref<EWBIKNode3D> targetAxes) {
 	ERR_FAIL_NULL(targetAxes);
 	targetAxes->updateGlobal();
 	updateGlobal();
-	Ref<DMIKNode3D> parent_axes = get_parent_axes();
+	Ref<EWBIKNode3D> parent_axes = get_parent_axes();
 	if (parent_axes.is_valid()) {
 		getGlobalMBasis().rotate_to(targetAxes->getGlobalMBasis().rotation);
 		parent_axes->getGlobalMBasis().set_to_local_of(globalMBasis, localMBasis);
@@ -418,11 +418,11 @@ void DMIKNode3D::alignOrientationTo(Ref<DMIKNode3D> targetAxes) {
 	mark_dirty();
 }
 
-void DMIKNode3D::setGlobalOrientationTo(Quat rotation) {
+void EWBIKNode3D::setGlobalOrientationTo(Quat rotation) {
 	updateGlobal();
 	if (get_parent_axes() != nullptr) {
 		getGlobalMBasis().rotate_to(rotation);
-		Ref<DMIKNode3D> axes = get_parent_axes();
+		Ref<EWBIKNode3D> axes = get_parent_axes();
 		if (axes.is_valid()) {
 			axes->getGlobalMBasis().set_to_local_of(globalMBasis, localMBasis);
 		}
@@ -432,9 +432,9 @@ void DMIKNode3D::setGlobalOrientationTo(Quat rotation) {
 	mark_dirty();
 }
 
-void DMIKNode3D::registerDependent(Ref<DMIKAxisDependency> newDependent) {
+void EWBIKNode3D::registerDependent(Ref<EWBIKAxisDependency> newDependent) {
 	//Make sure we don't hit a dependency loop
-	Ref<DMIKNode3D> dependent = newDependent;
+	Ref<EWBIKNode3D> dependent = newDependent;
 	if (dependent.is_valid() && dependent->isAncestorOf(this)) {
 		transferToParent(dependent->get_parent_axes());
 	}
@@ -443,9 +443,9 @@ void DMIKNode3D::registerDependent(Ref<DMIKAxisDependency> newDependent) {
 	}
 }
 
-bool DMIKNode3D::isAncestorOf(Ref<DMIKNode3D> potentialDescendent) {
+bool EWBIKNode3D::isAncestorOf(Ref<EWBIKNode3D> potentialDescendent) {
 	bool result = false;
-	Ref<DMIKNode3D> cursor = potentialDescendent->get_parent_axes();
+	Ref<EWBIKNode3D> cursor = potentialDescendent->get_parent_axes();
 	while (cursor != nullptr) {
 		if (cursor == this) {
 			result = true;
@@ -457,20 +457,20 @@ bool DMIKNode3D::isAncestorOf(Ref<DMIKNode3D> potentialDescendent) {
 	return result;
 }
 
-void DMIKNode3D::transferToParent(Ref<DMIKNode3D> newParent) {
+void EWBIKNode3D::transferToParent(Ref<EWBIKNode3D> newParent) {
 	emancipate();
 	setParent(newParent);
 }
 
-void DMIKNode3D::emancipate() {
+void EWBIKNode3D::emancipate() {
 	if (get_parent_axes() != nullptr) {
 		updateGlobal();
-		Ref<DMIKNode3D> oldParent = get_parent_axes();
+		Ref<EWBIKNode3D> oldParent = get_parent_axes();
 		// for (int32_t i = 0; i < dependentsRegistry.size(); i++) {
 		// 	dependentsRegistry[i]->get().parentChangeWarning(this, getParentAxes(), nullptr, nullptr);
 		// }
 		getLocalMBasis().adopt_values(globalMBasis);
-		Ref<DMIKNode3D> axes = get_parent_axes();
+		Ref<EWBIKNode3D> axes = get_parent_axes();
 		if (axes.is_valid()) {
 			axes->disown(this);
 		}
@@ -484,49 +484,49 @@ void DMIKNode3D::emancipate() {
 	}
 }
 
-void DMIKNode3D::disown(Ref<DMIKAxisDependency> child) {
+void EWBIKNode3D::disown(Ref<EWBIKAxisDependency> child) {
 	dependentsRegistry.erase(child);
 }
 
-DMIKTransform DMIKNode3D::getGlobalMBasis() {
+DMIKTransform EWBIKNode3D::getGlobalMBasis() {
 	updateGlobal();
 	return globalMBasis;
 }
 
-DMIKTransform DMIKNode3D::getLocalMBasis() {
+DMIKTransform EWBIKNode3D::getLocalMBasis() {
 	return localMBasis;
 }
 
-void DMIKNode3D::axis_slip_warning(Ref<DMIKAxisDependency> globalPriorToSlipping, Ref<DMIKAxisDependency> globalAfterSlipping, Ref<DMIKAxisDependency> actualAxis) {
+void EWBIKNode3D::axis_slip_warning(Ref<EWBIKAxisDependency> globalPriorToSlipping, Ref<EWBIKAxisDependency> globalAfterSlipping, Ref<EWBIKAxisDependency> actualAxis) {
 }
 
-void DMIKNode3D::axis_slip_warning(Ref<DMIKAxisDependency> p_global_prior_to_slipping, Ref<DMIKAxisDependency> globalAfterSlipping, Ref<DMIKAxisDependency> actualAxis, List<Object> dontWarn) {
+void EWBIKNode3D::axis_slip_warning(Ref<EWBIKAxisDependency> p_global_prior_to_slipping, Ref<EWBIKAxisDependency> globalAfterSlipping, Ref<EWBIKAxisDependency> actualAxis, List<Object> dontWarn) {
 	updateGlobal();
 	if (slipType == NORMAL) {
 		if (get_parent_axes() != nullptr) {
-			Ref<DMIKNode3D> globalVals = relativeTo(p_global_prior_to_slipping);
-			Ref<DMIKNode3D> global_prior_to_slipping = p_global_prior_to_slipping;
+			Ref<EWBIKNode3D> globalVals = relativeTo(p_global_prior_to_slipping);
+			Ref<EWBIKNode3D> global_prior_to_slipping = p_global_prior_to_slipping;
 			globalVals = global_prior_to_slipping->getLocalOf(globalVals);
 			getLocalMBasis().adopt_values(globalMBasis);
 			mark_dirty();
 		}
 	} else if (slipType == FORWARD) {
-		Ref<DMIKNode3D> globalAfterVals = relativeTo(globalAfterSlipping);
+		Ref<EWBIKNode3D> globalAfterVals = relativeTo(globalAfterSlipping);
 		// notifyDependentsOfSlip(globalAfterVals, dontWarn);
 	}
 }
 
-void DMIKNode3D::axis_slip_completion_notice(Ref<DMIKAxisDependency> p_global_prior_to_slipping, Ref<DMIKAxisDependency> p_global_after_slipping, Ref<DMIKAxisDependency> p_this_axis) {
+void EWBIKNode3D::axis_slip_completion_notice(Ref<EWBIKAxisDependency> p_global_prior_to_slipping, Ref<EWBIKAxisDependency> p_global_after_slipping, Ref<EWBIKAxisDependency> p_this_axis) {
 }
 
-void DMIKNode3D::slipTo(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn) {
+void EWBIKNode3D::slipTo(Ref<EWBIKNode3D> newAxisGlobal, List<Object> dontWarn) {
 	updateGlobal();
-	Ref<DMIKNode3D> originalGlobal = getGlobalCopy();
+	Ref<EWBIKNode3D> originalGlobal = getGlobalCopy();
 	// notifyDependentsOfSlip(newAxisGlobal, dontWarn);
-	Ref<DMIKNode3D> newVals = newAxisGlobal->getGlobalCopy();
+	Ref<EWBIKNode3D> newVals = newAxisGlobal->getGlobalCopy();
 
 	if (get_parent_axes().is_valid()) {
-		Ref<DMIKNode3D> axes = get_parent_axes();
+		Ref<EWBIKNode3D> axes = get_parent_axes();
 		if (axes.is_valid()) {
 			newVals = axes->getLocalOf(newAxisGlobal);
 		}
@@ -538,14 +538,14 @@ void DMIKNode3D::slipTo(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn) {
 	// notifyDependentsOfSlipCompletion(originalGlobal, dontWarn);
 }
 
-void DMIKNode3D::slipTo(Ref<DMIKNode3D> newAxisGlobal) {
+void EWBIKNode3D::slipTo(Ref<EWBIKNode3D> newAxisGlobal) {
 	updateGlobal();
-	Ref<DMIKNode3D> originalGlobal = getGlobalCopy();
+	Ref<EWBIKNode3D> originalGlobal = getGlobalCopy();
 	// notifyDependentsOfSlip(newAxisGlobal);
-	Ref<DMIKNode3D> newVals = newAxisGlobal->getGlobalCopy();
+	Ref<EWBIKNode3D> newVals = newAxisGlobal->getGlobalCopy();
 
 	if (get_parent_axes() != nullptr) {
-		Ref<DMIKNode3D> axes = get_parent_axes();
+		Ref<EWBIKNode3D> axes = get_parent_axes();
 		if (axes.is_valid()) {
 			newVals = axes->getLocalOf(newVals);
 		}

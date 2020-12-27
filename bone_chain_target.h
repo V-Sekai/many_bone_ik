@@ -33,8 +33,8 @@
 #include "bone_chain_item.h"
 #include "core/object/reference.h"
 
-class DMIKBoneEffectorTransform;
-class DMIKShadowSkeletonBone;
+class EWBIKBoneEffectorTransform;
+class EWBIKShadowSkeletonBone;
 
 class DMIKBoneChainTarget : public Reference {
 	GDCLASS(DMIKBoneChainTarget, Reference);
@@ -50,16 +50,16 @@ protected:
 	float depthFalloff = 0.0f;
 
 public:
-	Ref<DMIKShadowSkeletonBone> chain_item = nullptr;
-	Ref<DMIKBoneEffectorTransform> end_effector = nullptr;
+	Ref<EWBIKShadowSkeletonBone> chain_item = nullptr;
+	Ref<EWBIKBoneEffectorTransform> end_effector = nullptr;
 
 	DMIKBoneChainTarget();
 
-	DMIKBoneChainTarget(Ref<DMIKShadowSkeletonBone> p_chain_item, const Ref<DMIKBoneEffectorTransform> p_end_effector);
+	DMIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector);
 
 	DMIKBoneChainTarget(const Ref<DMIKBoneChainTarget> p_other_ct);
 
-	DMIKBoneChainTarget(Ref<DMIKShadowSkeletonBone> p_chain_item, const Ref<DMIKBoneEffectorTransform> p_end_effector, bool p_enabled);
+	DMIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled);
 
 public:
 	static const short XDir = 1, YDir = 2, ZDir = 4;
@@ -158,7 +158,7 @@ public:
      */
 	Vector3 get_location();
 
-	Ref<DMIKShadowSkeletonBone> for_bone();
+	Ref<EWBIKShadowSkeletonBone> for_bone();
 
 	/**
      * called when this target is being removed entirely from the Armature. (as opposed to just being disabled)
