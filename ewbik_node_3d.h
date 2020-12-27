@@ -296,26 +296,39 @@ public:
 		 * @param ax
 		 */
 	bool equals(Ref<EWBIKNode3D> ax);
-	virtual void axis_slip_warning(Ref<EWBIKAxisDependency> globalPriorToSlipping, Ref<EWBIKAxisDependency> globalAfterSlipping, Ref<EWBIKAxisDependency> actualAxis);
-	virtual void axis_slip_completion_notice(Ref<EWBIKAxisDependency> p_global_prior_to_slipping, Ref<EWBIKAxisDependency> p_global_after_slipping, Ref<EWBIKAxisDependency> p_this_axis);
-	void slipTo(Ref<EWBIKNode3D> newAxisGlobal);
-	void slipTo(Ref<EWBIKNode3D> newAxisGlobal, List<Object> dontWarn);
-	// void notifyDependentsOfSlip(Ref<DMIKNode3D> newAxisGlobal, List<Object> dontWarn);
-	// void notifyDependentsOfSlipCompletion(Ref<DMIKNode3D> globalAxisPriorToSlipping, List<Object> dontWarn) {
-	// 	for (int i = 0; i < dependentsRegistry.size(); i++) {
-	// 		List<Ref<AxisDependency>>::Element *O = dontWarn.find(dependentsRegistry[i]);
-	// 		if (O) {
-	// 			O->get().axisSlipCompletionNotice(globalAxisPriorToSlipping, getGlobalCopy(), this);
-	// 		}
-	// 	}
-	// }
-	// void notifyDependentsOfSlip(Ref<DMIKNode3D> newAxisGlobal);
-	// void notifyDependentsOfSlipCompletion(Ref<DMIKNode3D> globalAxisPriorToSlipping) {
-	// 	for (int i = 0; i < dependentsRegistry.size(); i++) {
-	// 		dependentsRegistry[i]->axisSlipCompletionNotice(globalAxisPriorToSlipping, getGlobalCopy(), this);
-	// 	}
-	// }
 
+	void slipTo(Ref<EWBIKNode3D> newAxisGlobal) {
+		updateGlobal();
+		Ref<EWBIKNode3D> originalGlobal = getGlobalCopy();
+		// notifyDependentsOfSlip(newAxisGlobal);
+		Ref<EWBIKNode3D> newVals = newAxisGlobal->getGlobalCopy();
+
+		if (get_parent_axes() != nullptr) {
+			Ref<EWBIKNode3D> axes = get_parent_axes();
+			if (axes.is_valid()) {
+				newVals = axes->getLocalOf(newVals);
+			}
+		}
+		getLocalMBasis().adopt_values(newVals->globalMBasis);
+		dirty = true;
+		updateGlobal();
+	}
+	void slipTo(Ref<EWBIKNode3D> newAxisGlobal, List<Object> dontWarn) {
+		updateGlobal();
+		Ref<EWBIKNode3D> originalGlobal = getGlobalCopy();
+		// notifyDependentsOfSlip(newAxisGlobal, dontWarn);
+		Ref<EWBIKNode3D> newVals = newAxisGlobal->getGlobalCopy();
+
+		if (get_parent_axes().is_valid()) {
+			Ref<EWBIKNode3D> axes = get_parent_axes();
+			if (axes.is_valid()) {
+				newVals = axes->getLocalOf(newAxisGlobal);
+			}
+		}
+		alignGlobalsTo(newAxisGlobal);
+		mark_dirty();
+		updateGlobal();
+	}
 	void mark_dirty();
 
 	void mark_dependents_dirty();

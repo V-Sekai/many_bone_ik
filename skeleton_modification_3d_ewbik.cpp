@@ -1036,36 +1036,36 @@ void EWBIKShadowSkeletonBone::set_bone_height(const float p_bone_height) {
 float EWBIKSkeletonIKState::get_stiffness(int32_t p_bone) const {
 	ERR_FAIL_COND_V(!skeleton, 0);
 	ERR_FAIL_INDEX_V(p_bone, skeleton->get_bone_count(), 0);
-	return skeleton->get_bone_meta(p_bone, "stiffness");
+	return skeleton->get_bone_extra(p_bone, "stiffness");
 }
 
 void EWBIKSkeletonIKState::set_stiffness(int32_t p_bone, float p_stiffness_scalar) {
 	ERR_FAIL_COND(!skeleton);
-	skeleton->set_bone_meta(p_bone, "stiffness", p_stiffness_scalar);
+	skeleton->set_bone_extra(p_bone, "stiffness", p_stiffness_scalar);
 }
 
 float EWBIKSkeletonIKState::get_height(int32_t p_bone) const {
 	ERR_FAIL_COND_V(!skeleton, -1);
 	ERR_FAIL_INDEX_V(p_bone, skeleton->get_bone_count(), -1);
-	return skeleton->get_bone_meta(p_bone, "height");
+	return skeleton->get_bone_extra(p_bone, "height");
 }
 
 void EWBIKSkeletonIKState::set_height(int32_t p_bone, float p_height) {
 	ERR_FAIL_COND(!skeleton);
 	ERR_FAIL_INDEX(p_bone, skeleton->get_bone_count());
-	skeleton->set_bone_meta(p_bone, "height", p_height);
+	skeleton->set_bone_extra(p_bone, "height", p_height);
 }
 
 Ref<KusudamaConstraint> EWBIKSkeletonIKState::get_constraint(int32_t p_bone) const {
 	ERR_FAIL_COND_V(!skeleton, nullptr);
 	ERR_FAIL_INDEX_V(p_bone, skeleton->get_bone_count(), nullptr);
-	return skeleton->get_bone_meta(p_bone, "kusudama");
+	return skeleton->get_bone_extra(p_bone, "kusudama");
 }
 
 void EWBIKSkeletonIKState::set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint) {
 	ERR_FAIL_COND(!skeleton);
 	ERR_FAIL_INDEX(p_bone, skeleton->get_bone_count());
-	skeleton->set_bone_meta(p_bone, "kususdama", p_constraint);
+	skeleton->set_bone_extra(p_bone, "kususdama", p_constraint);
 }
 
 void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
@@ -1077,12 +1077,12 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 	skeleton = Object::cast_to<Skeleton3D>(node);
 	ERR_FAIL_COND(!skeleton);
 	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-		skeleton->set_bone_meta(bone_i, "stiffness", -1);		
-		skeleton->set_bone_meta(bone_i, "height", -1);
+		skeleton->set_bone_extra(bone_i, "stiffness", -1);		
+		skeleton->set_bone_extra(bone_i, "height", -1);
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
 		constraint->set_name(skeleton->get_bone_name(bone_i));
-		skeleton->set_bone_meta(bone_i, "kusudama", constraint);
+		skeleton->set_bone_extra(bone_i, "kusudama", constraint);
 	}
 }
 
@@ -1095,7 +1095,7 @@ EWBIKSkeletonIKState::~EWBIKSkeletonIKState() {
 void EWBIKSkeletonIKState::_get_property_list(List<PropertyInfo> *p_list) const {
 	ERR_FAIL_COND(!skeleton);
 	for (int i = 0; i < skeleton->get_bone_count(); i++) {
-		Ref<KusudamaConstraint> kusudama = skeleton->get_bone_meta(i, "kusudama");
+		Ref<KusudamaConstraint> kusudama = skeleton->get_bone_extra(i, "kusudama");
 		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(i) + "/name"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_min_angle"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_range"));
@@ -1118,10 +1118,10 @@ bool EWBIKSkeletonIKState::_get(const StringName &p_name, Variant &r_ret) const 
 		int index = name.get_slicec('/', 1).to_int();
 		ERR_FAIL_INDEX_V(index, skeleton->get_bone_count(), false);
 		String what = name.get_slicec('/', 2);
-		Ref<KusudamaConstraint> kusudama = skeleton->get_bone_meta(index, "kusudama");
+		Ref<KusudamaConstraint> kusudama = skeleton->get_bone_extra(index, "kusudama");
 		if (kusudama.is_null()) {
 			kusudama.instance();
-			skeleton->set_bone_meta(index, "kusudama", kusudama);
+			skeleton->set_bone_extra(index, "kusudama", kusudama);
 		}
 		if (what == "name") {
 			r_ret = kusudama->get_name();
@@ -1170,7 +1170,7 @@ bool EWBIKSkeletonIKState::_set(const StringName &p_name, const Variant &p_value
 		ERR_FAIL_INDEX_V(index, skeleton->get_bone_count(), false);
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
-		skeleton->set_bone_meta(index, "kusudama", constraint);
+		skeleton->set_bone_extra(index, "kusudama", constraint);
 		if (what == "name") {
 			constraint->set_name(p_value);
 			_change_notify();

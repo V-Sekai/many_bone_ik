@@ -497,9 +497,6 @@ DMIKTransform EWBIKNode3D::getLocalMBasis() {
 	return localMBasis;
 }
 
-void EWBIKNode3D::axis_slip_warning(Ref<EWBIKAxisDependency> globalPriorToSlipping, Ref<EWBIKAxisDependency> globalAfterSlipping, Ref<EWBIKAxisDependency> actualAxis) {
-}
-
 void EWBIKNode3D::axis_slip_warning(Ref<EWBIKAxisDependency> p_global_prior_to_slipping, Ref<EWBIKAxisDependency> globalAfterSlipping, Ref<EWBIKAxisDependency> actualAxis, List<Object> dontWarn) {
 	updateGlobal();
 	if (slipType == NORMAL) {
@@ -514,47 +511,6 @@ void EWBIKNode3D::axis_slip_warning(Ref<EWBIKAxisDependency> p_global_prior_to_s
 		Ref<EWBIKNode3D> globalAfterVals = relativeTo(globalAfterSlipping);
 		// notifyDependentsOfSlip(globalAfterVals, dontWarn);
 	}
-}
-
-void EWBIKNode3D::axis_slip_completion_notice(Ref<EWBIKAxisDependency> p_global_prior_to_slipping, Ref<EWBIKAxisDependency> p_global_after_slipping, Ref<EWBIKAxisDependency> p_this_axis) {
-}
-
-void EWBIKNode3D::slipTo(Ref<EWBIKNode3D> newAxisGlobal, List<Object> dontWarn) {
-	updateGlobal();
-	Ref<EWBIKNode3D> originalGlobal = getGlobalCopy();
-	// notifyDependentsOfSlip(newAxisGlobal, dontWarn);
-	Ref<EWBIKNode3D> newVals = newAxisGlobal->getGlobalCopy();
-
-	if (get_parent_axes().is_valid()) {
-		Ref<EWBIKNode3D> axes = get_parent_axes();
-		if (axes.is_valid()) {
-			newVals = axes->getLocalOf(newAxisGlobal);
-		}
-	}
-	alignGlobalsTo(newAxisGlobal);
-	mark_dirty();
-	updateGlobal();
-
-	// notifyDependentsOfSlipCompletion(originalGlobal, dontWarn);
-}
-
-void EWBIKNode3D::slipTo(Ref<EWBIKNode3D> newAxisGlobal) {
-	updateGlobal();
-	Ref<EWBIKNode3D> originalGlobal = getGlobalCopy();
-	// notifyDependentsOfSlip(newAxisGlobal);
-	Ref<EWBIKNode3D> newVals = newAxisGlobal->getGlobalCopy();
-
-	if (get_parent_axes() != nullptr) {
-		Ref<EWBIKNode3D> axes = get_parent_axes();
-		if (axes.is_valid()) {
-			newVals = axes->getLocalOf(newVals);
-		}
-	}
-	getLocalMBasis().adopt_values(newVals->globalMBasis);
-	dirty = true;
-	updateGlobal();
-
-	// notifyDependentsOfSlipCompletion(originalGlobal);
 }
 
 // void DMIKNode3D::notifyDependentsOfSlip(Ref<DMIKNode3D> newAxisGlobal) {
