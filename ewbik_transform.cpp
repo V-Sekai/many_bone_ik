@@ -1,13 +1,13 @@
 #include "ewbik_transform.h"
 #include "ewbik_transform.h"
 
-Vector3 DMIKTransform::get_local_of(Vector3 p_v) {
+Vector3 EWBIKTransform::get_local_of(Vector3 p_v) {
 	Vector3 result = p_v;
 	set_to_local_of(p_v, result);
 	return result;
 }
 
-void DMIKTransform::update_rays() {
+void EWBIKTransform::update_rays() {
 	x_ray.position = this->translate;
 	x_ray.normal = x_base;
 	y_ray.position = this->translate;
@@ -24,7 +24,7 @@ void DMIKTransform::update_rays() {
 	z_ray.normal += this->translate;
 }
 
-void DMIKTransform::set(Vector3 p_x, Vector3 p_y, Vector3 p_z) {
+void EWBIKTransform::set(Vector3 p_x, Vector3 p_y, Vector3 p_z) {
 	x_base = translate;
 	y_base = translate;
 	z_base = translate;
@@ -42,7 +42,7 @@ void DMIKTransform::set(Vector3 p_x, Vector3 p_y, Vector3 p_z) {
 	this->refresh_precomputed();
 }
 
-DMIKTransform::DMIKTransform(Ray p_x, Ray p_y, Ray p_z) {
+EWBIKTransform::EWBIKTransform(Ray p_x, Ray p_y, Ray p_z) {
 	this->translate = p_x.position;
 	x_ray = p_x;
 	y_ray = p_y;
@@ -56,7 +56,7 @@ DMIKTransform::DMIKTransform(Ray p_x, Ray p_y, Ray p_z) {
 	set(xDirNew, yDirNew, zDirNew);
 }
 
- DMIKTransform::DMIKTransform(Vector3 p_origin, Vector3 p_x, Vector3 p_y, Vector3 p_z) {
+ EWBIKTransform::EWBIKTransform(Vector3 p_origin, Vector3 p_x, Vector3 p_y, Vector3 p_z) {
 	this->translate = p_origin;
 	x_ray = Ray(p_origin, p_origin);
 	y_ray = Ray(p_origin, p_origin);
@@ -64,7 +64,7 @@ DMIKTransform::DMIKTransform(Ray p_x, Ray p_y, Ray p_z) {
 	this->set(p_x, p_y, p_z);
 }
 
- DMIKTransform::DMIKTransform(const Transform &input) {
+ EWBIKTransform::EWBIKTransform(const Transform &input) {
 	translate = input.origin;
 	Vector3 x = input.basis.get_axis(0);
 	Vector3 y = input.basis.get_axis(1);
@@ -72,7 +72,7 @@ DMIKTransform::DMIKTransform(Ray p_x, Ray p_y, Ray p_z) {
 	set(x, y, z);
 }
 
- DMIKTransform::DMIKTransform() {
+ EWBIKTransform::EWBIKTransform() {
 	Vector3 origin;
 	translate = origin;
 	x_base = origin;
@@ -88,7 +88,7 @@ DMIKTransform::DMIKTransform(Ray p_x, Ray p_y, Ray p_z) {
 	refresh_precomputed();
 }
 
- DMIKTransform::DMIKTransform(Vector3 p_origin) {
+ EWBIKTransform::EWBIKTransform(Vector3 p_origin) {
 	translate = p_origin;
 	x_base = p_origin;
 	y_base = p_origin;
@@ -103,7 +103,7 @@ DMIKTransform::DMIKTransform(Ray p_x, Ray p_y, Ray p_z) {
 	refresh_precomputed();
 }
 
-void DMIKTransform::adopt_values(DMIKTransform p_in) {
+void EWBIKTransform::adopt_values(EWBIKTransform p_in) {
 	this->translate = p_in.translate;
 	this->rotation = p_in.rotation;
 	x_base = translate * Vector3(1, 0, 0);
@@ -115,7 +115,7 @@ void DMIKTransform::adopt_values(DMIKTransform p_in) {
 	this->refresh_precomputed();
 }
 
-void DMIKTransform::set_identity() {
+void EWBIKTransform::set_identity() {
 	this->translate = Vector3();
 	x_base = Vector3(1, 0, 0);
 	y_base = Vector3(0, 1, 0);
@@ -130,95 +130,95 @@ void DMIKTransform::set_identity() {
 	refresh_precomputed();
 }
 
-Quat DMIKTransform::get_local_of_rotation(Quat p_in_rot) {
+Quat EWBIKTransform::get_local_of_rotation(Quat p_in_rot) {
 	Quat resultNew = inverse_rotation * p_in_rot * rotation;
 	return resultNew;
 }
 
-void DMIKTransform::set_to_local_of(Vector3 p_input, Vector3 &r_output) {
+void EWBIKTransform::set_to_local_of(Vector3 p_input, Vector3 &r_output) {
 	r_output = p_input;
 	r_output -= this->translate;
 	r_output = inverse_rotation.get_euler() * r_output;
 }
 
-void DMIKTransform::set_to_local_of(DMIKTransform p_global_input, DMIKTransform &r_local_output) {
+void EWBIKTransform::set_to_local_of(EWBIKTransform p_global_input, EWBIKTransform &r_local_output) {
 	r_local_output.translate = this->get_local_of(p_global_input.translate);
 	inverse_rotation *= p_global_input.rotation * r_local_output.rotation;
 	r_local_output.refresh_precomputed();
 }
 
-void DMIKTransform::refresh_precomputed() {
+void EWBIKTransform::refresh_precomputed() {
 	this->rotation = inverse_rotation.inverse();
 	this->update_rays();
 }
 
-void DMIKTransform::rotate_to(Quat p_new_rotation) {
+void EWBIKTransform::rotate_to(Quat p_new_rotation) {
 	this->rotation = p_new_rotation;
 	this->refresh_precomputed();
 }
 
-void DMIKTransform::rotate_by(Quat p_add_rotation) {
+void EWBIKTransform::rotate_by(Quat p_add_rotation) {
 	this->rotation *= p_add_rotation;
 	this->refresh_precomputed();
 }
 
-void DMIKTransform::set_to_global_of(Vector3 p_input, Vector3 &r_output) {
+void EWBIKTransform::set_to_global_of(Vector3 p_input, Vector3 &r_output) {
 	rotation = Quat(p_input);
 	r_output += this->translate;
 }
 
-void DMIKTransform::set_to_global_of(DMIKTransform localInput, DMIKTransform &globalOutput) {
+void EWBIKTransform::set_to_global_of(EWBIKTransform localInput, EWBIKTransform &globalOutput) {
 	this->rotation *= localInput.rotation * globalOutput.rotation;
 	this->set_to_global_of(localInput.translate, globalOutput.translate);
 	globalOutput.refresh_precomputed();
 }
 
-void DMIKTransform::translate_by(Vector3 p_translate_by) {
+void EWBIKTransform::translate_by(Vector3 p_translate_by) {
 	this->translate.x += p_translate_by.x;
 	this->translate.y += p_translate_by.y;
 	this->translate.z += p_translate_by.z;
 	update_rays();
 }
 
-void DMIKTransform::translate_to(Vector3 p_new_origin) {
+void EWBIKTransform::translate_to(Vector3 p_new_origin) {
 	this->translate.x = p_new_origin.x;
 	this->translate.y = p_new_origin.y;
 	this->translate.z = p_new_origin.z;
 	update_rays();
 }
 
-Ray DMIKTransform::get_x_ray() {
+Ray EWBIKTransform::get_x_ray() {
 	return x_ray;
 }
 
-Ray DMIKTransform::get_y_ray() {
+Ray EWBIKTransform::get_y_ray() {
 	return y_ray;
 }
 
-Ray DMIKTransform::get_z_ray() {
+Ray EWBIKTransform::get_z_ray() {
 	return z_ray;
 }
 
-Vector3 DMIKTransform::get_x_heading() {
+Vector3 EWBIKTransform::get_x_heading() {
 	return this->x_ray.heading();
 }
 
-Vector3 DMIKTransform::get_y_heading() {
+Vector3 EWBIKTransform::get_y_heading() {
 	return this->y_ray.heading();
 }
 
-Vector3 DMIKTransform::get_z_heading() {
+Vector3 EWBIKTransform::get_z_heading() {
 	return this->z_ray.heading();
 }
 
-Vector3 DMIKTransform::get_origin() {
+Vector3 EWBIKTransform::get_origin() {
 	return translate;
 }
 
-bool DMIKTransform::is_axis_flipped(int axis) {
+bool EWBIKTransform::is_axis_flipped(int axis) {
 	return false;
 }
 
-Quat DMIKTransform::get_inverse_rotation() {
+Quat EWBIKTransform::get_inverse_rotation() {
 	return this->inverse_rotation;
 }

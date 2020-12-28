@@ -450,7 +450,7 @@ void EWBIKShadowSkeletonBone::set_stiffness(float p_stiffness) {
 	}
 }
 
-bool SkeletonModification3DEWBIK::build_chain(Ref<DMIKTask> p_task) {
+bool SkeletonModification3DEWBIK::build_chain(Ref<EWBIKTask> p_task) {
 	ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
 	Ref<EWBIKShadowSkeletonBone> chain = p_task->chain;
 	chain->chain_root = chain;
@@ -467,7 +467,6 @@ void SkeletonModification3DEWBIK::update_chain(Skeleton3D *p_sk, Ref<EWBIKShadow
 	
 	Transform xform = p_sk->global_pose_to_local_pose(p_chain_item->bone, p_sk->get_bone_global_pose(p_chain_item->bone));
 	p_chain_item->axes = xform;
-	// Ref<DMIKNode3D> node = DMIKNode3D(xform, );
 	Vector<Ref<EWBIKShadowSkeletonBone>> bones = p_chain_item->get_bones();
 	ERR_FAIL_COND(!p_chain_item->is_chain_active());
 	int32_t found_i = bones.find(p_chain_item);
@@ -483,14 +482,14 @@ void SkeletonModification3DEWBIK::update_chain(Skeleton3D *p_sk, Ref<EWBIKShadow
 	}
 }
 
-void SkeletonModification3DEWBIK::solve_simple(Ref<DMIKTask> p_task) {
+void SkeletonModification3DEWBIK::solve_simple(Ref<EWBIKTask> p_task) {
 	iterated_improved_solver(p_task->qcp, p_task->root_bone, p_task->chain, p_task->dampening, p_task->max_iterations, p_task->stabilizing_passes);
 }
 
-Ref<DMIKTask> SkeletonModification3DEWBIK::create_simple_task(Skeleton3D *p_sk, String p_root_bone,
+Ref<EWBIKTask> SkeletonModification3DEWBIK::create_simple_task(Skeleton3D *p_sk, String p_root_bone,
 		float p_dampening, int p_stabilizing_passes,
 		Ref<SkeletonModification3DEWBIK> p_constraints) {
-	Ref<DMIKTask> task;
+	Ref<EWBIKTask> task;
 	task.instance();
 	task->qcp = p_constraints->qcp_convergence_check;
 	task->skeleton = p_sk;
@@ -518,7 +517,7 @@ Ref<DMIKTask> SkeletonModification3DEWBIK::create_simple_task(Skeleton3D *p_sk, 
 	return task;
 }
 
-void SkeletonModification3DEWBIK::solve(Ref<DMIKTask> p_task, float blending_delta) {
+void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_delta) {
 	if (blending_delta <= 0.01f) {
 		return; // Skip solving
 	}

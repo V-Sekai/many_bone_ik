@@ -63,7 +63,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	Ref<EWBIKSkeletonIKState> skeleton_ik_state;
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
-	Ref<DMIKTask> task;
+	Ref<EWBIKTask> task;
 	String root_bone;
 	int32_t default_stabilizing_pass_count = 4;
 	Ref<QCP> qcp_convergence_check;
@@ -138,9 +138,9 @@ private:
 			int p_stabilization_passes,
 			int p_iteration,
 			float p_total_iterations);
-	static bool build_chain(Ref<DMIKTask> p_task);
+	static bool build_chain(Ref<EWBIKTask> p_task);
 	static void update_chain(Skeleton3D *p_sk, Ref<EWBIKShadowSkeletonBone> p_chain_item);
-	static void solve_simple(Ref<DMIKTask> p_task);
+	static void solve_simple(Ref<EWBIKTask> p_task);
 
 public:
 	/**
@@ -168,10 +168,10 @@ public:
 			Vector<real_t> &p_weights, Transform p_bone_xform);
 	static void update_effector_headings(Ref<EWBIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
-	static Ref<DMIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
+	static Ref<EWBIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3DEWBIK> p_constraints = NULL);
-	static void solve(Ref<DMIKTask> p_task, float blending_delta);
+	static void solve(Ref<EWBIKTask> p_task, float blending_delta);
 };
 // Skeleton data structure
 class EWBIKSkeletonIKState : public Resource {

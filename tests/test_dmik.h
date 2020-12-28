@@ -31,12 +31,11 @@
 #ifndef TEST_EWBIK_H
 #define TEST_EWBIK_H
 
-#include "modules/dmik/dmik_axis_dependency.h"
-#include "modules/dmik/qcp.h"
+#include "modules/ewbik/qcp.h"
 
 #include "tests/test_macros.h"
 
-namespace TestDMIK {
+namespace TestEWBIK {
 
 Vector3 deg2rad(const Vector3 &p_rotation) {
 	return p_rotation / 180.0 * Math_PI;
@@ -46,7 +45,7 @@ Vector3 rad2deg(const Vector3 &p_rotation) {
 	return p_rotation / Math_PI * 180.0;
 }
 
-TEST_CASE("[Modules][DMIK] qcp") {
+TEST_CASE("[Modules][EWBIK] qcp") {
 	Ref<QCP> qcp;
 	qcp.instance();
 	qcp->set_max_iterations(10);
@@ -86,6 +85,6 @@ TEST_CASE("[Modules][DMIK] qcp") {
 	rot_compare.z = 0.013555937;
 	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion.", String(rot)).utf8().ptr());
 }
-} // namespace TestDMIK
+} // namespace TestEWBIK
 
 #endif

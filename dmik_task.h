@@ -34,8 +34,8 @@
 #include "bone_chain_item.h"
 #include "qcp.h"
 
-class DMIKTask : public Reference {
-	GDCLASS(DMIKTask, Reference);
+class EWBIKTask : public Reference {
+	GDCLASS(EWBIKTask, Reference);
 
 protected:
 	static void _bind_methods() {}

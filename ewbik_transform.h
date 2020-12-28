@@ -4,7 +4,7 @@
 #include "core/math/vector3.h"
 #include "ray.h"
 
-class DMIKTransform {
+class EWBIKTransform {
 private:
 	Vector3 x_base = Vector3(1, 0, 0);
 	Vector3 y_base = Vector3(0, 1, 0);
@@ -41,11 +41,11 @@ public:
 	 * Initialize this basis at the origin. The basis will be right handed by default. 
 	 * @param origin
 	 */
-	DMIKTransform(Vector3 p_origin);
+	EWBIKTransform(Vector3 p_origin);
 
-	DMIKTransform();
+	EWBIKTransform();
 
-	DMIKTransform(const Transform &input);
+	EWBIKTransform(const Transform &input);
 
 	/**
 	 * Initialize this basis at the origin.
@@ -62,7 +62,7 @@ public:
 	 * @param y basis vector direction
 	 * @param z basis vector direction
 	 */
-	DMIKTransform(Vector3 p_origin, Vector3 p_x, Vector3 p_y, Vector3 p_z);
+	EWBIKTransform(Vector3 p_origin, Vector3 p_x, Vector3 p_y, Vector3 p_z);
 
 	/**
 	 * Initialize this basis at the origin defined by the base of the @param x Ray.
@@ -81,18 +81,18 @@ public:
 	 * @param y basis Ray 
 	 * @param z basis Ray 
 	 */
-	DMIKTransform(Ray p_x, Ray p_y, Ray p_z);
+	EWBIKTransform(Ray p_x, Ray p_y, Ray p_z);
 
 	/**
 	 * takes on the same values as the input basis. 
 	 * @param in
 	 */
-	void adopt_values(DMIKTransform p_in);
+	void adopt_values(EWBIKTransform p_in);
 	void set_identity();
 
 	Quat get_local_of_rotation(Quat p_in_rot);
 
-	void set_to_local_of(DMIKTransform p_global_input, DMIKTransform &r_local_output);
+	void set_to_local_of(EWBIKTransform p_global_input, EWBIKTransform &r_local_output);
 
 	void refresh_precomputed();
 
@@ -110,7 +110,7 @@ public:
 	 * @param localInput
 	 * @param globalOutput
 	 */
-	void set_to_global_of(DMIKTransform localInput, DMIKTransform &globalOutput);
+	void set_to_global_of(EWBIKTransform localInput, EWBIKTransform &globalOutput);
 
 	void set_to_global_of(Vector3 p_input, Vector3 &r_output);
 
