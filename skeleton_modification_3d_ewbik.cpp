@@ -520,6 +520,13 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	if (blending_delta <= 0.01f) {
 		return; // Skip solving
 	}
+
+	for (int32_t bone_i = 0; bone_i < p_task->skeleton->get_bone_count(); bone_i++) {
+		Skeleton3D * skeleton = p_task->skeleton;
+		Transform xform = skeleton->get_bone_pose(bone_i) * skeleton->get_bone_custom_pose(bone_i);
+		skeleton->set_bone_extra(bone_i, "shadow_pose", xform);
+	}
+
 	// for (int32_t constraint_i = 0; constraint_i < p_task->dmik->get_constraint_count(); constraint_i++) {
 	// 	Ref<KusudamaConstraint> constraint = p_task->dmik->get_constraint(constraint_i);
 	// 	ERR_CONTINUE(constraint.is_null());

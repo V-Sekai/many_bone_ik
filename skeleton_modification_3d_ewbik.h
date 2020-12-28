@@ -38,6 +38,7 @@
 #include "bone_effector.h"
 #include "direction_constraint.h"
 #include "dmik_task.h"
+#include "ewbik_transform.h"
 #include "kusudama_constraint.h"
 #include "qcp.h"
 #include "twist_constraint.h"
@@ -55,6 +56,114 @@ class EWBIKSkeletonIKState;
 class DirectionConstraint;
 class TwistConstraint;
 class KusudamaConstraint;
+
+class IKNode3D : public Reference {
+	GDCLASS(IKNode3D, Reference);
+
+public:
+	IKBasis local;
+	IKBasis global;
+	Vector<Ref<IKNode3D>> children_nodes;
+	Ref<IKNode3D> parent_node;
+	bool dirty = false;
+	void mark_dirty() {
+		dirty = true;
+	}
+	bool is_dirty() const {
+		return dirty;
+	}
+	IKBasis get_local() const { return local; }
+	IKBasis get_global() const { return global; }
+	void set_local(IKBasis p_local) {
+		local = p_local;
+		mark_dirty();
+	}
+	void set_parent(Ref<IKNode3D> p_parent) {
+		parent_node = p_parent;
+		mark_dirty();
+	}
+	void update_global() {}
+	void set_relative_to_parent(Ref<IKNode3D> par) {}
+	// Vector3 apply_global(Vector3 p_in) {
+	// 	update_global();
+	// }
+	// Ray apply_global(Ray p_ray) {
+	// 	update_global();
+	// }
+	// Vector3 get_global_of(Vector3 p_in) {
+	// 	update_global();
+	// 	// the other way around with transform xform
+	// }
+	// Ray get_local_of(Ray p_in) {
+	// 	update_global();
+	// 	// the other way around with transform xform
+	// }
+	// Create variations where the input parameter is directly changed
+	void translate_to(Vector3 p_target) {
+		update_global();
+		if (parent_node.is_valid()) {
+			local.translate_to(parent_node->get_global().get_local_of(p_target));
+			mark_dirty();
+		} else {
+			local.translate_to(p_target);
+			mark_dirty();
+		}
+	}
+	Ray get_ray_x() {
+		update_global();
+		return get_global_ik_basis().get_x_ray();
+	}
+	Ray get_ray_y() {
+		update_global();
+		return get_global_ik_basis().get_y_ray();
+	}
+	Ray get_ray_z() {
+		update_global();
+		return get_global_ik_basis().get_z_ray();
+	}
+
+	void rotate_about_x(float angle) {
+		update_global();
+		Quat xRot = Quat(get_global_ik_basis().get_x_heading(), angle);
+		rotate_by(xRot);
+		mark_dirty();
+	}
+
+	void rotate_about_y(float angle) {
+		update_global();
+		Quat yRot = Quat(get_global_ik_basis().get_y_heading(), angle);
+		rotate_by(yRot);
+		mark_dirty();
+	}
+
+	void rotate_about_z(float angle) {
+		update_global();
+		Quat zRot = Quat(get_global_ik_basis().get_z_heading(), angle);
+		rotate_by(zRot);
+		mark_dirty();
+	}
+	// void set_rotation(Rot newRotation) {
+	// 	this.rotation.set(newRotation);
+	// 	this.refreshPrecomputed();
+	// }
+	void rotate_by(Quat addRotation) {
+		update_global();
+		if (parent_node.is_valid()) {
+			Quat newRot = parent_node->get_global_ik_basis().get_local_of_rotation(addRotation);
+			get_local_ik_basis().rotate_by(newRot);
+		} else {
+			get_local_ik_basis().rotate_by(addRotation);
+		}
+		mark_dirty();
+	}
+	IKBasis get_global_ik_basis() {
+		update_global();
+		return global;
+	}
+	IKBasis get_local_ik_basis() {
+		return local;
+	}
+};
 
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
