@@ -31,7 +31,7 @@
 #include "skeleton_modification_3d_ewbik.h"
 #include "bone_chain_target.h"
 
-void DMIKBoneChainTarget::set_target_priorities(float p_x_priority, float p_y_priority, float p_z_priority) {
+void EWBIKBoneChainTarget::set_target_priorities(float p_x_priority, float p_y_priority, float p_z_priority) {
 	bool x_dir = p_x_priority > 0 ? true : false;
 	bool y_dir = p_y_priority > 0 ? true : false;
 	bool z_dir = p_z_priority > 0 ? true : false;
@@ -57,24 +57,24 @@ void DMIKBoneChainTarget::set_target_priorities(float p_x_priority, float p_y_pr
 	chain_item->parent_item->rootwardly_update_falloff_cache_from(for_bone());
 }
 
-float DMIKBoneChainTarget::get_depth_falloff() const {
+float EWBIKBoneChainTarget::get_depth_falloff() const {
 	return depthFalloff;
 }
 
-void DMIKBoneChainTarget::set_depth_falloff(float depth) {
+void EWBIKBoneChainTarget::set_depth_falloff(float depth) {
 	depthFalloff = depth;
 	chain_item->parent_item->rootwardly_update_falloff_cache_from(for_bone());
 }
 
-void DMIKBoneChainTarget::disable() {
+void EWBIKBoneChainTarget::disable() {
 	enabled = false;
 }
 
-void DMIKBoneChainTarget::enable() {
+void EWBIKBoneChainTarget::enable() {
 	enabled = true;
 }
 
-void DMIKBoneChainTarget::toggle() {
+void EWBIKBoneChainTarget::toggle() {
 	if (is_enabled()) {
 		disable();
 	} else {
@@ -82,71 +82,71 @@ void DMIKBoneChainTarget::toggle() {
 	}
 }
 
- DMIKBoneChainTarget::DMIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled) {
+ EWBIKBoneChainTarget::EWBIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled) {
 	enabled = p_enabled;
 	set_target_priorities(x_priority, y_priority, z_priority);
 }
 
- DMIKBoneChainTarget::DMIKBoneChainTarget(const Ref<DMIKBoneChainTarget> p_other_ct) :
+ EWBIKBoneChainTarget::EWBIKBoneChainTarget(const Ref<EWBIKBoneChainTarget> p_other_ct) :
 		chain_item(p_other_ct->chain_item),
 		end_effector(p_other_ct->end_effector) {
 }
 
- DMIKBoneChainTarget::DMIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector) :
+ EWBIKBoneChainTarget::EWBIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector) :
 		chain_item(p_chain_item),
 		end_effector(p_end_effector) {
 }
 
- DMIKBoneChainTarget::DMIKBoneChainTarget() :
+ EWBIKBoneChainTarget::EWBIKBoneChainTarget() :
 		chain_item(NULL),
 		end_effector(NULL) {
 }
 
-bool DMIKBoneChainTarget::is_enabled() const {
+bool EWBIKBoneChainTarget::is_enabled() const {
 	return enabled;
 }
 
-int DMIKBoneChainTarget::get_subtarget_count() {
+int EWBIKBoneChainTarget::get_subtarget_count() {
 	return sub_target_count;
 }
 
-uint8_t DMIKBoneChainTarget::get_mode_code() const {
+uint8_t EWBIKBoneChainTarget::get_mode_code() const {
 	return mode_code;
 }
 
-float DMIKBoneChainTarget::get_x_priority() const {
+float EWBIKBoneChainTarget::get_x_priority() const {
 	return x_priority;
 }
 
-float DMIKBoneChainTarget::get_y_priority() const {
+float EWBIKBoneChainTarget::get_y_priority() const {
 	return y_priority;
 }
 
-float DMIKBoneChainTarget::get_z_priority() const {
+float EWBIKBoneChainTarget::get_z_priority() const {
 	return z_priority;
 }
 
-Transform DMIKBoneChainTarget::get_axes() const {
+Transform EWBIKBoneChainTarget::get_axes() const {
 	return chain_item->axes;
 }
 
-void DMIKBoneChainTarget::align_to_axes(Transform inAxes) {
+void EWBIKBoneChainTarget::align_to_axes(Transform inAxes) {
 	//TODO
 	//axes.alignGlobalsTo(inAxes);
 }
 
-void DMIKBoneChainTarget::translate(Vector3 location) {
+void EWBIKBoneChainTarget::translate(Vector3 location) {
 	chain_item->axes.origin *= location;
 }
 
-Vector3 DMIKBoneChainTarget::get_location() {
+Vector3 EWBIKBoneChainTarget::get_location() {
 	return chain_item->axes.origin;
 }
-Ref<EWBIKShadowSkeletonBone> DMIKBoneChainTarget::for_bone() {
+Ref<EWBIKShadowSkeletonBone> EWBIKBoneChainTarget::for_bone() {
 	return chain_item;
 }
 
-void DMIKBoneChainTarget::removal_notification() {
+void EWBIKBoneChainTarget::removal_notification() {
 	for (int32_t target_i = 0; target_i < child_targets.size(); target_i++) {
 		child_targets.write[target_i]->set_parent_target(get_parent_target());
 	}

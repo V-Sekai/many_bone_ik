@@ -36,7 +36,7 @@
 #include "bone_effector_transform.h"
 #include "core/object/reference.h"
 
-class DMIKBoneChainTarget;
+class EWBIKBoneChainTarget;
 class SkeletonModification3DEWBIK;
 class Skeleton3D;
 class KusudamaConstraint;
@@ -44,18 +44,19 @@ class PhysicalBone3D;
 
 class EWBIKShadowSkeletonBone : public Reference {
 	GDCLASS(EWBIKShadowSkeletonBone, Reference);
-
+	friend class SkeletonModification3DEWBIK;
+	friend class EWBIKBoneChainTarget;
+	friend class KusudamaConstraint;
 private:
 	Vector<Ref<EWBIKBoneEffector>> multi_effector;
 	Vector<Ref<EWBIKShadowSkeletonBone>> child_chains;
 
-public:
 	bool processed = false;
 	bool aligned = false;
 	Transform axes;
 	Transform axes_global;
 	Ref<EWBIKShadowSkeletonBone> chain_root = nullptr;
-	Vector<Ref<DMIKBoneChainTarget>> targets;
+	Vector<Ref<EWBIKBoneChainTarget>> targets;
 	Vector<Vector3> localized_target_headings;
 	Vector<Vector3> localized_effector_headings;
 	Vector<real_t> weights;
@@ -89,6 +90,8 @@ public:
 	bool is_active = false;
 	//will be set to true if the tip of this chain is an effector.
 	bool has_effector = false;
+
+public:
 	EWBIKShadowSkeletonBone();
 	void recursively_align_axes_outward_from(Ref<EWBIKShadowSkeletonBone> b);
 	/**

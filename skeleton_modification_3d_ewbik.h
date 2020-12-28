@@ -44,9 +44,9 @@
 
 class Skeleton3D;
 class PhysicalBone3D;
-class DMIKBoneChainTarget;
+class EWBIKBoneChainTarget;
 class SkeletonModification3DEWBIK;
-class DMIKBoneChainTarget;
+class EWBIKBoneChainTarget;
 class EWBIKBoneEffector;
 class Skeleton3D;
 class EWBIKShadowSkeletonBone;

@@ -36,13 +36,13 @@
 class EWBIKBoneEffectorTransform;
 class EWBIKShadowSkeletonBone;
 
-class DMIKBoneChainTarget : public Reference {
-	GDCLASS(DMIKBoneChainTarget, Reference);
+class EWBIKBoneChainTarget : public Reference {
+	GDCLASS(EWBIKBoneChainTarget, Reference);
 
 protected:
 	bool enabled = true;
-	DMIKBoneChainTarget *parent_target = nullptr;
-	Vector<DMIKBoneChainTarget *> child_targets;
+	EWBIKBoneChainTarget *parent_target = nullptr;
+	Vector<Ref<EWBIKBoneChainTarget>> child_targets;
 	float target_weight = 1;
 	uint8_t mode_code = 7;
 	int sub_target_count = 4;
@@ -53,13 +53,13 @@ public:
 	Ref<EWBIKShadowSkeletonBone> chain_item = nullptr;
 	Ref<EWBIKBoneEffectorTransform> end_effector = nullptr;
 
-	DMIKBoneChainTarget();
+	EWBIKBoneChainTarget();
 
-	DMIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector);
+	EWBIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector);
 
-	DMIKBoneChainTarget(const Ref<DMIKBoneChainTarget> p_other_ct);
+	EWBIKBoneChainTarget(const Ref<EWBIKBoneChainTarget> p_other_ct);
 
-	DMIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled);
+	EWBIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled);
 
 public:
 	static const short XDir = 1, YDir = 2, ZDir = 4;
@@ -164,11 +164,11 @@ public:
      * called when this target is being removed entirely from the Armature. (as opposed to just being disabled)
      */
 	void removal_notification();
-	void set_parent_target(DMIKBoneChainTarget *parent);
-	void remove_child_target(DMIKBoneChainTarget *child);
-	void add_child_target(DMIKBoneChainTarget *new_child);
-	DMIKBoneChainTarget *get_parent_target();
-	bool is_ancestor_of(DMIKBoneChainTarget *potential_descendent);
+	void set_parent_target(EWBIKBoneChainTarget *parent);
+	void remove_child_target(EWBIKBoneChainTarget *child);
+	void add_child_target(EWBIKBoneChainTarget *new_child);
+	EWBIKBoneChainTarget *get_parent_target();
+	bool is_ancestor_of(EWBIKBoneChainTarget *potential_descendent);
 	float get_target_weight();
 };
 

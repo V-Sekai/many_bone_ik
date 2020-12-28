@@ -567,12 +567,12 @@ void SkeletonModification3DEWBIK::solve(Ref<DMIKTask> p_task, float blending_del
 		p_task->end_effectors.write[name_i] = ee;
 	}
 
-	Vector<Ref<DMIKBoneChainTarget>> targets;
+	Vector<Ref<EWBIKBoneChainTarget>> targets;
 	targets.resize(p_task->end_effectors.size());
 	for (int32_t effector_i = 0; effector_i < p_task->end_effectors.size(); effector_i++) {
 		Ref<EWBIKBoneEffectorTransform> ee = p_task->end_effectors[effector_i];
 		ERR_FAIL_COND(ee.is_null());
-		Ref<DMIKBoneChainTarget> target;
+		Ref<EWBIKBoneChainTarget> target;
 		target.instance();
 		target->end_effector = ee;
 		Ref<EWBIKShadowSkeletonBone> bone_chain_item = p_task->chain->chain_root->find_child(ee->effector_bone);
@@ -753,7 +753,7 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKShadowSkeleton
 		Vector<real_t> &p_weights, Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
-		Ref<DMIKBoneChainTarget> bct = r_chain->targets[target_i];
+		Ref<EWBIKBoneChainTarget> bct = r_chain->targets[target_i];
 		if (bct.is_null()) {
 			continue;
 		}
@@ -775,17 +775,17 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKShadowSkeleton
 		Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
 		origin += godot_to_libgdx;
 		hdx++;
-		if ((modeCode & DMIKBoneChainTarget::XDir) != 0) {
+		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
 			r_localized_target_headings.write[hdx] += origin * x_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			hdx += 2;
 		}
-		if ((modeCode & DMIKBoneChainTarget::YDir) != 0) {
+		if ((modeCode & EWBIKBoneChainTarget::YDir) != 0) {
 			r_localized_target_headings.write[hdx] += origin * y_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			hdx += 2;
 		}
-		if ((modeCode & DMIKBoneChainTarget::ZDir) != 0) {
+		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
 			r_localized_target_headings.write[hdx] += origin * z_orientation + target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			hdx += 2;
@@ -797,7 +797,7 @@ void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKShadowSkelet
 		Transform p_bone_xform) {
 	int hdx = 0;
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
-		Ref<DMIKBoneChainTarget> bct = r_chain->targets[target_i];
+		Ref<EWBIKBoneChainTarget> bct = r_chain->targets[target_i];
 		if (bct.is_null()) {
 			continue;
 		}
@@ -817,17 +817,17 @@ void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKShadowSkelet
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		// Transform target_axes = sb->constraint->get_constraint_axes();
-		if ((modeCode & DMIKBoneChainTarget::XDir) != 0) {
+		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * x_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			hdx += 2;
 		}
-		if ((modeCode & DMIKBoneChainTarget::YDir) != 0) {
+		if ((modeCode & EWBIKBoneChainTarget::YDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * y_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			hdx += 2;
 		}
-		if ((modeCode & DMIKBoneChainTarget::ZDir) != 0) {
+		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
 			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * z_orientation;
 			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
 			hdx += 2;
@@ -856,7 +856,7 @@ void EWBIKShadowSkeletonBone::recursively_create_penalty_array(Ref<EWBIKShadowSk
 		return;
 	} else {
 		for (int32_t target_i = 0; target_i < from->targets.size(); target_i++) {
-			Ref<DMIKBoneChainTarget> target = from->targets[target_i];
+			Ref<EWBIKBoneChainTarget> target = from->targets[target_i];
 			if (target.is_null()) {
 				continue;
 			}
@@ -864,11 +864,11 @@ void EWBIKShadowSkeletonBone::recursively_create_penalty_array(Ref<EWBIKShadowSk
 			uint8_t mode_code = target->get_mode_code();
 			inner_weight_array.push_back(target->get_target_weight() * current_falloff);
 			float max_target_weight = 0.0f;
-			if ((mode_code & DMIKBoneChainTarget::XDir) != 0)
+			if ((mode_code & EWBIKBoneChainTarget::XDir) != 0)
 				max_target_weight = MAX(max_target_weight, target->get_x_priority());
-			if ((mode_code & DMIKBoneChainTarget::YDir) != 0)
+			if ((mode_code & EWBIKBoneChainTarget::YDir) != 0)
 				max_target_weight = MAX(max_target_weight, target->get_y_priority());
-			if ((mode_code & DMIKBoneChainTarget::ZDir) != 0)
+			if ((mode_code & EWBIKBoneChainTarget::ZDir) != 0)
 				max_target_weight = MAX(max_target_weight, target->get_z_priority());
 
 			if (max_target_weight == 0.0f)
@@ -876,17 +876,17 @@ void EWBIKShadowSkeletonBone::recursively_create_penalty_array(Ref<EWBIKShadowSk
 
 			max_target_weight = 1.0f;
 
-			if ((mode_code & DMIKBoneChainTarget::XDir) != 0) {
+			if ((mode_code & EWBIKBoneChainTarget::XDir) != 0) {
 				float sub_target_weight = target->get_target_weight() * (target->get_x_priority() / max_target_weight) * current_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
 			}
-			if ((mode_code & DMIKBoneChainTarget::YDir) != 0) {
+			if ((mode_code & EWBIKBoneChainTarget::YDir) != 0) {
 				float sub_target_weight = target->get_target_weight() * (target->get_y_priority() / max_target_weight) * current_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
 			}
-			if ((mode_code & DMIKBoneChainTarget::ZDir) != 0) {
+			if ((mode_code & EWBIKBoneChainTarget::ZDir) != 0) {
 				float sub_target_weight = target->get_target_weight() * (target->get_z_priority() / max_target_weight) * current_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
@@ -951,7 +951,7 @@ void EWBIKShadowSkeletonBone::force_update_bone_children_transforms(Ref<EWBIKSha
 	}
 }
 
-void DMIKBoneChainTarget::set_parent_target(DMIKBoneChainTarget *parent) {
+void EWBIKBoneChainTarget::set_parent_target(EWBIKBoneChainTarget *parent) {
 	if (parent_target != NULL) {
 		parent_target->remove_child_target(this);
 	}
@@ -964,14 +964,14 @@ void DMIKBoneChainTarget::set_parent_target(DMIKBoneChainTarget *parent) {
 	}
 }
 
-void DMIKBoneChainTarget::remove_child_target(DMIKBoneChainTarget *child) {
+void EWBIKBoneChainTarget::remove_child_target(EWBIKBoneChainTarget *child) {
 	int32_t target_i = child_targets.find(child);
 	if (target_i != -1) {
 		child_targets.remove(target_i);
 	}
 }
 
-void DMIKBoneChainTarget::add_child_target(DMIKBoneChainTarget *newChild) {
+void EWBIKBoneChainTarget::add_child_target(EWBIKBoneChainTarget *newChild) {
 	if (newChild->is_ancestor_of(this)) {
 		set_parent_target(newChild->get_parent_target());
 	}
@@ -980,13 +980,13 @@ void DMIKBoneChainTarget::add_child_target(DMIKBoneChainTarget *newChild) {
 	}
 }
 
-DMIKBoneChainTarget *DMIKBoneChainTarget::get_parent_target() {
+EWBIKBoneChainTarget *EWBIKBoneChainTarget::get_parent_target() {
 	return parent_target;
 }
 
-bool DMIKBoneChainTarget::is_ancestor_of(DMIKBoneChainTarget *potentialDescendent) {
+bool EWBIKBoneChainTarget::is_ancestor_of(EWBIKBoneChainTarget *potentialDescendent) {
 	bool result = false;
-	DMIKBoneChainTarget *cursor = potentialDescendent->get_parent_target();
+	EWBIKBoneChainTarget *cursor = potentialDescendent->get_parent_target();
 	while (cursor) {
 		if (cursor == this) {
 			result = true;
@@ -998,7 +998,7 @@ bool DMIKBoneChainTarget::is_ancestor_of(DMIKBoneChainTarget *potentialDescenden
 	return result;
 }
 
-float DMIKBoneChainTarget::get_target_weight() {
+float EWBIKBoneChainTarget::get_target_weight() {
 	return target_weight;
 }
 
