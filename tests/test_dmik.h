@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEST_DMIK_H
-#define TEST_DMIK_H
+#ifndef TEST_EWBIK_H
+#define TEST_EWBIK_H
 
 #include "modules/dmik/dmik_axis_dependency.h"
 #include "modules/dmik/qcp.h"

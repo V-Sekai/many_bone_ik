@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef DMIK_REGISTER_TYPES_H
-#define DMIK_REGISTER_TYPES_H
+#ifndef EWBIK_REGISTER_TYPES_H
+#define EWBIK_REGISTER_TYPES_H
 
 void register_ewbik_types();
 void unregister_ewbik_types();
 
-#endif // DMIK_REGISTER_TYPES_H
+#endif // EWBIK_REGISTER_TYPES_H
