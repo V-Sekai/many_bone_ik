@@ -119,7 +119,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		}
 		if (what == "name") {
 			name = p_value;
-			ERR_FAIL_COND_V(name.empty(), false);
+			ERR_FAIL_COND_V(name.is_empty(), false);
 			effector->set_name(name);
 			_change_notify();
 			return true;
@@ -231,7 +231,7 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 			root_bone = root_name;
 		}
 	}
-	ERR_FAIL_COND(root_bone.empty());
+	ERR_FAIL_COND(root_bone.is_empty());
 	if (!constraint_count) {
 		BoneId _bone = skeleton->find_bone(root_bone);
 		Ref<EWBIKShadowSkeletonBone> chain_item;
