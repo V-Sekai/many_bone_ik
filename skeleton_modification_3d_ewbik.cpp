@@ -241,7 +241,7 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 		bone_chain.instance();
 		Ref<SkeletonModification3DEWBIK> mod = this;
 		bone_chain->init(skeleton, mod, multi_effector, bone_chain, nullptr, chain_item);
-		Vector<String> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
+		Vector<StringName> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
 		set_effector_count(0);
 		for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
 			add_effector(effectors[effector_i]);
@@ -322,21 +322,21 @@ void SkeletonModification3DEWBIK::recursive_chain_solver(Ref<EWBIKShadowSkeleton
 }
 
 void SkeletonModification3DEWBIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_current_chain) {
-	ERR_FAIL_COND(!p_current_chain->is_chain_active()); 
-	{ 
-		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true); 
-		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone); 
-	} 
-	Vector<Ref<EWBIKShadowSkeletonBone>> bones = p_current_chain->get_bones(); 
-	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) { 
-		Ref<EWBIKShadowSkeletonBone> item = bones[bone_i]; 
-		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true); 
-		p_skeleton->force_update_bone_children_transforms(item->bone); 
-	} 
-	Vector<Ref<EWBIKShadowSkeletonBone>> bone_chains = p_current_chain->get_child_chains(); 
-	for (int32_t i = 0; i < bone_chains.size(); i++) { 
-		apply_bone_chains(p_strength, p_skeleton, bone_chains[i]); 
-	} 
+	ERR_FAIL_COND(!p_current_chain->is_chain_active());
+	{
+		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true);
+		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
+	}
+	Vector<Ref<EWBIKShadowSkeletonBone>> bones = p_current_chain->get_bones();
+	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
+		Ref<EWBIKShadowSkeletonBone> item = bones[bone_i];
+		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true);
+		p_skeleton->force_update_bone_children_transforms(item->bone);
+	}
+	Vector<Ref<EWBIKShadowSkeletonBone>> bone_chains = p_current_chain->get_child_chains();
+	for (int32_t i = 0; i < bone_chains.size(); i++) {
+		apply_bone_chains(p_strength, p_skeleton, bone_chains[i]);
+	}
 }
 
 void SkeletonModification3DEWBIK::add_effector(String p_name, NodePath p_node, Transform p_transform, real_t p_budget) {
@@ -464,7 +464,6 @@ bool SkeletonModification3DEWBIK::build_chain(Ref<EWBIKTask> p_task) {
 }
 
 void SkeletonModification3DEWBIK::update_chain(Skeleton3D *p_sk, Ref<EWBIKShadowSkeletonBone> p_chain_item) {
-	
 	Transform xform = p_sk->global_pose_to_local_pose(p_chain_item->bone, p_sk->get_bone_global_pose(p_chain_item->bone));
 	p_chain_item->axes = xform;
 	Vector<Ref<EWBIKShadowSkeletonBone>> bones = p_chain_item->get_bones();
@@ -502,7 +501,7 @@ Ref<EWBIKTask> SkeletonModification3DEWBIK::create_simple_task(Skeleton3D *p_sk,
 	ERR_FAIL_COND_V(p_constraints.is_null(), NULL);
 	{
 		Ref<KusudamaConstraint> constraint;
-		constraint.instance();		;
+		constraint.instance();
 		constraint->set_name(p_sk->get_bone_name(task->root_bone));
 		p_constraints->skeleton_ik_state->set_constraint(0, constraint);
 	}
@@ -1076,7 +1075,7 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 	skeleton = Object::cast_to<Skeleton3D>(node);
 	ERR_FAIL_COND(!skeleton);
 	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-		skeleton->set_bone_extra(bone_i, "stiffness", -1);		
+		skeleton->set_bone_extra(bone_i, "stiffness", -1);
 		skeleton->set_bone_extra(bone_i, "height", -1);
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();

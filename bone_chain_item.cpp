@@ -86,7 +86,7 @@ bool EWBIKShadowSkeletonBone::is_bone_effector(Ref<EWBIKShadowSkeletonBone> curr
 		if (effector.is_null()) {
 			continue;
 		}
-		String bone_name = skeleton->get_bone_name(current_bone->bone);
+		StringName bone_name = skeleton->get_bone_name(current_bone->bone);
 		if (effector->get_name() == bone_name) {
 			is_effector = true;
 			break;
@@ -175,7 +175,7 @@ void EWBIKShadowSkeletonBone::print_bone_chains(Skeleton3D *p_skeleton, Ref<EWBI
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	print_line("Chain");
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-		String bone_name = p_skeleton->get_bone_name(bones[bone_i]->bone);
+		StringName bone_name = p_skeleton->get_bone_name(bones[bone_i]->bone);
 		print_line("Bone " + bone_name);
 		if (bone_i < bones.size() - 1) {
 			print_line(" - ");
@@ -189,15 +189,15 @@ void EWBIKShadowSkeletonBone::print_bone_chains(Skeleton3D *p_skeleton, Ref<EWBI
 	}
 }
 
-Vector<String> EWBIKShadowSkeletonBone::get_default_effectors(Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_bone_chain, Ref<EWBIKShadowSkeletonBone> p_current_chain) {
-	Vector<String> effectors;
+Vector<StringName> EWBIKShadowSkeletonBone::get_default_effectors(Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_bone_chain, Ref<EWBIKShadowSkeletonBone> p_current_chain) {
+	Vector<StringName> effectors;
 	Vector<Ref<EWBIKShadowSkeletonBone>> bones = p_current_chain->get_bones();
 	BoneId bone = p_current_chain->tip_bone->bone;
-	String bone_name = p_skeleton->get_bone_name(bone);
+	StringName bone_name = p_skeleton->get_bone_name(bone);
 	effectors.push_back(bone_name);
 	Vector<Ref<EWBIKShadowSkeletonBone>> bone_chains = p_current_chain->get_child_chains();
-	for (int32_t i = 0; i < bone_chains.size(); i++) {
-		effectors.append_array(get_default_effectors(p_skeleton, p_bone_chain, bone_chains[i]));
+	for (int32_t bone_chain_i = 0; bone_chain_i < bone_chains.size(); bone_chain_i++) {
+		effectors.append_array(get_default_effectors(p_skeleton, p_bone_chain, bone_chains[bone_chain_i]));
 	}
 	return effectors;
 }

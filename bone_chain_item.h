@@ -121,7 +121,7 @@ public:
 	void merge_with_child_if_appropriate();
 	void print_bone_chains(Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_current_chain);
 	Vector<Ref<EWBIKShadowSkeletonBone>> get_bone_children(Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_bone);
-	Vector<String> get_default_effectors(Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_bone_chain, Ref<EWBIKShadowSkeletonBone> p_current_chain);
+	Vector<StringName> get_default_effectors(Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_bone_chain, Ref<EWBIKShadowSkeletonBone> p_current_chain);
 	bool is_chain_active() const;
 	Vector<Ref<EWBIKShadowSkeletonBone>> get_child_chains();
 	Vector<Ref<EWBIKShadowSkeletonBone>> get_bones();
