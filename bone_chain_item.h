@@ -47,6 +47,7 @@ class EWBIKShadowSkeletonBone : public Reference {
 	friend class SkeletonModification3DEWBIK;
 	friend class EWBIKBoneChainTarget;
 	friend class KusudamaConstraint;
+
 private:
 	Vector<Ref<EWBIKBoneEffector>> multi_effector;
 	Vector<Ref<EWBIKShadowSkeletonBone>> child_chains;

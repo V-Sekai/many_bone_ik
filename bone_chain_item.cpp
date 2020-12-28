@@ -33,7 +33,6 @@
 #include "scene/3d/skeleton_3d.h"
 #include "skeleton_modification_3d_ewbik.h"
 
-
 void EWBIKShadowSkeletonBone::recursively_align_axes_outward_from(Ref<EWBIKShadowSkeletonBone> sb) {
 	// Transform bAxes = sb->axes;
 	// Transform cAxes = sb->constraint->get_constraint_axes();
