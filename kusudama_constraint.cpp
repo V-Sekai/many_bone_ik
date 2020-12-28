@@ -396,15 +396,15 @@ void KusudamaConstraint::update_rotational_freedom() {
 
 void KusudamaConstraint::set_pain(real_t p_amount) {
 	pain = p_amount;
-	if (attached_to == NULL || attached_to->chain_root == NULL) {
+	if (attached_to.is_null() || attached_to->chain_root == NULL) {
 		return;
 	}
 	Ref<EWBIKShadowSkeletonBone> s = attached_to->chain_root;
-	if (s == NULL) {
+	if (s.is_null()) {
 		return;
 	}
 	Ref<EWBIKShadowSkeletonBone> wb = s->chain_root->find_child(attached_to->bone);
-	if (wb == NULL) {
+	if (wb.is_null()) {
 		return;
 	}
 	wb->update_cos_dampening();
