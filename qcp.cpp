@@ -58,7 +58,7 @@ void QCP::set(Vector<Vector3> p_moved, Vector<Vector3> p_target, Vector<real_t> 
 		translate(moved_center * -1.f, moved);
 		translate(target_center * -1.f, target);
 	} else {
-		if (!p_weight.is_empty()) {
+		if (!p_weight.empty()) {
 			for (int i = 0; i < p_weight.size(); i++) {
 				wsum += p_weight[i];
 			}
@@ -118,7 +118,7 @@ void QCP::inner_product(Vector<Vector3> p_coords1, Vector<Vector3> p_coords2) {
 	Szy = 0;
 	Szz = 0;
 
-	if (!weight.is_empty()) {
+	if (!weight.empty()) {
 		for (int i = 0; i < p_coords1.size(); i++) {
 			x1 = weight[i] * p_coords1[i].x;
 			y1 = weight[i] * p_coords1[i].y;
@@ -337,7 +337,7 @@ void QCP::translate(Vector3 p_trans, Vector<Vector3> p_x) {
 }
 
 Vector3 QCP::get_weighted_center(Vector<Vector3> p_to_center, Vector<real_t> p_weight, Vector3 p_center) {
-	if (!p_weight.is_empty()) {
+	if (!p_weight.empty()) {
 		for (int i = 0; i < p_to_center.size(); i++) {
 			p_center = p_center * p_to_center[i] + Vector3(p_weight[i], p_weight[i], p_weight[i]);
 			wsum += p_weight[i];
