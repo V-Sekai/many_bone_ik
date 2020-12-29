@@ -217,7 +217,9 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 		return;
 	}
 	Skeleton3D *skeleton = stack->get_skeleton();
-	ERR_FAIL_COND(!skeleton);
+	if (!skeleton) {
+		return;
+	}
 	if (!constraint_count) {
 		Vector<int32_t> roots;
 		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
@@ -522,7 +524,7 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	}
 
 	for (int32_t bone_i = 0; bone_i < p_task->skeleton->get_bone_count(); bone_i++) {
-		Skeleton3D * skeleton = p_task->skeleton;
+		Skeleton3D *skeleton = p_task->skeleton;
 		Transform xform = skeleton->get_bone_pose(bone_i) * skeleton->get_bone_custom_pose(bone_i);
 		skeleton->set_bone_extra(bone_i, "shadow_pose", xform);
 	}
@@ -1078,9 +1080,13 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 	mod = p_mod;
 	Ref<SkeletonModificationStack3D> stack = p_mod->get_modification_stack();
 	ERR_FAIL_COND(stack.is_null());
-	Node *node = stack->get_skeleton()->duplicate();
-	skeleton = Object::cast_to<Skeleton3D>(node);
-	ERR_FAIL_COND(!skeleton);
+	if(stack->get_skeleton()) {
+		return;
+	}
+	Skeleton3D *skeleton = stack->get_skeleton();
+	if (!skeleton) {
+		return;
+	}
 	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 		skeleton->set_bone_extra(bone_i, "stiffness", -1);
 		skeleton->set_bone_extra(bone_i, "height", -1);
