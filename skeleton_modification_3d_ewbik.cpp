@@ -1029,9 +1029,6 @@ void EWBIKShadowSkeletonBone::populate_return_dampening_iteration_array(Ref<Kusu
 	}
 }
 
-EWBIKShadowSkeletonBone::EWBIKShadowSkeletonBone() {
-}
-
 float EWBIKShadowSkeletonBone::get_bone_height() const {
 	return bone_height;
 }

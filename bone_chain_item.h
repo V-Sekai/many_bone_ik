@@ -93,7 +93,6 @@ private:
 	bool has_effector = false;
 
 public:
-	EWBIKShadowSkeletonBone();
 	void recursively_align_axes_outward_from(Ref<EWBIKShadowSkeletonBone> b);
 	/**
 	 * aligns all simulation axes from this root of this chain up until the pinned tips
