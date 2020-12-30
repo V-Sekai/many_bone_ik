@@ -1094,17 +1094,17 @@ void EWBIKSkeletonIKState::_get_property_list(List<PropertyInfo> *p_list) const 
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/stiffness"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/height"));
 		Ref<KusudamaConstraint> kusudama = get_bone_extra(bone_i, "kusudama");
-		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(bone_i) + "/name"));
-		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(bone_i) + "/twist_min_angle"));
-		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(bone_i) + "/twist_range"));
-		p_list->push_back(PropertyInfo(Variant::INT, "kusudama_constraints/" + itos(bone_i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
-		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "kusudama_constraints/" + itos(bone_i) + "/constraint_axes"));
+		p_list->push_back(PropertyInfo(Variant::STRING, "bone/" + itos(bone_i) + "/name"));
+		p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/twist_min_angle"));
+		p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/twist_range"));
+		p_list->push_back(PropertyInfo(Variant::INT, "bone/" + itos(bone_i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
+		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "bone/" + itos(bone_i) + "/constraint_axes"));
 		if (kusudama.is_null()) {
 			continue;
 		}
 		for (int j = 0; j < kusudama->get_direction_count(); j++) {
-			p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(bone_i) + "/direction" + "/" + itos(j) + "/radius", PROPERTY_HINT_RANGE, "0,65535,or_greater"));
-			p_list->push_back(PropertyInfo(Variant::VECTOR3, "kusudama_constraints/" + itos(bone_i) + "/direction" + "/" + itos(j) + "/control_point"));
+			p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/direction" + "/" + itos(j) + "/radius", PROPERTY_HINT_RANGE, "0,65535,or_greater"));
+			p_list->push_back(PropertyInfo(Variant::VECTOR3, "bone/" + itos(bone_i) + "/direction" + "/" + itos(j) + "/control_point"));
 		}
 	}
 }
@@ -1114,10 +1114,17 @@ bool EWBIKSkeletonIKState::_get(const StringName &p_name, Variant &r_ret) const 
 	if (name == "bone_count") {
 		r_ret = get_bone_count();
 		return true;
-	} else if (name.begins_with("kusudama_constraints/")) {
-		int kusudama_index = name.get_slicec('/', 1).to_int();
+	} else if (name.begins_with("bone/")) {
+		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
-		Ref<KusudamaConstraint> kusudama = get_bone_extra(kusudama_index, "kusudama");
+		if (what == "stiffness") {
+			r_ret = get_bone_extra(index, "stiffness");
+			return true;
+		} else if (what == "height") {
+			r_ret = get_bone_extra(index, "height");
+			return true;
+		}
+		Ref<KusudamaConstraint> kusudama = get_bone_extra(index, "kusudama");
 		if (kusudama.is_null()) {
 			kusudama.instance();
 			r_ret = kusudama;
@@ -1157,16 +1164,6 @@ bool EWBIKSkeletonIKState::_get(const StringName &p_name, Variant &r_ret) const 
 				return true;
 			}
 		}
-	} else if (name.begins_with("bone/")) {
-		int index = name.get_slicec('/', 1).to_int();
-		String what = name.get_slicec('/', 2);
-		if (what == "stiffness") {
-			r_ret = get_bone_extra(index, "stiffness");
-			return true;
-		} else if (what == "height") {
-			r_ret = get_bone_extra(index, "height");
-			return true;
-		}
 	}
 	return false;
 }
@@ -1176,10 +1173,19 @@ bool EWBIKSkeletonIKState::_set(const StringName &p_name, const Variant &p_value
 	if (name == "bone_count") {
 		set_bone_count(p_value);
 		return true;
-	} else if (name.begins_with("kusudama_constraints/")) {
+	} else if (name.begins_with("bone/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, bone_count, false);
+		if (what == "stiffness") {
+			set_bone_extra(index, "stiffness", p_value);
+			_change_notify();
+		} else if (what == "height") {
+			set_bone_extra(index, "height", p_value);
+			_change_notify();
+		} else {
+			return false;
+		}
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
 		set_bone_extra(index, "kusudama", constraint);
@@ -1228,19 +1234,8 @@ bool EWBIKSkeletonIKState::_set(const StringName &p_name, const Variant &p_value
 				return false;
 			}
 			return true;
-		} else if (name.begins_with("kusudama_constraints/")) {
-			int index = name.get_slicec('/', 1).to_int();
-			String what = name.get_slicec('/', 2);
-			if (what == "stiffness") {
-				set_bone_extra(index, "stiffness", p_value);
-				_change_notify();
-				return true;
-			} else if (what == "height") {
-				set_bone_extra(index, "height", p_value);
-				_change_notify();
-				return true;
-			}
 		}
+		return true;
 	}
 	return false;
 }
