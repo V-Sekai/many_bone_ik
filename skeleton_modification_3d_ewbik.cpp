@@ -1091,14 +1091,14 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 void EWBIKSkeletonIKState::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "bone_count"));
 	for (int bone_i = 0; bone_i < get_bone_count(); bone_i++) {
+		p_list->push_back(PropertyInfo(Variant::STRING, "bone/" + itos(bone_i) + "/name"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/stiffness"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/height"));
-		Ref<KusudamaConstraint> kusudama = get_bone_extra(bone_i, "kusudama");
-		p_list->push_back(PropertyInfo(Variant::STRING, "bone/" + itos(bone_i) + "/name"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/twist_min_angle"));
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/twist_range"));
 		p_list->push_back(PropertyInfo(Variant::INT, "bone/" + itos(bone_i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "bone/" + itos(bone_i) + "/constraint_axes"));
+		Ref<KusudamaConstraint> kusudama = get_bone_extra(bone_i, "kusudama");
 		if (kusudama.is_null()) {
 			continue;
 		}
