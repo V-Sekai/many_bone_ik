@@ -1073,13 +1073,11 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 	mod = p_mod;
 	Ref<SkeletonModificationStack3D> stack = p_mod->get_modification_stack();
 	ERR_FAIL_COND(stack.is_null());
-	if (stack->get_skeleton()) {
-		return;
-	}
 	Skeleton3D *skeleton = stack->get_skeleton();
 	if (!skeleton) {
 		return;
 	}
+	set_bone_count(skeleton->get_bone_count());
 	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {		
 		set_bone_extra(bone_i, "stiffness", -1);
 		set_bone_extra(bone_i, "height", -1);
@@ -1115,7 +1113,6 @@ bool EWBIKSkeletonIKState::_get(const StringName &p_name, Variant &r_ret) const 
 		r_ret = get_bone_count();
 		return true;
 	} else if (name.begins_with("kusudama_constraints/")) {
-		ERR_FAIL_COND_V(!skeleton, false);
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		Ref<KusudamaConstraint> kusudama = get_bone_extra(index, "kusudama");
