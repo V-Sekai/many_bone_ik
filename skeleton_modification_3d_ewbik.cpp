@@ -1183,8 +1183,6 @@ bool EWBIKSkeletonIKState::_set(const StringName &p_name, const Variant &p_value
 		} else if (what == "height") {
 			set_bone_extra(index, "height", p_value);
 			_change_notify();
-		} else {
-			return false;
 		}
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
