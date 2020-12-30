@@ -33,7 +33,7 @@
 #include "direction_constraint.h"
 #include "kusudama_constraint.h"
 #include "skeleton_modification_3d_ewbik.h"
-#include "bone_chain_item.h"
+#include "shadow_skeleton_bone.h"
 
 void register_ewbik_types() {
 	ClassDB::register_class<EWBIKShadowSkeletonBone>();

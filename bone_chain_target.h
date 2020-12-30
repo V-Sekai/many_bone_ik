@@ -30,7 +30,7 @@
 #ifndef bone_chain_target_h__
 #define bone_chain_target_h__
 
-#include "bone_chain_item.h"
+#include "shadow_skeleton_bone.h"
 #include "core/object/reference.h"
 
 class EWBIKBoneEffectorTransform;

@@ -31,7 +31,7 @@
 #ifndef dmik_task_h__
 #define dmik_task_h__
 
-#include "bone_chain_item.h"
+#include "shadow_skeleton_bone.h"
 #include "qcp.h"
 
 class EWBIKTask : public Reference {
@@ -42,7 +42,7 @@ protected:
 
 public:
 	Skeleton3D *skeleton = nullptr;
-	Ref<QCP> qcp;
+	Ref<QCP> qcp = memnew(QCP);
 	Ref<EWBIKShadowSkeletonBone> chain = memnew(EWBIKShadowSkeletonBone);
 	// Settings
 	float min_distance = 0.01f;

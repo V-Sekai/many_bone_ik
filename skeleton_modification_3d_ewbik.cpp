@@ -29,11 +29,11 @@
 /*************************************************************************/
 
 #include "skeleton_modification_3d_ewbik.h"
-#include "bone_chain_item.h"
 #include "bone_effector.h"
 #include "direction_constraint.h"
 #include "kusudama_constraint.h"
 #include "scene/3d/skeleton_3d.h"
+#include "shadow_skeleton_bone.h"
 
 void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3DEWBIK::get_effector_count);
@@ -542,7 +542,11 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	// 		constraint->set_direction(direction_i, direction);
 	// 	}
 	// }
-	p_task->end_effectors.resize(p_task->dmik->get_effector_count());
+	int effector_count = p_task->dmik->get_effector_count();
+	p_task->end_effectors.resize(effector_count);
+	for (int32_t effector_i = 0; effector_i < effector_count; effector_i++) {
+		p_task->end_effectors.write[effector_i].instance();
+	}
 	for (int32_t name_i = 0; name_i < p_task->end_effectors.size(); name_i++) {
 		Ref<EWBIKBoneEffector> effector = p_task->dmik->get_effector(name_i);
 		if (effector.is_null()) {
@@ -577,8 +581,10 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	Vector<Ref<EWBIKBoneChainTarget>> targets;
 	targets.resize(p_task->end_effectors.size());
 	for (int32_t effector_i = 0; effector_i < p_task->end_effectors.size(); effector_i++) {
-		Ref<EWBIKBoneEffectorTransform> ee = p_task->end_effectors[effector_i];
-		ERR_FAIL_COND(ee.is_null());
+		Ref<EWBIKBoneEffectorTransform> ee = p_task->end_effectors.write[effector_i];
+		if (ee.is_null()) {
+			ee.instance();
+		}
 		Ref<EWBIKBoneChainTarget> target;
 		target.instance();
 		target->end_effector = ee;
@@ -1077,7 +1083,7 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 	mod = p_mod;
 	Ref<SkeletonModificationStack3D> stack = p_mod->get_modification_stack();
 	ERR_FAIL_COND(stack.is_null());
-	if(stack->get_skeleton()) {
+	if (stack->get_skeleton()) {
 		return;
 	}
 	Skeleton3D *skeleton = stack->get_skeleton();
