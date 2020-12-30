@@ -1097,12 +1097,6 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 	}
 }
 
-EWBIKSkeletonIKState::~EWBIKSkeletonIKState() {
-	if (skeleton) {
-		skeleton->queue_delete();
-	}
-}
-
 void EWBIKSkeletonIKState::_get_property_list(List<PropertyInfo> *p_list) const {
 	ERR_FAIL_COND(!skeleton);
 	for (int i = 0; i < skeleton->get_bone_count(); i++) {

@@ -301,7 +301,6 @@ public:
 	Ref<KusudamaConstraint> get_constraint(int32_t p_bone) const;
 	void set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint);
 	void init(Ref<SkeletonModification3DEWBIK> p_mod);
-	~EWBIKSkeletonIKState();
 
 protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
