@@ -60,12 +60,12 @@ class KusudamaConstraint;
 class IKNode3D : public Reference {
 	GDCLASS(IKNode3D, Reference);
 
-public:
 	IKBasis local;
 	IKBasis global;
 	Vector<Ref<IKNode3D>> children_nodes;
 	Ref<IKNode3D> parent_node;
 	bool dirty = false;
+public:
 	void mark_dirty() {
 		dirty = true;
 	}
