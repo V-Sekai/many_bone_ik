@@ -8,20 +8,20 @@ Vector3 IKBasis::get_local_of(Vector3 p_v) {
 }
 
 void IKBasis::update_rays() {
-	x_ray.position = this->translate;
+	x_ray.position = translate;
 	x_ray.normal = x_base;
-	y_ray.position = this->translate;
+	y_ray.position = translate;
 	y_ray.normal = y_base;
-	z_ray.position = this->translate;
+	z_ray.position = translate;
 	z_ray.normal = z_base;
 
 	rotation.set_euler(x_ray.normal);
 	rotation.set_euler(y_ray.normal);
 	rotation.set_euler(z_ray.normal);
 
-	x_ray.normal += this->translate;
-	y_ray.normal += this->translate;
-	z_ray.normal += this->translate;
+	x_ray.normal += translate;
+	y_ray.normal += translate;
+	z_ray.normal += translate;
 }
 
 void IKBasis::set(Vector3 p_x, Vector3 p_y, Vector3 p_z) {
@@ -38,12 +38,12 @@ void IKBasis::set(Vector3 p_x, Vector3 p_y, Vector3 p_z) {
 	y_ray.normal = y_base;
 	z_ray.position = zero;
 	z_ray.normal = z_base;
-	this->rotation = create_prioritized_rotation(p_x, p_y, p_z);
-	this->refresh_precomputed();
+	rotation = create_prioritized_rotation(p_x, p_y, p_z);
+	refresh_precomputed();
 }
 
 IKBasis::IKBasis(Ray p_x, Ray p_y, Ray p_z) {
-	this->translate = p_x.position;
+	translate = p_x.position;
 	x_ray = p_x;
 	y_ray = p_y;
 	z_ray = p_z;
@@ -57,11 +57,11 @@ IKBasis::IKBasis(Ray p_x, Ray p_y, Ray p_z) {
 }
 
  IKBasis::IKBasis(Vector3 p_origin, Vector3 p_x, Vector3 p_y, Vector3 p_z) {
-	this->translate = p_origin;
+	translate = p_origin;
 	x_ray = Ray(p_origin, p_origin);
 	y_ray = Ray(p_origin, p_origin);
 	z_ray = Ray(p_origin, p_origin);
-	this->set(p_x, p_y, p_z);
+	set(p_x, p_y, p_z);
 }
 
  IKBasis::IKBasis(const Transform &input) {
@@ -104,29 +104,29 @@ IKBasis::IKBasis(Ray p_x, Ray p_y, Ray p_z) {
 }
 
 void IKBasis::adopt_values(IKBasis p_in) {
-	this->translate = p_in.translate;
-	this->rotation = p_in.rotation;
+	translate = p_in.translate;
+	rotation = p_in.rotation;
 	x_base = translate * Vector3(1, 0, 0);
 	y_base = translate * Vector3(0, 1, 0);
 	z_base = translate * Vector3(0, 0, 1);
 	x_ray = p_in.x_ray;
 	y_ray = p_in.y_ray;
 	z_ray = p_in.z_ray;
-	this->refresh_precomputed();
+	refresh_precomputed();
 }
 
 void IKBasis::set_identity() {
-	this->translate = Vector3();
+	translate = Vector3();
 	x_base = Vector3(1, 0, 0);
 	y_base = Vector3(0, 1, 0);
 	z_base = Vector3(0, 0, 1);
-	this->x_ray.position = this->translate;
-	this->x_ray.normal = x_base;
-	this->y_ray.position = this->translate;
-	this->y_ray.normal = y_base;
-	this->z_ray.position = this->translate;
-	this->z_ray.normal = z_base;
-	this->rotation = Quat();
+	x_ray.position = translate;
+	x_ray.normal = x_base;
+	y_ray.position = translate;
+	y_ray.normal = y_base;
+	z_ray.position = translate;
+	z_ray.normal = z_base;
+	rotation = Quat();
 	refresh_precomputed();
 }
 
@@ -137,53 +137,53 @@ Quat IKBasis::get_local_of_rotation(Quat p_in_rot) {
 
 void IKBasis::set_to_local_of(Vector3 p_input, Vector3 &r_output) {
 	r_output = p_input;
-	r_output -= this->translate;
+	r_output -= translate;
 	r_output = inverse_rotation.get_euler() * r_output;
 }
 
 void IKBasis::set_to_local_of(IKBasis p_global_input, IKBasis &r_local_output) {
-	r_local_output.translate = this->get_local_of(p_global_input.translate);
+	r_local_output.translate = get_local_of(p_global_input.translate);
 	inverse_rotation *= p_global_input.rotation * r_local_output.rotation;
 	r_local_output.refresh_precomputed();
 }
 
 void IKBasis::refresh_precomputed() {
-	this->rotation = inverse_rotation.inverse();
-	this->update_rays();
+	rotation = inverse_rotation.inverse();
+	update_rays();
 }
 
 void IKBasis::rotate_to(Quat p_new_rotation) {
-	this->rotation = p_new_rotation;
-	this->refresh_precomputed();
+	rotation = p_new_rotation;
+	refresh_precomputed();
 }
 
 void IKBasis::rotate_by(Quat p_add_rotation) {
-	this->rotation *= p_add_rotation;
-	this->refresh_precomputed();
+	rotation *= p_add_rotation;
+	refresh_precomputed();
 }
 
 void IKBasis::set_to_global_of(Vector3 p_input, Vector3 &r_output) {
 	rotation = Quat(p_input);
-	r_output += this->translate;
+	r_output += translate;
 }
 
 void IKBasis::set_to_global_of(IKBasis localInput, IKBasis &globalOutput) {
-	this->rotation *= localInput.rotation * globalOutput.rotation;
-	this->set_to_global_of(localInput.translate, globalOutput.translate);
+	rotation *= localInput.rotation * globalOutput.rotation;
+	set_to_global_of(localInput.translate, globalOutput.translate);
 	globalOutput.refresh_precomputed();
 }
 
 void IKBasis::translate_by(Vector3 p_translate_by) {
-	this->translate.x += p_translate_by.x;
-	this->translate.y += p_translate_by.y;
-	this->translate.z += p_translate_by.z;
+	translate.x += p_translate_by.x;
+	translate.y += p_translate_by.y;
+	translate.z += p_translate_by.z;
 	update_rays();
 }
 
 void IKBasis::translate_to(Vector3 p_new_origin) {
-	this->translate.x = p_new_origin.x;
-	this->translate.y = p_new_origin.y;
-	this->translate.z = p_new_origin.z;
+	translate.x = p_new_origin.x;
+	translate.y = p_new_origin.y;
+	translate.z = p_new_origin.z;
 	update_rays();
 }
 
@@ -200,15 +200,15 @@ Ray IKBasis::get_z_ray() {
 }
 
 Vector3 IKBasis::get_x_heading() {
-	return this->x_ray.heading();
+	return x_ray.heading();
 }
 
 Vector3 IKBasis::get_y_heading() {
-	return this->y_ray.heading();
+	return y_ray.heading();
 }
 
 Vector3 IKBasis::get_z_heading() {
-	return this->z_ray.heading();
+	return z_ray.heading();
 }
 
 Vector3 IKBasis::get_origin() {
@@ -220,5 +220,5 @@ bool IKBasis::is_axis_flipped(int axis) {
 }
 
 Quat IKBasis::get_inverse_rotation() {
-	return this->inverse_rotation;
+	return inverse_rotation;
 }
