@@ -58,6 +58,6 @@ public:
 	// Bone data
 	int root_bone = -1;
 	Vector<Ref<EWBIKBoneEffectorTransform>> end_effectors;
-	Ref<SkeletonModification3DEWBIK> dmik;
+	Ref<SkeletonModification3DEWBIK> ewbik;
 };
 #endif // dmik_task_h__

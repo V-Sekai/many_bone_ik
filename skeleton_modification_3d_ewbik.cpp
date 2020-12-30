@@ -216,44 +216,44 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 	if (!stack) {
 		return;
 	}
-	Skeleton3D *skeleton = stack->get_skeleton();
-	if (!skeleton) {
-		return;
-	}
-	if (!constraint_count) {
-		Vector<int32_t> roots;
-		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-			int32_t parent = skeleton->get_bone_parent(bone_i);
-			if (parent == -1) {
-				roots.push_back(bone_i);
+	Skeleton3D *skeleton = stack->skeleton;
+	if (skeleton) {
+		if (!constraint_count) {
+			Vector<int32_t> roots;
+			for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
+				int32_t parent = skeleton->get_bone_parent(bone_i);
+				if (parent == -1) {
+					roots.push_back(bone_i);
+				}
+			}
+			if (roots.size()) {
+				String root_name = skeleton->get_bone_name(roots[0]);
+				root_bone = root_name;
 			}
 		}
-		if (roots.size()) {
-			String root_name = stack->skeleton->get_bone_name(roots[0]);
-			root_bone = root_name;
+		ERR_FAIL_COND(root_bone.is_empty());
+		if (!constraint_count) {
+			BoneId _bone = skeleton->find_bone(root_bone);
+			Ref<EWBIKShadowSkeletonBone> chain_item;
+			chain_item.instance();
+			chain_item->bone = _bone;
+			Ref<EWBIKShadowSkeletonBone> bone_chain;
+			bone_chain.instance();
+			Ref<SkeletonModification3DEWBIK> mod = this;
+			bone_chain->init(skeleton, mod, multi_effector, bone_chain, nullptr, chain_item);
+			Vector<StringName> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
+			set_effector_count(0);
+			for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
+				add_effector(effectors[effector_i]);
+			}
+			register_constraint(skeleton);
 		}
+		skeleton_ik_state.instance();
+		skeleton_ik_state->init(this);
+		task = create_simple_task(skeleton, root_bone, -1.0f, 10.0f, this);
 	}
-	ERR_FAIL_COND(root_bone.is_empty());
-	if (!constraint_count) {
-		BoneId _bone = skeleton->find_bone(root_bone);
-		Ref<EWBIKShadowSkeletonBone> chain_item;
-		chain_item.instance();
-		chain_item->bone = _bone;
-		Ref<EWBIKShadowSkeletonBone> bone_chain;
-		bone_chain.instance();
-		Ref<SkeletonModification3DEWBIK> mod = this;
-		bone_chain->init(skeleton, mod, multi_effector, bone_chain, nullptr, chain_item);
-		Vector<StringName> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
-		set_effector_count(0);
-		for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
-			add_effector(effectors[effector_i]);
-		}
-		register_constraint(skeleton);
-	}
-	skeleton_ik_state.instance();
-	skeleton_ik_state->init(this);
-	task = create_simple_task(skeleton, root_bone, -1.0f, 10.0f, this);
 	is_setup = true;
+	execution_error_found = false;
 }
 
 void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<EWBIKShadowSkeletonBone> start_from, float dampening, int iterations, int p_stabilization_passes) {
@@ -456,9 +456,9 @@ bool SkeletonModification3DEWBIK::build_chain(Ref<EWBIKTask> p_task) {
 	ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
 	Ref<EWBIKShadowSkeletonBone> chain = p_task->chain;
 	chain->chain_root = chain;
-	chain->mod = p_task->dmik;
+	chain->mod = p_task->ewbik;
 	chain->bone = p_task->root_bone;
-	chain->init(p_task->skeleton, p_task->dmik, p_task->dmik->multi_effector, chain, nullptr, chain);
+	chain->init(p_task->skeleton, p_task->ewbik, p_task->ewbik->multi_effector, chain, nullptr, chain);
 	chain->filter_and_merge_child_chains();
 	chain->bone = p_task->root_bone;
 	chain->pb = p_task->skeleton->get_physical_bone(chain->bone);
@@ -510,7 +510,7 @@ Ref<EWBIKTask> SkeletonModification3DEWBIK::create_simple_task(Skeleton3D *p_sk,
 	task->dampening = p_dampening;
 	task->stabilizing_passes = p_stabilizing_passes;
 	ERR_FAIL_COND_V(!p_constraints->multi_effector.size(), nullptr);
-	task->dmik = p_constraints;
+	task->ewbik = p_constraints;
 	if (!build_chain(task)) {
 		return NULL;
 	}
@@ -526,7 +526,7 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	for (int32_t bone_i = 0; bone_i < p_task->skeleton->get_bone_count(); bone_i++) {
 		Skeleton3D *skeleton = p_task->skeleton;
 		Transform xform = skeleton->get_bone_pose(bone_i) * skeleton->get_bone_custom_pose(bone_i);
-		skeleton->set_bone_extra(bone_i, "shadow_pose", xform);
+		p_task->ewbik->skeleton_ik_state->set_bone_extra(bone_i, "shadow_pose", xform);
 	}
 
 	// for (int32_t constraint_i = 0; constraint_i < p_task->dmik->get_constraint_count(); constraint_i++) {
@@ -542,13 +542,13 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	// 		constraint->set_direction(direction_i, direction);
 	// 	}
 	// }
-	int effector_count = p_task->dmik->get_effector_count();
+	int effector_count = p_task->ewbik->get_effector_count();
 	p_task->end_effectors.resize(effector_count);
 	for (int32_t effector_i = 0; effector_i < effector_count; effector_i++) {
 		p_task->end_effectors.write[effector_i].instance();
 	}
 	for (int32_t name_i = 0; name_i < p_task->end_effectors.size(); name_i++) {
-		Ref<EWBIKBoneEffector> effector = p_task->dmik->get_effector(name_i);
+		Ref<EWBIKBoneEffector> effector = p_task->ewbik->get_effector(name_i);
 		if (effector.is_null()) {
 			continue;
 		}
@@ -568,8 +568,8 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 		}
 		node_xform = node_xform * effector->get_target_transform();
 		ee->goal_transform = node_xform;
-		int32_t constraint_i = p_task->dmik->get_modification_stack()->get_skeleton()->find_bone(effector->get_name());
-		Ref<KusudamaConstraint> constraint = p_task->dmik->skeleton_ik_state->get_constraint(constraint_i);
+		int32_t constraint_i = p_task->ewbik->get_modification_stack()->get_skeleton()->find_bone(effector->get_name());
+		Ref<KusudamaConstraint> constraint = p_task->ewbik->skeleton_ik_state->get_constraint(constraint_i);
 		if (constraint.is_null()) {
 			continue;
 		}
@@ -581,9 +581,10 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	Vector<Ref<EWBIKBoneChainTarget>> targets;
 	targets.resize(p_task->end_effectors.size());
 	for (int32_t effector_i = 0; effector_i < p_task->end_effectors.size(); effector_i++) {
-		Ref<EWBIKBoneEffectorTransform> ee = p_task->end_effectors.write[effector_i];
+		Ref<EWBIKBoneEffectorTransform> ee = p_task->end_effectors[effector_i];
 		if (ee.is_null()) {
 			ee.instance();
+			p_task->end_effectors.write[effector_i] = ee;
 		}
 		Ref<EWBIKBoneChainTarget> target;
 		target.instance();
@@ -1044,38 +1045,27 @@ void EWBIKShadowSkeletonBone::set_bone_height(const float p_bone_height) {
 }
 
 float EWBIKSkeletonIKState::get_stiffness(int32_t p_bone) const {
-	ERR_FAIL_COND_V(!skeleton, 0);
-	ERR_FAIL_INDEX_V(p_bone, skeleton->get_bone_count(), 0);
-	return skeleton->get_bone_extra(p_bone, "stiffness");
+	return get_bone_extra(p_bone, "stiffness");
 }
 
 void EWBIKSkeletonIKState::set_stiffness(int32_t p_bone, float p_stiffness_scalar) {
-	ERR_FAIL_COND(!skeleton);
-	skeleton->set_bone_extra(p_bone, "stiffness", p_stiffness_scalar);
+	set_bone_extra(p_bone, "stiffness", p_stiffness_scalar);
 }
 
 float EWBIKSkeletonIKState::get_height(int32_t p_bone) const {
-	ERR_FAIL_COND_V(!skeleton, -1);
-	ERR_FAIL_INDEX_V(p_bone, skeleton->get_bone_count(), -1);
-	return skeleton->get_bone_extra(p_bone, "height");
+	return get_bone_extra(p_bone, "height");
 }
 
 void EWBIKSkeletonIKState::set_height(int32_t p_bone, float p_height) {
-	ERR_FAIL_COND(!skeleton);
-	ERR_FAIL_INDEX(p_bone, skeleton->get_bone_count());
-	skeleton->set_bone_extra(p_bone, "height", p_height);
+	set_bone_extra(p_bone, "height", p_height);
 }
 
 Ref<KusudamaConstraint> EWBIKSkeletonIKState::get_constraint(int32_t p_bone) const {
-	ERR_FAIL_COND_V(!skeleton, nullptr);
-	ERR_FAIL_INDEX_V(p_bone, skeleton->get_bone_count(), nullptr);
-	return skeleton->get_bone_extra(p_bone, "kusudama");
+	return get_bone_extra(p_bone, "kusudama");
 }
 
 void EWBIKSkeletonIKState::set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint) {
-	ERR_FAIL_COND(!skeleton);
-	ERR_FAIL_INDEX(p_bone, skeleton->get_bone_count());
-	skeleton->set_bone_extra(p_bone, "kususdama", p_constraint);
+	set_bone_extra(p_bone, "kususdama", p_constraint);
 }
 
 void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
@@ -1090,46 +1080,49 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 	if (!skeleton) {
 		return;
 	}
-	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-		skeleton->set_bone_extra(bone_i, "stiffness", -1);
-		skeleton->set_bone_extra(bone_i, "height", -1);
+	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {		
+		set_bone_extra(bone_i, "stiffness", -1);
+		set_bone_extra(bone_i, "height", -1);
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
 		constraint->set_name(skeleton->get_bone_name(bone_i));
-		skeleton->set_bone_extra(bone_i, "kusudama", constraint);
+		set_bone_extra(bone_i, "kusudama", constraint);
 	}
 }
 
 void EWBIKSkeletonIKState::_get_property_list(List<PropertyInfo> *p_list) const {
-	ERR_FAIL_COND(!skeleton);
-	for (int i = 0; i < skeleton->get_bone_count(); i++) {
-		Ref<KusudamaConstraint> kusudama = skeleton->get_bone_extra(i, "kusudama");
-		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(i) + "/name"));
-		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_min_angle"));
-		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/twist_range"));
-		p_list->push_back(PropertyInfo(Variant::INT, "kusudama_constraints/" + itos(i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
-		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "kusudama_constraints/" + itos(i) + "/constraint_axes"));
+	p_list->push_back(PropertyInfo(Variant::INT, "bone_count"));
+	for (int bone_i = 0; bone_i < get_bone_count(); bone_i++) {
+		Ref<KusudamaConstraint> kusudama = get_bone_extra(bone_i, "kusudama");
+		p_list->push_back(PropertyInfo(Variant::STRING, "kusudama_constraints/" + itos(bone_i) + "/name"));
+		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(bone_i) + "/twist_min_angle"));
+		p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(bone_i) + "/twist_range"));
+		p_list->push_back(PropertyInfo(Variant::INT, "kusudama_constraints/" + itos(bone_i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
+		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "kusudama_constraints/" + itos(bone_i) + "/constraint_axes"));
 		if (kusudama.is_null()) {
 			continue;
 		}
 		for (int j = 0; j < kusudama->get_direction_count(); j++) {
-			p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(i) + "/direction" + "/" + itos(j) + "/radius", PROPERTY_HINT_RANGE, "0,65535,or_greater"));
-			p_list->push_back(PropertyInfo(Variant::VECTOR3, "kusudama_constraints/" + itos(i) + "/direction" + "/" + itos(j) + "/control_point"));
+			p_list->push_back(PropertyInfo(Variant::FLOAT, "kusudama_constraints/" + itos(bone_i) + "/direction" + "/" + itos(j) + "/radius", PROPERTY_HINT_RANGE, "0,65535,or_greater"));
+			p_list->push_back(PropertyInfo(Variant::VECTOR3, "kusudama_constraints/" + itos(bone_i) + "/direction" + "/" + itos(j) + "/control_point"));
 		}
 	}
 }
 
 bool EWBIKSkeletonIKState::_get(const StringName &p_name, Variant &r_ret) const {
 	String name = p_name;
-	if (name.begins_with("kusudama_constraints/")) {
+	if (name == "bone_count") {
+		r_ret = get_bone_count();
+		return true;
+	} else if (name.begins_with("kusudama_constraints/")) {
 		ERR_FAIL_COND_V(!skeleton, false);
 		int index = name.get_slicec('/', 1).to_int();
-		ERR_FAIL_INDEX_V(index, skeleton->get_bone_count(), false);
 		String what = name.get_slicec('/', 2);
-		Ref<KusudamaConstraint> kusudama = skeleton->get_bone_extra(index, "kusudama");
+		Ref<KusudamaConstraint> kusudama = get_bone_extra(index, "kusudama");
 		if (kusudama.is_null()) {
 			kusudama.instance();
-			skeleton->set_bone_extra(index, "kusudama", kusudama);
+			r_ret = kusudama;
+			return true;
 		}
 		if (what == "name") {
 			r_ret = kusudama->get_name();
@@ -1171,14 +1164,16 @@ bool EWBIKSkeletonIKState::_get(const StringName &p_name, Variant &r_ret) const 
 
 bool EWBIKSkeletonIKState::_set(const StringName &p_name, const Variant &p_value) {
 	String name = p_name;
-	if (name.begins_with("kusudama_constraints/")) {
-		ERR_FAIL_COND_V(!skeleton, false);
+	if (name == "bone_count") {
+		set_bone_count(p_value);
+		return true;
+	} else if (name.begins_with("kusudama_constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, skeleton->get_bone_count(), false);
+		ERR_FAIL_INDEX_V(index, bone_count, false);
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
-		skeleton->set_bone_extra(index, "kusudama", constraint);
+		set_bone_extra(index, "kusudama", constraint);
 		if (what == "name") {
 			constraint->set_name(p_value);
 			_change_notify();

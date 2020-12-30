@@ -65,6 +65,7 @@ class IKNode3D : public Reference {
 	Vector<Ref<IKNode3D>> children_nodes;
 	Ref<IKNode3D> parent_node;
 	bool dirty = false;
+
 public:
 	void mark_dirty() {
 		dirty = true;
@@ -288,8 +289,26 @@ class EWBIKSkeletonIKState : public Resource {
 	friend class SkeletonModification3DEWBIK;
 	Ref<SkeletonModification3DEWBIK> mod;
 	Skeleton3D *skeleton = nullptr;
+	int bone_count = 0;
+	struct Bone {
+		Dictionary extra;
+		Bone() {
+		}
+	};
+	Vector<Bone> bones;
 
 public:
+	void set_bone_extra(int p_bone, const StringName &key, const Variant &value) {
+		ERR_FAIL_INDEX(p_bone, bones.size());
+		bones.write[p_bone].extra[key] = value;
+		// _make_dirty();
+	}
+
+	Variant get_bone_extra(int p_bone, const StringName &key) const {
+		ERR_FAIL_INDEX_V(p_bone, bones.size(), "");
+		ERR_FAIL_COND_V(!bones[p_bone].extra.has(key), "");
+		return bones[p_bone].extra[key];
+	}
 	// It holds a bunch of references to bones thing
 	// same index as the skeleton bone
 	// ik info object.
@@ -298,9 +317,15 @@ public:
 	void set_stiffness(int32_t p_bone, float p_stiffness_scalar);
 	float get_height(int32_t p_bone) const;
 	void set_height(int32_t p_bone, float p_height);
+
 	Ref<KusudamaConstraint> get_constraint(int32_t p_bone) const;
 	void set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint);
 	void init(Ref<SkeletonModification3DEWBIK> p_mod);
+	int32_t get_bone_count() const { return bone_count; }
+	void set_bone_count(int32_t p_bone_count) {
+		bone_count = p_bone_count;
+		bones.resize(p_bone_count);
+	}
 
 protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
