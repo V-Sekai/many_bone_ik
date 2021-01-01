@@ -246,8 +246,8 @@ class EWBIKSkeletonIKState : public Resource {
 	int bone_count = 0;
 	Vector<IKNode3D> bones;
 	Vector<int32_t> parentless_bones;
-	bool is_process_order_dirty = false;
-	bool dirty = false;
+	bool is_process_order_dirty = true;
+	bool dirty = true;
 
 public:
 	void force_update_bone_children_transforms(int p_bone_idx);
