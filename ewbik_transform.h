@@ -82,6 +82,13 @@ public:
 	 */
 	IKBasis(Ray p_x, Ray p_y, Ray p_z);
 
+	IKBasis operator*(IKBasis p_basis){
+		IKBasis new_ik_basis = *this;
+		new_ik_basis.rotate_by(p_basis.rotation);
+		new_ik_basis.translate_by(p_basis.translate);
+		return new_ik_basis;
+	}
+
 	/**
 	 * takes on the same values as the input basis. 
 	 * @param in

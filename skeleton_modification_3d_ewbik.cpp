@@ -1294,10 +1294,10 @@ void EWBIKSkeletonIKState::translate_to(int32_t p_bone, Vector3 p_target) {
 	IKNode3D *bonesptr = bones.ptrw();
 	bonesptr[p_bone].update_global();
 	if (bonesptr[p_bone].parent != -1) {
-		bonesptr[p_bone].local.translate_to(bonesptr[bonesptr[p_bone].parent].get_global().get_local_of(p_target));
+		bonesptr[p_bone].pose_local.translate_to(bonesptr[bonesptr[p_bone].parent].get_global().get_local_of(p_target));
 		mark_dirty();
 	} else {
-		bonesptr[p_bone].local.translate_to(p_target);
+		bonesptr[p_bone].pose_local.translate_to(p_target);
 		mark_dirty();
 	}
 }
@@ -1342,4 +1342,42 @@ void EWBIKSkeletonIKState::rotate_about_z(int32_t p_bone, float angle) {
 	Quat zRot = Quat(bonesptr[p_bone].get_global_ik_basis().get_z_heading(), angle);
 	rotate_by(p_bone, zRot);
 	mark_dirty();
+}
+void EWBIKSkeletonIKState::force_update_bone_children_transforms(int p_bone_idx) {
+	ERR_FAIL_INDEX(p_bone_idx, bones.size());
+	IKNode3D *bonesptr = bones.ptrw();
+	List<int> bones_to_process = List<int>();
+	bones_to_process.push_back(p_bone_idx);
+
+	while (bones_to_process.size() > 0) {
+		int current_bone_idx = bones_to_process[0];
+		bones_to_process.erase(current_bone_idx);
+
+		IKNode3D &b = bonesptr[current_bone_idx];
+		// TODO IKBASIS removal?
+		IKBasis pose = bones[p_bone_idx].get_local();
+
+		if (b.parent >= 0) {
+			b.pose_global = bonesptr[b.parent].pose_global * pose;
+		} else {
+			b.pose_global = pose;
+		}
+
+		// Add the bone's children to the list of bones to be processed
+		int child_bone_size = b.child_bones.size();
+		for (int i = 0; i < child_bone_size; i++) {
+			bones_to_process.push_back(b.child_bones[i]);
+		}
+	}
+}
+void EWBIKSkeletonIKState::update_skeleton() {
+	int len = bones.size();
+	dirty = false;
+
+	// Update bone transforms
+	_update_process_order();
+	int parentless_bones_size = parentless_bones.size();
+	for (int i = 0; i < parentless_bones_size; i++) {
+		force_update_bone_children_transforms(parentless_bones[i]);
+	}
 }

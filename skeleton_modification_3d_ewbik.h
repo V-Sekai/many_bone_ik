@@ -179,8 +179,8 @@ class EWBIKSkeletonIKState : public Resource {
 
 	class IKNode3D {
 		friend class EWBIKSkeletonIKState;
-		IKBasis local;
-		IKBasis global;
+		IKBasis pose_local;
+		IKBasis pose_global;
 		Vector<int32_t> child_bones;
 		int32_t parent = -1;
 		Ref<KusudamaConstraint> constraint;
@@ -206,10 +206,10 @@ class EWBIKSkeletonIKState : public Resource {
 		float get_stiffness() const {
 			return stiffness;
 		}
-		IKBasis get_local() const { return local; }
-		IKBasis get_global() const { return global; }
+		IKBasis get_local() const { return pose_local; }
+		IKBasis get_global() const { return pose_global; }
 		void set_local(IKBasis p_local) {
-			local = p_local;
+			pose_local = p_local;
 		}
 		void set_parent(int32_t p_parent) {
 			parent = p_parent;
@@ -233,10 +233,10 @@ class EWBIKSkeletonIKState : public Resource {
 		// Create variations where the input parameter is directly changed
 		IKBasis get_global_ik_basis() {
 			update_global();
-			return global;
+			return pose_global;
 		}
 		IKBasis get_local_ik_basis() {
-			return local;
+			return pose_local;
 		}
 	};
 
@@ -248,7 +248,10 @@ class EWBIKSkeletonIKState : public Resource {
 	Vector<int32_t> parentless_bones;
 	bool is_process_order_dirty = false;
 	bool dirty = false;
+
 public:
+	void force_update_bone_children_transforms(int p_bone_idx);
+	void update_skeleton();
 	void mark_dirty();
 	bool is_dirty() const;
 	void _update_process_order();
@@ -257,11 +260,8 @@ public:
 	Ray get_ray_x(int32_t p_bone);
 	Ray get_ray_y(int32_t p_bone);
 	Ray get_ray_z(int32_t p_bone);
-
 	void rotate_about_x(int32_t p_bone, float angle);
-
 	void rotate_about_y(int32_t p_bone, float angle);
-
 	void rotate_about_z(int32_t p_bone, float angle);
 	// void set_rotation(Rot newRotation) {
 	// 	this.rotation.set(newRotation);
