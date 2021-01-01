@@ -183,17 +183,11 @@ class EWBIKSkeletonIKState : public Resource {
 		IKBasis pose_global;
 		Vector<int32_t> child_bones;
 		int32_t parent = -1;
-		Ref<KusudamaConstraint> constraint;
 		float height = 0.0f;
 		float stiffness = 0.0f;
+		bool dirty = true;
 
 	public:
-		void set_constraint(Ref<KusudamaConstraint> p_constraint) {
-			constraint = p_constraint;
-		}
-		Ref<KusudamaConstraint> get_constraint() const {
-			return constraint;
-		}
 		void set_height(float p_height) {
 			height = p_height;
 		}
@@ -239,21 +233,36 @@ class EWBIKSkeletonIKState : public Resource {
 			return pose_local;
 		}
 	};
-
 	friend class SkeletonModification3DEWBIK;
+	class ShadowBone {
+		friend class EWBIKSkeletonIKState;
+		BoneId for_bone;
+		IKNode3D sim_local_ik_node;
+		IKNode3D sim_constraint_ik_node;
+		float cos_half_dampen = 0.0f;
+		Vector<float> cos_half_returnfullness_dampened;
+		Vector<float> half_returnfullness_dampened;
+		bool springy = false;
+		Ref<KusudamaConstraint> constraint;
+		void set_constraint(Ref<KusudamaConstraint> p_constraint) {
+			constraint = p_constraint;
+		}
+		Ref<KusudamaConstraint> get_constraint() const {
+			return constraint;
+		}
+	};
 	Ref<SkeletonModification3DEWBIK> mod;
 	Skeleton3D *skeleton = nullptr;
 	int bone_count = 0;
-	Vector<IKNode3D> bones;
+
+	Vector<ShadowBone> bones;
 	Vector<int32_t> parentless_bones;
-	bool is_process_order_dirty = true;
-	bool dirty = true;
 
 public:
 	void force_update_bone_children_transforms(int p_bone_idx);
 	void update_skeleton();
-	void mark_dirty();
-	bool is_dirty() const;
+	void mark_dirty(int32_t p_bone);
+	bool is_dirty(int32_t p_bone) const;
 	void _update_process_order();
 	void rotate_by(int32_t p_bone, Quat addRotation);
 	void translate_to(int32_t p_bone, Vector3 p_target);
@@ -273,11 +282,6 @@ public:
 	Transform get_shadow_pose_local(int p_bone) const;
 	Transform get_shadow_pose_global(int p_bone) const;
 	void set_shadow_bone_dirty(int p_bone);
-
-	// It holds a bunch of references to bones thing
-	// same index as the skeleton bone
-	// ik info object.
-	// ik data has:
 	float get_stiffness(int32_t p_bone) const;
 	void set_stiffness(int32_t p_bone, float p_stiffness_scalar);
 	float get_height(int32_t p_bone) const;
