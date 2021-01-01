@@ -1017,32 +1017,32 @@ void EWBIKShadowSkeletonBone::populate_return_dampening_iteration_array(Ref<Kusu
 
 float EWBIKSkeletonIKState::get_stiffness(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);
-	return bones[p_bone]->get_stiffness();
+	return bones[p_bone].get_stiffness();
 }
 
 void EWBIKSkeletonIKState::set_stiffness(int32_t p_bone, float p_stiffness_scalar) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
-	bones.write[p_bone]->set_stiffness(p_stiffness_scalar);
+	bones.write[p_bone].set_stiffness(p_stiffness_scalar);
 }
 
 float EWBIKSkeletonIKState::get_height(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);
-	return bones[p_bone]->get_height();
+	return bones[p_bone].get_height();
 }
 
 void EWBIKSkeletonIKState::set_height(int32_t p_bone, float p_height) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
-	return bones.write[p_bone]->set_height(p_height);
+	return bones.write[p_bone].set_height(p_height);
 }
 
 Ref<KusudamaConstraint> EWBIKSkeletonIKState::get_constraint(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), nullptr);
-	return bones[p_bone]->get_constraint();
+	return bones[p_bone].get_constraint();
 }
 
 void EWBIKSkeletonIKState::set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
-	bones.write[p_bone]->set_constraint(p_constraint);
+	bones.write[p_bone].set_constraint(p_constraint);
 }
 
 void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
@@ -1216,22 +1216,130 @@ void EWBIKSkeletonIKState::set_bone_count(int32_t p_bone_count) {
 	bone_count = p_bone_count;
 	bones.resize(p_bone_count);
 	for (int32_t bone_i = 0; bone_i < p_bone_count; bone_i++) {
-		bones.write[bone_i].instance();
+		bones.write[bone_i] = IKNode3D();
 	}
 }
 void EWBIKSkeletonIKState::set_shadow_bone_dirty(int p_bone) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
-	bones.write[p_bone]->mark_dirty();
+	mark_dirty();
 }
 Transform EWBIKSkeletonIKState::get_shadow_pose_global(int p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
-	return bones[p_bone]->get_global().get_transform();
+	return bones[p_bone].get_global().get_transform();
 }
 Transform EWBIKSkeletonIKState::get_shadow_pose_local(int p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
-	return bones[p_bone]->get_local().get_transform();
+	return bones[p_bone].get_local().get_transform();
 }
 void EWBIKSkeletonIKState::set_shadow_bone_pose_local(int p_bone, const Transform &value) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
-	bones.write[p_bone]->set_local(value);
+	bones.write[p_bone].set_local(value);
+	mark_dirty();
+}
+void EWBIKSkeletonIKState::mark_dirty() {
+	dirty = true;
+}
+bool EWBIKSkeletonIKState::is_dirty() const {
+	return dirty;
+}
+void EWBIKSkeletonIKState::_update_process_order() {
+	if (!is_process_order_dirty) {
+		return;
+	}
+
+	IKNode3D *bonesptr = bones.ptrw();
+	int len = bones.size();
+
+	parentless_bones.clear();
+
+	for (int i = 0; i < len; i++) {
+		if (bonesptr[i].parent >= len) {
+			//validate this just in case
+			ERR_PRINT("Bone " + itos(i) + " has invalid parent: " + itos(bonesptr[i].parent));
+			bonesptr[i].parent = -1;
+		}
+		bonesptr[i].child_bones.clear();
+
+		if (bonesptr[i].parent != -1) {
+			int parent_bone_idx = bonesptr[i].parent;
+
+			// Check to see if this node is already added to the parent:
+			if (bonesptr[parent_bone_idx].child_bones.find(i) < 0) {
+				// Add the child node
+				bonesptr[parent_bone_idx].child_bones.push_back(i);
+			} else {
+				ERR_PRINT("IkNode3D parenthood graph is cyclic");
+			}
+		} else {
+			parentless_bones.push_back(i);
+		}
+	}
+
+	is_process_order_dirty = false;
+}
+void EWBIKSkeletonIKState::rotate_by(int32_t p_bone, Quat addRotation) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	IKNode3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].update_global();
+	if (bonesptr[p_bone].parent != -1) {
+		Quat newRot = bonesptr[bonesptr[p_bone].parent].get_global_ik_basis().get_local_of_rotation(addRotation);
+		bonesptr[p_bone].get_local_ik_basis().rotate_by(newRot);
+	} else {
+		bonesptr[p_bone].get_local_ik_basis().rotate_by(addRotation);
+	}
+	mark_dirty();
+}
+void EWBIKSkeletonIKState::translate_to(int32_t p_bone, Vector3 p_target) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	IKNode3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].update_global();
+	if (bonesptr[p_bone].parent != -1) {
+		bonesptr[p_bone].local.translate_to(bonesptr[bonesptr[p_bone].parent].get_global().get_local_of(p_target));
+		mark_dirty();
+	} else {
+		bonesptr[p_bone].local.translate_to(p_target);
+		mark_dirty();
+	}
+}
+Ray EWBIKSkeletonIKState::get_ray_x(int32_t p_bone) {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Ray());
+	IKNode3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].update_global();
+	return bonesptr[p_bone].get_global_ik_basis().get_x_ray();
+}
+Ray EWBIKSkeletonIKState::get_ray_y(int32_t p_bone) {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Ray());
+	IKNode3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].update_global();
+	return bonesptr[p_bone].get_global_ik_basis().get_y_ray();
+}
+Ray EWBIKSkeletonIKState::get_ray_z(int32_t p_bone) {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Ray());
+	IKNode3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].update_global();
+	return bonesptr[p_bone].get_global_ik_basis().get_z_ray();
+}
+void EWBIKSkeletonIKState::rotate_about_x(int32_t p_bone, float angle) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	IKNode3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].update_global();
+	Quat xRot = Quat(bonesptr[p_bone].get_global_ik_basis().get_x_heading(), angle);
+	rotate_by(p_bone, xRot);
+	mark_dirty();
+}
+void EWBIKSkeletonIKState::rotate_about_y(int32_t p_bone, float angle) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	IKNode3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].update_global();
+	Quat yRot = Quat(bonesptr[p_bone].get_global_ik_basis().get_y_heading(), angle);
+	rotate_by(p_bone, yRot);
+	mark_dirty();
+}
+void EWBIKSkeletonIKState::rotate_about_z(int32_t p_bone, float angle) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	IKNode3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].update_global();
+	Quat zRot = Quat(bonesptr[p_bone].get_global_ik_basis().get_z_heading(), angle);
+	rotate_by(p_bone, zRot);
+	mark_dirty();
 }
