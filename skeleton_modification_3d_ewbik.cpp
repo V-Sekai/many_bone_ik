@@ -767,8 +767,9 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKShadowSkeleton
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		Transform pose = state->get_shadow_pose_local(sb->bone);
 		Vector3 origin = pose.origin;
-		Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
-		origin += godot_to_libgdx;
+		// Remove hacks 2020-01-01
+		// Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
+		// origin += godot_to_libgdx;
 		hdx++;
 		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
 			r_localized_target_headings.write[hdx] += origin * x_orientation + target_axes.origin;
