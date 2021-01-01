@@ -326,15 +326,21 @@ void SkeletonModification3DEWBIK::recursive_chain_solver(Ref<EWBIKShadowSkeleton
 void SkeletonModification3DEWBIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	{
-		Transform shadow_pose = p_current_chain->mod->skeleton_ik_state->get_shadow_pose_global(p_current_chain->bone);
+		Transform shadow_pose = p_current_chain->mod->get_skeleton_ik_state()->get_shadow_pose_global(p_current_chain->bone);
 		p_skeleton->set_bone_global_pose_override(p_current_chain->bone, shadow_pose, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
+		Ref<KusudamaConstraint> kusudama = p_current_chain->mod->skeleton_ik_state->get_constraint(p_current_chain->bone);
+		Transform shadow_constraint = p_current_chain->mod->skeleton_ik_state->get_shadow_constraint_pose_global(p_current_chain->bone);
+		kusudama->set_constraint_axes(shadow_constraint);
 	}
 	Vector<Ref<EWBIKShadowSkeletonBone>> bones = p_current_chain->get_bones();
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
 		Transform shadow_pose = p_current_chain->mod->skeleton_ik_state->get_shadow_pose_global(bone_i);
 		p_skeleton->set_bone_global_pose_override(bone_i, shadow_pose, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(bone_i);
+		Ref<KusudamaConstraint> kusudama = p_current_chain->mod->skeleton_ik_state->get_constraint(bone_i);
+		Transform shadow_constraint = p_current_chain->mod->skeleton_ik_state->get_shadow_constraint_pose_global(bone_i);
+		kusudama->set_constraint_axes(shadow_constraint);
 	}
 	Vector<Ref<EWBIKShadowSkeletonBone>> bone_chains = p_current_chain->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
@@ -1240,7 +1246,10 @@ void EWBIKSkeletonIKState::set_shadow_bone_pose_local(int p_bone, const Transfor
 	bones.write[p_bone].sim_local_ik_node.set_local(value);
 	mark_dirty(p_bone);
 }
-
+Transform EWBIKSkeletonIKState::get_shadow_constraint_pose_global(int p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
+	return bones[p_bone].sim_constraint_ik_node.get_global().get_transform();
+}
 void EWBIKSkeletonIKState::mark_dirty(int32_t p_bone) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	bones.write[p_bone].sim_local_ik_node.dirty = true;
@@ -1391,4 +1400,60 @@ void EWBIKSkeletonIKState::set_parent(int32_t p_bone, int32_t p_parent) {
 int32_t EWBIKSkeletonIKState::get_parent(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);
 	return bones[p_bone].sim_local_ik_node.parent;
+}
+void EWBIKSkeletonIKState::align_shadow_bone_globals_to(int p_bone, Transform p_target) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	force_update_bone_children_transforms(p_bone);
+	if (get_parent(p_bone) != -1) {
+		// TODO Set local of?
+		Transform shadow_pose_global = get_shadow_pose_global(get_parent(p_bone));
+		shadow_pose_global = global_shadow_pose_to_local_pose(p_bone, shadow_pose_global);
+		set_shadow_bone_pose_local(p_bone, p_target);
+	} else {
+		Transform shadow_pose_global = get_shadow_pose_global(get_parent(p_bone));
+		set_shadow_bone_pose_local(p_bone, shadow_pose_global);
+	}
+	mark_dirty(p_bone);
+	force_update_bone_children_transforms(p_bone);
+}
+void EWBIKSkeletonIKState::align_shadow_constraint_globals_to(int p_bone, Transform p_target) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	force_update_bone_children_transforms(p_bone);
+	if (get_parent(p_bone) != -1) {
+		Transform shadow_constraint_pose_global = get_shadow_pose_global(get_parent(p_bone));
+		shadow_constraint_pose_global = global_constraint_pose_to_local_pose(p_bone, shadow_constraint_pose_global);
+		set_shadow_constraint_pose_local(p_bone, p_target);
+	} else {
+		Transform shadow_pose_global = get_shadow_pose_global(get_parent(p_bone));
+		set_shadow_constraint_pose_local(p_bone, shadow_pose_global);
+	}
+	mark_dirty(p_bone);
+	force_update_bone_children_transforms(p_bone);
+}
+void EWBIKSkeletonIKState::set_shadow_constraint_pose_local(int p_bone, const Transform &value) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone].sim_constraint_ik_node.set_local(value);
+	mark_dirty(p_bone);
+}
+Transform EWBIKSkeletonIKState::get_shadow_constraint_pose_local(int p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
+	return bones[p_bone].sim_constraint_ik_node.get_local().get_transform();
+}
+Transform EWBIKSkeletonIKState::global_constraint_pose_to_local_pose(int p_bone_idx, Transform p_global_pose) {
+	if (bones[p_bone_idx].sim_constraint_ik_node.parent >= 0) {
+		int parent_bone_idx = bones[p_bone_idx].sim_constraint_ik_node.parent;
+		Transform conversion_transform = bones[parent_bone_idx].sim_constraint_ik_node.get_global().get_transform();
+		return conversion_transform.affine_inverse() * p_global_pose;
+	} else {
+		return p_global_pose;
+	}
+}
+Transform EWBIKSkeletonIKState::global_shadow_pose_to_local_pose(int p_bone_idx, Transform p_global_pose) {
+	if (bones[p_bone_idx].sim_local_ik_node.parent >= 0) {
+		int parent_bone_idx = bones[p_bone_idx].sim_local_ik_node.parent;
+		Transform conversion_transform = bones[parent_bone_idx].sim_local_ik_node.get_global().get_transform();
+		return conversion_transform.affine_inverse() * p_global_pose;
+	} else {
+		return p_global_pose;
+	}
 }

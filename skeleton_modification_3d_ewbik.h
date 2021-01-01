@@ -259,6 +259,8 @@ class EWBIKSkeletonIKState : public Resource {
 	Vector<int32_t> parentless_bones;
 
 public:
+	Transform global_constraint_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
+	Transform global_shadow_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
 	void force_update_bone_children_transforms(int p_bone_idx);
 	void update_skeleton();
 	void mark_dirty(int32_t p_bone);
@@ -279,8 +281,13 @@ public:
 	int32_t get_parent(int32_t p_bone) const;
 	void set_parent(int32_t p_bone, int32_t p_parent);
 	void set_shadow_bone_pose_local(int p_bone, const Transform &value);
+	void align_shadow_bone_globals_to(int p_bone, Transform p_target);
+	void align_shadow_constraint_globals_to(int p_bone, Transform p_target);
 	Transform get_shadow_pose_local(int p_bone) const;
 	Transform get_shadow_pose_global(int p_bone) const;
+	Transform get_shadow_constraint_pose_global(int p_bone) const;
+	Transform get_shadow_constraint_pose_local(int p_bone) const;
+	void set_shadow_constraint_pose_local(int p_bone, const Transform &value);
 	void set_shadow_bone_dirty(int p_bone);
 	float get_stiffness(int32_t p_bone) const;
 	void set_stiffness(int32_t p_bone, float p_stiffness_scalar);
