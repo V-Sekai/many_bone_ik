@@ -419,21 +419,6 @@ Ref<EWBIKSegmentedSkeleton3D> EWBIKSegmentedSkeleton3D::add_child(const int p_bo
 	return children.write[infant_child_id];
 }
 
-// void EWBIKShadowSkeletonBone::update_cos_dampening() {
-// 	Ref<EWBIKSkeletonIKState> state = chain_root->mod->get_skeleton_ik_state();
-// 	float predampening = 1.0f - state->get_stiffness(bone);
-// 	float default_dampening = chain_root->dampening;
-// 	float dampening = parent_item == NULL ? Math_PI : predampening * default_dampening;
-// 	cos_half_dampen = Math::cos(dampening / 2.0f);
-// 	Ref<KusudamaConstraint> k = constraint;
-// 	if (k.is_valid() && k->get_pain() != 0.0f) {
-// 		springy = true;
-// 		populate_return_dampening_iteration_array(k);
-// 	} else {
-// 		springy = false;
-// 	}
-// }
-
 void EWBIKSegmentedSkeleton3D::set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes,
 		float p_cos_half_angle_dampen, float p_angle_dampen) {
 	Ref<KusudamaConstraint> constraint = mod->get_state()->get_constraint(bone);
@@ -1004,31 +989,6 @@ float EWBIKBoneChainTarget::get_target_weight() {
 	return target_weight;
 }
 
-void EWBIKSegmentedSkeleton3D::populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k) {
-	Ref<EWBIKState> state = chain_root->mod->get_state();
-	float predampen = 1.0f - state->get_stiffness(bone);
-	float default_dampening = chain_root->dampening;
-	float dampening = parent_item == NULL ? Math_PI : predampen * default_dampening;
-	float iterations = chain_root->get_default_iterations();
-	float returnful = k->get_pain();
-	float falloff = 0.2f;
-	Vector<float> half_returnful_dampened = state->get_half_returnful_dampened(bone);
-	half_returnful_dampened.resize(iterations);
-	Vector<float> cos_half_returnful_dampened = state->get_cos_half_returnful_dampened(bone);
-	cos_half_returnful_dampened.resize(iterations);
-	float iterations_pow = Math::pow(iterations, falloff * iterations * returnful);
-	for (int32_t iter_i = 0; iter_i < iterations; iter_i++) {
-		float iteration_scalar =
-				((iterations_pow)-Math::pow(iter_i, falloff * iterations * returnful)) / (iterations_pow);
-		float iteration_return_clamp = iteration_scalar * returnful * dampening;
-		float cos_iteration_return_clamp = Math::cos(iteration_return_clamp / 2.0f);
-		half_returnful_dampened.write[iter_i] = iteration_return_clamp;
-		cos_half_returnful_dampened.write[iter_i] = cos_iteration_return_clamp;
-	}
-	state->set_half_returnfullness_dampened(bone, half_returnful_dampened);
-	state->set_cos_half_returnfullness_dampened(bone, cos_half_returnful_dampened);
-}
-
 float EWBIKState::get_stiffness(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);
 	return bones[p_bone].sim_local_ik_node.get_stiffness();
@@ -1472,19 +1432,53 @@ void EWBIKState::set_cos_half_dampen(int32_t p_bone, float p_cos_half_dampen) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	bones.write[p_bone].cos_half_dampen = p_cos_half_dampen;
 }
-Vector<float> EWBIKState::get_half_returnful_dampened(int32_t p_bone) const {
-	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
-	return bones[p_bone].half_returnfullness_dampened;
+// Vector<float> EWBIKState::get_half_returnful_dampened(int32_t p_bone) const {
+// 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
+// 	return bones[p_bone].half_returnfullness_dampened;
+// }
+// Vector<float> EWBIKState::get_cos_half_returnful_dampened(int32_t p_bone) const {
+// 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
+// 	return bones[p_bone].cos_half_returnfullness_dampened;
+// }
+// void EWBIKState::set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
+// 	ERR_FAIL_INDEX(p_bone, bones.size());
+// 	bones.write[p_bone].cos_half_returnfullness_dampened = p_dampened;
+// }
+// void EWBIKState::set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
+// 	ERR_FAIL_INDEX(p_bone, bones.size());
+// 	bones.write[p_bone].half_returnfullness_dampened = p_dampened;
+// }void EWBIKState::ShadowBone3D::set_constraint(Ref<KusudamaConstraint> p_constraint) {
+void EWBIKState::ShadowBone3D::set_constraint(Ref<KusudamaConstraint> p_constraint) {
+	constraint = p_constraint;
 }
-Vector<float> EWBIKState::get_cos_half_returnful_dampened(int32_t p_bone) const {
-	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
-	return bones[p_bone].cos_half_returnfullness_dampened;
+Ref<KusudamaConstraint> EWBIKState::ShadowBone3D::get_constraint() const {
+	return constraint;
 }
-void EWBIKState::set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
-	ERR_FAIL_INDEX(p_bone, bones.size());
-	bones.write[p_bone].cos_half_returnfullness_dampened = p_dampened;
+void EWBIKState::ShadowBone3D::update_cos_dampening(int p_default_iterations, float p_default_dampening) {
+	float predampening = 1.0f - sim_local_ik_node.stiffness;
+	float dampening = sim_constraint_ik_node.parent == -1 ? Math_PI : predampening * p_default_dampening;
+	cos_half_dampen = Math::cos(dampening / 2.0f);
+	if (constraint.is_valid() && constraint->get_pain() != 0.0f) {
+		springy = true;
+		populate_return_dampening_iteration_array(p_default_iterations, p_default_dampening);
+	} else {
+		springy = false;
+	}
 }
-void EWBIKState::set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
-	ERR_FAIL_INDEX(p_bone, bones.size());
-	bones.write[p_bone].half_returnfullness_dampened = p_dampened;
+void EWBIKState::ShadowBone3D::populate_return_dampening_iteration_array(int p_default_iterations, float p_default_dampening) {
+	float predampen = 1.0f - sim_local_ik_node.stiffness;
+	float dampening = sim_constraint_ik_node.parent == -1 ? Math_PI : predampen * p_default_dampening;
+	float returnful = constraint->get_pain();
+	float falloff = 0.2f;
+	half_returnful_dampened.resize(p_default_iterations);
+	cos_half_returnful_dampened.resize(p_default_iterations);
+	float iterations_pow = Math::pow(p_default_iterations, falloff * p_default_iterations * returnful);
+	for (int32_t iter_i = 0; iter_i < p_default_iterations; iter_i++) {
+		float iteration_scalar =
+				((iterations_pow)-Math::pow(iter_i, falloff * p_default_iterations * returnful)) / (iterations_pow);
+		float iteration_return_clamp = iteration_scalar * returnful * dampening;
+		float cos_iteration_return_clamp = Math::cos(iteration_return_clamp / 2.0f);
+		half_returnful_dampened.write[iter_i] = iteration_return_clamp;
+		cos_half_returnful_dampened.write[iter_i] = cos_iteration_return_clamp;
+	}
 }

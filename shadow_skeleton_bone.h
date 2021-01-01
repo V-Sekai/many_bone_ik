@@ -100,7 +100,6 @@ public:
 	set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen,
 			float p_angle_dampen);
 	void set_axes_to_be_snapped(Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen);
-	void populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k);
 	void rootwardly_update_falloff_cache_from(Ref<EWBIKSegmentedSkeleton3D> p_current);
 	bool is_bone_effector(Ref<EWBIKSegmentedSkeleton3D> current_bone);
 	void build_chain(Ref<EWBIKSegmentedSkeleton3D> p_start_from);

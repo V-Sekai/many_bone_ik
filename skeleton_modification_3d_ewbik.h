@@ -55,7 +55,6 @@ class SkeletonModificationStack3D;
 class EWBIKState;
 class DirectionConstraint;
 class TwistConstraint;
-class KusudamaConstraint;
 
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
@@ -240,16 +239,14 @@ class EWBIKState : public Resource {
 		IKNode3D sim_local_ik_node;
 		IKNode3D sim_constraint_ik_node;
 		float cos_half_dampen = 0.0f;
-		Vector<float> cos_half_returnfullness_dampened;
-		Vector<float> half_returnfullness_dampened;
+		Vector<float> cos_half_returnful_dampened;
+		Vector<float> half_returnful_dampened;
 		bool springy = false;
 		Ref<KusudamaConstraint> constraint;
-		void set_constraint(Ref<KusudamaConstraint> p_constraint) {
-			constraint = p_constraint;
-		}
-		Ref<KusudamaConstraint> get_constraint() const {
-			return constraint;
-		}
+		void set_constraint(Ref<KusudamaConstraint> p_constraint);
+		Ref<KusudamaConstraint> get_constraint() const;
+		void populate_return_dampening_iteration_array(int p_default_iterations, float p_default_dampening);
+		void update_cos_dampening(int p_default_iterations, float p_default_dampening);
 	};
 	Ref<SkeletonModification3DEWBIK> mod;
 	Skeleton3D *skeleton = nullptr;
@@ -261,10 +258,10 @@ class EWBIKState : public Resource {
 public:
 	float get_cos_half_dampen(int32_t p_bone) const;
 	void set_cos_half_dampen(int32_t p_bone, float p_cos_half_dampen);
-	Vector<float> get_cos_half_returnful_dampened(int32_t p_bone) const;
-	Vector<float> get_half_returnful_dampened(int32_t p_bone) const;
-	void set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
-	void set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
+	// Vector<float> get_cos_half_returnful_dampened(int32_t p_bone) const;
+	// Vector<float> get_half_returnful_dampened(int32_t p_bone) const;
+	// void set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
+	// void set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
 	Transform global_constraint_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
 	Transform global_shadow_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
 	void force_update_bone_children_transforms(int p_bone_idx);
