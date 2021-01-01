@@ -1057,6 +1057,7 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 	}
 	set_bone_count(skeleton->get_bone_count());
 	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
+		set_parent(bone_i, skeleton->get_bone_parent(bone_i));
 		set_stiffness(bone_i, -1);
 		set_height(bone_i, -1);
 		Ref<KusudamaConstraint> constraint;
