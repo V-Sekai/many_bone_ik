@@ -105,9 +105,9 @@ void EWBIKSegmentedSkeleton3D::build_chain(Ref<EWBIKSegmentedSkeleton3D> p_start
 		Vector<Ref<EWBIKSegmentedSkeleton3D>> current_bone_children = get_bone_children(skeleton, current_bone);
 		children.push_back(current_bone);
 		tip_bone = current_bone;
-		int32_t constraint_i = current_bone->bone;
 		current_bone->mod = mod;
-		current_bone->constraint = mod->get_state()->get_constraint(constraint_i);
+		Ref<KusudamaConstraint> constraint = mod->get_state()->get_constraint(current_bone->bone);
+		mod->get_state()->get_constraint(current_bone->bone);
 		current_bone->pb = skeleton->get_physical_bone(current_bone->bone);
 		if (current_bone_children.size() != 1 || is_bone_effector(current_bone)) {
 			create_child_chains(current_bone);

@@ -74,7 +74,6 @@ private:
 	float stiffness_scalar = 0.0f;
 	float bone_height = 0.0f;
 	float length = 0.0f;
-	Ref<KusudamaConstraint> constraint = nullptr;
 	Ref<EWBIKSegmentedSkeleton3D> base_bone;
 	Ref<EWBIKSegmentedSkeleton3D> tip_bone;
 	Skeleton3D *skeleton = nullptr;

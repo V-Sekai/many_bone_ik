@@ -436,6 +436,7 @@ Ref<EWBIKSegmentedSkeleton3D> EWBIKSegmentedSkeleton3D::add_child(const int p_bo
 
 void EWBIKSegmentedSkeleton3D::set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes,
 		float p_cos_half_angle_dampen, float p_angle_dampen) {
+	Ref<KusudamaConstraint> constraint = mod->get_state()->get_constraint(bone);
 	if (constraint.is_valid()) {
 		constraint->set_axes_to_returnful(p_global, p_to_set, p_limiting_axes, p_cos_half_angle_dampen,
 				p_angle_dampen);
@@ -444,6 +445,7 @@ void EWBIKSegmentedSkeleton3D::set_axes_to_returned(Transform p_global, Transfor
 
 void EWBIKSegmentedSkeleton3D::set_axes_to_be_snapped(Transform p_to_set, Transform p_limiting_axes,
 		float p_cos_half_angle_dampen) {
+	Ref<KusudamaConstraint> constraint = mod->get_state()->get_constraint(bone);
 	if (constraint.is_valid()) {
 		constraint->set_axes_to_snapped(p_to_set, p_limiting_axes, p_cos_half_angle_dampen);
 	}
@@ -621,13 +623,14 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	Transform shadow_pose_local = state->get_shadow_pose_local(p_chain_item->bone);
 	shadow_pose_local = shadow_pose_local * xform;
 	state->set_shadow_bone_pose_local(p_chain_item->bone, shadow_pose_local);
-	if (p_chain_item->constraint.is_null()) {
+	Ref<KusudamaConstraint> constraint = state->get_constraint(p_chain_item->bone);
+	if (constraint.is_null()) {
 		return;
 	}
 	xform.basis = shadow_pose_local.get_basis();
 	xform.origin = shadow_pose_local.origin;
-	p_chain_item->set_axes_to_be_snapped(xform, p_chain_item->constraint->get_constraint_axes(), bone_damp);
-	p_chain_item->constraint->set_constraint_axes(p_chain_item->constraint->get_constraint_axes().translated(translate_by));
+	p_chain_item->set_axes_to_be_snapped(xform, constraint->get_constraint_axes(), bone_damp);
+	constraint->set_constraint_axes(constraint->get_constraint_axes().translated(translate_by));
 }
 
 void SkeletonModification3DEWBIK::recursively_update_bone_segment_map_from(Ref<EWBIKSegmentedSkeleton3D> r_chain,
@@ -764,10 +767,11 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKSegmentedSkele
 		if (sb.is_null()) {
 			continue;
 		}
-		if (sb->constraint.is_null()) {
+		Ref<KusudamaConstraint> constraint = state->get_constraint(sb->bone);
+		if (constraint.is_null()) {
 			continue;
 		}
-		Transform target_axes = sb->constraint->get_constraint_axes();
+		Transform target_axes = constraint->get_constraint_axes();
 		r_localized_target_headings.write[hdx] = target_axes.origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		Transform pose = state->get_shadow_pose_local(sb->bone);
@@ -1021,8 +1025,8 @@ void EWBIKSegmentedSkeleton3D::populate_return_dampening_iteration_array(Ref<Kus
 		half_returnful_dampened.write[iter_i] = iteration_return_clamp;
 		cos_half_returnful_dampened.write[iter_i] = cos_iteration_return_clamp;
 	}
-	 state->set_half_returnfullness_dampened(bone, half_returnful_dampened);	 
-	 state->set_cos_half_returnfullness_dampened(bone, cos_half_returnful_dampened);
+	state->set_half_returnfullness_dampened(bone, half_returnful_dampened);
+	state->set_cos_half_returnfullness_dampened(bone, cos_half_returnful_dampened);
 }
 
 float EWBIKState::get_stiffness(int32_t p_bone) const {
