@@ -1221,6 +1221,7 @@ void EWBIKSkeletonIKState::set_bone_count(int32_t p_bone_count) {
 }
 void EWBIKSkeletonIKState::set_shadow_bone_dirty(int p_bone) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
+	// TODO Per bone dirty 2021-01-01 iFire
 	mark_dirty();
 }
 Transform EWBIKSkeletonIKState::get_shadow_pose_global(int p_bone) const {
@@ -1238,6 +1239,7 @@ void EWBIKSkeletonIKState::set_shadow_bone_pose_local(int p_bone, const Transfor
 }
 void EWBIKSkeletonIKState::mark_dirty() {
 	dirty = true;
+	update_skeleton();
 }
 bool EWBIKSkeletonIKState::is_dirty() const {
 	return dirty;
@@ -1352,11 +1354,8 @@ void EWBIKSkeletonIKState::force_update_bone_children_transforms(int p_bone_idx)
 	while (bones_to_process.size() > 0) {
 		int current_bone_idx = bones_to_process[0];
 		bones_to_process.erase(current_bone_idx);
-
 		IKNode3D &b = bonesptr[current_bone_idx];
-		// TODO IKBASIS removal?
 		IKBasis pose = bones[p_bone_idx].get_local();
-
 		if (b.parent >= 0) {
 			b.pose_global = bonesptr[b.parent].pose_global * pose;
 		} else {
