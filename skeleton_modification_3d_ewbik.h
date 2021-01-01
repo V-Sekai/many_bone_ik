@@ -267,18 +267,8 @@ public:
 	// 	this.rotation.set(newRotation);
 	// 	this.refreshPrecomputed();
 	// }
-	int32_t get_parent(int32_t p_bone) const {
-		ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);
-		return bones[p_bone].parent;
-	}
-	void set_parent(int32_t p_bone, int32_t p_parent) {
-		ERR_FAIL_INDEX(p_bone, bones.size());
-		ERR_FAIL_COND(p_parent != -1 && (p_parent < 0));
-
-		bones.write[p_bone].parent = p_parent;
-		is_process_order_dirty = true;
-		mark_dirty();
-	}
+	int32_t get_parent(int32_t p_bone) const;
+	void set_parent(int32_t p_bone, int32_t p_parent);
 	void set_shadow_bone_pose_local(int p_bone, const Transform &value);
 	Transform get_shadow_pose_local(int p_bone) const;
 	Transform get_shadow_pose_global(int p_bone) const;
