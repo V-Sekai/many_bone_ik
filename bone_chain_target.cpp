@@ -126,21 +126,22 @@ float EWBIKBoneChainTarget::get_z_priority() const {
 	return z_priority;
 }
 
-Transform EWBIKBoneChainTarget::get_axes() const {
-	return chain_item->axes;
-}
-
 void EWBIKBoneChainTarget::align_to_axes(Transform inAxes) {
 	//TODO
 	//axes.alignGlobalsTo(inAxes);
 }
 
 void EWBIKBoneChainTarget::translate(Vector3 location) {
-	chain_item->axes.origin *= location;
+	BoneId bone = chain_item->bone;
+	Ref<EWBIKSkeletonIKState> state = chain_item->mod->get_skeleton_ik_state();
+	Transform xform = state->get_shadow_pose_local(bone);
+	xform.origin *= location;
+	state->set_shadow_bone_pose_local(bone, xform);
 }
 
 Vector3 EWBIKBoneChainTarget::get_location() {
-	return chain_item->axes.origin;
+	Transform xform = chain_item->mod->get_skeleton_ik_state()->get_shadow_pose_local(chain_item->bone);
+	return xform.origin;
 }
 Ref<EWBIKShadowSkeletonBone> EWBIKBoneChainTarget::for_bone() {
 	return chain_item;

@@ -136,8 +136,6 @@ public:
      */
 	float get_z_priority() const;
 
-	Transform get_axes() const;
-
 	/**
      * translates and rotates the target to match the position
      * and orientation of the input Axes. The orientation

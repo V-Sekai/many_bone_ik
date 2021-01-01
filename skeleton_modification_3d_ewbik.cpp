@@ -326,14 +326,15 @@ void SkeletonModification3DEWBIK::recursive_chain_solver(Ref<EWBIKShadowSkeleton
 void SkeletonModification3DEWBIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	{
-		p_skeleton->set_bone_local_pose_override(p_current_chain->bone, p_current_chain->axes, p_strength, true);
+		Transform shadow_pose = p_current_chain->mod->skeleton_ik_state->get_shadow_pose_global(p_current_chain->bone);
+		p_skeleton->set_bone_global_pose_override(p_current_chain->bone, shadow_pose, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
 	}
 	Vector<Ref<EWBIKShadowSkeletonBone>> bones = p_current_chain->get_bones();
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-		Ref<EWBIKShadowSkeletonBone> item = bones[bone_i];
-		p_skeleton->set_bone_local_pose_override(item->bone, item->axes, p_strength, true);
-		p_skeleton->force_update_bone_children_transforms(item->bone);
+		Transform shadow_pose = p_current_chain->mod->skeleton_ik_state->get_shadow_pose_global(bone_i);
+		p_skeleton->set_bone_global_pose_override(bone_i, shadow_pose, p_strength, true);
+		p_skeleton->force_update_bone_children_transforms(bone_i);
 	}
 	Vector<Ref<EWBIKShadowSkeletonBone>> bone_chains = p_current_chain->get_child_chains();
 	for (int32_t i = 0; i < bone_chains.size(); i++) {
@@ -412,23 +413,20 @@ Ref<EWBIKShadowSkeletonBone> EWBIKShadowSkeletonBone::add_child(const int p_bone
 	return children.write[infant_child_id];
 }
 
-void EWBIKShadowSkeletonBone::update_cos_dampening() {
-	float predampening = 1.0f - get_stiffness();
-	float default_dampening = chain_root->dampening;
-	float dampening = parent_item == NULL ? Math_PI : predampening * default_dampening;
-	cos_half_dampen = Math::cos(dampening / 2.0f);
-	Ref<KusudamaConstraint> k = constraint;
-	if (k.is_valid() && k->get_pain() != 0.0f) {
-		springy = true;
-		populate_return_dampening_iteration_array(k);
-	} else {
-		springy = false;
-	}
-}
-
-float EWBIKShadowSkeletonBone::get_stiffness() const {
-	return stiffness_scalar;
-}
+// void EWBIKShadowSkeletonBone::update_cos_dampening() {
+// 	Ref<EWBIKSkeletonIKState> state = chain_root->mod->get_skeleton_ik_state();
+// 	float predampening = 1.0f - state->get_stiffness(bone);
+// 	float default_dampening = chain_root->dampening;
+// 	float dampening = parent_item == NULL ? Math_PI : predampening * default_dampening;
+// 	cos_half_dampen = Math::cos(dampening / 2.0f);
+// 	Ref<KusudamaConstraint> k = constraint;
+// 	if (k.is_valid() && k->get_pain() != 0.0f) {
+// 		springy = true;
+// 		populate_return_dampening_iteration_array(k);
+// 	} else {
+// 		springy = false;
+// 	}
+// }
 
 void EWBIKShadowSkeletonBone::set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes,
 		float p_cos_half_angle_dampen, float p_angle_dampen) {
@@ -445,13 +443,6 @@ void EWBIKShadowSkeletonBone::set_axes_to_be_snapped(Transform p_to_set, Transfo
 	}
 }
 
-void EWBIKShadowSkeletonBone::set_stiffness(float p_stiffness) {
-	stiffness_scalar = p_stiffness;
-	if (parent_item.is_valid()) {
-		parent_item->update_cos_dampening();
-	}
-}
-
 bool SkeletonModification3DEWBIK::build_chain(Ref<EWBIKTask> p_task) {
 	ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
 	Ref<EWBIKShadowSkeletonBone> chain = p_task->chain;
@@ -463,24 +454,6 @@ bool SkeletonModification3DEWBIK::build_chain(Ref<EWBIKTask> p_task) {
 	chain->bone = p_task->root_bone;
 	chain->pb = p_task->skeleton->get_physical_bone(chain->bone);
 	return true;
-}
-
-void SkeletonModification3DEWBIK::update_chain(Skeleton3D *p_sk, Ref<EWBIKShadowSkeletonBone> p_chain_item) {
-	Transform xform = p_sk->global_pose_to_local_pose(p_chain_item->bone, p_sk->get_bone_global_pose(p_chain_item->bone));
-	p_chain_item->axes = xform;
-	Vector<Ref<EWBIKShadowSkeletonBone>> bones = p_chain_item->get_bones();
-	ERR_FAIL_COND(!p_chain_item->is_chain_active());
-	int32_t found_i = bones.find(p_chain_item);
-	ERR_FAIL_COND(found_i == -1);
-	for (int32_t bone_i = found_i; bone_i < bones.size(); bone_i++) {
-		Transform xform = p_sk->get_bone_pose(bones[bone_i]->bone);
-		xform = xform * p_sk->get_bone_rest(bones[bone_i]->bone);
-		p_chain_item->axes = xform;
-	}
-	Vector<Ref<EWBIKShadowSkeletonBone>> bone_chains = p_chain_item->get_child_chains();
-	for (int32_t i = 0; i < bone_chains.size(); i++) {
-		update_chain(p_sk, bone_chains[i]);
-	}
 }
 
 void SkeletonModification3DEWBIK::solve_simple(Ref<EWBIKTask> p_task) {
@@ -526,7 +499,7 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	for (int32_t bone_i = 0; bone_i < p_task->skeleton->get_bone_count(); bone_i++) {
 		Skeleton3D *skeleton = p_task->skeleton;
 		Transform xform = skeleton->get_bone_pose(bone_i) * skeleton->get_bone_custom_pose(bone_i);
-		p_task->ewbik->skeleton_ik_state->set_bone_extra(bone_i, "shadow_pose", xform);
+		p_task->ewbik->skeleton_ik_state->set_shadow_bone_pose_local(bone_i, xform);
 	}
 
 	// for (int32_t constraint_i = 0; constraint_i < p_task->dmik->get_constraint_count(); constraint_i++) {
@@ -601,7 +574,6 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	if (!p_task->chain->targets.size()) {
 		return;
 	}
-	update_chain(p_task->skeleton, p_task->chain);
 	solve_simple(p_task);
 	// Strength is always full strength
 	apply_bone_chains(1.0f, p_task->skeleton, p_task->chain->chain_root);
@@ -640,12 +612,15 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	Transform xform;
 	xform.basis.set_quat_scale(qcp_rot, Vector3(1.0, 1.0f, 1.0));
 	xform.origin = translate_by;
-	p_chain_item->axes = p_chain_item->axes * xform;
+	Ref<EWBIKSkeletonIKState> state = p_chain_item->mod->get_skeleton_ik_state();
+	Transform shadow_pose_local = state->get_shadow_pose_local(p_chain_item->bone);
+	shadow_pose_local = shadow_pose_local * xform;
+	state->set_shadow_bone_pose_local(p_chain_item->bone, shadow_pose_local);
 	if (p_chain_item->constraint.is_null()) {
 		return;
 	}
-	xform.basis = p_chain_item->axes.get_basis();
-	xform.origin = p_chain_item->axes.origin;
+	xform.basis = shadow_pose_local.get_basis();
+	xform.origin = shadow_pose_local.origin;
 	p_chain_item->set_axes_to_be_snapped(xform, p_chain_item->constraint->get_constraint_axes(), bone_damp);
 	p_chain_item->constraint->set_constraint_axes(p_chain_item->constraint->get_constraint_axes().translated(translate_by));
 }
@@ -668,7 +643,9 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	}
 	// print_line("Affected bone " + r_chain->skeleton->get_bone_name(p_for_bone->bone));
 	p_for_bone->force_update_bone_children_transforms(r_chain);
-	Transform bone_xform = p_for_bone->axes_global;
+	Ref<EWBIKSkeletonIKState> state = r_chain->mod->get_skeleton_ik_state();
+	BoneId bone = p_for_bone->bone;
+	Transform bone_xform = state->get_shadow_pose_local(bone);
 	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
 	float new_dampening = -1;
 	if (p_for_bone->parent_item == NULL || !r_chain->localized_target_headings.size()) {
@@ -741,8 +718,10 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 		}
 	}
 	if (p_stabilization_passes > 0) {
-		p_for_bone->axes.basis.set_quat_scale(bone_xform.basis.get_rotation_quat(), p_for_bone->axes.basis.get_scale());
-		p_for_bone->axes.origin = bone_xform.origin;
+		Transform pose;
+		pose.basis.set_quat_scale(bone_xform.basis.get_rotation_quat(), pose.basis.get_scale());
+		pose.origin = bone_xform.origin;
+		state->set_shadow_bone_pose_local(p_for_bone->bone, pose);
 	}
 }
 
@@ -766,6 +745,7 @@ float SkeletonModification3DEWBIK::get_manual_msd(Vector<Vector3> &r_localized_e
 void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_target_headings,
 		Vector<real_t> &p_weights, Transform p_bone_xform) {
 	int hdx = 0;
+	Ref<EWBIKSkeletonIKState> state = r_chain->mod->get_skeleton_ik_state();
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
 		Ref<EWBIKBoneChainTarget> bct = r_chain->targets[target_i];
 		if (bct.is_null()) {
@@ -785,7 +765,8 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKShadowSkeleton
 		Transform target_axes = sb->constraint->get_constraint_axes();
 		r_localized_target_headings.write[hdx] = target_axes.origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
-		Vector3 origin = sb->axes.origin;
+		Transform pose = state->get_shadow_pose_local(sb->bone);
+		Vector3 origin = pose.origin;
 		Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
 		origin += godot_to_libgdx;
 		hdx++;
@@ -810,6 +791,7 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKShadowSkeleton
 void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_effector_headings,
 		Transform p_bone_xform) {
 	int hdx = 0;
+	Ref<EWBIKSkeletonIKState> state = r_chain->mod->get_skeleton_ik_state();
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
 		Ref<EWBIKBoneChainTarget> bct = r_chain->targets[target_i];
 		if (bct.is_null()) {
@@ -824,7 +806,8 @@ void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKShadowSkelet
 			continue;
 		}
 		// int bone = r_chain->targets[target_i]->end_effector->effector_bone;
-		Vector3 origin = sb->axes.origin;
+		Transform pose = state->get_shadow_pose_local(sb->bone);
+		Vector3 origin = pose.origin;
 		Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
 		r_localized_effector_headings.write[hdx] = origin;
 		origin += godot_to_libgdx;
@@ -943,20 +926,15 @@ void EWBIKShadowSkeletonBone::create_headings_arrays() {
 }
 
 void EWBIKShadowSkeletonBone::force_update_bone_children_transforms(Ref<EWBIKShadowSkeletonBone> p_current_chain) {
-	Transform pose = p_current_chain->axes;
-	if (p_current_chain->parent_item.is_valid()) {
-		p_current_chain->axes_global = p_current_chain->parent_item->axes_global * pose;
-	} else {
-		p_current_chain->axes_global = pose;
-	}
+	Ref<EWBIKSkeletonIKState> state = p_current_chain->mod->get_skeleton_ik_state();
+	BoneId bone = p_current_chain->bone;
+	state->set_shadow_bone_dirty(bone);
 	Vector<Ref<EWBIKShadowSkeletonBone>> bones = p_current_chain->get_bones();
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-		Transform pose = bones[bone_i]->axes;
+		state->set_shadow_bone_dirty(bone);
 		if (bones[bone_i]->parent_item.is_valid()) {
-			bones.write[bone_i]->axes_global = bones[bone_i]->parent_item->axes_global * pose;
-		} else {
-			bones.write[bone_i]->axes_global = pose;
+			state->set_shadow_bone_dirty(bone_i);
 		}
 	}
 	Vector<Ref<EWBIKShadowSkeletonBone>> bone_chains = p_current_chain->get_child_chains();
@@ -1017,7 +995,8 @@ float EWBIKBoneChainTarget::get_target_weight() {
 }
 
 void EWBIKShadowSkeletonBone::populate_return_dampening_iteration_array(Ref<KusudamaConstraint> k) {
-	float predampen = 1.0f - get_stiffness();
+	Ref<EWBIKSkeletonIKState> state = chain_root->mod->get_skeleton_ik_state();
+	float predampen = 1.0f - state->get_stiffness(bone);
 	float default_dampening = chain_root->dampening;
 	float dampening = parent_item == NULL ? Math_PI : predampen * default_dampening;
 	float iterations = chain_root->get_default_iterations();
@@ -1036,36 +1015,34 @@ void EWBIKShadowSkeletonBone::populate_return_dampening_iteration_array(Ref<Kusu
 	}
 }
 
-float EWBIKShadowSkeletonBone::get_bone_height() const {
-	return bone_height;
-}
-
-void EWBIKShadowSkeletonBone::set_bone_height(const float p_bone_height) {
-	bone_height = p_bone_height;
-}
-
 float EWBIKSkeletonIKState::get_stiffness(int32_t p_bone) const {
-	return get_bone_extra(p_bone, "stiffness");
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);
+	return bones[p_bone]->get_stiffness();
 }
 
 void EWBIKSkeletonIKState::set_stiffness(int32_t p_bone, float p_stiffness_scalar) {
-	set_bone_extra(p_bone, "stiffness", p_stiffness_scalar);
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone]->set_stiffness(p_stiffness_scalar);
 }
 
 float EWBIKSkeletonIKState::get_height(int32_t p_bone) const {
-	return get_bone_extra(p_bone, "height");
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);
+	return bones[p_bone]->get_height();
 }
 
 void EWBIKSkeletonIKState::set_height(int32_t p_bone, float p_height) {
-	set_bone_extra(p_bone, "height", p_height);
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	return bones.write[p_bone]->set_height(p_height);
 }
 
 Ref<KusudamaConstraint> EWBIKSkeletonIKState::get_constraint(int32_t p_bone) const {
-	return get_bone_extra(p_bone, "kusudama");
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), nullptr);
+	return bones[p_bone]->get_constraint();
 }
 
 void EWBIKSkeletonIKState::set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint) {
-	set_bone_extra(p_bone, "kususdama", p_constraint);
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone]->set_constraint(p_constraint);
 }
 
 void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
@@ -1079,12 +1056,12 @@ void EWBIKSkeletonIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 	}
 	set_bone_count(skeleton->get_bone_count());
 	for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-		set_bone_extra(bone_i, "stiffness", -1);
-		set_bone_extra(bone_i, "height", -1);
+		set_stiffness(bone_i, -1);
+		set_height(bone_i, -1);
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
 		constraint->set_name(skeleton->get_bone_name(bone_i));
-		set_bone_extra(bone_i, "kusudama", constraint);
+		set_constraint(bone_i, constraint);
 	}
 }
 
@@ -1098,7 +1075,7 @@ void EWBIKSkeletonIKState::_get_property_list(List<PropertyInfo> *p_list) const 
 		p_list->push_back(PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/twist_range"));
 		p_list->push_back(PropertyInfo(Variant::INT, "bone/" + itos(bone_i) + "/direction_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 		p_list->push_back(PropertyInfo(Variant::TRANSFORM, "bone/" + itos(bone_i) + "/constraint_axes"));
-		Ref<KusudamaConstraint> kusudama = get_bone_extra(bone_i, "kusudama");
+		Ref<KusudamaConstraint> kusudama = get_constraint(bone_i);
 		if (kusudama.is_null()) {
 			continue;
 		}
@@ -1118,17 +1095,15 @@ bool EWBIKSkeletonIKState::_get(const StringName &p_name, Variant &r_ret) const 
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		if (what == "stiffness") {
-			r_ret = get_bone_extra(index, "stiffness");
+			r_ret = get_stiffness(index);
 			return true;
 		} else if (what == "height") {
-			r_ret = get_bone_extra(index, "height");
+			r_ret = get_height(index);
 			return true;
 		}
-		Ref<KusudamaConstraint> kusudama = get_bone_extra(index, "kusudama");
+		Ref<KusudamaConstraint> kusudama = get_constraint(index);
 		if (kusudama.is_null()) {
-			kusudama.instance();
-			r_ret = kusudama;
-			return true;
+			return false;
 		}
 		if (what == "name") {
 			r_ret = kusudama->get_name();
@@ -1178,15 +1153,15 @@ bool EWBIKSkeletonIKState::_set(const StringName &p_name, const Variant &p_value
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, bone_count, false);
 		if (what == "stiffness") {
-			set_bone_extra(index, "stiffness", p_value);
+			set_stiffness(index, p_value);
 			_change_notify();
 		} else if (what == "height") {
-			set_bone_extra(index, "height", p_value);
+			set_height(index, p_value);
 			_change_notify();
 		}
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
-		set_bone_extra(index, "kusudama", constraint);
+		set_constraint(index, constraint);
 		if (what == "name") {
 			constraint->set_name(p_value);
 			_change_notify();
@@ -1236,4 +1211,27 @@ bool EWBIKSkeletonIKState::_set(const StringName &p_name, const Variant &p_value
 		return true;
 	}
 	return false;
+}
+void EWBIKSkeletonIKState::set_bone_count(int32_t p_bone_count) {
+	bone_count = p_bone_count;
+	bones.resize(p_bone_count);
+	for (int32_t bone_i = 0; bone_i < p_bone_count; bone_i++) {
+		bones.write[bone_i].instance();
+	}
+}
+void EWBIKSkeletonIKState::set_shadow_bone_dirty(int p_bone) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone]->mark_dirty();
+}
+Transform EWBIKSkeletonIKState::get_shadow_pose_global(int p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
+	return bones[p_bone]->get_global().get_transform();
+}
+Transform EWBIKSkeletonIKState::get_shadow_pose_local(int p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
+	return bones[p_bone]->get_local().get_transform();
+}
+void EWBIKSkeletonIKState::set_shadow_bone_pose_local(int p_bone, const Transform &value) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone]->set_local(value);
 }

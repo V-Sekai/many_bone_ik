@@ -54,8 +54,6 @@ private:
 
 	bool processed = false;
 	bool aligned = false;
-	Transform axes;
-	Transform axes_global;
 	Ref<EWBIKShadowSkeletonBone> chain_root = nullptr;
 	Vector<Ref<EWBIKBoneChainTarget>> targets;
 	Vector<Vector3> localized_target_headings;
@@ -100,12 +98,8 @@ public:
 	 */
 	void align_axes_to_bones();
 	void set_processed(bool p_b);
-	float get_bone_height() const;
-	void set_bone_height(const float p_bone_height);
 	Ref<EWBIKShadowSkeletonBone> find_child(const int p_bone_id);
 	Ref<EWBIKShadowSkeletonBone> add_child(const int p_bone_id);
-	void set_stiffness(float p_stiffness);
-	float get_stiffness() const;
 	void update_cos_dampening();
 	void
 	set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen,

@@ -65,8 +65,29 @@ class IKNode3D : public Reference {
 	Vector<Ref<IKNode3D>> children_nodes;
 	Ref<IKNode3D> parent_node;
 	bool dirty = false;
+	Ref<KusudamaConstraint> constraint;
+	float height = 0.0f;
+	float stiffness = 0.0f;
 
 public:
+	void set_constraint(Ref<KusudamaConstraint> p_constraint) {
+		constraint = p_constraint;
+	}
+	Ref<KusudamaConstraint> get_constraint() const {
+		return constraint;
+	}
+	void set_height(float p_height) {
+		height = p_height;
+	}
+	float get_height() const {
+		return height;
+	}
+	void set_stiffness(float p_stiffness) {
+		stiffness = p_stiffness;
+	}
+	float get_stiffness() const {
+		return stiffness;
+	}
 	void mark_dirty() {
 		dirty = true;
 	}
@@ -249,7 +270,6 @@ private:
 			int p_iteration,
 			float p_total_iterations);
 	static bool build_chain(Ref<EWBIKTask> p_task);
-	static void update_chain(Skeleton3D *p_sk, Ref<EWBIKShadowSkeletonBone> p_chain_item);
 	static void solve_simple(Ref<EWBIKTask> p_task);
 
 public:
@@ -290,25 +310,14 @@ class EWBIKSkeletonIKState : public Resource {
 	Ref<SkeletonModification3DEWBIK> mod;
 	Skeleton3D *skeleton = nullptr;
 	int bone_count = 0;
-	struct Bone {
-		Dictionary extra;
-		Bone() {
-		}
-	};
-	Vector<Bone> bones;
+	Vector<Ref<IKNode3D>> bones;
 
 public:
-	void set_bone_extra(int p_bone, const StringName &key, const Variant &value) {
-		ERR_FAIL_INDEX(p_bone, bones.size());
-		bones.write[p_bone].extra[key] = value;
-		// _make_dirty();
-	}
+	void set_shadow_bone_pose_local(int p_bone, const Transform &value);
+	Transform get_shadow_pose_local(int p_bone) const;
+	Transform get_shadow_pose_global(int p_bone) const;
+	void set_shadow_bone_dirty(int p_bone);
 
-	Variant get_bone_extra(int p_bone, const StringName &key) const {
-		ERR_FAIL_INDEX_V(p_bone, bones.size(), "");
-		ERR_FAIL_COND_V(!bones[p_bone].extra.has(key), "");
-		return bones[p_bone].extra[key];
-	}
 	// It holds a bunch of references to bones thing
 	// same index as the skeleton bone
 	// ik info object.
@@ -322,10 +331,7 @@ public:
 	void set_constraint(int32_t p_bone, Ref<KusudamaConstraint> p_constraint);
 	void init(Ref<SkeletonModification3DEWBIK> p_mod);
 	int32_t get_bone_count() const { return bone_count; }
-	void set_bone_count(int32_t p_bone_count) {
-		bone_count = p_bone_count;
-		bones.resize(p_bone_count);
-	}
+	void set_bone_count(int32_t p_bone_count);
 
 protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;

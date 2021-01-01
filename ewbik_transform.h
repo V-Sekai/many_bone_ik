@@ -24,6 +24,9 @@ private:
 	}
 	void set(Vector3 p_x, Vector3 p_y, Vector3 p_z);
 
+	Quat rotation;
+	Quat inverse_rotation;
+	Vector3 translate;
 public:
 	int LEFT = -1;
 	int RIGHT = 1;
@@ -32,10 +35,6 @@ public:
 	int X = 0;
 	int Y = 1;
 	int Z = 2;
-
-	Quat rotation;
-	Quat inverse_rotation;
-	Vector3 translate;
 
 	/**
 	 * Initialize this basis at the origin. The basis will be right handed by default. 
@@ -145,4 +144,11 @@ public:
 	 * @return a precomputed inverse of the rotation represented by this basis object.
 	 */
 	Quat get_inverse_rotation();
+
+	Transform get_transform() {
+		Transform xform;
+		xform.origin = translate;
+		xform.basis = rotation;
+		return xform;
+	}
 };
