@@ -259,6 +259,12 @@ class EWBIKSkeletonIKState : public Resource {
 	Vector<int32_t> parentless_bones;
 
 public:
+	float get_cos_half_dampen(int32_t p_bone) const;
+	void set_cos_half_dampen(int32_t p_bone, float p_cos_half_dampen);
+	Vector<float> get_cos_half_returnful_dampened(int32_t p_bone) const;
+	Vector<float> get_half_returnful_dampened(int32_t p_bone) const;
+	void set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
+	void set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
 	Transform global_constraint_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
 	Transform global_shadow_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
 	void force_update_bone_children_transforms(int p_bone_idx);

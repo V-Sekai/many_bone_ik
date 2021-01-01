@@ -607,8 +607,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	QuatIK qcp_rot = p_qcp_orientation_aligner->weighted_superpose(p_localized_effector_headings, p_localized_target_headings,
 			p_weights, p_is_translate);
 	Vector3 translate_by = p_qcp_orientation_aligner->get_translation();
-	float bone_damp = p_chain_item->cos_half_dampen;
-
+	float bone_damp = p_chain_item->mod->get_skeleton_ik_state()->get_cos_half_dampen(p_chain_item->bone);
 	if (p_dampening != -1) {
 		bone_damp = p_dampening;
 		qcp_rot.clamp_to_angle(bone_damp);
@@ -1009,7 +1008,9 @@ void EWBIKShadowSkeletonBone::populate_return_dampening_iteration_array(Ref<Kusu
 	float iterations = chain_root->get_default_iterations();
 	float returnful = k->get_pain();
 	float falloff = 0.2f;
+	Vector<float> half_returnful_dampened = state->get_half_returnful_dampened(bone);
 	half_returnful_dampened.resize(iterations);
+	Vector<float> cos_half_returnful_dampened = state->get_cos_half_returnful_dampened(bone);
 	cos_half_returnful_dampened.resize(iterations);
 	float iterations_pow = Math::pow(iterations, falloff * iterations * returnful);
 	for (int32_t iter_i = 0; iter_i < iterations; iter_i++) {
@@ -1020,6 +1021,8 @@ void EWBIKShadowSkeletonBone::populate_return_dampening_iteration_array(Ref<Kusu
 		half_returnful_dampened.write[iter_i] = iteration_return_clamp;
 		cos_half_returnful_dampened.write[iter_i] = cos_iteration_return_clamp;
 	}
+	 state->set_half_returnfullness_dampened(bone, half_returnful_dampened);	 
+	 state->set_cos_half_returnfullness_dampened(bone, cos_half_returnful_dampened);
 }
 
 float EWBIKSkeletonIKState::get_stiffness(int32_t p_bone) const {
@@ -1456,4 +1459,28 @@ Transform EWBIKSkeletonIKState::global_shadow_pose_to_local_pose(int p_bone_idx,
 	} else {
 		return p_global_pose;
 	}
+}
+float EWBIKSkeletonIKState::get_cos_half_dampen(int32_t p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), 0.0f);
+	return bones[p_bone].cos_half_dampen;
+}
+void EWBIKSkeletonIKState::set_cos_half_dampen(int32_t p_bone, float p_cos_half_dampen) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone].cos_half_dampen = p_cos_half_dampen;
+}
+Vector<float> EWBIKSkeletonIKState::get_half_returnful_dampened(int32_t p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
+	return bones[p_bone].half_returnfullness_dampened;
+}
+Vector<float> EWBIKSkeletonIKState::get_cos_half_returnful_dampened(int32_t p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
+	return bones[p_bone].cos_half_returnfullness_dampened;
+}
+void EWBIKSkeletonIKState::set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone].cos_half_returnfullness_dampened = p_dampened;
+}
+void EWBIKSkeletonIKState::set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone].half_returnfullness_dampened = p_dampened;
 }

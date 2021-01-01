@@ -70,10 +70,6 @@ private:
 	Ref<EWBIKShadowSkeletonBone> parent_item = nullptr;
 	int bone = -1;
 	PhysicalBone3D *pb = nullptr;
-	bool springy = false;
-	float cos_half_dampen = 0.0f;
-	Vector<real_t> cos_half_returnful_dampened;
-	Vector<real_t> half_returnful_dampened;
 	bool ik_orientation_lock = false;
 	float stiffness_scalar = 0.0f;
 	float bone_height = 0.0f;
