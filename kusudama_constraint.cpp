@@ -284,7 +284,7 @@ void KusudamaConstraint::set_axes_to_orientation_snap(Transform p_to_set, Transf
 	bone_ray.position = Vector3(p_to_set.origin);
 
 	// toSet.y_().getScaledTo(attachedTo.boneHeight);
-	bone_ray.normal = p_to_set.basis.get_axis(y_axis) * attached_to->mod->get_skeleton_ik_state()->get_height(attached_to->bone);
+	bone_ray.normal = p_to_set.basis.get_axis(y_axis) * attached_to->mod->get_state()->get_height(attached_to->bone);
 	// Vector3 in_limits = point_in_limits(bone_ray.normal, inBounds, limiting_axes);
 
 	// if (inBounds[0] == -1 && inLimits != Vector3()) {
@@ -399,11 +399,11 @@ void KusudamaConstraint::set_pain(real_t p_amount) {
 	if (attached_to.is_null() || attached_to->chain_root == NULL) {
 		return;
 	}
-	Ref<EWBIKShadowSkeletonBone> s = attached_to->chain_root;
+	Ref<EWBIKSegmentedSkeleton3D> s = attached_to->chain_root;
 	if (s.is_null()) {
 		return;
 	}
-	Ref<EWBIKShadowSkeletonBone> wb = s->chain_root->find_child(attached_to->bone);
+	Ref<EWBIKSegmentedSkeleton3D> wb = s->chain_root->find_child(attached_to->bone);
 	if (wb.is_null()) {
 		return;
 	}
@@ -452,7 +452,7 @@ void KusudamaConstraint::remove_direction(int32_t p_index) {
 	_change_notify();
 }
 
-KusudamaConstraint::KusudamaConstraint(Ref<EWBIKShadowSkeletonBone> p_for_bone) {
+KusudamaConstraint::KusudamaConstraint(Ref<EWBIKSegmentedSkeleton3D> p_for_bone) {
 	twist.instance();
 	attached_to = p_for_bone;
 	//     limiting_axes = p_for_bone.getMajorRotationAxes();

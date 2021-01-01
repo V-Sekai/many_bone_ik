@@ -82,7 +82,7 @@ void EWBIKBoneChainTarget::toggle() {
 	}
 }
 
- EWBIKBoneChainTarget::EWBIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled) {
+ EWBIKBoneChainTarget::EWBIKBoneChainTarget(Ref<EWBIKSegmentedSkeleton3D> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled) {
 	enabled = p_enabled;
 	set_target_priorities(x_priority, y_priority, z_priority);
 }
@@ -92,7 +92,7 @@ void EWBIKBoneChainTarget::toggle() {
 		end_effector(p_other_ct->end_effector) {
 }
 
- EWBIKBoneChainTarget::EWBIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector) :
+ EWBIKBoneChainTarget::EWBIKBoneChainTarget(Ref<EWBIKSegmentedSkeleton3D> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector) :
 		chain_item(p_chain_item),
 		end_effector(p_end_effector) {
 }
@@ -133,17 +133,17 @@ void EWBIKBoneChainTarget::align_to_axes(Transform inAxes) {
 
 void EWBIKBoneChainTarget::translate(Vector3 location) {
 	BoneId bone = chain_item->bone;
-	Ref<EWBIKSkeletonIKState> state = chain_item->mod->get_skeleton_ik_state();
+	Ref<EWBIKState> state = chain_item->mod->get_state();
 	Transform xform = state->get_shadow_pose_local(bone);
 	xform.origin *= location;
 	state->set_shadow_bone_pose_local(bone, xform);
 }
 
 Vector3 EWBIKBoneChainTarget::get_location() {
-	Transform xform = chain_item->mod->get_skeleton_ik_state()->get_shadow_pose_local(chain_item->bone);
+	Transform xform = chain_item->mod->get_state()->get_shadow_pose_local(chain_item->bone);
 	return xform.origin;
 }
-Ref<EWBIKShadowSkeletonBone> EWBIKBoneChainTarget::for_bone() {
+Ref<EWBIKSegmentedSkeleton3D> EWBIKBoneChainTarget::for_bone() {
 	return chain_item;
 }
 

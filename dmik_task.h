@@ -43,7 +43,7 @@ protected:
 public:
 	Skeleton3D *skeleton = nullptr;
 	Ref<QCP> qcp = memnew(QCP);
-	Ref<EWBIKShadowSkeletonBone> chain = memnew(EWBIKShadowSkeletonBone);
+	Ref<EWBIKSegmentedSkeleton3D> chain = memnew(EWBIKSegmentedSkeleton3D);
 	// Settings
 	float min_distance = 0.01f;
 	int iterations = 4;

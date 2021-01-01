@@ -41,7 +41,7 @@
 #include "twist_constraint.h"
 
 class DirectionConstraint;
-class EWBIKShadowSkeletonBone;
+class EWBIKSegmentedSkeleton3D;
 
 // Kusudama is a papercraft ball with a bunch of cones sticking out of it.
 class KusudamaConstraint : public Resource {
@@ -59,7 +59,7 @@ private:
 	bool orientation_constrained = false;
 	bool axial_constrained = false;
 	bool enabled = false;
-	Ref<EWBIKShadowSkeletonBone> attached_to;
+	Ref<EWBIKSegmentedSkeleton3D> attached_to;
 	Ray bone_ray;
 	Ray constrained_ray;
 
@@ -101,7 +101,7 @@ public:
 
 	void remove_direction(int32_t p_index);
 
-	KusudamaConstraint(Ref<EWBIKShadowSkeletonBone> p_for_bone);
+	KusudamaConstraint(Ref<EWBIKSegmentedSkeleton3D> p_for_bone);
 
 	virtual Ref<TwistConstraint> get_twist_constraint() const;
 

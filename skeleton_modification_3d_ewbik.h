@@ -50,9 +50,9 @@ class SkeletonModification3DEWBIK;
 class EWBIKBoneChainTarget;
 class EWBIKBoneEffector;
 class Skeleton3D;
-class EWBIKShadowSkeletonBone;
+class EWBIKSegmentedSkeleton3D;
 class SkeletonModificationStack3D;
-class EWBIKSkeletonIKState;
+class EWBIKState;
 class DirectionConstraint;
 class TwistConstraint;
 class KusudamaConstraint;
@@ -61,7 +61,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 
 	Vector<Ref<EWBIKBoneEffector>> multi_effector;
-	Ref<EWBIKSkeletonIKState> skeleton_ik_state;
+	Ref<EWBIKState> skeleton_ik_state;
 	int32_t constraint_count = 0;
 	int32_t effector_count = 0;
 	Ref<EWBIKTask> task;
@@ -84,10 +84,10 @@ protected:
 public:
 	virtual void execute(float delta) override;
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
-	static void iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<EWBIKShadowSkeletonBone> start_from, float dampening, int iterations, int p_stabilization_passes);
-	static void grouped_recursive_chain_solver(Ref<EWBIKShadowSkeletonBone> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
-	static void recursive_chain_solver(Ref<EWBIKShadowSkeletonBone> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
-	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<EWBIKShadowSkeletonBone> p_current_chain);
+	static void iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<EWBIKSegmentedSkeleton3D> start_from, float dampening, int iterations, int p_stabilization_passes);
+	static void grouped_recursive_chain_solver(Ref<EWBIKSegmentedSkeleton3D> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
+	static void recursive_chain_solver(Ref<EWBIKSegmentedSkeleton3D> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
+	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<EWBIKSegmentedSkeleton3D> p_current_chain);
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);
 	Vector<Ref<EWBIKBoneEffector>> get_bone_effectors() const;
@@ -102,8 +102,8 @@ public:
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
 
-	Ref<EWBIKSkeletonIKState> get_skeleton_ik_state() const { return skeleton_ik_state; }
-	void set_skeleton_ik_data(Ref<EWBIKSkeletonIKState> val) { skeleton_ik_state = val; }
+	Ref<EWBIKState> get_state() const { return skeleton_ik_state; }
+	void set_state(Ref<EWBIKState> val) { skeleton_ik_state = val; }
 
 private:
 	/**
@@ -117,11 +117,11 @@ private:
      * the IKSolver(bone, dampening, iterations, stabilizationPasses) function, which clamps rotations on the fly.
      * @param damp
      */
-	static void set_default_dampening(Ref<EWBIKShadowSkeletonBone> r_chain, float p_damp);
-	static void update_armature_segments(Ref<EWBIKShadowSkeletonBone> r_chain);
+	static void set_default_dampening(Ref<EWBIKSegmentedSkeleton3D> r_chain, float p_damp);
+	static void update_armature_segments(Ref<EWBIKSegmentedSkeleton3D> r_chain);
 	static void update_optimal_rotation_to_target_descendants(
 			Skeleton3D *p_skeleton,
-			Ref<EWBIKShadowSkeletonBone> p_chain_item,
+			Ref<EWBIKSegmentedSkeleton3D> p_chain_item,
 			float p_dampening,
 			bool p_is_translate,
 			Vector<Vector3> p_localized_tip_headings,
@@ -130,10 +130,10 @@ private:
 			Ref<QCP> p_qcp_orientation_aligner,
 			int p_iteration,
 			float p_total_iterations);
-	static void recursively_update_bone_segment_map_from(Ref<EWBIKShadowSkeletonBone> r_chain, Ref<EWBIKShadowSkeletonBone> p_start_from);
+	static void recursively_update_bone_segment_map_from(Ref<EWBIKSegmentedSkeleton3D> r_chain, Ref<EWBIKSegmentedSkeleton3D> p_start_from);
 	static void QCPSolver(
 			Skeleton3D *p_skeleton,
-			Ref<EWBIKShadowSkeletonBone> p_chain,
+			Ref<EWBIKSegmentedSkeleton3D> p_chain,
 			float p_dampening,
 			bool p_inverse_weighting,
 			int p_stabilization_passes,
@@ -154,8 +154,8 @@ public:
      */
 	static void update_optimal_rotation_to_target_descendants(
 			Skeleton3D *p_skeleton,
-			Ref<EWBIKShadowSkeletonBone> r_chain,
-			Ref<EWBIKShadowSkeletonBone> p_for_bone,
+			Ref<EWBIKSegmentedSkeleton3D> r_chain,
+			Ref<EWBIKSegmentedSkeleton3D> p_for_bone,
 			float p_dampening,
 			bool p_translate,
 			int p_stabilization_passes,
@@ -164,9 +164,9 @@ public:
 	static float
 	get_manual_msd(Vector<Vector3> &r_localized_effector_headings, Vector<Vector3> &r_localized_target_headings,
 			const Vector<real_t> &p_weights);
-	static void update_target_headings(Ref<EWBIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_target_headings,
+	static void update_target_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain, Vector<Vector3> &r_localized_target_headings,
 			Vector<real_t> &p_weights, Transform p_bone_xform);
-	static void update_effector_headings(Ref<EWBIKShadowSkeletonBone> r_chain, Vector<Vector3> &r_localized_effector_headings,
+	static void update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
 	static Ref<EWBIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
@@ -174,11 +174,11 @@ public:
 	static void solve(Ref<EWBIKTask> p_task, float blending_delta);
 };
 // Skeleton data structure
-class EWBIKSkeletonIKState : public Resource {
-	GDCLASS(EWBIKSkeletonIKState, Resource);
+class EWBIKState : public Resource {
+	GDCLASS(EWBIKState, Resource);
 
 	class IKNode3D {
-		friend class EWBIKSkeletonIKState;
+		friend class EWBIKState;
 		IKBasis pose_local;
 		IKBasis pose_global;
 		Vector<int32_t> child_bones;
@@ -234,8 +234,8 @@ class EWBIKSkeletonIKState : public Resource {
 		}
 	};
 	friend class SkeletonModification3DEWBIK;
-	class ShadowBone {
-		friend class EWBIKSkeletonIKState;
+	class ShadowBone3D {
+		friend class EWBIKState;
 		BoneId for_bone;
 		IKNode3D sim_local_ik_node;
 		IKNode3D sim_constraint_ik_node;
@@ -255,7 +255,7 @@ class EWBIKSkeletonIKState : public Resource {
 	Skeleton3D *skeleton = nullptr;
 	int bone_count = 0;
 
-	Vector<ShadowBone> bones;
+	Vector<ShadowBone3D> bones;
 	Vector<int32_t> parentless_bones;
 
 public:

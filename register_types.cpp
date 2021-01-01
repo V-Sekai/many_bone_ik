@@ -36,11 +36,11 @@
 #include "shadow_skeleton_bone.h"
 
 void register_ewbik_types() {
-	ClassDB::register_class<EWBIKShadowSkeletonBone>();
+	ClassDB::register_class<EWBIKSegmentedSkeleton3D>();
 	ClassDB::register_class<TwistConstraint>();
 	ClassDB::register_class<DirectionConstraint>();
 	ClassDB::register_class<KusudamaConstraint>();
-	ClassDB::register_class<EWBIKSkeletonIKState>();
+	ClassDB::register_class<EWBIKState>();
 	ClassDB::register_class<SkeletonModification3DEWBIK>();
 }
 

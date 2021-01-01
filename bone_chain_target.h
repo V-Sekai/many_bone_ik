@@ -34,7 +34,7 @@
 #include "core/object/reference.h"
 
 class EWBIKBoneEffectorTransform;
-class EWBIKShadowSkeletonBone;
+class EWBIKSegmentedSkeleton3D;
 
 class EWBIKBoneChainTarget : public Reference {
 	GDCLASS(EWBIKBoneChainTarget, Reference);
@@ -50,16 +50,16 @@ protected:
 	float depthFalloff = 0.0f;
 
 public:
-	Ref<EWBIKShadowSkeletonBone> chain_item = nullptr;
+	Ref<EWBIKSegmentedSkeleton3D> chain_item = nullptr;
 	Ref<EWBIKBoneEffectorTransform> end_effector = nullptr;
 
 	EWBIKBoneChainTarget();
 
-	EWBIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector);
+	EWBIKBoneChainTarget(Ref<EWBIKSegmentedSkeleton3D> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector);
 
 	EWBIKBoneChainTarget(const Ref<EWBIKBoneChainTarget> p_other_ct);
 
-	EWBIKBoneChainTarget(Ref<EWBIKShadowSkeletonBone> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled);
+	EWBIKBoneChainTarget(Ref<EWBIKSegmentedSkeleton3D> p_chain_item, const Ref<EWBIKBoneEffectorTransform> p_end_effector, bool p_enabled);
 
 public:
 	static const short XDir = 1, YDir = 2, ZDir = 4;
@@ -156,7 +156,7 @@ public:
      */
 	Vector3 get_location();
 
-	Ref<EWBIKShadowSkeletonBone> for_bone();
+	Ref<EWBIKSegmentedSkeleton3D> for_bone();
 
 	/**
      * called when this target is being removed entirely from the Armature. (as opposed to just being disabled)
