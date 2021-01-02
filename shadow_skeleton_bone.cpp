@@ -36,14 +36,14 @@
 void EWBIKSegmentedSkeleton3D::recursively_align_axes_outward_from(Ref<EWBIKSegmentedSkeleton3D> b) {
 	Ref<EWBIKState> state = b->mod->get_state();
 	Transform bAxes = state->get_shadow_pose_local(b->bone);
-	Transform cAxes = state->get_shadow_constraint_pose_local(b->bone);
+	Transform cAxes = state->get_shadow_constraint_axes_local(b->bone);
 	if (b->base_bone.is_null()) {
 		return;
 	}
 	state->align_shadow_bone_globals_to(b->bone, state->get_shadow_pose_local(b->bone));
 	state->mark_dirty(b->bone);
 	state->force_update_bone_children_transforms(b->bone);
-	state->align_shadow_constraint_globals_to(b->bone, state->get_shadow_constraint_pose_local(b->bone));
+	state->align_shadow_constraint_globals_to(b->bone, state->get_shadow_constraint_axes_local(b->bone));
 	state->mark_dirty(b->bone);
 	state->force_update_bone_children_transforms(b->bone);
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> bones = b->base_bone->get_bones();
@@ -51,7 +51,7 @@ void EWBIKSegmentedSkeleton3D::recursively_align_axes_outward_from(Ref<EWBIKSegm
 		state->align_shadow_bone_globals_to(b->bone, state->get_shadow_pose_local(b->bone));
 		state->mark_dirty(b->bone);
 		state->force_update_bone_children_transforms(b->bone);
-		state->align_shadow_constraint_globals_to(b->bone, state->get_shadow_constraint_pose_local(b->bone));
+		state->align_shadow_constraint_globals_to(b->bone, state->get_shadow_constraint_axes_local(b->bone));
 		state->mark_dirty(b->bone);
 		state->force_update_bone_children_transforms(b->bone);
 	}

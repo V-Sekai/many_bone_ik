@@ -285,12 +285,12 @@ public:
 	void set_parent(int32_t p_bone, int32_t p_parent);
 	void set_shadow_bone_pose_local(int p_bone, const Transform &value);
 	void align_shadow_bone_globals_to(int p_bone, Transform p_target);
-	void align_shadow_constraint_globals_to(int p_bone, Transform p_target);
 	Transform get_shadow_pose_local(int p_bone) const;
 	Transform get_shadow_pose_global(int p_bone) const;
-	Transform get_shadow_constraint_pose_global(int p_bone) const;
-	Transform get_shadow_constraint_pose_local(int p_bone) const;
-	void set_shadow_constraint_pose_local(int p_bone, const Transform &value);
+	Transform get_shadow_constraint_axes_global(int p_bone) const;
+	Transform get_shadow_constraint_axes_local(int p_bone) const;
+	void set_shadow_constraint_axes_local(int p_bone, const Transform &value);
+	void align_shadow_constraint_globals_to(int p_bone, Transform p_target);
 	void set_bone_dirty(int p_bone, bool p_dirty);
 	bool get_bone_dirty(int p_bone) const;
 	float get_stiffness(int32_t p_bone) const;

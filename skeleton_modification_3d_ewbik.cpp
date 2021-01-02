@@ -331,7 +331,7 @@ void SkeletonModification3DEWBIK::apply_bone_chains(float p_strength, Skeleton3D
 		p_skeleton->set_bone_global_pose_override(p_current_chain->bone, shadow_pose, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
 		Ref<KusudamaConstraint> kusudama = state->get_constraint(p_current_chain->bone);
-		Transform shadow_constraint = state->get_shadow_constraint_pose_global(p_current_chain->bone);
+		Transform shadow_constraint = state->get_shadow_constraint_axes_global(p_current_chain->bone);
 		kusudama->set_constraint_axes(shadow_constraint);
 	}
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> bones = p_current_chain->get_bones();
@@ -340,7 +340,7 @@ void SkeletonModification3DEWBIK::apply_bone_chains(float p_strength, Skeleton3D
 		p_skeleton->set_bone_global_pose_override(bone_i, shadow_pose, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(bone_i);
 		Ref<KusudamaConstraint> kusudama = state->get_constraint(bone_i);
-		Transform shadow_constraint = state->get_shadow_constraint_pose_global(bone_i);
+		Transform shadow_constraint = state->get_shadow_constraint_axes_global(bone_i);
 		kusudama->set_constraint_axes(shadow_constraint);
 	}
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> bone_chains = p_current_chain->get_child_chains();
@@ -1210,7 +1210,7 @@ void EWBIKState::set_shadow_bone_pose_local(int p_bone, const Transform &value) 
 	bones.write[p_bone].sim_local_ik_node.set_local(value);
 	mark_dirty(p_bone);
 }
-Transform EWBIKState::get_shadow_constraint_pose_global(int p_bone) const {
+Transform EWBIKState::get_shadow_constraint_axes_global(int p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
 	return bones[p_bone].sim_constraint_ik_node.get_global().get_transform();
 }
@@ -1385,20 +1385,20 @@ void EWBIKState::align_shadow_constraint_globals_to(int p_bone, Transform p_targ
 	if (get_parent(p_bone) != -1) {
 		Transform shadow_constraint_pose_global = get_shadow_pose_global(get_parent(p_bone));
 		shadow_constraint_pose_global = global_constraint_pose_to_local_pose(p_bone, shadow_constraint_pose_global);
-		set_shadow_constraint_pose_local(p_bone, p_target);
+		set_shadow_constraint_axes_local(p_bone, p_target);
 	} else {
 		Transform shadow_pose_global = get_shadow_pose_global(get_parent(p_bone));
-		set_shadow_constraint_pose_local(p_bone, shadow_pose_global);
+		set_shadow_constraint_axes_local(p_bone, shadow_pose_global);
 	}
 	mark_dirty(p_bone);
 	force_update_bone_children_transforms(p_bone);
 }
-void EWBIKState::set_shadow_constraint_pose_local(int p_bone, const Transform &value) {
+void EWBIKState::set_shadow_constraint_axes_local(int p_bone, const Transform &value) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	bones.write[p_bone].sim_constraint_ik_node.set_local(value);
 	mark_dirty(p_bone);
 }
-Transform EWBIKState::get_shadow_constraint_pose_local(int p_bone) const {
+Transform EWBIKState::get_shadow_constraint_axes_local(int p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
 	return bones[p_bone].sim_constraint_ik_node.get_local().get_transform();
 }

@@ -454,7 +454,7 @@ void KusudamaConstraint::remove_direction(int32_t p_index) {
 
 KusudamaConstraint::KusudamaConstraint(Ref<EWBIKSegmentedSkeleton3D> p_for_bone) {
 	twist.instance();
-	set_constraint_axes(p_for_bone->mod->get_state()->get_shadow_constraint_pose_global(p_for_bone->bone));
+	set_constraint_axes(p_for_bone->mod->get_state()->get_shadow_constraint_axes_global(p_for_bone->bone));
 	attached_to = p_for_bone;
 	enable();
 }
