@@ -323,12 +323,13 @@ void SkeletonModification3DEWBIK::recursive_chain_solver(Ref<EWBIKSegmentedSkele
 void SkeletonModification3DEWBIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<EWBIKSegmentedSkeleton3D> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	Ref<EWBIKState> state = p_current_chain->mod->get_state();
+	BoneId chain_bone = p_current_chain->bone;
 	{
-		Transform shadow_pose = state->get_shadow_pose_global(p_current_chain->bone);
-		p_skeleton->set_bone_global_pose_override(p_current_chain->bone, shadow_pose, p_strength, true);
-		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
-		Ref<KusudamaConstraint> kusudama = state->get_constraint(p_current_chain->bone);
-		Transform shadow_constraint = state->get_shadow_constraint_axes_global(p_current_chain->bone);
+		Transform shadow_pose = state->get_shadow_pose_global(chain_bone);
+		p_skeleton->set_bone_global_pose_override(chain_bone, shadow_pose, p_strength, true);
+		p_skeleton->force_update_bone_children_transforms(chain_bone);
+		Ref<KusudamaConstraint> kusudama = state->get_constraint(chain_bone);
+		Transform shadow_constraint = state->get_shadow_constraint_axes_global(chain_bone);
 		kusudama->set_constraint_axes(shadow_constraint);
 	}
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> bones = p_current_chain->get_bones();
@@ -636,7 +637,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	Ref<EWBIKState> state = r_chain->mod->get_state();
 	p_for_bone->force_update_bone_children_transforms(r_chain);
 	BoneId bone = p_for_bone->bone;
-	Transform bone_xform = state->get_shadow_pose_local(bone);
+	Transform bone_xform = state->get_shadow_pose_global(bone);
 	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
 	float new_dampening = -1;
 	if (p_for_bone->parent_item.is_null() || r_chain->localized_target_headings.size() == 1) {
