@@ -1252,18 +1252,6 @@ void EWBIKState::_update_process_order() {
 		}
 	}
 }
-void EWBIKState::rotate_by(int32_t p_bone, Quat addRotation) {
-	ERR_FAIL_INDEX(p_bone, bones.size());
-	ShadowBone3D *bonesptr = bones.ptrw();
-	bonesptr[p_bone].sim_local_ik_node.update_global();
-	if (bonesptr[p_bone].sim_local_ik_node.parent != -1) {
-		Quat newRot = bonesptr[bonesptr[p_bone].sim_local_ik_node.parent].sim_local_ik_node.get_global_ik_basis().get_local_of_rotation(addRotation);
-		bonesptr[p_bone].sim_local_ik_node.get_local_ik_basis().rotate_by(newRot);
-	} else {
-		bonesptr[p_bone].sim_local_ik_node.get_local_ik_basis().rotate_by(addRotation);
-	}
-	mark_dirty(p_bone);
-}
 void EWBIKState::translate_to(int32_t p_bone, Vector3 p_target) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	ShadowBone3D *bonesptr = bones.ptrw();
@@ -1503,4 +1491,23 @@ void EWBIKState::set_bone_dirty(int p_bone, bool p_dirty) {
 bool EWBIKState::get_bone_dirty(int p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), true);
 	return bones[p_bone].sim_local_ik_node.dirty || bones[p_bone].sim_constraint_ik_node.dirty;
+}
+void EWBIKState::rotate_to(int32_t p_bone, Quat p_rot) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	ShadowBone3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].sim_local_ik_node.pose_local.rotate_to(p_rot);
+	mark_dirty(p_bone);
+}
+
+void EWBIKState::rotate_by(int32_t p_bone, Quat p_add_rotation) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	ShadowBone3D *bonesptr = bones.ptrw();
+	bonesptr[p_bone].sim_local_ik_node.update_global();
+	if (bonesptr[p_bone].sim_local_ik_node.parent != -1) {
+		Quat new_rot = bonesptr[bonesptr[p_bone].sim_local_ik_node.parent].sim_local_ik_node.get_global_ik_basis().get_local_of_rotation(p_add_rotation);
+		bonesptr[p_bone].sim_local_ik_node.get_local_ik_basis().rotate_by(new_rot);
+	} else {
+		bonesptr[p_bone].sim_local_ik_node.get_local_ik_basis().rotate_by(p_add_rotation);
+	}
+	mark_dirty(p_bone);
 }

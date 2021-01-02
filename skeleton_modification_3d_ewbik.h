@@ -269,7 +269,8 @@ public:
 	void mark_dirty(int32_t p_bone);
 	bool is_dirty(int32_t p_bone) const;
 	void _update_process_order();
-	void rotate_by(int32_t p_bone, Quat addRotation);
+	void rotate_by(int32_t p_bone, Quat p_add_rotation);
+	void rotate_to(int32_t p_bone, Quat p_rot);
 	void translate_to(int32_t p_bone, Vector3 p_target);
 	Ray get_ray_x(int32_t p_bone);
 	Ray get_ray_y(int32_t p_bone);

@@ -35,8 +35,6 @@
 
 void EWBIKSegmentedSkeleton3D::recursively_align_axes_outward_from(Ref<EWBIKSegmentedSkeleton3D> b) {
 	Ref<EWBIKState> state = b->mod->get_state();
-	Transform bAxes = state->get_shadow_pose_local(b->bone);
-	Transform cAxes = state->get_shadow_constraint_axes_local(b->bone);
 	if (b->base_bone.is_null()) {
 		return;
 	}
@@ -59,6 +57,29 @@ void EWBIKSegmentedSkeleton3D::recursively_align_axes_outward_from(Ref<EWBIKSegm
 	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 		b->recursively_align_axes_outward_from(children[child_i]);
 	}
+}
+
+void EWBIKSegmentedSkeleton3D::recursively_align_bones_to_sim_axes_from(Ref<EWBIKSegmentedSkeleton3D> p_bone) {
+	Ref<EWBIKState> state = p_bone->mod->get_state();
+	Ref<EWBIKSegmentedSkeleton3D> chain = p_bone->chain_root->bone_segment_map[p_bone->bone];
+	if (chain.is_null()) {
+		return;
+	}
+	if (p_bone->parent_chain.is_null()) {
+		Transform simulatedLocalAxes = state->get_shadow_pose_local(p_bone->bone);
+		state->align_shadow_bone_globals_to(p_bone->bone, simulatedLocalAxes);
+	} else {
+		Transform simulatedLocalAxes = state->get_shadow_pose_local(p_bone->bone);
+		state->rotate_to(p_bone->bone, simulatedLocalAxes.basis.get_rotation_quat());
+		state->mark_dirty(p_bone->bone);
+		state->force_update_bone_children_transforms(p_bone->bone);
+	}
+	Vector<Ref<EWBIKSegmentedSkeleton3D>> bone_children = p_bone->get_bone_children(skeleton, p_bone);
+	for (int32_t bone_i = 0; bone_i < bone_children.size(); bone_i++) {
+		recursively_align_bones_to_sim_axes_from(bone_children[bone_i]);
+	}
+	chain->aligned = false;
+	chain->processed = false;
 }
 
 void EWBIKSegmentedSkeleton3D::align_axes_to_bones() {

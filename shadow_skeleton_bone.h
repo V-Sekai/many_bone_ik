@@ -86,11 +86,12 @@ private:
 	bool has_effector = false;
 
 public:
-	void recursively_align_axes_outward_from(Ref<EWBIKSegmentedSkeleton3D> b);
-	/**
-	 * aligns all simulation axes from this root of this chain up until the pinned tips
-	 * of any child chains with the constraint are local axes of their corresponding bone. 
+	void recursively_align_axes_outward_from(Ref<EWBIKSegmentedSkeleton3D> p_bone);
+
+	/**aligns this bone and all relevant childBones to their coresponding simulatedAxes (if any) in the SegmentedArmature
+	 * @param b bone to start from
 	 */
+	void recursively_align_bones_to_sim_axes_from(Ref<EWBIKSegmentedSkeleton3D> p_bone);
 	void align_axes_to_bones();
 	void set_processed(bool p_b);
 	Ref<EWBIKSegmentedSkeleton3D> find_child(const int p_bone_id);
