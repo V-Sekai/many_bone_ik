@@ -647,7 +647,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 		new_dampening = Math_PI;
 	}
 
-	update_target_headings(r_chain, r_chain->localized_target_headings, bone_xform);
+	update_target_headings(r_chain, r_chain->localized_target_headings);
 	update_effector_headings(r_chain, r_chain->localized_effector_headings);
 
 	float best_rmsd = 0.0f;
@@ -737,7 +737,7 @@ float SkeletonModification3DEWBIK::get_manual_msd(Vector<Vector3> &r_localized_e
 }
 
 void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
-		Vector<Vector3> &r_localized_target_headings, Transform p_bone_xform) {
+		Vector<Vector3> &r_localized_target_headings) {
 	int hdx = 0;
 	Ref<EWBIKState> state = r_chain->mod->get_state();
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
@@ -749,7 +749,8 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKSegmentedSkele
 		if (ee.is_null()) {
 			continue;
 		}
-		Vector3 origin = p_bone_xform.origin;
+		Transform pose = state->get_shadow_pose_local(ee->effector_bone);
+		Vector3 origin = pose.origin;
 		Transform target_axes = ee->goal_transform;
 		r_localized_target_headings.write[hdx] = target_axes.origin - origin;
 		origin = r_localized_target_headings.write[hdx] - origin;

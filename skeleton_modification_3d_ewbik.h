@@ -165,7 +165,8 @@ public:
 			const Vector<real_t> &p_weights);
 	static void update_target_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
 
-			Vector<Vector3> &r_localized_target_headings, Transform p_bone_xform);
+
+			Vector<Vector3> &r_localized_target_headings);
 	static void update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
  Vector<Vector3> &r_localized_effector_headings);
 	static Ref<EWBIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
