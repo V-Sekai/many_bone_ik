@@ -701,7 +701,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 					new_rmsd = get_manual_msd(r_chain->localized_effector_headings, r_chain->localized_target_headings,
 							r_chain->weights);
 				}
-				best_orientation = bone_xform.basis.get_rotation_quat();
+				best_orientation = state->get_shadow_pose_global(bone).basis.get_rotation_quat();
 				best_rmsd = new_rmsd;
 				break;
 			}
@@ -756,20 +756,23 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKSegmentedSkele
 		hdx++;
 		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
 			Ray x_target = state->get_ray_x(ee->effector_bone);
-			r_localized_target_headings.write[hdx] += x_target.position - target_axes.origin;
+			r_localized_target_headings.write[hdx] += x_target.position - origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
+			origin = x_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::YDir) != 0) {
 			Ray y_target = state->get_ray_y(ee->effector_bone);
-			r_localized_target_headings.write[hdx] += y_target.position - target_axes.origin;
+			r_localized_target_headings.write[hdx] += y_target.position - origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
+			origin = y_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
 			Ray z_target = state->get_ray_z(ee->effector_bone);
-			r_localized_target_headings.write[hdx] += z_target.position - target_axes.origin;
+			r_localized_target_headings.write[hdx] += z_target.position - origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
+			origin = z_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 	}
@@ -797,16 +800,19 @@ void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKSegmentedSke
 		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
 			Ray x_target = state->get_ray_x(bone);
 			r_localized_effector_headings.write[hdx] += x_target.position - origin;
+			origin = x_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::YDir) != 0) {
 			Ray y_target = state->get_ray_y(bone);
 			r_localized_effector_headings.write[hdx] += y_target.position - origin;
+			origin = y_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
 			Ray z_target = state->get_ray_z(bone);
 			r_localized_effector_headings.write[hdx] += z_target.position - origin;
+			origin = z_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 	}

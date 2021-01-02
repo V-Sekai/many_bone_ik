@@ -63,8 +63,21 @@ struct Ray {
         */
 	int intersects_sphere(Vector3 rp1, Vector3 rp2, double radius, Vector3 &S1, Vector3 &S2);
 
-        Vector3 heading(){
-                return normal - position;
+	/**
+	 * sets the values of the given vector to where the 
+	 * tip of this Ray would be if the ray were inverted
+	 * @param vec
+	 * @return the vector that was passed in after modification (for chaining) 
+	 */
+	Vector3 set_to_inverted_tip(Vector3 p_vec) const {
+		Vector3 vec;
+		vec.x = (position.x - normal.x) + position.x;
+		vec.y = (position.y - normal.y) + position.y;
+		vec.z = (position.z - normal.z) + position.z;
+		return vec;
+	}
+	Vector3 heading() const {
+		return normal - position;
 	}
 };
 
