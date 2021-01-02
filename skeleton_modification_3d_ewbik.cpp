@@ -677,28 +677,28 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 					r_chain->weights);
 
 			if (best_rmsd >= new_rmsd) {
-				//if (p_for_bone->springy) {
-				//	if (p_dampening != -1 || p_total_iterations != r_chain->get_default_iterations()) {
-				//		float returnfullness = p_for_bone->constraint->get_pain();
-				//		float dampened_angle = p_for_bone->get_stiffness() * p_dampening * returnfullness;
-				//		float total_iterations_sq = p_total_iterations * p_total_iterations;
-				//		float scaled_dampened_angle = dampened_angle *
-				//									  ((total_iterations_sq - (p_iteration * p_iteration)) /
-				//											  total_iterations_sq);
-				//		float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);
-				//		p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(p_for_bone->bone), bone_xform,
-				//				p_for_bone->constraint->get_limiting_axes(), cos_half_angle,
-				//				scaled_dampened_angle);
-				//	} else {
-				//		p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(p_for_bone->bone), bone_xform,
-				//				p_for_bone->constraint->get_limiting_axes(),
-				//				p_for_bone->cos_half_returnful_dampened[p_iteration],
-				//				p_for_bone->half_returnful_dampened[p_iteration]);
-				//	}
-				//	update_effector_headings(r_chain, r_chain->localized_effector_headings, bone_xform);
-				//	new_rmsd = get_manual_msd(r_chain->localized_effector_headings, r_chain->localized_target_headings,
-				//			r_chain->weights);
-				//}
+				if (state->get_springy(p_for_bone->bone)) {
+					if (p_dampening != -1 || p_total_iterations != r_chain->get_default_iterations()) {
+						float returnfullness = state->get_pain(p_for_bone->bone);
+						float dampened_angle =  state->get_stiffness(p_for_bone->bone) * p_dampening * returnfullness;
+						float total_iterations_sq = p_total_iterations * p_total_iterations;
+						float scaled_dampened_angle = dampened_angle *
+													  ((total_iterations_sq - (p_iteration * p_iteration)) /
+															  total_iterations_sq);
+						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);
+						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(p_for_bone->bone), bone_xform,
+								state->get_shadow_constraint_axes_local(p_for_bone->bone), cos_half_angle,
+								scaled_dampened_angle);
+					} else {
+						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(p_for_bone->bone), bone_xform,
+								state->get_shadow_constraint_axes_local(p_for_bone->bone),
+								state->get_cos_half_returnful_dampened(p_for_bone->bone)[p_iteration],
+								state->get_half_returnful_dampened(p_for_bone->bone)[p_iteration]);
+					}
+					update_effector_headings(r_chain, r_chain->localized_effector_headings, bone_xform);
+					new_rmsd = get_manual_msd(r_chain->localized_effector_headings, r_chain->localized_target_headings,
+							r_chain->weights);
+				}
 				best_orientation = bone_xform.basis.get_rotation_quat();
 				best_rmsd = new_rmsd;
 				break;
@@ -1468,22 +1468,22 @@ void EWBIKState::set_cos_half_dampen(int32_t p_bone, float p_cos_half_dampen) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	bones.write[p_bone].cos_half_dampen = p_cos_half_dampen;
 }
-// Vector<float> EWBIKState::get_half_returnful_dampened(int32_t p_bone) const {
-// 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
-// 	return bones[p_bone].half_returnfullness_dampened;
-// }
-// Vector<float> EWBIKState::get_cos_half_returnful_dampened(int32_t p_bone) const {
-// 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
-// 	return bones[p_bone].cos_half_returnfullness_dampened;
-// }
-// void EWBIKState::set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
-// 	ERR_FAIL_INDEX(p_bone, bones.size());
-// 	bones.write[p_bone].cos_half_returnfullness_dampened = p_dampened;
-// }
-// void EWBIKState::set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
-// 	ERR_FAIL_INDEX(p_bone, bones.size());
-// 	bones.write[p_bone].half_returnfullness_dampened = p_dampened;
-// }void EWBIKState::ShadowBone3D::set_constraint(Ref<KusudamaConstraint> p_constraint) {
+Vector<float> EWBIKState::get_half_returnful_dampened(int32_t p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
+	return bones[p_bone].half_returnful_dampened;
+}
+Vector<float> EWBIKState::get_cos_half_returnful_dampened(int32_t p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<float>());
+	return bones[p_bone].cos_half_returnful_dampened;
+}
+void EWBIKState::set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone].cos_half_returnful_dampened = p_dampened;
+}
+void EWBIKState::set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone].half_returnful_dampened = p_dampened;
+}
 void EWBIKState::ShadowBone3D::set_constraint(Ref<KusudamaConstraint> p_constraint) {
 	constraint = p_constraint;
 }
@@ -1545,4 +1545,12 @@ void EWBIKState::rotate_by(int32_t p_bone, Quat p_add_rotation) {
 		bonesptr[p_bone].sim_local_ik_node.get_local().rotate_by(p_add_rotation);
 	}
 	mark_dirty(p_bone);
+}
+void EWBIKState::set_springy(int32_t p_bone, bool p_springy) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone].springy = p_springy;
+}
+bool EWBIKState::get_springy(int32_t p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), false);
+	return bones[p_bone].springy;
 }

@@ -165,7 +165,7 @@ public:
 			const Vector<real_t> &p_weights);
 	static void update_target_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
 
- Vector<Vector3> &r_localized_target_headings, Transform p_bone_xform);
+			Vector<Vector3> &r_localized_target_headings, Transform p_bone_xform);
 	static void update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
 	static Ref<EWBIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
@@ -240,6 +240,7 @@ class EWBIKState : public Resource {
 		Vector<float> cos_half_returnful_dampened;
 		Vector<float> half_returnful_dampened;
 		bool springy = false;
+		float pain = 0.0f;
 		Ref<KusudamaConstraint> constraint;
 		void set_constraint(Ref<KusudamaConstraint> p_constraint);
 		Ref<KusudamaConstraint> get_constraint() const;
@@ -254,14 +255,24 @@ class EWBIKState : public Resource {
 	Vector<int32_t> parentless_bones;
 
 public:
+	void set_pain(int p_bone, const float &p_pain) {
+		ERR_FAIL_INDEX(p_bone, bones.size());
+		bones.write[p_bone].pain = p_pain;
+	}
+	float get_pain(int p_bone) const {
+		ERR_FAIL_INDEX_V(p_bone, bones.size(), 0.0f);
+		return bones[p_bone].pain;
+	}
+	bool get_springy(int32_t p_bone) const;
+	void set_springy(int32_t p_bone, bool p_springy);
 	void translate_shadow_pose_by_global(int32_t p_bone, Vector3 p_translate_by);
 	void translate_constraint_axes_by_global(int32_t p_bone, Vector3 p_translate_by);
 	float get_cos_half_dampen(int32_t p_bone) const;
 	void set_cos_half_dampen(int32_t p_bone, float p_cos_half_dampen);
-	// Vector<float> get_cos_half_returnful_dampened(int32_t p_bone) const;
-	// Vector<float> get_half_returnful_dampened(int32_t p_bone) const;
-	// void set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
-	// void set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
+	Vector<float> get_cos_half_returnful_dampened(int32_t p_bone) const;
+	Vector<float> get_half_returnful_dampened(int32_t p_bone) const;
+	void set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
+	void set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
 	Transform global_constraint_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
 	Transform global_shadow_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
 	void force_update_bone_children_transforms(int p_bone_idx);
