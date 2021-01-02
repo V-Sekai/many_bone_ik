@@ -291,7 +291,8 @@ public:
 	Transform get_shadow_constraint_pose_global(int p_bone) const;
 	Transform get_shadow_constraint_pose_local(int p_bone) const;
 	void set_shadow_constraint_pose_local(int p_bone, const Transform &value);
-	void set_shadow_bone_dirty(int p_bone);
+	void set_bone_dirty(int p_bone, bool p_dirty);
+	bool get_bone_dirty(int p_bone) const;
 	float get_stiffness(int32_t p_bone) const;
 	void set_stiffness(int32_t p_bone, float p_stiffness_scalar);
 	float get_height(int32_t p_bone) const;

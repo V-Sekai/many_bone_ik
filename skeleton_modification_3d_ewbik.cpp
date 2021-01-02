@@ -923,13 +923,13 @@ void EWBIKSegmentedSkeleton3D::create_headings_arrays() {
 void EWBIKSegmentedSkeleton3D::force_update_bone_children_transforms(Ref<EWBIKSegmentedSkeleton3D> p_current_chain) {
 	Ref<EWBIKState> state = p_current_chain->mod->get_state();
 	BoneId bone = p_current_chain->bone;
-	state->set_shadow_bone_dirty(bone);
+	state->set_bone_dirty(bone, true);
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> bones = p_current_chain->get_bones();
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-		state->set_shadow_bone_dirty(bone);
+		state->set_bone_dirty(bone, false);
 		if (bones[bone_i]->parent_item.is_valid()) {
-			state->set_shadow_bone_dirty(bone_i);
+			state->set_bone_dirty(bone_i, true);
 		}
 	}
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> bone_chains = p_current_chain->get_child_chains();
@@ -1195,11 +1195,7 @@ void EWBIKState::set_bone_count(int32_t p_bone_count) {
 		bones.write[bone_i] = ShadowBone3D();
 	}
 }
-void EWBIKState::set_shadow_bone_dirty(int p_bone) {
-	ERR_FAIL_INDEX(p_bone, bones.size());
-	// TODO Per bone dirty 2021-01-01 iFire
-	mark_dirty(p_bone);
-}
+
 Transform EWBIKState::get_shadow_pose_global(int p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
 	return bones[p_bone].sim_local_ik_node.get_global().get_transform();
@@ -1220,11 +1216,12 @@ Transform EWBIKState::get_shadow_constraint_pose_global(int p_bone) const {
 void EWBIKState::mark_dirty(int32_t p_bone) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	bones.write[p_bone].sim_local_ik_node.dirty = true;
+	bones.write[p_bone].sim_constraint_ik_node.dirty = true;
 	update_skeleton();
 }
 bool EWBIKState::is_dirty(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), true);
-	return bones[p_bone].sim_local_ik_node.dirty;
+	return bones[p_bone].sim_local_ik_node.dirty || bones[p_bone].sim_constraint_ik_node.dirty;
 }
 void EWBIKState::_update_process_order() {
 	ShadowBone3D *bonesptr = bones.ptrw();
@@ -1346,13 +1343,11 @@ void EWBIKState::force_update_bone_children_transforms(int p_bone_idx) {
 	}
 }
 void EWBIKState::update_skeleton() {
-	// int len = bones.size();
-	// TODO iFire 2021-01-01
-
 	// Update bone transforms
 	int parentless_bones_size = parentless_bones.size();
 	for (int i = 0; i < parentless_bones_size; i++) {
 		bones.write[parentless_bones[i]].sim_local_ik_node.dirty = false;
+		bones.write[parentless_bones[i]].sim_constraint_ik_node.dirty = false;
 		force_update_bone_children_transforms(parentless_bones[i]);
 	}
 }
@@ -1481,4 +1476,13 @@ void EWBIKState::ShadowBone3D::populate_return_dampening_iteration_array(int p_d
 		half_returnful_dampened.write[iter_i] = iteration_return_clamp;
 		cos_half_returnful_dampened.write[iter_i] = cos_iteration_return_clamp;
 	}
+}
+void EWBIKState::set_bone_dirty(int p_bone, bool p_dirty) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone].sim_local_ik_node.dirty = p_dirty;
+	bones.write[p_bone].sim_constraint_ik_node.dirty = p_dirty;
+}
+bool EWBIKState::get_bone_dirty(int p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), true);
+	return bones[p_bone].sim_local_ik_node.dirty || bones[p_bone].sim_constraint_ik_node.dirty;
 }
