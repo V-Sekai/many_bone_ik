@@ -635,9 +635,8 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	if (p_for_bone.is_null()) {
 		return;
 	}
-	// print_line("Affected bone " + r_chain->skeleton->get_bone_name(p_for_bone->bone));
-	p_for_bone->force_update_bone_children_transforms(r_chain);
 	Ref<EWBIKState> state = r_chain->mod->get_state();
+	p_for_bone->force_update_bone_children_transforms(r_chain);
 	BoneId bone = p_for_bone->bone;
 	Transform bone_xform = state->get_shadow_pose_local(bone);
 	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
@@ -1373,7 +1372,7 @@ void EWBIKState::align_shadow_bone_globals_to(int p_bone, Transform p_target) {
 		shadow_pose_global = global_shadow_pose_to_local_pose(p_bone, shadow_pose_global);
 		set_shadow_bone_pose_local(p_bone, p_target);
 	} else {
-		Transform shadow_pose_global = get_shadow_pose_global(get_parent(p_bone));
+		Transform shadow_pose_global = get_shadow_pose_global(p_bone);
 		set_shadow_bone_pose_local(p_bone, shadow_pose_global);
 	}
 	mark_dirty(p_bone);
@@ -1383,11 +1382,11 @@ void EWBIKState::align_shadow_constraint_globals_to(int p_bone, Transform p_targ
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	force_update_bone_children_transforms(p_bone);
 	if (get_parent(p_bone) != -1) {
-		Transform shadow_constraint_pose_global = get_shadow_pose_global(get_parent(p_bone));
+		Transform shadow_constraint_pose_global = get_shadow_constraint_axes_global(get_parent(p_bone));
 		shadow_constraint_pose_global = global_constraint_pose_to_local_pose(p_bone, shadow_constraint_pose_global);
 		set_shadow_constraint_axes_local(p_bone, p_target);
 	} else {
-		Transform shadow_pose_global = get_shadow_pose_global(get_parent(p_bone));
+		Transform shadow_pose_global = get_shadow_constraint_axes_global(p_bone);
 		set_shadow_constraint_axes_local(p_bone, shadow_pose_global);
 	}
 	mark_dirty(p_bone);

@@ -96,8 +96,7 @@ public:
 	Ref<EWBIKSegmentedSkeleton3D> find_child(const int p_bone_id);
 	Ref<EWBIKSegmentedSkeleton3D> add_child(const int p_bone_id);
 	void update_cos_dampening();
-	void
-	set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen,
+	void set_axes_to_returned(Transform p_global, Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen,
 			float p_angle_dampen);
 	void set_axes_to_be_snapped(Transform p_to_set, Transform p_limiting_axes, float p_cos_half_angle_dampen);
 	void rootwardly_update_falloff_cache_from(Ref<EWBIKSegmentedSkeleton3D> p_current);

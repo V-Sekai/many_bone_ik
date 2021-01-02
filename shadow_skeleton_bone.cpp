@@ -81,9 +81,8 @@ void EWBIKSegmentedSkeleton3D::set_processed(bool p_b) {
 
 bool EWBIKSegmentedSkeleton3D::is_bone_effector(Ref<EWBIKSegmentedSkeleton3D> current_bone) {
 	bool is_effector = false;
-	Ref<EWBIKBoneEffector> effector;
 	for (int32_t i = 0; i < multi_effector.size(); i++) {
-		effector = multi_effector[i];
+		Ref<EWBIKBoneEffector> effector = multi_effector[i];
 		if (effector.is_null()) {
 			continue;
 		}
