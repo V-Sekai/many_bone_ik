@@ -46,8 +46,8 @@ public:
 	Ref<EWBIKSegmentedSkeleton3D> chain = memnew(EWBIKSegmentedSkeleton3D);
 	// Settings
 	float min_distance = 0.01f;
-	int iterations = 4;
-	int max_iterations = 1.0f;
+	int iterations = 15;
+	int max_iterations = 10;
 	// dampening dampening angle in radians.
 	// Set this to -1 if you want to use the armature's default.
 	float dampening = 0.05f;

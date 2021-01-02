@@ -256,8 +256,8 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 	execution_error_found = false;
 }
 
-void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<EWBIKSegmentedSkeleton3D> start_from, float dampening, int iterations, int p_stabilization_passes) {
-	Ref<EWBIKSegmentedSkeleton3D> armature = start_from;
+void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<EWBIKSegmentedSkeleton3D> p_start_from, float p_dampening, int p_iterations, int p_stabilization_passes) {
+	Ref<EWBIKSegmentedSkeleton3D> armature = p_start_from;
 	if (armature.is_null()) {
 		return;
 	}
@@ -269,23 +269,23 @@ void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32
 	}
 	if (armature.is_valid() && armature->targets.size() > 0) {
 		armature->align_axes_to_bones();
-		if (iterations == -1) {
-			iterations = armature->ik_iterations;
+		if (p_iterations == -1) {
+			p_iterations = armature->ik_iterations;
 		}
-		float totalIterations = iterations;
+		float totalIterations = p_iterations;
 		if (p_stabilization_passes == -1) {
 			p_stabilization_passes = armature->stabilization_passes;
 		}
-		for (int i = 0; i < iterations; i++) {
+		for (int i = 0; i < p_iterations; i++) {
 			if (!armature->base_bone->is_bone_effector(armature->base_bone)) {
-				update_optimal_rotation_to_target_descendants(armature->skeleton, armature, Math_PI, true, armature->localized_target_headings, armature->localized_effector_headings, armature->weights, p_qcp, i, totalIterations);
+				update_optimal_rotation_to_target_descendants(armature->skeleton, armature->chain_root, Math_PI, true, armature->localized_target_headings, armature->localized_effector_headings, armature->weights, p_qcp, i, totalIterations);
 				armature->set_processed(false);
 				Vector<Ref<EWBIKSegmentedSkeleton3D>> segmented_armature = armature->get_child_chains();
 				for (int32_t i = 0; i < segmented_armature.size(); i++) {
 					grouped_recursive_chain_solver(segmented_armature[i], armature->dampening, armature->stabilization_passes, i, totalIterations);
 				}
 			} else {
-				grouped_recursive_chain_solver(armature, dampening, p_stabilization_passes, i, totalIterations);
+				grouped_recursive_chain_solver(armature, p_dampening, p_stabilization_passes, i, totalIterations);
 			}
 		}
 		armature->recursively_align_bones_to_sim_axes_from(armature->chain_root);
@@ -335,8 +335,8 @@ void SkeletonModification3DEWBIK::apply_bone_chains(float p_strength, Skeleton3D
 	for (int32_t chain_bone_i = 0; chain_bone_i < bones.size(); chain_bone_i++) {
 		BoneId bone = bones[chain_bone_i]->bone;
 		Transform shadow_pose = state->get_shadow_pose_global(bone);
-		p_skeleton->set_bone_global_pose_override(chain_bone_i, shadow_pose, p_strength, true);
-		p_skeleton->force_update_bone_children_transforms(chain_bone_i);
+		p_skeleton->set_bone_global_pose_override(bone, shadow_pose, p_strength, true);
+		p_skeleton->force_update_bone_children_transforms(bone);
 		Ref<KusudamaConstraint> kusudama = state->get_constraint(bone);
 		Transform shadow_constraint = state->get_shadow_constraint_axes_global(bone);
 		kusudama->set_constraint_axes(shadow_constraint);
@@ -712,6 +712,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 		pose.basis.set_quat_scale(bone_xform.basis.get_rotation_quat(), pose.basis.get_scale());
 		pose.origin = bone_xform.origin;
 		state->set_shadow_bone_pose_local(p_for_bone->bone, pose);
+		state->mark_dirty(p_for_bone->bone);
 	}
 }
 
