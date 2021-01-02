@@ -277,7 +277,7 @@ void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32
 			p_stabilization_passes = armature->stabilization_passes;
 		}
 		for (int i = 0; i < p_iterations; i++) {
-			if (!armature->base_bone->is_bone_effector(armature->base_bone)) {
+			if (!armature->base_bone->is_bone_effector(armature->base_bone) && armature->get_child_chains().size()) {
 				update_optimal_rotation_to_target_descendants(armature->skeleton, armature->chain_root, Math_PI, true, armature->localized_target_headings, armature->localized_effector_headings, armature->weights, p_qcp, i, totalIterations);
 				armature->set_processed(false);
 				Vector<Ref<EWBIKSegmentedSkeleton3D>> segmented_armature = armature->get_child_chains();
