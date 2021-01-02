@@ -677,23 +677,23 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 					r_chain->weights);
 
 			if (best_rmsd >= new_rmsd) {
-				if (state->get_springy(p_for_bone->bone)) {
+				if (state->get_springy(bone)) {
 					if (p_dampening != -1 || p_total_iterations != r_chain->get_default_iterations()) {
-						float returnfullness = state->get_pain(p_for_bone->bone);
-						float dampened_angle =  state->get_stiffness(p_for_bone->bone) * p_dampening * returnfullness;
+						float returnfullness = state->get_pain(bone);
+						float dampened_angle =  state->get_stiffness(bone) * p_dampening * returnfullness;
 						float total_iterations_sq = p_total_iterations * p_total_iterations;
 						float scaled_dampened_angle = dampened_angle *
 													  ((total_iterations_sq - (p_iteration * p_iteration)) /
 															  total_iterations_sq);
 						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);
-						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(p_for_bone->bone), bone_xform,
-								state->get_shadow_constraint_axes_local(p_for_bone->bone), cos_half_angle,
+						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(bone), bone_xform,
+								state->get_shadow_constraint_axes_local(bone), cos_half_angle,
 								scaled_dampened_angle);
 					} else {
-						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(p_for_bone->bone), bone_xform,
-								state->get_shadow_constraint_axes_local(p_for_bone->bone),
-								state->get_cos_half_returnful_dampened(p_for_bone->bone)[p_iteration],
-								state->get_half_returnful_dampened(p_for_bone->bone)[p_iteration]);
+						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(bone), bone_xform,
+								state->get_shadow_constraint_axes_local(bone),
+								state->get_cos_half_returnful_dampened(bone)[p_iteration],
+								state->get_half_returnful_dampened(bone)[p_iteration]);
 					}
 					update_effector_headings(r_chain, r_chain->localized_effector_headings, bone_xform);
 					new_rmsd = get_manual_msd(r_chain->localized_effector_headings, r_chain->localized_target_headings,
@@ -711,6 +711,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 		Transform pose;
 		pose.basis.set_quat_scale(bone_xform.basis.get_rotation_quat(), pose.basis.get_scale());
 		pose.origin = bone_xform.origin;
+		state->global_shadow_pose_to_local_pose(p_for_bone->bone, pose);
 		state->set_shadow_bone_pose_local(p_for_bone->bone, pose);
 		state->mark_dirty(p_for_bone->bone);
 	}
