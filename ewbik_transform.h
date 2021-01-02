@@ -85,7 +85,7 @@ public:
 
 	IKBasis operator*(IKBasis p_basis) {
 		IKBasis new_ik_basis = *this;
-		new_ik_basis.rotate_by(p_basis.rotation);
+		new_ik_basis.rotate_by(p_basis.rotation.normalized());
 		new_ik_basis.translate_by(p_basis.translate);
 		return new_ik_basis;
 	}

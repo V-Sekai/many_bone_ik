@@ -253,6 +253,8 @@ class EWBIKState : public Resource {
 	Vector<int32_t> parentless_bones;
 
 public:
+	void translate_shadow_pose_by_global(int32_t p_bone, Vector3 p_translate_by);
+	void translate_constraint_axes_by_global(int32_t p_bone, Vector3 p_translate_by);
 	float get_cos_half_dampen(int32_t p_bone) const;
 	void set_cos_half_dampen(int32_t p_bone, float p_cos_half_dampen);
 	// Vector<float> get_cos_half_returnful_dampened(int32_t p_bone) const;

@@ -34,26 +34,17 @@
 #include "skeleton_modification_3d_ewbik.h"
 
 void EWBIKSegmentedSkeleton3D::recursively_align_axes_outward_from(Ref<EWBIKSegmentedSkeleton3D> b) {
-	Ref<EWBIKState> state = b->mod->get_state();
 	if (b->base_bone.is_null()) {
 		return;
 	}
+	Ref<EWBIKState> state = b->mod->get_state();
 	state->align_shadow_bone_globals_to(b->bone, state->get_shadow_pose_local(b->bone));
 	state->mark_dirty(b->bone);
 	state->force_update_bone_children_transforms(b->bone);
 	state->align_shadow_constraint_globals_to(b->bone, state->get_shadow_constraint_axes_local(b->bone));
 	state->mark_dirty(b->bone);
 	state->force_update_bone_children_transforms(b->bone);
-	Vector<Ref<EWBIKSegmentedSkeleton3D>> bones = b->base_bone->get_bones();
-	for (int32_t bones_i = 0; bones_i < bones.size(); bones_i++) {
-		state->align_shadow_bone_globals_to(b->bone, state->get_shadow_pose_local(b->bone));
-		state->mark_dirty(b->bone);
-		state->force_update_bone_children_transforms(b->bone);
-		state->align_shadow_constraint_globals_to(b->bone, state->get_shadow_constraint_axes_local(b->bone));
-		state->mark_dirty(b->bone);
-		state->force_update_bone_children_transforms(b->bone);
-	}
-	Vector<Ref<EWBIKSegmentedSkeleton3D>> children = b->get_child_chains();
+	Vector<Ref<EWBIKSegmentedSkeleton3D>> children = b->get_bone_children(skeleton, b);
 	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 		b->recursively_align_axes_outward_from(children[child_i]);
 	}
