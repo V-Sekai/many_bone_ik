@@ -325,21 +325,22 @@ void SkeletonModification3DEWBIK::recursive_chain_solver(Ref<EWBIKSegmentedSkele
 
 void SkeletonModification3DEWBIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<EWBIKSegmentedSkeleton3D> p_current_chain) {
 	ERR_FAIL_COND(!p_current_chain->is_chain_active());
+	Ref<EWBIKState> state = p_current_chain->mod->get_state();
 	{
-		Transform shadow_pose = p_current_chain->mod->get_state()->get_shadow_pose_global(p_current_chain->bone);
+		Transform shadow_pose = state->get_shadow_pose_global(p_current_chain->bone);
 		p_skeleton->set_bone_global_pose_override(p_current_chain->bone, shadow_pose, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(p_current_chain->bone);
-		Ref<KusudamaConstraint> kusudama = p_current_chain->mod->skeleton_ik_state->get_constraint(p_current_chain->bone);
-		Transform shadow_constraint = p_current_chain->mod->skeleton_ik_state->get_shadow_constraint_pose_global(p_current_chain->bone);
+		Ref<KusudamaConstraint> kusudama = state->get_constraint(p_current_chain->bone);
+		Transform shadow_constraint = state->get_shadow_constraint_pose_global(p_current_chain->bone);
 		kusudama->set_constraint_axes(shadow_constraint);
 	}
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> bones = p_current_chain->get_bones();
 	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
-		Transform shadow_pose = p_current_chain->mod->skeleton_ik_state->get_shadow_pose_global(bone_i);
+		Transform shadow_pose = state->get_shadow_pose_global(bone_i);
 		p_skeleton->set_bone_global_pose_override(bone_i, shadow_pose, p_strength, true);
 		p_skeleton->force_update_bone_children_transforms(bone_i);
-		Ref<KusudamaConstraint> kusudama = p_current_chain->mod->skeleton_ik_state->get_constraint(bone_i);
-		Transform shadow_constraint = p_current_chain->mod->skeleton_ik_state->get_shadow_constraint_pose_global(bone_i);
+		Ref<KusudamaConstraint> kusudama = state->get_constraint(bone_i);
+		Transform shadow_constraint = state->get_shadow_constraint_pose_global(bone_i);
 		kusudama->set_constraint_axes(shadow_constraint);
 	}
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> bone_chains = p_current_chain->get_child_chains();
