@@ -267,7 +267,7 @@ void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32
 	} else {
 		armature = pinned_root_chain;
 	}
-	if (armature.is_valid() && armature->get_bones().size() > 0) {
+	if (armature.is_valid() && armature->targets.size() > 0) {
 		armature->align_axes_to_bones();
 		if (iterations == -1) {
 			iterations = armature->ik_iterations;
@@ -277,8 +277,8 @@ void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32
 			p_stabilization_passes = armature->stabilization_passes;
 		}
 		for (int i = 0; i < iterations; i++) {
-			if (!armature->base_bone->is_bone_effector(armature->base_bone) && armature->get_child_chains().size()) {
-				update_optimal_rotation_to_target_descendants(armature->skeleton, armature, armature->dampening, true, armature->localized_target_headings, armature->localized_effector_headings, armature->weights, p_qcp, i, totalIterations);
+			if (!armature->base_bone->is_bone_effector(armature->base_bone)) {
+				update_optimal_rotation_to_target_descendants(armature->skeleton, armature, Math_PI, true, armature->localized_target_headings, armature->localized_effector_headings, armature->weights, p_qcp, i, totalIterations);
 				armature->set_processed(false);
 				Vector<Ref<EWBIKSegmentedSkeleton3D>> segmented_armature = armature->get_child_chains();
 				for (int32_t i = 0; i < segmented_armature.size(); i++) {
@@ -532,12 +532,12 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 		if (bone == -1) {
 			continue;
 		}
-		node_xform = p_task->skeleton->get_bone_global_pose(bone);
 		if (target_node) {
 			Node3D *current_node = Object::cast_to<Node3D>(target_node);
-			node_xform = node_xform * p_task->skeleton->world_transform_to_global_pose(current_node->get_global_transform());
+			node_xform = p_task->skeleton->get_global_transform().affine_inverse() * current_node->get_global_transform();
 		}
 		node_xform = node_xform * effector->get_target_transform();
+		node_xform = p_task->skeleton->get_bone_global_pose(bone).affine_inverse() * node_xform;
 		ee->goal_transform = node_xform;
 		int32_t constraint_i = p_task->ewbik->get_modification_stack()->get_skeleton()->find_bone(effector->get_name());
 		Ref<KusudamaConstraint> constraint = p_task->ewbik->skeleton_ik_state->get_constraint(constraint_i);
@@ -638,7 +638,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	Transform bone_xform = state->get_shadow_pose_local(bone);
 	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
 	float new_dampening = -1;
-	if (p_for_bone->parent_item == NULL || !r_chain->localized_target_headings.size()) {
+	if (p_for_bone->parent_item.is_null() || r_chain->localized_target_headings.size() == 1) {
 		p_stabilization_passes = 0;
 	}
 	if (p_translate == true) {
@@ -745,21 +745,10 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKSegmentedSkele
 		if (ee.is_null()) {
 			continue;
 		}
-		// Ref<EWBIKSegmentedSkeleton3D> sb = r_chain->find_child(ee->effector_bone);
-		// if (sb.is_null()) {
-		// 	continue;
-		// }
-		// Ref<KusudamaConstraint> constraint = state->get_constraint(sb->bone);
-		// if (constraint.is_null()) {
-		// 	continue;
-		// }
+		Vector3 origin = p_bone_xform.origin;
 		Transform target_axes = ee->goal_transform;
-		Vector3 origin = state->get_shadow_pose_global(ee->effector_bone).origin;
 		r_localized_target_headings.write[hdx] = target_axes.origin - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
-		// Remove hacks 2020-01-01
-		// Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
-		// origin += godot_to_libgdx;
 		hdx++;
 		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
 			Ray x_target = state->get_ray_x(ee->effector_bone);
@@ -774,7 +763,7 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKSegmentedSkele
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
-			Ray z_target = state->get_ray_y(ee->effector_bone);
+			Ray z_target = state->get_ray_z(ee->effector_bone);
 			r_localized_target_headings.write[hdx] += z_target.position - target_axes.origin;
 			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
 			hdx += 2;
@@ -795,32 +784,25 @@ void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKSegmentedSke
 		if (ee.is_null()) {
 			continue;
 		}
-		Ref<EWBIKSegmentedSkeleton3D> sb = r_chain->find_child(ee->effector_bone);
-		if (sb.is_null()) {
-			continue;
-		}
-		// int bone = r_chain->targets[target_i]->end_effector->effector_bone;
-		Transform pose = state->get_shadow_pose_local(sb->bone);
-		Vector3 origin = pose.origin;
-		Vector3 godot_to_libgdx = Vector3(-1.0f, 1.0f, -1.0f);
-		r_localized_effector_headings.write[hdx] = origin;
-		origin += godot_to_libgdx;
+		Vector3 origin = p_bone_xform.origin;
+		int bone = r_chain->targets[target_i]->end_effector->effector_bone;
+		Transform pose = state->get_shadow_pose_global(bone);
+		r_localized_effector_headings.write[hdx] = pose.origin - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
-		// Transform target_axes = sb->constraint->get_constraint_axes();
 		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
-			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * x_orientation;
-			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
+			Ray x_target = state->get_ray_x(bone);
+			r_localized_effector_headings.write[hdx] += x_target.position - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::YDir) != 0) {
-			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * y_orientation;
-			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
+			Ray y_target = state->get_ray_y(bone);
+			r_localized_effector_headings.write[hdx] += y_target.position - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
-			r_localized_effector_headings.write[hdx] += (origin + p_bone_xform.origin) * z_orientation;
-			r_localized_effector_headings.write[hdx + 1] += -r_localized_effector_headings.write[hdx];
+			Ray z_target = state->get_ray_z(bone);
+			r_localized_effector_headings.write[hdx] += z_target.position - origin;
 			hdx += 2;
 		}
 	}
@@ -1401,7 +1383,6 @@ void EWBIKState::align_shadow_bone_globals_to(int p_bone, Transform p_target) {
 		set_shadow_bone_pose_local(p_bone, shadow_pose_global);
 	}
 	mark_dirty(p_bone);
-	force_update_bone_children_transforms(p_bone);
 }
 void EWBIKState::align_shadow_constraint_globals_to(int p_bone, Transform p_target) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
@@ -1415,7 +1396,6 @@ void EWBIKState::align_shadow_constraint_globals_to(int p_bone, Transform p_targ
 		set_shadow_constraint_axes_local(p_bone, shadow_pose_global);
 	}
 	mark_dirty(p_bone);
-	force_update_bone_children_transforms(p_bone);
 }
 void EWBIKState::set_shadow_constraint_axes_local(int p_bone, const Transform &value) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
