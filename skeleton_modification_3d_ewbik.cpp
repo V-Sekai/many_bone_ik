@@ -607,13 +607,14 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	} else {
 		qcp_rot.clamp_to_quadrance_angle(bone_damp);
 	}
-	state->rotate_by(p_chain_item->bone, qcp_rot);
+	BoneId bone = p_chain_item->bone;
+	state->rotate_by(bone, qcp_rot);
 
-	state->force_update_bone_children_transforms(p_chain_item->bone);
+	state->force_update_bone_children_transforms(bone);
 
-	p_chain_item->set_axes_to_be_snapped(state->get_shadow_pose_local(p_chain_item->bone), state->get_shadow_constraint_axes_local(p_chain_item->bone), bone_damp);
-	state->translate_shadow_pose_by_global(p_chain_item->bone, translate_by);
-	state->translate_constraint_axes_by_global(p_chain_item->bone, translate_by);
+	p_chain_item->set_axes_to_be_snapped(state->get_shadow_pose_local(bone), state->get_shadow_constraint_axes_local(bone), bone_damp);
+	state->translate_shadow_pose_by_global(bone, translate_by);
+	state->translate_constraint_axes_by_global(bone, translate_by);
 }
 
 void SkeletonModification3DEWBIK::recursively_update_bone_segment_map_from(Ref<EWBIKSegmentedSkeleton3D> r_chain,
