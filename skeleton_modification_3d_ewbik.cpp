@@ -1321,24 +1321,43 @@ void EWBIKState::rotate_about_z(int32_t p_bone, float angle) {
 void EWBIKState::force_update_bone_children_transforms(int p_bone_idx) {
 	ERR_FAIL_INDEX(p_bone_idx, bones.size());
 	ShadowBone3D *bonesptr = bones.ptrw();
-	List<int> bones_to_process = List<int>();
+	List<int> bones_to_process;
 	bones_to_process.push_back(p_bone_idx);
 
 	while (bones_to_process.size() > 0) {
 		int current_bone_idx = bones_to_process[0];
 		bones_to_process.erase(current_bone_idx);
-		IKNode3D &b = bonesptr[current_bone_idx].sim_local_ik_node;
-		IKBasis pose = bones[p_bone_idx].sim_local_ik_node.get_local();
-		if (b.parent >= 0) {
-			b.pose_global = bonesptr[b.parent].sim_local_ik_node.pose_global * pose;
-		} else {
-			b.pose_global = pose;
-		}
 
+		IKNode3D &bone = bonesptr[current_bone_idx].sim_local_ik_node;
+		IKBasis pose = bones[p_bone_idx].sim_local_ik_node.get_local();
+		if (bone.parent >= 0) {
+			bone.pose_global = bonesptr[bone.parent].sim_local_ik_node.pose_global * pose;
+		} else {
+			bone.pose_global = pose;
+		}
 		// Add the bone's children to the list of bones to be processed
-		int child_bone_size = b.child_bones.size();
+		int child_bone_size = bone.child_bones.size();
 		for (int i = 0; i < child_bone_size; i++) {
-			bones_to_process.push_back(b.child_bones[i]);
+			bones_to_process.push_back(bone.child_bones[i]);
+		}
+	}
+	bones_to_process.clear();
+	bones_to_process.push_back(p_bone_idx);
+	while (bones_to_process.size() > 0) {
+		int current_bone_idx = bones_to_process[0];
+		bones_to_process.erase(current_bone_idx);
+
+		IKNode3D &constraint = bonesptr[current_bone_idx].sim_constraint_ik_node;
+		IKBasis constraint_axes = bones[p_bone_idx].sim_constraint_ik_node.get_local();
+		if (constraint.parent >= 0) {
+			constraint.pose_global = bonesptr[constraint.parent].sim_constraint_ik_node.pose_global * constraint_axes;
+		} else {
+			constraint.pose_global = constraint_axes;
+		}
+		// Add the bone's children to the list of bones to be processed
+		int child_bone_size = constraint.child_bones.size();
+		for (int i = 0; i < child_bone_size; i++) {
+			bones_to_process.push_back(constraint.child_bones[i]);
 		}
 	}
 }
@@ -1367,7 +1386,6 @@ void EWBIKState::align_shadow_bone_globals_to(int p_bone, Transform p_target) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	force_update_bone_children_transforms(p_bone);
 	if (get_parent(p_bone) != -1) {
-		// TODO Set local of?
 		Transform shadow_pose_global = get_shadow_pose_global(get_parent(p_bone));
 		shadow_pose_global = global_shadow_pose_to_local_pose(p_bone, shadow_pose_global);
 		set_shadow_bone_pose_local(p_bone, p_target);
