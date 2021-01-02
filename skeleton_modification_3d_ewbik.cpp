@@ -648,7 +648,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	}
 
 	update_target_headings(r_chain, r_chain->localized_target_headings, bone_xform);
-	update_effector_headings(r_chain, r_chain->localized_effector_headings, bone_xform);
+	update_effector_headings(r_chain, r_chain->localized_effector_headings);
 
 	float best_rmsd = 0.0f;
 	Ref<QCP> qcp_convergence_check;
@@ -674,7 +674,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 				p_total_iterations);
 
 		if (p_stabilization_passes > 0) {
-			update_effector_headings(r_chain, r_chain->localized_effector_headings, bone_xform);
+			update_effector_headings(r_chain, r_chain->localized_effector_headings);
 			new_rmsd = get_manual_msd(r_chain->localized_effector_headings, r_chain->localized_target_headings,
 					r_chain->weights);
 
@@ -697,7 +697,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 								state->get_cos_half_returnful_dampened(bone)[p_iteration],
 								state->get_half_returnful_dampened(bone)[p_iteration]);
 					}
-					update_effector_headings(r_chain, r_chain->localized_effector_headings, bone_xform);
+					update_effector_headings(r_chain, r_chain->localized_effector_headings);
 					new_rmsd = get_manual_msd(r_chain->localized_effector_headings, r_chain->localized_target_headings,
 							r_chain->weights);
 				}
@@ -752,34 +752,35 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKSegmentedSkele
 		Vector3 origin = p_bone_xform.origin;
 		Transform target_axes = ee->goal_transform;
 		r_localized_target_headings.write[hdx] = target_axes.origin - origin;
+		origin = r_localized_target_headings.write[hdx] - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
 			Ray x_target = state->get_ray_x(ee->effector_bone);
-			r_localized_target_headings.write[hdx] += x_target.position - origin;
-			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
+			r_localized_target_headings.write[hdx] += x_target.normal - origin;
+			r_localized_target_headings.write[hdx + 1] = x_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]);
 			origin = x_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::YDir) != 0) {
 			Ray y_target = state->get_ray_y(ee->effector_bone);
-			r_localized_target_headings.write[hdx] += y_target.position - origin;
-			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
+			r_localized_target_headings.write[hdx] += y_target.normal - origin;
+			r_localized_target_headings.write[hdx + 1] = y_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]);
 			origin = y_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
 			Ray z_target = state->get_ray_z(ee->effector_bone);
-			r_localized_target_headings.write[hdx] += z_target.position - origin;
-			r_localized_target_headings.write[hdx + 1] += -r_localized_target_headings.write[hdx];
+			r_localized_target_headings.write[hdx] += z_target.normal - origin;
+			r_localized_target_headings.write[hdx + 1] = z_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]);
 			origin = z_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 	}
 }
 
-void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain, Vector<Vector3> &r_localized_effector_headings,
-		Transform p_bone_xform) {
+void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
+ Vector<Vector3> &r_localized_effector_headings) {
 	int hdx = 0;
 	Ref<EWBIKState> state = r_chain->mod->get_state();
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
@@ -791,27 +792,32 @@ void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKSegmentedSke
 		if (ee.is_null()) {
 			continue;
 		}
-		Vector3 origin = p_bone_xform.origin;
-		int bone = r_chain->targets[target_i]->end_effector->effector_bone;
-		Transform pose = state->get_shadow_pose_global(bone);
+		int effector_bone = ee->effector_bone;
+		Transform pose = state->get_shadow_pose_local(effector_bone);
+		BoneId bone = r_chain->bone;
+		Vector3 origin = state->get_shadow_pose_local(bone).origin;
 		r_localized_effector_headings.write[hdx] = pose.origin - origin;
+		origin = r_localized_effector_headings.write[hdx] - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
-			Ray x_target = state->get_ray_x(bone);
-			r_localized_effector_headings.write[hdx] += x_target.position - origin;
+			Ray x_target = state->get_ray_x(effector_bone);
+			r_localized_effector_headings.write[hdx] += x_target.normal - origin;
+			r_localized_effector_headings.write[hdx + 1] = x_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]);
 			origin = x_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::YDir) != 0) {
-			Ray y_target = state->get_ray_y(bone);
-			r_localized_effector_headings.write[hdx] += y_target.position - origin;
+			Ray y_target = state->get_ray_y(effector_bone);
+			r_localized_effector_headings.write[hdx] += y_target.normal - origin;
+			r_localized_effector_headings.write[hdx + 1] = y_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]);
 			origin = y_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
-			Ray z_target = state->get_ray_z(bone);
-			r_localized_effector_headings.write[hdx] += z_target.position - origin;
+			Ray z_target = state->get_ray_z(effector_bone);
+			r_localized_effector_headings.write[hdx] += z_target.normal - origin;
+			r_localized_effector_headings.write[hdx + 1] = z_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]);
 			origin = z_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]) - origin;
 			hdx += 2;
 		}
@@ -1208,9 +1214,10 @@ Transform EWBIKState::get_shadow_pose_local(int p_bone) const {
 	xform.basis = basis.get_rotation();
 	return xform;
 }
-void EWBIKState::set_shadow_bone_pose_local(int p_bone, const Transform &value) {
+void EWBIKState::set_shadow_bone_pose_local(int p_bone, const Transform & p_value) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
-	bones.write[p_bone].sim_local_ik_node.set_local(value);
+	IKBasis basis = IKBasis(p_value.origin, p_value.basis.get_axis(0), p_value.basis.get_axis(1), p_value.basis.get_axis(2));
+	bones.write[p_bone].sim_local_ik_node.set_local(basis);
 	mark_dirty(p_bone);
 }
 Transform EWBIKState::get_shadow_constraint_axes_global(int p_bone) const {
@@ -1407,9 +1414,10 @@ void EWBIKState::align_shadow_constraint_globals_to(int p_bone, Transform p_targ
 	}
 	mark_dirty(p_bone);
 }
-void EWBIKState::set_shadow_constraint_axes_local(int p_bone, const Transform &value) {
+void EWBIKState::set_shadow_constraint_axes_local(int p_bone, const Transform &p_value) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
-	bones.write[p_bone].sim_constraint_ik_node.set_local(value);
+	IKBasis basis = IKBasis(p_value.origin, p_value.basis.get_axis(0), p_value.basis.get_axis(1), p_value.basis.get_axis(2));
+	bones.write[p_bone].sim_constraint_ik_node.set_local(basis);
 	mark_dirty(p_bone);
 }
 Transform EWBIKState::get_shadow_constraint_axes_local(int p_bone) const {

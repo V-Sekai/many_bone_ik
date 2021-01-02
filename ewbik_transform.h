@@ -45,8 +45,6 @@ public:
 
 	IKBasis();
 
-	IKBasis(const Transform &input);
-
 	/**
 	 * Initialize this basis at the origin.
 	 *  The basis will be backed by a rotation object which presumes right handed chirality. 

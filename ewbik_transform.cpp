@@ -64,14 +64,6 @@ IKBasis::IKBasis(Ray p_x, Ray p_y, Ray p_z) {
 	set(p_x, p_y, p_z);
 }
 
- IKBasis::IKBasis(const Transform &input) {
-	translate = input.origin;
-	Vector3 x = input.basis.get_axis(0);
-	Vector3 y = input.basis.get_axis(1);
-	Vector3 z = input.basis.get_axis(2);
-	set(x, y, z);
-}
-
  IKBasis::IKBasis() {
 	Vector3 origin;
 	translate = origin;

@@ -166,8 +166,8 @@ public:
 	static void update_target_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
 
 			Vector<Vector3> &r_localized_target_headings, Transform p_bone_xform);
-	static void update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain, Vector<Vector3> &r_localized_effector_headings,
-			Transform p_bone_xform);
+	static void update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
+ Vector<Vector3> &r_localized_effector_headings);
 	static Ref<EWBIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3DEWBIK> p_constraints = NULL);
@@ -295,7 +295,7 @@ public:
 	// }
 	int32_t get_parent(int32_t p_bone) const;
 	void set_parent(int32_t p_bone, int32_t p_parent);
-	void set_shadow_bone_pose_local(int p_bone, const Transform &value);
+	void set_shadow_bone_pose_local(int p_bone, const Transform & p_value);
 	void align_shadow_bone_globals_to(int p_bone, Transform p_target);
 	Transform get_shadow_pose_local(int p_bone) const;
 	Transform get_shadow_pose_global(int p_bone) const;
