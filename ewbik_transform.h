@@ -27,6 +27,7 @@ private:
 	Quat rotation;
 	Quat inverse_rotation;
 	Vector3 translate;
+
 public:
 	int LEFT = -1;
 	int RIGHT = 1;
@@ -82,11 +83,16 @@ public:
 	 */
 	IKBasis(Ray p_x, Ray p_y, Ray p_z);
 
-	IKBasis operator*(IKBasis p_basis){
+	IKBasis operator*(IKBasis p_basis) {
 		IKBasis new_ik_basis = *this;
 		new_ik_basis.rotate_by(p_basis.rotation);
 		new_ik_basis.translate_by(p_basis.translate);
 		return new_ik_basis;
+	}
+
+	IKBasis& operator=(IKBasis p_basis) {
+		adopt_values(p_basis);
+		return *this;
 	}
 
 	/**
@@ -136,7 +142,9 @@ public:
 
 	Vector3 get_z_heading();
 
-	Vector3 get_origin();
+	Vector3 get_origin() const;
+
+	Quat get_rotation() const;
 
 	/**
 	 * true if the input axis should be multiplied by negative one after rotation. 
@@ -151,11 +159,4 @@ public:
 	 * @return a precomputed inverse of the rotation represented by this basis object.
 	 */
 	Quat get_inverse_rotation();
-
-	Transform get_transform() {
-		Transform xform;
-		xform.origin = translate;
-		xform.basis = rotation;
-		return xform;
-	}
 };

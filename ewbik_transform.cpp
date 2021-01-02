@@ -211,7 +211,7 @@ Vector3 IKBasis::get_z_heading() {
 	return z_ray.heading();
 }
 
-Vector3 IKBasis::get_origin() {
+Vector3 IKBasis::get_origin() const {
 	return translate;
 }
 
@@ -221,4 +221,7 @@ bool IKBasis::is_axis_flipped(int axis) {
 
 Quat IKBasis::get_inverse_rotation() {
 	return inverse_rotation;
+}
+Quat IKBasis::get_rotation() const {
+	return rotation;
 }

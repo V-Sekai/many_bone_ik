@@ -199,16 +199,20 @@ class EWBIKState : public Resource {
 		float get_stiffness() const {
 			return stiffness;
 		}
-		IKBasis get_local() const { return pose_local; }
-		IKBasis get_global() const { return pose_global; }
+		IKBasis get_local() const {
+			return pose_local;
+		}
+		IKBasis get_global() const {
+			return pose_global;
+		}
 		void set_local(IKBasis p_local) {
 			pose_local = p_local;
 		}
 		void set_parent(int32_t p_parent) {
 			parent = p_parent;
 		}
-		void update_global() {}
-		void set_relative_to_parent(int32_t par) {}
+		// void update_global() {}
+		// void set_relative_to_parent(int32_t par) {}
 		// Vector3 apply_global(Vector3 p_in) {
 		// 	update_global();
 		// }
@@ -224,13 +228,6 @@ class EWBIKState : public Resource {
 		// 	// the other way around with transform xform
 		// }
 		// Create variations where the input parameter is directly changed
-		IKBasis get_global_ik_basis() {
-			update_global();
-			return pose_global;
-		}
-		IKBasis get_local_ik_basis() {
-			return pose_local;
-		}
 	};
 	friend class SkeletonModification3DEWBIK;
 	class ShadowBone3D {
