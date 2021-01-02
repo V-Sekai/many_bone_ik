@@ -163,8 +163,9 @@ public:
 	static float
 	get_manual_msd(Vector<Vector3> &r_localized_effector_headings, Vector<Vector3> &r_localized_target_headings,
 			const Vector<real_t> &p_weights);
-	static void update_target_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain, Vector<Vector3> &r_localized_target_headings,
-			Vector<real_t> &p_weights, Transform p_bone_xform);
+	static void update_target_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
+
+ Vector<Vector3> &r_localized_target_headings, Transform p_bone_xform);
 	static void update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain, Vector<Vector3> &r_localized_effector_headings,
 			Transform p_bone_xform);
 	static Ref<EWBIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
