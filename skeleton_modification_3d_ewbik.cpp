@@ -288,10 +288,7 @@ void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32
 				grouped_recursive_chain_solver(armature, dampening, p_stabilization_passes, i, totalIterations);
 			}
 		}
-		// TODO
-		// armature.recursivelyAlignBonesToSimAxesFrom(armature.segmentRoot);
-		// TODO
-		// recursivelyNotifyBonesOfCompletedIKSolution(armature);
+		armature->recursively_align_bones_to_sim_axes_from(armature->chain_root);
 	}
 }
 

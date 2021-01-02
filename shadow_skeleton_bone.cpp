@@ -60,11 +60,12 @@ void EWBIKSegmentedSkeleton3D::recursively_align_axes_outward_from(Ref<EWBIKSegm
 }
 
 void EWBIKSegmentedSkeleton3D::recursively_align_bones_to_sim_axes_from(Ref<EWBIKSegmentedSkeleton3D> p_bone) {
-	Ref<EWBIKState> state = p_bone->mod->get_state();
-	Ref<EWBIKSegmentedSkeleton3D> chain = p_bone->chain_root->bone_segment_map[p_bone->bone];
+	ERR_FAIL_COND(p_bone.is_null());
+	Ref<EWBIKSegmentedSkeleton3D> chain = p_bone->base_bone;
 	if (chain.is_null()) {
 		return;
 	}
+	Ref<EWBIKState> state = p_bone->mod->get_state();
 	if (p_bone->parent_chain.is_null()) {
 		Transform simulatedLocalAxes = state->get_shadow_pose_local(p_bone->bone);
 		state->align_shadow_bone_globals_to(p_bone->bone, simulatedLocalAxes);
