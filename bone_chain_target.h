@@ -32,6 +32,7 @@
 
 #include "shadow_skeleton_bone.h"
 #include "core/object/reference.h"
+#include "skeleton_modification_3d_ewbik.h"
 
 class EWBIKBoneEffectorTransform;
 class EWBIKSegmentedSkeleton3D;

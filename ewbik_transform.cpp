@@ -8,20 +8,20 @@ Vector3 IKBasis::get_local_of(Vector3 p_v) {
 }
 
 void IKBasis::update_rays() {
-	x_ray.position = translate;
-	x_ray.normal = x_base;
-	y_ray.position = translate;
-	y_ray.normal = y_base;
-	z_ray.position = translate;
-	z_ray.normal = z_base;
+	x_ray.p0 = translate;
+	x_ray.p1 = x_base;
+	y_ray.p0 = translate;
+	y_ray.p1 = y_base;
+	z_ray.p0 = translate;
+	z_ray.p1 = z_base;
 
-	rotation.set_euler(x_ray.normal);
-	rotation.set_euler(y_ray.normal);
-	rotation.set_euler(z_ray.normal);
+	rotation.set_euler(x_ray.p1);
+	rotation.set_euler(y_ray.p1);
+	rotation.set_euler(z_ray.p1);
 
-	x_ray.normal += translate;
-	y_ray.normal += translate;
-	z_ray.normal += translate;
+	x_ray.p1 += translate;
+	y_ray.p1 += translate;
+	z_ray.p1 += translate;
 }
 
 void IKBasis::set(Vector3 p_x, Vector3 p_y, Vector3 p_z) {
@@ -32,18 +32,18 @@ void IKBasis::set(Vector3 p_x, Vector3 p_y, Vector3 p_z) {
 	y_base = Vector3(0, 1, 0);
 	z_base = Vector3(0, 0, 1);
 	Vector3 zero;
-	x_ray.position = zero;
-	x_ray.normal = x_base;
-	y_ray.position = zero;
-	y_ray.normal = y_base;
-	z_ray.position = zero;
-	z_ray.normal = z_base;
+	x_ray.p0 = zero;
+	x_ray.p1 = x_base;
+	y_ray.p0 = zero;
+	y_ray.p1 = y_base;
+	z_ray.p0 = zero;
+	z_ray.p1 = z_base;
 	rotation = create_prioritized_rotation(p_x, p_y, p_z);
 	refresh_precomputed();
 }
 
 IKBasis::IKBasis(Ray p_x, Ray p_y, Ray p_z) {
-	translate = p_x.position;
+	translate = p_x.p0;
 	x_ray = p_x;
 	y_ray = p_y;
 	z_ray = p_z;
@@ -112,12 +112,12 @@ void IKBasis::set_identity() {
 	x_base = Vector3(1, 0, 0);
 	y_base = Vector3(0, 1, 0);
 	z_base = Vector3(0, 0, 1);
-	x_ray.position = translate;
-	x_ray.normal = x_base;
-	y_ray.position = translate;
-	y_ray.normal = y_base;
-	z_ray.position = translate;
-	z_ray.normal = z_base;
+	x_ray.p0 = translate;
+	x_ray.p1 = x_base;
+	y_ray.p0 = translate;
+	y_ray.p1 = y_base;
+	z_ray.p0 = translate;
+	z_ray.p1 = z_base;
 	rotation = Quat();
 	refresh_precomputed();
 }

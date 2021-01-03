@@ -37,7 +37,7 @@
 
 #include "bone_effector.h"
 #include "direction_constraint.h"
-#include "dmik_task.h"
+#include "ewbik_task.h"
 #include "ewbik_transform.h"
 #include "kusudama_constraint.h"
 #include "qcp.h"
@@ -86,7 +86,8 @@ public:
 	static void iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<EWBIKSegmentedSkeleton3D> start_from, float dampening, int iterations, int p_stabilization_passes);
 	static void grouped_recursive_chain_solver(Ref<EWBIKSegmentedSkeleton3D> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
 	static void recursive_chain_solver(Ref<EWBIKSegmentedSkeleton3D> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
-	static void apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<EWBIKSegmentedSkeleton3D> p_current_chain);
+	static void apply_bone_chains(Ref<EWBIKState> p_state, float p_strength, Skeleton3D *p_skeleton, BoneId p_bone, Map<int, Ref<EWBIKSegmentedSkeleton3D>> p_bone_segment_map);
+
 	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
 	void register_constraint(Skeleton3D *p_skeleton);
 	Vector<Ref<EWBIKBoneEffector>> get_bone_effectors() const;
@@ -165,89 +166,98 @@ public:
 			const Vector<real_t> &p_weights);
 	static void update_target_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
 
-
 			Vector<Vector3> &r_localized_target_headings);
 	static void update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
- Vector<Vector3> &r_localized_effector_headings);
+			Vector<Vector3> &r_localized_effector_headings);
 	static Ref<EWBIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
 			float p_dampening = -1, int p_stabilizing_passes = -1,
 			Ref<SkeletonModification3DEWBIK> p_constraints = NULL);
 	static void solve(Ref<EWBIKTask> p_task, float blending_delta);
 };
+
+class IKNode3D {
+	friend class EWBIKState;
+	friend class ShadowBone3D;
+	IKBasis pose_local;
+	IKBasis pose_global;
+	Vector<int32_t> child_bones;
+	int32_t parent = -1;
+	float height = 0.0f;
+	float stiffness = 0.0f;
+	bool dirty = true;
+
+public:
+	void set_height(float p_height) {
+		height = p_height;
+	}
+	float get_height() const {
+		return height;
+	}
+	void set_stiffness(float p_stiffness) {
+		stiffness = p_stiffness;
+	}
+	float get_stiffness() const {
+		return stiffness;
+	}
+	IKBasis get_local() const {
+		return pose_local;
+	}
+	IKBasis get_global() const {
+		return pose_global;
+	}
+	Transform get_global_transform() const {
+		Transform xform;
+		IKBasis basis = pose_global;
+		xform.origin = basis.get_origin();
+		xform.basis = basis.get_rotation();
+		return xform;
+	}
+	void set_local(IKBasis p_local) {
+		pose_local = p_local;
+	}
+	void set_parent(int32_t p_parent) {
+		parent = p_parent;
+	}
+	// void update_global() {}
+	// void set_relative_to_parent(int32_t par) {}
+	// Vector3 apply_global(Vector3 p_in) {
+	// 	update_global();
+	// }
+	// Ray apply_global(Ray p_ray) {
+	// 	update_global();
+	// }
+	// Vector3 get_global_of(Vector3 p_in) {
+	// 	update_global();
+	// 	// the other way around with transform xform
+	// }
+	// Ray get_local_of(Ray p_in) {
+	// 	update_global();
+	// 	// the other way around with transform xform
+	// }
+	// Create variations where the input parameter is directly changed
+};
+class ShadowBone3D {
+	friend class EWBIKState;
+	friend class IKNode3D;
+	BoneId for_bone;
+	IKNode3D sim_local_ik_node;
+	IKNode3D sim_constraint_ik_node;
+	float cos_half_dampen = 0.0f;
+	Vector<float> cos_half_returnful_dampened;
+	Vector<float> half_returnful_dampened;
+	bool springy = false;
+	float pain = 0.0f;
+	Ref<KusudamaConstraint> constraint;
+	void set_constraint(Ref<KusudamaConstraint> p_constraint);
+	Ref<KusudamaConstraint> get_constraint() const;
+	void populate_return_dampening_iteration_array(int p_default_iterations, float p_default_dampening);
+	void update_cos_dampening(int p_default_iterations, float p_default_dampening);
+};
 // Skeleton data structure
 class EWBIKState : public Resource {
 	GDCLASS(EWBIKState, Resource);
-
-	class IKNode3D {
-		friend class EWBIKState;
-		IKBasis pose_local;
-		IKBasis pose_global;
-		Vector<int32_t> child_bones;
-		int32_t parent = -1;
-		float height = 0.0f;
-		float stiffness = 0.0f;
-		bool dirty = true;
-
-	public:
-		void set_height(float p_height) {
-			height = p_height;
-		}
-		float get_height() const {
-			return height;
-		}
-		void set_stiffness(float p_stiffness) {
-			stiffness = p_stiffness;
-		}
-		float get_stiffness() const {
-			return stiffness;
-		}
-		IKBasis get_local() const {
-			return pose_local;
-		}
-		IKBasis get_global() const {
-			return pose_global;
-		}
-		void set_local(IKBasis p_local) {
-			pose_local = p_local;
-		}
-		void set_parent(int32_t p_parent) {
-			parent = p_parent;
-		}
-		// void update_global() {}
-		// void set_relative_to_parent(int32_t par) {}
-		// Vector3 apply_global(Vector3 p_in) {
-		// 	update_global();
-		// }
-		// Ray apply_global(Ray p_ray) {
-		// 	update_global();
-		// }
-		// Vector3 get_global_of(Vector3 p_in) {
-		// 	update_global();
-		// 	// the other way around with transform xform
-		// }
-		// Ray get_local_of(Ray p_in) {
-		// 	update_global();
-		// 	// the other way around with transform xform
-		// }
-		// Create variations where the input parameter is directly changed
-	};
 	friend class SkeletonModification3DEWBIK;
-	class ShadowBone3D {
-		friend class EWBIKState;
-		BoneId for_bone;
-		IKNode3D sim_local_ik_node;
-		IKNode3D sim_constraint_ik_node;
-		float cos_half_dampen = 0.0f;
-		Vector<float> cos_half_returnful_dampened;
-		Vector<float> half_returnful_dampened;
-		bool springy = false;
-		float pain = 0.0f;
-		Ref<KusudamaConstraint> constraint;
-		void set_constraint(Ref<KusudamaConstraint> p_constraint);
-		Ref<KusudamaConstraint> get_constraint() const;
-		void populate_return_dampening_iteration_array(int p_default_iterations, float p_default_dampening);
-		void update_cos_dampening(int p_default_iterations, float p_default_dampening);
-	};
+
 	Ref<SkeletonModification3DEWBIK> mod;
 	Skeleton3D *skeleton = nullptr;
 	int bone_count = 0;
@@ -266,16 +276,14 @@ public:
 	}
 	bool get_springy(int32_t p_bone) const;
 	void set_springy(int32_t p_bone, bool p_springy);
-	void translate_shadow_pose_by_global(int32_t p_bone, Vector3 p_translate_by);
-	void translate_constraint_axes_by_global(int32_t p_bone, Vector3 p_translate_by);
 	float get_cos_half_dampen(int32_t p_bone) const;
 	void set_cos_half_dampen(int32_t p_bone, float p_cos_half_dampen);
 	Vector<float> get_cos_half_returnful_dampened(int32_t p_bone) const;
 	Vector<float> get_half_returnful_dampened(int32_t p_bone) const;
 	void set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
 	void set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened);
-	Transform global_constraint_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
-	Transform global_shadow_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
+	IKNode3D global_constraint_pose_to_local_pose(int p_bone_idx, IKNode3D p_global_pose);
+	IKNode3D global_shadow_pose_to_local_pose(int p_bone_idx, IKNode3D p_global_pose);
 	void force_update_bone_children_transforms(int p_bone_idx);
 	void update_skeleton();
 	void mark_dirty(int32_t p_bone);
@@ -296,13 +304,13 @@ public:
 	// }
 	int32_t get_parent(int32_t p_bone) const;
 	void set_parent(int32_t p_bone, int32_t p_parent);
-	void set_shadow_bone_pose_local(int p_bone, const Transform & p_value);
-	void align_shadow_bone_globals_to(int p_bone, Transform p_target);
-	Transform get_shadow_pose_local(int p_bone) const;
-	Transform get_shadow_pose_global(int p_bone) const;
-	Transform get_shadow_constraint_axes_global(int p_bone) const;
+	void set_shadow_bone_pose_local(int p_bone, const IKBasis &p_value);
+	void align_shadow_bone_globals_to(int p_bone, IKNode3D p_target);
+	//Transform get_shadow_pose_local(int p_bone) const;
+	IKNode3D get_shadow_pose_global(int p_bone) const;
+	IKNode3D get_shadow_constraint_axes_global(int p_bone) const;
 	Transform get_shadow_constraint_axes_local(int p_bone) const;
-	void set_shadow_constraint_axes_local(int p_bone, const Transform &value);
+	void set_shadow_constraint_axes_local(int p_bone, const IKBasis &value);
 	void align_shadow_constraint_globals_to(int p_bone, Transform p_target);
 	void set_bone_dirty(int p_bone, bool p_dirty);
 	bool get_bone_dirty(int p_bone) const;

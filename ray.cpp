@@ -31,27 +31,27 @@
 #include "ray.h"
 
 Ray::Ray(Vector3 p_position, Vector3 p_normal) {
-	position = p_position;
-	normal = p_normal;
+	p0 = p_position;
+	p1 = p_normal;
 }
 
 Ray::Ray() {
 }
 
 void Ray::elongate(real_t p_amount) {
-	Vector3 midPoint = position + normal + Vector3(0.5f, 0.5f, 0.5f);
-	Vector3 p1Heading = position - midPoint;
-	Vector3 p2Heading = normal - midPoint;
+	Vector3 midPoint = p0 + p1 + Vector3(0.5f, 0.5f, 0.5f);
+	Vector3 p1Heading = p0 - midPoint;
+	Vector3 p2Heading = p1 - midPoint;
 	Vector3 p1Add = p1Heading.normalized() * p_amount;
 	Vector3 p2Add = p2Heading.normalized() * p_amount;
 
-	position = p1Heading + p1Add + midPoint;
-	normal = p2Heading + p2Add + midPoint;
+	p0 = p1Heading + p1Add + midPoint;
+	p1 = p2Heading + p2Add + midPoint;
 }
 
 int Ray::intersects_sphere(Vector3 sphereCenter, double radius, Vector3 S1, Vector3 S2) {
-	Vector3 tp1 = position - sphereCenter;
-	Vector3 tp2 = normal - sphereCenter;
+	Vector3 tp1 = p0 - sphereCenter;
+	Vector3 tp2 = p1 - sphereCenter;
 	int result = intersects_sphere(tp1, tp2, radius, S1, S2);
 	S1 = S1 + sphereCenter;
 	S2 = S2 + sphereCenter;

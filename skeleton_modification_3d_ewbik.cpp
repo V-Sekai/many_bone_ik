@@ -320,31 +320,19 @@ void SkeletonModification3DEWBIK::recursive_chain_solver(Ref<EWBIKSegmentedSkele
 			p_total_iterations);
 }
 
-void SkeletonModification3DEWBIK::apply_bone_chains(float p_strength, Skeleton3D *p_skeleton, Ref<EWBIKSegmentedSkeleton3D> p_current_chain) {
-	ERR_FAIL_COND(!p_current_chain->is_chain_active());
-	Ref<EWBIKState> state = p_current_chain->mod->get_state();
-	BoneId chain_bone = p_current_chain->bone;
-	{
-		Transform shadow_pose = state->get_shadow_pose_global(chain_bone);
-		p_skeleton->set_bone_global_pose_override(chain_bone, shadow_pose, p_strength, true);
-		p_skeleton->force_update_bone_children_transforms(chain_bone);
-		Ref<KusudamaConstraint> kusudama = state->get_constraint(chain_bone);
-		Transform shadow_constraint = state->get_shadow_constraint_axes_global(chain_bone);
-		kusudama->set_constraint_axes(shadow_constraint);
-	}
-	Vector<Ref<EWBIKSegmentedSkeleton3D>> bones = p_current_chain->get_bones();
-	for (int32_t chain_bone_i = 0; chain_bone_i < bones.size(); chain_bone_i++) {
-		BoneId bone = bones[chain_bone_i]->bone;
-		Transform shadow_pose = state->get_shadow_pose_global(bone);
-		p_skeleton->set_bone_global_pose_override(bone, shadow_pose, p_strength, true);
-		p_skeleton->force_update_bone_children_transforms(bone);
-		Ref<KusudamaConstraint> kusudama = state->get_constraint(bone);
-		Transform shadow_constraint = state->get_shadow_constraint_axes_global(bone);
-		kusudama->set_constraint_axes(shadow_constraint);
-	}
-	Vector<Ref<EWBIKSegmentedSkeleton3D>> bone_chains = p_current_chain->get_child_chains();
-	for (int32_t i = 0; i < bone_chains.size(); i++) {
-		apply_bone_chains(p_strength, p_skeleton, bone_chains[i]);
+void SkeletonModification3DEWBIK::apply_bone_chains(Ref<EWBIKState> p_state, float p_strength, Skeleton3D *p_skeleton, BoneId p_bone, Map<int, Ref<EWBIKSegmentedSkeleton3D>> p_bone_segment_map) {
+	ERR_FAIL_INDEX(p_bone, p_skeleton->get_bone_count());
+	Ref<EWBIKSegmentedSkeleton3D> chain = p_bone_segment_map[p_bone];
+	if (chain.is_valid()) {
+		Transform shadow_pose;
+		IKBasis simulatedLocalAxes = p_state->get_shadow_pose_global(p_bone).get_global();
+		shadow_pose.origin = simulatedLocalAxes.get_origin();
+		shadow_pose.basis = simulatedLocalAxes.get_rotation();
+		p_skeleton->set_bone_local_pose_override(p_bone, shadow_pose, 1.0, true);
+		Vector<int32_t> bone_children = p_skeleton->get_bone_children(p_bone);
+		for (int32_t bone_i = 0; bone_i < bone_children.size(); bone_i++) {
+			apply_bone_chains(p_state, p_strength, p_skeleton, bone_children[bone_i], p_bone_segment_map);
+		}
 	}
 }
 
@@ -497,7 +485,8 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 			xform = skeleton->get_bone_global_pose(parent).affine_inverse() * xform;
 		}
 		Ref<EWBIKState> state = p_task->ewbik->skeleton_ik_state;
-		state->set_shadow_bone_pose_local(bone_i, xform);
+		IKBasis basis = IKBasis(xform.origin, xform.basis.get_axis(0), xform.basis.get_axis(1), xform.basis.get_axis(2));
+		state->set_shadow_bone_pose_local(bone_i, basis);
 		state->set_parent(bone_i, parent);
 	}
 
@@ -575,7 +564,7 @@ void SkeletonModification3DEWBIK::solve(Ref<EWBIKTask> p_task, float blending_de
 	}
 	solve_simple(p_task);
 	// Strength is always full strength
-	apply_bone_chains(1.0f, p_task->skeleton, p_task->chain->chain_root);
+	apply_bone_chains(p_task->ewbik->get_state(), 1.0f, p_task->skeleton, p_task->chain->chain_root->bone, p_task->chain->chain_root->bone_segment_map);
 }
 
 void SkeletonModification3DEWBIK::set_default_dampening(Ref<EWBIKSegmentedSkeleton3D> r_chain, float p_damp) {
@@ -613,9 +602,10 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 
 	state->force_update_bone_children_transforms(bone);
 
-	p_chain_item->set_axes_to_be_snapped(state->get_shadow_pose_local(bone), state->get_shadow_constraint_axes_local(bone), bone_damp);
-	state->translate_shadow_pose_by_global(bone, translate_by);
-	state->translate_constraint_axes_by_global(bone, translate_by);
+	p_chain_item->set_axes_to_be_snapped(state->get_shadow_pose_global(bone).get_global_transform(), state->get_shadow_constraint_axes_global(bone).get_global_transform(), bone_damp);
+	state->get_shadow_constraint_axes_global(bone);
+	//state->translate_shadow_pose_by_global(bone, translate_by);
+	//state->translate_constraint_axes_by_global(bone, translate_by);
 }
 
 void SkeletonModification3DEWBIK::recursively_update_bone_segment_map_from(Ref<EWBIKSegmentedSkeleton3D> r_chain,
@@ -637,8 +627,8 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	Ref<EWBIKState> state = r_chain->mod->get_state();
 	p_for_bone->force_update_bone_children_transforms(r_chain);
 	BoneId bone = p_for_bone->bone;
-	Transform bone_xform = state->get_shadow_pose_global(bone);
-	Quat best_orientation = bone_xform.get_basis().get_rotation_quat();
+	IKNode3D bone_xform = state->get_shadow_pose_global(bone);
+	Quat best_orientation = bone_xform.get_global().get_rotation();
 	float new_dampening = -1;
 	if (p_for_bone->parent_item.is_null() || r_chain->localized_target_headings.size() == 1) {
 		p_stabilization_passes = 0;
@@ -682,18 +672,18 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 				if (state->get_springy(bone)) {
 					if (p_dampening != -1 || p_total_iterations != r_chain->get_default_iterations()) {
 						float returnfullness = state->get_pain(bone);
-						float dampened_angle =  state->get_stiffness(bone) * p_dampening * returnfullness;
+						float dampened_angle = state->get_stiffness(bone) * p_dampening * returnfullness;
 						float total_iterations_sq = p_total_iterations * p_total_iterations;
 						float scaled_dampened_angle = dampened_angle *
 													  ((total_iterations_sq - (p_iteration * p_iteration)) /
 															  total_iterations_sq);
-						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);
-						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(bone), bone_xform,
-								state->get_shadow_constraint_axes_local(bone), cos_half_angle,
+						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);						
+						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(bone), bone_xform.get_global_transform(),
+								state->get_shadow_constraint_axes_global(bone).get_global_transform(), cos_half_angle,
 								scaled_dampened_angle);
 					} else {
-						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(bone), bone_xform,
-								state->get_shadow_constraint_axes_local(bone),
+						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(bone), bone_xform.get_global_transform(),
+								state->get_shadow_constraint_axes_global(bone).get_global_transform(),
 								state->get_cos_half_returnful_dampened(bone)[p_iteration],
 								state->get_half_returnful_dampened(bone)[p_iteration]);
 					}
@@ -701,7 +691,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 					new_rmsd = get_manual_msd(r_chain->localized_effector_headings, r_chain->localized_target_headings,
 							r_chain->weights);
 				}
-				best_orientation = state->get_shadow_pose_global(bone).basis.get_rotation_quat();
+				best_orientation = state->get_shadow_pose_global(bone).get_global().get_rotation();
 				best_rmsd = new_rmsd;
 				break;
 			}
@@ -710,11 +700,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 		}
 	}
 	if (p_stabilization_passes > 0) {
-		Transform pose;
-		pose.basis.set_quat_scale(bone_xform.basis.get_rotation_quat(), pose.basis.get_scale());
-		pose.origin = bone_xform.origin;
-		state->global_shadow_pose_to_local_pose(p_for_bone->bone, pose);
-		state->set_shadow_bone_pose_local(p_for_bone->bone, pose);
+		state->set_shadow_bone_pose_local(p_for_bone->bone, bone_xform.get_global());
 		state->mark_dirty(p_for_bone->bone);
 	}
 }
@@ -749,39 +735,38 @@ void SkeletonModification3DEWBIK::update_target_headings(Ref<EWBIKSegmentedSkele
 		if (ee.is_null()) {
 			continue;
 		}
-		Transform pose = state->get_shadow_pose_local(ee->effector_bone);
-		Vector3 origin = pose.origin;
+		IKBasis pose = state->get_shadow_pose_global(ee->effector_bone).get_global();
+		Vector3 origin = pose.get_origin();
 		Transform target_axes = ee->goal_transform;
 		r_localized_target_headings.write[hdx] = target_axes.origin - origin;
-		origin = r_localized_target_headings.write[hdx] - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
 			Ray x_target = state->get_ray_x(ee->effector_bone);
-			r_localized_target_headings.write[hdx] += x_target.normal - origin;
+			r_localized_target_headings.write[hdx] = x_target.p1 - origin;
 			r_localized_target_headings.write[hdx + 1] = x_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]);
-			origin = x_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]) - origin;
+			r_localized_target_headings.write[hdx + 1] -= origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::YDir) != 0) {
 			Ray y_target = state->get_ray_y(ee->effector_bone);
-			r_localized_target_headings.write[hdx] += y_target.normal - origin;
+			r_localized_target_headings.write[hdx] = y_target.p1 - origin;
 			r_localized_target_headings.write[hdx + 1] = y_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]);
-			origin = y_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]) - origin;
+			r_localized_target_headings.write[hdx + 1] -= origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
 			Ray z_target = state->get_ray_z(ee->effector_bone);
-			r_localized_target_headings.write[hdx] += z_target.normal - origin;
+			r_localized_target_headings.write[hdx] = z_target.p1 - origin;
 			r_localized_target_headings.write[hdx + 1] = z_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]);
-			origin = z_target.set_to_inverted_tip(r_localized_target_headings.write[hdx + 1]) - origin;
+			r_localized_target_headings.write[hdx + 1] -= origin;
 			hdx += 2;
 		}
 	}
 }
 
 void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
- Vector<Vector3> &r_localized_effector_headings) {
+		Vector<Vector3> &r_localized_effector_headings) {
 	int hdx = 0;
 	Ref<EWBIKState> state = r_chain->mod->get_state();
 	for (int target_i = 0; target_i < r_chain->targets.size(); target_i++) {
@@ -794,32 +779,31 @@ void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKSegmentedSke
 			continue;
 		}
 		int effector_bone = ee->effector_bone;
-		Transform pose = state->get_shadow_pose_local(effector_bone);
+		IKBasis pose = state->get_shadow_pose_global(effector_bone).get_global();
 		BoneId bone = r_chain->bone;
-		Vector3 origin = state->get_shadow_pose_local(bone).origin;
-		r_localized_effector_headings.write[hdx] = pose.origin - origin;
-		origin = r_localized_effector_headings.write[hdx] - origin;
+		Vector3 origin = pose.get_origin();
+		r_localized_effector_headings.write[hdx] = pose.get_origin() - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
 		hdx++;
 		if ((modeCode & EWBIKBoneChainTarget::XDir) != 0) {
 			Ray x_target = state->get_ray_x(effector_bone);
-			r_localized_effector_headings.write[hdx] += x_target.normal - origin;
+			r_localized_effector_headings.write[hdx] = x_target.p1 - origin;
 			r_localized_effector_headings.write[hdx + 1] = x_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]);
-			origin = x_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]) - origin;
+			r_localized_effector_headings.write[hdx + 1] -= origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::YDir) != 0) {
 			Ray y_target = state->get_ray_y(effector_bone);
-			r_localized_effector_headings.write[hdx] += y_target.normal - origin;
+			r_localized_effector_headings.write[hdx] = y_target.p1 - origin;
 			r_localized_effector_headings.write[hdx + 1] = y_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]);
-			origin = y_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]) - origin;
+			r_localized_effector_headings.write[hdx + 1] -= origin;
 			hdx += 2;
 		}
 		if ((modeCode & EWBIKBoneChainTarget::ZDir) != 0) {
 			Ray z_target = state->get_ray_z(effector_bone);
-			r_localized_effector_headings.write[hdx] += z_target.normal - origin;
+			r_localized_effector_headings.write[hdx] = z_target.p1 - origin;
 			r_localized_effector_headings.write[hdx + 1] = z_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]);
-			origin = z_target.set_to_inverted_tip(r_localized_effector_headings.write[hdx + 1]) - origin;
+			r_localized_effector_headings.write[hdx + 1] -= origin;
 			hdx += 2;
 		}
 	}
@@ -1039,7 +1023,8 @@ void EWBIKState::init(Ref<SkeletonModification3DEWBIK> p_mod) {
 		if (parent != -1) {
 			xform = skeleton->get_bone_global_pose(parent).affine_inverse() * xform;
 		}
-		set_shadow_bone_pose_local(bone_i, xform);
+		IKBasis basis = IKBasis(xform.origin, xform.basis.get_axis(0), xform.basis.get_axis(1), xform.basis.get_axis(2));
+		set_shadow_bone_pose_local(bone_i, basis);
 		set_parent(bone_i, skeleton->get_bone_parent(bone_i));
 	}
 }
@@ -1199,35 +1184,26 @@ void EWBIKState::set_bone_count(int32_t p_bone_count) {
 	}
 }
 
-Transform EWBIKState::get_shadow_pose_global(int p_bone) const {
-	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
-	Transform xform;
-	const IKBasis &basis = bones[p_bone].sim_local_ik_node.get_global();
-	xform.origin = basis.get_origin();
-	xform.basis = basis.get_rotation();
-	return xform;
+IKNode3D EWBIKState::get_shadow_pose_global(int p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), IKNode3D());
+	return bones[p_bone].sim_local_ik_node;
 }
-Transform EWBIKState::get_shadow_pose_local(int p_bone) const {
-	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
-	Transform xform;
-	const IKBasis &basis = bones[p_bone].sim_local_ik_node.get_local();
-	xform.origin = basis.get_origin();
-	xform.basis = basis.get_rotation();
-	return xform;
-}
-void EWBIKState::set_shadow_bone_pose_local(int p_bone, const Transform & p_value) {
+//Transform EWBIKState::get_shadow_pose_local(int p_bone) const {
+//	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
+//	Transform xform;
+//	const IKBasis &basis = bones[p_bone].sim_local_ik_node.get_local();
+//	xform.origin = basis.get_origin();
+//	xform.basis = basis.get_rotation();
+//	return xform;
+//}
+void EWBIKState::set_shadow_bone_pose_local(int p_bone, const IKBasis &p_value) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
-	IKBasis basis = IKBasis(p_value.origin, p_value.basis.get_axis(0), p_value.basis.get_axis(1), p_value.basis.get_axis(2));
-	bones.write[p_bone].sim_local_ik_node.set_local(basis);
+	bones.write[p_bone].sim_local_ik_node.set_local(p_value);
 	mark_dirty(p_bone);
 }
-Transform EWBIKState::get_shadow_constraint_axes_global(int p_bone) const {
-	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
-	Transform xform;
-	const IKBasis &basis = bones[p_bone].sim_constraint_ik_node.get_global();
-	xform.origin = basis.get_origin();
-	xform.basis = basis.get_rotation();
-	return xform;
+IKNode3D EWBIKState::get_shadow_constraint_axes_global(int p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), IKNode3D());
+	return bones[p_bone].sim_constraint_ik_node;
 }
 void EWBIKState::mark_dirty(int32_t p_bone) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
@@ -1389,16 +1365,16 @@ int32_t EWBIKState::get_parent(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);
 	return bones[p_bone].sim_local_ik_node.parent;
 }
-void EWBIKState::align_shadow_bone_globals_to(int p_bone, Transform p_target) {
+void EWBIKState::align_shadow_bone_globals_to(int p_bone, IKNode3D p_target) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	force_update_bone_children_transforms(p_bone);
 	if (get_parent(p_bone) != -1) {
-		Transform shadow_pose_global = get_shadow_pose_global(get_parent(p_bone));
+		IKNode3D shadow_pose_global = get_shadow_pose_global(get_parent(p_bone));
 		shadow_pose_global = global_shadow_pose_to_local_pose(p_bone, shadow_pose_global);
-		set_shadow_bone_pose_local(p_bone, p_target);
+		set_shadow_bone_pose_local(p_bone, p_target.get_global());
 	} else {
-		Transform shadow_pose_global = get_shadow_pose_global(p_bone);
-		set_shadow_bone_pose_local(p_bone, shadow_pose_global);
+		IKNode3D shadow_pose_global = get_shadow_pose_global(p_bone);
+		set_shadow_bone_pose_local(p_bone, shadow_pose_global.get_global());
 	}
 	mark_dirty(p_bone);
 }
@@ -1406,21 +1382,21 @@ void EWBIKState::align_shadow_constraint_globals_to(int p_bone, Transform p_targ
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	force_update_bone_children_transforms(p_bone);
 	if (get_parent(p_bone) != -1) {
-		Transform shadow_constraint_pose_global = get_shadow_constraint_axes_global(get_parent(p_bone));
+		IKNode3D shadow_constraint_pose_global = get_shadow_constraint_axes_global(get_parent(p_bone));
 		shadow_constraint_pose_global = global_constraint_pose_to_local_pose(p_bone, shadow_constraint_pose_global);
-		set_shadow_constraint_axes_local(p_bone, p_target);
+		set_shadow_constraint_axes_local(p_bone, shadow_constraint_pose_global.get_global());
 	} else {
-		Transform shadow_pose_global = get_shadow_constraint_axes_global(p_bone);
-		set_shadow_constraint_axes_local(p_bone, shadow_pose_global);
+		IKNode3D shadow_pose_global = get_shadow_constraint_axes_global(p_bone);
+		set_shadow_constraint_axes_local(p_bone, shadow_pose_global.get_global());
 	}
 	mark_dirty(p_bone);
 }
-void EWBIKState::set_shadow_constraint_axes_local(int p_bone, const Transform &p_value) {
+void EWBIKState::set_shadow_constraint_axes_local(int p_bone, const IKBasis &value) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
-	IKBasis basis = IKBasis(p_value.origin, p_value.basis.get_axis(0), p_value.basis.get_axis(1), p_value.basis.get_axis(2));
-	bones.write[p_bone].sim_constraint_ik_node.set_local(basis);
+	bones.write[p_bone].sim_constraint_ik_node.set_local(value);
 	mark_dirty(p_bone);
 }
+
 Transform EWBIKState::get_shadow_constraint_axes_local(int p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
 	Transform xform;
@@ -1430,54 +1406,34 @@ Transform EWBIKState::get_shadow_constraint_axes_local(int p_bone) const {
 
 	return xform;
 }
-Transform EWBIKState::global_constraint_pose_to_local_pose(int p_bone_idx, Transform p_global_pose) {
-	if (bones[p_bone_idx].sim_constraint_ik_node.parent >= 0) {
-		int parent_bone_idx = bones[p_bone_idx].sim_constraint_ik_node.parent;
-		const IKBasis &basis = bones[parent_bone_idx].sim_constraint_ik_node.get_global();
-		Transform conversion_xform;
-		conversion_xform.origin = basis.get_origin();
-		conversion_xform.basis = basis.get_rotation();
-		return conversion_xform.affine_inverse() * p_global_pose;
-	} else {
-		return p_global_pose;
-	}
-}
-Transform EWBIKState::global_shadow_pose_to_local_pose(int p_bone_idx, Transform p_global_pose) {
+
+IKNode3D EWBIKState::global_shadow_pose_to_local_pose(int p_bone_idx, IKNode3D p_global_pose) {
 	if (bones[p_bone_idx].sim_local_ik_node.parent >= 0) {
 		int parent_bone_idx = bones[p_bone_idx].sim_local_ik_node.parent;
-		Transform conversion_transform;
-		const IKBasis &basis = bones[parent_bone_idx].sim_local_ik_node.get_global();
-		conversion_transform.origin = basis.get_origin();
-		conversion_transform.basis = basis.get_rotation();
-		return conversion_transform.affine_inverse() * p_global_pose;
+		IKNode3D ik_node = bones[parent_bone_idx].sim_local_ik_node;
+		IKBasis basis = ik_node.get_global();
+		basis.translate_by(p_global_pose.get_global().get_origin());
+		basis.rotate_by(p_global_pose.get_global().get_rotation());
+		// Suspicious TODO
+		ik_node.set_local(basis);
+		return ik_node;
 	} else {
 		return p_global_pose;
 	}
 }
-void EWBIKState::translate_shadow_pose_by_global(int32_t p_bone, Vector3 p_translate_by) {
-	ERR_FAIL_INDEX(p_bone, bones.size());
-	IKBasis basis = bones.write[p_bone].sim_local_ik_node.get_local();
-	if (bones.write[p_bone].sim_local_ik_node.parent != -1) {
-		force_update_bone_children_transforms(p_bone);
-		basis.translate_to(bones.write[p_bone].sim_constraint_ik_node.get_global().get_origin() + p_translate_by);
-	} else {
-		basis.translate_by(p_translate_by);
-	}
-	bones.write[p_bone].sim_local_ik_node.set_local(basis);
-	mark_dirty(p_bone);
-}
-void EWBIKState::translate_constraint_axes_by_global(int32_t p_bone, Vector3 p_translate_by) {
-	ERR_FAIL_INDEX(p_bone, bones.size());
-	IKBasis basis = bones.write[p_bone].sim_constraint_ik_node.get_local();
-	if (bones.write[p_bone].sim_constraint_ik_node.parent != -1) {
-		force_update_bone_children_transforms(p_bone);
-		basis.translate_to(bones.write[p_bone].sim_constraint_ik_node.get_global().get_origin() + p_translate_by);
-	} else {
-		basis.translate_by(p_translate_by);
-	}
-	bones.write[p_bone].sim_constraint_ik_node.set_local(basis);
-	mark_dirty(p_bone);
-}
+//
+//void EWBIKState::translate_constraint_axes_by_global(int32_t p_bone, Vector3 p_translate_by) {
+//	ERR_FAIL_INDEX(p_bone, bones.size());
+//	IKBasis basis = bones.write[p_bone].sim_constraint_ik_node.get_local();
+//	if (bones.write[p_bone].sim_constraint_ik_node.parent != -1) {
+//		force_update_bone_children_transforms(p_bone);
+//		basis.translate_to(bones.write[p_bone].sim_constraint_ik_node.get_global().get_origin() + p_translate_by);
+//	} else {
+//		basis.translate_by(p_translate_by);
+//	}
+//	bones.write[p_bone].sim_constraint_ik_node.set_local(basis);
+//	mark_dirty(p_bone);
+//}
 float EWBIKState::get_cos_half_dampen(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), 0.0f);
 	return bones[p_bone].cos_half_dampen;
@@ -1498,17 +1454,33 @@ void EWBIKState::set_cos_half_returnfullness_dampened(int32_t p_bone, Vector<flo
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	bones.write[p_bone].cos_half_returnful_dampened = p_dampened;
 }
+
+IKNode3D EWBIKState::global_constraint_pose_to_local_pose(int p_bone_idx, IKNode3D p_global_pose) {
+	if (bones[p_bone_idx].sim_local_ik_node.parent >= 0) {
+		int parent_bone_idx = bones[p_bone_idx].sim_constraint_ik_node.parent;
+		IKNode3D ik_node = bones[parent_bone_idx].sim_constraint_ik_node;
+		IKBasis basis = ik_node.get_global();
+		basis.translate_by(p_global_pose.get_global().get_origin());
+		basis.rotate_by(p_global_pose.get_global().get_rotation());
+		// Suspicious TODO
+		ik_node.set_local(basis);
+		return ik_node;
+	} else {
+		return p_global_pose;
+	}
+}
+
 void EWBIKState::set_half_returnfullness_dampened(int32_t p_bone, Vector<float> p_dampened) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 	bones.write[p_bone].half_returnful_dampened = p_dampened;
 }
-void EWBIKState::ShadowBone3D::set_constraint(Ref<KusudamaConstraint> p_constraint) {
+void ShadowBone3D::set_constraint(Ref<KusudamaConstraint> p_constraint) {
 	constraint = p_constraint;
 }
-Ref<KusudamaConstraint> EWBIKState::ShadowBone3D::get_constraint() const {
+Ref<KusudamaConstraint> ShadowBone3D::get_constraint() const {
 	return constraint;
 }
-void EWBIKState::ShadowBone3D::update_cos_dampening(int p_default_iterations, float p_default_dampening) {
+void ShadowBone3D::update_cos_dampening(int p_default_iterations, float p_default_dampening) {
 	float predampening = 1.0f - sim_local_ik_node.stiffness;
 	float dampening = sim_constraint_ik_node.parent == -1 ? Math_PI : predampening * p_default_dampening;
 	cos_half_dampen = Math::cos(dampening / 2.0f);
@@ -1519,8 +1491,8 @@ void EWBIKState::ShadowBone3D::update_cos_dampening(int p_default_iterations, fl
 		springy = false;
 	}
 }
-void EWBIKState::ShadowBone3D::populate_return_dampening_iteration_array(int p_default_iterations, float p_default_dampening) {
-	float predampen = 1.0f - sim_local_ik_node.stiffness;
+void ShadowBone3D::populate_return_dampening_iteration_array(int p_default_iterations, float p_default_dampening) {
+	float predampen = 1.0f - sim_constraint_ik_node.stiffness;
 	float dampening = sim_constraint_ik_node.parent == -1 ? Math_PI : predampen * p_default_dampening;
 	float returnful = constraint->get_pain();
 	float falloff = 0.2f;

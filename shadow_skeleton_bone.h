@@ -41,6 +41,7 @@ class SkeletonModification3DEWBIK;
 class Skeleton3D;
 class KusudamaConstraint;
 class PhysicalBone3D;
+class IKNode3D;
 
 class EWBIKSegmentedSkeleton3D : public Reference {
 	GDCLASS(EWBIKSegmentedSkeleton3D, Reference);

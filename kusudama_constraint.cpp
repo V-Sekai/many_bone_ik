@@ -281,10 +281,10 @@ void KusudamaConstraint::set_axes_to_orientation_snap(Transform p_to_set, Transf
 		float p_cos_half_angle_dampen) {
 	Vector<real_t> inBounds;
 	inBounds.push_back(1.f);
-	bone_ray.position = Vector3(p_to_set.origin);
+	bone_ray.p0 = Vector3(p_to_set.origin);
 
 	// toSet.y_().getScaledTo(attachedTo.boneHeight);
-	bone_ray.normal = p_to_set.basis.get_axis(y_axis) * attached_to->mod->get_state()->get_height(attached_to->bone);
+	bone_ray.p1 = p_to_set.basis.get_axis(y_axis) * attached_to->mod->get_state()->get_height(attached_to->bone);
 	// Vector3 in_limits = point_in_limits(bone_ray.normal, inBounds, limiting_axes);
 
 	// if (inBounds[0] == -1 && inLimits != Vector3()) {
@@ -295,27 +295,27 @@ void KusudamaConstraint::set_axes_to_orientation_snap(Transform p_to_set, Transf
 	// }
 }
 
-void KusudamaConstraint::set_axes_to_returnful(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes,
-		real_t p_cos_half_angle_dampen, real_t p_angle_dampen) {
-	if (!p_limiting_axes.is_equal_approx(Transform()) && pain > 0.0f) {
-		const int32_t y_axis = 1;
-		if (orientation_constrained) {
-			Vector3 origin = p_to_set.origin;
-			Vector3 inPoint = p_to_set.basis.get_axis(y_axis);
-			Vector3 pathPoint = point_on_path_sequence(p_global_xform, inPoint, p_limiting_axes);
-			inPoint -= origin;
-			pathPoint -= origin;
-			QuatIK toClamp = Quat(inPoint, pathPoint);
-			toClamp.clamp_to_quadrance_angle(p_cos_half_angle_dampen);
-			p_to_set.basis.rotate(toClamp);
-		}
-		if (axial_constrained) {
-			real_t angleToTwistMid = angle_to_twist_center(p_global_xform, p_to_set, p_limiting_axes);
-			real_t clampedAngle = CLAMP(angleToTwistMid, -p_angle_dampen, p_angle_dampen);
-			p_to_set.basis = Quat(p_global_xform.basis.get_axis(y_axis), clampedAngle);
-		}
-	}
-}
+void KusudamaConstraint::set_axes_to_returnful(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes, 
+		real_t p_cos_half_angle_dampen, real_t p_angle_dampen) { 
+	if (!p_limiting_axes.is_equal_approx(Transform()) && pain > 0.0f) { 
+		const int32_t y_axis = 1; 
+		if (orientation_constrained) { 
+			Vector3 origin = p_to_set.origin; 
+			Vector3 inPoint = p_to_set.basis.get_axis(y_axis); 
+			Vector3 pathPoint = point_on_path_sequence(p_global_xform, inPoint, p_limiting_axes); 
+			inPoint -= origin; 
+			pathPoint -= origin; 
+			QuatIK toClamp = Quat(inPoint, pathPoint); 
+			toClamp.clamp_to_quadrance_angle(p_cos_half_angle_dampen); 
+			p_to_set.basis.rotate(toClamp); 
+		} 
+		if (axial_constrained) { 
+			real_t angleToTwistMid = angle_to_twist_center(p_global_xform, p_to_set, p_limiting_axes); 
+			real_t clampedAngle = CLAMP(angleToTwistMid, -p_angle_dampen, p_angle_dampen); 
+			p_to_set.basis = Quat(p_global_xform.basis.get_axis(y_axis), clampedAngle); 
+		} 
+	} 
+} 
 
 real_t KusudamaConstraint::angle_to_twist_center(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes) {
 	if (!axial_constrained) {
@@ -333,7 +333,6 @@ real_t KusudamaConstraint::angle_to_twist_center(Transform p_global_xform, Trans
 			Math_TAU - (to_tau(twist->get_min_twist_angle()) + (to_tau((twist->get_range()) / 2.0f))));
 	return dist_to_mid;
 }
-
 Vector3
 KusudamaConstraint::point_on_path_sequence(Transform p_global_xform, Vector3 p_in_point, Transform p_limiting_axes) {
 	real_t closestPointDot = 0.0f;
@@ -358,7 +357,7 @@ KusudamaConstraint::point_on_path_sequence(Transform p_global_xform, Vector3 p_i
 	}
 
 	return p_global_xform.xform(result);
-}
+} 
 
 real_t KusudamaConstraint::get_pain() {
 	return pain;
@@ -454,7 +453,11 @@ void KusudamaConstraint::remove_direction(int32_t p_index) {
 
 KusudamaConstraint::KusudamaConstraint(Ref<EWBIKSegmentedSkeleton3D> p_for_bone) {
 	twist.instance();
-	set_constraint_axes(p_for_bone->mod->get_state()->get_shadow_constraint_axes_global(p_for_bone->bone));
+	IKBasis ik_basis = p_for_bone->mod->get_state()->get_shadow_constraint_axes_global(p_for_bone->bone).get_global();
+	Transform xform;
+	xform.basis = ik_basis.get_rotation();
+	xform.origin = ik_basis.get_origin();
+	set_constraint_axes(xform);
 	attached_to = p_for_bone;
 	enable();
 }

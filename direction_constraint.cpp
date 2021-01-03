@@ -100,9 +100,9 @@ void DirectionConstraint::update_tangent_handles(Ref<DirectionConstraint> p_next
 
 	Vector3 intersection1;
 	Plane plane = Plane(minorAppoloniusP3A, minorAppoloniusP1A, minorAppoloniusP2A);
-	plane.intersects_ray(r1B.position, r1B.normal, &intersection1);
+	plane.intersects_ray(r1B.p0, r1B.p1, &intersection1);
 	Vector3 intersection2;
-	plane.intersects_ray(r2B.position, r2B.normal, &intersection2);
+	plane.intersects_ray(r2B.p0, r2B.p1, &intersection2);
 
 	Ray intersectionRay = Ray(intersection1, intersection2);
 	intersectionRay.elongate(99.0f);
@@ -204,10 +204,10 @@ Vector3 DirectionConstraint::get_on_path_sequence(Ref<DirectionConstraint> p_nex
 		Vector3 t1xc2 = tangent_circle_center_next_1.cross(p_next->control_point);
 		if (p_input.dot(c1xt1) > 0 && p_input.dot(t1xc2) > 0) {
 			Ray tan1ToInput;
-			tan1ToInput.position = tangent_circle_center_next_1;
-			tan1ToInput.normal = p_input;
+			tan1ToInput.p0 = tangent_circle_center_next_1;
+			tan1ToInput.p1 = p_input;
 			Vector3 result;
-			Plane plane = Plane(control_point, tan1ToInput.normal);
+			Plane plane = Plane(control_point, tan1ToInput.p1);
 			plane.intersects_ray(p_next->control_point, (control_point - p_next->control_point).normalized(), &result);
 			return (result - p_next->control_point).normalized();
 		} else {
@@ -218,11 +218,11 @@ Vector3 DirectionConstraint::get_on_path_sequence(Ref<DirectionConstraint> p_nex
 		Vector3 c2xt2 = p_next->control_point.cross(tangent_circle_center_next_2);
 		if (p_input.dot(t2xc1) > 0 && p_input.dot(c2xt2) > 0) {
 			Ray tan2ToInput;
-			tan2ToInput.position = tangent_circle_center_next_2;
-			tan2ToInput.normal = p_input;
+			tan2ToInput.p0 = tangent_circle_center_next_2;
+			tan2ToInput.p1 = p_input;
 			Vector3 result;
 
-			Plane plane = Plane(control_point, tan2ToInput.normal);
+			Plane plane = Plane(control_point, tan2ToInput.p1);
 			plane.intersects_ray(p_next->control_point, (control_point - p_next->control_point).normalized(), &result);
 			return (result - p_next->control_point).normalized();
 		} else {

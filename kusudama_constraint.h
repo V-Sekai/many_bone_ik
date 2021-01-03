@@ -42,6 +42,7 @@
 
 class DirectionConstraint;
 class EWBIKSegmentedSkeleton3D;
+class IKNode3D;
 
 // Kusudama is a papercraft ball with a bunch of cones sticking out of it.
 class KusudamaConstraint : public Resource {
@@ -154,15 +155,14 @@ public:
 	 */
 	virtual Vector3 point_in_limits(Vector3 inPoint, Vector<real_t> inBounds, Transform limitingAxes);
 
-	virtual Vector3 point_on_path_sequence(Transform p_global_xform, Vector3 p_in_point, Transform p_limiting_axes);
+	Vector3 point_on_path_sequence(Transform p_global_xform, Vector3 p_in_point, Transform p_limiting_axes);
 
 	virtual float signed_angle_difference(float p_min_angle, float p_base);
 
-	virtual float angle_to_twist_center(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes);
+	virtual real_t angle_to_twist_center(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes);
 
 	virtual void set_axes_to_returnful(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes,
-			float p_cos_half_angle_dampen, float p_angle_dampen);
-
+			real_t p_cos_half_angle_dampen, real_t p_angle_dampen); 
 	/**
      *
      * @param p_to_set

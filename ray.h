@@ -34,12 +34,12 @@
 #include "core/math/vector3.h"
 
 struct Ray {
-	Vector3 position;
-	Vector3 normal;
+	Vector3 p0;
+	Vector3 p1;
 
 	Ray();
 
-	Ray(Vector3 p_position, Vector3 p_normal);
+	Ray(Vector3 p_p0, Vector3 p_p1);
 
 	/**
      *  adds the specified length to the ray in both directions.
@@ -71,13 +71,13 @@ struct Ray {
 	 */
 	Vector3 set_to_inverted_tip(Vector3 p_vec) const {
 		Vector3 vec;
-		vec.x = (position.x - normal.x) + position.x;
-		vec.y = (position.y - normal.y) + position.y;
-		vec.z = (position.z - normal.z) + position.z;
+		vec.x = (p0.x - p1.x) + p0.x;
+		vec.y = (p0.y - p1.y) + p0.y;
+		vec.z = (p0.z - p1.z) + p0.z;
 		return vec;
 	}
 	Vector3 heading() const {
-		return normal - position;
+		return p1 - p0;
 	}
 };
 

@@ -27,8 +27,11 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-#ifndef bone_effector_transform_h__
-#define bone_effector_transform_h__
+#ifndef bone_effector_transform_h___
+#define bone_effector_transform_h___
+
+#include "core/object/reference.h"
+#include "skeleton_modification_3d_ewbik.h"
 
 class EWBIKBoneEffectorTransform : public Reference {
 	GDCLASS(EWBIKBoneEffectorTransform, Reference);
@@ -38,4 +41,4 @@ public:
 	Transform goal_transform;
 };
 
-#endif // bone_effector_transform_h__
+#endif // bone_effector_transform_h___

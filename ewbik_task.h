@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  register_types.cpp                                                   */
+/*  dmik_task.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,22 +28,44 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "register_types.h"
-#include "twist_constraint.h"
-#include "direction_constraint.h"
-#include "kusudama_constraint.h"
-#include "skeleton_modification_3d_ewbik.h"
+#ifndef dmik_task_h__
+#define dmik_task_h__
+
 #include "shadow_skeleton_bone.h"
+#include "qcp.h"
+#include "bone_effector_transform.h"
+#include "skeleton_modification_3d_ewbik.h"
 
-void register_ewbik_types() {
-	ClassDB::register_class<EWBIKBoneEffectorTransform>();
-	ClassDB::register_class<EWBIKSegmentedSkeleton3D>();
-	ClassDB::register_class<TwistConstraint>();
-	ClassDB::register_class<DirectionConstraint>();
-	ClassDB::register_class<KusudamaConstraint>();
-	ClassDB::register_class<EWBIKState>();
-	ClassDB::register_class<SkeletonModification3DEWBIK>();
-}
+class SkeletonModification3DEWBIK;
+class EWBIKSegmentedSkeleton3D;
 
-void unregister_ewbik_types() {
-}
+class EWBIKTask : public Reference {
+	GDCLASS(EWBIKTask, Reference);
+
+protected:
+	static void _bind_methods() {}
+
+public:
+	Skeleton3D *skeleton = nullptr;
+	Ref<QCP> qcp = memnew(QCP);
+	Ref<EWBIKSegmentedSkeleton3D> chain;
+	// Settings
+	float min_distance = 0.01f;
+	int iterations = 1;
+	int max_iterations = 1;
+	// dampening dampening angle in radians.
+	// Set this to -1 if you want to use the armature's default.
+	float dampening = 0.05f;
+	// stabilizing_passes number of stabilization passes to run.
+	// Set this to -1 if you want to use the armature's default.
+	int stabilizing_passes = -1;
+
+	// Bone data
+	int root_bone = -1;
+	Vector<Ref<EWBIKBoneEffectorTransform>> end_effectors;
+	Ref<SkeletonModification3DEWBIK> ewbik;
+	EWBIKTask() {
+		chain.instance();
+	}
+};
+#endif // dmik_task_h__

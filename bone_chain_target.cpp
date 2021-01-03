@@ -134,14 +134,12 @@ void EWBIKBoneChainTarget::align_to_axes(Transform inAxes) {
 void EWBIKBoneChainTarget::translate(Vector3 location) {
 	BoneId bone = chain_item->bone;
 	Ref<EWBIKState> state = chain_item->mod->get_state();
-	Transform xform = state->get_shadow_pose_local(bone);
-	xform.origin *= location;
-	state->set_shadow_bone_pose_local(bone, xform);
+	state->translate_to(bone, location);
 }
 
 Vector3 EWBIKBoneChainTarget::get_location() {
-	Transform xform = chain_item->mod->get_state()->get_shadow_pose_local(chain_item->bone);
-	return xform.origin;
+	IKNode3D ik_node = chain_item->mod->get_state()->get_shadow_pose_global(chain_item->bone);
+	return ik_node.get_global().get_origin();
 }
 Ref<EWBIKSegmentedSkeleton3D> EWBIKBoneChainTarget::for_bone() {
 	return chain_item;
