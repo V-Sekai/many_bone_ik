@@ -242,9 +242,9 @@ Quat QCP::calc_rotation() {
 	//QCP doesn't handle single targets, so if we only have one point and one target, we just rotate by the angular distance between them
 	if (moved.size() == 1) {
 		Quat single_moved;
-		single_moved.set_euler(moved[0]);
+		single_moved = Quat(moved[0]);
 		Quat single_target;
-		single_target.set_euler(target[0]);
+		single_target = Quat(target[0]);
 		return single_moved * single_target;
 	} else {
 		real_t a11 = SxxpSyy + Szz - mxEigenV;

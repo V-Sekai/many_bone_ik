@@ -38,7 +38,7 @@ Vector<QuatIK> QuatIK::get_swing_twist(Vector3 p_axis) {
 			euler.x,
 			euler.y,
 			euler.z).dot(Vector3(p_axis.x, p_axis.y, p_axis.z));
-	set(p_axis.x * d, p_axis.y * d, p_axis.z * d, w);
+	*this = Quat(p_axis * d);
 	normalize();
 	if (d < 0) {
 		operator*(-1.0f);

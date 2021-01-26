@@ -15,9 +15,9 @@ void IKBasis::update_rays() {
 	z_ray.p0 = translate;
 	z_ray.p1 = z_base;
 
-	rotation.set_euler(x_ray.p1);
-	rotation.set_euler(y_ray.p1);
-	rotation.set_euler(z_ray.p1);
+	rotation = Quat(x_ray.p1);
+	rotation = rotation * Quat(y_ray.p1);
+	rotation = rotation * Quat(z_ray.p1);
 
 	x_ray.p1 += translate;
 	y_ray.p1 += translate;
