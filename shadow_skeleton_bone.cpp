@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "shadow_skeleton_bone.h"
+#include "segmented_skeleton_3d.h"
 #include "bone_effector.h"
 #include "scene/3d/skeleton_3d.h"
 #include "skeleton_modification_3d_ewbik.h"

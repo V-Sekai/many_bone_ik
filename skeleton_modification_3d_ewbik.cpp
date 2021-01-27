@@ -33,7 +33,7 @@
 #include "direction_constraint.h"
 #include "kusudama_constraint.h"
 #include "scene/3d/skeleton_3d.h"
-#include "shadow_skeleton_bone.h"
+#include "segmented_skeleton_3d.h"
 
 void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3DEWBIK::get_effector_count);

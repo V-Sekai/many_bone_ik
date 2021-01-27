@@ -30,7 +30,7 @@
 #ifndef bone_chain_target_h__
 #define bone_chain_target_h__
 
-#include "shadow_skeleton_bone.h"
+#include "segmented_skeleton_3d.h"
 #include "core/object/reference.h"
 #include "skeleton_modification_3d_ewbik.h"
 

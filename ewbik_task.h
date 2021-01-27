@@ -31,7 +31,7 @@
 #ifndef dmik_task_h__
 #define dmik_task_h__
 
-#include "shadow_skeleton_bone.h"
+#include "segmented_skeleton_3d.h"
 #include "qcp.h"
 #include "bone_effector_transform.h"
 #include "skeleton_modification_3d_ewbik.h"
