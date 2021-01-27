@@ -55,12 +55,12 @@ private:
 
 	bool processed = false;
 	bool aligned = false;
-	Ref<EWBIKSegmentedSkeleton3D> chain_root = nullptr;
+	Ref<EWBIKSegmentedSkeleton3D> chain_root;
 	Vector<Ref<EWBIKBoneChainTarget>> targets;
 	Vector<Vector3> localized_target_headings;
 	Vector<Vector3> localized_effector_headings;
 	Vector<real_t> weights;
-	Ref<SkeletonModification3DEWBIK> mod = nullptr;
+	Ref<SkeletonModification3DEWBIK> mod;
 	float dampening = Math::deg2rad(5.0f);
 	Map<int, Ref<EWBIKSegmentedSkeleton3D>> bone_segment_map;
 	// TODO expose through ui
@@ -68,7 +68,7 @@ private:
 	// TODO expose through ui
 	int stabilization_passes = 4;
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> children;
-	Ref<EWBIKSegmentedSkeleton3D> parent_item = nullptr;
+	Ref<EWBIKSegmentedSkeleton3D> parent_item;
 	int bone = -1;
 	PhysicalBone3D *pb = nullptr;
 	bool ik_orientation_lock = false;
