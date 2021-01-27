@@ -3,12 +3,12 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-path="res://.godot/imported/RiggedSimple.glb-7fb2c279ddfe11744aceab6b0ca5d123.scn"
+path="res://.godot/imported/RiggedSimple.glb-37779253ac690a71600aaf1b3a5962e2.scn"
 
 [deps]
 
-source_file="res://ewbik/RiggedSimple.glb"
-dest_files=[ "res://.godot/imported/RiggedSimple.glb-7fb2c279ddfe11744aceab6b0ca5d123.scn" ]
+source_file="res://ewbik/art/prototype/rigged_simple/RiggedSimple.glb"
+dest_files=[ "res://.godot/imported/RiggedSimple.glb-37779253ac690a71600aaf1b3a5962e2.scn" ]
 
 [params]
 
