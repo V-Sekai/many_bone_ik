@@ -589,7 +589,10 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	QuatIK qcp_rot = p_qcp_orientation_aligner->weighted_superpose(p_localized_effector_headings, p_localized_target_headings,
 			p_weights, p_is_translate);
 	Vector3 translate_by = p_qcp_orientation_aligner->get_translation();
-	ERR_FAIL_COND(p_chain_item->mod.is_null());
+	if (p_chain_item->mod.is_null()) {
+		ERR_PRINT_ONCE("Modification is null.");
+		return;
+	}
 	Ref<EWBIKState> state = p_chain_item->mod->get_state();
 	float bone_damp = state->get_cos_half_dampen(p_chain_item->bone);
 	if (p_dampening != -1) {
