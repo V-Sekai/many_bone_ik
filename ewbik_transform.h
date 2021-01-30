@@ -82,14 +82,8 @@ public:
 	IKBasis(Ray p_x, Ray p_y, Ray p_z);
 
 	IKBasis operator*(IKBasis p_basis) {
-		IKBasis new_ik_basis = *this;
-		new_ik_basis.rotate_by(p_basis.rotation.normalized());
-		new_ik_basis.translate_by(p_basis.translate);
-		return new_ik_basis;
-	}
-
-	IKBasis& operator=(IKBasis p_basis) {
-		adopt_values(p_basis);
+		rotate_by(p_basis.rotation.normalized());
+		translate_by(p_basis.translate);
 		return *this;
 	}
 

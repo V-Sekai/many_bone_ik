@@ -240,7 +240,7 @@ public:
 class ShadowBone3D {
 	friend class EWBIKState;
 	friend class IKNode3D;
-	BoneId for_bone;
+	// BoneId for_bone;
 	IKNode3D sim_local_ik_node;
 	IKNode3D sim_constraint_ik_node;
 	float cos_half_dampen = 0.0f;
