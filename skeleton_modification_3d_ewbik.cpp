@@ -236,10 +236,12 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 			BoneId _bone = skeleton->find_bone(root_bone);
 			Ref<EWBIKSegmentedSkeleton3D> chain_item;
 			chain_item.instance();
+			Ref<SkeletonModification3DEWBIK> mod = this;
+			chain_item->mod = mod;
 			chain_item->bone = _bone;
 			Ref<EWBIKSegmentedSkeleton3D> bone_chain;
 			bone_chain.instance();
-			Ref<SkeletonModification3DEWBIK> mod = this;
+			bone_chain->mod = mod;
 			bone_chain->init(skeleton, mod, multi_effector, bone_chain, nullptr, chain_item);
 			Vector<StringName> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
 			set_effector_count(0);
