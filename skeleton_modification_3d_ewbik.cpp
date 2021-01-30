@@ -583,7 +583,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	p_qcp_orientation_aligner->set_max_iterations(10);
 	QuatIK qcp_rot = p_qcp_orientation_aligner->weighted_superpose(p_localized_effector_headings, p_localized_target_headings,
 			p_weights, p_is_translate);
-	Vector3 translate_by = p_qcp_orientation_aligner->get_translation();
+	// Vector3 translate_by = p_qcp_orientation_aligner->get_translation();
 	Ref<EWBIKState> state = p_chain_item->mod->get_state();
 	float bone_damp = state->get_cos_half_dampen(p_chain_item->bone);
 	if (p_dampening != -1) {
@@ -775,7 +775,7 @@ void SkeletonModification3DEWBIK::update_effector_headings(Ref<EWBIKSegmentedSke
 		}
 		int effector_bone = ee->effector_bone;
 		IKBasis pose = state->get_shadow_pose_global(effector_bone).get_global();
-		BoneId bone = r_chain->bone;
+		// BoneId bone = r_chain->bone;
 		Vector3 origin = pose.get_origin();
 		r_localized_effector_headings.write[hdx] = pose.get_origin() - origin;
 		uint8_t modeCode = r_chain->targets[target_i]->get_mode_code();
