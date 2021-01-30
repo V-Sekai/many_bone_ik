@@ -234,15 +234,10 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 		ERR_FAIL_COND(root_bone.is_empty());
 		if (!constraint_count) {
 			BoneId _bone = skeleton->find_bone(root_bone);
-			Ref<EWBIKSegmentedSkeleton3D> chain_item;
-			chain_item.instance();
-			Ref<SkeletonModification3DEWBIK> mod = this;
-			chain_item->mod = mod;
+			Ref<EWBIKSegmentedSkeleton3D> chain_item = memnew(EWBIKSegmentedSkeleton3D(this));
 			chain_item->bone = _bone;
-			Ref<EWBIKSegmentedSkeleton3D> bone_chain;
-			bone_chain.instance();
-			bone_chain->mod = mod;
-			bone_chain->init(skeleton, mod, multi_effector, bone_chain, nullptr, chain_item);
+			Ref<EWBIKSegmentedSkeleton3D> bone_chain = memnew(EWBIKSegmentedSkeleton3D(this));
+			bone_chain->init(skeleton, this, multi_effector, bone_chain, nullptr, chain_item);
 			Vector<StringName> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
 			set_effector_count(0);
 			for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
@@ -430,7 +425,6 @@ bool SkeletonModification3DEWBIK::build_chain(Ref<EWBIKTask> p_task) {
 	ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
 	Ref<EWBIKSegmentedSkeleton3D> chain = p_task->chain;
 	chain->chain_root = chain;
-	chain->mod = p_task->ewbik;
 	chain->bone = p_task->root_bone;
 	chain->init(p_task->skeleton, p_task->ewbik, p_task->ewbik->multi_effector, chain, nullptr, chain);
 	chain->filter_and_merge_child_chains();
@@ -446,14 +440,14 @@ void SkeletonModification3DEWBIK::solve_simple(Ref<EWBIKTask> p_task) {
 Ref<EWBIKTask> SkeletonModification3DEWBIK::create_simple_task(Skeleton3D *p_sk, String p_root_bone,
 		float p_dampening, int p_stabilizing_passes,
 		Ref<SkeletonModification3DEWBIK> p_constraints) {
-	Ref<EWBIKTask> task;
-	task.instance();
+	Ref<EWBIKTask> task = memnew(EWBIKTask(p_constraints));
 	task->qcp = p_constraints->qcp_convergence_check;
 	task->skeleton = p_sk;
 	BoneId bone = p_sk->find_bone(p_root_bone);
 	task->root_bone = bone;
 	Ref<EWBIKSegmentedSkeleton3D> bone_item;
 	bone_item.instance();
+	bone_item->mod = p_constraints;
 	bone_item->bone = bone;
 	ERR_FAIL_COND_V(task->root_bone == -1, NULL);
 	ERR_FAIL_COND_V(p_constraints.is_null(), NULL);
@@ -466,7 +460,6 @@ Ref<EWBIKTask> SkeletonModification3DEWBIK::create_simple_task(Skeleton3D *p_sk,
 	task->dampening = p_dampening;
 	task->stabilizing_passes = p_stabilizing_passes;
 	ERR_FAIL_COND_V(!p_constraints->multi_effector.size(), nullptr);
-	task->ewbik = p_constraints;
 	if (!build_chain(task)) {
 		return NULL;
 	}
@@ -591,10 +584,6 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 	QuatIK qcp_rot = p_qcp_orientation_aligner->weighted_superpose(p_localized_effector_headings, p_localized_target_headings,
 			p_weights, p_is_translate);
 	Vector3 translate_by = p_qcp_orientation_aligner->get_translation();
-	if (p_chain_item->mod.is_null()) {
-		ERR_PRINT_ONCE("Modification is null.");
-		return;
-	}
 	Ref<EWBIKState> state = p_chain_item->mod->get_state();
 	float bone_damp = state->get_cos_half_dampen(p_chain_item->bone);
 	if (p_dampening != -1) {

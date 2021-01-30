@@ -31,14 +31,14 @@
 #ifndef dmik_task_h__
 #define dmik_task_h__
 
-#include "segmented_skeleton_3d.h"
-#include "qcp.h"
+#include "core/object/reference.h"
 #include "bone_effector_transform.h"
+#include "core/object/reference.h"
+#include "qcp.h"
+#include "segmented_skeleton_3d.h"
 #include "skeleton_modification_3d_ewbik.h"
 
 class SkeletonModification3DEWBIK;
-class EWBIKSegmentedSkeleton3D;
-
 class EWBIKTask : public Reference {
 	GDCLASS(EWBIKTask, Reference);
 
@@ -64,8 +64,7 @@ public:
 	int root_bone = -1;
 	Vector<Ref<EWBIKBoneEffectorTransform>> end_effectors;
 	Ref<SkeletonModification3DEWBIK> ewbik;
-	EWBIKTask() {
-		chain.instance();
-	}
+	EWBIKTask(Ref<SkeletonModification3DEWBIK> p_ewbik);
+	EWBIKTask() {}
 };
 #endif // dmik_task_h__

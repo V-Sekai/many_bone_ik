@@ -38,11 +38,12 @@
 #include "direction_constraint.h"
 #include "ray.h"
 #include "skeleton_modification_3d_ewbik.h"
+#include "segmented_skeleton_3d.h"
 #include "twist_constraint.h"
 
 class DirectionConstraint;
-class EWBIKSegmentedSkeleton3D;
 class IKNode3D;
+class EWBIKSegmentedSkeleton3D;
 
 // Kusudama is a papercraft ball with a bunch of cones sticking out of it.
 class KusudamaConstraint : public Resource {

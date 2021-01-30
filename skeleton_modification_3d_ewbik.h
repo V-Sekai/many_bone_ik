@@ -42,11 +42,11 @@
 #include "kusudama_constraint.h"
 #include "qcp.h"
 #include "twist_constraint.h"
+#include "ewbik_task.h"
 
 class Skeleton3D;
 class PhysicalBone3D;
 class EWBIKBoneChainTarget;
-class SkeletonModification3DEWBIK;
 class EWBIKBoneChainTarget;
 class EWBIKBoneEffector;
 class Skeleton3D;
@@ -55,6 +55,7 @@ class SkeletonModificationStack3D;
 class EWBIKState;
 class DirectionConstraint;
 class TwistConstraint;
+class EWBIKTask;
 
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);

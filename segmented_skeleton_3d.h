@@ -130,6 +130,11 @@ public:
 	int get_default_iterations() const;
 	void create_headings_arrays();
 	void force_update_bone_children_transforms(Ref<EWBIKSegmentedSkeleton3D> p_current_chain);
+	EWBIKSegmentedSkeleton3D(
+			Ref<SkeletonModification3DEWBIK> p_mod) :
+			mod(p_mod) {
+	}
+	EWBIKSegmentedSkeleton3D() {}
 };
 
 #endif // bone_chain_item_h__

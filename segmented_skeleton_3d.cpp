@@ -140,8 +140,7 @@ Vector<Ref<EWBIKSegmentedSkeleton3D>> EWBIKSegmentedSkeleton3D::get_bone_childre
 		int32_t parent = p_skeleton->get_bone_parent(bone_i);
 		if (parent == p_bone->bone) {
 			if (bone_chain_items.find(p_bone) == -1) {
-				Ref<EWBIKSegmentedSkeleton3D> item;
-				item.instance();
+				Ref<EWBIKSegmentedSkeleton3D> item = memnew(EWBIKSegmentedSkeleton3D(p_bone->mod)); 
 				item->bone = bone_i;
 				chain_root->bone_segment_map[bone_i] = item;
 				item->chain_root = chain_root;
