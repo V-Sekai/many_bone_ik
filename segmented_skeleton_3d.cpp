@@ -112,8 +112,8 @@ void EWBIKSegmentedSkeleton3D::build_chain(Ref<EWBIKSegmentedSkeleton3D> p_start
 	Ref<EWBIKSegmentedSkeleton3D> current_bone = p_start_from;
 	Ref<EWBIKState> state;
 	state.instance();
+	state->init(mod);
 	mod->set_state(state);
-	mod->get_state()->init(mod);
 	while (true) {
 		Vector<Ref<EWBIKSegmentedSkeleton3D>> current_bone_children = get_bone_children(skeleton, current_bone);
 		children.push_back(current_bone);
