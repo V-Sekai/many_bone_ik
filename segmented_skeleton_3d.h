@@ -35,6 +35,7 @@
 #include "bone_effector.h"
 #include "bone_effector_transform.h"
 #include "core/object/reference.h"
+#include "ewbik_state.h"
 
 class EWBIKBoneChainTarget;
 class SkeletonModification3DEWBIK;
