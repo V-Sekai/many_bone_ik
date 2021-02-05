@@ -1,5 +1,10 @@
 #include "ewbik_state.h"
+
 #include "ewbik_transform.h"
+
+#include "shadow_bone_3d.h"
+
+#include "core/math/quat.h"
 
 float EWBIKState::get_stiffness(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);

@@ -1,13 +1,17 @@
 #pragma once
-#include "core/io/resource.h"
-#include "scene/3d/skeleton_3d.h"
-#include "skeleton_modification_3d_ewbik.h"
+
 #include "kusudama_constraint.h"
 #include "ewbik_transform.h"
+#include "shadow_bone_3d.h"
 
-class IKNode3D;
-class KusudamaConstraint;
+#include "core/io/resource.h"
+#include "scene/3d/skeleton_3d.h"
+#include "ik_node_3d.h"
+
 class ShadowBone3D;
+class SkeletonModification3DEWBIK;
+class IKBasis;
+class IKNode3D;
 
 // Skeleton data structure
 class EWBIKState : public Resource {

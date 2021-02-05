@@ -42,7 +42,6 @@
 #include "twist_constraint.h"
 
 class DirectionConstraint;
-class IKNode3D;
 class EWBIKSegmentedSkeleton3D;
 
 // Kusudama is a papercraft ball with a bunch of cones sticking out of it.

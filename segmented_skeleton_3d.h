@@ -34,15 +34,16 @@
 #include "bone_chain_target.h"
 #include "bone_effector.h"
 #include "bone_effector_transform.h"
-#include "core/object/reference.h"
 #include "ewbik_state.h"
+#include "ik_node_3d.h"
+
+#include "core/object/reference.h"
 
 class EWBIKBoneChainTarget;
 class SkeletonModification3DEWBIK;
 class Skeleton3D;
 class KusudamaConstraint;
 class PhysicalBone3D;
-class IKNode3D;
 
 class EWBIKSegmentedSkeleton3D : public Reference {
 	GDCLASS(EWBIKSegmentedSkeleton3D, Reference);

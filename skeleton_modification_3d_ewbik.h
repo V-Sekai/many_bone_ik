@@ -42,7 +42,6 @@
 #include "kusudama_constraint.h"
 #include "qcp.h"
 #include "twist_constraint.h"
-#include "ewbik_task.h"
 
 class Skeleton3D;
 class PhysicalBone3D;
@@ -176,82 +175,4 @@ public:
 	static void solve(Ref<EWBIKTask> p_task, float blending_delta);
 };
 
-class IKNode3D {
-	friend class EWBIKState;
-	friend class ShadowBone3D;
-	IKBasis pose_local;
-	IKBasis pose_global;
-	Vector<int32_t> child_bones;
-	int32_t parent = -1;
-	float height = 0.0f;
-	float stiffness = 0.0f;
-	bool dirty = true;
-
-public:
-	void set_height(float p_height) {
-		height = p_height;
-	}
-	float get_height() const {
-		return height;
-	}
-	void set_stiffness(float p_stiffness) {
-		stiffness = p_stiffness;
-	}
-	float get_stiffness() const {
-		return stiffness;
-	}
-	IKBasis get_local() const {
-		return pose_local;
-	}
-	IKBasis get_global() const {
-		return pose_global;
-	}
-	Transform get_global_transform() const {
-		Transform xform;
-		IKBasis basis = pose_global;
-		xform.origin = basis.get_origin();
-		xform.basis = basis.get_rotation();
-		return xform;
-	}
-	void set_local(IKBasis p_local) {
-		pose_local = p_local;
-	}
-	void set_parent(int32_t p_parent) {
-		parent = p_parent;
-	}
-	// void update_global() {}
-	// void set_relative_to_parent(int32_t par) {}
-	// Vector3 apply_global(Vector3 p_in) {
-	// 	update_global();
-	// }
-	// Ray apply_global(Ray p_ray) {
-	// 	update_global();
-	// }
-	// Vector3 get_global_of(Vector3 p_in) {
-	// 	update_global();
-	// 	// the other way around with transform xform
-	// }
-	// Ray get_local_of(Ray p_in) {
-	// 	update_global();
-	// 	// the other way around with transform xform
-	// }
-	// Create variations where the input parameter is directly changed
-};
-class ShadowBone3D {
-	friend class EWBIKState;
-	friend class IKNode3D;
-	// BoneId for_bone;
-	IKNode3D sim_local_ik_node;
-	IKNode3D sim_constraint_ik_node;
-	float cos_half_dampen = 0.0f;
-	Vector<float> cos_half_returnful_dampened;
-	Vector<float> half_returnful_dampened;
-	bool springy = false;
-	float pain = 0.0f;
-	Ref<KusudamaConstraint> constraint;
-	void set_constraint(Ref<KusudamaConstraint> p_constraint);
-	Ref<KusudamaConstraint> get_constraint() const;
-	void populate_return_dampening_iteration_array(int p_default_iterations, float p_default_dampening);
-	void update_cos_dampening(int p_default_iterations, float p_default_dampening);
-};
 #endif //MULTI_CONSTRAINT_H
