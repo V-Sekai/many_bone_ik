@@ -30,13 +30,13 @@
 
 #include "skeleton_modification_3d_ewbik.h"
 #include "bone_effector.h"
+#include "core/math/transform.h"
+#include "core/object/reference.h"
 #include "direction_constraint.h"
+#include "ewbik_state.h"
 #include "kusudama_constraint.h"
 #include "scene/3d/skeleton_3d.h"
 #include "segmented_skeleton_3d.h"
-#include "ewbik_state.h"
-#include "core/math/transform.h"
-#include "core/object/reference.h"
 
 void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3DEWBIK::get_effector_count);
@@ -220,40 +220,41 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 		return;
 	}
 	Skeleton3D *skeleton = stack->skeleton;
-	if (skeleton) {
-		if (!constraint_count) {
-			Vector<int32_t> roots;
-			for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-				int32_t parent = skeleton->get_bone_parent(bone_i);
-				if (parent == -1) {
-					roots.push_back(bone_i);
-				}
-			}
-			if (roots.size()) {
-				String root_name = skeleton->get_bone_name(roots[0]);
-				root_bone = root_name;
-			}
-		}
-		ERR_FAIL_COND(root_bone.is_empty());
-		if (!constraint_count) {
-			BoneId _bone = skeleton->find_bone(root_bone);
-			Ref<EWBIKSegmentedSkeleton3D> chain_item = memnew(EWBIKSegmentedSkeleton3D(this));
-			chain_item->bone = _bone;
-			Ref<EWBIKSegmentedSkeleton3D> bone_chain = memnew(EWBIKSegmentedSkeleton3D(this));
-			bone_chain->init(skeleton, this, multi_effector, bone_chain, nullptr, chain_item);
-			Vector<StringName> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
-			set_effector_count(0);
-			for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
-				add_effector(effectors[effector_i]);
-			}
-			register_constraint(skeleton);
-		}
-		skeleton_ik_state.instance();
-		skeleton_ik_state->init(this);
-		task = create_simple_task(skeleton, root_bone, -1.0f, 10.0f, this);
-		is_setup = true;
-		execution_error_found = false;
+	if (!skeleton) {
+		return;
 	}
+	if (!constraint_count) {
+		Vector<int32_t> roots;
+		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
+			int32_t parent = skeleton->get_bone_parent(bone_i);
+			if (parent == -1) {
+				roots.push_back(bone_i);
+			}
+		}
+		if (roots.size()) {
+			String root_name = skeleton->get_bone_name(roots[0]);
+			root_bone = root_name;
+		}
+	}
+	ERR_FAIL_COND(root_bone.is_empty());
+	if (!constraint_count) {
+		BoneId _bone = skeleton->find_bone(root_bone);
+		Ref<EWBIKSegmentedSkeleton3D> chain_item = memnew(EWBIKSegmentedSkeleton3D(this));
+		chain_item->bone = _bone;
+		Ref<EWBIKSegmentedSkeleton3D> bone_chain = memnew(EWBIKSegmentedSkeleton3D(this));
+		bone_chain->init(skeleton, this, multi_effector, bone_chain, nullptr, chain_item);
+		Vector<StringName> effectors = bone_chain->get_default_effectors(skeleton, bone_chain, bone_chain);
+		set_effector_count(0);
+		for (int32_t effector_i = 0; effector_i < effectors.size(); effector_i++) {
+			add_effector(effectors[effector_i]);
+		}
+		register_constraint(skeleton);
+	}
+	skeleton_ik_state.instance();
+	skeleton_ik_state->init(this);
+	task = create_simple_task(skeleton, root_bone, -1.0f, 10.0f, this);
+	is_setup = true;
+	execution_error_found = false;
 }
 
 void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<EWBIKSegmentedSkeleton3D> p_start_from, float p_dampening, int p_iterations, int p_stabilization_passes) {
@@ -675,7 +676,7 @@ void SkeletonModification3DEWBIK::update_optimal_rotation_to_target_descendants(
 						float scaled_dampened_angle = dampened_angle *
 													  ((total_iterations_sq - (p_iteration * p_iteration)) /
 															  total_iterations_sq);
-						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);						
+						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);
 						p_for_bone->set_axes_to_returned(p_skeleton->get_bone_global_pose(bone), bone_xform.get_global_transform(),
 								state->get_shadow_constraint_axes_global(bone).get_global_transform(), cos_half_angle,
 								scaled_dampened_angle);
