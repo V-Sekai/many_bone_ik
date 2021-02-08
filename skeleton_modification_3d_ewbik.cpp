@@ -251,9 +251,9 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 		skeleton_ik_state.instance();
 		skeleton_ik_state->init(this);
 		task = create_simple_task(skeleton, root_bone, -1.0f, 10.0f, this);
+		is_setup = true;
+		execution_error_found = false;
 	}
-	is_setup = true;
-	execution_error_found = false;
 }
 
 void SkeletonModification3DEWBIK::iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<EWBIKSegmentedSkeleton3D> p_start_from, float p_dampening, int p_iterations, int p_stabilization_passes) {
