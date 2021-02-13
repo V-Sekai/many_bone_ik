@@ -90,7 +90,7 @@ void KusudamaConstraint::optimize_limiting_axes() {
 		direction_limit->get_control_point().normalize();
 	}
 	update_tangent_radii();
-	_change_notify();
+	notify_property_list_changed();
 }
 
 void KusudamaConstraint::set_twist_limits(float p_min_angle, float p_in_range) {
@@ -407,7 +407,7 @@ void KusudamaConstraint::set_pain(real_t p_amount) {
 		return;
 	}
 	// wb->update_cos_dampening();
-	_change_notify();
+	notify_property_list_changed();
 }
 
 void KusudamaConstraint::_bind_methods() {
@@ -425,7 +425,7 @@ Transform KusudamaConstraint::get_constraint_axes() const {
 
 void KusudamaConstraint::set_constraint_axes(Transform p_axes) {
 	constraint_axes = p_axes;
-	_change_notify();
+	notify_property_list_changed();
 }
 
 int32_t KusudamaConstraint::get_direction_count() const {
@@ -435,20 +435,20 @@ int32_t KusudamaConstraint::get_direction_count() const {
 void KusudamaConstraint::set_direction_count(int32_t p_count) {
 	direction_count = p_count;
 	multi_direction.resize(p_count);
-	_change_notify();
+	notify_property_list_changed();
 }
 
 void KusudamaConstraint::set_direction(int32_t p_index, Ref<DirectionConstraint> p_constraint) {
 	ERR_FAIL_INDEX(p_index, multi_direction.size());
 	multi_direction.write[p_index] = p_constraint;
-	_change_notify();
+	notify_property_list_changed();
 }
 
 void KusudamaConstraint::remove_direction(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_direction.size());
 	multi_direction.remove(p_index);
 	set_direction_count(direction_count - 1);
-	_change_notify();
+	notify_property_list_changed();
 }
 
 KusudamaConstraint::KusudamaConstraint(Ref<EWBIKSegmentedSkeleton3D> p_for_bone) {
@@ -480,7 +480,7 @@ Ref<TwistConstraint> KusudamaConstraint::get_twist_constraint() const {
 void KusudamaConstraint::set_twist_constraint(Ref<TwistConstraint> p_twist_constraint) {
 	ERR_FAIL_COND(p_twist_constraint.is_null());
 	set_twist_limits(twist->get_min_twist_angle(), from_tau(twist->get_range()));
-	_change_notify();
+	notify_property_list_changed();
 }
 
 void KusudamaConstraint::snap_to_limits() {

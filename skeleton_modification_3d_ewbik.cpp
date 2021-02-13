@@ -124,19 +124,19 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			name = p_value;
 			ERR_FAIL_COND_V(name.is_empty(), false);
 			effector->set_name(name);
-			_change_notify();
+			notify_property_list_changed();
 			return true;
 		} else if (what == "target_node") {
 			effector->set_target_node(p_value);
-			_change_notify();
+			notify_property_list_changed();
 			return true;
 		} else if (what == "target_transform") {
 			effector->set_target_transform(p_value);
-			_change_notify();
+			notify_property_list_changed();
 			return true;
 		} else if (what == "budget") {
 			effector->set_budget_ms(p_value);
-			_change_notify();
+			notify_property_list_changed();
 			return true;
 		}
 	}
@@ -163,7 +163,7 @@ SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
 void SkeletonModification3DEWBIK::set_effector_count(int32_t p_value) {
 	multi_effector.resize(p_value);
 	effector_count = p_value;
-	_change_notify();
+	notify_property_list_changed();
 }
 
 int32_t SkeletonModification3DEWBIK::get_effector_count() const {
@@ -180,7 +180,7 @@ void SkeletonModification3DEWBIK::set_effector(int32_t p_index, Ref<EWBIKBoneEff
 	ERR_FAIL_COND(p_effector.is_null());
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.write[p_index] = p_effector;
-	_change_notify();
+	notify_property_list_changed();
 }
 
 Vector<Ref<EWBIKBoneEffector>> SkeletonModification3DEWBIK::get_bone_effectors() const {
@@ -200,7 +200,7 @@ void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.remove(p_index);
 	effector_count--;
-	_change_notify();
+	notify_property_list_changed();
 }
 
 void SkeletonModification3DEWBIK::execute(float delta) {
@@ -346,7 +346,7 @@ void SkeletonModification3DEWBIK::add_effector(String p_name, NodePath p_node, T
 	effector->set_budget_ms(p_budget);
 	multi_effector.push_back(effector);
 	effector_count++;
-	_change_notify();
+	notify_property_list_changed();
 }
 
 void SkeletonModification3DEWBIK::register_constraint(Skeleton3D *p_skeleton) {
@@ -359,7 +359,7 @@ void SkeletonModification3DEWBIK::register_constraint(Skeleton3D *p_skeleton) {
 		skeleton_ik_state->set_constraint(bone_i, constraint);
 		constraint_count++;
 	}
-	_change_notify();
+	notify_property_list_changed();
 }
 
 void SkeletonModification3DEWBIK::QCPSolver(
