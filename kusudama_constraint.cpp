@@ -90,7 +90,6 @@ void KusudamaConstraint::optimize_limiting_axes() {
 		direction_limit->get_control_point().normalize();
 	}
 	update_tangent_radii();
-	notify_property_list_changed();
 }
 
 void KusudamaConstraint::set_twist_limits(float p_min_angle, float p_in_range) {
@@ -199,13 +198,13 @@ real_t KusudamaConstraint::signed_angle_difference(real_t p_min_angle, real_t p_
 	real_t r = d > Math_PI ? Math_TAU - d : d;
 	real_t sign = (p_min_angle - p_base >= 0 && p_min_angle - p_base <= Math_PI) ||
 								  (p_min_angle - p_base <= -Math_PI && p_min_angle - p_base >= -Math_TAU) ?
-						  1.0f :
-						  -1.0f;
+							1.0f :
+							-1.0f;
 	r *= sign;
 	return r;
 }
 
-real_t KusudamaConstraint::snap_to_twist_limits(Transform p_to_set, Transform p_limiting_axes) {	
+real_t KusudamaConstraint::snap_to_twist_limits(Transform p_to_set, Transform p_limiting_axes) {
 	if (!is_enabled()) {
 		return 0.0f;
 	}
@@ -259,7 +258,7 @@ void KusudamaConstraint::update_tangent_radii() {
 }
 
 void KusudamaConstraint::constraint_update_notification() {
-	if(!is_enabled()) {
+	if (!is_enabled()) {
 		return;
 	}
 	update_tangent_radii();
@@ -295,27 +294,27 @@ void KusudamaConstraint::set_axes_to_orientation_snap(Transform p_to_set, Transf
 	// }
 }
 
-void KusudamaConstraint::set_axes_to_returnful(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes, 
-		real_t p_cos_half_angle_dampen, real_t p_angle_dampen) { 
-	if (!p_limiting_axes.is_equal_approx(Transform()) && pain > 0.0f) { 
-		const int32_t y_axis = 1; 
-		if (orientation_constrained) { 
-			Vector3 origin = p_to_set.origin; 
-			Vector3 inPoint = p_to_set.basis.get_axis(y_axis); 
-			Vector3 pathPoint = point_on_path_sequence(p_global_xform, inPoint, p_limiting_axes); 
-			inPoint -= origin; 
-			pathPoint -= origin; 
-			QuatIK toClamp = Quat(inPoint, pathPoint); 
-			toClamp.clamp_to_quadrance_angle(p_cos_half_angle_dampen); 
-			p_to_set.basis.rotate(toClamp); 
-		} 
-		if (axial_constrained) { 
-			real_t angleToTwistMid = angle_to_twist_center(p_global_xform, p_to_set, p_limiting_axes); 
-			real_t clampedAngle = CLAMP(angleToTwistMid, -p_angle_dampen, p_angle_dampen); 
-			p_to_set.basis = Quat(p_global_xform.basis.get_axis(y_axis), clampedAngle); 
-		} 
-	} 
-} 
+void KusudamaConstraint::set_axes_to_returnful(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes,
+		real_t p_cos_half_angle_dampen, real_t p_angle_dampen) {
+	if (!p_limiting_axes.is_equal_approx(Transform()) && pain > 0.0f) {
+		const int32_t y_axis = 1;
+		if (orientation_constrained) {
+			Vector3 origin = p_to_set.origin;
+			Vector3 inPoint = p_to_set.basis.get_axis(y_axis);
+			Vector3 pathPoint = point_on_path_sequence(p_global_xform, inPoint, p_limiting_axes);
+			inPoint -= origin;
+			pathPoint -= origin;
+			QuatIK toClamp = Quat(inPoint, pathPoint);
+			toClamp.clamp_to_quadrance_angle(p_cos_half_angle_dampen);
+			p_to_set.basis.rotate(toClamp);
+		}
+		if (axial_constrained) {
+			real_t angleToTwistMid = angle_to_twist_center(p_global_xform, p_to_set, p_limiting_axes);
+			real_t clampedAngle = CLAMP(angleToTwistMid, -p_angle_dampen, p_angle_dampen);
+			p_to_set.basis = Quat(p_global_xform.basis.get_axis(y_axis), clampedAngle);
+		}
+	}
+}
 
 real_t KusudamaConstraint::angle_to_twist_center(Transform p_global_xform, Transform p_to_set, Transform p_limiting_axes) {
 	if (!axial_constrained) {
@@ -357,7 +356,7 @@ KusudamaConstraint::point_on_path_sequence(Transform p_global_xform, Vector3 p_i
 	}
 
 	return p_global_xform.xform(result);
-} 
+}
 
 real_t KusudamaConstraint::get_pain() {
 	return pain;
@@ -407,7 +406,6 @@ void KusudamaConstraint::set_pain(real_t p_amount) {
 		return;
 	}
 	// wb->update_cos_dampening();
-	notify_property_list_changed();
 }
 
 void KusudamaConstraint::_bind_methods() {
@@ -425,7 +423,6 @@ Transform KusudamaConstraint::get_constraint_axes() const {
 
 void KusudamaConstraint::set_constraint_axes(Transform p_axes) {
 	constraint_axes = p_axes;
-	notify_property_list_changed();
 }
 
 int32_t KusudamaConstraint::get_direction_count() const {
@@ -435,20 +432,17 @@ int32_t KusudamaConstraint::get_direction_count() const {
 void KusudamaConstraint::set_direction_count(int32_t p_count) {
 	direction_count = p_count;
 	multi_direction.resize(p_count);
-	notify_property_list_changed();
 }
 
 void KusudamaConstraint::set_direction(int32_t p_index, Ref<DirectionConstraint> p_constraint) {
 	ERR_FAIL_INDEX(p_index, multi_direction.size());
 	multi_direction.write[p_index] = p_constraint;
-	notify_property_list_changed();
 }
 
 void KusudamaConstraint::remove_direction(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_direction.size());
 	multi_direction.remove(p_index);
 	set_direction_count(direction_count - 1);
-	notify_property_list_changed();
 }
 
 KusudamaConstraint::KusudamaConstraint(Ref<EWBIKSegmentedSkeleton3D> p_for_bone) {
@@ -480,7 +474,6 @@ Ref<TwistConstraint> KusudamaConstraint::get_twist_constraint() const {
 void KusudamaConstraint::set_twist_constraint(Ref<TwistConstraint> p_twist_constraint) {
 	ERR_FAIL_COND(p_twist_constraint.is_null());
 	set_twist_limits(twist->get_min_twist_angle(), from_tau(twist->get_range()));
-	notify_property_list_changed();
 }
 
 void KusudamaConstraint::snap_to_limits() {
