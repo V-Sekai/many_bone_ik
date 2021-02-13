@@ -157,37 +157,37 @@ bool EWBIKState::_set(const StringName &p_name, const Variant &p_value) {
 		ERR_FAIL_INDEX_V(index, bone_count, false);
 		if (what == "stiffness") {
 			set_stiffness(index, p_value);
-			
+			notify_property_list_changed();
 		} else if (what == "height") {
 			set_height(index, p_value);
-			
+			notify_property_list_changed();
 		}
 		Ref<KusudamaConstraint> constraint;
 		constraint.instance();
 		set_constraint(index, constraint);
 		if (what == "name") {
 			constraint->set_name(p_value);
-			
+			notify_property_list_changed();
 			return true;
 		} else if (what == "twist_min_angle") {
 			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
 			twist->set_min_twist_angle(p_value);
 			constraint->set_twist_constraint(twist);
-			
+			notify_property_list_changed();
 			return true;
 		} else if (what == "twist_range") {
 			Ref<TwistConstraint> twist = constraint->get_twist_constraint();
 			twist->set_range(p_value);
 			constraint->set_twist_constraint(twist);
-			
+			notify_property_list_changed();
 			return true;
 		} else if (what == "constraint_axes") {
 			constraint->set_constraint_axes(p_value);
-			
+			notify_property_list_changed();
 			return true;
 		} else if (what == "direction_count") {
 			constraint->set_direction_count(p_value);
-			
+			notify_property_list_changed();
 			return true;
 		} else if (what == "direction") {
 			int direction_index = name.get_slicec('/', 3).to_int();
@@ -200,12 +200,12 @@ bool EWBIKState::_set(const StringName &p_name, const Variant &p_value) {
 			String direction_what = name.get_slicec('/', 4);
 			if (direction_what == "radius") {
 				direction->set_radius(p_value);
-				
+				notify_property_list_changed();
 			} else if (direction_what == "control_point") {
 				direction->set_control_point(p_value);
 				// TODO
 				// constraint->optimize_limiting_axes();
-				
+				notify_property_list_changed();
 			} else {
 				return false;
 			}
