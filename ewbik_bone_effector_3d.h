@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  ik_quat.h                                                            */
+/*  ewbik_bone_effector_3d.h                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -27,22 +27,30 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+#ifndef EWBIK_BONE_EFFECTOR_3D_H
+#define EWBIK_BONE_EFFECTOR_3D_H
 
-#ifndef GODOT_ANIMATION_UNIFIED_BEZIERS_IK_QUAT_H
-#define GODOT_ANIMATION_UNIFIED_BEZIERS_IK_QUAT_H
+#include "core/object/reference.h"
 
-#include "core/math/quat.h"
-#include "core/templates/vector.h"
+class EWBIKBoneEffector3D : public Reference {
+	GDCLASS(EWBIKBoneEffector3D, Reference);
 
-class QuatIK : public Quat {
+protected:
+	Transform target_transform;
+	NodePath target_node = NodePath();
+	bool use_target_node_transform = false;
+
+	static void _bind_methods();
+
 public:
-	Vector<QuatIK> get_swing_twist(Vector3 p_axis);
-	void clamp_to_quadrance_angle(real_t p_cos_half_angle);
-	void clamp_to_angle(real_t p_angle);
-	inline QuatIK(float p_x, float p_y, float p_z, float p_w);
-	QuatIK(Quat p_quat);
-	QuatIK();
-	~QuatIK();
-};
+	void set_target_transform(Transform p_target_transform);
+	Transform get_target_transform() const;
+	void set_target_node(NodePath p_target_node_path);
+	NodePath get_target_node() const;
+	void set_use_target_node_transform(bool p_use);
+	bool get_use_target_node_transform() const;
 
-#endif //GODOT_ANIMATION_UNIFIED_BEZIERS_IK_QUAT_H
+	EWBIKBoneEffector3D() {}
+	~EWBIKBoneEffector3D() {}
+};
+#endif // EWBIK_BONE_EFFECTOR_3D_H

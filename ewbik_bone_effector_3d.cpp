@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  ik_quat.cpp                                                          */
+/*  ewbik_bone_effector_3d.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,67 +28,40 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "quat_ik.h"
+#include "ewbik_bone_effector_3d.h"
 
-class DirectionConstraint;
-
-Vector<QuatIK> QuatIK::get_swing_twist(Vector3 p_axis) {
-	Vector3 euler = get_euler();
-	const real_t d = Vector3(
-			euler.x,
-			euler.y,
-			euler.z).dot(Vector3(p_axis.x, p_axis.y, p_axis.z));
-	*this = Quat(p_axis * d);
-	normalize();
-	if (d < 0) {
-		operator*(-1.0f);
-	}
-
-	QuatIK swing = QuatIK(-x, -y, -z, w);
-	swing = operator*(swing);
-
-	Vector<QuatIK> result;
-	result.resize(2);
-	result.write[0] = swing;
-	result.write[1] = QuatIK(x, y, z, w);
-	return result;
+void EWBIKBoneEffector3D::set_target_transform(Transform p_target_transform) {
+	target_transform = p_target_transform;
 }
 
-void QuatIK::clamp_to_quadrance_angle(real_t p_cos_half_angle) {
-	real_t new_coeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
-	real_t current_coeff = y * y + z * z + w * w;
-	if (new_coeff > current_coeff) {
-		return;
-	} else {
-		x = x < 0.0 ? -p_cos_half_angle : p_cos_half_angle;
-		real_t composite_coeff = Math::sqrt(new_coeff / current_coeff);
-		y *= composite_coeff;
-		z *= composite_coeff;
-		w *= composite_coeff;
-	}
+Transform EWBIKBoneEffector3D::get_target_transform() const {
+	return target_transform;
 }
 
-void QuatIK::clamp_to_angle(real_t p_angle) {
-	real_t cos_half_angle = Math::cos(0.5f * p_angle);
-	clamp_to_quadrance_angle(cos_half_angle);
+void EWBIKBoneEffector3D::set_target_node(NodePath p_target_node_path) {
+	target_node = p_target_node_path;
 }
 
-QuatIK::QuatIK() {
+NodePath EWBIKBoneEffector3D::get_target_node() const {
+	return target_node;
 }
 
- QuatIK::QuatIK(Quat p_quat) {
-	x = p_quat.x;
-	y = p_quat.y;
-	z = p_quat.z;
-	w = p_quat.w;
+void EWBIKBoneEffector3D::set_use_target_node_transform(bool p_use) {
+	use_target_node_transform = p_use;
 }
 
- QuatIK::QuatIK(float p_x, float p_y, float p_z, float p_w) :
-		Quat(p_x,
-				p_y,
-				p_z,
-				p_w) {
+bool EWBIKBoneEffector3D::get_use_target_node_transform() const {
+	return use_target_node_transform;
 }
 
-QuatIK::~QuatIK() {
+void EWBIKBoneEffector3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_target_transform", "transform"),
+			&EWBIKBoneEffector3D::set_target_transform);
+	ClassDB::bind_method(D_METHOD("get_target_transform"),
+			&EWBIKBoneEffector3D::get_target_transform);
+
+	ClassDB::bind_method(D_METHOD("set_target_node", "node"),
+			&EWBIKBoneEffector3D::set_target_node);
+	ClassDB::bind_method(D_METHOD("get_target_node"),
+			&EWBIKBoneEffector3D::get_target_node);
 }

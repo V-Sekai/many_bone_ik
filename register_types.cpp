@@ -29,20 +29,11 @@
 /*************************************************************************/
 
 #include "register_types.h"
-#include "twist_constraint.h"
-#include "direction_constraint.h"
-#include "kusudama_constraint.h"
 #include "skeleton_modification_3d_ewbik.h"
 
-void register_ewbik_types() {
-	ClassDB::register_class<EWBIKBoneEffectorTransform>();
-	ClassDB::register_class<EWBIKSegmentedSkeleton3D>();
-	ClassDB::register_class<TwistConstraint>();
-	ClassDB::register_class<DirectionConstraint>();
-	ClassDB::register_class<KusudamaConstraint>();
-	ClassDB::register_class<EWBIKState>();
+void register_ewbik2_types() {
 	ClassDB::register_class<SkeletonModification3DEWBIK>();
 }
 
-void unregister_ewbik_types() {
+void unregister_ewbik2_types() {
 }

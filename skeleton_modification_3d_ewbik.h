@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  skeleton_ik_constraints.h                                            */
+/*  skeleton_modification_3d_ewbik.h                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,151 +28,66 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MULTI_CONSTRAINT_H
-#define MULTI_CONSTRAINT_H
+#ifndef SKELETON_MODIFICATION_3D_EWBIK_H
+#define SKELETON_MODIFICATION_3D_EWBIK_H
 
 #include "core/object/reference.h"
 #include "core/os/memory.h"
 #include "scene/resources/skeleton_modification_3d.h"
-
-#include "bone_effector.h"
-#include "direction_constraint.h"
-#include "ewbik_task.h"
-#include "ewbik_transform.h"
-#include "kusudama_constraint.h"
-#include "qcp.h"
-#include "twist_constraint.h"
-
-class Skeleton3D;
-class PhysicalBone3D;
-class EWBIKBoneChainTarget;
-class EWBIKBoneChainTarget;
-class EWBIKBoneEffector;
-class Skeleton3D;
-class EWBIKSegmentedSkeleton3D;
-class SkeletonModificationStack3D;
-class EWBIKState;
-class DirectionConstraint;
-class TwistConstraint;
-class EWBIKTask;
+#include "ewbik_segmented_skeleton_3d.h"
+#include "ewbik_shadow_bone_3d.h"
+#include "ewbik_bone_effector_3d.h"
 
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 
-	Vector<Ref<EWBIKBoneEffector>> multi_effector;
-	Ref<EWBIKState> skeleton_ik_state;
-	int32_t constraint_count = 0;
-	int32_t effector_count = 0;
-	Ref<EWBIKTask> task;
+private:
+	Skeleton3D *skeleton = nullptr;
 	String root_bone;
-	int32_t default_stabilizing_pass_count = 4;
-	Ref<QCP> qcp_convergence_check;
-	inline static const Vector3 x_orientation = Vector3(1.0f, 0.0f, 0.0f);
-	inline static const Vector3 y_orientation = Vector3(0.0f, 1.0f, 0.0f);
-	inline static const Vector3 z_orientation = Vector3(0.0f, 0.0f, 1.0f);
-	static const int32_t x_axis = 0;
-	static const int32_t y_axis = 1;
-	static const int32_t z_axis = 2;
+	BoneId root_bone_index = -1;
+	Ref<EWBIKSegmentedSkeleton3D> segmented_skeleton;
+	int32_t effector_count = 0;
+	Vector<Ref<EWBIKShadowBone3D>> multi_effector;
+	HashMap<BoneId, Ref<EWBIKShadowBone3D>> effectors_map;
+
+	// Task
+	int32_t ik_iterations = 15;
+
+	void update_segments();
+	void update_effectors_map();
 
 protected:
+	virtual void _validate_property(PropertyInfo &property) const override;
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
 
-public:
-	virtual void execute(float delta) override;
-	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
-	static void iterated_improved_solver(Ref<QCP> p_qcp, int32_t p_root_bone, Ref<EWBIKSegmentedSkeleton3D> start_from, float dampening, int iterations, int p_stabilization_passes);
-	static void grouped_recursive_chain_solver(Ref<EWBIKSegmentedSkeleton3D> p_start_from, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
-	static void recursive_chain_solver(Ref<EWBIKSegmentedSkeleton3D> p_armature, float p_dampening, int p_stabilization_passes, int p_iteration, float p_total_iterations);
-	static void apply_bone_chains(Ref<EWBIKState> p_state, float p_strength, Skeleton3D *p_skeleton, BoneId p_bone, Map<int, Ref<EWBIKSegmentedSkeleton3D>> p_bone_segment_map);
+	Vector<Ref<EWBIKShadowBone3D>> get_bone_effectors() const;
 
-	void add_effector(String p_name, NodePath p_node = NodePath(), Transform p_transform = Transform(), real_t p_budget = 4.0f);
-	void register_constraint(Skeleton3D *p_skeleton);
-	Vector<Ref<EWBIKBoneEffector>> get_bone_effectors() const;
-	int32_t find_effector(String p_name);
-	void remove_effector(int32_t p_index);
-	void set_effector_count(int32_t p_value);
-	int32_t get_effector_count() const;
-	Ref<EWBIKBoneEffector> get_effector(int32_t p_index) const;
-	void set_effector(int32_t p_index, Ref<EWBIKBoneEffector> p_effector);
+public:
+	int32_t get_ik_iterations() const;
+	void set_ik_iterations(int32_t p_iterations);
 	String get_root_bone() const;
 	void set_root_bone(String p_root_bone);
+	BoneId get_root_bone_index() const;
+	void set_root_bone_index(BoneId p_index);
+	void set_effector_count(int32_t p_value);
+	int32_t get_effector_count() const;
+	void add_effector(String p_name, NodePath p_target_node = NodePath(), bool p_use_node_xform = false, Transform p_target_xform = Transform());
+	int32_t find_effector(String p_name);
+	void remove_effector(int32_t p_index);
+	Ref<EWBIKShadowBone3D> get_effector(int32_t p_index) const;
+	void set_effector(int32_t p_index, Ref<EWBIKShadowBone3D> p_effector);
+
+	virtual void execute(float delta) override;
+	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
+
+	void solve(float blending_delta);
+	void iterated_improved_solver();
+
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
-
-	Ref<EWBIKState> get_state() const { return skeleton_ik_state; }
-	void set_state(Ref<EWBIKState> val) { skeleton_ik_state = val; }
-
-private:
-	/**
-     * The default maximum number of radians a bone is allowed to rotate per solver iteration.
-     * The lower this value, the more natural the pose results. However, this will increase the number of iterations
-     * the solver requires to converge.
-     *
-     * !!THIS IS AN EXPENSIVE OPERATION.
-     * This updates the entire armature's cache of precomputed quadrance angles.
-     * The cache makes things faster in general, but if you need to dynamically change the dampening during a call to IKSolver, use
-     * the IKSolver(bone, dampening, iterations, stabilizationPasses) function, which clamps rotations on the fly.
-     * @param damp
-     */
-	static void set_default_dampening(Ref<EWBIKSegmentedSkeleton3D> r_chain, float p_damp);
-	static void update_armature_segments(Ref<EWBIKSegmentedSkeleton3D> r_chain);
-	static void update_optimal_rotation_to_target_descendants(
-			Skeleton3D *p_skeleton,
-			Ref<EWBIKSegmentedSkeleton3D> p_chain_item,
-			float p_dampening,
-			bool p_is_translate,
-			Vector<Vector3> p_localized_tip_headings,
-			Vector<Vector3> p_localized_target_headings,
-			Vector<real_t> p_weights,
-			Ref<QCP> p_qcp_orientation_aligner,
-			int p_iteration,
-			float p_total_iterations);
-	static void recursively_update_bone_segment_map_from(Ref<EWBIKSegmentedSkeleton3D> r_chain, Ref<EWBIKSegmentedSkeleton3D> p_start_from);
-	static void QCPSolver(
-			Skeleton3D *p_skeleton,
-			Ref<EWBIKSegmentedSkeleton3D> p_chain,
-			float p_dampening,
-			bool p_inverse_weighting,
-			int p_stabilization_passes,
-			int p_iteration,
-			float p_total_iterations);
-	static bool build_chain(Ref<EWBIKTask> p_task);
-	static void solve_simple(Ref<EWBIKTask> p_task);
-
-public:
-	/**
-     *
-     * @param for_bone
-     * @param dampening
-     * @param translate set to true if you wish to allow translation in addition to rotation of the bone (should only be used for unpinned root bones)
-     * @param stabilization_passes If you know that your armature isn't likely to succumb to instability in unsolvable configurations, leave this value set to 0.
-     * If you value stability in extreme situations more than computational speed, then increase this value. A value of 1 will be completely stable, and just as fast
-     * as a value of 0, however, it might result in small levels of robotic looking jerk. The higher the value, the less jerk there will be (but at potentially significant computation cost).
-     */
-	static void update_optimal_rotation_to_target_descendants(
-			Skeleton3D *p_skeleton,
-			Ref<EWBIKSegmentedSkeleton3D> r_chain,
-			Ref<EWBIKSegmentedSkeleton3D> p_for_bone,
-			float p_dampening,
-			bool p_translate,
-			int p_stabilization_passes,
-			int p_iteration,
-			int p_total_iterations);
-	static float
-	get_manual_msd(Vector<Vector3> &r_localized_effector_headings, Vector<Vector3> &r_localized_target_headings,
-			const Vector<real_t> &p_weights);
-	static void update_target_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
-
-			Vector<Vector3> &r_localized_target_headings);
-	static void update_effector_headings(Ref<EWBIKSegmentedSkeleton3D> r_chain,
-			Vector<Vector3> &r_localized_effector_headings);
-	static Ref<EWBIKTask> create_simple_task(Skeleton3D *p_sk, String p_root_bone,
-			float p_dampening = -1, int p_stabilizing_passes = -1,
-			Ref<SkeletonModification3DEWBIK> p_constraints = NULL);
-	static void solve(Ref<EWBIKTask> p_task, float blending_delta);
 };
 
-#endif //MULTI_CONSTRAINT_H
+#endif // SKELETON_MODIFICATION_3D_EWBIK_H
