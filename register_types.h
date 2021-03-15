@@ -31,7 +31,7 @@
 #ifndef EWBIK_REGISTER_TYPES_H
 #define EWBIK_REGISTER_TYPES_H
 
-void register_ewbik2_types();
-void unregister_ewbik2_types();
+void register_ewbik_types();
+void unregister_ewbik_types();
 
 #endif // EWBIK_REGISTER_TYPES_H

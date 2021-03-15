@@ -31,9 +31,9 @@
 #include "register_types.h"
 #include "skeleton_modification_3d_ewbik.h"
 
-void register_ewbik2_types() {
+void register_ewbik_types() {
 	ClassDB::register_class<SkeletonModification3DEWBIK>();
 }
 
-void unregister_ewbik2_types() {
+void unregister_ewbik_types() {
 }
