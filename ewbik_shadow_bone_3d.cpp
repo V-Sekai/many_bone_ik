@@ -30,7 +30,7 @@
 
 #include "ewbik_shadow_bone_3d.h"
 
-void EWBIKShadowBone3D::set_bone_id(BoneId p_bone_id) {
+void EWBIKShadowBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	for_bone = p_bone_id;
 }
 
@@ -92,21 +92,14 @@ bool EWBIKShadowBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_ske
 	}
 }
 
-EWBIKShadowBone3D::EWBIKShadowBone3D() {
-	for_bone = -1;
-	set_name("");
-}
-
-EWBIKShadowBone3D::EWBIKShadowBone3D(Skeleton3D *p_skeleton, BoneId p_bone, Ref<EWBIKShadowBone3D> p_parent) {
+EWBIKShadowBone3D::EWBIKShadowBone3D(BoneId p_bone, Ref<EWBIKShadowBone3D> p_parent) {
 	for_bone = p_bone;
 	parent = p_parent;
-	set_name(p_skeleton->get_bone_name(for_bone));
 }
 
-EWBIKShadowBone3D::EWBIKShadowBone3D(Skeleton3D *p_skeleton, String p_bone, Ref<EWBIKShadowBone3D> p_parent) {
+EWBIKShadowBone3D::EWBIKShadowBone3D(String p_bone, Skeleton3D *p_skeleton, Ref<EWBIKShadowBone3D> p_parent) {
 	for_bone = p_skeleton->find_bone(p_bone);
 	parent = p_parent;
-	set_name(p_bone);
 }
 
 void EWBIKShadowBone3D::_bind_methods() {

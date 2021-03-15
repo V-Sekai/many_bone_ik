@@ -46,12 +46,12 @@ NodePath EWBIKBoneEffector3D::get_target_node() const {
 	return target_node;
 }
 
-void EWBIKBoneEffector3D::set_use_target_node_transform(bool p_use) {
-	use_target_node_transform = p_use;
+void EWBIKBoneEffector3D::set_use_target_node_rotation(bool p_use) {
+	use_target_node_rotation = p_use;
 }
 
-bool EWBIKBoneEffector3D::get_use_target_node_transform() const {
-	return use_target_node_transform;
+bool EWBIKBoneEffector3D::get_use_target_node_rotation() const {
+	return use_target_node_rotation;
 }
 
 void EWBIKBoneEffector3D::_bind_methods() {

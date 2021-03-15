@@ -38,7 +38,7 @@ class EWBIKBoneEffector3D : public Reference {
 protected:
 	Transform target_transform;
 	NodePath target_node = NodePath();
-	bool use_target_node_transform = false;
+	bool use_target_node_rotation = false;
 
 	static void _bind_methods();
 
@@ -47,8 +47,8 @@ public:
 	Transform get_target_transform() const;
 	void set_target_node(NodePath p_target_node_path);
 	NodePath get_target_node() const;
-	void set_use_target_node_transform(bool p_use);
-	bool get_use_target_node_transform() const;
+	void set_use_target_node_rotation(bool p_use);
+	bool get_use_target_node_rotation() const;
 
 	EWBIKBoneEffector3D() {}
 	~EWBIKBoneEffector3D() {}

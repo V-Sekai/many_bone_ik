@@ -71,7 +71,7 @@ void EWBIKSegmentedSkeleton3D::generate_skeleton_segments(const HashMap<BoneId, 
 	child_chains.clear();
 
 	Ref<EWBIKShadowBone3D> tempTip = root;
-	chain_length = -1;
+	chain_length = 0;
 	while (true) {
 		chain_length++;
 		Vector<BoneId> children_with_effector_descendants = tempTip->get_children_with_effector_descendants(skeleton, p_map);
@@ -89,7 +89,7 @@ void EWBIKSegmentedSkeleton3D::generate_skeleton_segments(const HashMap<BoneId, 
 				next->set_parent(tempTip);
 				tempTip = next;
 			} else {
-				Ref<EWBIKShadowBone3D> next = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(skeleton, bone_id, tempTip)));
+				Ref<EWBIKShadowBone3D> next = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(bone_id, tempTip)));
 				tempTip = next;
 			}
 		} else {
@@ -144,7 +144,7 @@ void EWBIKSegmentedSkeleton3D::generate_default_segments_from_root() {
 			break;
 		} else if (children.size() == 1) {
 			BoneId bone_id = children[0];
-			Ref<EWBIKShadowBone3D> next = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(skeleton, bone_id, tempTip)));
+			Ref<EWBIKShadowBone3D> next = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(bone_id, tempTip)));
 			tempTip = next;
 		} else {
 			tip = tempTip;
@@ -185,6 +185,21 @@ Ref<EWBIKSegmentedSkeleton3D> EWBIKSegmentedSkeleton3D::get_child_segment_contai
 	return nullptr;
 }
 
+Vector<Ref<EWBIKShadowBone3D>> EWBIKSegmentedSkeleton3D::get_bone_list() const {
+	Vector<Ref<EWBIKShadowBone3D>> bones;
+	for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
+		bones.append_array(child_chains[child_i]->get_bone_list());
+	}
+	Ref<EWBIKShadowBone3D> current_bone = tip;
+	while (current_bone.is_valid()) {
+		bones.push_back(current_bone);
+		if (current_bone == root)
+			break;
+		current_bone = current_bone->get_parent();
+	}
+	return bones;
+}
+
 void EWBIKSegmentedSkeleton3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_root_effector"), &EWBIKSegmentedSkeleton3D::is_root_effector);
 	ClassDB::bind_method(D_METHOD("is_tip_effector"), &EWBIKSegmentedSkeleton3D::is_tip_effector);
@@ -193,7 +208,7 @@ void EWBIKSegmentedSkeleton3D::_bind_methods() {
 EWBIKSegmentedSkeleton3D::EWBIKSegmentedSkeleton3D(Skeleton3D *p_skeleton, BoneId p_root_bone, Ref<EWBIKSegmentedSkeleton3D> p_parent) {
 	skeleton = p_skeleton;
 	BoneId root_id = find_root_bone_id(p_root_bone);
-	root = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(p_skeleton, root_id)));
+	root = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(root_id)));
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;
 		root->set_parent(p_parent->get_tip());
@@ -207,7 +222,7 @@ EWBIKSegmentedSkeleton3D::EWBIKSegmentedSkeleton3D(Skeleton3D *p_skeleton, BoneI
 	if (p_map.has(root_id)) {
 		root = p_map[root_id];
 	} else {
-		root = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(skeleton, root_id)));
+		root = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(root_id)));
 	}
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;

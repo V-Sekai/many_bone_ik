@@ -67,6 +67,7 @@ public:
 	bool is_tip_effector() const;
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> get_effector_descendents() const;
 	int32_t get_effector_descendents_size() const;
+	Vector<Ref<EWBIKShadowBone3D>> get_bone_list() const;
 	void generate_default_segments_from_root();
 	void align_axes_to_bones();
 

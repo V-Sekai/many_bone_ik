@@ -46,10 +46,10 @@ String SkeletonModification3DEWBIK::get_root_bone() const {
 
 void SkeletonModification3DEWBIK::set_root_bone(String p_root_bone) {
 	root_bone = p_root_bone;
-	if (skeleton) {
+	if (skeleton)
 		root_bone_index = skeleton->find_bone(root_bone);
-		update_segments();
-	}
+
+	is_dirty = true;
 }
 
 BoneId SkeletonModification3DEWBIK::get_root_bone_index() const {
@@ -58,10 +58,9 @@ BoneId SkeletonModification3DEWBIK::get_root_bone_index() const {
 
 void SkeletonModification3DEWBIK::set_root_bone_index(BoneId p_index) {
 	root_bone_index = p_index;
-	if (skeleton) {
+	if (skeleton)
 		root_bone = skeleton->get_bone_name(p_index);
-		update_segments();
-	}
+	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::set_effector_count(int32_t p_value) {
@@ -72,9 +71,7 @@ void SkeletonModification3DEWBIK::set_effector_count(int32_t p_value) {
 		multi_effector.write[i] = bone;
 	}
 	effector_count = p_value;
-	if (skeleton) {
-		update_segments();
-	}
+	is_dirty = true;
 
 	notify_property_list_changed();
 }
@@ -83,20 +80,18 @@ int32_t SkeletonModification3DEWBIK::get_effector_count() const {
 	return effector_count;
 }
 
-void SkeletonModification3DEWBIK::add_effector(String p_name, NodePath p_target_node, bool p_use_node_xform, Transform p_target_xform) {
-	Ref<EWBIKShadowBone3D> effector_bone = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(skeleton, p_name)));
+void SkeletonModification3DEWBIK::add_effector(String p_name, NodePath p_target_node, bool p_use_node_rot, Transform p_target_xform) {
+	Ref<EWBIKShadowBone3D> effector_bone = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(p_name, skeleton)));
 	Ref<EWBIKBoneEffector3D> effector;
 	effector.instance();
 	effector->set_target_node(p_target_node);
-	effector->set_use_target_node_transform(p_use_node_xform);
+	effector->set_use_target_node_rotation(p_use_node_rot);
 	effector->set_target_transform(p_target_xform);
 	effector_bone->set_effector(effector);
 	multi_effector.push_back(effector_bone);
 	effector_count++;
 
-	if (skeleton) {
-		update_segments();
-	}
+	is_dirty = true;
 }
 
 Ref<EWBIKShadowBone3D> SkeletonModification3DEWBIK::get_effector(int32_t p_index) const {
@@ -110,9 +105,55 @@ void SkeletonModification3DEWBIK::set_effector(int32_t p_index, Ref<EWBIKShadowB
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
 	multi_effector.write[p_index] = p_effector;
 
+	is_dirty = true;
+}
+
+void SkeletonModification3DEWBIK::set_effector_bone_index(int32_t p_effector_index, int32_t p_bone_index) {
+	multi_effector.write[p_effector_index]->set_bone_id(p_bone_index);
+	is_dirty = true;
+}
+
+BoneId SkeletonModification3DEWBIK::get_effector_bone_index(int32_t p_effector_index) const {
+	return multi_effector[p_effector_index]->get_bone_id();
+}
+
+void SkeletonModification3DEWBIK::set_effector_bone(int32_t p_effector_index, String p_bone) {
 	if (skeleton) {
-		update_segments();
+		BoneId bone = skeleton->find_bone(p_bone);
+		multi_effector.write[p_effector_index]->set_bone_id(bone);
 	}
+	is_dirty = true;
+}
+
+String SkeletonModification3DEWBIK::get_effector_bone(int32_t p_effector_index) const {
+	if (skeleton) {
+		return skeleton->get_bone_name(multi_effector[p_effector_index]->get_bone_id());
+	}
+	return "";
+}
+
+void SkeletonModification3DEWBIK::set_effector_target_nodepath(int32_t p_index, NodePath p_target_node) {
+	multi_effector.write[p_index]->get_effector()->set_target_node(p_target_node);
+}
+
+NodePath SkeletonModification3DEWBIK::get_effector_target_nodepath(int32_t p_index) const {
+	return multi_effector[p_index]->get_effector()->get_target_node();
+}
+
+void SkeletonModification3DEWBIK::set_effector_target_transform(int32_t p_index, Transform p_target_transform) {
+	multi_effector.write[p_index]->get_effector()->set_target_transform(p_target_transform);
+}
+
+Transform SkeletonModification3DEWBIK::get_effector_target_transform(int32_t p_index) const {
+	return multi_effector[p_index]->get_effector()->get_target_transform();
+}
+
+void SkeletonModification3DEWBIK::set_effector_use_node_rotation(int32_t p_index, bool p_use_node_rot) {
+	multi_effector.write[p_index]->get_effector()->set_use_target_node_rotation(p_use_node_rot);
+}
+
+bool SkeletonModification3DEWBIK::get_effector_use_node_rotation(int32_t p_index) const {
+	return multi_effector[p_index]->get_effector()->get_use_target_node_rotation();
 }
 
 Vector<Ref<EWBIKShadowBone3D>> SkeletonModification3DEWBIK::get_bone_effectors() const {
@@ -120,8 +161,9 @@ Vector<Ref<EWBIKShadowBone3D>> SkeletonModification3DEWBIK::get_bone_effectors()
 }
 
 int32_t SkeletonModification3DEWBIK::find_effector(String p_name) {
+	BoneId bone = skeleton->find_bone(p_name);
 	for (int32_t effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
-		if (multi_effector[effector_i].is_valid() && multi_effector[effector_i]->get_name() == p_name) {
+		if (multi_effector[effector_i].is_valid() && multi_effector[effector_i]->get_bone_id() == bone) {
 			return effector_i;
 		}
 	}
@@ -133,9 +175,7 @@ void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 	multi_effector.remove(p_index);
 	effector_count--;
 
-	if (skeleton) {
-		update_segments();
-	}
+	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::execute(float delta) {
@@ -144,6 +184,8 @@ void SkeletonModification3DEWBIK::execute(float delta) {
 	if (!enabled)
 		return;
 
+	if (is_dirty)
+		update_skeleton();
 	solve(stack->get_strength());
 	execution_error_found = false;
 }
@@ -169,28 +211,16 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 		if (roots.size()) {
 			set_root_bone_index(roots[0]);
 		}
-	} else {
-		if (root_bone_index == -1)
+	} else if (root_bone_index == -1) {
 			set_root_bone(root_bone);
 	}
 	ERR_FAIL_COND(root_bone.is_empty());
 
-	if (!effector_count) {
-		segmented_skeleton = Ref<EWBIKSegmentedSkeleton3D>(memnew(EWBIKSegmentedSkeleton3D(skeleton, root_bone_index)));
-		segmented_skeleton->generate_default_segments_from_root();
-		Vector<Ref<EWBIKSegmentedSkeleton3D>> effector_chains = segmented_skeleton->get_effector_descendents();
-		effector_count = effector_chains.size();
-		multi_effector.resize(effector_count);
-		for (int32_t chain_i = 0; chain_i < effector_count; chain_i++) {
-			multi_effector.write[chain_i] = effector_chains[chain_i]->get_tip();
-			Ref<EWBIKSegmentedSkeleton3D> segment = effector_chains[chain_i];
-		}
-		update_effectors_map();
-	}
+	is_dirty = true;
+	call_deferred("update_skeleton");
 
 	is_setup = true;
 	execution_error_found = false;
-	notify_property_list_changed();
 }
 
 void SkeletonModification3DEWBIK::solve(float blending_delta) {
@@ -198,8 +228,15 @@ void SkeletonModification3DEWBIK::solve(float blending_delta) {
 		return; // Skip solving
 	}
 
-	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_descendents_size() > 0)
+	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_descendents_size() > 0) {
+		update_bones_transform();
+		// TODO: Update target transforms
+		// TODO: Search for segments that contain the effectors??
+
 		iterated_improved_solver();
+
+		// TODO: Apply bone chains
+	}
 }
 
 void SkeletonModification3DEWBIK::iterated_improved_solver() {
@@ -241,10 +278,51 @@ void SkeletonModification3DEWBIK::iterated_improved_solver() {
 	// }
 }
 
+void SkeletonModification3DEWBIK::update_skeleton() {
+	if (!is_dirty)
+		return;
+
+	if (effector_count) {
+		update_segments();
+	} else {
+		generate_default_effectors();
+	}
+	notify_property_list_changed();
+
+	is_dirty = false;
+}
+
+void SkeletonModification3DEWBIK::generate_default_effectors() {
+	segmented_skeleton = Ref<EWBIKSegmentedSkeleton3D>(memnew(EWBIKSegmentedSkeleton3D(skeleton, root_bone_index)));
+	segmented_skeleton->generate_default_segments_from_root();
+	Vector<Ref<EWBIKSegmentedSkeleton3D>> effector_chains = segmented_skeleton->get_effector_descendents();
+	effector_count = effector_chains.size();
+	multi_effector.resize(effector_count);
+	for (int32_t chain_i = 0; chain_i < effector_count; chain_i++) {
+		multi_effector.write[chain_i] = effector_chains[chain_i]->get_tip();
+		Ref<EWBIKSegmentedSkeleton3D> segment = effector_chains[chain_i];
+	}
+	update_effectors_map();
+	update_bone_list();
+}
+
+void SkeletonModification3DEWBIK::update_bones_transform() {
+	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
+		Ref<EWBIKShadowBone3D> bone = bone_list[bone_i];
+	}
+}
+
+void SkeletonModification3DEWBIK::update_bone_list() {
+	bone_list.clear();
+	bone_list = segmented_skeleton->get_bone_list();
+	bone_list.invert();
+}
+
 void SkeletonModification3DEWBIK::update_segments() {
 	if (effector_count) {
 		update_effectors_map();
 		segmented_skeleton = Ref<EWBIKSegmentedSkeleton3D>(memnew(EWBIKSegmentedSkeleton3D(skeleton, root_bone_index, effectors_map)));
+		update_bone_list();
 	}
 }
 
@@ -281,10 +359,11 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	for (int i = 0; i < effector_count; i++) {
 		p_list->push_back(PropertyInfo(Variant::STRING, "effectors/" + itos(i) + "/name"));
+		p_list->push_back(PropertyInfo(Variant::INT, "effectors/" + itos(i) + "/index"));
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
 		p_list->push_back(
-				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/use_node_transform"));
+				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/use_node_rotation"));
 		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM, "effectors/" + itos(i) + "/target_transform"));
 	}
@@ -304,16 +383,19 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		ERR_FAIL_INDEX_V(index, get_effector_count(), false);
 		ERR_FAIL_COND_V(get_effector(index).is_null(), false);
 		if (what == "name") {
-			r_ret = get_effector(index)->get_name();
+			r_ret = get_effector_bone(index);
+			return true;
+		} else if (what == "index") {
+			r_ret = get_effector_bone_index(index);
 			return true;
 		} else if (what == "target_node") {
-			r_ret = get_effector(index)->get_effector()->get_target_node();
+			r_ret = get_effector_target_nodepath(index);
 			return true;
-		} else if (what == "use_node_transform") {
-			r_ret = get_effector(index)->get_effector()->get_use_target_node_transform();
+		} else if (what == "use_node_rotation") {
+			r_ret = get_effector_use_node_rotation(index);
 			return true;
 		} else if (what == "target_transform") {
-			r_ret = get_effector(index)->get_effector()->get_target_transform();
+			r_ret = get_effector_target_transform(index);
 			return true;
 		}
 	}
@@ -342,19 +424,23 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		if (what == "name") {
 			name = p_value;
 			ERR_FAIL_COND_V(name.is_empty(), false);
-			effector->set_name(name);
+			set_effector_bone(index, name);
+
+			return true;
+		} else if (what == "index") {
+			set_effector_bone_index(index, p_value);
 
 			return true;
 		} else if (what == "target_node") {
-			effector->get_effector()->set_target_node(p_value);
+			set_effector_target_nodepath(index, p_value);
 
 			return true;
-		} else if (what == "use_node_transform") {
-			effector->get_effector()->set_use_target_node_transform(p_value);
+		} else if (what == "use_node_rotation") {
+			set_effector_use_node_rotation(index, p_value);
 
 			return true;
 		} else if (what == "target_transform") {
-			effector->get_effector()->set_target_transform(p_value);
+			set_effector_target_transform(index, p_value);
 
 			return true;
 		}
@@ -374,6 +460,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node", "target_transform", "budget"), &SkeletonModification3DEWBIK::add_effector);
 	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3DEWBIK::get_effector);
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DEWBIK::set_effector);
+	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
 }
