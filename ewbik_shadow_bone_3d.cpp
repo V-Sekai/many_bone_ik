@@ -38,15 +38,19 @@ BoneId EWBIKShadowBone3D::get_bone_id() const {
 	return for_bone;
 }
 
-void EWBIKShadowBone3D::set_parent(Ref<EWBIKShadowBone3D> p_parent) {
+void EWBIKShadowBone3D::set_parent(const Ref<EWBIKShadowBone3D> &p_parent) {
 	parent = p_parent;
+	if (parent.is_valid()) {
+		parent->children.push_back(this);
+		xform.set_parent(&parent->xform);
+	}
 }
 
 Ref<EWBIKShadowBone3D> EWBIKShadowBone3D::get_parent() const {
 	return parent;
 }
 
-void EWBIKShadowBone3D::set_effector(Ref<EWBIKBoneEffector3D> p_effector) {
+void EWBIKShadowBone3D::set_effector(const Ref<EWBIKBoneEffector3D> &p_effector) {
 	effector = p_effector;
 }
 
@@ -54,8 +58,35 @@ Ref<EWBIKBoneEffector3D> EWBIKShadowBone3D::get_effector() const {
 	return effector;
 }
 
+void EWBIKShadowBone3D::set_transform(const Transform &p_transform) {
+	xform.set_transform(p_transform);
+}
+
+Transform EWBIKShadowBone3D::get_transform() const {
+	return xform.get_transform();
+}
+
+void EWBIKShadowBone3D::rotate(const Quat &p_rot) {
+	Transform rot_xform = Transform(Basis(p_rot), Vector3());
+	set_transform(rot_xform * get_transform());
+}
+
+void EWBIKShadowBone3D::set_global_transform(const Transform &p_transform) {
+	xform.set_global_transform(p_transform);
+}
+
+Transform EWBIKShadowBone3D::get_global_transform() const {
+	return xform.get_global_transform();
+}
+
+void EWBIKShadowBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
+	set_transform(p_skeleton->get_bone_pose(get_bone_id()));
+	if (is_effector())
+		effector->update_goal_transform(p_skeleton);
+}
+
 void EWBIKShadowBone3D::create_effector() {
-	effector.instance();
+	effector = Ref<EWBIKBoneEffector3D>(memnew(EWBIKBoneEffector3D(this)));
 }
 
 bool EWBIKShadowBone3D::is_effector() const {
@@ -92,18 +123,18 @@ bool EWBIKShadowBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_ske
 	}
 }
 
-EWBIKShadowBone3D::EWBIKShadowBone3D(BoneId p_bone, Ref<EWBIKShadowBone3D> p_parent) {
-	for_bone = p_bone;
-	parent = p_parent;
-}
-
-EWBIKShadowBone3D::EWBIKShadowBone3D(String p_bone, Skeleton3D *p_skeleton, Ref<EWBIKShadowBone3D> p_parent) {
-	for_bone = p_skeleton->find_bone(p_bone);
-	parent = p_parent;
-}
-
 void EWBIKShadowBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector"), &EWBIKShadowBone3D::get_effector);
 	ClassDB::bind_method(D_METHOD("set_effector", "effector"), &EWBIKShadowBone3D::set_effector);
 	ClassDB::bind_method(D_METHOD("is_pinned"), &EWBIKShadowBone3D::is_effector);
+}
+
+EWBIKShadowBone3D::EWBIKShadowBone3D(BoneId p_bone, const Ref<EWBIKShadowBone3D> &p_parent) {
+	for_bone = p_bone;
+	set_parent(p_parent);
+}
+
+EWBIKShadowBone3D::EWBIKShadowBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<EWBIKShadowBone3D> &p_parent) {
+	for_bone = p_skeleton->find_bone(p_bone);
+	set_parent(p_parent);
 }

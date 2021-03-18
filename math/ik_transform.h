@@ -32,7 +32,6 @@
 #define IK_TRANSFORM_H
 
 #include "core/math/transform.h"
-#include "core/math/basis.h"
 #include "core/templates/list.h"
 
 class IKTransform {
@@ -76,22 +75,25 @@ public:
 	void set_disable_scale(bool p_enabled);
 	bool is_scale_disabled() const;
 
-	void rotate(const Vector3 &p_axis, float p_angle);
-	void rotate_x(float p_angle);
-	void rotate_y(float p_angle);
-	void rotate_z(float p_angle);
+	void set_parent(IKTransform *p_parent);
+	IKTransform *get_parent() const;
+
+	void rotate(const Vector3 &p_axis, real_t p_angle);
+	void rotate_x(real_t p_angle);
+	void rotate_y(real_t p_angle);
+	void rotate_z(real_t p_angle);
 	void translate(const Vector3 &p_offset);
 
-	void rotate_object_local(const Vector3 &p_axis, float p_angle);
+	void rotate_object_local(const Vector3 &p_axis, real_t p_angle);
 	void scale_object_local(const Vector3 &p_scale);
 	void translate_object_local(const Vector3 &p_offset);
 
-	void global_rotate(const Vector3 &p_axis, float p_angle);
+	void global_rotate(const Vector3 &p_axis, real_t p_angle);
 	void global_scale(const Vector3 &p_scale);
 	void global_translate(const Vector3 &p_offset);
 
-	Vector3 to_local(Vector3 p_global) const;
-	Vector3 to_global(Vector3 p_local) const;
+	Vector3 to_local(const Vector3 &p_global) const;
+	Vector3 to_global(const Vector3 &p_local) const;
 
 	void orthonormalize();
 	void set_identity();

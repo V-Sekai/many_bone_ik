@@ -34,6 +34,9 @@
 #include "core/object/reference.h"
 #include "scene/3d/skeleton_3d.h"
 #include "ewbik_bone_effector_3d.h"
+#include "math/ik_transform.h"
+
+class EWBIKBoneEffector3D;
 
 class EWBIKShadowBone3D : public Reference {
 	GDCLASS(EWBIKShadowBone3D, Reference);
@@ -41,8 +44,9 @@ class EWBIKShadowBone3D : public Reference {
 private:
 	BoneId for_bone = -1;
 	Ref<EWBIKShadowBone3D> parent = nullptr;
+	Vector<Ref<EWBIKShadowBone3D>> children;
 	Ref<EWBIKBoneEffector3D> effector = nullptr;
-	Transform transform;
+	IKTransform xform;
 
 	static bool has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<EWBIKShadowBone3D>> &p_map);
 
@@ -52,17 +56,23 @@ protected:
 public:
 	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
 	BoneId get_bone_id() const;
-	void set_parent(Ref<EWBIKShadowBone3D> p_parent);
+	void set_parent(const Ref<EWBIKShadowBone3D> &p_parent);
 	Ref<EWBIKShadowBone3D> get_parent() const;
-	void set_effector(Ref<EWBIKBoneEffector3D> p_effector);
+	void set_effector(const Ref<EWBIKBoneEffector3D> &p_effector);
 	Ref<EWBIKBoneEffector3D> get_effector() const;
+	void set_transform(const Transform &p_transform);
+	Transform get_transform() const;
+	void rotate(const Quat &p_rot);
+	void set_global_transform(const Transform &p_transform);
+	Transform get_global_transform() const;
+	void set_initial_transform(Skeleton3D *p_skeleton);
 	void create_effector();
 	bool is_effector() const;
 	Vector<BoneId> get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<EWBIKShadowBone3D>> &p_map) const;
 
 	EWBIKShadowBone3D() {}
-	EWBIKShadowBone3D(BoneId p_bone, Ref<EWBIKShadowBone3D> p_parent = nullptr);
-	EWBIKShadowBone3D(String p_bone, Skeleton3D *p_skeleton, Ref<EWBIKShadowBone3D> p_parent = nullptr);
+	EWBIKShadowBone3D(BoneId p_bone, const Ref<EWBIKShadowBone3D> &p_parent = nullptr);
+	EWBIKShadowBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<EWBIKShadowBone3D> &p_parent = nullptr);
 	~EWBIKShadowBone3D() {}
 };
 

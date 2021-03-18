@@ -31,26 +31,45 @@
 #define EWBIK_BONE_EFFECTOR_3D_H
 
 #include "core/object/reference.h"
+#include "scene/3d/skeleton_3d.h"
+#include "ewbik_shadow_bone_3d.h"
+
+class EWBIKShadowBone3D;
 
 class EWBIKBoneEffector3D : public Reference {
 	GDCLASS(EWBIKBoneEffector3D, Reference);
+	friend class EWBIKShadowBone3D;
+
+private:
+	Ref<EWBIKShadowBone3D> for_bone;
+	Transform target_transform;
+	NodePath target_nodepath = NodePath();
+	bool use_target_node_rotation = false;
+	Transform goal_transform;
+	int32_t num_headings;
+	Vector3 priority = Vector3(1.0, 0.0, 1.0);
+	real_t weight = 1.0;
+	bool follow_x, follow_y, follow_z;
+
+	void update_priorities();
+	void update_goal_transform(Skeleton3D *p_skeleton);
 
 protected:
-	Transform target_transform;
-	NodePath target_node = NodePath();
-	bool use_target_node_rotation = false;
-
 	static void _bind_methods();
 
 public:
-	void set_target_transform(Transform p_target_transform);
+	void set_target_transform(const Transform &p_target_transform);
 	Transform get_target_transform() const;
-	void set_target_node(NodePath p_target_node_path);
+	void set_target_node(const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
 	void set_use_target_node_rotation(bool p_use);
 	bool get_use_target_node_rotation() const;
+	bool is_following_translation_only() const;
+	void update_target_headings(Skeleton3D *p_skeleton, PackedVector3Array &p_headings, Vector<real_t> &p_weights);
+	void update_tip_headings(Skeleton3D *p_skeleton, PackedVector3Array &p_headings, int32_t &p_index);
 
-	EWBIKBoneEffector3D() {}
+	EWBIKBoneEffector3D(const Ref<EWBIKShadowBone3D> &p_for_bone);
 	~EWBIKBoneEffector3D() {}
 };
+
 #endif // EWBIK_BONE_EFFECTOR_3D_H

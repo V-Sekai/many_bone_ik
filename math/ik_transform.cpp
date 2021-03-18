@@ -106,6 +106,8 @@ Vector3 IKTransform::get_scale() const {
 }
 
 void IKTransform::set_transform(const Transform &p_transform) {
+	if (local_transform == p_transform)
+		return;
 	local_transform = p_transform;
 	dirty |= DIRTY_VECTORS;
 	_propagate_transform_changed();
@@ -156,31 +158,41 @@ bool IKTransform::is_scale_disabled() const {
 	return disable_scale;
 }
 
-void IKTransform::rotate_object_local(const Vector3 &p_axis, float p_angle) {
+void IKTransform::set_parent(IKTransform *p_parent) {
+	parent = p_parent;
+	parent->children.push_back(this);
+	_propagate_transform_changed();
+}
+
+IKTransform *IKTransform::get_parent() const {
+	return parent;
+}
+
+void IKTransform::rotate_object_local(const Vector3 &p_axis, real_t p_angle) {
 	Transform t = get_transform();
 	t.basis.rotate_local(p_axis, p_angle);
 	set_transform(t);
 }
 
-void IKTransform::rotate(const Vector3 &p_axis, float p_angle) {
+void IKTransform::rotate(const Vector3 &p_axis, real_t p_angle) {
 	Transform t = get_transform();
 	t.basis.rotate(p_axis, p_angle);
 	set_transform(t);
 }
 
-void IKTransform::rotate_x(float p_angle) {
+void IKTransform::rotate_x(real_t p_angle) {
 	Transform t = get_transform();
 	t.basis.rotate(Vector3(1, 0, 0), p_angle);
 	set_transform(t);
 }
 
-void IKTransform::rotate_y(float p_angle) {
+void IKTransform::rotate_y(real_t p_angle) {
 	Transform t = get_transform();
 	t.basis.rotate(Vector3(0, 1, 0), p_angle);
 	set_transform(t);
 }
 
-void IKTransform::rotate_z(float p_angle) {
+void IKTransform::rotate_z(real_t p_angle) {
 	Transform t = get_transform();
 	t.basis.rotate(Vector3(0, 0, 1), p_angle);
 	set_transform(t);
@@ -206,7 +218,7 @@ void IKTransform::scale_object_local(const Vector3 &p_scale) {
 	set_transform(t);
 }
 
-void IKTransform::global_rotate(const Vector3 &p_axis, float p_angle) {
+void IKTransform::global_rotate(const Vector3 &p_axis, real_t p_angle) {
 	Transform t = get_global_transform();
 	t.basis.rotate(p_axis, p_angle);
 	set_global_transform(t);
@@ -222,6 +234,14 @@ void IKTransform::global_translate(const Vector3 &p_offset) {
 	Transform t = get_global_transform();
 	t.origin += p_offset;
 	set_global_transform(t);
+}
+
+Vector3 IKTransform::to_local(const Vector3 &p_global) const {
+	return get_global_transform().affine_inverse().xform(p_global);
+}
+
+Vector3 IKTransform::to_global(const Vector3 &p_local) const {
+	return get_global_transform().xform(p_local);
 }
 
 void IKTransform::orthonormalize() {

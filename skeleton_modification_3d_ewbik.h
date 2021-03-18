@@ -35,8 +35,6 @@
 #include "core/os/memory.h"
 #include "scene/resources/skeleton_modification_3d.h"
 #include "ewbik_segmented_skeleton_3d.h"
-#include "ewbik_shadow_bone_3d.h"
-#include "ewbik_bone_effector_3d.h"
 
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
@@ -50,16 +48,18 @@ private:
 	Vector<Ref<EWBIKShadowBone3D>> multi_effector;
 	HashMap<BoneId, Ref<EWBIKShadowBone3D>> effectors_map;
 	Vector<Ref<EWBIKShadowBone3D>> bone_list;
+	struct IKState state;
 	bool is_dirty = true;
 
 	// Task
-	int32_t ik_iterations = 15;
+	int32_t ik_iterations = 1;
+	int32_t stabilization_passes = 1;
 
 	void update_segments();
 	void update_effectors_map();
-	void update_bones_transform();
 	void update_bone_list();
 	void generate_default_effectors();
+	void update_bones_transform();
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
@@ -73,33 +73,34 @@ protected:
 public:
 	void set_ik_iterations(int32_t p_iterations);
 	int32_t get_ik_iterations() const;
-	void set_root_bone(String p_root_bone);
+	void set_root_bone(const String &p_root_bone);
 	String get_root_bone() const;
 	void set_root_bone_index(BoneId p_index);
 	BoneId get_root_bone_index() const;
 	void set_effector_count(int32_t p_value);
 	int32_t get_effector_count() const;
-	void add_effector(String p_name, NodePath p_target_node = NodePath(), bool p_use_node_rot = false, Transform p_target_xform = Transform());
-	int32_t find_effector(String p_name);
+	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(),
+			bool p_use_node_rot = false, const Transform &p_target_xform = Transform());
+	int32_t find_effector(const String &p_name) const;
 	void remove_effector(int32_t p_index);
 	Ref<EWBIKShadowBone3D> get_effector(int32_t p_index) const;
-	void set_effector(int32_t p_index, Ref<EWBIKShadowBone3D> p_effector);
+	void set_effector(int32_t p_index, const Ref<EWBIKShadowBone3D> &p_effector);
 	void set_effector_bone_index(int32_t p_effector_index, int32_t p_bone_index);
 	BoneId get_effector_bone_index(int32_t p_effector_index) const;
-	void set_effector_bone(int32_t p_effector_index, String p_bone);
+	void set_effector_bone(int32_t p_effector_index, const String &p_bone);
 	String get_effector_bone(int32_t p_effector_index) const;
-	void set_effector_target_nodepath(int32_t p_index, NodePath p_target_node);
+	void set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node);
 	NodePath get_effector_target_nodepath(int32_t p_index) const;
-	void set_effector_target_transform(int32_t p_index, Transform p_target_transform);
+	void set_effector_target_transform(int32_t p_index, const Transform &p_target_transform);
 	Transform get_effector_target_transform(int32_t p_index) const;
 	void set_effector_use_node_rotation(int32_t p_index, bool p_use_node_rot);
 	bool get_effector_use_node_rotation(int32_t p_index) const;
 	void update_skeleton();
 
-	virtual void execute(float delta) override;
+	virtual void execute(real_t delta) override;
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
 
-	void solve(float blending_delta);
+	void solve(real_t blending_delta);
 	void iterated_improved_solver();
 
 	SkeletonModification3DEWBIK();
