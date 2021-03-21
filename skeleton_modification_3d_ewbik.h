@@ -51,6 +51,8 @@ private:
 	struct IKState state;
 	bool is_dirty = true;
 
+	bool stop = false;
+
 	// Task
 	int32_t ik_iterations = 1;
 	int32_t stabilization_passes = 1;
@@ -59,7 +61,8 @@ private:
 	void update_effectors_map();
 	void update_bone_list();
 	void generate_default_effectors();
-	void update_bones_transform();
+	void update_shadow_bones_transform();
+	void update_skeleton_bones_transform();
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;

@@ -68,6 +68,8 @@ private:
 	void update_tip_headings(IKState &p_state);
 	real_t get_manual_rmsd(const IKState &p_state) const;
 	void set_optimal_rotation(Ref<EWBIKShadowBone3D> p_for_bone, IKState &p_state);
+	void segment_solver(int32_t p_stabilization_passes, IKState &p_state);
+	void qcp_solver(int32_t p_stabilization_passes, IKState &p_state);
 
 protected:
 	static void _bind_methods();
@@ -78,6 +80,7 @@ public:
 	int32_t get_chain_length() const;
 	bool is_root_effector() const;
 	bool is_tip_effector() const;
+	Vector<Ref<EWBIKSegmentedSkeleton3D>> get_child_chains() const;
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> get_effector_direct_descendents() const;
 	int32_t get_effector_direct_descendents_size() const;
 	void get_bone_list(Vector<Ref<EWBIKShadowBone3D>> &p_list) const;
@@ -85,6 +88,7 @@ public:
 	void update_optimal_rotation(Ref<EWBIKShadowBone3D> p_for_bone, IKState &p_state, bool p_translate, int32_t p_stabilization_passes);
 	void update_effector_list(Vector<Ref<EWBIKBoneEffector3D>> &p_list);
 	void update_target_headings(IKState &p_state);
+	void grouped_segment_solver(int32_t p_stabilization_passes, IKState &p_state);
 
 	EWBIKSegmentedSkeleton3D() {}
 	EWBIKSegmentedSkeleton3D(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<EWBIKSegmentedSkeleton3D> &p_parent = nullptr);

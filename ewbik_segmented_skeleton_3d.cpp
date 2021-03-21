@@ -49,6 +49,10 @@ bool EWBIKSegmentedSkeleton3D::is_tip_effector() const {
 	return tip->is_effector();
 }
 
+Vector<Ref<EWBIKSegmentedSkeleton3D>> EWBIKSegmentedSkeleton3D::get_child_chains() const {
+	return child_chains;
+}
+
 Vector<Ref<EWBIKSegmentedSkeleton3D>> EWBIKSegmentedSkeleton3D::get_effector_direct_descendents() const {
 	return effector_direct_descendents;
 }
@@ -199,8 +203,8 @@ void EWBIKSegmentedSkeleton3D::update_effector_list(Vector<Ref<EWBIKBoneEffector
 }
 
 void EWBIKSegmentedSkeleton3D::update_optimal_rotation(Ref<EWBIKShadowBone3D> p_for_bone, IKState &p_state, bool p_translate, int32_t p_stabilization_passes) {
-	Quat best_orientation = p_for_bone->get_global_transform().basis.get_quat();
-	real_t new_dampening = p_translate ?  Math_PI : -1.0;
+	// Quat best_orientation = p_for_bone->get_global_transform().basis.get_quat();
+	// real_t new_dampening = p_translate ?  Math_PI : -1.0;
 	if (p_for_bone->get_parent().is_null() || (child_chains.is_empty() && tip->get_effector()->is_following_translation_only())) {
 		p_stabilization_passes = 0;
 	}
@@ -208,13 +212,22 @@ void EWBIKSegmentedSkeleton3D::update_optimal_rotation(Ref<EWBIKShadowBone3D> p_
 	update_tip_headings(p_state);
 
 	real_t best_rmsd = 0.0;
-	real_t new_rmsd = FLT_MAX;
 
-	if (p_stabilization_passes > 0)
+	if (p_stabilization_passes > 0) {
 		best_rmsd = get_manual_rmsd(p_state);
+	}
 
-	for (int32_t i = 0; i < p_stabilization_passes; i++) {
+	for (int32_t i = 0; i < p_stabilization_passes + 1; i++) {
 		set_optimal_rotation(p_for_bone, p_state);
+
+		if (p_stabilization_passes > 0) {
+			update_tip_headings(p_state);
+			real_t new_rmsd = get_manual_rmsd(p_state);
+			if (best_rmsd >= new_rmsd) {
+				// TODO: Consider springy bones
+				break;
+			}
+		}
 	}
 }
 
@@ -222,7 +235,7 @@ void EWBIKSegmentedSkeleton3D::set_optimal_rotation(Ref<EWBIKShadowBone3D> p_for
 	QCP qcp;
 	Vector3 translation;
 	Quat rot = qcp.calc_optimal_rotation(p_state.tip_headings, p_state.target_headings, p_state.heading_weights, true, translation);
-	p_for_bone->rotate(rot);
+	p_for_bone->rotate_and_translate(rot, Vector3()); //translation);
 }
 
 real_t EWBIKSegmentedSkeleton3D::get_manual_rmsd(const IKState &p_state) const {
@@ -257,6 +270,43 @@ void EWBIKSegmentedSkeleton3D::update_tip_headings(IKState &p_state) {
 	for (int32_t effector_i = idx_eff_i; effector_i < idx_eff_f; effector_i++) {
 		Ref<EWBIKBoneEffector3D> effector = p_state.ordered_effector_list[effector_i];
 		effector->update_tip_headings(skeleton, p_state.tip_headings, index);
+	}
+}
+
+void EWBIKSegmentedSkeleton3D::grouped_segment_solver(int32_t p_stabilization_passes, IKState &p_state) {
+	segment_solver(p_stabilization_passes, p_state);
+	for (int32_t i = 0; i < effector_direct_descendents.size(); i++) {
+		Ref<EWBIKSegmentedSkeleton3D> effector_chain = effector_direct_descendents[i];
+		for (int32_t child_i = 0; child_i < effector_chain->child_chains.size(); child_i++) {
+			Ref<EWBIKSegmentedSkeleton3D> child = effector_chain->child_chains[child_i];
+			child->grouped_segment_solver(p_stabilization_passes, p_state);
+		}
+	}
+}
+
+void EWBIKSegmentedSkeleton3D::segment_solver(int32_t p_stabilization_passes, IKState &p_state) {
+	if (child_chains.size() == 0 && !is_tip_effector()) {
+		return;
+	} else if (!is_tip_effector()) {
+		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
+			Ref<EWBIKSegmentedSkeleton3D> child = child_chains[child_i];
+			child->segment_solver(p_stabilization_passes, p_state);
+		}
+	}
+	qcp_solver(p_stabilization_passes, p_state);
+}
+
+void EWBIKSegmentedSkeleton3D::qcp_solver(int32_t p_stabilization_passes, IKState &p_state) {
+	Ref<EWBIKShadowBone3D> current_bone = tip;
+	while (current_bone.is_valid()) {
+		if (!current_bone->get_orientation_lock()) {
+			update_optimal_rotation(current_bone, p_state, false, p_stabilization_passes);
+		}
+		if (current_bone == root) {
+			break;
+		}
+
+		current_bone = current_bone->get_parent();
 	}
 }
 

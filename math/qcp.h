@@ -37,10 +37,10 @@
 class QCP {
 
 private:
-     real_t evec_prec = UNIT_EPSILON;
-     real_t eval_prec = UNIT_EPSILON;
-     real_t rot_prec = UNIT_EPSILON;
-     int32_t max_iterations = 3;
+     real_t evec_prec = UNIT_EPSILON; // CMP_EPSILON;
+     real_t eval_prec = UNIT_EPSILON; // CMP_EPSILON;
+     real_t rot_prec = UNIT_EPSILON; // CMP_EPSILON;
+     int32_t max_iterations = 10;
      real_t Sxx, Sxy, Sxz, Syx, Syy, Syz, Szx, Szy, Szz = 0;
      real_t SxxpSyy, SyzmSzy, SxzmSzx, SxymSyx = 0;
 	real_t SxxmSyy, SxypSyx, SxzpSzx, SyzpSzy = 0;
