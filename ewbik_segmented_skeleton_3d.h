@@ -32,9 +32,9 @@
 #define EWBIK_SEGMENTED_SKELETON_3D_H
 
 #include "core/object/reference.h"
-#include "scene/3d/skeleton_3d.h"
 #include "ewbik_shadow_bone_3d.h"
 #include "math/qcp.h"
+#include "scene/3d/skeleton_3d.h"
 
 struct IKState {
 	Vector<Ref<EWBIKBoneEffector3D>> ordered_effector_list;
@@ -51,11 +51,10 @@ private:
 	Ref<EWBIKShadowBone3D> tip;
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> child_chains; // Contains only child chains that end with effectors
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> effector_direct_descendents;
-	int32_t chain_length;
 	HashMap<BoneId, Ref<EWBIKShadowBone3D>> bones_map;
 	Ref<EWBIKSegmentedSkeleton3D> parent_chain;
-	int32_t idx_eff_i, idx_eff_f;
-	int32_t idx_headings_i, idx_headings_f;
+	int32_t idx_eff_i = -1, idx_eff_f = -1;
+	int32_t idx_headings_i = -1, idx_headings_f = -1;
 
 	Skeleton3D *skeleton = nullptr;
 
@@ -77,7 +76,6 @@ protected:
 public:
 	Ref<EWBIKShadowBone3D> get_root() const;
 	Ref<EWBIKShadowBone3D> get_tip() const;
-	int32_t get_chain_length() const;
 	bool is_root_effector() const;
 	bool is_tip_effector() const;
 	Vector<Ref<EWBIKSegmentedSkeleton3D>> get_child_chains() const;
@@ -89,6 +87,7 @@ public:
 	void update_effector_list(Vector<Ref<EWBIKBoneEffector3D>> &p_list);
 	void update_target_headings(IKState &p_state);
 	void grouped_segment_solver(int32_t p_stabilization_passes, IKState &p_state);
+	void debug_print_chains(Vector<bool> p_levels = Vector<bool>());
 
 	EWBIKSegmentedSkeleton3D() {}
 	EWBIKSegmentedSkeleton3D(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<EWBIKSegmentedSkeleton3D> &p_parent = nullptr);

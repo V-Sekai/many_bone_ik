@@ -32,9 +32,9 @@
 #define EWBIK_SHADOW_BONE_3D_H
 
 #include "core/object/reference.h"
-#include "scene/3d/skeleton_3d.h"
 #include "ewbik_bone_effector_3d.h"
 #include "math/ik_transform.h"
+#include "scene/3d/skeleton_3d.h"
 
 class EWBIKBoneEffector3D;
 

@@ -37,10 +37,6 @@ Ref<EWBIKShadowBone3D> EWBIKSegmentedSkeleton3D::get_tip() const {
 	return tip;
 }
 
-int32_t EWBIKSegmentedSkeleton3D::get_chain_length() const {
-	return chain_length;
-}
-
 bool EWBIKSegmentedSkeleton3D::is_root_effector() const {
 	return root->is_effector();
 }
@@ -63,8 +59,7 @@ int32_t EWBIKSegmentedSkeleton3D::get_effector_direct_descendents_size() const {
 
 BoneId EWBIKSegmentedSkeleton3D::find_root_bone_id(BoneId p_bone) {
 	BoneId root_id = p_bone;
-	while (skeleton->get_bone_parent(root_id) != -1)
-	{
+	while (skeleton->get_bone_parent(root_id) != -1) {
 		root_id = skeleton->get_bone_parent(root_id);
 	}
 
@@ -75,9 +70,7 @@ void EWBIKSegmentedSkeleton3D::generate_skeleton_segments(const HashMap<BoneId, 
 	child_chains.clear();
 
 	Ref<EWBIKShadowBone3D> tempTip = root;
-	chain_length = 0;
 	while (true) {
-		chain_length++;
 		Vector<BoneId> children_with_effector_descendants = tempTip->get_children_with_effector_descendants(skeleton, p_map);
 		if (children_with_effector_descendants.size() > 1 || tempTip->is_effector()) {
 			tip = tempTip;
@@ -127,8 +120,9 @@ void EWBIKSegmentedSkeleton3D::generate_bones_map() {
 	Ref<EWBIKShadowBone3D> stop_on = root;
 	while (current_bone.is_valid()) {
 		bones_map[current_bone->get_bone_id()] = current_bone;
-		if (current_bone == stop_on)
+		if (current_bone == stop_on) {
 			break;
+		}
 		current_bone = current_bone->get_parent();
 	}
 }
@@ -137,9 +131,7 @@ void EWBIKSegmentedSkeleton3D::generate_default_segments_from_root() {
 	child_chains.clear();
 
 	Ref<EWBIKShadowBone3D> tempTip = root;
-	chain_length = 0;
 	while (true) {
-		chain_length++;
 		Vector<BoneId> children = skeleton->get_bone_children(tempTip->get_bone_id());
 		if (children.size() > 1) {
 			tip = tempTip;
@@ -204,7 +196,7 @@ void EWBIKSegmentedSkeleton3D::update_effector_list(Vector<Ref<EWBIKBoneEffector
 
 void EWBIKSegmentedSkeleton3D::update_optimal_rotation(Ref<EWBIKShadowBone3D> p_for_bone, IKState &p_state, bool p_translate, int32_t p_stabilization_passes) {
 	// Quat best_orientation = p_for_bone->get_global_transform().basis.get_quat();
-	// real_t new_dampening = p_translate ?  Math_PI : -1.0;
+	// real_t new_dampening = p_translate ? Math_PI : -1.0;
 	if (p_for_bone->get_parent().is_null() || (child_chains.is_empty() && tip->get_effector()->is_following_translation_only())) {
 		p_stabilization_passes = 0;
 	}
@@ -310,6 +302,63 @@ void EWBIKSegmentedSkeleton3D::qcp_solver(int32_t p_stabilization_passes, IKStat
 	}
 }
 
+void EWBIKSegmentedSkeleton3D::debug_print_chains(Vector<bool> p_levels) {
+	Vector<Ref<EWBIKShadowBone3D>> bone_list;
+	Ref<EWBIKShadowBone3D> current_bone = tip;
+	while (current_bone.is_valid()) {
+		bone_list.push_back(current_bone);
+		if (current_bone == root) {
+			break;
+		}
+		current_bone = current_bone->get_parent();
+	}
+	String tab = "";
+	for (int32_t lvl_i = 0; lvl_i < p_levels.size(); lvl_i++) {
+		//if (lvl_i != p_levels.size() - 1 && !p_levels[lvl_i]) {
+		if (p_levels[lvl_i]) {
+			tab += "  |";
+		} else {
+			tab += "  ";
+		}
+	}
+	String t = "";
+	if (p_levels.size() == 0) {
+		t = "|";
+	} else if (!p_levels[p_levels.size() - 1]) {
+		t = "|";
+	}
+	for (int32_t b_i = bone_list.size() - 1; b_i > -1; b_i--) {
+		String s = tab + t + "_";
+		Ref<EWBIKShadowBone3D> bone = bone_list[b_i];
+		if (bone == root && bone == tip) {
+			if (tip->is_effector()) {
+				s += "(RTE) ";
+			} else {
+				s += "(RT) ";
+			}
+		} else if (bone == root) {
+			s += "(R) ";
+		} else if (bone == tip) {
+			if (tip->is_effector()) {
+				s += "(TE) ";
+			} else {
+				s += "(T) ";
+			}
+		}
+		s += skeleton->get_bone_name(bone->get_bone_id());
+		print_line(s);
+	}
+	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
+		Vector<bool> levels = p_levels;
+		levels.push_back(chain_i != child_chains.size() - 1);
+		Ref<EWBIKSegmentedSkeleton3D> chain = child_chains[chain_i];
+		chain->debug_print_chains(levels);
+		if (chain_i < child_chains.size() - 1) {
+			print_line(tab + "  |");
+		}
+	}
+}
+
 void EWBIKSegmentedSkeleton3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_root_effector"), &EWBIKSegmentedSkeleton3D::is_root_effector);
 	ClassDB::bind_method(D_METHOD("is_tip_effector"), &EWBIKSegmentedSkeleton3D::is_tip_effector);
@@ -317,8 +366,7 @@ void EWBIKSegmentedSkeleton3D::_bind_methods() {
 
 EWBIKSegmentedSkeleton3D::EWBIKSegmentedSkeleton3D(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<EWBIKSegmentedSkeleton3D> &p_parent) {
 	skeleton = p_skeleton;
-	BoneId root_id = find_root_bone_id(p_root_bone);
-	root = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(root_id)));
+	root = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(p_root_bone)));
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;
 		root->set_parent(p_parent->get_tip());
@@ -328,11 +376,10 @@ EWBIKSegmentedSkeleton3D::EWBIKSegmentedSkeleton3D(Skeleton3D *p_skeleton, BoneI
 EWBIKSegmentedSkeleton3D::EWBIKSegmentedSkeleton3D(Skeleton3D *p_skeleton, BoneId p_root_bone,
 		const HashMap<BoneId, Ref<EWBIKShadowBone3D>> &p_map, const Ref<EWBIKSegmentedSkeleton3D> &p_parent) {
 	skeleton = p_skeleton;
-	BoneId root_id = find_root_bone_id(p_root_bone);
-	if (p_map.has(root_id)) {
-		root = p_map[root_id];
+	if (p_map.has(p_root_bone)) {
+		root = p_map[p_root_bone];
 	} else {
-		root = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(root_id)));
+		root = Ref<EWBIKShadowBone3D>(memnew(EWBIKShadowBone3D(p_root_bone)));
 	}
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;

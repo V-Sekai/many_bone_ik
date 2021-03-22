@@ -184,15 +184,16 @@ real_t QCP::calc_rmsd(real_t &e0, real_t wsum) {
 	for (i = 0; i < max_iterations; ++i) {
 		real_t oldg = eignv;
 		x2 = eignv * eignv;
-        b = (x2 + c2) * eignv;
-        a = b + c1;
-        delta = ((a * eignv + c0) / (2.0 * x2 * eignv + b + a));
-        eignv -= delta;
-        if (Math::abs(eignv - oldg) < Math::abs(eval_prec * eignv))
-            break;
+		b = (x2 + c2) * eignv;
+		a = b + c1;
+		delta = ((a * eignv + c0) / (2.0 * x2 * eignv + b + a));
+		eignv -= delta;
+		if (Math::abs(eignv - oldg) < Math::abs(eval_prec * eignv))
+			break;
 	}
-	if (i == max_iterations)
+	if (i == max_iterations) {
 		WARN_PRINT(vformat("More than %d iterations needed!", max_iterations));
+	}
 
 	real_t rmsd = Math::sqrt(Math::abs(2.0f * (e0 - eignv) / wsum));
 	e0 = eignv;
@@ -200,84 +201,85 @@ real_t QCP::calc_rmsd(real_t &e0, real_t wsum) {
 }
 
 Quat QCP::calc_rotation(real_t p_rmsd, real_t p_eigenv) {
-	if (rot_prec > 0 && p_rmsd < rot_prec)
-        return Quat(); // Don't bother with rotation.
+	if (rot_prec > 0 && p_rmsd < rot_prec) {
+		return Quat(); // Don't bother with rotation.
+	}
 
 	real_t a11 = SxxpSyy + Szz-p_eigenv;
 	real_t a12 = SyzmSzy;
 	real_t a13 = - SxzmSzx;
 	real_t a14 = SxymSyx;
-    real_t a21 = SyzmSzy;
+	real_t a21 = SyzmSzy;
 	real_t a22 = SxxmSyy - Szz-p_eigenv;
 	real_t a23 = SxypSyx;
 	real_t a24= SxzpSzx;
-    real_t a31 = a13;
+	real_t a31 = a13;
 	real_t a32 = a23;
 	real_t a33 = Syy-Sxx-Szz - p_eigenv;
 	real_t a34 = SyzpSzy;
-    real_t a41 = a14;
+	real_t a41 = a14;
 	real_t a42 = a24;
 	real_t a43 = a34;
 	real_t a44 = Szz - SxxpSyy - p_eigenv;
-    real_t a3344_4334 = a33 * a44 - a43 * a34;
+	real_t a3344_4334 = a33 * a44 - a43 * a34;
 	real_t a3244_4234 = a32 * a44-a42*a34;
-    real_t a3243_4233 = a32 * a43 - a42 * a33;
+	real_t a3243_4233 = a32 * a43 - a42 * a33;
 	real_t a3143_4133 = a31 * a43-a41*a33;
-    real_t a3144_4134 = a31 * a44 - a41 * a34;
+	real_t a3144_4134 = a31 * a44 - a41 * a34;
 	real_t a3142_4132 = a31 * a42-a41*a32;
-    real_t q1 =  a22*a3344_4334-a23*a3244_4234+a24*a3243_4233;
-    real_t q2 = -a21*a3344_4334+a23*a3144_4134-a24*a3143_4133;
-    real_t q3 =  a21*a3244_4234-a22*a3144_4134+a24*a3142_4132;
-    real_t q4 = -a21*a3243_4233+a22*a3143_4133-a23*a3142_4132;
+	real_t q1 =  a22*a3344_4334-a23*a3244_4234+a24*a3243_4233;
+	real_t q2 = -a21*a3344_4334+a23*a3144_4134-a24*a3143_4133;
+	real_t q3 =  a21*a3244_4234-a22*a3144_4134+a24*a3142_4132;
+	real_t q4 = -a21*a3243_4233+a22*a3143_4133-a23*a3142_4132;
 
-    real_t qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
+	real_t qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
 	/* The following code tries to calculate another column in the adjoint matrix when the norm of the
-   current column is too small.
-   Usually this block will never be activated.  To be absolutely safe this should be
-   uncommented, but it is most likely unnecessary.
+current column is too small.
+Usually this block will never be activated.  To be absolutely safe this should be
+uncommented, but it is most likely unnecessary.
 	*/
-    if (qsqr < evec_prec) {
-        q1 =  a12*a3344_4334 - a13*a3244_4234 + a14*a3243_4233;
-        q2 = -a11*a3344_4334 + a13*a3144_4134 - a14*a3143_4133;
-        q3 =  a11*a3244_4234 - a12*a3144_4134 + a14*a3142_4132;
-        q4 = -a11*a3243_4233 + a12*a3143_4133 - a13*a3142_4132;
-        qsqr = q1*q1 + q2 *q2 + q3*q3+q4*q4;
+	if (qsqr < evec_prec) {
+		q1 =  a12*a3344_4334 - a13*a3244_4234 + a14*a3243_4233;
+		q2 = -a11*a3344_4334 + a13*a3144_4134 - a14*a3143_4133;
+		q3 =  a11*a3244_4234 - a12*a3144_4134 + a14*a3142_4132;
+		q4 = -a11*a3243_4233 + a12*a3143_4133 - a13*a3142_4132;
+		qsqr = q1*q1 + q2 *q2 + q3*q3+q4*q4;
 
-        if (qsqr < evec_prec)
-        {
-            real_t a1324_1423 = a13 * a24 - a14 * a23, a1224_1422 = a12 * a24 - a14 * a22;
-            real_t a1223_1322 = a12 * a23 - a13 * a22, a1124_1421 = a11 * a24 - a14 * a21;
-            real_t a1123_1321 = a11 * a23 - a13 * a21, a1122_1221 = a11 * a22 - a12 * a21;
+		if (qsqr < evec_prec)
+		{
+			real_t a1324_1423 = a13 * a24 - a14 * a23, a1224_1422 = a12 * a24 - a14 * a22;
+			real_t a1223_1322 = a12 * a23 - a13 * a22, a1124_1421 = a11 * a24 - a14 * a21;
+			real_t a1123_1321 = a11 * a23 - a13 * a21, a1122_1221 = a11 * a22 - a12 * a21;
 
-            q1 =  a42 * a1324_1423 - a43 * a1224_1422 + a44 * a1223_1322;
-            q2 = -a41 * a1324_1423 + a43 * a1124_1421 - a44 * a1123_1321;
-            q3 =  a41 * a1224_1422 - a42 * a1124_1421 + a44 * a1122_1221;
-            q4 = -a41 * a1223_1322 + a42 * a1123_1321 - a43 * a1122_1221;
-            qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
+			q1 =  a42 * a1324_1423 - a43 * a1224_1422 + a44 * a1223_1322;
+			q2 = -a41 * a1324_1423 + a43 * a1124_1421 - a44 * a1123_1321;
+			q3 =  a41 * a1224_1422 - a42 * a1124_1421 + a44 * a1122_1221;
+			q4 = -a41 * a1223_1322 + a42 * a1123_1321 - a43 * a1122_1221;
+			qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
-            if (qsqr < evec_prec)
-            {
-                q1 =  a32 * a1324_1423 - a33 * a1224_1422 + a34 * a1223_1322;
-                q2 = -a31 * a1324_1423 + a33 * a1124_1421 - a34 * a1123_1321;
-                q3 =  a31 * a1224_1422 - a32 * a1124_1421 + a34 * a1122_1221;
-                q4 = -a31 * a1223_1322 + a32 * a1123_1321 - a33 * a1122_1221;
-                qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
+			if (qsqr < evec_prec)
+			{
+				q1 =  a32 * a1324_1423 - a33 * a1224_1422 + a34 * a1223_1322;
+				q2 = -a31 * a1324_1423 + a33 * a1124_1421 - a34 * a1123_1321;
+				q3 =  a31 * a1224_1422 - a32 * a1124_1421 + a34 * a1122_1221;
+				q4 = -a31 * a1223_1322 + a32 * a1123_1321 - a33 * a1122_1221;
+				qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
-                if (qsqr < evec_prec)
-                {
-                    /* if qsqr is still too small, return the identity matrix. */
-                    return Quat();
-                }
-            }
-        }
-    }
+				if (qsqr < evec_prec)
+				{
+					/* if qsqr is still too small, return the identity matrix. */
+					return Quat();
+				}
+			}
+		}
+	}
 
 	real_t normq = 1.0 / Math::sqrt(qsqr);
-    q1 *= normq;
-    q2 *= normq;
-    q3 *= normq;
-    q4 *= normq;
+	q1 *= normq;
+	q2 *= normq;
+	q3 *= normq;
+	q4 *= normq;
 
 	return Quat(q2,q3, q4, q1);
 }

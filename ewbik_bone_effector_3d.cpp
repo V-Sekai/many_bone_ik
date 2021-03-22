@@ -78,12 +78,15 @@ void EWBIKBoneEffector3D::update_priorities() {
 	follow_z = priority.z > 0.0;
 
 	num_headings = 1;
-	if (follow_x)
+	if (follow_x) {
 		num_headings += 2;
-	if (follow_y)
+	}
+	if (follow_y) {
 		num_headings += 2;
-	if (follow_z)
+	}
+	if (follow_z) {
 		num_headings += 2;
+	}
 }
 
 void EWBIKBoneEffector3D::update_target_headings(Skeleton3D *p_skeleton, PackedVector3Array &p_headings, Vector<real_t> &p_weights) {

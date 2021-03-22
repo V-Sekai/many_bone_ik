@@ -31,11 +31,11 @@
 #include "ik_transform.h"
 
 void IKTransform::_propagate_transform_changed() {
-    for (List<IKTransform *>::Element *E = children.front(); E; E = E->next()) {
+	for (List<IKTransform *>::Element *E = children.front(); E; E = E->next()) {
 		E->get()->_propagate_transform_changed();
 	}
 
-    dirty |= DIRTY_GLOBAL;
+	dirty |= DIRTY_GLOBAL;
 }
 
 void IKTransform::_update_local_transform() const {
@@ -45,7 +45,7 @@ void IKTransform::_update_local_transform() const {
 }
 
 void IKTransform::set_translation(const Vector3 &p_translation) {
-    local_transform.origin = p_translation;
+	local_transform.origin = p_translation;
 	_propagate_transform_changed();
 }
 
@@ -115,8 +115,8 @@ void IKTransform::set_transform(const Transform &p_transform) {
 
 void IKTransform::set_global_transform(const Transform &p_transform) {
 	Transform xform = parent ?
-                parent->get_global_transform().affine_inverse() * p_transform :
-                p_transform;
+			parent->get_global_transform().affine_inverse() * p_transform :
+			p_transform;
 	set_transform(xform);
 }
 

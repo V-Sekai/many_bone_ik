@@ -201,7 +201,7 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 	}
 
 	if (root_bone.is_empty()) {
-		Vector<int32_t> roots;
+	 	Vector<int32_t> roots;
 		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 			int32_t parent = skeleton->get_bone_parent(bone_i);
 			if (parent == -1) {
@@ -212,7 +212,7 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 			set_root_bone_index(roots[0]);
 		}
 	} else if (root_bone_index == -1) {
-			set_root_bone(root_bone);
+		set_root_bone(root_bone);
 	}
 	ERR_FAIL_COND(root_bone.is_empty());
 
@@ -228,9 +228,9 @@ void SkeletonModification3DEWBIK::solve(real_t blending_delta) {
 	}
 
 	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
-		update_shadow_bones_transform();
-		iterated_improved_solver();
-		update_skeleton_bones_transform();
+		// update_shadow_bones_transform();
+		// iterated_improved_solver();
+		// update_skeleton_bones_transform();
 	}
 }
 
@@ -262,6 +262,8 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	notify_property_list_changed();
 
 	is_dirty = false;
+
+	// segmented_skeleton->debug_print_chains();
 }
 
 void SkeletonModification3DEWBIK::generate_default_effectors() {

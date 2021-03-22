@@ -99,8 +99,9 @@ void EWBIKShadowBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 		bxform = pxform.affine_inverse() * bxform;
 	}
 	set_transform(bxform);
-	if (is_effector())
+	if (is_effector()) {
 		effector->update_goal_transform(p_skeleton);
+	}
 #ifdef DEBUG_ENABLED
 	bone_updated = false;
 #endif
@@ -141,8 +142,7 @@ Vector<BoneId> EWBIKShadowBone3D::get_children_with_effector_descendants(Skeleto
 bool EWBIKShadowBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<EWBIKShadowBone3D>> &p_map) {
 	if (p_map.has(p_bone) && p_map[p_bone]->is_effector()) {
 		return true;
-	}
-	else {
+	} else {
 		bool result = false;
 		Vector<BoneId> children = p_skeleton->get_bone_children(p_bone);
 		for (int32_t child_i = 0; child_i < children.size(); child_i++) {

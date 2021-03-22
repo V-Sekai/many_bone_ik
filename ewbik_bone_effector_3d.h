@@ -31,8 +31,8 @@
 #define EWBIK_BONE_EFFECTOR_3D_H
 
 #include "core/object/reference.h"
-#include "scene/3d/skeleton_3d.h"
 #include "ewbik_shadow_bone_3d.h"
+#include "scene/3d/skeleton_3d.h"
 
 class EWBIKShadowBone3D;
 
