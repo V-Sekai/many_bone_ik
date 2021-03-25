@@ -34,6 +34,8 @@
 #include "ewbik_shadow_bone_3d.h"
 #include "scene/3d/skeleton_3d.h"
 
+#define MIN_SCALE 0.1
+
 class EWBIKShadowBone3D;
 
 class EWBIKBoneEffector3D : public Reference {
@@ -64,9 +66,12 @@ public:
 	NodePath get_target_node() const;
 	void set_use_target_node_rotation(bool p_use);
 	bool get_use_target_node_rotation() const;
+	Transform get_goal_transform() const;
+	Ref<EWBIKShadowBone3D> get_shadow_bone() const;
+	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;
-	void update_target_headings(Skeleton3D *p_skeleton, PackedVector3Array &p_headings, Vector<real_t> &p_weights);
-	void update_tip_headings(Skeleton3D *p_skeleton, PackedVector3Array &p_headings, int32_t &p_index);
+	void update_target_headings(Ref<EWBIKShadowBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index, Vector<real_t> &p_weights) const;
+	void update_tip_headings(Ref<EWBIKShadowBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index) const;
 
 	EWBIKBoneEffector3D(const Ref<EWBIKShadowBone3D> &p_for_bone);
 	~EWBIKBoneEffector3D() {}

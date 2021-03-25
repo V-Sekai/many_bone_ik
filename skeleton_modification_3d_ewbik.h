@@ -48,10 +48,8 @@ private:
 	Vector<Ref<EWBIKShadowBone3D>> multi_effector;
 	HashMap<BoneId, Ref<EWBIKShadowBone3D>> effectors_map;
 	Vector<Ref<EWBIKShadowBone3D>> bone_list;
-	struct IKState state;
+	Vector<Ref<EWBIKBoneEffector3D>> ordered_effector_list;
 	bool is_dirty = true;
-
-	bool stop = false;
 
 	// Task
 	int32_t ik_iterations = 1;

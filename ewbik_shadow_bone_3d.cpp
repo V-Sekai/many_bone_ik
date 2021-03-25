@@ -74,22 +74,19 @@ bool EWBIKShadowBone3D::get_orientation_lock() const {
 	return orientation_lock;
 }
 
-void EWBIKShadowBone3D::rotate(const Quat &p_rot) {
-	Transform rot_xform = Transform(Basis(p_rot), Vector3());
-	set_transform(rot_xform * get_transform());
-}
-
-void EWBIKShadowBone3D::rotate_and_translate(const Quat &p_rot, const Vector3 &p_offset) {
-	Transform rot_xform = Transform(Basis(p_rot), p_offset);
-	set_transform(rot_xform * get_transform());
-}
-
 void EWBIKShadowBone3D::set_global_transform(const Transform &p_transform) {
 	xform.set_global_transform(p_transform);
 }
 
 Transform EWBIKShadowBone3D::get_global_transform() const {
 	return xform.get_global_transform();
+}
+
+void EWBIKShadowBone3D::set_xform_delta(const Quat &p_rot, const Vector3 &p_offset) {
+	rot_delta *= p_rot;
+	translation_delta += p_offset;
+	Transform rot_xform = Transform(Basis(p_rot), p_offset);
+	set_transform(rot_xform * get_transform());
 }
 
 void EWBIKShadowBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
@@ -102,21 +99,22 @@ void EWBIKShadowBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	if (is_effector()) {
 		effector->update_goal_transform(p_skeleton);
 	}
+	rot_delta = Quat();
+	translation_delta = Vector3();
 #ifdef DEBUG_ENABLED
 	bone_updated = false;
 #endif
 }
 
-void EWBIKShadowBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton) {
+void EWBIKShadowBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght) {
 #ifdef DEBUG_ENABLED
 	if (parent.is_valid() && !parent->bone_updated) {
 		CRASH_NOW_MSG("Parent bone has not been updated!!");
 	}
 	bone_updated = true;
 #endif
-	Transform pose = p_skeleton->get_bone_pose(for_bone);
-	Transform custom = pose.affine_inverse() * get_transform();
-	p_skeleton->set_bone_custom_pose(for_bone, custom);
+	Transform custom = Transform(Basis(rot_delta), translation_delta);
+	p_skeleton->set_bone_local_pose_override(for_bone, custom, p_strenght, true);
 }
 
 void EWBIKShadowBone3D::create_effector() {

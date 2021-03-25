@@ -40,35 +40,37 @@ void QCP::set_max_iterations(int32_t p_max) {
 	max_iterations = p_max;
 }
 
-Quat QCP::calc_optimal_rotation(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2,
-		const Vector<real_t> &p_weights, bool p_center, Vector3 &translation) {
+real_t QCP::calc_optimal_rotation(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2,
+		const Vector<real_t> &p_weights, bool p_center, Vector3 &p_translation, Quat &p_quat) {
 	real_t wsum = 0.0;
 	if (p_center) {
-		wsum = center_coords(p_coords1, p_coords2, p_weights, translation);
+		wsum = center_coords(p_coords1, p_coords2, p_weights, p_translation);
 	}
 	else {
 		for (int i = 0; i < p_weights.size(); i++) {
 			wsum += p_weights[i];
 		}
-		translation = Vector3();
+		p_translation = Vector3();
 	}
 
 	real_t rmsd = 0.0;
-	//QCP doesn't handle alignment of single values, so if we only have one point
-	//we just compute regular distance.
+	// QCP doesn't handle alignment of single values, so if we only have one point
+	// we just compute regular distance.
 	if (p_weights.size() == 1) {
-		// rmsd = p_coords1[0].distance_to(p_coords2[0]);
+		rmsd = p_coords1[0].distance_to(p_coords2[0]);
 		Quat q1 = Quat(p_coords1[0]);
 		Quat q2 = Quat(p_coords2[0]);
-		return q1 * q2;
+		p_quat = q1 * q2;
+		return rmsd;
 	} else {
 		real_t e0 = inner_product(p_coords1, p_coords2, p_weights);
 		rmsd = calc_rmsd(e0, wsum);
-		return calc_rotation(rmsd, e0);
+		p_quat = calc_rotation(rmsd, e0);
+		return rmsd;
 	}
 }
 
-real_t QCP::center_coords(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2, const Vector<real_t> &p_weights, Vector3 &translation) {
+real_t QCP::center_coords(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2, const Vector<real_t> &p_weights, Vector3 &translation) const {
 	Vector3 c1 = Vector3();
 	Vector3 c2 = Vector3();
 	real_t wsum = 0.0;
@@ -147,11 +149,11 @@ real_t QCP::calc_rmsd(real_t &e0, real_t wsum) {
 	real_t Szy2 = Szy * Szy;
 	real_t Szx2 = Szx * Szx;
 
-	real_t SyzSzymSyySzz2 = 2.0f * (Syz * Szy - Syy * Szz);
+	real_t SyzSzymSyySzz2 = 2.0 * (Syz * Szy - Syy * Szz);
 	real_t Sxx2Syy2Szz2Syz2Szy2 = Syy2 + Szz2 - Sxx2 + Syz2 + Szy2;
 
-	real_t c2 = -2.0f * (Sxx2 + Syy2 + Szz2 + Sxy2 + Syx2 + Sxz2 + Szx2 + Syz2 + Szy2);
-	real_t c1 = 8.0f * (Sxx * Syz * Szy + Syy * Szx * Sxz + Szz * Sxy * Syx - Sxx * Syy * Szz - Syz * Szx * Sxy -
+	real_t c2 = -2.0 * (Sxx2 + Syy2 + Szz2 + Sxy2 + Syx2 + Sxz2 + Szx2 + Syz2 + Szy2);
+	real_t c1 = 8.0 * (Sxx * Syz * Szy + Syy * Szx * Sxz + Szz * Sxy * Syx - Sxx * Syy * Szz - Syz * Szx * Sxy -
 							   Szy * Syx * Sxz);
 
 	SxzpSzx = Sxz + Szx;
@@ -188,8 +190,9 @@ real_t QCP::calc_rmsd(real_t &e0, real_t wsum) {
 		a = b + c1;
 		delta = ((a * eignv + c0) / (2.0 * x2 * eignv + b + a));
 		eignv -= delta;
-		if (Math::abs(eignv - oldg) < Math::abs(eval_prec * eignv))
+		if (Math::abs(eignv - oldg) < Math::abs(eval_prec * eignv)) {
 			break;
+		}
 	}
 	if (i == max_iterations) {
 		WARN_PRINT(vformat("More than %d iterations needed!", max_iterations));
@@ -200,37 +203,37 @@ real_t QCP::calc_rmsd(real_t &e0, real_t wsum) {
 	return rmsd;
 }
 
-Quat QCP::calc_rotation(real_t p_rmsd, real_t p_eigenv) {
+Quat QCP::calc_rotation(real_t p_rmsd, real_t p_eigenv) const {
 	if (rot_prec > 0 && p_rmsd < rot_prec) {
 		return Quat(); // Don't bother with rotation.
 	}
 
-	real_t a11 = SxxpSyy + Szz-p_eigenv;
+	real_t a11 = SxxpSyy + Szz - p_eigenv;
 	real_t a12 = SyzmSzy;
-	real_t a13 = - SxzmSzx;
+	real_t a13 = -SxzmSzx;
 	real_t a14 = SxymSyx;
 	real_t a21 = SyzmSzy;
-	real_t a22 = SxxmSyy - Szz-p_eigenv;
+	real_t a22 = SxxmSyy - Szz - p_eigenv;
 	real_t a23 = SxypSyx;
-	real_t a24= SxzpSzx;
+	real_t a24 = SxzpSzx;
 	real_t a31 = a13;
 	real_t a32 = a23;
-	real_t a33 = Syy-Sxx-Szz - p_eigenv;
+	real_t a33 = Syy - Sxx - Szz - p_eigenv;
 	real_t a34 = SyzpSzy;
 	real_t a41 = a14;
 	real_t a42 = a24;
 	real_t a43 = a34;
 	real_t a44 = Szz - SxxpSyy - p_eigenv;
 	real_t a3344_4334 = a33 * a44 - a43 * a34;
-	real_t a3244_4234 = a32 * a44-a42*a34;
+	real_t a3244_4234 = a32 * a44 - a42 * a34;
 	real_t a3243_4233 = a32 * a43 - a42 * a33;
-	real_t a3143_4133 = a31 * a43-a41*a33;
+	real_t a3143_4133 = a31 * a43 - a41 * a33;
 	real_t a3144_4134 = a31 * a44 - a41 * a34;
-	real_t a3142_4132 = a31 * a42-a41*a32;
-	real_t q1 =  a22*a3344_4334-a23*a3244_4234+a24*a3243_4233;
-	real_t q2 = -a21*a3344_4334+a23*a3144_4134-a24*a3143_4133;
-	real_t q3 =  a21*a3244_4234-a22*a3144_4134+a24*a3142_4132;
-	real_t q4 = -a21*a3243_4233+a22*a3143_4133-a23*a3142_4132;
+	real_t a3142_4132 = a31 * a42 - a41 * a32;
+	real_t q1 =  a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
+	real_t q2 = -a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
+	real_t q3 =  a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
+	real_t q4 = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
 
 	real_t qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
@@ -240,11 +243,11 @@ Usually this block will never be activated.  To be absolutely safe this should b
 uncommented, but it is most likely unnecessary.
 	*/
 	if (qsqr < evec_prec) {
-		q1 =  a12*a3344_4334 - a13*a3244_4234 + a14*a3243_4233;
-		q2 = -a11*a3344_4334 + a13*a3144_4134 - a14*a3143_4133;
-		q3 =  a11*a3244_4234 - a12*a3144_4134 + a14*a3142_4132;
-		q4 = -a11*a3243_4233 + a12*a3143_4133 - a13*a3142_4132;
-		qsqr = q1*q1 + q2 *q2 + q3*q3+q4*q4;
+		q1 =  a12 * a3344_4334 - a13 * a3244_4234 + a14 * a3243_4233;
+		q2 = -a11 * a3344_4334 + a13 * a3144_4134 - a14 * a3143_4133;
+		q3 =  a11 * a3244_4234 - a12 * a3144_4134 + a14 * a3142_4132;
+		q4 = -a11 * a3243_4233 + a12 * a3143_4133 - a13 * a3142_4132;
+		qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
 		if (qsqr < evec_prec)
 		{

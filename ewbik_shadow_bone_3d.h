@@ -47,6 +47,8 @@ private:
 	Vector<Ref<EWBIKShadowBone3D>> children;
 	Ref<EWBIKBoneEffector3D> effector = nullptr;
 	IKTransform xform;
+	Quat rot_delta = Quat();
+	Vector3 translation_delta = Vector3();
 	bool orientation_lock = false;
 
 #ifdef DEBUG_ENABLED
@@ -69,12 +71,11 @@ public:
 	Transform get_transform() const;
 	void set_orientation_lock(const bool p_lock);
 	bool get_orientation_lock() const;
-	void rotate(const Quat &p_rot);
-	void rotate_and_translate(const Quat &p_rot, const Vector3 &p_offset);
 	void set_global_transform(const Transform &p_transform);
+	void set_xform_delta(const Quat &p_rot, const Vector3 &p_offset);
 	Transform get_global_transform() const;
 	void set_initial_transform(Skeleton3D *p_skeleton);
-	void set_skeleton_bone_transform(Skeleton3D *p_skeleton);
+	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);
 	void create_effector();
 	bool is_effector() const;
 	Vector<BoneId> get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<EWBIKShadowBone3D>> &p_map) const;

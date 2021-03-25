@@ -228,24 +228,15 @@ void SkeletonModification3DEWBIK::solve(real_t blending_delta) {
 	}
 
 	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
-		// update_shadow_bones_transform();
-		// iterated_improved_solver();
-		// update_skeleton_bones_transform();
+		update_shadow_bones_transform();
+		iterated_improved_solver();
+		update_skeleton_bones_transform();
 	}
 }
 
 void SkeletonModification3DEWBIK::iterated_improved_solver() {
 	for (int i = 0; i < ik_iterations; i++) {
-		if (segmented_skeleton->is_root_effector()) {
-			segmented_skeleton->grouped_segment_solver(stabilization_passes, state);
-		} else {
-			segmented_skeleton->update_optimal_rotation(segmented_skeleton->get_root(), state, false, stabilization_passes);
-			Vector<Ref<EWBIKSegmentedSkeleton3D>> childs = segmented_skeleton->get_child_chains();
-			for (int32_t child_i = 0; child_i < childs.size(); child_i++) {
-				Ref<EWBIKSegmentedSkeleton3D> segment = childs[child_i];
-				segment->grouped_segment_solver(stabilization_passes, state);
-			}
-		}
+		segmented_skeleton->grouped_segment_solver(stabilization_passes, ordered_effector_list);
 	}
 }
 
@@ -258,7 +249,8 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	} else {
 		generate_default_effectors();
 	}
-	segmented_skeleton->update_effector_list(state.ordered_effector_list);
+	ordered_effector_list.clear();
+	segmented_skeleton->update_effector_list(ordered_effector_list);
 	notify_property_list_changed();
 
 	is_dirty = false;
@@ -285,16 +277,12 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 		Ref<EWBIKShadowBone3D> bone = bone_list[bone_i];
 		bone->set_initial_transform(skeleton);
 	}
-	state.target_headings.clear();
-	state.heading_weights.clear();
-	segmented_skeleton->update_target_headings(state);
-	state.tip_headings.resize(state.heading_weights.size());
 }
 
 void SkeletonModification3DEWBIK::update_skeleton_bones_transform() {
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
 		Ref<EWBIKShadowBone3D> bone = bone_list[bone_i];
-		bone->set_skeleton_bone_transform(skeleton);
+		bone->set_skeleton_bone_transform(skeleton, stack->strength);
 	}
 }
 

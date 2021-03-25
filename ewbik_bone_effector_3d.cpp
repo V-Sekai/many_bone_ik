@@ -54,6 +54,14 @@ bool EWBIKBoneEffector3D::get_use_target_node_rotation() const {
 	return use_target_node_rotation;
 }
 
+Transform EWBIKBoneEffector3D::get_goal_transform() const {
+	return goal_transform;
+}
+
+Ref<EWBIKShadowBone3D> EWBIKBoneEffector3D::get_shadow_bone() const {
+	return for_bone;
+}
+
 bool EWBIKBoneEffector3D::is_following_translation_only() const {
 	return !(follow_x || follow_y || follow_z);
 }
@@ -61,15 +69,17 @@ bool EWBIKBoneEffector3D::is_following_translation_only() const {
 void EWBIKBoneEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	goal_transform = Transform();
 	Node *node = p_skeleton->get_node_or_null(target_nodepath);
-	if (node) {
+	if (node && node->is_class("Node3D")) {
 		Node3D *target_node = Object::cast_to<Node3D>(node);
 		if (use_target_node_rotation) {
 			goal_transform = p_skeleton->get_global_transform().affine_inverse() * target_node->get_global_transform();
 		} else {
 			goal_transform = Transform(Basis(), p_skeleton->to_local(target_node->get_global_transform().origin));
 		}
+		goal_transform = target_transform * goal_transform;
+	} else {
+		goal_transform = for_bone->get_global_transform() * target_transform;
 	}
-	goal_transform = target_transform * goal_transform;
 }
 
 void EWBIKBoneEffector3D::update_priorities() {
@@ -89,76 +99,90 @@ void EWBIKBoneEffector3D::update_priorities() {
 	}
 }
 
-void EWBIKBoneEffector3D::update_target_headings(Skeleton3D *p_skeleton, PackedVector3Array &p_headings, Vector<real_t> &p_weights) {
-	PackedVector3Array target_headings;
-	target_headings.resize(num_headings);
-	Vector3 origin = p_skeleton->get_bone_pose(for_bone->get_bone_id()).origin;
+
+void EWBIKBoneEffector3D::create_weights(Vector<real_t> &p_weights, real_t p_falloff) const {
+	Vector<real_t> weights;
+	weights.resize(num_headings);
 	int32_t index = 0;
-	target_headings.write[index] = goal_transform.origin - origin;
+	weights.write[index] = weight * p_falloff;
 	index++;
 
 	if (follow_x) {
-		Vector3 v = Vector3(weight * priority.x, 0.0, 0.0);
-		target_headings.write[index] = goal_transform.xform(v) - origin;
-		target_headings.write[index+1] = goal_transform.xform(-v) - origin;
+		weights.write[index] = weight * priority.x * p_falloff;
+		weights.write[index+1] = weight * priority.x * p_falloff;
 		index += 2;
 	}
 
 	if (follow_y) {
-		Vector3 v = Vector3(0.0, weight * priority.y, 0.0);
-		target_headings.write[index] = goal_transform.xform(v) - origin;
-		target_headings.write[index+1] = goal_transform.xform(-v) - origin;
+		weights.write[index] = weight * priority.y * p_falloff;
+		weights.write[index+1] = weight * priority.y * p_falloff;
 		index += 2;
 	}
 
 	if (follow_z) {
-		Vector3 v = Vector3(0.0, 0.0, weight * priority.z);
-		target_headings.write[index] = goal_transform.xform(v) - origin;
-		target_headings.write[index+1] = goal_transform.xform(-v) - origin;
+		weights.write[index] = weight * priority.z * p_falloff;
+		weights.write[index+1] = weight * priority.z * p_falloff;
 	}
-
-	p_headings.append_array(target_headings);
-
-	Vector<real_t> weights;
-	weights.resize(num_headings);
-	for (int32_t i = 0; i < num_headings; i++) {
-		weights.write[i] = weight;
-	}
-
 	p_weights.append_array(weights);
 }
 
-void EWBIKBoneEffector3D::update_tip_headings(Skeleton3D *p_skeleton, PackedVector3Array &p_headings, int32_t &p_index) {
-	PackedVector3Array tip_headings;
-	tip_headings.resize(num_headings);
-	Vector3 origin = p_skeleton->get_bone_pose(for_bone->get_bone_id()).origin;
+void EWBIKBoneEffector3D::update_target_headings(Ref<EWBIKShadowBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index, Vector<real_t> &p_weights) const {
+	Vector3 origin = p_for_bone->get_global_transform().origin;
+	p_headings.write[p_index] = goal_transform.origin - origin;
+	p_index++;
+
+	if (follow_x) {
+		float_t w = MAX(p_weights[p_index], MIN_SCALE);
+		Vector3 v = Vector3(w, 0.0, 0.0);
+		p_headings.write[p_index] = goal_transform.xform(v) - origin;
+		p_headings.write[p_index+1] = goal_transform.xform(-v) - origin;
+		p_index += 2;
+	}
+
+	if (follow_y) {
+		float_t w = MAX(p_weights[p_index], MIN_SCALE);
+		Vector3 v = Vector3(0.0, w, 0.0);
+		p_headings.write[p_index] = goal_transform.xform(v) - origin;
+		p_headings.write[p_index+1] = goal_transform.xform(-v) - origin;
+		p_index += 2;
+	}
+
+	if (follow_z) {
+		float_t w = MAX(p_weights[p_index], MIN_SCALE);
+		Vector3 v = Vector3(0.0, 0.0, w);
+		p_headings.write[p_index] = goal_transform.xform(v) - origin;
+		p_headings.write[p_index+1] = goal_transform.xform(-v) - origin;
+		p_index += 2;
+	}
+}
+
+void EWBIKBoneEffector3D::update_tip_headings(Ref<EWBIKShadowBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index) const {
+	Vector3 origin = p_for_bone->get_global_transform().origin;
 	Transform tip_xform = for_bone->get_transform();
-	real_t scale_by = origin.distance_to(goal_transform.origin);
-	tip_headings.write[p_index] = tip_xform.origin - origin;
+	real_t scale_by = MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
+	p_headings.write[p_index] = tip_xform.origin - origin;
 	p_index++;
 
 	if (follow_x) {
 		Vector3 v = Vector3(scale_by, 0.0, 0.0);
-		tip_headings.write[p_index] = tip_xform.xform(v) - origin;
-		tip_headings.write[p_index+1] = tip_xform.xform(-v) - origin;
+		p_headings.write[p_index] = tip_xform.xform(v) - origin;
+		p_headings.write[p_index+1] = tip_xform.xform(-v) - origin;
 		p_index += 2;
 	}
 
 	if (follow_y) {
 		Vector3 v = Vector3(0.0, scale_by, 0.0);
-		tip_headings.write[p_index] = tip_xform.xform(v) - origin;
-		tip_headings.write[p_index+1] = tip_xform.xform(-v) - origin;
+		p_headings.write[p_index] = tip_xform.xform(v) - origin;
+		p_headings.write[p_index+1] = tip_xform.xform(-v) - origin;
 		p_index += 2;
 	}
 
 	if (follow_z) {
 		Vector3 v = Vector3(0.0, 0.0, scale_by);
-		tip_headings.write[p_index] = tip_xform.xform(v) - origin;
-		tip_headings.write[p_index+1] = tip_xform.xform(-v) - origin;
+		p_headings.write[p_index] = tip_xform.xform(v) - origin;
+		p_headings.write[p_index+1] = tip_xform.xform(-v) - origin;
 		p_index += 2;
 	}
-
-	p_headings.append_array(tip_headings);
 }
 
 void EWBIKBoneEffector3D::_bind_methods() {
