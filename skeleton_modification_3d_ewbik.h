@@ -50,6 +50,7 @@ private:
 	Vector<Ref<EWBIKShadowBone3D>> bone_list;
 	Vector<Ref<EWBIKBoneEffector3D>> ordered_effector_list;
 	bool is_dirty = true;
+	bool calc_done = false;
 
 	// Task
 	int32_t ik_iterations = 1;
@@ -60,7 +61,8 @@ private:
 	void update_bone_list();
 	void generate_default_effectors();
 	void update_shadow_bones_transform();
-	void update_skeleton_bones_transform();
+	void update_skeleton_bones_transform(real_t p_blending_delta);
+	bool is_calc_done();
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
@@ -101,7 +103,7 @@ public:
 	virtual void execute(real_t delta) override;
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
 
-	void solve(real_t blending_delta);
+	void solve(real_t p_blending_delta);
 	void iterated_improved_solver();
 
 	SkeletonModification3DEWBIK();

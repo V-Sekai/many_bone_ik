@@ -58,6 +58,15 @@ Transform EWBIKBoneEffector3D::get_goal_transform() const {
 	return goal_transform;
 }
 
+bool EWBIKBoneEffector3D::is_node_xform_changed(Skeleton3D *p_skeleton) const {
+	Node *node = p_skeleton->get_node_or_null(target_nodepath);
+	if (node && node->is_class("Node3D")) {
+		Node3D *target_node = Object::cast_to<Node3D>(node);
+		return prev_node_xform != target_node->get_global_transform();
+	}
+	return false;
+}
+
 Ref<EWBIKShadowBone3D> EWBIKBoneEffector3D::get_shadow_bone() const {
 	return for_bone;
 }
@@ -71,11 +80,13 @@ void EWBIKBoneEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	Node *node = p_skeleton->get_node_or_null(target_nodepath);
 	if (node && node->is_class("Node3D")) {
 		Node3D *target_node = Object::cast_to<Node3D>(node);
+		Transform node_xform = target_node->get_global_transform();
 		if (use_target_node_rotation) {
-			goal_transform = p_skeleton->get_global_transform().affine_inverse() * target_node->get_global_transform();
+			goal_transform = p_skeleton->get_global_transform().affine_inverse() * node_xform;
 		} else {
-			goal_transform = Transform(Basis(), p_skeleton->to_local(target_node->get_global_transform().origin));
+			goal_transform = Transform(Basis(), p_skeleton->to_local(node_xform.origin));
 		}
+		prev_node_xform = node_xform;
 		goal_transform = target_transform * goal_transform;
 	} else {
 		goal_transform = for_bone->get_global_transform() * target_transform;

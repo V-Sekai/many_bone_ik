@@ -53,6 +53,8 @@ private:
 	real_t weight = 1.0;
 	bool follow_x, follow_y, follow_z;
 
+	Transform prev_node_xform;
+
 	void update_priorities();
 	void update_goal_transform(Skeleton3D *p_skeleton);
 
@@ -67,6 +69,7 @@ public:
 	void set_use_target_node_rotation(bool p_use);
 	bool get_use_target_node_rotation() const;
 	Transform get_goal_transform() const;
+	bool is_node_xform_changed(Skeleton3D *p_skeleton) const;
 	Ref<EWBIKShadowBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;
