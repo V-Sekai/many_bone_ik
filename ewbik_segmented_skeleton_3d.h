@@ -63,7 +63,7 @@ private:
 	void create_headings(const Vector<Ref<EWBIKBoneEffector3D>> &p_list);
 	void update_target_headings(Ref<EWBIKShadowBone3D> p_for_bone, Vector<Ref<EWBIKBoneEffector3D>> &p_effectors);
 	void update_tip_headings(Ref<EWBIKShadowBone3D> p_for_bone, Vector<Ref<EWBIKBoneEffector3D>> &p_effectors);
-	real_t get_manual_rmsd() const;
+	real_t get_manual_sqrmsd() const;
 	real_t set_optimal_rotation(Ref<EWBIKShadowBone3D> p_for_bone);
 	void segment_solver(int32_t p_stabilization_passes, Vector<Ref<EWBIKBoneEffector3D>> &p_effectors);
 	void qcp_solver(int32_t p_stabilization_passes, Vector<Ref<EWBIKBoneEffector3D>> &p_effectors);

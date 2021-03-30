@@ -31,11 +31,11 @@
 #include "ewbik_shadow_bone_3d.h"
 
 void EWBIKShadowBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
-	for_bone = p_bone_id;
+	bone_id = p_bone_id;
 }
 
 BoneId EWBIKShadowBone3D::get_bone_id() const {
-	return for_bone;
+	return bone_id;
 }
 
 void EWBIKShadowBone3D::set_parent(const Ref<EWBIKShadowBone3D> &p_parent) {
@@ -86,14 +86,13 @@ void EWBIKShadowBone3D::set_xform_delta(const Quat &p_rot, const Vector3 &p_offs
 	rot_delta *= p_rot;
 	translation_delta += p_offset;
 	Transform rot_xform = Transform(Basis(p_rot), p_offset);
-	set_transform(rot_xform * get_transform());
+	set_global_transform(get_global_transform() * rot_xform);
 }
 
 void EWBIKShadowBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
-	Transform bxform = p_skeleton->get_bone_global_pose(for_bone);
+	Transform bxform = p_skeleton->get_bone_global_pose(bone_id);
 	if (parent.is_valid()) {
-		Transform pxform = p_skeleton->get_bone_global_pose(parent->get_bone_id());
-		bxform = pxform.affine_inverse() * bxform;
+		bxform = parent->get_global_transform().affine_inverse() * bxform;
 	}
 	set_transform(bxform);
 	if (is_effector()) {
@@ -101,20 +100,11 @@ void EWBIKShadowBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	}
 	rot_delta = Quat();
 	translation_delta = Vector3();
-#ifdef DEBUG_ENABLED
-	bone_updated = false;
-#endif
 }
 
 void EWBIKShadowBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght) {
-#ifdef DEBUG_ENABLED
-	if (parent.is_valid() && !parent->bone_updated) {
-		CRASH_NOW_MSG("Parent bone has not been updated!!");
-	}
-	bone_updated = true;
-#endif
 	Transform custom = Transform(Basis(rot_delta), translation_delta);
-	p_skeleton->set_bone_local_pose_override(for_bone, custom, p_strenght, true);
+	p_skeleton->set_bone_local_pose_override(bone_id, custom, p_strenght, true);
 }
 
 void EWBIKShadowBone3D::create_effector() {
@@ -127,7 +117,7 @@ bool EWBIKShadowBone3D::is_effector() const {
 
 Vector<BoneId> EWBIKShadowBone3D::get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<EWBIKShadowBone3D>> &p_map) const {
 	Vector<BoneId> children_with_effector;
-	Vector<BoneId> children = p_skeleton->get_bone_children(for_bone);
+	Vector<BoneId> children = p_skeleton->get_bone_children(bone_id);
 	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 		BoneId child_bone = children[child_i];
 		if (EWBIKShadowBone3D::has_effector_descendant(child_bone, p_skeleton, p_map)) {
@@ -161,11 +151,11 @@ void EWBIKShadowBone3D::_bind_methods() {
 }
 
 EWBIKShadowBone3D::EWBIKShadowBone3D(BoneId p_bone, const Ref<EWBIKShadowBone3D> &p_parent) {
-	for_bone = p_bone;
+	bone_id = p_bone;
 	set_parent(p_parent);
 }
 
 EWBIKShadowBone3D::EWBIKShadowBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<EWBIKShadowBone3D> &p_parent) {
-	for_bone = p_skeleton->find_bone(p_bone);
+	bone_id = p_skeleton->find_bone(p_bone);
 	set_parent(p_parent);
 }

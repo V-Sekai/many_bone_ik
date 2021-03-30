@@ -204,29 +204,29 @@ void EWBIKSegmentedSkeleton3D::update_optimal_rotation(Ref<EWBIKShadowBone3D> p_
 
 	update_target_headings(p_for_bone, p_effectors);
 
-	real_t rmsd = -1.0;
+	real_t sqrmsd = get_manual_sqrmsd();
 
 	for (int32_t i = 0; i < p_stabilization_passes + 1; i++) {
 		update_tip_headings(p_for_bone, p_effectors);
-		real_t new_rmsd = set_optimal_rotation(p_for_bone);
-		if (rmsd >= new_rmsd) {
+
+		real_t new_sqrmsd = set_optimal_rotation(p_for_bone);
+		if (new_sqrmsd <= sqrmsd) {
 			// TODO: Consider springy bones
 			break;
 		}
-		rmsd = new_rmsd;
+		sqrmsd = new_sqrmsd;
 	}
 }
 
 real_t EWBIKSegmentedSkeleton3D::set_optimal_rotation(Ref<EWBIKShadowBone3D> p_for_bone) {
 	Vector3 translation;
 	Quat rot;
-	real_t rmsd = qcp.calc_optimal_rotation(tip_headings, target_headings, heading_weights, false, translation, rot);
-	p_for_bone->set_xform_delta(rot, translation);
-	print_line("Rot: " + String(rot) + " RMSD: " + rtos(rmsd) + " Displ: " + String(translation));
-	return rmsd;
+	real_t sqrmsd = qcp.calc_optimal_rotation(tip_headings, target_headings, heading_weights, false, rot, translation);
+	p_for_bone->set_xform_delta(rot, Vector3()); //translation);
+	return sqrmsd;
 }
 
-real_t EWBIKSegmentedSkeleton3D::get_manual_rmsd() const {
+real_t EWBIKSegmentedSkeleton3D::get_manual_sqrmsd() const {
 	real_t rmsd = 0.0;
 	real_t wsum = 0.0;
 	for (int32_t i = 0; i < heading_weights.size(); i++) {

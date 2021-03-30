@@ -181,7 +181,7 @@ void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 	is_dirty = true;
 }
 
-void SkeletonModification3DEWBIK::execute(real_t delta) {
+void SkeletonModification3DEWBIK::execute(float delta) {
 	ERR_FAIL_COND_MSG(!stack || !is_setup || skeleton == nullptr,
 			"Modification is not setup and therefore cannot execute!");
 	if (!enabled)
@@ -235,8 +235,6 @@ void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
 		return; // Skip solving
 	}
 
-	print_line("Solving.....");
-
 	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
 		update_shadow_bones_transform();
 		iterated_improved_solver();
@@ -286,6 +284,12 @@ void SkeletonModification3DEWBIK::generate_default_effectors() {
 }
 
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
+	// Reset the local bone overrides
+	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
+		skeleton->set_bone_local_pose_override(bone_list[bone_i]->get_bone_id(),
+			Transform(), 0.0, false);
+	}
+
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
 		Ref<EWBIKShadowBone3D> bone = bone_list[bone_i];
 		bone->set_initial_transform(skeleton);

@@ -169,7 +169,7 @@ void EWBIKBoneEffector3D::update_target_headings(Ref<EWBIKShadowBone3D> p_for_bo
 
 void EWBIKBoneEffector3D::update_tip_headings(Ref<EWBIKShadowBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index) const {
 	Vector3 origin = p_for_bone->get_global_transform().origin;
-	Transform tip_xform = for_bone->get_transform();
+	Transform tip_xform = for_bone->get_global_transform();
 	real_t scale_by = MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
 	p_headings.write[p_index] = tip_xform.origin - origin;
 	p_index++;

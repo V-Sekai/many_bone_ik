@@ -41,7 +41,7 @@ void QCP::set_max_iterations(int32_t p_max) {
 }
 
 real_t QCP::calc_optimal_rotation(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2,
-		const Vector<real_t> &p_weights, bool p_center, Vector3 &p_translation, Quat &p_quat) {
+		const Vector<real_t> &p_weights, bool p_center, Quat &p_quat, Vector3 &p_translation) {
 	real_t wsum = 0.0;
 	if (p_center) {
 		wsum = center_coords(p_coords1, p_coords2, p_weights, p_translation);
@@ -53,21 +53,20 @@ real_t QCP::calc_optimal_rotation(PackedVector3Array &p_coords1, PackedVector3Ar
 		p_translation = Vector3();
 	}
 
-	real_t rmsd = 0.0;
+	real_t sqrmsd = 0.0;
 	// QCP doesn't handle alignment of single values, so if we only have one point
 	// we just compute regular distance.
 	if (p_weights.size() == 1) {
-		rmsd = p_coords1[0].distance_to(p_coords2[0]);
+		sqrmsd = p_coords1[0].distance_squared_to(p_coords2[0]);
 		Quat q1 = Quat(p_coords1[0]);
 		Quat q2 = Quat(p_coords2[0]);
 		p_quat = q1 * q2;
-		return rmsd;
 	} else {
 		real_t e0 = inner_product(p_coords1, p_coords2, p_weights);
-		rmsd = calc_rmsd(e0, wsum);
-		p_quat = calc_rotation(rmsd, e0);
-		return rmsd;
+		sqrmsd = calc_sqrmsd(e0, wsum);
+		p_quat = calc_rotation(sqrmsd, e0);
 	}
+	return sqrmsd;
 }
 
 real_t QCP::center_coords(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2, const Vector<real_t> &p_weights, Vector3 &translation) const {
@@ -136,7 +135,7 @@ real_t QCP::inner_product(const PackedVector3Array &p_coords1, const PackedVecto
 	return (g1 + g2) * 0.5;
 }
 
-real_t QCP::calc_rmsd(real_t &e0, real_t wsum) {
+real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
 	real_t Sxx2 = Sxx * Sxx;
 	real_t Syy2 = Syy * Syy;
 	real_t Szz2 = Szz * Szz;
@@ -198,13 +197,14 @@ real_t QCP::calc_rmsd(real_t &e0, real_t wsum) {
 		WARN_PRINT(vformat("More than %d iterations needed!", max_iterations));
 	}
 
-	real_t rmsd = Math::sqrt(Math::abs(2.0f * (e0 - eignv) / wsum));
+	real_t sqrmsd = Math::abs(2.0f * (e0 - eignv) / wsum);
 	e0 = eignv;
-	return rmsd;
+	return sqrmsd;
 }
 
-Quat QCP::calc_rotation(real_t p_rmsd, real_t p_eigenv) const {
-	if (rot_prec > 0 && p_rmsd < rot_prec) {
+Quat QCP::calc_rotation(real_t p_sqrmsd, real_t p_eigenv) const {
+	if (rot_prec > 0 && p_sqrmsd < rot_prec * rot_prec) {
+		WARN_PRINT("RMSD too small. Return Quat()");
 		return Quat(); // Don't bother with rotation.
 	}
 
@@ -272,6 +272,7 @@ uncommented, but it is most likely unnecessary.
 				if (qsqr < evec_prec)
 				{
 					/* if qsqr is still too small, return the identity matrix. */
+					WARN_PRINT("qsqr too small. Return Quat()");
 					return Quat();
 				}
 			}
@@ -284,5 +285,5 @@ uncommented, but it is most likely unnecessary.
 	q3 *= normq;
 	q4 *= normq;
 
-	return Quat(q2,q3, q4, q1);
+	return Quat(q2, q3, q4, q1);
 }

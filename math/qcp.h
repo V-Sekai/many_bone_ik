@@ -33,12 +33,11 @@
 
 #include "core/math/quat.h"
 #include "core/variant/variant.h"
-#include "core/string/print_string.h"
 
 class QCP {
 
 private:
-	real_t evec_prec = CMP_EPSILON;
+	real_t evec_prec = FLT_EPSILON;
 	real_t eval_prec = CMP_EPSILON;
 	real_t rot_prec = CMP_EPSILON;
 	int32_t max_iterations = 15;
@@ -48,14 +47,14 @@ private:
 
 	real_t inner_product(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2, const Vector<real_t> &p_weights);
 	real_t center_coords(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2, const Vector<real_t> &p_weights, Vector3 &translation) const;
-	real_t calc_rmsd(real_t &e0, real_t wsum);
-	Quat calc_rotation(real_t p_rmsd, real_t p_eigenv) const;
+	real_t calc_sqrmsd(real_t &e0, real_t wsum);
+	Quat calc_rotation(real_t p_sqrmsd, real_t p_eigenv) const;
 
 public:
 	void set_precision(real_t p_evec_prec, real_t p_eval_prec, real_t p_rot_prec);
 	void set_max_iterations(int32_t p_max);
 	real_t calc_optimal_rotation(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2,
-			const Vector<real_t> &p_weights, bool p_center, Vector3 &p_translation, Quat &p_quat);
+			const Vector<real_t> &p_weights, bool p_center, Quat &p_quat, Vector3 &p_translation);
 };
 
 #endif // QCP_H

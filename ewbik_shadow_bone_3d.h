@@ -42,18 +42,14 @@ class EWBIKShadowBone3D : public Reference {
 	GDCLASS(EWBIKShadowBone3D, Reference);
 
 private:
-	BoneId for_bone = -1;
+	BoneId bone_id = -1;
+	bool orientation_lock = false;
 	Ref<EWBIKShadowBone3D> parent = nullptr;
 	Vector<Ref<EWBIKShadowBone3D>> children;
 	Ref<EWBIKBoneEffector3D> effector = nullptr;
 	IKTransform xform;
-	Quat rot_delta = Quat();
 	Vector3 translation_delta = Vector3();
-	bool orientation_lock = false;
-
-#ifdef DEBUG_ENABLED
-	bool bone_updated = false;
-#endif
+	Quat rot_delta = Quat();
 
 	static bool has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<EWBIKShadowBone3D>> &p_map);
 

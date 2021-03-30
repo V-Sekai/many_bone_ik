@@ -53,7 +53,7 @@ private:
 	bool calc_done = false;
 
 	// Task
-	int32_t ik_iterations = 1;
+	int32_t ik_iterations = 15;
 	int32_t stabilization_passes = 1;
 
 	void update_segments();
@@ -100,7 +100,7 @@ public:
 	bool get_effector_use_node_rotation(int32_t p_index) const;
 	void update_skeleton();
 
-	virtual void execute(real_t delta) override;
+	virtual void execute(float delta) override;
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
 
 	void solve(real_t p_blending_delta);

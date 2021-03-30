@@ -46,7 +46,7 @@ private:
 	Ref<EWBIKShadowBone3D> for_bone;
 	Transform target_transform;
 	NodePath target_nodepath = NodePath();
-	bool use_target_node_rotation = false;
+	bool use_target_node_rotation = true;
 	Transform goal_transform;
 	int32_t num_headings;
 	Vector3 priority = Vector3(1.0, 0.0, 1.0);
