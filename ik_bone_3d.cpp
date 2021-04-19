@@ -28,17 +28,17 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "ewbik_shadow_bone_3d.h"
+#include "ik_bone_3d.h"
 
-void EWBIKShadowBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
+void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	bone_id = p_bone_id;
 }
 
-BoneId EWBIKShadowBone3D::get_bone_id() const {
+BoneId IKBone3D::get_bone_id() const {
 	return bone_id;
 }
 
-void EWBIKShadowBone3D::set_parent(const Ref<EWBIKShadowBone3D> &p_parent) {
+void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 	parent = p_parent;
 	if (parent.is_valid()) {
 		parent->children.push_back(this);
@@ -46,50 +46,50 @@ void EWBIKShadowBone3D::set_parent(const Ref<EWBIKShadowBone3D> &p_parent) {
 	}
 }
 
-Ref<EWBIKShadowBone3D> EWBIKShadowBone3D::get_parent() const {
+Ref<IKBone3D> IKBone3D::get_parent() const {
 	return parent;
 }
 
-void EWBIKShadowBone3D::set_effector(const Ref<EWBIKBoneEffector3D> &p_effector) {
+void IKBone3D::set_effector(const Ref<IKEffector3D> &p_effector) {
 	effector = p_effector;
 }
 
-Ref<EWBIKBoneEffector3D> EWBIKShadowBone3D::get_effector() const {
+Ref<IKEffector3D> IKBone3D::get_effector() const {
 	return effector;
 }
 
-void EWBIKShadowBone3D::set_transform(const Transform &p_transform) {
+void IKBone3D::set_transform(const Transform &p_transform) {
 	xform.set_transform(p_transform);
 }
 
-Transform EWBIKShadowBone3D::get_transform() const {
+Transform IKBone3D::get_transform() const {
 	return xform.get_transform();
 }
 
-void EWBIKShadowBone3D::set_orientation_lock(const bool p_lock) {
+void IKBone3D::set_orientation_lock(const bool p_lock) {
 	orientation_lock = p_lock;
 }
 
-bool EWBIKShadowBone3D::get_orientation_lock() const {
+bool IKBone3D::get_orientation_lock() const {
 	return orientation_lock;
 }
 
-void EWBIKShadowBone3D::set_global_transform(const Transform &p_transform) {
+void IKBone3D::set_global_transform(const Transform &p_transform) {
 	xform.set_global_transform(p_transform);
 }
 
-Transform EWBIKShadowBone3D::get_global_transform() const {
+Transform IKBone3D::get_global_transform() const {
 	return xform.get_global_transform();
 }
 
-void EWBIKShadowBone3D::set_xform_delta(const Quat &p_rot, const Vector3 &p_offset) {
+void IKBone3D::set_xform_delta(const Quat &p_rot, const Vector3 &p_offset) {
 	rot_delta *= p_rot;
 	translation_delta += p_offset;
 	Transform rot_xform = Transform(Basis(p_rot), p_offset);
 	set_global_transform(get_global_transform() * rot_xform);
 }
 
-void EWBIKShadowBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
+void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	Transform bxform = p_skeleton->get_bone_global_pose(bone_id);
 	if (parent.is_valid()) {
 		bxform = parent->get_global_transform().affine_inverse() * bxform;
@@ -102,32 +102,32 @@ void EWBIKShadowBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	translation_delta = Vector3();
 }
 
-void EWBIKShadowBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght) {
+void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght) {
 	Transform custom = Transform(Basis(rot_delta), translation_delta);
 	p_skeleton->set_bone_local_pose_override(bone_id, custom, p_strenght, true);
 }
 
-void EWBIKShadowBone3D::create_effector() {
-	effector = Ref<EWBIKBoneEffector3D>(memnew(EWBIKBoneEffector3D(this)));
+void IKBone3D::create_effector() {
+	effector = Ref<IKEffector3D>(memnew(IKEffector3D(this)));
 }
 
-bool EWBIKShadowBone3D::is_effector() const {
+bool IKBone3D::is_effector() const {
 	return effector.is_valid();
 }
 
-Vector<BoneId> EWBIKShadowBone3D::get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<EWBIKShadowBone3D>> &p_map) const {
+Vector<BoneId> IKBone3D::get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const {
 	Vector<BoneId> children_with_effector;
 	Vector<BoneId> children = p_skeleton->get_bone_children(bone_id);
 	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 		BoneId child_bone = children[child_i];
-		if (EWBIKShadowBone3D::has_effector_descendant(child_bone, p_skeleton, p_map)) {
+		if (IKBone3D::has_effector_descendant(child_bone, p_skeleton, p_map)) {
 			children_with_effector.push_back(child_bone);
 		}
 	}
 	return children_with_effector;
 }
 
-bool EWBIKShadowBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<EWBIKShadowBone3D>> &p_map) {
+bool IKBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) {
 	if (p_map.has(p_bone) && p_map[p_bone]->is_effector()) {
 		return true;
 	} else {
@@ -135,7 +135,7 @@ bool EWBIKShadowBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_ske
 		Vector<BoneId> children = p_skeleton->get_bone_children(p_bone);
 		for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 			BoneId child_bone = children[child_i];
-			if (EWBIKShadowBone3D::has_effector_descendant(child_bone, p_skeleton, p_map)) {
+			if (IKBone3D::has_effector_descendant(child_bone, p_skeleton, p_map)) {
 				result = true;
 				break;
 			}
@@ -144,18 +144,18 @@ bool EWBIKShadowBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_ske
 	}
 }
 
-void EWBIKShadowBone3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_effector"), &EWBIKShadowBone3D::get_effector);
-	ClassDB::bind_method(D_METHOD("set_effector", "effector"), &EWBIKShadowBone3D::set_effector);
-	ClassDB::bind_method(D_METHOD("is_pinned"), &EWBIKShadowBone3D::is_effector);
+void IKBone3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_effector"), &IKBone3D::get_effector);
+	ClassDB::bind_method(D_METHOD("set_effector", "effector"), &IKBone3D::set_effector);
+	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_effector);
 }
 
-EWBIKShadowBone3D::EWBIKShadowBone3D(BoneId p_bone, const Ref<EWBIKShadowBone3D> &p_parent) {
+IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent) {
 	bone_id = p_bone;
 	set_parent(p_parent);
 }
 
-EWBIKShadowBone3D::EWBIKShadowBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<EWBIKShadowBone3D> &p_parent) {
+IKBone3D::IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent) {
 	bone_id = p_skeleton->find_bone(p_bone);
 	set_parent(p_parent);
 }

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  ewbik_bone_effector_3d.h                                             */
+/*  ik_effector_3d.h                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -27,23 +27,23 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-#ifndef EWBIK_BONE_EFFECTOR_3D_H
-#define EWBIK_BONE_EFFECTOR_3D_H
+#ifndef ik_effector_3d_H
+#define ik_effector_3d_H
 
 #include "core/object/reference.h"
-#include "ewbik_shadow_bone_3d.h"
+#include "ik_bone_3d.h"
 #include "scene/3d/skeleton_3d.h"
 
 #define MIN_SCALE 0.1
 
-class EWBIKShadowBone3D;
+class IKBone3D;
 
-class EWBIKBoneEffector3D : public Reference {
-	GDCLASS(EWBIKBoneEffector3D, Reference);
-	friend class EWBIKShadowBone3D;
+class IKEffector3D : public Reference {
+	GDCLASS(IKEffector3D, Reference);
+	friend class IKBone3D;
 
 private:
-	Ref<EWBIKShadowBone3D> for_bone;
+	Ref<IKBone3D> for_bone;
 	Transform target_transform;
 	NodePath target_nodepath = NodePath();
 	bool use_target_node_rotation = true;
@@ -70,14 +70,14 @@ public:
 	bool get_use_target_node_rotation() const;
 	Transform get_goal_transform() const;
 	bool is_node_xform_changed(Skeleton3D *p_skeleton) const;
-	Ref<EWBIKShadowBone3D> get_shadow_bone() const;
+	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;
-	void update_target_headings(Ref<EWBIKShadowBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index, Vector<real_t> &p_weights) const;
-	void update_tip_headings(Ref<EWBIKShadowBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index) const;
+	void update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index, Vector<real_t> &p_weights) const;
+	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index) const;
 
-	EWBIKBoneEffector3D(const Ref<EWBIKShadowBone3D> &p_for_bone);
-	~EWBIKBoneEffector3D() {}
+	IKEffector3D(const Ref<IKBone3D> &p_for_bone);
+	~IKEffector3D() {}
 };
 
-#endif // EWBIK_BONE_EFFECTOR_3D_H
+#endif // ik_effector_3d_H

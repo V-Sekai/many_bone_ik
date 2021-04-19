@@ -33,7 +33,7 @@
 
 #include "core/object/reference.h"
 #include "core/os/memory.h"
-#include "ewbik_segmented_skeleton_3d.h"
+#include "ik_bone_chain.h"
 #include "scene/resources/skeleton_modification_3d.h"
 
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
@@ -43,12 +43,12 @@ private:
 	Skeleton3D *skeleton = nullptr;
 	String root_bone;
 	BoneId root_bone_index = -1;
-	Ref<EWBIKSegmentedSkeleton3D> segmented_skeleton;
+	Ref<IKBoneChain> segmented_skeleton;
 	int32_t effector_count = 0;
-	Vector<Ref<EWBIKShadowBone3D>> multi_effector;
-	HashMap<BoneId, Ref<EWBIKShadowBone3D>> effectors_map;
-	Vector<Ref<EWBIKShadowBone3D>> bone_list;
-	Vector<Ref<EWBIKBoneEffector3D>> ordered_effector_list;
+	Vector<Ref<IKBone3D>> multi_effector;
+	HashMap<BoneId, Ref<IKBone3D>> effectors_map;
+	Vector<Ref<IKBone3D>> bone_list;
+	Vector<Ref<IKEffector3D>> ordered_effector_list;
 	bool is_dirty = true;
 	bool calc_done = false;
 
@@ -71,7 +71,7 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
 
-	Vector<Ref<EWBIKShadowBone3D>> get_bone_effectors() const;
+	Vector<Ref<IKBone3D>> get_bone_effectors() const;
 
 public:
 	void set_ik_iterations(int32_t p_iterations);
@@ -86,8 +86,8 @@ public:
 			bool p_use_node_rot = false, const Transform &p_target_xform = Transform());
 	int32_t find_effector(const String &p_name) const;
 	void remove_effector(int32_t p_index);
-	Ref<EWBIKShadowBone3D> get_effector(int32_t p_index) const;
-	void set_effector(int32_t p_index, const Ref<EWBIKShadowBone3D> &p_effector);
+	Ref<IKBone3D> get_effector(int32_t p_index) const;
+	void set_effector(int32_t p_index, const Ref<IKBone3D> &p_effector);
 	void set_effector_bone_index(int32_t p_effector_index, int32_t p_bone_index);
 	BoneId get_effector_bone_index(int32_t p_effector_index) const;
 	void set_effector_bone(int32_t p_effector_index, const String &p_bone);
