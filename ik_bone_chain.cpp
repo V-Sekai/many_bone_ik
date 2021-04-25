@@ -203,11 +203,14 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, Vector<Ref<I
 	}
 
 	update_target_headings(p_for_bone, p_effectors);
+	update_tip_headings(p_for_bone, p_effectors);
 
 	real_t sqrmsd = get_manual_sqrmsd();
 
 	for (int32_t i = 0; i < p_stabilization_passes + 1; i++) {
-		update_tip_headings(p_for_bone, p_effectors);
+		if (i != 0) {
+			update_tip_headings(p_for_bone, p_effectors);
+		}
 
 		real_t new_sqrmsd = set_optimal_rotation(p_for_bone);
 		if (new_sqrmsd <= sqrmsd) {
