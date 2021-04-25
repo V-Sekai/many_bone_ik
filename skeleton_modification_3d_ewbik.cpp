@@ -38,6 +38,7 @@ int32_t SkeletonModification3DEWBIK::get_ik_iterations() const {
 void SkeletonModification3DEWBIK::set_ik_iterations(int32_t p_iterations) {
 	ERR_FAIL_COND_MSG(p_iterations <= 0, "EWBIK max iterations must be at least one. Set enabled to false to disable the EWBIK simulation.");
 	ik_iterations = p_iterations;
+	calc_done = false;
 }
 
 String SkeletonModification3DEWBIK::get_root_bone() const {
