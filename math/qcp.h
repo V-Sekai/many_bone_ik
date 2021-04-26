@@ -39,7 +39,6 @@ class QCP {
 private:
 	real_t evec_prec = FLT_EPSILON;
 	real_t eval_prec = CMP_EPSILON;
-	real_t rot_prec = CMP_EPSILON;
 	int32_t max_iterations = 15;
 	real_t Sxx, Sxy, Sxz, Syx, Syy, Syz, Szx, Szy, Szz = 0;
 	real_t SxxpSyy, SyzmSzy, SxzmSzx, SxymSyx = 0;
@@ -48,10 +47,10 @@ private:
 	real_t inner_product(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2, const Vector<real_t> &p_weights);
 	real_t center_coords(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2, const Vector<real_t> &p_weights, Vector3 &translation) const;
 	real_t calc_sqrmsd(real_t &e0, real_t wsum);
-	Quat calc_rotation(real_t p_sqrmsd, real_t p_eigenv) const;
+	Quat calc_rotation(real_t p_eigenv) const;
 
 public:
-	void set_precision(real_t p_evec_prec, real_t p_eval_prec, real_t p_rot_prec);
+	void set_precision(real_t p_evec_prec, real_t p_eval_prec);
 	void set_max_iterations(int32_t p_max);
 	real_t calc_optimal_rotation(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2,
 			const Vector<real_t> &p_weights, bool p_center, Quat &p_quat, Vector3 &p_translation);

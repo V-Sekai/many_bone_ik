@@ -30,10 +30,9 @@
 
 #include "qcp.h"
 
-void QCP::set_precision(real_t p_evec_prec, real_t p_eval_prec, real_t p_rot_prec) {
+void QCP::set_precision(real_t p_evec_prec, real_t p_eval_prec) {
 	evec_prec = p_evec_prec;
 	eval_prec = p_eval_prec;
-	rot_prec = p_rot_prec;
 }
 
 void QCP::set_max_iterations(int32_t p_max) {
@@ -64,7 +63,7 @@ real_t QCP::calc_optimal_rotation(PackedVector3Array &p_coords1, PackedVector3Ar
 	} else {
 		real_t e0 = inner_product(p_coords1, p_coords2, p_weights);
 		sqrmsd = calc_sqrmsd(e0, wsum);
-		p_quat = calc_rotation(sqrmsd, e0);
+		p_quat = calc_rotation(e0);
 	}
 	return sqrmsd;
 }
@@ -168,14 +167,10 @@ real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
 
 	real_t c0 = Sxy2Sxz2Syx2Szx2 * Sxy2Sxz2Syx2Szx2 +
 				(Sxx2Syy2Szz2Syz2Szy2 + SyzSzymSyySzz2) * (Sxx2Syy2Szz2Syz2Szy2 - SyzSzymSyySzz2) +
-				(-(SxzpSzx) * (SyzmSzy) + (SxymSyx) * (SxxmSyy - Szz)) *
-						(-(SxzmSzx) * (SyzpSzy) + (SxymSyx) * (SxxmSyy + Szz)) +
-				(-(SxzpSzx) * (SyzpSzy) - (SxypSyx) * (SxxpSyy - Szz)) *
-						(-(SxzmSzx) * (SyzmSzy) - (SxypSyx) * (SxxpSyy + Szz)) +
-				(+(SxypSyx) * (SyzpSzy) + (SxzpSzx) * (SxxmSyy + Szz)) *
-						(-(SxymSyx) * (SyzmSzy) + (SxzpSzx) * (SxxpSyy + Szz)) +
-				(+(SxypSyx) * (SyzmSzy) + (SxzmSzx) * (SxxmSyy - Szz)) *
-						(-(SxymSyx) * (SyzpSzy) + (SxzmSzx) * (SxxpSyy - Szz));
+				(-(SxzpSzx) * (SyzmSzy) + (SxymSyx) * (SxxmSyy - Szz)) * (-(SxzmSzx) * (SyzpSzy) + (SxymSyx) * (SxxmSyy + Szz)) +
+				(-(SxzpSzx) * (SyzpSzy) - (SxypSyx) * (SxxpSyy - Szz)) * (-(SxzmSzx) * (SyzmSzy) - (SxypSyx) * (SxxpSyy + Szz)) +
+				(+(SxypSyx) * (SyzpSzy) + (SxzpSzx) * (SxxmSyy + Szz)) * (-(SxymSyx) * (SyzmSzy) + (SxzpSzx) * (SxxpSyy + Szz)) +
+				(+(SxypSyx) * (SyzmSzy) + (SxzmSzx) * (SxxmSyy - Szz)) * (-(SxymSyx) * (SyzpSzy) + (SxzmSzx) * (SxxpSyy - Szz));
 
 	/* Newton-Raphson */
 	real_t eignv = e0;
@@ -183,13 +178,12 @@ real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
 	int32_t i;
 	real_t x2, a, b, delta;
 	for (i = 0; i < max_iterations; ++i) {
-		real_t oldg = eignv;
 		x2 = eignv * eignv;
 		b = (x2 + c2) * eignv;
 		a = b + c1;
-		delta = ((a * eignv + c0) / (2.0 * x2 * eignv + b + a));
+		delta = (a * eignv + c0) / (2.0 * x2 * eignv + b + a);
 		eignv -= delta;
-		if (Math::abs(eignv - oldg) < Math::abs(eval_prec * eignv)) {
+		if (Math::abs(delta) < Math::abs(eval_prec * eignv)) {
 			break;
 		}
 	}
@@ -202,12 +196,7 @@ real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
 	return sqrmsd;
 }
 
-Quat QCP::calc_rotation(real_t p_sqrmsd, real_t p_eigenv) const {
-	if (rot_prec > 0 && p_sqrmsd < rot_prec * rot_prec) {
-		WARN_PRINT("RMSD too small. Return Quat()");
-		return Quat(); // Don't bother with rotation.
-	}
-
+Quat QCP::calc_rotation(real_t p_eigenv) const {
 	real_t a11 = SxxpSyy + Szz - p_eigenv;
 	real_t a12 = SyzmSzy;
 	real_t a13 = -SxzmSzx;
