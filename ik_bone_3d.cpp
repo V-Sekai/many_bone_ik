@@ -82,10 +82,9 @@ Transform IKBone3D::get_global_transform() const {
 	return xform.get_global_transform();
 }
 
-void IKBone3D::set_xform_delta(const Quat &p_rot, const Vector3 &p_offset) {
+void IKBone3D::set_rot_delta(const Quat &p_rot) {
 	rot_delta *= p_rot;
-	translation_delta += p_offset;
-	Transform rot_xform = Transform(Basis(p_rot), p_offset);
+	Transform rot_xform = Transform(Basis(p_rot), Vector3());
 	set_global_transform(get_global_transform() * rot_xform);
 }
 
@@ -99,11 +98,10 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 		effector->update_goal_transform(p_skeleton);
 	}
 	rot_delta = Quat();
-	translation_delta = Vector3();
 }
 
 void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght) {
-	Transform custom = Transform(Basis(rot_delta), translation_delta);
+	Transform custom = Transform(Basis(rot_delta), Vector3());
 	p_skeleton->set_bone_local_pose_override(bone_id, custom, p_strenght, true);
 }
 

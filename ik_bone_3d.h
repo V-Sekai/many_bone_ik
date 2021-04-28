@@ -48,7 +48,6 @@ private:
 	Vector<Ref<IKBone3D>> children;
 	Ref<IKEffector3D> effector = nullptr;
 	IKTransform xform;
-	Vector3 translation_delta = Vector3();
 	Quat rot_delta = Quat();
 
 	static bool has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map);
@@ -68,7 +67,7 @@ public:
 	void set_orientation_lock(const bool p_lock);
 	bool get_orientation_lock() const;
 	void set_global_transform(const Transform &p_transform);
-	void set_xform_delta(const Quat &p_rot, const Vector3 &p_offset);
+	void set_rot_delta(const Quat &p_rot);
 	Transform get_global_transform() const;
 	void set_initial_transform(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);

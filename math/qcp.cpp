@@ -39,17 +39,11 @@ void QCP::set_max_iterations(int32_t p_max) {
 	max_iterations = p_max;
 }
 
-real_t QCP::calc_optimal_rotation(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2,
-		const Vector<real_t> &p_weights, bool p_center, Quat &p_quat, Vector3 &p_translation) {
+real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2,
+		const Vector<real_t> &p_weights, Quat &p_quat) {
 	real_t wsum = 0.0;
-	if (p_center) {
-		wsum = center_coords(p_coords1, p_coords2, p_weights, p_translation);
-	}
-	else {
-		for (int i = 0; i < p_weights.size(); i++) {
-			wsum += p_weights[i];
-		}
-		p_translation = Vector3();
+	for (int i = 0; i < p_weights.size(); i++) {
+		wsum += p_weights[i];
 	}
 
 	real_t sqrmsd = 0.0;
@@ -176,12 +170,15 @@ real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
 	real_t eignv = e0;
 
 	int32_t i;
-	real_t x2, a, b, delta;
 	for (i = 0; i < max_iterations; ++i) {
-		x2 = eignv * eignv;
-		b = (x2 + c2) * eignv;
-		a = b + c1;
-		delta = (a * eignv + c0) / (2.0 * x2 * eignv + b + a);
+		real_t x2 = eignv * eignv;
+		real_t b = (x2 + c2) * eignv;
+		real_t a = b + c1;
+		real_t d = (2.0 * x2 * eignv + b + a);
+		if (d == 0.0) {
+			break;
+		}
+		real_t delta = (a * eignv + c0) / d;
 		eignv -= delta;
 		if (Math::abs(delta) < Math::abs(eval_prec * eignv)) {
 			break;
@@ -226,11 +223,12 @@ Quat QCP::calc_rotation(real_t p_eigenv) const {
 
 	real_t qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
-	/* The following code tries to calculate another column in the adjoint matrix when the norm of the
-current column is too small.
-Usually this block will never be activated.  To be absolutely safe this should be
-uncommented, but it is most likely unnecessary.
-	*/
+	/**
+	 * The following code tries to calculate another column in the adjoint matrix when the norm of the
+	 * current column is too small.
+	 * Usually this block will never be activated.  To be absolutely safe this should be
+	 * uncommented, but it is most likely unnecessary.
+	 */
 	if (qsqr < evec_prec) {
 		q1 =  a12 * a3344_4334 - a13 * a3244_4234 + a14 * a3243_4233;
 		q2 = -a11 * a3344_4334 + a13 * a3144_4134 - a14 * a3143_4133;

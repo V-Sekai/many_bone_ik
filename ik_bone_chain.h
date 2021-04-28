@@ -42,10 +42,11 @@ class IKBoneChain : public Reference {
 private:
 	Ref<IKBone3D> root;
 	Ref<IKBone3D> tip;
-	Vector<Ref<IKBoneChain>> child_chains; // Contains only child chains that end with effectors
+	Vector<Ref<IKBoneChain>> child_chains; // Contains only direct child chains that end with effectors or have child that end with effectors
 	Vector<Ref<IKBoneChain>> effector_direct_descendents;
 	HashMap<BoneId, Ref<IKBone3D>> bones_map;
 	Ref<IKBoneChain> parent_chain;
+	Vector<Ref<IKEffector3D>> effector_list;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
@@ -60,15 +61,15 @@ private:
 	void update_effector_direct_descendents();
 	void generate_bones_map();
 	Ref<IKBoneChain> get_child_segment_containing(const Ref<IKBone3D> &p_bone);
-	void create_headings(const Vector<Ref<IKEffector3D>> &p_list);
-	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<Ref<IKEffector3D>> &p_effectors);
-	void update_tip_headings(Ref<IKBone3D> p_for_bone, Vector<Ref<IKEffector3D>> &p_effectors);
+	void create_headings();
+	PackedVector3Array* update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights);
+	PackedVector3Array* update_tip_headings(Ref<IKBone3D> p_for_bone);
 	real_t get_manual_sqrmsd() const;
-	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone);
-	void segment_solver(int32_t p_stabilization_passes, Vector<Ref<IKEffector3D>> &p_effectors);
-	void qcp_solver(int32_t p_stabilization_passes, Vector<Ref<IKEffector3D>> &p_effectors);
-	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, Vector<Ref<IKEffector3D>> &p_effectors, bool p_translate,
-			int32_t p_stabilization_passes);
+	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone, const PackedVector3Array &p_htarget,
+		const PackedVector3Array &p_htip, const Vector<real_t> &p_weights);
+	void segment_solver(int32_t p_stabilization_passes);
+	void qcp_solver(int32_t p_stabilization_passes);
+	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_stabilization_passes);
 
 protected:
 	static void _bind_methods();
@@ -83,8 +84,8 @@ public:
 	int32_t get_effector_direct_descendents_size() const;
 	void get_bone_list(Vector<Ref<IKBone3D>> &p_list) const;
 	void generate_default_segments_from_root();
-	void update_effector_list(Vector<Ref<IKEffector3D>> &p_list);
-	void grouped_segment_solver(int32_t p_stabilization_passes, Vector<Ref<IKEffector3D>> &p_effectors);
+	void update_effector_list();
+	void grouped_segment_solver(int32_t p_stabilization_passes);
 	void debug_print_chains(Vector<bool> p_levels = Vector<bool>());
 
 	IKBoneChain() {}

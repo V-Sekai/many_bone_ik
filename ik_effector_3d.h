@@ -41,17 +41,22 @@ class IKBone3D;
 class IKEffector3D : public Reference {
 	GDCLASS(IKEffector3D, Reference);
 	friend class IKBone3D;
+	friend class IKBoneChain;
 
 private:
 	Ref<IKBone3D> for_bone;
 	Transform target_transform;
 	NodePath target_nodepath = NodePath();
 	bool use_target_node_rotation = true;
+	real_t depth_falloff = 0.0;
 	Transform goal_transform;
 	int32_t num_headings;
-	Vector3 priority = Vector3(1.0, 0.0, 1.0);
+	Vector3 priority = Vector3(0.5, 5.0, 0.0);
 	real_t weight = 1.0;
 	bool follow_x, follow_y, follow_z;
+	PackedVector3Array target_headings;
+	PackedVector3Array tip_headings;
+	Vector<real_t> heading_weights;
 
 	Transform prev_node_xform;
 
@@ -60,6 +65,7 @@ private:
 
 protected:
 	static void _bind_methods();
+	void create_headings(const Vector<real_t> &p_weights);
 
 public:
 	void set_target_transform(const Transform &p_target_transform);
@@ -73,8 +79,8 @@ public:
 	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;
-	void update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index, Vector<real_t> &p_weights) const;
-	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index) const;
+	void update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Vector<real_t> *p_weights) const;
+	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index) const;
 
 	IKEffector3D(const Ref<IKBone3D> &p_for_bone);
 	~IKEffector3D() {}

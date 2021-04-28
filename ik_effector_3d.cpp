@@ -98,100 +98,230 @@ void IKEffector3D::update_priorities() {
 	follow_y = priority.y > 0.0;
 	follow_z = priority.z > 0.0;
 
-	num_headings = 1;
-	if (follow_x) {
-		num_headings += 2;
-	}
-	if (follow_y) {
-		num_headings += 2;
-	}
-	if (follow_z) {
-		num_headings += 2;
-	}
+	num_headings = 2;
+	// if (follow_x) {
+	// 	num_headings += 2;
+	// }
+	// if (follow_y) {
+	// 	num_headings += 2;
+	// }
+	// if (follow_z) {
+	// 	num_headings += 2;
+	// }
 }
 
 
-void IKEffector3D::create_weights(Vector<real_t> &p_weights, real_t p_falloff) const {
+void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
+	/**
+	 * Weights are given from the parent chain. The last two weights should
+	 * always correspond to this effector weights. In the parent only the origin
+	 * is considered for rotation, but here the last two headings must be replaced
+	 * by the corresponding number of "axis-orientation" headings.
+	*/
+	int32_t nw = p_weights.size() - 2;
+	int32_t nheadings = nw + num_headings;
+	heading_weights.resize(nheadings);
+	tip_headings.resize(nheadings);
+	target_headings.resize(nheadings);
+
+	for (int32_t i_w = 0; i_w < nw; i_w++) {
+		heading_weights.write[i_w] = p_weights[i_w];
+	}
+
+	int32_t index = 0;
+	heading_weights.write[nw+index] = weight;
+	heading_weights.write[nw+index+1] = weight;
+	index += 2;
+	// index++;
+
+	// if (follow_x) {
+	// 	heading_weights.write[nw+index] = weight * priority.x;
+	// 	heading_weights.write[nw+index+1] = weight * priority.x;
+	// 	index += 2;
+	// }
+
+	// if (follow_y) {
+	// 	heading_weights.write[nw+index] = weight * priority.y;
+	// 	heading_weights.write[nw+index+1] = weight * priority.y;
+	// 	index += 2;
+	// }
+
+	// if (follow_z) {
+	// 	heading_weights.write[nw+index] = weight * priority.z;
+	// 	heading_weights.write[nw+index+1] = weight * priority.z;
+	// }
+}
+
+void IKEffector3D::create_weights(Vector<real_t> &p_weights, real_t p_falloff) const { // TODO: Check if still needed
 	Vector<real_t> weights;
 	weights.resize(num_headings);
 	int32_t index = 0;
 	weights.write[index] = weight * p_falloff;
-	index++;
+	weights.write[index+1] = weight * p_falloff;
+	index += 2;
 
-	if (follow_x) {
-		weights.write[index] = weight * priority.x * p_falloff;
-		weights.write[index+1] = weight * priority.x * p_falloff;
-		index += 2;
-	}
+	// if (follow_x) {
+	// 	weights.write[index] = weight * priority.x * p_falloff;
+	// 	weights.write[index+1] = weight * priority.x * p_falloff;
+	// 	index += 2;
+	// }
 
-	if (follow_y) {
-		weights.write[index] = weight * priority.y * p_falloff;
-		weights.write[index+1] = weight * priority.y * p_falloff;
-		index += 2;
-	}
+	// if (follow_y) {
+	// 	weights.write[index] = weight * priority.y * p_falloff;
+	// 	weights.write[index+1] = weight * priority.y * p_falloff;
+	// 	index += 2;
+	// }
 
-	if (follow_z) {
-		weights.write[index] = weight * priority.z * p_falloff;
-		weights.write[index+1] = weight * priority.z * p_falloff;
-	}
+	// if (follow_z) {
+	// 	weights.write[index] = weight * priority.z * p_falloff;
+	// 	weights.write[index+1] = weight * priority.z * p_falloff;
+	// }
 	p_weights.append_array(weights);
 }
 
-void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index, Vector<real_t> &p_weights) const {
+void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index,
+		Vector<real_t> *p_weights) const {
 	Vector3 origin = p_for_bone->get_global_transform().origin;
-	p_headings.write[p_index] = goal_transform.origin - origin;
-	p_index++;
+	if (p_for_bone == for_bone) {
+		/**
+		 * The following block corresponds to the original implementation
+		*/
+		// p_headings->write[p_index] = goal_transform.origin - origin;
+		// p_index++;
 
-	if (follow_x) {
-		float_t w = MAX(p_weights[p_index], MIN_SCALE);
-		Vector3 v = Vector3(w, 0.0, 0.0);
-		p_headings.write[p_index] = goal_transform.xform(v) - origin;
-		p_headings.write[p_index+1] = goal_transform.xform(-v) - origin;
+		// if (follow_x) {
+		// 	real_t w = p_weights->write[p_index];
+		// 	Vector3 v = Vector3(w, 0.0, 0.0);
+		// 	p_headings->write[p_index] = goal_transform.xform(v) - origin;
+		// 	p_headings->write[p_index+1] = goal_transform.xform(-v) - origin;
+		// 	p_index += 2;
+		// }
+
+		// if (follow_y) {
+		// 	real_t w = p_weights->write[p_index];
+		// 	Vector3 v = Vector3(0.0, w, 0.0);
+		// 	p_headings->write[p_index] = goal_transform.xform(v) - origin;
+		// 	p_headings->write[p_index+1] = goal_transform.xform(-v) - origin;
+		// 	p_index += 2;
+		// }
+
+		// if (follow_z) {
+		// 	real_t w = p_weights->write[p_index];
+		// 	Vector3 v = Vector3(0.0, 0.0, w);
+		// 	p_headings->write[p_index] = goal_transform.xform(v) - origin;
+		// 	p_headings->write[p_index+1] = goal_transform.xform(-v) - origin;
+		// 	p_index += 2;
+		// }
+
+		/**
+		 * The following block makes the headings to be centered at the origin
+		 */
+		// if (follow_x) {
+		// 	real_t w = p_weights->write[p_index];
+		// 	Vector3 v = goal_transform.xform(Vector3(w, 0.0, 0.0)) - goal_transform.origin;
+		// 	p_headings->write[p_index] = v;
+		// 	p_headings->write[p_index+1] = -v;
+		// 	p_index += 2;
+		// }
+
+		// if (follow_y) {
+		// 	real_t w = p_weights->write[p_index];
+		// 	Vector3 v = goal_transform.xform(Vector3(0.0, w, 0.0)) - goal_transform.origin;
+		// 	p_headings->write[p_index] = v;
+		// 	p_headings->write[p_index+1] = -v;
+		// 	p_index += 2;
+		// }
+
+		// if (follow_z) {
+		// 	real_t w = p_weights->write[p_index];
+		// 	Vector3 v = goal_transform.xform(Vector3(0.0, 0.0, w)) - goal_transform.origin;
+		// 	p_headings->write[p_index] = v;
+		// 	p_headings->write[p_index+1] = -v;
+		// 	p_index += 2;
+		// }
+
+		/**
+		 * The following block is a simplified version
+		 */
+		Vector3 v = goal_transform.xform(Vector3(0.0, 5.0, 0.0)) - goal_transform.origin;
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index+1] = -v;
 		p_index += 2;
-	}
-
-	if (follow_y) {
-		float_t w = MAX(p_weights[p_index], MIN_SCALE);
-		Vector3 v = Vector3(0.0, w, 0.0);
-		p_headings.write[p_index] = goal_transform.xform(v) - origin;
-		p_headings.write[p_index+1] = goal_transform.xform(-v) - origin;
-		p_index += 2;
-	}
-
-	if (follow_z) {
-		float_t w = MAX(p_weights[p_index], MIN_SCALE);
-		Vector3 v = Vector3(0.0, 0.0, w);
-		p_headings.write[p_index] = goal_transform.xform(v) - origin;
-		p_headings.write[p_index+1] = goal_transform.xform(-v) - origin;
+	} else {
+		Vector3 v = goal_transform.origin - origin;
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index+1] = -v;
 		p_index += 2;
 	}
 }
 
-void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array &p_headings, int32_t &p_index) const {
+void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
 	Vector3 origin = p_for_bone->get_global_transform().origin;
 	Transform tip_xform = for_bone->get_global_transform();
-	real_t scale_by = MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
-	p_headings.write[p_index] = tip_xform.origin - origin;
-	p_index++;
+	if (p_for_bone == for_bone) {
+		/**
+		 * The following block corresponds to the original implementation
+		*/
+		// real_t scale_by = 1.0; //MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
+		// p_headings->write[p_index] = tip_xform.origin - origin;
+		// p_index++;
 
-	if (follow_x) {
-		Vector3 v = Vector3(scale_by, 0.0, 0.0);
-		p_headings.write[p_index] = tip_xform.xform(v) - origin;
-		p_headings.write[p_index+1] = tip_xform.xform(-v) - origin;
-		p_index += 2;
-	}
+		// if (follow_x) {
+		// 	Vector3 v = Vector3(scale_by, 0.0, 0.0);
+		// 	p_headings->write[p_index] = tip_xform.xform(v) - origin;
+		// 	p_headings->write[p_index+1] = tip_xform.xform(-v) - origin;
+		// 	p_index += 2;
+		// }
 
-	if (follow_y) {
-		Vector3 v = Vector3(0.0, scale_by, 0.0);
-		p_headings.write[p_index] = tip_xform.xform(v) - origin;
-		p_headings.write[p_index+1] = tip_xform.xform(-v) - origin;
-		p_index += 2;
-	}
+		// if (follow_y) {
+		// 	Vector3 v = Vector3(0.0, scale_by, 0.0);
+		// 	p_headings->write[p_index] = tip_xform.xform(v) - origin;
+		// 	p_headings->write[p_index+1] = tip_xform.xform(-v) - origin;
+		// 	p_index += 2;
+		// }
 
-	if (follow_z) {
-		Vector3 v = Vector3(0.0, 0.0, scale_by);
-		p_headings.write[p_index] = tip_xform.xform(v) - origin;
-		p_headings.write[p_index+1] = tip_xform.xform(-v) - origin;
+		// if (follow_z) {
+		// 	Vector3 v = Vector3(0.0, 0.0, scale_by);
+		// 	p_headings->write[p_index] = tip_xform.xform(v) - origin;
+		// 	p_headings->write[p_index+1] = tip_xform.xform(-v) - origin;
+		// 	p_index += 2;
+		// }
+
+		/**
+		 * The following block makes the headings to be centered at the origin
+		 */
+		// real_t scale_by = MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
+		// if (follow_x) {
+		// 	Vector3 v = tip_xform.xform(Vector3(scale_by, 0.0, 0.0)) - origin;
+		// 	p_headings->write[p_index] = v;
+		// 	p_headings->write[p_index+1] = -v;
+		// 	p_index += 2;
+		// }
+
+		// if (follow_y) {
+		// 	Vector3 v = tip_xform.xform(Vector3(0.0, scale_by, 0.0)) - origin;
+		// 	p_headings->write[p_index] = v;
+		// 	p_headings->write[p_index+1] = -v;
+		// 	p_index += 2;
+		// }
+
+		// if (follow_z) {
+		// 	Vector3 v = tip_xform.xform(Vector3(0.0, 0.0, scale_by)) - origin;
+		// 	p_headings->write[p_index] = v;
+		// 	p_headings->write[p_index+1] = -v;
+		// 	p_index += 2;
+		// }
+
+		/**
+		 * The following block is a simplified version
+		 */
+		Vector3 v = tip_xform.xform(Vector3(0.0, 1.0, 0.0)) - tip_xform.origin;
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index+1] = -v;
+	} else {
+		Vector3 v = tip_xform.origin - origin;
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index+1] = -v;
 		p_index += 2;
 	}
 }

@@ -48,7 +48,6 @@ private:
 	Vector<Ref<IKBone3D>> multi_effector;
 	HashMap<BoneId, Ref<IKBone3D>> effectors_map;
 	Vector<Ref<IKBone3D>> bone_list;
-	Vector<Ref<IKEffector3D>> ordered_effector_list;
 	bool is_dirty = true;
 	bool calc_done = false;
 

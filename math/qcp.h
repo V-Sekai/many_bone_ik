@@ -52,8 +52,8 @@ private:
 public:
 	void set_precision(real_t p_evec_prec, real_t p_eval_prec);
 	void set_max_iterations(int32_t p_max);
-	real_t calc_optimal_rotation(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2,
-			const Vector<real_t> &p_weights, bool p_center, Quat &p_quat, Vector3 &p_translation);
+	real_t calc_optimal_rotation(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2,
+			const Vector<real_t> &p_weights, Quat &p_quat);
 };
 
 #endif // QCP_H
