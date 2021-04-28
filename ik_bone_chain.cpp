@@ -233,24 +233,6 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, const PackedV
 	return sqrmsd;
 }
 
-real_t IKBoneChain::get_manual_sqrmsd() const { // TODO: Check if still useful
-	real_t rmsd = 0.0;
-	real_t wsum = 0.0;
-	for (int32_t i = 0; i < heading_weights.size(); i++) {
-		Vector3 tiph = tip_headings[i];
-		Vector3 targeth = target_headings[i];
-		real_t xd = targeth.x - tiph.x;
-		real_t yd = targeth.y - tiph.y;
-		real_t zd = targeth.z - tiph.z;
-		real_t w = heading_weights[i];
-		rmsd += w * (xd * xd + yd * yd + zd * zd);
-		wsum += w;
-	}
-
-	rmsd /= wsum;
-	return rmsd;
-}
-
 void IKBoneChain::create_headings() {
 	target_headings.clear();
 	tip_headings.clear();

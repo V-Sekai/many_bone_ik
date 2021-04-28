@@ -152,33 +152,6 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 	// }
 }
 
-void IKEffector3D::create_weights(Vector<real_t> &p_weights, real_t p_falloff) const { // TODO: Check if still needed
-	Vector<real_t> weights;
-	weights.resize(num_headings);
-	int32_t index = 0;
-	weights.write[index] = weight * p_falloff;
-	weights.write[index+1] = weight * p_falloff;
-	index += 2;
-
-	// if (follow_x) {
-	// 	weights.write[index] = weight * priority.x * p_falloff;
-	// 	weights.write[index+1] = weight * priority.x * p_falloff;
-	// 	index += 2;
-	// }
-
-	// if (follow_y) {
-	// 	weights.write[index] = weight * priority.y * p_falloff;
-	// 	weights.write[index+1] = weight * priority.y * p_falloff;
-	// 	index += 2;
-	// }
-
-	// if (follow_z) {
-	// 	weights.write[index] = weight * priority.z * p_falloff;
-	// 	weights.write[index+1] = weight * priority.z * p_falloff;
-	// }
-	p_weights.append_array(weights);
-}
-
 void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index,
 		Vector<real_t> *p_weights) const {
 	Vector3 origin = p_for_bone->get_global_transform().origin;
