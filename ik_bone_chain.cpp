@@ -212,7 +212,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 	Vector<real_t> *weights = nullptr;
 	PackedVector3Array *htarget = update_target_headings(p_for_bone, weights);
 
-	real_t sqrmsd = MAXFLOAT;
+	real_t sqrmsd = FLT_MAX;
 	for (int32_t i = 0; i < p_stabilization_passes + 1; i++) {
 		PackedVector3Array *htip = update_tip_headings(p_for_bone);
 
