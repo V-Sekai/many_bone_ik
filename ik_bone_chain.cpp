@@ -151,7 +151,6 @@ void IKBoneChain::generate_default_segments_from_root() {
 			tip->create_effector();
 			break;
 		}
-
 	}
 	update_segmented_skeleton();
 }
@@ -240,13 +239,12 @@ void IKBoneChain::create_headings() {
 	target_headings.resize(n);
 	tip_headings.resize(n);
 
-
 	if (is_tip_effector()) {
 		tip->get_effector()->create_headings(heading_weights);
 	}
 }
 
-PackedVector3Array* IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights) {
+PackedVector3Array *IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights) {
 	PackedVector3Array *htarget;
 	if (tip == p_for_bone && tip->is_effector()) {
 		Ref<IKEffector3D> effector = tip->get_effector();
@@ -264,7 +262,7 @@ PackedVector3Array* IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone
 	return htarget;
 }
 
-PackedVector3Array* IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
+PackedVector3Array *IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 	PackedVector3Array *htip;
 	if (tip == p_for_bone && tip->is_effector()) {
 		Ref<IKEffector3D> effector = tip->get_effector();
@@ -304,17 +302,16 @@ void IKBoneChain::segment_solver(int32_t p_stabilization_passes) {
 }
 
 void IKBoneChain::qcp_solver(int32_t p_stabilization_passes) {
-	Ref<IKBone3D> current_bone = tip;
-	while (current_bone.is_valid()) {
+	Vector<Ref<IKBone3D>> list;
+	get_bone_list(list);
+	for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
+		Ref<IKBone3D> current_bone = list[bone_i];
 		if (!current_bone->get_orientation_lock()) {
 			update_optimal_rotation(current_bone, p_stabilization_passes);
 		}
-
 		if (current_bone == root) {
 			break;
 		}
-
-		current_bone = current_bone->get_parent();
 	}
 }
 
