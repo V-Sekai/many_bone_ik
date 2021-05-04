@@ -31,6 +31,7 @@
 #ifndef TEST_EWBIK_H
 #define TEST_EWBIK_H
 
+#include "core/math/basis.h"
 #include "modules/ewbik/math/qcp.h"
 
 #include "tests/test_macros.h"
@@ -83,7 +84,10 @@ TEST_CASE("[Modules][EWBIK] qcp") {
 	rot_compare.y = -0.07416658;
 	rot_compare.z = 0.013555937;
 	rot_compare.w = 0.99715185;
-	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion.", String(rot)).utf8().ptr());
+	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion compared %s.", String(rot), String(rot_compare)).utf8().ptr());
+	Vector3 euler = Basis(rot).get_euler();
+	Vector3 euler_compare = Basis(rot_compare).get_euler();
+	CHECK_MESSAGE(euler.is_equal_approx(euler_compare), vformat("%s does not match euler compared %s.", String(euler), String(euler_compare)).utf8().ptr());
 }
 } // namespace TestEWBIK
 
