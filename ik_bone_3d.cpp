@@ -100,9 +100,9 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	rot_delta = Quat();
 }
 
-void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght) {
+void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {
 	Transform custom = Transform(Basis(rot_delta), Vector3());
-	p_skeleton->set_bone_local_pose_override(bone_id, custom, p_strenght, true);
+	p_skeleton->set_bone_local_pose_override(bone_id, custom, p_strength, true);
 }
 
 void IKBone3D::create_effector() {
