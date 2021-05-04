@@ -83,7 +83,7 @@ TEST_CASE("[Modules][EWBIK] qcp") {
 	rot_compare.x = 0.0019268756;
 	rot_compare.y = -0.07416658;
 	rot_compare.z = 0.013555937;
-	rot_compare.w = 0.99715185;
+	rot_compare.w = -0.99715185;
 	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion compared %s.", String(rot), String(rot_compare)).utf8().ptr());
 	Vector3 euler = Basis(rot).get_euler();
 	Vector3 euler_compare = Basis(rot_compare).get_euler();
