@@ -46,8 +46,7 @@ Vector3 rad2deg(const Vector3 &p_rotation) {
 }
 
 TEST_CASE("[Modules][EWBIK] qcp") {
-	Ref<QCP> qcp;
-	qcp.instance();
+	QCP *qcp = memnew(QCP);
 	qcp->set_max_iterations(10);
 
 	Vector<Vector3> localizedTipHeadings;
