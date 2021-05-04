@@ -31,7 +31,7 @@
 #ifndef TEST_EWBIK_H
 #define TEST_EWBIK_H
 
-#include "modules/ewbik/qcp.h"
+#include "modules/ewbik/math/qcp.h"
 
 #include "tests/test_macros.h"
 
@@ -76,8 +76,9 @@ TEST_CASE("[Modules][EWBIK] qcp") {
 	weights.push_back(25.0);
 	weights.push_back(25.0);
 	weights.push_back(25.0);
-	Quat rot = qcp->weighted_superpose(localizedTipHeadings, localizedTargetHeadings,
-			weights, false);
+	Quat rot;
+	qcp->calc_optimal_rotation(localizedTipHeadings, localizedTargetHeadings,
+			weights, rot);
 	Quat rot_compare;
 	rot_compare.w = 0.99715185;
 	rot_compare.x = 0.0019268756;
