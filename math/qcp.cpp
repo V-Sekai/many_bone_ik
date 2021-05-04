@@ -170,20 +170,18 @@ real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
 	real_t eignv = e0;
 
 	int32_t i;
-	for (i = 0; i < max_iterations; ++i) {
-		real_t x2 = eignv * eignv;
-		real_t b = (x2 + c2) * eignv;
-		real_t a = b + c1;
-		real_t d = (2.0 * x2 * eignv + b + a);
-		if (d == 0.0) {
-			break;
-		}
-		real_t delta = (a * eignv + c0) / d;
+	for (i = 1; i < (max_iterations + 1); ++i) {
+		real_t oldg = eignv;
+		real_t Y = 1.0f / eignv;
+		real_t Y2 = Y * Y;
+		real_t delta = ((((Y * c0 + c1) * Y + c2) * Y2 + 1) / ((Y * c1 + 2 * c2) * Y2 * Y + 4));
 		eignv -= delta;
-		if (Math::abs(delta) < Math::abs(eval_prec * eignv)) {
+
+		if (Math::absd(eignv - oldg) < Math::absd(eval_prec * eignv)) {
 			break;
 		}
 	}
+
 	if (i == max_iterations) {
 		WARN_PRINT(vformat("More than %d iterations needed!", max_iterations));
 	}
