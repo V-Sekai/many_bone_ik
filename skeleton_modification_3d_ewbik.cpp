@@ -246,6 +246,7 @@ void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
 }
 
 void SkeletonModification3DEWBIK::iterated_improved_solver() {
+	ERR_FAIL_NULL(segmented_skeleton);
 	for (int i = 0; i < ik_iterations; i++) {
 		segmented_skeleton->grouped_segment_solver(stabilization_passes);
 	}
@@ -261,6 +262,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 		// Don't generate default effectors
 		// generate_default_effectors();
 	}
+	ERR_FAIL_NULL(segmented_skeleton);
 	segmented_skeleton->update_effector_list();
 	notify_property_list_changed();
 
@@ -314,6 +316,7 @@ void SkeletonModification3DEWBIK::update_segments() {
 
 void SkeletonModification3DEWBIK::update_bone_list() {
 	bone_list.clear();
+	ERR_FAIL_NULL(segmented_skeleton);
 	segmented_skeleton->get_bone_list(bone_list);
 	bone_list.reverse();
 }
