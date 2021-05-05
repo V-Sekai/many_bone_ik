@@ -110,7 +110,6 @@ void IKEffector3D::update_priorities() {
 	// }
 }
 
-
 void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 	/**
 	 * Weights are given from the parent chain. The last two weights should
@@ -129,8 +128,8 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 	}
 
 	int32_t index = 0;
-	heading_weights.write[nw+index] = weight;
-	heading_weights.write[nw+index+1] = weight;
+	heading_weights.write[nw + index] = weight;
+	heading_weights.write[nw + index + 1] = weight;
 	index += 2;
 	// index++;
 
@@ -218,12 +217,12 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 		 */
 		Vector3 v = goal_transform.xform(Vector3(0.0, 5.0, 0.0)) - goal_transform.origin;
 		p_headings->write[p_index] = v;
-		p_headings->write[p_index+1] = -v;
+		p_headings->write[p_index + 1] = -v;
 		p_index += 2;
 	} else {
 		Vector3 v = goal_transform.origin - origin;
 		p_headings->write[p_index] = v;
-		p_headings->write[p_index+1] = -v;
+		p_headings->write[p_index + 1] = -v;
 		p_index += 2;
 	}
 }
@@ -290,11 +289,11 @@ void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 		 */
 		Vector3 v = tip_xform.xform(Vector3(0.0, 1.0, 0.0)) - tip_xform.origin;
 		p_headings->write[p_index] = v;
-		p_headings->write[p_index+1] = -v;
+		p_headings->write[p_index + 1] = -v;
 	} else {
 		Vector3 v = tip_xform.origin - origin;
 		p_headings->write[p_index] = v;
-		p_headings->write[p_index+1] = -v;
+		p_headings->write[p_index + 1] = -v;
 		p_index += 2;
 	}
 }
