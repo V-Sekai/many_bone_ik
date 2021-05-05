@@ -204,23 +204,36 @@ void IKBoneChain::update_effector_list() {
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_stabilization_passes) {
-	if (p_for_bone->get_parent().is_null() || (child_chains.is_empty() && tip->get_effector()->is_following_translation_only())) {
+	if (p_stabilization_passes == 0) {
+		return;
+	}
+	Vector<real_t> *weights = nullptr;
+	PackedVector3Array *htarget = update_target_headings(p_for_bone, weights);
+	PackedVector3Array *htip = update_tip_headings(p_for_bone);
+	if (p_for_bone->get_parent().is_null() || htarget->size() == 1) {
 		p_stabilization_passes = 0;
 	}
 
-	Vector<real_t> *weights = nullptr;
-	PackedVector3Array *htarget = update_target_headings(p_for_bone, weights);
+	real_t best_sqrmsd = 0.0;
+
+	if (p_stabilization_passes > 0) {
+		best_sqrmsd = get_manual_sqrtmsd(*htarget, *htip, *weights);
+	}
 
 	real_t sqrmsd = FLT_MAX;
 	for (int32_t i = 0; i < p_stabilization_passes + 1; i++) {
-		PackedVector3Array *htip = update_tip_headings(p_for_bone);
-
-		real_t new_sqrmsd = set_optimal_rotation(p_for_bone, *htarget, *htip, *weights);
-		if (new_sqrmsd <= sqrmsd) {
-			// TODO: Consider springy bones
+		if (p_stabilization_passes <= 0) {
 			break;
 		}
-		sqrmsd = new_sqrmsd;
+		sqrmsd = set_optimal_rotation(p_for_bone, *htarget, *htip, *weights);
+		if (sqrmsd <= best_sqrmsd) {
+			best_sqrmsd = sqrmsd;
+		}
+		float sqrmsd_snapped = Math::snapped(sqrmsd, CMP_EPSILON);
+		float best_sqrmsd_snapped = Math::snapped(best_sqrmsd, CMP_EPSILON);
+		if (Math::is_equal_approx(sqrmsd_snapped, best_sqrmsd_snapped)) {
+			break;
+		}
 	}
 }
 
@@ -396,4 +409,18 @@ IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
 		root->set_parent(p_parent->get_tip());
 	}
 	generate_skeleton_segments(p_map);
+}
+
+real_t IKBoneChain::get_manual_sqrtmsd(const PackedVector3Array &p_htarget, const PackedVector3Array &p_htip, const Vector<real_t> &p_weights) const {
+	double manual_sqrtmsd = 0.0;
+	double w_sum = 0.0;
+	for (int i = 0; i < p_htarget.size(); i++) {
+		real_t distance_sq = p_htarget[i].distance_squared_to(p_htip[i]);
+		double mag_sq = p_weights[i] * distance_sq;
+		manual_sqrtmsd += mag_sq;
+		w_sum += p_weights[i];
+	}
+	manual_sqrtmsd /= w_sum;
+
+	return manual_sqrtmsd;
 }

@@ -52,8 +52,8 @@ private:
 	bool calc_done = false;
 
 	// Task
-	int32_t ik_iterations = 15;
-	int32_t stabilization_passes = 1;
+	int32_t ik_iterations = 1;
+	int32_t stabilization_passes = 4;
 
 	void update_segments();
 	void update_effectors_map();
