@@ -208,7 +208,7 @@ void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D
 	}
 
 	if (root_bone.is_empty()) {
-	 	Vector<int32_t> roots;
+		Vector<int32_t> roots;
 		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 			int32_t parent = skeleton->get_bone_parent(bone_i);
 			if (parent == -1) {
@@ -258,7 +258,8 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	if (effector_count) {
 		update_segments();
 	} else {
-		generate_default_effectors();
+		// Don't generate default effectors
+		// generate_default_effectors();
 	}
 	segmented_skeleton->update_effector_list();
 	notify_property_list_changed();
@@ -287,7 +288,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 	// Reset the local bone overrides
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
 		skeleton->set_bone_local_pose_override(bone_list[bone_i]->get_bone_id(),
-			Transform(), 0.0, false);
+				Transform(), 0.0, false);
 	}
 
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
@@ -365,7 +366,24 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,65535,1"));
 	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	for (int i = 0; i < effector_count; i++) {
-		p_list->push_back(PropertyInfo(Variant::STRING, "effectors/" + itos(i) + "/name"));
+		PropertyInfo effector_name;
+		effector_name.type = Variant::STRING;
+		effector_name.name = "effectors/" + itos(i) + "/name";
+		if (skeleton) {
+			String names;
+			for (int i = 0; i < skeleton->get_bone_count(); i++) {
+				if (i > 0) {
+					names += ",";
+				}
+				names += skeleton->get_bone_name(i);
+			}
+			effector_name.hint = PROPERTY_HINT_ENUM;
+			effector_name.hint_string = names;
+		} else {
+			effector_name.hint = PROPERTY_HINT_NONE;
+			effector_name.hint_string = "";
+		}
+		p_list->push_back(effector_name);
 		p_list->push_back(PropertyInfo(Variant::INT, "effectors/" + itos(i) + "/index"));
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
@@ -432,7 +450,12 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			name = p_value;
 			ERR_FAIL_COND_V(name.is_empty(), false);
 			set_effector_bone(index, name);
-
+			if (!skeleton) {
+				return true;
+			}
+			int32_t bone = skeleton->find_bone(name);
+			ERR_FAIL_COND_V(bone == -1, false);
+			set_effector_bone_index(index, bone);
 			return true;
 		} else if (what == "index") {
 			set_effector_bone_index(index, p_value);
