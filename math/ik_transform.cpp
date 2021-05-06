@@ -115,8 +115,8 @@ void IKTransform::set_transform(const Transform &p_transform) {
 
 void IKTransform::set_global_transform(const Transform &p_transform) {
 	Transform xform = parent ?
-			parent->get_global_transform().affine_inverse() * p_transform :
-			p_transform;
+								parent->get_global_transform().affine_inverse() * p_transform :
+								p_transform;
 	set_transform(xform);
 }
 

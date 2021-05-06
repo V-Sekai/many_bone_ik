@@ -35,7 +35,6 @@
 #include "core/variant/variant.h"
 
 class QCP {
-
 private:
 	real_t evec_prec = FLT_EPSILON;
 	real_t eval_prec = CMP_EPSILON;
