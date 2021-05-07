@@ -47,8 +47,9 @@ String SkeletonModification3DEWBIK::get_root_bone() const {
 
 void SkeletonModification3DEWBIK::set_root_bone(const String &p_root_bone) {
 	root_bone = p_root_bone;
-	if (skeleton)
+	if (skeleton) {
 		root_bone_index = skeleton->find_bone(root_bone);
+	}
 
 	is_dirty = true;
 }
@@ -59,8 +60,9 @@ BoneId SkeletonModification3DEWBIK::get_root_bone_index() const {
 
 void SkeletonModification3DEWBIK::set_root_bone_index(BoneId p_index) {
 	root_bone_index = p_index;
-	if (skeleton)
+	if (skeleton) {
 		root_bone = skeleton->get_bone_name(p_index);
+	}
 	is_dirty = true;
 }
 
