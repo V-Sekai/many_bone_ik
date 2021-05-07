@@ -79,24 +79,24 @@ public:
 	String get_root_bone() const;
 	void set_root_bone_index(BoneId p_index);
 	BoneId get_root_bone_index() const;
-	void set_effector_count(int32_t p_value);
-	int32_t get_effector_count() const;
-	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(),
+	void set_target_count(int32_t p_value);
+	int32_t get_target_count() const;
+	void add_target(const String &p_name, const NodePath &p_target_node = NodePath(),
 			bool p_use_node_rot = false, const Transform &p_target_xform = Transform());
-	int32_t find_effector(const String &p_name) const;
-	void remove_effector(int32_t p_index);
-	Ref<IKBone3D> get_effector(int32_t p_index) const;
-	void set_effector(int32_t p_index, const Ref<IKBone3D> &p_effector);
-	void set_effector_bone_index(int32_t p_effector_index, int32_t p_bone_index);
-	BoneId get_effector_bone_index(int32_t p_effector_index) const;
-	void set_effector_bone(int32_t p_effector_index, const String &p_bone);
-	String get_effector_bone(int32_t p_effector_index) const;
-	void set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node);
-	NodePath get_effector_target_nodepath(int32_t p_index) const;
-	void set_effector_target_transform(int32_t p_index, const Transform &p_target_transform);
-	Transform get_effector_target_transform(int32_t p_index) const;
-	void set_effector_use_node_rotation(int32_t p_index, bool p_use_node_rot);
-	bool get_effector_use_node_rotation(int32_t p_index) const;
+	int32_t find_target(const String &p_name) const;
+	void remove_target(int32_t p_index);
+	Ref<IKBone3D> get_target(int32_t p_index) const;
+	void set_target(int32_t p_index, const Ref<IKBone3D> &p_effector);
+	void set_target_bone_index(int32_t p_effector_index, int32_t p_bone_index);
+	BoneId get_target_bone_index(int32_t p_effector_index) const;
+	void set_target_bone(int32_t p_effector_index, const String &p_bone);
+	String get_target_bone(int32_t p_effector_index) const;
+	void set_target_nodepath(int32_t p_index, const NodePath &p_target_node);
+	NodePath get_target_nodepath(int32_t p_index) const;
+	void set_target_transform(int32_t p_index, const Transform &p_target_transform);
+	Transform get_target_transform(int32_t p_index) const;
+	void set_target_use_node_rotation(int32_t p_index, bool p_use_node_rot);
+	bool get_target_use_node_rotation(int32_t p_index) const;
 	void update_skeleton();
 
 	virtual void execute(float delta) override;
