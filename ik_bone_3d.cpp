@@ -88,6 +88,11 @@ void IKBone3D::set_rot_delta(const Quat &p_rot) {
 	set_global_transform(get_global_transform() * rot_xform);
 }
 
+void IKBone3D::set_translation(const Vector3 &p_translation) {
+	Transform translate_xform = Transform(Basis(), Vector3(p_translation));
+	set_global_transform(get_global_transform() * translate_xform);
+}
+
 void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	Transform bxform = p_skeleton->get_bone_global_pose(bone_id);
 	if (parent.is_valid()) {
@@ -148,7 +153,8 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_effector);
 }
 
-IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent, float p_default_dampening) : default_dampening(p_default_dampening) {
+IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent, float p_default_dampening) :
+		default_dampening(p_default_dampening) {
 	bone_id = p_bone;
 	set_parent(p_parent);
 }
@@ -166,4 +172,3 @@ float IKBone3D::get_cos_half_dampen() const {
 void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
 	cos_half_dampen = p_cos_half_dampen;
 }
-
