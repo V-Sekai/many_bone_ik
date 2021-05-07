@@ -373,11 +373,8 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		effector_name.type = Variant::STRING;
 		effector_name.name = "effectors/" + itos(i) + "/name";
 		if (skeleton) {
-			String names;
+			String names = "None,";
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
-				if (i > 0) {
-					names += ",";
-				}
 				names += skeleton->get_bone_name(i);
 			}
 			effector_name.hint = PROPERTY_HINT_ENUM;
