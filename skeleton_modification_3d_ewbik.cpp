@@ -248,7 +248,7 @@ void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
 void SkeletonModification3DEWBIK::iterated_improved_solver() {
 	ERR_FAIL_NULL(segmented_skeleton);
 	for (int i = 0; i < ik_iterations; i++) {
-		segmented_skeleton->grouped_segment_solver(stabilization_passes);
+		segmented_skeleton->grouped_segment_solver(constraint_stabilization_passes);
 	}
 }
 
@@ -348,11 +348,9 @@ bool SkeletonModification3DEWBIK::is_calc_done() {
 void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) const {
 	if (property.name == "root_bone") {
 		if (skeleton) {
-			String names;
+			String names = "None";
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
-				if (i > 0) {
-					names += ",";
-				}
+				names += ",";
 				names += skeleton->get_bone_name(i);
 			}
 
@@ -373,8 +371,9 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		effector_name.type = Variant::STRING;
 		effector_name.name = "effectors/" + itos(i) + "/name";
 		if (skeleton) {
-			String names = "None,";
+			String names = "None";
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
+				names += ",";
 				names += skeleton->get_bone_name(i);
 			}
 			effector_name.hint = PROPERTY_HINT_ENUM;

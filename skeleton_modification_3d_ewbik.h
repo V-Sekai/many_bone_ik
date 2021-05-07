@@ -53,7 +53,7 @@ private:
 
 	// Task
 	int32_t ik_iterations = 1;
-	int32_t stabilization_passes = 4;
+	int32_t constraint_stabilization_passes = 4;
 
 	void update_segments();
 	void update_effectors_map();
