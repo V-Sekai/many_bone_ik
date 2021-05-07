@@ -43,21 +43,16 @@ private:
 	real_t SxxpSyy, SyzmSzy, SxzmSzx, SxymSyx = 0;
 	real_t SxxmSyy, SxypSyx, SxzpSzx, SyzpSzy = 0;
 
-	Vector3 target_center;
-	Vector3 tip_center;
-		
 	real_t inner_product(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2, const Vector<real_t> &p_weights);
 	real_t center_coords(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2, const Vector<real_t> &p_weights, Vector3 &translation) const;
 	real_t calc_sqrmsd(real_t &e0, real_t wsum);
 	Quat calc_rotation(real_t p_eigenv) const;
-	void translate(Vector3 p_translate, PackedVector3Array& r_coordinates) const;
-	void move_to_weighted_center(const PackedVector3Array &p_to_center, const Vector<real_t> &p_weights, Vector3 &r_center, real_t &r_wsum);
 
 public:
 	void set_precision(real_t p_evec_prec, real_t p_eval_prec);
 	void set_max_iterations(int32_t p_max);
-	real_t calc_optimal_rotation(PackedVector3Array &r_tip, PackedVector3Array &r_target,
-			const Vector<real_t> &p_weights, Quat &p_quat, bool p_translate = false, Vector3 &r_translation = Vector3());
+	real_t calc_optimal_rotation(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2,
+			const Vector<real_t> &p_weights, Quat &p_quat);
 };
 
 #endif // QCP_H

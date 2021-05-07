@@ -49,7 +49,7 @@ private:
 	Ref<IKEffector3D> effector = nullptr;
 	IKTransform xform;
 	Quat rot_delta = Quat();
-	float default_dampening = Math::deg2rad(1.0f);
+	float default_dampening = Math::deg2rad(5.0f);
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
 	static bool has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map);
@@ -70,7 +70,6 @@ public:
 	bool get_orientation_lock() const;
 	void set_global_transform(const Transform &p_transform);
 	void set_rot_delta(const Quat &p_rot);
-	void set_translation(const Vector3 &p_translation);
 	Transform get_global_transform() const;
 	void set_initial_transform(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);
