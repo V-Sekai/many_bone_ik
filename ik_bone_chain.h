@@ -71,6 +71,11 @@ private:
 	void qcp_solver(int32_t p_stabilization_passes);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_stabilization_passes);
 
+	// Orientation cos(angle/2) representation
+	Quat set_quadrance_angle(Quat p_quat, real_t p_cos_half_angle) const;
+	Quat clamp_to_angle(Quat p_quat, real_t p_angle) const;
+	Quat clamp_to_quadrance_angle(Quat p_quat, real_t p_cos_half_angle) const;
+
 protected:
 	static void _bind_methods();
 
