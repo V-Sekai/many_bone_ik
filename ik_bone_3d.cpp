@@ -148,12 +148,22 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_effector);
 }
 
-IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent) {
+IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent, float p_default_dampening) : default_dampening(p_default_dampening) {
 	bone_id = p_bone;
 	set_parent(p_parent);
 }
 
-IKBone3D::IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent) {
+IKBone3D::IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, float p_default_dampening) :
+		default_dampening(p_default_dampening) {
 	bone_id = p_skeleton->find_bone(p_bone);
 	set_parent(p_parent);
 }
+
+float IKBone3D::get_cos_half_dampen() const {
+	return cos_half_dampen;
+}
+
+void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
+	cos_half_dampen = p_cos_half_dampen;
+}
+

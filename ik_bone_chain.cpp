@@ -238,9 +238,19 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_co
 }
 
 real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, const PackedVector3Array &p_htarget,
-		const PackedVector3Array &p_htip, const Vector<real_t> &p_weights) {
+		const PackedVector3Array &p_htip, const Vector<real_t> &p_weights, float p_dampening) {
 	Quat rot;
 	real_t sqrmsd = qcp.calc_optimal_rotation(p_htip, p_htarget, p_weights, rot);
+
+	float bone_damp = p_for_bone->get_cos_half_dampen();
+
+	if (!Math::is_equal_approx(p_dampening, -1.0)) {
+		bone_damp = p_dampening;
+		rot.clamp_to_angle(bone_damp);
+	} else {
+		rot.clamp_to_quadrance_angle(bone_damp);
+	}
+
 	p_for_bone->set_rot_delta(rot);
 	return sqrmsd;
 }

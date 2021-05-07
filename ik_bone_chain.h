@@ -66,7 +66,7 @@ private:
 	PackedVector3Array *update_tip_headings(Ref<IKBone3D> p_for_bone);
 	real_t get_manual_sqrtmsd(const PackedVector3Array &p_htarget, const PackedVector3Array &p_htip, const Vector<real_t> &p_weights) const;
 	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone, const PackedVector3Array &p_htarget,
-			const PackedVector3Array &p_htip, const Vector<real_t> &p_weights);
+			const PackedVector3Array &p_htip, const Vector<real_t> &p_weights, float p_dampening = -1);
 	void segment_solver(int32_t p_stabilization_passes);
 	void qcp_solver(int32_t p_stabilization_passes);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_stabilization_passes);
