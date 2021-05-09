@@ -36,6 +36,8 @@
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
 
+#define IK_DEFAULT_DAMPENING CMP_EPSILON2
+
 class IKEffector3D;
 
 class IKBone3D : public Reference {
@@ -49,7 +51,7 @@ private:
 	Ref<IKEffector3D> effector = nullptr;
 	IKTransform xform;
 	Quat rot_delta = Quat();
-	float default_dampening = Math::deg2rad(5.0f);
+	float default_dampening = IK_DEFAULT_DAMPENING;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
 	static bool has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map);
@@ -78,8 +80,8 @@ public:
 	Vector<BoneId> get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const;
 
 	IKBone3D() {}
-	IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = Math::deg2rad(5.0f));
-	IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = Math::deg2rad(5.0f));
+	IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
+	IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	~IKBone3D() {}
 	float get_cos_half_dampen() const;
 	void set_cos_half_dampen(float p_cos_half_dampen);
