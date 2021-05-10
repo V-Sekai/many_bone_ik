@@ -41,7 +41,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 
 private:
 	Skeleton3D *skeleton = nullptr;
-	BoneId root_bone = -1;
+	StringName root_bone_name;
 	Ref<IKBoneChain> segmented_skeleton;
 	int32_t effector_count = 0;
 	Vector<Ref<IKBone3D>> multi_effector;
@@ -65,6 +65,9 @@ private:
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
 	bool _set(const StringName &p_name, const Variant &p_value);
+
+	void _calculate_root_bone();
+
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
@@ -74,8 +77,8 @@ protected:
 public:
 	void set_ik_iterations(int32_t p_iterations);
 	int32_t get_ik_iterations() const;
-	void set_root_bone(BoneId p_index);
-	BoneId get_root_bone() const;
+	void set_root_bone_name(StringName p_bone_name);
+	StringName get_root_bone_name() const;
 	void set_target_count(int32_t p_value);
 	int32_t get_target_count() const;
 	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(),
@@ -84,8 +87,8 @@ public:
 	void remove_target(int32_t p_index);
 	Ref<IKBone3D> get_effector(int32_t p_index) const;
 	void set_effector(int32_t p_index, const Ref<IKBone3D> &p_effector);
-	void set_effector_bone(int32_t p_effector_index, int32_t p_bone_index);
-	BoneId get_effector_bone(int32_t p_effector_index) const;
+	void set_effector_bone_name(int32_t p_effector_index, StringName p_bone_name);
+	StringName get_effector_bone_name(int32_t p_effector_index) const;
 	void set_effector_nodepath(int32_t p_index, const NodePath &p_target_node);
 	NodePath get_effector_nodepath(int32_t p_index) const;
 	void set_effector_transform(int32_t p_index, const Transform &p_target_transform);

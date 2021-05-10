@@ -119,7 +119,7 @@ void IKBoneChain::generate_bones_map() {
 	Ref<IKBone3D> current_bone = tip;
 	Ref<IKBone3D> stop_on = root;
 	while (current_bone.is_valid()) {
-		bones_map[current_bone->get_bone_id()] = current_bone;
+		bones_map[current_bone->get_bone()] = current_bone;
 		if (current_bone == stop_on) {
 			break;
 		}
@@ -132,7 +132,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 
 	Ref<IKBone3D> tempTip = root;
 	while (true) {
-		Vector<BoneId> children = skeleton->get_bone_children(tempTip->get_bone_id());
+		Vector<BoneId> children = skeleton->get_bone_children(tempTip->get_bone());
 		if (children.size() > 1) {
 			tip = tempTip;
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
@@ -156,7 +156,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 }
 
 Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &p_bone) {
-	if (bones_map.has(p_bone->get_bone_id())) {
+	if (bones_map.has(p_bone->get_bone())) {
 		return this;
 	} else {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
@@ -419,7 +419,7 @@ void IKBoneChain::debug_print_chains(Vector<bool> p_levels) {
 				s += "(T) ";
 			}
 		}
-		s += skeleton->get_bone_name(bone->get_bone_id());
+		s += skeleton->get_bone_name(bone->get_bone());
 		print_line(s);
 	}
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {

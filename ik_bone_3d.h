@@ -60,8 +60,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
-	BoneId get_bone_id() const;
+	void set_bone(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
+	BoneId get_bone() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
 	Ref<IKBone3D> get_parent() const;
 	void set_effector(const Ref<IKEffector3D> &p_effector);
