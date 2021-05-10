@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  skeleton_modification_3d_ewbik.cpp                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -285,7 +285,7 @@ void SkeletonModification3DEWBIK::generate_default_effectors() {
 		Ref<IKBoneChain> segment = effector_chains[chain_i];
 	}
 	update_effectors_map();
-	update_bone_list();
+	update_bone_list(get_debug_skeleton());
 }
 
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
@@ -316,10 +316,10 @@ void SkeletonModification3DEWBIK::update_segments() {
 	}
 }
 
-void SkeletonModification3DEWBIK::update_bone_list() {
+void SkeletonModification3DEWBIK::update_bone_list(bool p_debug_skeleton) {
 	bone_list.clear();
 	ERR_FAIL_NULL(segmented_skeleton);
-	segmented_skeleton->get_bone_list(bone_list);
+	segmented_skeleton->get_bone_list(bone_list, p_debug_skeleton);
 	bone_list.reverse();
 }
 
@@ -492,6 +492,10 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3DEWBIK::get_effector);
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DEWBIK::set_effector);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
+	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
+	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
+
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
 }
@@ -501,4 +505,13 @@ SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
 }
 
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
+}
+
+bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
+	return debug_skeleton;
+}
+
+void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
+	debug_skeleton = p_enabled;
+	update_bone_list(true);
 }

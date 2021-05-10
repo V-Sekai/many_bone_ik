@@ -50,6 +50,7 @@ private:
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool calc_done = false;
+	bool debug_skeleton = true;
 
 	// Task
 	int32_t ik_iterations = 1;
@@ -57,7 +58,7 @@ private:
 
 	void update_segments();
 	void update_effectors_map();
-	void update_bone_list();
+	void update_bone_list(bool p_debug_skeleton = false);
 	void generate_default_effectors();
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
@@ -73,6 +74,8 @@ protected:
 	Vector<Ref<IKBone3D>> get_bone_effectors() const;
 
 public:
+	bool get_debug_skeleton() const;
+	void set_debug_skeleton(bool p_enabled);
 	void set_ik_iterations(int32_t p_iterations);
 	int32_t get_ik_iterations() const;
 	void set_root_bone(const String &p_root_bone);
