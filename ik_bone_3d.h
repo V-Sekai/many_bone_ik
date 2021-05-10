@@ -44,7 +44,7 @@ class IKBone3D : public Reference {
 	GDCLASS(IKBone3D, Reference);
 
 private:
-	BoneId bone_id = -1;
+	StringName bone_name;
 	bool orientation_lock = false;
 	Ref<IKBone3D> parent = nullptr;
 	Vector<Ref<IKBone3D>> children;
@@ -60,8 +60,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	void set_bone(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
-	BoneId get_bone() const;
+	void set_bone_name(Skeleton3D *p_skeleton, StringName p_bone_name);
+	StringName get_bone_name() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
 	Ref<IKBone3D> get_parent() const;
 	void set_effector(const Ref<IKEffector3D> &p_effector);
@@ -81,8 +81,7 @@ public:
 	Vector<BoneId> get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const;
 
 	IKBone3D() {}
-	IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
-	IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
+	IKBone3D(String p_bone_name, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	~IKBone3D() {}
 	float get_cos_half_dampen() const;
 	void set_cos_half_dampen(float p_cos_half_dampen);

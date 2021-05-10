@@ -96,15 +96,14 @@ void SkeletonModification3DEWBIK::set_effector(int32_t p_index, const Ref<IKBone
 }
 
 void SkeletonModification3DEWBIK::set_effector_bone_name(int32_t p_effector_index, StringName p_bone_name) {
-	ERR_FAIL_COND(!skeleton);
-	BoneId bone = skeleton->find_bone(p_bone_name); 
-	multi_effector.write[p_effector_index]->set_bone(bone);
+	multi_effector.write[p_effector_index]->set_bone_name(skeleton, p_bone_name);
 	is_dirty = true;
 }
 
 StringName SkeletonModification3DEWBIK::get_effector_bone_name(int32_t p_effector_index) const {
-	BoneId bone = multi_effector[p_effector_index]->get_bone();
+	StringName bone_name = multi_effector[p_effector_index]->get_bone_name();
 	ERR_FAIL_COND_V(!skeleton, "");
+	BoneId bone = skeleton->find_bone(bone_name);
 	ERR_FAIL_COND_V(bone == -1, "");
 	String name = skeleton->get_bone_name(bone); 
 	return name;
@@ -142,9 +141,8 @@ Vector<Ref<IKBone3D>> SkeletonModification3DEWBIK::get_bone_effectors() const {
 }
 
 int32_t SkeletonModification3DEWBIK::find_target(const String &p_name) const {
-	BoneId bone = skeleton->find_bone(p_name);
 	for (int32_t effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
-		if (multi_effector[effector_i].is_valid() && multi_effector[effector_i]->get_bone() == bone) {
+		if (multi_effector[effector_i].is_valid() && multi_effector[effector_i]->get_bone_name() == p_name) {
 			return effector_i;
 		}
 	}
@@ -256,7 +254,8 @@ void SkeletonModification3DEWBIK::generate_default_effectors() {
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 	// Reset the local bone overrides
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
-		skeleton->set_bone_local_pose_override(bone_list[bone_i]->get_bone(),
+		BoneId bone = skeleton->find_bone(bone_list[bone_i]->get_bone_name());
+		skeleton->set_bone_local_pose_override(bone,
 				Transform(), 0.0, false);
 	}
 
@@ -295,7 +294,8 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 	effectors_map.clear();
 	for (int32_t index = 0; index < effector_count; index++) {
 		Ref<IKBone3D> effector_bone = multi_effector[index];
-		effectors_map[effector_bone->get_bone()] = effector_bone;
+		BoneId bone = skeleton->find_bone(effector_bone->get_bone_name());
+		effectors_map[bone] = effector_bone;
 	}
 }
 

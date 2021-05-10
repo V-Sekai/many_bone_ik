@@ -30,12 +30,12 @@
 
 #include "ik_bone_3d.h"
 
-void IKBone3D::set_bone(BoneId p_bone_id, Skeleton3D *p_skeleton) {
-	bone_id = p_bone_id;
+void IKBone3D::set_bone_name(Skeleton3D *p_skeleton, StringName p_bone_name) {
+	bone_name = p_bone_name;
 }
 
-BoneId IKBone3D::get_bone() const {
-	return bone_id;
+StringName IKBone3D::get_bone_name() const {
+	return bone_name;
 }
 
 void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
@@ -94,7 +94,9 @@ void IKBone3D::set_translation(const Vector3 &p_translation) {
 }
 
 void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
-	Transform bxform = p_skeleton->get_bone_global_pose(bone_id);
+	ERR_FAIL_COND(!p_skeleton);
+	BoneId bone = p_skeleton->find_bone(bone_name);
+	Transform bxform = p_skeleton->get_bone_global_pose(bone);
 	if (parent.is_valid()) {
 		bxform = parent->get_global_transform().affine_inverse() * bxform;
 	}
@@ -107,7 +109,9 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 
 void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {
 	Transform custom = Transform(Basis(rot_delta), Vector3());
-	p_skeleton->set_bone_local_pose_override(bone_id, custom, p_strength, true);
+	ERR_FAIL_COND(!p_skeleton);
+	BoneId bone = p_skeleton->find_bone(bone_name);
+	p_skeleton->set_bone_local_pose_override(bone, custom, p_strength, true);
 }
 
 void IKBone3D::create_effector() {
@@ -120,7 +124,8 @@ bool IKBone3D::is_effector() const {
 
 Vector<BoneId> IKBone3D::get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const {
 	Vector<BoneId> children_with_effector;
-	Vector<BoneId> children = p_skeleton->get_bone_children(bone_id);
+	BoneId bone = p_skeleton->find_bone(bone_name);
+	Vector<BoneId> children = p_skeleton->get_bone_children(bone);
 	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 		BoneId child_bone = children[child_i];
 		if (IKBone3D::has_effector_descendant(child_bone, p_skeleton, p_map)) {
@@ -135,6 +140,7 @@ bool IKBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, co
 		return true;
 	} else {
 		bool result = false;
+		ERR_FAIL_COND_V(!p_skeleton, false);
 		Vector<BoneId> children = p_skeleton->get_bone_children(p_bone);
 		for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 			BoneId child_bone = children[child_i];
@@ -153,17 +159,9 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_effector);
 }
 
-IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent, float p_default_dampening) {
-	if (!Math::is_equal_approx(default_dampening, p_default_dampening)) {
-		default_dampening = p_default_dampening;
-	}
-	bone_id = p_bone;
-	set_parent(p_parent);
-}
-
-IKBone3D::IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, float p_default_dampening) :
+IKBone3D::IKBone3D(String p_bone_name, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, float p_default_dampening) :
 		default_dampening(p_default_dampening) {
-	bone_id = p_skeleton->find_bone(p_bone);
+	bone_name = p_bone_name;
 	set_parent(p_parent);
 }
 
