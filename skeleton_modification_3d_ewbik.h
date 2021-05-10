@@ -49,7 +49,7 @@ private:
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool calc_done = false;
-	bool show_debug_print = false;
+	bool debug_skeleton = false;
 
 	// Task
 	int32_t ik_iterations = 1;
