@@ -246,7 +246,7 @@ void SkeletonModification3DEWBIK::generate_default_effectors() {
 		Ref<IKBoneChain> segment = effector_chains[chain_i];
 	}
 	update_effectors_map();
-	update_bone_list();
+	update_bone_list(false);
 }
 
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
@@ -277,14 +277,17 @@ void SkeletonModification3DEWBIK::update_segments() {
 		BoneId root_bone = skeleton->find_bone(root_bone_name);
 		ERR_FAIL_COND(root_bone == -1);
 		segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone, effectors_map)));
-		update_bone_list();
+		update_bone_list(false);
+	}
+	if (get_debug_skeleton()) {
+		update_bone_list(true);
 	}
 }
 
-void SkeletonModification3DEWBIK::update_bone_list() {
+void SkeletonModification3DEWBIK::update_bone_list(bool p_debug_skeleton) {
 	bone_list.clear();
 	ERR_FAIL_NULL(segmented_skeleton);
-	segmented_skeleton->get_bone_list(bone_list);
+	segmented_skeleton->get_bone_list(bone_list, p_debug_skeleton);
 	bone_list.reverse();
 }
 
@@ -486,8 +489,4 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
-	if (p_enabled && is_setup) {
-		Array array;
-		segmented_skeleton->call_deferred("debug_print_chains", array);
-	}
 }

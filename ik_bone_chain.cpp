@@ -174,12 +174,13 @@ Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &
 	return nullptr;
 }
 
-void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list) const {
+void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skeleton) const {
 	for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
 		child_chains[child_i]->get_bone_list(p_list);
 	}
 	Ref<IKBone3D> current_bone = tip;
 	while (current_bone.is_valid()) {
+		print_line(current_bone->get_bone_name());
 		p_list.push_back(current_bone);
 		if (current_bone == root)
 			break;

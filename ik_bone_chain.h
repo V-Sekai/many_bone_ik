@@ -87,11 +87,10 @@ public:
 	Vector<Ref<IKBoneChain>> get_child_chains() const;
 	Vector<Ref<IKBoneChain>> get_effector_direct_descendents() const;
 	int32_t get_effector_direct_descendents_size() const;
-	void get_bone_list(Vector<Ref<IKBone3D>> &p_list) const;
+	void get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root();
 	void update_effector_list();
 	void grouped_segment_solver(int32_t p_stabilization_passes);
-	void debug_print_chains(Array p_levels = Array());
 
 	IKBoneChain() {}
 	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent = nullptr);
