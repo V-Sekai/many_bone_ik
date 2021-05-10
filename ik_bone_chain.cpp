@@ -436,7 +436,7 @@ void IKBoneChain::debug_print_chains(Array p_levels) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
 		chain->debug_print_chains(levels);
 		if (chain_i < child_chains.size() - 1) {
-			print_line(t.as_string() + "  |");
+			print_line(tab.as_string() + "  |");
 		}
 	}
 }
