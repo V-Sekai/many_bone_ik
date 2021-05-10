@@ -75,7 +75,7 @@ public:
 	void set_translation(const Vector3 &p_translation);
 	Transform get_global_transform() const;
 	void set_initial_transform(Skeleton3D *p_skeleton);
-	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);
+	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength);
 	void create_effector();
 	bool is_effector() const;
 	Vector<BoneId> get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const;

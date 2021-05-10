@@ -91,7 +91,7 @@ public:
 	void generate_default_segments_from_root();
 	void update_effector_list();
 	void grouped_segment_solver(int32_t p_stabilization_passes);
-	void debug_print_chains(Vector<bool> p_levels = Vector<bool>());
+	void debug_print_chains(Array p_levels = Array());
 
 	IKBoneChain() {}
 	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent = nullptr);

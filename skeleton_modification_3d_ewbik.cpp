@@ -166,9 +166,6 @@ void SkeletonModification3DEWBIK::execute(float delta) {
 
 	if (is_dirty) {
 		update_skeleton();
-		if (get_debug_skeleton()) {
-			segmented_skeleton->debug_print_chains();
-		}
 	}
 	if (!is_calc_done()) {
 		solve(stack->get_strength());
@@ -472,7 +469,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DEWBIK::set_effector);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
-	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);	
+	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "debug_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 }
 
@@ -489,4 +486,7 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
+	if (p_enabled && is_setup) {
+		segmented_skeleton->call_deferred("debug_print_chains");
+	}
 }
