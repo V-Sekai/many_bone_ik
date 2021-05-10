@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  skeleton_modification_3d_ewbik.cpp                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -246,7 +246,7 @@ void SkeletonModification3DEWBIK::generate_default_effectors() {
 		Ref<IKBoneChain> segment = effector_chains[chain_i];
 	}
 	update_effectors_map();
-	update_bone_list(false);
+	update_bone_list(get_debug_skeleton());
 }
 
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {

@@ -176,11 +176,13 @@ Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &
 
 void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skeleton) const {
 	for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
-		child_chains[child_i]->get_bone_list(p_list);
+		child_chains[child_i]->get_bone_list(p_list, p_debug_skeleton);
 	}
 	Ref<IKBone3D> current_bone = tip;
 	while (current_bone.is_valid()) {
-		print_line(current_bone->get_bone_name());
+		if (p_debug_skeleton) {
+			print_line(current_bone->get_bone_name());
+		}
 		p_list.push_back(current_bone);
 		if (current_bone == root)
 			break;
@@ -386,66 +388,9 @@ void IKBoneChain::qcp_solver(int32_t p_stabilization_passes, bool p_translate) {
 	}
 }
 
-void IKBoneChain::debug_print_chains(Array p_levels) {
-	Vector<Ref<IKBone3D>> bone_list;
-	Ref<IKBone3D> current_bone = tip;
-	while (current_bone.is_valid()) {
-		bone_list.push_back(current_bone);
-		if (current_bone == root) {
-			break;
-		}
-		current_bone = current_bone->get_parent();
-	}
-	StringBuilder tab;
-	for (int32_t lvl_i = 0; lvl_i < p_levels.size(); lvl_i++) {
-		if (p_levels[lvl_i]) {
-			tab.append("  |");
-		} else {
-			tab.append("  ");
-		}
-	}
-	String t;
-	if (p_levels.size() == 0 || !p_levels[p_levels.size() - 1]) {
-		t = "|";
-	}
-	StringBuilder s; 
-	for (int32_t b_i = bone_list.size() - 1; b_i > -1; b_i--) {
-		s.append(tab.as_string() + t + "_");
-		Ref<IKBone3D> bone = bone_list[b_i];
-		if (bone == root && bone == tip) {
-			if (tip->is_effector()) {
-				s.append("(Root Tip Effector) ");
-			} else {
-				s.append("(Root Tip) ");
-			}
-		} else if (bone == root) {
-			s.append("(Root) ");
-		} else if (bone == tip) {
-			if (tip->is_effector()) {
-				s.append("(Tip Effector) ");
-			} else {
-				s.append("(Tip) ");
-			}
-		}
-		s.append(bone->get_bone_name());
-		s.append("\n");
-	}
-	print_line(s.as_string());
-	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
-		Array levels = p_levels;
-		levels.push_back(chain_i != child_chains.size() - 1);
-		Ref<IKBoneChain> chain = child_chains[chain_i];
-		chain->debug_print_chains(levels);
-		if (chain_i < child_chains.size() - 1) {
-			print_line(tab.as_string() + "  |");
-		}
-	}
-}
-
 void IKBoneChain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_root_pinned"), &IKBoneChain::is_root_pinned);
 	ClassDB::bind_method(D_METHOD("is_tip_effector"), &IKBoneChain::is_tip_effector);
-	ClassDB::bind_method(D_METHOD("debug_print_chains"), &IKBoneChain::debug_print_chains, DEFVAL(Array()));
 }
 
 IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent) {
