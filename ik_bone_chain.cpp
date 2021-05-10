@@ -403,13 +403,13 @@ void IKBoneChain::debug_print_chains(Array p_levels) {
 			tab.append("  ");
 		}
 	}
-	StringBuilder t;
+	String t;
 	if (p_levels.size() == 0 || !p_levels[p_levels.size() - 1]) {
-		t.append("|");
+		t = "|";
 	}
 	StringBuilder s; 
 	for (int32_t b_i = bone_list.size() - 1; b_i > -1; b_i--) {
-		s.append(tab.as_string() + t.as_string() + "_");
+		s.append(tab.as_string() + t + "_");
 		Ref<IKBone3D> bone = bone_list[b_i];
 		if (bone == root && bone == tip) {
 			if (tip->is_effector()) {
