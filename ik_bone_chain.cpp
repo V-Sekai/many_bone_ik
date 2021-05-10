@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  ik_bone_chain.cpp                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -183,27 +183,25 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skel
 	String s;
 	while (current_bone.is_valid()) {
 		list.push_back(current_bone);
-		if (current_bone == root) {
-			break;
-		}
-		current_bone = current_bone->get_parent();
-	}
-	if (p_debug_skeleton) {
-		for (int32_t name_i = 0; name_i < list.size(); name_i++) {
-			String bone_name = list[name_i]->get_bone_name();
+		if (p_debug_skeleton) {
+			String bone_name = current_bone->get_bone_name();
 			String effector;
-			if (list[name_i]->is_effector()) {
+			if (current_bone->is_effector()) {
 				effector += "Effector ";
 			}
 			String prefix;
-			if (list[name_i] == root) {
+			if (current_bone == root) {
 				prefix += "(" + effector + "Root) ";
-			} else if (list[name_i] == tip) {
+			} else if (current_bone == tip) {
 				prefix += "(" + effector + "Tip) ";
 			}
 			String s = prefix + bone_name;
 			print_line(s);
 		}
+		if (current_bone == root) {
+			break;
+		}
+		current_bone = current_bone->get_parent();
 	}
 	p_list.append_array(list);
 }
