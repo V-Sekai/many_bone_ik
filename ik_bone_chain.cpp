@@ -179,15 +179,21 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skel
 		child_chains[child_i]->get_bone_list(p_list, p_debug_skeleton);
 	}
 	Ref<IKBone3D> current_bone = tip;
+	Vector<Ref<IKBone3D>> list;
+	String s;
 	while (current_bone.is_valid()) {
-		if (p_debug_skeleton) {
-			print_line(current_bone->get_bone_name());
-		}
-		p_list.push_back(current_bone);
-		if (current_bone == root)
+		list.push_back(current_bone);
+		if (current_bone == root) {
 			break;
+		}
 		current_bone = current_bone->get_parent();
 	}
+	if (p_debug_skeleton) {
+		for (int32_t name_i = 0; name_i < list.size(); name_i++) {
+			print_line(list[name_i]->get_bone_name());
+		}
+	}
+	p_list.append_array(list);
 }
 
 void IKBoneChain::update_effector_list() {
