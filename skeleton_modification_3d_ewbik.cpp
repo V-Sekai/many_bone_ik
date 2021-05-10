@@ -487,6 +487,7 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
 	if (p_enabled && is_setup) {
-		segmented_skeleton->call_deferred("debug_print_chains");
+		Array array;
+		segmented_skeleton->call_deferred("debug_print_chains", array);
 	}
 }
