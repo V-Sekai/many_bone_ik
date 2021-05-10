@@ -166,6 +166,9 @@ void SkeletonModification3DEWBIK::execute(float delta) {
 
 	if (is_dirty) {
 		update_skeleton();
+		if (get_debug_skeleton()) {
+			segmented_skeleton->debug_print_chains();
+		}
 	}
 	if (!is_calc_done()) {
 		solve(stack->get_strength());
@@ -230,9 +233,6 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 
 	is_dirty = false;
 	calc_done = false;
-	if (get_debug_skeleton()) {
-		segmented_skeleton->debug_print_chains();
-	}
 }
 
 void SkeletonModification3DEWBIK::generate_default_effectors() {
