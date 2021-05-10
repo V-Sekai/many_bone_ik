@@ -193,9 +193,12 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skel
 			String bone_name = list[name_i]->get_bone_name();
 			String prefix;
 			if (list[name_i]->is_effector()) {
-				prefix = "(Effector)";
-			} else {
-				prefix = "(Chain Root)";
+				prefix += "Effector ";
+			} 
+			if (list[name_i] == root) {
+				prefix += "Root ";
+			} else if (list[name_i] == tip) {
+				prefix += "Tip ";
 			}
 			String s = prefix + bone_name;
 			print_line(s);
