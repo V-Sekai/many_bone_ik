@@ -191,14 +191,15 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skel
 	if (p_debug_skeleton) {
 		for (int32_t name_i = 0; name_i < list.size(); name_i++) {
 			String bone_name = list[name_i]->get_bone_name();
-			String prefix;
+			String effector;
 			if (list[name_i]->is_effector()) {
-				prefix += "Effector ";
-			} 
+				effector += "Effector ";
+			}
+			String prefix;
 			if (list[name_i] == root) {
-				prefix += "Root ";
+				prefix += "(" + effector + "Root) ";
 			} else if (list[name_i] == tip) {
-				prefix += "Tip ";
+				prefix += "(" + effector + "Tip) ";
 			}
 			String s = prefix + bone_name;
 			print_line(s);
