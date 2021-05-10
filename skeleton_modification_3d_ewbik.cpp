@@ -217,8 +217,9 @@ void SkeletonModification3DEWBIK::iterated_improved_solver() {
 }
 
 void SkeletonModification3DEWBIK::update_skeleton() {
-	if (!is_dirty)
+	if (!is_dirty) {
 		return;
+	}
 
 	if (effector_count) {
 		update_segments();
