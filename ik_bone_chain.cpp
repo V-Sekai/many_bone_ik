@@ -30,6 +30,7 @@
 
 #include "ik_bone_chain.h"
 #include "../../godot/core/string/string_builder.h"
+#include "ik_bone_3d.h"
 
 Ref<IKBone3D> IKBoneChain::get_root() const {
 	return root;
@@ -223,7 +224,6 @@ void IKBoneChain::update_effector_list() {
 		Ref<IKEffector3D> effector = tip->get_effector();
 		effector_list.push_back(effector);
 		heading_weights.push_back(effector->weight);
-		heading_weights.push_back(effector->weight);
 	}
 	create_headings();
 }
@@ -244,10 +244,13 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 	if (p_stabilization_passes > 0) {
 		best_sqrmsd = get_manual_sqrtmsd(*htarget, *htip, *weights);
 	}
-	float new_dampening = -1;
-	if (p_translate) {
-		new_dampening = Math_PI;
-	}
+	// TODO 2021-05-10 Removed code for translate
+	// Restore
+	//float new_dampening = -1;
+	//if (p_translate && ) {
+	//	new_dampening = Math_PI;
+	//}
+	float new_dampening = IK_DEFAULT_DAMPENING;
 
 	real_t sqrmsd = FLT_MAX;
 	for (int32_t i = 0; i < p_stabilization_passes + 1; i++) {
@@ -305,8 +308,11 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	Quat rot;
 	Vector3 translation;
 	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot, p_translate, translation);
-
+	Vector3 axis;
+	float angle;
+	rot.get_axis_angle(axis, angle);
 	float bone_damp = p_for_bone->get_cos_half_dampen();
+
 
 	if (!Math::is_equal_approx(p_dampening, -1.0)) {
 		bone_damp = p_dampening;

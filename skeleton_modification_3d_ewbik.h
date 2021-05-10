@@ -53,7 +53,7 @@ private:
 
 	// Task
 	int32_t ik_iterations = 1;
-	int32_t constraint_stabilization_passes = 4;
+	int32_t constraint_stabilization_passes = 1;
 
 	void update_segments();
 	void update_effectors_map();
@@ -80,8 +80,8 @@ public:
 	int32_t get_ik_iterations() const;
 	void set_root_bone_name(StringName p_bone_name);
 	StringName get_root_bone_name() const;
-	void set_target_count(int32_t p_value);
-	int32_t get_target_count() const;
+	void set_effector_count(int32_t p_value);
+	int32_t get_effector_count() const;
 	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(),
 			bool p_use_node_rot = false, const Transform &p_target_xform = Transform());
 	int32_t find_target(const String &p_name) const;

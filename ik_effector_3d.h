@@ -50,10 +50,10 @@ private:
 	bool use_target_node_rotation = true;
 	real_t depth_falloff = 0.0;
 	Transform goal_transform;
-	int32_t num_headings;
+	int32_t num_headings = 0;
 	Vector3 priority = Vector3(0.5, 5.0, 0.0);
 	real_t weight = 1.0;
-	bool follow_x, follow_y, follow_z;
+	bool follow_x, follow_y, follow_z = false;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
