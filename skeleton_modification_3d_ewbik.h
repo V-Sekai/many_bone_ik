@@ -49,6 +49,7 @@ private:
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool calc_done = false;
+	bool show_debug_print = false;
 
 	// Task
 	int32_t ik_iterations = 1;
@@ -105,6 +106,8 @@ public:
 
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
+	bool get_debug_skeleton() const;
+	void set_debug_skeleton(bool p_enabled);
 };
 
 #endif // SKELETON_MODIFICATION_3D_EWBIK_H

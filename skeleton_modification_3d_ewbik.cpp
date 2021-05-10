@@ -105,7 +105,7 @@ StringName SkeletonModification3DEWBIK::get_effector_bone_name(int32_t p_effecto
 	ERR_FAIL_COND_V(!skeleton, "");
 	BoneId bone = skeleton->find_bone(bone_name);
 	ERR_FAIL_COND_V(bone == -1, "");
-	String name = skeleton->get_bone_name(bone); 
+	String name = skeleton->get_bone_name(bone);
 	return name;
 }
 
@@ -230,8 +230,9 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 
 	is_dirty = false;
 	calc_done = false;
-	// TODO fire 2021-05-09 Create variable to print debug chains
-	// segmented_skeleton->debug_print_chains();
+	if (get_debug_skeleton()) {
+		segmented_skeleton->debug_print_chains();
+	}
 }
 
 void SkeletonModification3DEWBIK::generate_default_effectors() {
@@ -470,6 +471,9 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3DEWBIK::get_effector);
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DEWBIK::set_effector);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
+	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
+	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);	
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "debug_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
@@ -477,4 +481,12 @@ SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
 }
 
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
+}
+
+bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
+	return debug_skeleton;
+}
+
+void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
+	debug_skeleton = p_enabled;
 }
