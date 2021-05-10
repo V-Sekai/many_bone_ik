@@ -371,7 +371,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 	for (int i = 0; i < effector_count; i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING;
-		effector_name.name = "targets/" + itos(i) + "/name";
+		effector_name.name = "effectors/" + itos(i) + "/name";
 		if (skeleton) {
 			String names = "None";
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
@@ -385,13 +385,13 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 			effector_name.hint_string = "";
 		}
 		p_list->push_back(effector_name);
-		p_list->push_back(PropertyInfo(Variant::INT, "targets/" + itos(i) + "/index"));
+		p_list->push_back(PropertyInfo(Variant::INT, "effectors/" + itos(i) + "/index", "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 		p_list->push_back(
-				PropertyInfo(Variant::NODE_PATH, "targets/" + itos(i) + "/target_node"));
+				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
 		p_list->push_back(
-				PropertyInfo(Variant::BOOL, "targets/" + itos(i) + "/use_node_rotation"));
+				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/use_node_rotation"));
 		p_list->push_back(
-				PropertyInfo(Variant::TRANSFORM, "targets/" + itos(i) + "/target_transform"));
+				PropertyInfo(Variant::TRANSFORM, "effectors/" + itos(i) + "/target_transform"));
 	}
 }
 
@@ -403,7 +403,7 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 	} else if (name == "target_count") {
 		r_ret = get_target_count();
 		return true;
-	} else if (name.begins_with("targets/")) {
+	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, get_target_count(), false);
@@ -437,7 +437,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 	} else if (name == "target_count") {
 		set_target_count(p_value);
 		return true;
-	} else if (name.begins_with("targets/")) {
+	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, effector_count, false);
