@@ -41,8 +41,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 
 private:
 	Skeleton3D *skeleton = nullptr;
-	String root_bone;
-	BoneId root_bone_index = -1;
+	BoneId root_bone = -1;
 	Ref<IKBoneChain> segmented_skeleton;
 	int32_t effector_count = 0;
 	Vector<Ref<IKBone3D>> multi_effector;
@@ -75,10 +74,8 @@ protected:
 public:
 	void set_ik_iterations(int32_t p_iterations);
 	int32_t get_ik_iterations() const;
-	void set_root_bone(const String &p_root_bone);
-	String get_root_bone() const;
-	void set_root_bone_index(BoneId p_index);
-	BoneId get_root_bone_index() const;
+	void set_root_bone(BoneId p_index);
+	BoneId get_root_bone() const;
 	void set_target_count(int32_t p_value);
 	int32_t get_target_count() const;
 	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(),
