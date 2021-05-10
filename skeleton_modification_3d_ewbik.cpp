@@ -279,9 +279,6 @@ void SkeletonModification3DEWBIK::update_segments() {
 		segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone, effectors_map)));
 		update_bone_list(false);
 	}
-	if (get_debug_skeleton()) {
-		update_bone_list(true);
-	}
 }
 
 void SkeletonModification3DEWBIK::update_bone_list(bool p_debug_skeleton) {
@@ -489,4 +486,5 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
+	update_bone_list(true);
 }
