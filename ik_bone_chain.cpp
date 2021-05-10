@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "ik_bone_chain.h"
+#include "../../godot/core/string/string_builder.h"
 
 Ref<IKBone3D> IKBoneChain::get_root() const {
 	return root;
@@ -224,7 +225,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 	if (p_stabilization_passes > 0) {
 		best_sqrmsd = get_manual_sqrtmsd(*htarget, *htip, *weights);
 	}
-	float new_dampening = -1; 
+	float new_dampening = -1;
 	if (p_translate) {
 		new_dampening = Math_PI;
 	}
@@ -394,46 +395,48 @@ void IKBoneChain::debug_print_chains(Array p_levels) {
 		}
 		current_bone = current_bone->get_parent();
 	}
-	String tab = "";
+	StringBuilder tab;
 	for (int32_t lvl_i = 0; lvl_i < p_levels.size(); lvl_i++) {
 		if (p_levels[lvl_i]) {
-			tab += "  |";
+			tab.append("  |");
 		} else {
-			tab += "  ";
+			tab.append("  ");
 		}
 	}
-	String t = "";
+	StringBuilder t;
 	if (p_levels.size() == 0 || !p_levels[p_levels.size() - 1]) {
-		t = "|";
+		t.append("|");
 	}
+	StringBuilder s; 
 	for (int32_t b_i = bone_list.size() - 1; b_i > -1; b_i--) {
-		String s = tab + t + "_";
+		s.append(tab.as_string() + t.as_string() + "_");
 		Ref<IKBone3D> bone = bone_list[b_i];
 		if (bone == root && bone == tip) {
 			if (tip->is_effector()) {
-				s += "(Root Tip Effector) ";
+				s.append("(Root Tip Effector) ");
 			} else {
-				s += "(Root Tip) ";
+				s.append("(Root Tip) ");
 			}
 		} else if (bone == root) {
-			s += "(Root) ";
+			s.append("(Root) ");
 		} else if (bone == tip) {
 			if (tip->is_effector()) {
-				s += "(Tip Effector) ";
+				s.append("(Tip Effector) ");
 			} else {
-				s += "(Tip) ";
+				s.append("(Tip) ");
 			}
 		}
-		s += bone->get_bone_name();
-		print_line(s);
+		s.append(bone->get_bone_name());
+		s.append("\n");
 	}
+	print_line(s.as_string());
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Array levels = p_levels;
 		levels.push_back(chain_i != child_chains.size() - 1);
 		Ref<IKBoneChain> chain = child_chains[chain_i];
 		chain->debug_print_chains(levels);
 		if (chain_i < child_chains.size() - 1) {
-			print_line(tab + "  |");
+			print_line(t.as_string() + "  |");
 		}
 	}
 }
