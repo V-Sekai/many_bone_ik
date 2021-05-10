@@ -72,6 +72,7 @@ public:
 	bool get_orientation_lock() const;
 	void set_global_transform(const Transform &p_transform);
 	void set_rot_delta(const Quat &p_rot);
+	void set_translation(const Vector3 &p_translation);
 	Transform get_global_transform() const;
 	void set_initial_transform(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);

@@ -203,29 +203,33 @@ void IKBoneChain::update_effector_list() {
 	create_headings();
 }
 
-void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_constraint_stabilization_passes) {
-	if (p_constraint_stabilization_passes == 0) {
+void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_stabilization_passes, bool p_translate) {
+	if (p_stabilization_passes == 0) {
 		return;
 	}
 	Vector<real_t> *weights = nullptr;
 	PackedVector3Array *htarget = update_target_headings(p_for_bone, weights);
 	PackedVector3Array *htip = update_tip_headings(p_for_bone);
 	if (p_for_bone->get_parent().is_null() || htarget->size() == 1) {
-		p_constraint_stabilization_passes = 0;
+		p_stabilization_passes = 0;
 	}
 
 	real_t best_sqrmsd = 0.0;
 
-	if (p_constraint_stabilization_passes > 0) {
+	if (p_stabilization_passes > 0) {
 		best_sqrmsd = get_manual_sqrtmsd(*htarget, *htip, *weights);
+	}
+	float new_dampening = -1; 
+	if (p_translate) {
+		new_dampening = Math_PI;
 	}
 
 	real_t sqrmsd = FLT_MAX;
-	for (int32_t i = 0; i < p_constraint_stabilization_passes + 1; i++) {
-		if (p_constraint_stabilization_passes <= 0) {
+	for (int32_t i = 0; i < p_stabilization_passes + 1; i++) {
+		if (p_stabilization_passes <= 0) {
 			break;
 		}
-		sqrmsd = set_optimal_rotation(p_for_bone, *htarget, *htip, *weights);
+		sqrmsd = set_optimal_rotation(p_for_bone, *htarget, *htip, *weights, new_dampening, p_translate);
 		if (sqrmsd <= best_sqrmsd) {
 			best_sqrmsd = sqrmsd;
 		}
@@ -271,10 +275,11 @@ Quat IKBoneChain::clamp_to_quadrance_angle(Quat p_quat, real_t p_cos_half_angle)
 	return rot;
 }
 
-real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, const PackedVector3Array &p_htarget,
-		const PackedVector3Array &p_htip, const Vector<real_t> &p_weights, float p_dampening) {
+real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array &r_htarget,
+		PackedVector3Array &r_htip, const Vector<real_t> &p_weights, float p_dampening, bool p_translate) {
 	Quat rot;
-	real_t sqrmsd = qcp.calc_optimal_rotation(p_htip, p_htarget, p_weights, rot);
+	Vector3 translation;
+	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot, p_translate, translation);
 
 	float bone_damp = p_for_bone->get_cos_half_dampen();
 
@@ -284,7 +289,7 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, const PackedV
 	} else {
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
-
+	p_for_bone->set_translation(translation);
 	p_for_bone->set_rot_delta(rot);
 	return sqrmsd;
 }
@@ -336,7 +341,9 @@ PackedVector3Array *IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 }
 
 void IKBoneChain::grouped_segment_solver(int32_t p_constraint_stabilization_passes) {
-	segment_solver(p_constraint_stabilization_passes);
+	// TODO 2021-05-07 fire implement bone pinning
+	bool translate = true;
+	segment_solver(p_constraint_stabilization_passes, translate);
 	for (int32_t i = 0; i < effector_direct_descendents.size(); i++) {
 		Ref<IKBoneChain> effector_chain = effector_direct_descendents[i];
 		for (int32_t child_i = 0; child_i < effector_chain->child_chains.size(); child_i++) {
@@ -346,25 +353,25 @@ void IKBoneChain::grouped_segment_solver(int32_t p_constraint_stabilization_pass
 	}
 }
 
-void IKBoneChain::segment_solver(int32_t p_constraint_stabilization_passes) {
+void IKBoneChain::segment_solver(int32_t p_stabilization_passes, bool p_translate) {
 	if (child_chains.size() == 0 && !is_tip_effector()) {
 		return;
 	} else if (!is_tip_effector()) {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
 			Ref<IKBoneChain> child = child_chains[child_i];
-			child->segment_solver(p_constraint_stabilization_passes);
+			child->segment_solver(p_stabilization_passes, p_translate);
 		}
 	}
-	qcp_solver(p_constraint_stabilization_passes);
+	qcp_solver(p_stabilization_passes, p_translate);
 }
 
-void IKBoneChain::qcp_solver(int32_t p_constraint_stabilization_passes) {
+void IKBoneChain::qcp_solver(int32_t p_stabilization_passes, bool p_translate) {
 	Vector<Ref<IKBone3D>> list;
 	get_bone_list(list);
 	for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
 		Ref<IKBone3D> current_bone = list[bone_i];
 		if (!current_bone->get_orientation_lock()) {
-			update_optimal_rotation(current_bone, p_constraint_stabilization_passes);
+			update_optimal_rotation(current_bone, p_stabilization_passes, p_translate);
 		}
 		if (current_bone == root) {
 			break;
