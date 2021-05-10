@@ -77,8 +77,9 @@ TEST_CASE("[Modules][EWBIK] qcp") {
 	weights.push_back(25.0);
 	weights.push_back(25.0);
 	Quat rot;
+	Vector3 translation;
 	qcp->calc_optimal_rotation(localizedTipHeadings, localizedTargetHeadings,
-			weights, rot);
+			weights, rot, false, translation);
 	Quat rot_compare;
 	rot_compare.x = 0.0019268756;
 	rot_compare.y = -0.07416658;
