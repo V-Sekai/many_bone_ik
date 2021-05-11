@@ -68,7 +68,7 @@ real_t QCP::calc_optimal_rotation(PackedVector3Array &r_tip, PackedVector3Array 
 		Quat q2 = Quat(r_target[0]);
 		p_quat = q1 * q2;
 	} else {
-		real_t e0 = inner_product(r_tip, r_target, p_weights);
+		real_t e0 = inner_product(r_target, r_tip, p_weights);
 		sqrmsd = calc_sqrmsd(e0, wsum);
 		p_quat = calc_rotation(e0);
 	}

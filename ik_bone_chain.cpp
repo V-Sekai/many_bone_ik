@@ -272,7 +272,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 		if (p_stabilization_passes <= 0) {
 			break;
 		}
-		sqrmsd = set_optimal_rotation(p_for_bone, *htarget, *htip, *weights, new_dampening, p_translate);
+		sqrmsd = set_optimal_rotation(p_for_bone, *htip, *htarget, *weights, new_dampening, p_translate);
 		if (sqrmsd <= best_sqrmsd) {
 			best_sqrmsd = sqrmsd;
 		}
@@ -326,14 +326,14 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	Vector3 axis;
 	float angle;
 	rot.get_axis_angle(axis, angle);
-	float bone_damp = p_for_bone->get_cos_half_dampen();
+	// float bone_damp = p_for_bone->get_cos_half_dampen();
 
-	if (!Math::is_equal_approx(p_dampening, -1.0)) {
-		bone_damp = p_dampening;
-		rot = clamp_to_angle(rot, bone_damp);
-	} else {
-		rot = clamp_to_quadrance_angle(rot, bone_damp);
-	}
+	// if (!Math::is_equal_approx(p_dampening, -1.0)) {
+	// 	bone_damp = p_dampening;
+	// 	rot = clamp_to_angle(rot, bone_damp);
+	// } else {
+	// 	rot = clamp_to_quadrance_angle(rot, bone_damp);
+	// }
 	p_for_bone->set_translation(translation);
 	p_for_bone->set_rot_delta(rot);
 	return sqrmsd;
