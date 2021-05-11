@@ -53,7 +53,7 @@ private:
 	bool debug_skeleton = true;
 
 	// Task
-	int32_t ik_iterations = 15;
+	int32_t ik_iterations = 20;
 	int32_t constraint_stabilization_passes = 4;
 
 	void update_segments();
