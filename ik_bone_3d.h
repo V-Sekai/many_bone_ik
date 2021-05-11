@@ -36,7 +36,7 @@
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
 
-#define IK_DEFAULT_DAMPENING 0.2f
+#define IK_DEFAULT_DAMPENING 0.20944f
 
 class IKEffector3D;
 
