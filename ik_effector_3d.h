@@ -84,6 +84,9 @@ public:
 
 	IKEffector3D(const Ref<IKBone3D> &p_for_bone);
 	~IKEffector3D() {}
+	bool get_follow_x() const { return follow_x; }
+	bool get_follow_y() const { return follow_y; }
+	bool get_follow_z() const { return follow_z; }
 };
 
 #endif // ik_effector_3d_H

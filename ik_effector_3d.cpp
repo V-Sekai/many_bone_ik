@@ -72,7 +72,7 @@ Ref<IKBone3D> IKEffector3D::get_shadow_bone() const {
 }
 
 bool IKEffector3D::is_following_translation_only() const {
-	return !(follow_x || follow_y || follow_z);
+	return !(get_follow_x() || get_follow_y() || get_follow_z());
 }
 
 void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
@@ -98,16 +98,16 @@ void IKEffector3D::update_priorities() {
 	follow_y = priority.y > 0.0;
 	follow_z = priority.z > 0.0;
 
-	num_headings = 2;
-	// if (follow_x) {
-	// 	num_headings += 2;
-	// }
-	// if (follow_y) {
-	// 	num_headings += 2;
-	// }
-	// if (follow_z) {
-	// 	num_headings += 2;
-	// }
+	num_headings = 1;
+	if (get_follow_x()) {
+		num_headings += 2;
+	}
+	if (get_follow_y()) {
+		num_headings += 2;
+	}
+	if (get_follow_z()) {
+		num_headings += 2;
+	}
 }
 
 void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
@@ -133,22 +133,22 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 	index += 2;
 	// index++;
 
-	// if (follow_x) {
-	// 	heading_weights.write[nw+index] = weight * priority.x;
-	// 	heading_weights.write[nw+index+1] = weight * priority.x;
-	// 	index += 2;
-	// }
+	if (get_follow_x()) {
+		heading_weights.write[nw + index] = weight * priority.x;
+		heading_weights.write[nw + index + 1] = weight * priority.x;
+		index += 2;
+	}
 
-	// if (follow_y) {
-	// 	heading_weights.write[nw+index] = weight * priority.y;
-	// 	heading_weights.write[nw+index+1] = weight * priority.y;
-	// 	index += 2;
-	// }
+	if (get_follow_y()) {
+		heading_weights.write[nw + index] = weight * priority.y;
+		heading_weights.write[nw + index + 1] = weight * priority.y;
+		index += 2;
+	}
 
-	// if (follow_z) {
-	// 	heading_weights.write[nw+index] = weight * priority.z;
-	// 	heading_weights.write[nw+index+1] = weight * priority.z;
-	// }
+	if (get_follow_z()) {
+		heading_weights.write[nw + index] = weight * priority.z;
+		heading_weights.write[nw + index + 1] = weight * priority.z;
+	}
 }
 
 void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index,
@@ -161,60 +161,23 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 		// p_headings->write[p_index] = goal_transform.origin - origin;
 		// p_index++;
 
-		// if (follow_x) {
-		// 	real_t w = p_weights->write[p_index];
-		// 	Vector3 v = Vector3(w, 0.0, 0.0);
-		// 	p_headings->write[p_index] = goal_transform.xform(v) - origin;
-		// 	p_headings->write[p_index+1] = goal_transform.xform(-v) - origin;
-		// 	p_index += 2;
-		// }
+	if (get_follow_x()) {
+		real_t w = p_weights->write[p_index];
+		Vector3 v = Vector3(w, 0.0, 0.0);
+		p_headings->write[p_index] = goal_transform.xform(v) - origin;
+		p_headings->write[p_index + 1] = goal_transform.xform(-v) - origin;
+		p_index += 2;
+	}
 
-		// if (follow_y) {
-		// 	real_t w = p_weights->write[p_index];
-		// 	Vector3 v = Vector3(0.0, w, 0.0);
-		// 	p_headings->write[p_index] = goal_transform.xform(v) - origin;
-		// 	p_headings->write[p_index+1] = goal_transform.xform(-v) - origin;
-		// 	p_index += 2;
-		// }
+	if (get_follow_y()) {
+		real_t w = p_weights->write[p_index];
+		Vector3 v = Vector3(0.0, w, 0.0);
+		p_headings->write[p_index] = goal_transform.xform(v) - origin;
+		p_headings->write[p_index + 1] = goal_transform.xform(-v) - origin;
+		p_index += 2;
+	}
 
-		// if (follow_z) {
-		// 	real_t w = p_weights->write[p_index];
-		// 	Vector3 v = Vector3(0.0, 0.0, w);
-		// 	p_headings->write[p_index] = goal_transform.xform(v) - origin;
-		// 	p_headings->write[p_index+1] = goal_transform.xform(-v) - origin;
-		// 	p_index += 2;
-		// }
-
-		/**
-		 * The following block makes the headings to be centered at the origin
-		 */
-		// if (follow_x) {
-		// 	real_t w = p_weights->write[p_index];
-		// 	Vector3 v = goal_transform.xform(Vector3(w, 0.0, 0.0)) - goal_transform.origin;
-		// 	p_headings->write[p_index] = v;
-		// 	p_headings->write[p_index+1] = -v;
-		// 	p_index += 2;
-		// }
-
-		// if (follow_y) {
-		// 	real_t w = p_weights->write[p_index];
-		// 	Vector3 v = goal_transform.xform(Vector3(0.0, w, 0.0)) - goal_transform.origin;
-		// 	p_headings->write[p_index] = v;
-		// 	p_headings->write[p_index+1] = -v;
-		// 	p_index += 2;
-		// }
-
-		// if (follow_z) {
-		// 	real_t w = p_weights->write[p_index];
-		// 	Vector3 v = goal_transform.xform(Vector3(0.0, 0.0, w)) - goal_transform.origin;
-		// 	p_headings->write[p_index] = v;
-		// 	p_headings->write[p_index+1] = -v;
-		// 	p_index += 2;
-		// }
-
-		/**
-		 * The following block is a simplified version
-		 */
+	if (get_follow_z()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = goal_transform.xform(Vector3(w, w, w)) - goal_transform.origin;
 		p_headings->write[p_index] = v;
@@ -231,70 +194,28 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
 	Vector3 origin = p_for_bone->get_global_transform().origin;
 	Transform tip_xform = for_bone->get_global_transform();
-	if (p_for_bone == for_bone) {
-		/**
-		 * The following block corresponds to the original implementation
-		*/
-		// real_t scale_by = 1.0; //MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
-		// p_headings->write[p_index] = tip_xform.origin - origin;
-		// p_index++;
+	p_headings->write[p_index] = tip_xform.origin - origin;
+	p_index++;
+	real_t scale_by = 1.0f; //MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
 
-		// if (follow_x) {
-		// 	Vector3 v = Vector3(scale_by, 0.0, 0.0);
-		// 	p_headings->write[p_index] = tip_xform.xform(v) - origin;
-		// 	p_headings->write[p_index+1] = tip_xform.xform(-v) - origin;
-		// 	p_index += 2;
-		// }
+	if (get_follow_x()) {
+		Vector3 v = Vector3(scale_by, 0.0, 0.0);
+		p_headings->write[p_index] = tip_xform.xform(v) - origin;
+		p_headings->write[p_index + 1] = tip_xform.xform(-v) - origin;
+		p_index += 2;
+	}
 
-		// if (follow_y) {
-		// 	Vector3 v = Vector3(0.0, scale_by, 0.0);
-		// 	p_headings->write[p_index] = tip_xform.xform(v) - origin;
-		// 	p_headings->write[p_index+1] = tip_xform.xform(-v) - origin;
-		// 	p_index += 2;
-		// }
+	if (get_follow_y()) {
+		Vector3 v = Vector3(0.0, scale_by, 0.0);
+		p_headings->write[p_index] = tip_xform.xform(v) - origin;
+		p_headings->write[p_index + 1] = tip_xform.xform(-v) - origin;
+		p_index += 2;
+	}
 
-		// if (follow_z) {
-		// 	Vector3 v = Vector3(0.0, 0.0, scale_by);
-		// 	p_headings->write[p_index] = tip_xform.xform(v) - origin;
-		// 	p_headings->write[p_index+1] = tip_xform.xform(-v) - origin;
-		// 	p_index += 2;
-		// }
-
-		/**
-		 * The following block makes the headings to be centered at the origin
-		 */
-		// real_t scale_by = MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
-		// if (follow_x) {
-		// 	Vector3 v = tip_xform.xform(Vector3(scale_by, 0.0, 0.0)) - origin;
-		// 	p_headings->write[p_index] = v;
-		// 	p_headings->write[p_index+1] = -v;
-		// 	p_index += 2;
-		// }
-
-		// if (follow_y) {
-		// 	Vector3 v = tip_xform.xform(Vector3(0.0, scale_by, 0.0)) - origin;
-		// 	p_headings->write[p_index] = v;
-		// 	p_headings->write[p_index+1] = -v;
-		// 	p_index += 2;
-		// }
-
-		// if (follow_z) {
-		// 	Vector3 v = tip_xform.xform(Vector3(0.0, 0.0, scale_by)) - origin;
-		// 	p_headings->write[p_index] = v;
-		// 	p_headings->write[p_index+1] = -v;
-		// 	p_index += 2;
-		// }
-
-		/**
-		 * The following block is a simplified version
-		 */
-		Vector3 v = tip_xform.xform(Vector3(0.0, 1.0, 0.0)) - tip_xform.origin;
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
-	} else {
-		Vector3 v = tip_xform.origin - origin;
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
+	if (get_follow_z()) {
+		Vector3 v = Vector3(0.0, 0.0, scale_by);
+		p_headings->write[p_index] = tip_xform.xform(v) - origin;
+		p_headings->write[p_index + 1] = tip_xform.xform(-v) - origin;
 		p_index += 2;
 	}
 }
