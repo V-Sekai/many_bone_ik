@@ -117,7 +117,7 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 	 * is considered for rotation, but here the last two headings must be replaced
 	 * by the corresponding number of "axis-orientation" headings.
 	*/
-	int32_t nw = p_weights.size() - 2;
+	int32_t nw = p_weights.size();
 	int32_t nheadings = nw + num_headings;
 	heading_weights.resize(nheadings);
 	tip_headings.resize(nheadings);
@@ -129,9 +129,7 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 
 	int32_t index = 0;
 	heading_weights.write[nw + index] = weight;
-	heading_weights.write[nw + index + 1] = weight;
-	index += 2;
-	// index++;
+	index++;
 
 	if (get_follow_x()) {
 		heading_weights.write[nw + index] = weight * priority.x;
@@ -154,12 +152,8 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index,
 		Vector<real_t> *p_weights) const {
 	Vector3 origin = p_for_bone->get_global_transform().origin;
-	if (p_for_bone == for_bone) {
-		/**
-		 * The following block corresponds to the original implementation
-		*/
-		// p_headings->write[p_index] = goal_transform.origin - origin;
-		// p_index++;
+	p_headings->write[p_index] = goal_transform.origin - origin;
+	p_index++;
 
 	if (get_follow_x()) {
 		real_t w = p_weights->write[p_index];
@@ -179,14 +173,9 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 
 	if (get_follow_z()) {
 		real_t w = p_weights->write[p_index];
-		Vector3 v = goal_transform.xform(Vector3(w, w, w)) - goal_transform.origin;
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
-		p_index += 2;
-	} else {
-		Vector3 v = goal_transform.origin - origin;
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
+		Vector3 v = Vector3(0.0, 0.0, w);
+		p_headings->write[p_index] = goal_transform.xform(v) - origin;
+		p_headings->write[p_index + 1] = goal_transform.xform(-v) - origin;
 		p_index += 2;
 	}
 }

@@ -79,8 +79,9 @@ TEST_CASE("[Modules][EWBIK] qcp") {
 	weights.push_back(1.0);
 	weights.push_back(1.0);
 	Quat rot;
+	Vector3 translation;
 	qcp->calc_optimal_rotation(localizedTipHeadings, localizedTargetHeadings,
-			weights, rot, false, translation);
+			weights, rot);
 	Quat rot_compare = basis;
 	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion compared %s.", String(rot), String(rot_compare)).utf8().ptr());
 	Vector3 euler = Basis(rot).get_euler();
