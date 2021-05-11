@@ -65,11 +65,11 @@ private:
 	PackedVector3Array *update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights);
 	PackedVector3Array *update_tip_headings(Ref<IKBone3D> p_for_bone);
 	real_t get_manual_sqrtmsd(const PackedVector3Array &p_htarget, const PackedVector3Array &p_htip, const Vector<real_t> &p_weights) const;
-	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone,
-			PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening = -1, bool p_translate = false);
-	void segment_solver(int32_t p_stabilization_passes, bool p_translate = false);
-	void qcp_solver(int32_t p_stabilization_passes, bool p_translate = false);
-	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_stabilization_passes, bool p_translate);
+	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone, const PackedVector3Array &p_htarget,
+			const PackedVector3Array &p_htip, const Vector<real_t> &p_weights, float p_dampening = -1);
+	void segment_solver(int32_t p_stabilization_passes);
+	void qcp_solver(int32_t p_stabilization_passes);
+	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_stabilization_passes);
 
 	// Orientation cos(angle/2) representation
 	Quat set_quadrance_angle(Quat p_quat, real_t p_cos_half_angle) const;
@@ -87,10 +87,11 @@ public:
 	Vector<Ref<IKBoneChain>> get_child_chains() const;
 	Vector<Ref<IKBoneChain>> get_effector_direct_descendents() const;
 	int32_t get_effector_direct_descendents_size() const;
-	void get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skeleton = false) const;
+	void get_bone_list(Vector<Ref<IKBone3D>> &p_list) const;
 	void generate_default_segments_from_root();
 	void update_effector_list();
 	void grouped_segment_solver(int32_t p_stabilization_passes);
+	void debug_print_chains(Vector<bool> p_levels = Vector<bool>());
 
 	IKBoneChain() {}
 	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent = nullptr);

@@ -39,36 +39,23 @@ void QCP::set_max_iterations(int32_t p_max) {
 	max_iterations = p_max;
 }
 
-real_t QCP::calc_optimal_rotation(PackedVector3Array &r_tip, PackedVector3Array &r_target,
-		const Vector<real_t> &p_weights, Quat &p_quat, bool p_translate, Vector3 &r_translation) {
+real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2,
+		const Vector<real_t> &p_weights, Quat &p_quat) {
 	real_t wsum = 0.0;
-	if (p_translate) {
-		move_to_weighted_center(r_tip, p_weights, tip_center, wsum);
-		wsum = 0.0f; //set wsum to 0 so we don't float up.
-		move_to_weighted_center(r_target, p_weights, target_center, wsum);
-		translate(tip_center * -1.0f, r_tip);
-		translate(target_center * -1.0f, r_target);
-		r_translation = target_center - tip_center;
-	} else {
-		if (p_weights.size()) {
-			for (int i = 0; i < p_weights.size(); i++) {
-				wsum += p_weights[i];
-			}
-		} else {
-			wsum = r_target.size();
-		}	
+	for (int i = 0; i < p_weights.size(); i++) {
+		wsum += p_weights[i];
 	}
 
 	real_t sqrmsd = 0.0;
 	// QCP doesn't handle alignment of single values, so if we only have one point
 	// we just compute regular distance.
 	if (p_weights.size() == 1) {
-		sqrmsd = r_tip[0].distance_squared_to(r_target[0]);
-		Quat q1 = Quat(r_tip[0]);
-		Quat q2 = Quat(r_target[0]);
+		sqrmsd = p_coords1[0].distance_squared_to(p_coords2[0]);
+		Quat q1 = Quat(p_coords1[0]);
+		Quat q2 = Quat(p_coords2[0]);
 		p_quat = q1 * q2;
 	} else {
-		real_t e0 = inner_product(r_target, r_tip, p_weights);
+		real_t e0 = inner_product(p_coords1, p_coords2, p_weights);
 		sqrmsd = calc_sqrmsd(e0, wsum);
 		p_quat = calc_rotation(e0);
 	}
@@ -282,27 +269,4 @@ Quat QCP::calc_rotation(real_t p_eigenv) const {
 	q4 *= normq;
 
 	return Quat(q2, q3, q4, q1);
-}
-
-void QCP::translate(Vector3 p_translate, PackedVector3Array& r_coordinates) const {
-	for (int32_t vec_i = 0; vec_i < r_coordinates.size(); vec_i++) {
-		r_coordinates.write[vec_i] += p_translate;
-	}
-}
-
-void QCP::move_to_weighted_center(const PackedVector3Array &p_to_center, const Vector<real_t> &p_weights, Vector3 &r_center, real_t &r_wsum) {
-
-	if (p_weights.size()) {
-		for (int i = 0; i < p_to_center.size(); i++) {
-			r_center += p_to_center[i] * Vector3(p_weights[i], p_weights[i], p_weights[i]);
-			r_wsum += p_weights[i];
-		}
-		r_center /= r_wsum;
-	} else {
-		for (int i = 0; i < p_to_center.size(); i++) {
-			r_center += p_to_center[i];
-			r_wsum++;
-		}
-		r_center /= r_wsum;
-	}
 }

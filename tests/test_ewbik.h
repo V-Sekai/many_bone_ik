@@ -51,53 +51,43 @@ TEST_CASE("[Modules][EWBIK] qcp") {
 	qcp->set_max_iterations(10);
 
 	Vector<Vector3> localizedTipHeadings;
-	localizedTipHeadings.push_back(Vector3(-14.739, -18.673, 15.040));
-	localizedTipHeadings.push_back(Vector3(-12.473, -15.810, 16.074));
-	localizedTipHeadings.push_back(Vector3(-14.802, -13.307, 14.408));
-	localizedTipHeadings.push_back(Vector3(-17.782, -14.852, 16.171));
-	localizedTipHeadings.push_back(Vector3(-16.124, -14.617, 19.584));
-	localizedTipHeadings.push_back(Vector3(-15.029, -11.037, 18.902));
-	localizedTipHeadings.push_back(Vector3(-18.577, -10.001, 17.996));
-
-	Basis basis;
-	Vector3 vec3 = Vector3(0.7, .7, 0.0);
-	vec3.normalize();
-	basis = basis.rotated(vec3, 0.4);
+	localizedTipHeadings.push_back(Vector3(0.0, 0.0, 0.0));
+	localizedTipHeadings.push_back(Vector3(0.5219288, 0.1455288, 0.8404827));
+	localizedTipHeadings.push_back(Vector3(-0.5219288, -0.1455288, -0.8404827));
+	localizedTipHeadings.push_back(Vector3(0.0012719706, -0.9854698, 0.16984463));
+	localizedTipHeadings.push_back(Vector3(-0.0012719706, 0.9854698, -0.16984463));
+	localizedTipHeadings.push_back(Vector3(0.8529882, -0.08757782, -0.5145302));
+	localizedTipHeadings.push_back(Vector3(-0.8529882, 0.08757782, 0.5145302));
 
 	Vector<Vector3> localizedTargetHeadings;
-	localizedTargetHeadings.resize(7);
-	for (int32_t i = 0; i < localizedTargetHeadings.size(); i++) {
-		localizedTargetHeadings.write[i] = basis.xform(localizedTipHeadings[i]);
-	}
+	localizedTargetHeadings.push_back(Vector3(0.014951646, -0.2548256, -0.0037765503));
+	localizedTargetHeadings.push_back(Vector3(0.66200894, -0.12242699, 0.7470808));
+	localizedTargetHeadings.push_back(Vector3(-0.63210565, -0.3872242, -0.7546339));
+	localizedTargetHeadings.push_back(Vector3(0.01495599, -1.2396336, 0.16987133));
+	localizedTargetHeadings.push_back(Vector3(0.014947303, 0.7299824, -0.17742443));
+	localizedTargetHeadings.push_back(Vector3(0.777393, -0.36718178, -0.64100456));
+	localizedTargetHeadings.push_back(Vector3(-0.7474897, -0.1424694, 0.63345146));
 
 	Vector<float> weights;
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
+	weights.push_back(5.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
+	weights.push_back(25.0);
 	Quat rot;
-	Vector3 translation;
 	qcp->calc_optimal_rotation(localizedTipHeadings, localizedTargetHeadings,
-			weights, rot, false, translation);
-	Quat rot_compare = basis;
+			weights, rot);
+	Quat rot_compare;
+	rot_compare.x = 0.0019268756;
+	rot_compare.y = -0.07416658;
+	rot_compare.z = 0.013555937;
+	rot_compare.w = -0.99715185;
 	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion compared %s.", String(rot), String(rot_compare)).utf8().ptr());
 	Vector3 euler = Basis(rot).get_euler();
 	Vector3 euler_compare = Basis(rot_compare).get_euler();
 	CHECK_MESSAGE(euler.is_equal_approx(euler_compare), vformat("%s does not match euler compared %s.", String(euler), String(euler_compare)).utf8().ptr());
-
-	Vector3 axis;
-	float angle = 0.0f;
-	rot.get_axis_angle(axis, angle);
-
-	Vector<float> checkHeadings;
-	checkHeadings.resize(7);
-	for (int32_t i = 0; i < checkHeadings.size(); i++) {
-		checkHeadings.write[i] = rot.xform(localizedTipHeadings[i]).distance_to(localizedTargetHeadings[i]);
-	}
-	// TODO Generate arbitrary tests
 }
 } // namespace TestEWBIK
 
