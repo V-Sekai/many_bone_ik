@@ -62,8 +62,8 @@ private:
 	void generate_bones_map();
 	Ref<IKBoneChain> get_child_segment_containing(const Ref<IKBone3D> &p_bone);
 	void create_headings();
-	PackedVector3Array *update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights);
-	PackedVector3Array *update_tip_headings(Ref<IKBone3D> p_for_bone);
+	PackedVector3Array update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights);
+	PackedVector3Array update_tip_headings(Ref<IKBone3D> p_for_bone);
 	real_t get_manual_sqrtmsd(const PackedVector3Array &p_htarget, const PackedVector3Array &p_htip, const Vector<real_t> &p_weights) const;
 	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone, const PackedVector3Array &p_htarget,
 			const PackedVector3Array &p_htip, const Vector<real_t> &p_weights, float p_dampening = -1);

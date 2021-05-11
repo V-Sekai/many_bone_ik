@@ -208,16 +208,16 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_co
 		return;
 	}
 	Vector<real_t> *weights = nullptr;
-	PackedVector3Array *htarget = update_target_headings(p_for_bone, weights);
-	PackedVector3Array *htip = update_tip_headings(p_for_bone);
-	if (p_for_bone->get_parent().is_null() || htarget->size() == 1) {
+	PackedVector3Array htarget = update_target_headings(p_for_bone, weights);
+	PackedVector3Array htip = update_tip_headings(p_for_bone);
+	if (p_for_bone->get_parent().is_null() || htarget.size() == 1) {
 		p_constraint_stabilization_passes = 0;
 	}
 
 	real_t best_sqrmsd = 0.0;
 
 	if (p_constraint_stabilization_passes > 0) {
-		best_sqrmsd = get_manual_sqrtmsd(*htarget, *htip, *weights);
+		best_sqrmsd = get_manual_sqrtmsd(htarget, htip, *weights);
 	}
 
 	real_t sqrmsd = FLT_MAX;
@@ -225,7 +225,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_co
 		if (p_constraint_stabilization_passes <= 0) {
 			break;
 		}
-		sqrmsd = set_optimal_rotation(p_for_bone, *htarget, *htip, *weights);
+		sqrmsd = set_optimal_rotation(p_for_bone, htarget, htip, *weights);
 		if (sqrmsd <= best_sqrmsd) {
 			best_sqrmsd = sqrmsd;
 		}
@@ -301,36 +301,44 @@ void IKBoneChain::create_headings() {
 	}
 }
 
-PackedVector3Array *IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights) {
-	PackedVector3Array *htarget;
+PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights) {
+	PackedVector3Array htarget;
 	if (tip == p_for_bone && tip->is_effector()) {
 		Ref<IKEffector3D> effector = tip->get_effector();
-		htarget = &effector->target_headings;
+		htarget = effector->target_headings;
 		p_weights = &effector->heading_weights;
 	} else {
-		htarget = &target_headings;
+		htarget = target_headings;
 		p_weights = &heading_weights;
 	}
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		effector->update_target_headings(p_for_bone, htarget, index, p_weights);
+		effector->update_target_headings(p_for_bone, &htarget, index, p_weights);
+	}
+	Transform root_inverse = root->get_global_transform().affine_inverse();
+	for (int i = 0; i < htarget.size(); i++) {
+		htarget.write[i] = root_inverse.xform(htarget[i]);
 	}
 	return htarget;
 }
 
-PackedVector3Array *IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
-	PackedVector3Array *htip;
+PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
+	PackedVector3Array htip;
 	if (tip == p_for_bone && tip->is_effector()) {
 		Ref<IKEffector3D> effector = tip->get_effector();
-		htip = &effector->tip_headings;
+		htip = effector->tip_headings;
 	} else {
-		htip = &tip_headings;
+		htip = tip_headings;
 	}
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		effector->update_tip_headings(p_for_bone, htip, index);
+		effector->update_tip_headings(p_for_bone, &htip, index);
+	}
+	Transform root_inverse = root->get_global_transform().affine_inverse();
+	for (int i = 0; i < htip.size(); i++) {
+		htip.write[i] = root_inverse.xform(htip[i]);
 	}
 	return htip;
 }
