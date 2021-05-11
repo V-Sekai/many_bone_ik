@@ -223,7 +223,22 @@ void IKBoneChain::update_effector_list() {
 	if (is_tip_effector()) {
 		Ref<IKEffector3D> effector = tip->get_effector();
 		effector_list.push_back(effector);
-		heading_weights.push_back(effector->weight);
+		Vector<real_t> weights;
+		weights.push_back(effector->weight);
+		// TODO 2021-05-10 fire Use heading weights.
+		if (effector->get_follow_x()) {
+			weights.push_back(effector->weight);
+			weights.push_back(effector->weight);
+		}
+		if (effector->get_follow_y()) {
+			weights.push_back(effector->weight);
+			weights.push_back(effector->weight);
+		}
+		if (effector->get_follow_z()) {
+			weights.push_back(effector->weight);
+			weights.push_back(effector->weight);
+		}
+		heading_weights.append_array(weights);
 	}
 	create_headings();
 }
@@ -312,7 +327,6 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	float angle;
 	rot.get_axis_angle(axis, angle);
 	float bone_damp = p_for_bone->get_cos_half_dampen();
-
 
 	if (!Math::is_equal_approx(p_dampening, -1.0)) {
 		bone_damp = p_dampening;

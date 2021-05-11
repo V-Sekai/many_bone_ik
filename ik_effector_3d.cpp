@@ -72,7 +72,7 @@ Ref<IKBone3D> IKEffector3D::get_shadow_bone() const {
 }
 
 bool IKEffector3D::is_following_translation_only() const {
-	return !(follow_x || follow_y || follow_z);
+	return !(get_follow_x() || get_follow_y() || get_follow_z());
 }
 
 void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
@@ -99,13 +99,13 @@ void IKEffector3D::update_priorities() {
 	follow_z = priority.z > 0.0;
 
 	num_headings = 1;
-	if (follow_x) {
+	if (get_follow_x()) {
 		num_headings += 2;
 	}
-	if (follow_y) {
+	if (get_follow_y()) {
 		num_headings += 2;
 	}
-	if (follow_z) {
+	if (get_follow_z()) {
 		num_headings += 2;
 	}
 }
@@ -131,19 +131,19 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 	heading_weights.write[nw + index] = weight;
 	index++;
 
-	if (follow_x) {
+	if (get_follow_x()) {
 		heading_weights.write[nw + index] = weight * priority.x;
 		heading_weights.write[nw + index + 1] = weight * priority.x;
 		index += 2;
 	}
 
-	if (follow_y) {
+	if (get_follow_y()) {
 		heading_weights.write[nw + index] = weight * priority.y;
 		heading_weights.write[nw + index + 1] = weight * priority.y;
 		index += 2;
 	}
 
-	if (follow_z) {
+	if (get_follow_z()) {
 		heading_weights.write[nw + index] = weight * priority.z;
 		heading_weights.write[nw + index + 1] = weight * priority.z;
 	}
@@ -155,7 +155,7 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 	p_headings->write[p_index] = goal_transform.origin - origin;
 	p_index++;
 
-	if (follow_x) {
+	if (get_follow_x()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(w, 0.0, 0.0);
 		p_headings->write[p_index] = goal_transform.xform(v) - origin;
@@ -163,7 +163,7 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 		p_index += 2;
 	}
 
-	if (follow_y) {
+	if (get_follow_y()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(0.0, w, 0.0);
 		p_headings->write[p_index] = goal_transform.xform(v) - origin;
@@ -171,7 +171,7 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 		p_index += 2;
 	}
 
-	if (follow_z) {
+	if (get_follow_z()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(0.0, 0.0, w);
 		p_headings->write[p_index] = goal_transform.xform(v) - origin;
@@ -185,23 +185,23 @@ void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 	Transform tip_xform = for_bone->get_global_transform();
 	p_headings->write[p_index] = tip_xform.origin - origin;
 	p_index++;
-	real_t scale_by = MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
+	real_t scale_by = 1.0f; //MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
 
-	if (follow_x) {
+	if (get_follow_x()) {
 		Vector3 v = Vector3(scale_by, 0.0, 0.0);
 		p_headings->write[p_index] = tip_xform.xform(v) - origin;
 		p_headings->write[p_index + 1] = tip_xform.xform(-v) - origin;
 		p_index += 2;
 	}
 
-	if (follow_y) {
+	if (get_follow_y()) {
 		Vector3 v = Vector3(0.0, scale_by, 0.0);
 		p_headings->write[p_index] = tip_xform.xform(v) - origin;
 		p_headings->write[p_index + 1] = tip_xform.xform(-v) - origin;
 		p_index += 2;
 	}
 
-	if (follow_z) {
+	if (get_follow_z()) {
 		Vector3 v = Vector3(0.0, 0.0, scale_by);
 		p_headings->write[p_index] = tip_xform.xform(v) - origin;
 		p_headings->write[p_index + 1] = tip_xform.xform(-v) - origin;
