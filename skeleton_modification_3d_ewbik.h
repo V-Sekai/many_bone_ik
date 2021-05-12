@@ -54,6 +54,7 @@ private:
 
 	// Task
 	int32_t ik_iterations = 15;
+	float default_damp = Math::deg2rad(5.0f);
 	int32_t constraint_stabilization_passes = 4;
 
 	void update_segments();
@@ -110,6 +111,8 @@ public:
 
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
+	float get_default_damp() const;
+	void set_default_damp(float p_default_damp);
 };
 
 #endif // SKELETON_MODIFICATION_3D_EWBIK_H

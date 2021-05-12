@@ -51,7 +51,7 @@ private:
 	Ref<IKEffector3D> effector = nullptr;
 	IKTransform xform;
 	Quat rot_delta = Quat();
-	float default_dampening = IK_DEFAULT_DAMPENING;
+	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
 	static bool has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map);

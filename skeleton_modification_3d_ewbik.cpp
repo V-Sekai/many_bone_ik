@@ -85,7 +85,7 @@ int32_t SkeletonModification3DEWBIK::get_effector_count() const {
 
 void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodePath &p_target_node, bool p_use_node_rot,
 		const Transform &p_target_xform) {
-	Ref<IKBone3D> effector_bone = Ref<IKBone3D>(memnew(IKBone3D(p_name, skeleton)));
+	Ref<IKBone3D> effector_bone = Ref<IKBone3D>(memnew(IKBone3D(p_name, skeleton, nullptr, get_default_damp())));
 	Ref<IKEffector3D> effector = Ref<IKEffector3D>(memnew(IKEffector3D(effector_bone)));
 	effector->set_target_node(p_target_node);
 	effector->set_use_target_node_rotation(p_use_node_rot);
@@ -364,9 +364,9 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 		}
 	}
 }
-
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,65535,1"));
+	p_list->push_back(PropertyInfo(Variant::FLOAT, "default_damp_degrees", PROPERTY_HINT_RANGE, "0.01,1.57079632679f,0.01"));
 	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	for (int i = 0; i < effector_count; i++) {
 		PropertyInfo effector_name;
@@ -400,7 +400,11 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 	if (name == "ik_iterations") {
 		r_ret = get_ik_iterations();
 		return true;
-	} else if (name == "effector_count") {
+	} else if(name == "default_damp_degrees") {
+		r_ret = Math::rad2deg((double)get_default_damp());
+		return true;
+	}
+	else if (name == "effector_count") {
 		r_ret = get_effector_count();
 		return true;
 	} else if (name.begins_with("effectors/")) {
@@ -434,8 +438,11 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 	if (name == "ik_iterations") {
 		set_ik_iterations(p_value);
 		return true;
+	} else if (name == "default_damp_degrees") {
+		set_default_damp(Math::deg2rad((double)p_value));
+		return true;
 	} else if (name == "effector_count") {
-		set_effector_count(p_value);
+		set_effector_count(Math::deg2rad((double)p_value));
 		return true;
 	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
@@ -494,9 +501,10 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
-
+	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
+	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
+	
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
-
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
 }
 
@@ -505,6 +513,14 @@ SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
 }
 
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
+}
+
+float SkeletonModification3DEWBIK::get_default_damp() const {
+	return default_damp;
+}
+
+void SkeletonModification3DEWBIK::set_default_damp(float p_default_damp) {
+	default_damp = p_default_damp;
 }
 
 bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
