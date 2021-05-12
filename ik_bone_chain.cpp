@@ -352,9 +352,9 @@ PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone,
 		Ref<IKEffector3D> effector = effector_list[effector_i];
 		effector->update_target_headings(p_for_bone, &htarget, index, p_weights);
 	}
-	Quat skeleton_xform = skeleton->get_global_transform().basis.get_rotation_quat();
-	if (!skeleton_xform.is_equal_approx(Quat())) {
-		Quat root_inverse = skeleton_xform.inverse();
+	Transform skeleton_xform = skeleton->get_global_transform();
+	if (!skeleton_xform.is_equal_approx(Transform())) {
+		Transform root_inverse = skeleton_xform.affine_inverse();
 		for (int i = 0; i < htarget.size(); i++) {
 			htarget.write[i] = root_inverse.xform(htarget[i]);
 		}
@@ -375,9 +375,9 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
 		effector->update_tip_headings(p_for_bone, &htip, index);
 	}
-	Quat skeleton_xform = skeleton->get_global_transform().basis.get_rotation_quat();
-	if (!skeleton_xform.is_equal_approx(Quat())) {
-		Quat root_inverse = skeleton_xform.inverse();
+	Transform skeleton_xform = skeleton->get_global_transform();
+	if (!skeleton_xform.is_equal_approx(Transform())) {
+		Transform root_inverse = skeleton_xform.affine_inverse();
 		for (int i = 0; i < htip.size(); i++) {
 			htip.write[i] = root_inverse.xform(htip[i]);
 		}
