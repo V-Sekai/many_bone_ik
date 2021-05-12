@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  skeleton_modification_3d_ewbik.cpp                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -129,10 +129,14 @@ void SkeletonModification3DEWBIK::set_effector_bone(int32_t p_effector_index, co
 }
 
 String SkeletonModification3DEWBIK::get_effector_bone(int32_t p_effector_index) const {
-	if (skeleton) {
-		return skeleton->get_bone_name(multi_effector[p_effector_index]->get_bone_id());
+	if (!skeleton) {
+		return "";
 	}
-	return "";
+	BoneId bone = multi_effector[p_effector_index]->get_bone_id();
+	if (bone == -1) {
+		return "";
+	}
+	return skeleton->get_bone_name(bone);
 }
 
 void SkeletonModification3DEWBIK::set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node) {
@@ -399,11 +403,10 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 	if (name == "ik_iterations") {
 		r_ret = get_ik_iterations();
 		return true;
-	} else if(name == "default_damp_degrees") {
+	} else if (name == "default_damp_degrees") {
 		r_ret = Math::rad2deg((double)get_default_damp());
 		return true;
-	}
-	else if (name == "effector_count") {
+	} else if (name == "effector_count") {
 		r_ret = get_effector_count();
 		return true;
 	} else if (name.begins_with("effectors/")) {
@@ -446,7 +449,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, effector_count, false);
+		ERR_FAIL_INDEX_V(index, effector_count, true);
 		Ref<IKBone3D> effector = get_effector(index);
 		if (effector.is_null()) {
 			effector.instance();
