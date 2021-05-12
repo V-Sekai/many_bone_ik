@@ -49,7 +49,6 @@ private:
 	HashMap<BoneId, Ref<IKBone3D>> effectors_map;
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
-	bool calc_done = false;
 	bool debug_skeleton = true;
 
 	// Task
@@ -63,7 +62,6 @@ private:
 	void generate_default_effectors();
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
-	bool is_calc_done();
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
