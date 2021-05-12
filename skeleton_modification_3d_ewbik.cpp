@@ -439,7 +439,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		set_default_damp(Math::deg2rad((double)p_value));
 		return true;
 	} else if (name == "effector_count") {
-		set_effector_count(Math::deg2rad((double)p_value));
+		set_effector_count(p_value);
 		return true;
 	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
