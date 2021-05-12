@@ -260,8 +260,6 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 
 	if (effector_count) {
 		update_segments();
-	} else {
-		generate_default_effectors();
 	}
 	if (segmented_skeleton.is_null()) {
 		return;
