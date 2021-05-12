@@ -261,17 +261,16 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	if (effector_count) {
 		update_segments();
 	} else {
-		// Don't generate default effectors
-		// generate_default_effectors();
+		generate_default_effectors();
 	}
-	ERR_FAIL_NULL(segmented_skeleton);
+	if (segmented_skeleton) {
+		return;
+	}
 	segmented_skeleton->update_effector_list();
 	notify_property_list_changed();
 
 	is_dirty = false;
 	calc_done = false;
-
-	// segmented_skeleton->debug_print_chains();
 }
 
 void SkeletonModification3DEWBIK::generate_default_effectors() {
