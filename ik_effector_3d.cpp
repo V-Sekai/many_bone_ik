@@ -151,7 +151,7 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 
 void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index,
 		Vector<real_t> *p_weights) const {
-	Vector3 origin = p_for_bone->get_global_transform().origin;
+	Vector3 origin;
 	p_headings->write[p_index] = goal_transform.origin - origin;
 	p_index++;
 
@@ -181,7 +181,7 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 }
 
 void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
-	Vector3 origin = p_for_bone->get_global_transform().origin;
+	Vector3 origin;
 	Transform tip_xform = for_bone->get_global_transform();
 	p_headings->write[p_index] = tip_xform.origin - origin;
 	p_index++;
