@@ -314,7 +314,7 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 
 	float bone_damp = p_for_bone->get_cos_half_dampen();
 
-	if (!Math::is_equal_approx(p_dampening, -1.0)) {
+	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
 		bone_damp = p_dampening;
 		rot = clamp_to_angle(rot, bone_damp);
 	} else {
