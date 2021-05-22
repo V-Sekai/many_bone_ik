@@ -87,7 +87,6 @@ void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodeP
 	Ref<IKBone3D> effector_bone = Ref<IKBone3D>(memnew(IKBone3D(p_name, skeleton, nullptr, get_default_damp())));
 	Ref<IKEffector3D> effector = Ref<IKEffector3D>(memnew(IKEffector3D(effector_bone)));
 	effector->set_target_node(p_target_node);
-	effector->set_use_target_node_rotation(p_use_node_rot);
 	effector->set_target_transform(p_target_xform);
 	effector_bone->set_effector(effector);
 	multi_effector.push_back(effector_bone);
@@ -152,14 +151,6 @@ void SkeletonModification3DEWBIK::set_effector_target_transform(int32_t p_index,
 
 Transform SkeletonModification3DEWBIK::get_effector_target_transform(int32_t p_index) const {
 	return multi_effector[p_index]->get_effector()->get_target_transform();
-}
-
-void SkeletonModification3DEWBIK::set_effector_use_node_rotation(int32_t p_index, bool p_use_node_rot) {
-	multi_effector.write[p_index]->get_effector()->set_use_target_node_rotation(p_use_node_rot);
-}
-
-bool SkeletonModification3DEWBIK::get_effector_use_node_rotation(int32_t p_index) const {
-	return multi_effector[p_index]->get_effector()->get_use_target_node_rotation();
 }
 
 Vector<Ref<IKBone3D>> SkeletonModification3DEWBIK::get_bone_effectors() const {
@@ -366,8 +357,6 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
 		p_list->push_back(
-				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/use_node_rotation"));
-		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM, "effectors/" + itos(i) + "/target_transform"));
 	}
 }
@@ -396,9 +385,6 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			return true;
 		} else if (what == "target_node") {
 			r_ret = get_effector_target_nodepath(index);
-			return true;
-		} else if (what == "use_node_rotation") {
-			r_ret = get_effector_use_node_rotation(index);
 			return true;
 		} else if (what == "target_transform") {
 			r_ret = get_effector_target_transform(index);
@@ -447,10 +433,6 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "target_node") {
 			set_effector_target_nodepath(index, p_value);
-
-			return true;
-		} else if (what == "use_node_rotation") {
-			set_effector_use_node_rotation(index, p_value);
 
 			return true;
 		} else if (what == "target_transform") {
