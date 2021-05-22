@@ -350,7 +350,8 @@ PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone,
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		effector->update_target_headings(p_for_bone, &htarget, index, p_weights);
+		Transform xform;
+		effector->update_target_headings(p_for_bone, &htarget, index, p_weights, xform);
 	}
 	return htarget;
 }
@@ -366,7 +367,8 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		effector->update_tip_headings(p_for_bone, &htip, index);
+		Transform xform;
+		effector->update_tip_headings(p_for_bone, &htip, index, xform);
 	}
 	return htip;
 }
