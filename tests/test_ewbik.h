@@ -32,7 +32,7 @@
 #define TEST_EWBIK_H
 
 #include "core/math/basis.h"
-#include "modules/ewbik/math/qcp.h"
+#include "../math/qcp.h"
 
 #include "tests/test_macros.h"
 
