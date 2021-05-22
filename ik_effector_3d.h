@@ -47,6 +47,7 @@ private:
 	Ref<IKBone3D> for_bone;
 	Transform target_transform;
 	NodePath target_nodepath = NodePath();
+	bool use_target_node_rotation = true;
 	real_t depth_falloff = 0.0;
 	Transform goal_transform;
 	int32_t num_headings;
@@ -71,13 +72,15 @@ public:
 	Transform get_target_transform() const;
 	void set_target_node(const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
+	void set_use_target_node_rotation(bool p_use);
+	bool get_use_target_node_rotation() const;
 	Transform get_goal_transform() const;
 	bool is_node_xform_changed(Skeleton3D *p_skeleton) const;
 	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;
-	void update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Vector<real_t> *p_weights, Transform p_root_transform) const;
-	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Transform p_root_transform) const;
+	void update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Vector<real_t> *p_weights) const;
+	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index) const;
 
 	IKEffector3D(const Ref<IKBone3D> &p_for_bone);
 	~IKEffector3D() {}
