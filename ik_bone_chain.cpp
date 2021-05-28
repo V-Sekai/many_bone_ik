@@ -174,7 +174,6 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skel
 	}
 	Ref<IKBone3D> current_bone = tip;
 	Vector<Ref<IKBone3D>> list;
-	String s;
 	while (current_bone.is_valid()) {
 		list.push_back(current_bone);
 		if (current_bone == root) {
@@ -196,8 +195,7 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skel
 			} else if (list[name_i] == tip) {
 				prefix += "(" + effector + "Tip) ";
 			}
-			String s = prefix + bone_name;
-			print_line(s);
+			print_line(prefix + bone_name);
 		}
 	}
 	p_list.append_array(list);
