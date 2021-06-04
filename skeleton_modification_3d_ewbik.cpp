@@ -83,7 +83,7 @@ int32_t SkeletonModification3DEWBIK::get_effector_count() const {
 }
 
 void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodePath &p_target_node, bool p_use_node_rot,
-		const Transform &p_target_xform) {
+		const Transform3D &p_target_xform) {
 	Ref<IKBone3D> effector_bone = Ref<IKBone3D>(memnew(IKBone3D(p_name, skeleton, nullptr, get_default_damp())));
 	Ref<IKEffector3D> effector = Ref<IKEffector3D>(memnew(IKEffector3D(effector_bone)));
 	effector->set_target_node(p_target_node);
@@ -145,11 +145,11 @@ NodePath SkeletonModification3DEWBIK::get_effector_target_nodepath(int32_t p_ind
 	return multi_effector[p_index]->get_effector()->get_target_node();
 }
 
-void SkeletonModification3DEWBIK::set_effector_target_transform(int32_t p_index, const Transform &p_target_transform) {
+void SkeletonModification3DEWBIK::set_effector_target_transform(int32_t p_index, const Transform3D &p_target_transform) {
 	multi_effector.write[p_index]->get_effector()->set_target_transform(p_target_transform);
 }
 
-Transform SkeletonModification3DEWBIK::get_effector_target_transform(int32_t p_index) const {
+Transform3D SkeletonModification3DEWBIK::get_effector_target_transform(int32_t p_index) const {
 	return multi_effector[p_index]->get_effector()->get_target_transform();
 }
 
@@ -276,7 +276,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 	// Reset the local bone overrides
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
 		skeleton->set_bone_local_pose_override(bone_list[bone_i]->get_bone_id(),
-				Transform(), 0.0, false);
+				Transform3D(), 0.0, false);
 	}
 
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
@@ -357,7 +357,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
 		p_list->push_back(
-				PropertyInfo(Variant::TRANSFORM, "effectors/" + itos(i) + "/target_transform"));
+				PropertyInfo(Variant::TRANSFORM3D, "effectors/" + itos(i) + "/target_transform"));
 	}
 }
 

@@ -30,11 +30,11 @@
 
 #include "ik_effector_3d.h"
 
-void IKEffector3D::set_target_transform(const Transform &p_target_transform) {
+void IKEffector3D::set_target_transform(const Transform3D &p_target_transform) {
 	target_transform = p_target_transform;
 }
 
-Transform IKEffector3D::get_target_transform() const {
+Transform3D IKEffector3D::get_target_transform() const {
 	return target_transform;
 }
 
@@ -46,7 +46,7 @@ NodePath IKEffector3D::get_target_node() const {
 	return target_nodepath;
 }
 
-Transform IKEffector3D::get_goal_transform() const {
+Transform3D IKEffector3D::get_goal_transform() const {
 	return goal_transform;
 }
 
@@ -68,11 +68,11 @@ bool IKEffector3D::is_following_translation_only() const {
 }
 
 void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
-	goal_transform = Transform();
+	goal_transform = Transform3D();
 	Node *node = p_skeleton->get_node_or_null(target_nodepath);
 	if (node && node->is_class("Node3D")) {
 		Node3D *target_node = Object::cast_to<Node3D>(node);
-		Transform node_xform = target_node->get_global_transform();
+		Transform3D node_xform = target_node->get_global_transform();
 		goal_transform = p_skeleton->get_global_transform().affine_inverse() * node_xform;
 		prev_node_xform = node_xform;
 		goal_transform = target_transform * goal_transform;
@@ -138,7 +138,7 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 }
 
 void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index,
-		Vector<real_t> *p_weights, Transform p_inverse_global_root_transform) const {
+		Vector<real_t> *p_weights, Transform3D p_inverse_global_root_transform) const {
 	ERR_FAIL_NULL(p_for_bone);
 	ERR_FAIL_NULL(p_headings);
 	p_headings->write[p_index] = p_inverse_global_root_transform.xform(goal_transform.origin);
@@ -169,10 +169,10 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 	}
 }
 
-void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Transform p_inverse_root_transform) const {
+void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Transform3D p_inverse_root_transform) const {
 	ERR_FAIL_NULL(p_headings);
 	ERR_FAIL_NULL(p_for_bone);
-	Transform tip_xform = for_bone->get_global_transform();
+	Transform3D tip_xform = for_bone->get_global_transform();
 	p_headings->write[p_index] = p_inverse_root_transform.xform(tip_xform.origin);
 	p_index++;
 	real_t scale_by = 1.0f; //MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);

@@ -31,10 +31,10 @@
 #ifndef IK_TRANSFORM_H
 #define IK_TRANSFORM_H
 
-#include "core/math/transform.h"
+#include "core/math/transform_3d.h"
 #include "core/templates/list.h"
 
-class IKTransform {
+class IKTransform3D {
 	enum TransformDirty {
 		DIRTY_NONE = 0,
 		DIRTY_VECTORS = 1,
@@ -42,15 +42,15 @@ class IKTransform {
 		DIRTY_GLOBAL = 4
 	};
 
-	mutable Transform global_transform;
-	mutable Transform local_transform;
+	mutable Transform3D global_transform;
+	mutable Transform3D local_transform;
 	mutable Vector3 rotation;
 	mutable Vector3 scale = Vector3(1, 1, 1);
 
 	mutable int dirty = DIRTY_NONE;
 
-	IKTransform *parent = nullptr;
-	List<IKTransform *> children;
+	IKTransform3D *parent = nullptr;
+	List<IKTransform3D *> children;
 
 	bool disable_scale = false;
 
@@ -67,16 +67,16 @@ public:
 	Vector3 get_rotation_degrees() const;
 	Vector3 get_scale() const;
 
-	void set_transform(const Transform &p_transform);
-	void set_global_transform(const Transform &p_transform);
-	Transform get_transform() const;
-	Transform get_global_transform() const;
+	void set_transform(const Transform3D &p_transform);
+	void set_global_transform(const Transform3D &p_transform);
+	Transform3D get_transform() const;
+	Transform3D get_global_transform() const;
 
 	void set_disable_scale(bool p_enabled);
 	bool is_scale_disabled() const;
 
-	void set_parent(IKTransform *p_parent);
-	IKTransform *get_parent() const;
+	void set_parent(IKTransform3D *p_parent);
+	IKTransform3D *get_parent() const;
 
 	void rotate(const Vector3 &p_axis, real_t p_angle);
 	void rotate_x(real_t p_angle);

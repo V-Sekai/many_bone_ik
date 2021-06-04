@@ -45,10 +45,10 @@ class IKEffector3D : public Reference {
 
 private:
 	Ref<IKBone3D> for_bone;
-	Transform target_transform;
+	Transform3D target_transform;
 	NodePath target_nodepath = NodePath();
 	real_t depth_falloff = 0.0;
-	Transform goal_transform;
+	Transform3D goal_transform;
 	int32_t num_headings;
 	Vector3 priority = Vector3(0.5, 5.0, 0.0);
 	real_t weight = 1.0;
@@ -57,7 +57,7 @@ private:
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
 
-	Transform prev_node_xform;
+	Transform3D prev_node_xform;
 
 	void update_priorities();
 	void update_goal_transform(Skeleton3D *p_skeleton);
@@ -67,17 +67,17 @@ protected:
 	void create_headings(const Vector<real_t> &p_weights);
 
 public:
-	void set_target_transform(const Transform &p_target_transform);
-	Transform get_target_transform() const;
+	void set_target_transform(const Transform3D &p_target_transform);
+	Transform3D get_target_transform() const;
 	void set_target_node(const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
-	Transform get_goal_transform() const;
+	Transform3D get_goal_transform() const;
 	bool is_node_xform_changed(Skeleton3D *p_skeleton) const;
 	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;
-	void update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Vector<real_t> *p_weights, Transform p_root_transform) const;
-	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Transform p_root_transform) const;
+	void update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Vector<real_t> *p_weights, Transform3D p_root_transform) const;
+	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index, Transform3D p_root_transform) const;
 
 	IKEffector3D(const Ref<IKBone3D> &p_for_bone);
 	~IKEffector3D() {}

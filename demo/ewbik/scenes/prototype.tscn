@@ -10,19 +10,19 @@ bone/0/height = -1.0
 bone/0/twist_min_angle = 3.14159
 bone/0/twist_range = 9.42478
 bone/0/direction_count = 0
-bone/0/constraint_axes = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+bone/0/constraint_axes = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 bone/1/name = "bone._1"
 bone/1/stiffness = -1.0
 bone/1/height = -1.0
 bone/1/twist_min_angle = 3.14159
 bone/1/twist_range = 9.42478
 bone/1/direction_count = 0
-bone/1/constraint_axes = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+bone/1/constraint_axes = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 
 [sub_resource type="SkeletonModification3DEWBIK" id=2]
 effector_count = 1
 effectors/0/name = "bone._1"
-effectors/0/target_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+effectors/0/target_transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 effectors/0/target_node = NodePath("../../../../Target")
 effectors/0/budget = 4.0
 root_bone = "bone"
@@ -36,7 +36,7 @@ modifications/0 = SubResource( 2 )
 script = null
 
 [node name="Target" type="Node3D" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 0 )
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 0 )
 script = null
 
 [node name="RiggedSimple" parent="." instance=ExtResource( 1 )]
@@ -48,11 +48,11 @@ modification_stack = SubResource( 3 )
 blend_times = [  ]
 
 [node name="Camera3D" type="Camera3D" parent="RiggedSimple"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8 )
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8 )
 script = null
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0 )
+transform = Transform3D( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0 )
 script = null
 
 [editable path="RiggedSimple"]

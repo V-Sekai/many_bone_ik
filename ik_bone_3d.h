@@ -49,7 +49,7 @@ private:
 	Ref<IKBone3D> parent = nullptr;
 	Vector<Ref<IKBone3D>> children;
 	Ref<IKEffector3D> effector = nullptr;
-	IKTransform xform;
+	IKTransform3D xform;
 	Quat rot_delta = Quat();
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
@@ -66,13 +66,13 @@ public:
 	Ref<IKBone3D> get_parent() const;
 	void set_effector(const Ref<IKEffector3D> &p_effector);
 	Ref<IKEffector3D> get_effector() const;
-	void set_transform(const Transform &p_transform);
-	Transform get_transform() const;
+	void set_transform(const Transform3D &p_transform);
+	Transform3D get_transform() const;
 	void set_orientation_lock(const bool p_lock);
 	bool get_orientation_lock() const;
-	void set_global_transform(const Transform &p_transform);
+	void set_global_transform(const Transform3D &p_transform);
 	void set_rot_delta(const Quat &p_rot);
-	Transform get_global_transform() const;
+	Transform3D get_global_transform() const;
 	void set_initial_transform(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);
 	void create_effector();
