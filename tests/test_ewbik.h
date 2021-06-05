@@ -90,20 +90,6 @@ TEST_CASE("[Modules][EWBIK] qcp") {
 	float compare_angle;
 	(r1.inverse() * r2).get_axis_angle(compare_axis, compare_angle);
 	CHECK_MESSAGE(Math::is_zero_approx(compare_angle), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
-	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion compared %s.", String(rot), String(rot_compare)).utf8().ptr());
-	Vector3 euler = Basis(rot).get_euler();
-	Vector3 euler_compare = Basis(rot_compare).get_euler();
-	CHECK_MESSAGE(euler.is_equal_approx(euler_compare), vformat("%s does not match euler compared %s.", String(euler), String(euler_compare)).utf8().ptr());
-
-	Vector3 axis;
-	float angle = 0.0f;
-	rot.get_axis_angle(axis, angle);
-
-	Vector<float> checkHeadings;
-	checkHeadings.resize(7);
-	for (int32_t i = 0; i < checkHeadings.size(); i++) {
-		checkHeadings.write[i] = rot.xform(localizedTipHeadings[i]).distance_to(localizedTargetHeadings[i]);
-	}
 	// TODO Generate arbitrary tests
 }
 } // namespace TestEWBIK
