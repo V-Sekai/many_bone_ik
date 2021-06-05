@@ -169,7 +169,7 @@ real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
 	/* Newton-Raphson */
 	real_t eignv = e0;
 
-	int32_t i;	
+	int32_t i;
 	for (i = 0; i < max_iterations; ++i) {
 		real_t x2 = eignv * eignv;
 		real_t b = (x2 + c2) * eignv;
@@ -265,11 +265,11 @@ Quat QCP::calc_rotation(real_t p_eigenv) const {
 		}
 	}
 
-	real_t normq = 1.0 / Math::sqrt(qsqr);
-	q1 *= normq;
-	q2 *= normq;
-	q3 *= normq;
-	q4 *= normq;
+	//prenormalize the result to avoid floating point errors.
+	float min = q1;
+	min = q2 < min ? q2 : min;
+	min = q3 < min ? q3 : min;
+	min = q4 < min ? q4 : min;
 
-	return Quat(q2, q3, q4, q1);
+	return Quat(q2 / min, q3 / min, q4 / min, q1 / min).normalized();
 }
