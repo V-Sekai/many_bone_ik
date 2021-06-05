@@ -43,15 +43,15 @@ private:
 	real_t SxxpSyy, SyzmSzy, SxzmSzx, SxymSyx = 0;
 	real_t SxxmSyy, SxypSyx, SxzpSzx, SyzpSzy = 0;
 
-	real_t inner_product(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2, const Vector<real_t> &p_weights);
-	real_t center_coords(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2, const Vector<real_t> &p_weights, Vector3 &translation) const;
+	real_t inner_product(const PackedVector3Array &p_source, const PackedVector3Array &p_target, const Vector<real_t> &p_weights);
+	real_t center_coords(PackedVector3Array &p_source, PackedVector3Array &p_target, const Vector<real_t> &p_weights, Vector3 &translation) const;
 	real_t calc_sqrmsd(real_t &e0, real_t wsum);
 	Quaternion calc_rotation(real_t p_eigenv) const;
 
 public:
 	void set_precision(real_t p_evec_prec, real_t p_eval_prec);
 	void set_max_iterations(int32_t p_max);
-	real_t calc_optimal_rotation(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2,
+	real_t calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
 			const Vector<real_t> &p_weights, Quaternion &p_quat);
 };
 

@@ -31,8 +31,8 @@
 #ifndef TEST_EWBIK_H
 #define TEST_EWBIK_H
 
-#include "core/math/basis.h"
 #include "../math/qcp.h"
+#include "core/math/basis.h"
 
 #include "tests/test_macros.h"
 
@@ -46,30 +46,11 @@ Vector3 rad2deg(const Vector3 &p_rotation) {
 	return p_rotation / Math_PI * 180.0;
 }
 
-TEST_CASE("[Modules][EWBIK] qcp") {
-	QCP *qcp = memnew(QCP);
-	qcp->set_max_iterations(10);
-
-	Vector<Vector3> localizedTipHeadings;
-	localizedTipHeadings.push_back(Vector3(-14.739, -18.673, 15.040));
-	localizedTipHeadings.push_back(Vector3(-12.473, -15.810, 16.074));
-	localizedTipHeadings.push_back(Vector3(-14.802, -13.307, 14.408));
-	localizedTipHeadings.push_back(Vector3(-17.782, -14.852, 16.171));
-	localizedTipHeadings.push_back(Vector3(-16.124, -14.617, 19.584));
-	localizedTipHeadings.push_back(Vector3(-15.029, -11.037, 18.902));
-	localizedTipHeadings.push_back(Vector3(-18.577, -10.001, 17.996));
-
-	Basis basis;
-	Vector3 vec3 = Vector3(0.7, .7, 0.0);
-	vec3.normalize();
-	basis = basis.rotated(vec3, 0.4);
-
-	Vector<Vector3> localizedTargetHeadings;
-	localizedTargetHeadings.resize(7);
-	for (int32_t i = 0; i < localizedTargetHeadings.size(); i++) {
-		localizedTargetHeadings.write[i] = basis.xform(localizedTipHeadings[i]);
+void rotate_target_headings(const Vector<Vector3> &p_localizedTipHeadings, Vector<Vector3> &r_localizedTargetHeadings, 
+	Basis p_basis) {
+	for (int32_t i = 0; i < r_localizedTargetHeadings.size(); i++) {
+		r_localizedTargetHeadings.write[i] = p_basis.xform(p_localizedTipHeadings[i]);
 	}
-
 	Vector<float> weights;
 	weights.push_back(1.0);
 	weights.push_back(1.0);
@@ -80,22 +61,40 @@ TEST_CASE("[Modules][EWBIK] qcp") {
 	weights.push_back(1.0);
 	Quaternion rot;
 	Vector3 translation;
-	qcp->calc_optimal_rotation(localizedTipHeadings, localizedTargetHeadings,
+	QCP *qcp = memnew(QCP);
+	qcp->set_max_iterations(10);
+	qcp->calc_optimal_rotation(p_localizedTipHeadings, r_localizedTargetHeadings, 
 			weights, rot);
-	Quaternion rot_compare = basis;
-	CHECK_MESSAGE(rot.is_equal_approx(rot_compare), vformat("%s does not match quaternion compared %s.", String(rot), String(rot_compare)).utf8().ptr());
-	Vector3 euler = Basis(rot).get_euler();
-	Vector3 euler_compare = Basis(rot_compare).get_euler();
-	CHECK_MESSAGE(euler.is_equal_approx(euler_compare), vformat("%s does not match euler compared %s.", String(euler), String(euler_compare)).utf8().ptr());
-
+	memdelete(qcp);
 	Basis r1 = rot;
-	Basis r2 = rot_compare;
-	Vector3 compare_axis;
+	Basis r2 = p_basis;
 	float compare_angle;
+	Vector3 compare_axis;
 	(r1.inverse() * r2).get_axis_angle(compare_axis, compare_angle);
 	CHECK_MESSAGE(Math::is_zero_approx(compare_angle), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
+}
+
+TEST_CASE("[Modules][EWBIK] qcp") {
+	Vector<Vector3> localizedTipHeadings;
+	localizedTipHeadings.push_back(Vector3(-14.739, -18.673, 15.040));
+	localizedTipHeadings.push_back(Vector3(-12.473, -15.810, 16.074));
+	localizedTipHeadings.push_back(Vector3(-14.802, -13.307, 14.408));
+	localizedTipHeadings.push_back(Vector3(-17.782, -14.852, 16.171));
+	localizedTipHeadings.push_back(Vector3(-16.124, -14.617, 19.584));
+	localizedTipHeadings.push_back(Vector3(-15.029, -11.037, 18.902));
+	localizedTipHeadings.push_back(Vector3(-18.577, -10.001, 17.996));
+
+	Vector<Vector3> localizedTargetHeadings;
+	localizedTargetHeadings.resize(7);
+	Basis basis_x = Basis(Vector3(1.f, 0.0f, 0.0f), Math_PI / 2.0f);
+	Basis basis_y = Basis(Vector3(0.0f, 1.f, 0.0f), Math_PI / 2.0f);
+	Basis basis_z = Basis(Vector3(0.0f, 0.0f, 1.f), Math_PI / 2.0f);
+	rotate_target_headings(localizedTipHeadings, localizedTargetHeadings, basis_x);
+	rotate_target_headings(localizedTipHeadings, localizedTargetHeadings, basis_y);
+	rotate_target_headings(localizedTipHeadings, localizedTargetHeadings, basis_z);
 	// TODO Generate arbitrary tests
 }
+
 } // namespace TestEWBIK
 
 #endif

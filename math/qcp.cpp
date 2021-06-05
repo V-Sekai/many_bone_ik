@@ -39,7 +39,7 @@ void QCP::set_max_iterations(int32_t p_max) {
 	max_iterations = p_max;
 }
 
-real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2,
+real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
 		const Vector<real_t> &p_weights, Quaternion &p_quat) {
 	real_t wsum = 0.0;
 	for (int i = 0; i < p_weights.size(); i++) {
@@ -50,41 +50,41 @@ real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_coords1, const Pac
 	// QCP doesn't handle alignment of single values, so if we only have one point
 	// we just compute regular distance.
 	if (p_weights.size() == 1) {
-		sqrmsd = p_coords1[0].distance_squared_to(p_coords2[0]);
-		Quaternion q1 = Quaternion(p_coords1[0]);
-		Quaternion q2 = Quaternion(p_coords2[0]);
+		sqrmsd = p_source[0].distance_squared_to(p_target[0]);
+		Quaternion q1 = Quaternion(p_source[0]);
+		Quaternion q2 = Quaternion(p_target[0]);
 		p_quat = q1 * q2;
 	} else {
-		real_t e0 = inner_product(p_coords2, p_coords1, p_weights);
+		real_t e0 = inner_product(p_source, p_target, p_weights);
 		sqrmsd = calc_sqrmsd(e0, wsum);
 		p_quat = calc_rotation(e0);
 	}
 	return sqrmsd;
 }
 
-real_t QCP::center_coords(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2, const Vector<real_t> &p_weights, Vector3 &translation) const {
+real_t QCP::center_coords(PackedVector3Array &p_source, PackedVector3Array &p_target, const Vector<real_t> &p_weights, Vector3 &translation) const {
 	Vector3 c1 = Vector3();
 	Vector3 c2 = Vector3();
 	real_t wsum = 0.0;
 	for (int i = 0; i < p_weights.size(); i++) {
 		real_t w = p_weights[i];
-		c1 += w * p_coords1[i];
-		c2 += w * p_coords2[i];
+		c1 += w * p_source[i];
+		c2 += w * p_target[i];
 		wsum += w;
 	}
 	c1 /= wsum;
 	c2 /= wsum;
 
 	for (int i = 0; i < p_weights.size(); i++) {
-		p_coords1.write[i] -= c1;
-		p_coords2.write[i] -= c2;
+		p_source.write[i] -= c1;
+		p_target.write[i] -= c2;
 	}
 	translation = c2 - c1;
 
 	return wsum;
 }
 
-real_t QCP::inner_product(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2, const Vector<real_t> &p_weights) {
+real_t QCP::inner_product(const PackedVector3Array &p_source, const PackedVector3Array &p_target, const Vector<real_t> &p_weights) {
 	real_t g1 = 0.0f;
 	real_t g2 = 0.0f;
 	real_t x1, x2, y1, y2, z1, z2;
@@ -100,15 +100,15 @@ real_t QCP::inner_product(const PackedVector3Array &p_coords1, const PackedVecto
 	Szz = 0;
 
 	for (int i = 0; i < p_weights.size(); i++) {
-		x1 = p_weights[i] * p_coords1[i].x;
-		y1 = p_weights[i] * p_coords1[i].y;
-		z1 = p_weights[i] * p_coords1[i].z;
+		x1 = p_weights[i] * p_source[i].x;
+		y1 = p_weights[i] * p_source[i].y;
+		z1 = p_weights[i] * p_source[i].z;
 
-		g1 += x1 * p_coords1[i].x + y1 * p_coords1[i].y + z1 * p_coords1[i].z;
+		g1 += x1 * p_source[i].x + y1 * p_source[i].y + z1 * p_source[i].z;
 
-		x2 = p_coords2[i].x;
-		y2 = p_coords2[i].y;
-		z2 = p_coords2[i].z;
+		x2 = p_target[i].x;
+		y2 = p_target[i].y;
+		z2 = p_target[i].z;
 
 		g2 += p_weights[i] * (x2 * x2 + y2 * y2 + z2 * z2);
 
