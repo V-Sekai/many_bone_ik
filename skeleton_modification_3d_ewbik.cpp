@@ -334,7 +334,7 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 }
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,65535,1"));
-	p_list->push_back(PropertyInfo(Variant::FLOAT, "default_damp_degrees", PROPERTY_HINT_RANGE, "0.01,1.57079632679f,0.01"));
+	p_list->push_back(PropertyInfo(Variant::FLOAT, "default_damp_degrees", PROPERTY_HINT_RANGE, "0.01,180,0.01"));
 	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	for (int i = 0; i < effector_count; i++) {
 		PropertyInfo effector_name;
