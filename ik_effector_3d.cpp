@@ -186,7 +186,7 @@ void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 	Transform3D tip_xform = for_bone->get_global_transform();
 	p_headings->write[p_index] = tip_xform.origin;
 	p_index++;
-	real_t scale_by = 1.0f; //MAX(origin.distance_to(goal_transform.origin), MIN_SCALE);
+	real_t scale_by = 1.0f; //MAX(goal_transform.origin, MIN_SCALE);
 
 	if (get_follow_x()) {
 		Vector3 v = Vector3(scale_by, 0.0, 0.0);
