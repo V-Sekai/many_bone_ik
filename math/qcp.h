@@ -31,7 +31,7 @@
 #ifndef QCP_H
 #define QCP_H
 
-#include "core/math/quat.h"
+#include "core/math/quaternion.h"
 #include "core/variant/variant.h"
 
 class QCP {
@@ -46,13 +46,13 @@ private:
 	real_t inner_product(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2, const Vector<real_t> &p_weights);
 	real_t center_coords(PackedVector3Array &p_coords1, PackedVector3Array &p_coords2, const Vector<real_t> &p_weights, Vector3 &translation) const;
 	real_t calc_sqrmsd(real_t &e0, real_t wsum);
-	Quat calc_rotation(real_t p_eigenv) const;
+	Quaternion calc_rotation(real_t p_eigenv) const;
 
 public:
 	void set_precision(real_t p_evec_prec, real_t p_eval_prec);
 	void set_max_iterations(int32_t p_max);
 	real_t calc_optimal_rotation(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2,
-			const Vector<real_t> &p_weights, Quat &p_quat);
+			const Vector<real_t> &p_weights, Quaternion &p_quat);
 };
 
 #endif // QCP_H

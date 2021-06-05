@@ -82,7 +82,7 @@ Transform3D IKBone3D::get_global_transform() const {
 	return xform.get_global_transform();
 }
 
-void IKBone3D::set_rot_delta(const Quat &p_rot) {
+void IKBone3D::set_rot_delta(const Quaternion &p_rot) {
 	rot_delta *= p_rot;
 	Transform3D rot_xform = Transform3D(Basis(p_rot), Vector3());
 	set_global_transform(get_global_transform() * rot_xform);
@@ -97,7 +97,7 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	if (is_effector()) {
 		effector->update_goal_transform(p_skeleton);
 	}
-	rot_delta = Quat();
+	rot_delta = Quaternion();
 }
 
 void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {

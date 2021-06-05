@@ -280,9 +280,9 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 	}
 }
 
-Quat IKBoneChain::set_quadrance_angle(Quat p_quat, real_t p_cos_half_angle) const {
+Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
 	float squared_sine = p_quat.x * p_quat.x + p_quat.y * p_quat.y + p_quat.z * p_quat.z;
-	Quat rot = p_quat;
+	Quaternion rot = p_quat;
 	if (!Math::is_zero_approx(squared_sine)) {
 		float inverse_coeff = Math::sqrt(((1.0f - (p_cos_half_angle * p_cos_half_angle)) / squared_sine));
 		rot.x = inverse_coeff * p_quat.x;
@@ -293,15 +293,15 @@ Quat IKBoneChain::set_quadrance_angle(Quat p_quat, real_t p_cos_half_angle) cons
 	return rot;
 }
 
-Quat IKBoneChain::clamp_to_angle(Quat p_quat, real_t p_angle) const {
+Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const {
 	float cos_half_angle = Math::cos(0.5f * p_angle);
 	return clamp_to_quadrance_angle(p_quat, cos_half_angle);
 }
 
-Quat IKBoneChain::clamp_to_quadrance_angle(Quat p_quat, real_t p_cos_half_angle) const {
+Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
 	float new_coeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
 	float current_coeff = p_quat.x * p_quat.x + p_quat.y * p_quat.y + p_quat.z * p_quat.z;
-	Quat rot = p_quat;
+	Quaternion rot = p_quat;
 	if (new_coeff > current_coeff) {
 		return rot;
 	} else {
@@ -316,7 +316,7 @@ Quat IKBoneChain::clamp_to_quadrance_angle(Quat p_quat, real_t p_cos_half_angle)
 
 real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 		PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening, bool p_translate) {
-	Quat rot;
+	Quaternion rot;
 	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot);
 
 	float bone_damp = p_for_bone->get_cos_half_dampen();

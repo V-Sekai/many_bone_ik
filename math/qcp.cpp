@@ -40,7 +40,7 @@ void QCP::set_max_iterations(int32_t p_max) {
 }
 
 real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_coords1, const PackedVector3Array &p_coords2,
-		const Vector<real_t> &p_weights, Quat &p_quat) {
+		const Vector<real_t> &p_weights, Quaternion &p_quat) {
 	real_t wsum = 0.0;
 	for (int i = 0; i < p_weights.size(); i++) {
 		wsum += p_weights[i];
@@ -51,8 +51,8 @@ real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_coords1, const Pac
 	// we just compute regular distance.
 	if (p_weights.size() == 1) {
 		sqrmsd = p_coords1[0].distance_squared_to(p_coords2[0]);
-		Quat q1 = Quat(p_coords1[0]);
-		Quat q2 = Quat(p_coords2[0]);
+		Quaternion q1 = Quaternion(p_coords1[0]);
+		Quaternion q2 = Quaternion(p_coords2[0]);
 		p_quat = q1 * q2;
 	} else {
 		real_t e0 = inner_product(p_coords2, p_coords1, p_weights);
@@ -195,7 +195,7 @@ real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
 	return sqrmsd;
 }
 
-Quat QCP::calc_rotation(real_t p_eigenv) const {
+Quaternion QCP::calc_rotation(real_t p_eigenv) const {
 	real_t a11 = SxxpSyy + Szz - p_eigenv;
 	real_t a12 = SyzmSzy;
 	real_t a13 = -SxzmSzx;
@@ -258,8 +258,8 @@ Quat QCP::calc_rotation(real_t p_eigenv) const {
 
 				if (qsqr < evec_prec) {
 					// /* if qsqr is still too small, return the identity matrix. */
-					// WARN_PRINT("qsqr too small. Return Quat()");
-					return Quat();
+					// WARN_PRINT("qsqr too small. Return Quaternion()");
+					return Quaternion();
 				}
 			}
 		}
@@ -271,5 +271,5 @@ Quat QCP::calc_rotation(real_t p_eigenv) const {
 	min = q3 < min ? q3 : min;
 	min = q4 < min ? q4 : min;
 
-	return Quat(q2 / min, q3 / min, q4 / min, q1 / min).normalized();
+	return Quaternion(q2, q3, q4, q1);
 }
