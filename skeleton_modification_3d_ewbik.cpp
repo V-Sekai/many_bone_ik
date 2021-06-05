@@ -228,15 +228,15 @@ void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
 
 	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
 		update_shadow_bones_transform();
-		iterated_improved_solver();
+		iterated_improved_solver(get_default_damp());
 		update_skeleton_bones_transform(p_blending_delta);
 	}
 }
 
-void SkeletonModification3DEWBIK::iterated_improved_solver() {
+void SkeletonModification3DEWBIK::iterated_improved_solver(real_t p_damp) {
 	ERR_FAIL_NULL(segmented_skeleton);
 	for (int i = 0; i < ik_iterations; i++) {
-		segmented_skeleton->grouped_segment_solver(constraint_stabilization_passes);
+		segmented_skeleton->grouped_segment_solver(constraint_stabilization_passes, p_damp);
 	}
 }
 

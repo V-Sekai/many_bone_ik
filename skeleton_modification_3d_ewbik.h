@@ -103,7 +103,7 @@ public:
 	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
 
 	void solve(real_t p_blending_delta);
-	void iterated_improved_solver();
+	void iterated_improved_solver(real_t p_damp);
 
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
