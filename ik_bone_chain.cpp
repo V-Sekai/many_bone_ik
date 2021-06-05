@@ -260,7 +260,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 	real_t best_sqrmsd = 0.0;
 
 	if (p_stabilization_passes > 0) {
-		best_sqrmsd = get_manual_sqrtmsd(htarget, htip, *weights);
+		best_sqrmsd = get_manual_sqrtmsd(htip, htarget, *weights);
 	}
 
 	real_t sqrmsd = FLT_MAX;

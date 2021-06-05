@@ -55,7 +55,7 @@ real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_coords1, const Pac
 		Quat q2 = Quat(p_coords2[0]);
 		p_quat = q1 * q2;
 	} else {
-		real_t e0 = inner_product(p_coords1, p_coords2, p_weights);
+		real_t e0 = inner_product(p_coords2, p_coords1, p_weights);
 		sqrmsd = calc_sqrmsd(e0, wsum);
 		p_quat = calc_rotation(e0);
 	}
@@ -169,15 +169,18 @@ real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
 	/* Newton-Raphson */
 	real_t eignv = e0;
 
-	int32_t i;
-	for (i = 1; i < (max_iterations + 1); ++i) {
-		real_t oldg = eignv;
-		real_t Y = 1.0f / eignv;
-		real_t Y2 = Y * Y;
-		real_t delta = ((((Y * c0 + c1) * Y + c2) * Y2 + 1) / ((Y * c1 + 2 * c2) * Y2 * Y + 4));
+	int32_t i;	
+	for (i = 0; i < max_iterations; ++i) {
+		real_t x2 = eignv * eignv;
+		real_t b = (x2 + c2) * eignv;
+		real_t a = b + c1;
+		real_t d = (2.0 * x2 * eignv + b + a);
+		if (d == 0.0) {
+			break;
+		}
+		real_t delta = (a * eignv + c0) / d;
 		eignv -= delta;
-
-		if (Math::absd(eignv - oldg) < Math::absd(eval_prec * eignv)) {
+		if (Math::abs(delta) < Math::abs(eval_prec * eignv)) {
 			break;
 		}
 	}
