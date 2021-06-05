@@ -241,9 +241,6 @@ void IKBoneChain::update_effector_list() {
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_stabilization_passes, real_t p_damp, bool p_translate) {
-	if (p_stabilization_passes == 0) {
-		return;
-	}
 	Vector<real_t> *weights = nullptr;
 
 	// BoneId root_bone = get_root()->get_bone_id();
@@ -265,9 +262,6 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 
 	real_t sqrmsd = FLT_MAX;
 	for (int32_t i = 0; i < p_stabilization_passes + 1; i++) {
-		if (p_stabilization_passes <= 0) {
-			break;
-		}
 		sqrmsd = set_optimal_rotation(p_for_bone, htip, htarget, *weights, p_damp);
 		if (sqrmsd <= best_sqrmsd) {
 			best_sqrmsd = sqrmsd;
