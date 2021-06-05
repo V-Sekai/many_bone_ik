@@ -168,11 +168,14 @@ Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &
 	return nullptr;
 }
 
-void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_debug_skeleton) const {
-	for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
-		child_chains[child_i]->get_bone_list(p_list, p_debug_skeleton);
+void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
+	if (p_recursive) {
+		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
+			child_chains[child_i]->get_bone_list(p_list, p_recursive, p_debug_skeleton);
+		}
 	}
 	Ref<IKBone3D> current_bone = tip;
+	// TODO Cache? 2021-06-04 Fire
 	Vector<Ref<IKBone3D>> list;
 	while (current_bone.is_valid()) {
 		list.push_back(current_bone);
@@ -242,6 +245,12 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 		return;
 	}
 	Vector<real_t> *weights = nullptr;
+
+	BoneId root_bone = get_root()->get_bone_id();
+	BoneId current_bone = p_for_bone->get_bone_id();
+	String s = vformat("Root bone of Chain %s. Bone %s", skeleton->get_bone_name(root_bone), skeleton->get_bone_name(current_bone));
+	// print_line(s);
+
 	PackedVector3Array htarget = update_target_headings(p_for_bone, weights);
 	PackedVector3Array htip = update_tip_headings(p_for_bone);
 	if (p_for_bone->get_parent().is_null() || htarget.size() == 1) {
@@ -337,31 +346,36 @@ void IKBoneChain::create_headings() {
 
 PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights) {
 	PackedVector3Array htarget;
-	if (tip == p_for_bone && tip->is_effector()) {
-		Ref<IKEffector3D> effector = tip->get_effector();
-		htarget = effector->target_headings;
-		p_weights = &effector->heading_weights;
-	} else {
-		htarget = target_headings;
-		p_weights = &heading_weights;
-	}
+	// if (tip == p_for_bone && tip->is_effector()) {
+	// 	Ref<IKEffector3D> effector = tip->get_effector();
+	htarget = target_headings;
+	p_weights = &heading_weights;
+	// } else {
+	// 	htarget = target_headings;
+	// 	p_weights = &heading_weights;
+	// }
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
+	String s = "[";
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
 		Transform3D xform;
+		BoneId bone = effector->for_bone->get_bone_id();
+		s += skeleton->get_bone_name(bone) + ",";
 		effector->update_target_headings(p_for_bone, &htarget, index, p_weights, xform);
 	}
+	s += "]";
+	// print_line(s);
 	return htarget;
 }
 
 PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 	PackedVector3Array htip;
-	if (tip == p_for_bone && tip->is_effector()) {
-		Ref<IKEffector3D> effector = tip->get_effector();
-		htip = effector->tip_headings;
-	} else {
-		htip = tip_headings;
-	}
+	// if (tip == p_for_bone && tip->is_effector()) {
+	// 	Ref<IKEffector3D> effector = tip->get_effector();
+	// 	htip = effector->tip_headings;
+	// } else {
+	htip = tip_headings;
+	// }
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
@@ -395,8 +409,17 @@ void IKBoneChain::segment_solver(int32_t p_stabilization_passes, bool p_translat
 }
 
 void IKBoneChain::qcp_solver(int32_t p_stabilization_passes, bool p_translate) {
+	// for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
+	// 	child_chains[child_i]->get_bone_list(p_list, p_debug_skeleton);
+	// }
 	Vector<Ref<IKBone3D>> list;
-	get_bone_list(list);
+	get_bone_list(list, false);
+	// for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
+	// Ref<IKBone3D> current_bone = list[bone_i];
+	// BoneId bone = current_bone->get_bone_id();
+	// String s = vformat("Bone %s", skeleton->get_bone_name(bone));
+	// print_line(s);
+	// }
 	for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
 		Ref<IKBone3D> current_bone = list[bone_i];
 		if (!current_bone->get_orientation_lock()) {
