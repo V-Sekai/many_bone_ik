@@ -46,6 +46,14 @@ NodePath IKEffector3D::get_target_node() const {
 	return target_nodepath;
 }
 
+void IKEffector3D::set_use_target_node_rotation(bool p_use) {
+	use_target_node_rotation = p_use;
+}
+
+bool IKEffector3D::get_use_target_node_rotation() const {
+	return use_target_node_rotation;
+}
+
 Transform3D IKEffector3D::get_goal_transform() const {
 	return goal_transform;
 }
@@ -73,7 +81,11 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	if (node && node->is_class("Node3D")) {
 		Node3D *target_node = Object::cast_to<Node3D>(node);
 		Transform3D node_xform = target_node->get_global_transform();
-		goal_transform = p_skeleton->get_global_transform().affine_inverse() * node_xform;
+		if (use_target_node_rotation) {
+			goal_transform = p_skeleton->get_global_transform().affine_inverse() * node_xform;
+		} else {
+			goal_transform = Transform3D(Basis(), p_skeleton->to_local(node_xform.origin));
+		}
 		prev_node_xform = node_xform;
 		goal_transform = target_transform * goal_transform;
 	} else {
@@ -139,7 +151,6 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 
 void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index,
 		Vector<real_t> *p_weights) const {
-	ERR_FAIL_NULL(p_for_bone);
 	ERR_FAIL_NULL(p_headings);
 	p_headings->write[p_index] = goal_transform.origin;
 	p_index++;
@@ -147,8 +158,8 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 	if (get_follow_x()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(w, 0.0, 0.0);
-		p_headings->write[p_index] = (p_inverse_global_root_transform * goal_transform).xform(v);
-		p_headings->write[p_index + 1] = (p_inverse_global_root_transform * goal_transform).xform(-v);
+		p_headings->write[p_index] = goal_transform.xform(v);
+		p_headings->write[p_index + 1] = goal_transform.xform(-v);
 		p_index += 2;
 	}
 
@@ -179,22 +190,22 @@ void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 
 	if (get_follow_x()) {
 		Vector3 v = Vector3(scale_by, 0.0, 0.0);
-		p_headings->write[p_index] = (tip_xform).xform(v);
-		p_headings->write[p_index + 1] = (tip_xform).xform(-v);
+		p_headings->write[p_index] = tip_xform.xform(v);
+		p_headings->write[p_index + 1] = tip_xform.xform(-v);
 		p_index += 2;
 	}
 
 	if (get_follow_y()) {
 		Vector3 v = Vector3(0.0, scale_by, 0.0);
-		p_headings->write[p_index] = (tip_xform).xform(v);
-		p_headings->write[p_index + 1] = (tip_xform).xform(-v);
+		p_headings->write[p_index] = tip_xform.xform(v);
+		p_headings->write[p_index + 1] = tip_xform.xform(-v);
 		p_index += 2;
 	}
 
 	if (get_follow_z()) {
 		Vector3 v = Vector3(0.0, 0.0, scale_by);
-		p_headings->write[p_index] = (tip_xform).xform(v);
-		p_headings->write[p_index + 1] = (tip_xform).xform(-v);
+		p_headings->write[p_index] = tip_xform.xform(v);
+		p_headings->write[p_index + 1] = tip_xform.xform(-v);
 		p_index += 2;
 	}
 }
