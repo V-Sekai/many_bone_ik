@@ -64,7 +64,7 @@ void rotate_target_headings(const Vector<Vector3> &p_localizedTipHeadings, Vecto
 	QCP *qcp = memnew(QCP);
 	qcp->set_max_iterations(10);
 	qcp->calc_optimal_rotation(p_localizedTipHeadings, r_localizedTargetHeadings, 
-			weights, rot);
+			weights, rot, false, translation);
 	memdelete(qcp);
 	Basis r1 = rot;
 	Basis r2 = p_basis;

@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  ik_bone_chain.cpp                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -254,7 +254,12 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 	PackedVector3Array htarget = update_target_headings(p_for_bone, weights);
 	PackedVector3Array htip = update_tip_headings(p_for_bone);
 	if (p_for_bone->get_parent().is_null() || htarget.size() == 1) {
-		p_stabilization_passes = 0;
+		p_stabilization_passes = 1;
+		// TODO 2021-06-05 ifire Restore translation code.
+		// p_translate = true;
+	}
+	if (p_translate == true) {
+		p_damp = Math_PI;
 	}
 
 	real_t best_sqrmsd = 0.0;
@@ -268,7 +273,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 		if (p_stabilization_passes <= 0) {
 			break;
 		}
-		sqrmsd = set_optimal_rotation(p_for_bone, htip, htarget, *weights, p_damp);
+		sqrmsd = set_optimal_rotation(p_for_bone, htip, htarget, *weights, p_damp, p_translate);
 		if (sqrmsd <= best_sqrmsd) {
 			best_sqrmsd = sqrmsd;
 		}
@@ -317,7 +322,8 @@ Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos
 real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 		PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening, bool p_translate) {
 	Quaternion rot;
-	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot);
+	Vector3 translation;
+	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot, p_translate, translation);
 
 	float bone_damp = p_for_bone->get_cos_half_dampen();
 
@@ -329,6 +335,7 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 	}
 
 	p_for_bone->set_rot_delta(rot);
+	p_for_bone->set_translation_delta(translation);
 	return sqrmsd;
 }
 

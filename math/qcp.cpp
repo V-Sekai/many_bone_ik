@@ -40,24 +40,30 @@ void QCP::set_max_iterations(int32_t p_max) {
 }
 
 real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
-		const Vector<real_t> &p_weights, Quaternion &p_quat) {
+		const Vector<real_t> &p_weights, Quaternion &r_quat, bool p_translate, Vector3 &r_translation) {
 	real_t wsum = 0.0;
-	for (int i = 0; i < p_weights.size(); i++) {
-		wsum += p_weights[i];
+
+	PackedVector3Array source = p_source;
+	PackedVector3Array target = p_target;
+	Vector3 source_center;
+	Vector3 target_center;
+	if (p_translate) {
+		wsum = center_coords(source, target, p_weights, r_translation);
+	} else {
+		for (int i = 0; i < p_weights.size(); i++) {
+			wsum += p_weights[i];
+		}
 	}
 
 	real_t sqrmsd = 0.0;
 	// QCP doesn't handle alignment of single values, so if we only have one point
 	// we just compute regular distance.
 	if (p_weights.size() == 1) {
-		sqrmsd = p_source[0].distance_squared_to(p_target[0]);
-		Quaternion q1 = Quaternion(p_source[0]);
-		Quaternion q2 = Quaternion(p_target[0]);
-		p_quat = q1 * q2;
+		sqrmsd = source[0].distance_squared_to(target[0]);
 	} else {
-		real_t e0 = inner_product(p_source, p_target, p_weights);
+		real_t e0 = inner_product(source, target, p_weights);
 		sqrmsd = calc_sqrmsd(e0, wsum);
-		p_quat = calc_rotation(e0);
+		r_quat = calc_rotation(e0);
 	}
 	return sqrmsd;
 }
@@ -79,6 +85,7 @@ real_t QCP::center_coords(PackedVector3Array &p_source, PackedVector3Array &p_ta
 		p_source.write[i] -= c1;
 		p_target.write[i] -= c2;
 	}
+
 	translation = c2 - c1;
 
 	return wsum;
@@ -272,4 +279,9 @@ Quaternion QCP::calc_rotation(real_t p_eigenv) const {
 	min = q4 < min ? q4 : min;
 
 	return Quaternion(q2, q3, q4, q1);
+}
+void QCP::translate(const Vector3 p_translate, PackedVector3Array &r_source) {
+	for (int i = 0; i < r_source.size(); i++) {
+		r_source.write[i] += p_translate;
+	}
 }

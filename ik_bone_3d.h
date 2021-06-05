@@ -50,7 +50,8 @@ private:
 	Vector<Ref<IKBone3D>> children;
 	Ref<IKEffector3D> effector = nullptr;
 	IKTransform3D xform;
-	Quaternion rot_delta = Quaternion();
+	Quaternion rot_delta;
+	Vector3 translation_delta;
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
@@ -72,6 +73,9 @@ public:
 	bool get_orientation_lock() const;
 	void set_global_transform(const Transform3D &p_transform);
 	void set_rot_delta(const Quaternion &p_rot);
+	void set_translation_delta(Vector3 p_translation);
+	Vector3 get_translation_delta() const;
+
 	Transform3D get_global_transform() const;
 	void set_initial_transform(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);

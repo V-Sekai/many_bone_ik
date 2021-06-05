@@ -155,6 +155,10 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 	p_headings->write[p_index] = goal_transform.origin;
 	p_index++;
 
+	if (p_for_bone->get_parent().is_null()) {
+		return;
+	}
+
 	if (get_follow_x()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(w, 0.0, 0.0);
