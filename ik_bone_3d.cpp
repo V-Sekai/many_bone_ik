@@ -94,10 +94,7 @@ void IKBone3D::set_rot_delta(const Quaternion &p_rot) {
 
 void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	Transform3D bxform = p_skeleton->get_bone_global_pose(bone_id);
-	if (parent.is_valid()) {
-		bxform = parent->get_global_transform().affine_inverse() * bxform;
-	}
-	set_transform(bxform);
+	set_global_transform(bxform);
 	if (is_effector()) {
 		effector->update_goal_transform(p_skeleton);
 	}
