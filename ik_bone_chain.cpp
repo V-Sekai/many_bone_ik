@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  ik_bone_chain.cpp                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -256,7 +256,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 	if (p_for_bone->get_parent().is_null() || htarget.size() == 1) {
 		p_stabilization_passes = 1;
 		// TODO 2021-06-05 ifire Restore translation code.
-		p_translate = false;
+		// p_translate = true;
 	}
 	if (p_translate == true) {
 		p_damp = Math_PI;
