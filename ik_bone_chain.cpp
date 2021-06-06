@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  ik_bone_chain.cpp                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -253,10 +253,11 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 
 	PackedVector3Array htarget = update_target_headings(p_for_bone, weights);
 	PackedVector3Array htip = update_tip_headings(p_for_bone);
-	if (p_for_bone->get_parent().is_null() || htarget.size() == 1) {
+
+	BoneId parent_bone = skeleton->get_bone_parent(p_for_bone->get_bone_id());
+	if (parent_bone == -1 || htarget.size() == 1) {
 		p_stabilization_passes = 1;
-		// TODO 2021-06-05 ifire Restore translation code.
-		// p_translate = true;
+		p_translate = true;
 	}
 	if (p_translate == true) {
 		p_damp = Math_PI;
@@ -334,8 +335,18 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
 
-	p_for_bone->set_rot_delta(rot);
-	p_for_bone->set_translation_delta(translation);
+	Transform3D bone_xform = Transform3D(rot, translation);
+	BoneId bone_id = p_for_bone->get_bone_id();
+	if (p_translate && skeleton->get_bone_parent(bone_id) == -1) {
+		Transform3D bone_rest = skeleton->get_bone_rest(bone_id);
+		bone_rest = bone_rest.affine_inverse();
+		bone_xform = bone_rest * bone_xform;
+	} else {
+		ERR_PRINT_ONCE("EWBIK does not handle translating non-root bones.");
+	}
+
+	p_for_bone->set_rot_delta(bone_xform.basis);
+	p_for_bone->set_translation_delta(bone_xform.origin);
 	return sqrmsd;
 }
 
