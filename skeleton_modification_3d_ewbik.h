@@ -31,7 +31,7 @@
 #ifndef SKELETON_MODIFICATION_3D_EWBIK_H
 #define SKELETON_MODIFICATION_3D_EWBIK_H
 
-#include "core/object/reference.h"
+#include "core/object/ref_counted.h"
 #include "core/os/memory.h"
 #include "ik_bone_chain.h"
 #include "scene/resources/skeleton_modification_3d.h"

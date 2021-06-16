@@ -31,13 +31,13 @@
 #ifndef ik_bone_chain_H
 #define ik_bone_chain_H
 
-#include "core/object/reference.h"
+#include "core/object/ref_counted.h"
 #include "ik_bone_3d.h"
 #include "math/qcp.h"
 #include "scene/3d/skeleton_3d.h"
 
-class IKBoneChain : public Reference {
-	GDCLASS(IKBoneChain, Reference);
+class IKBoneChain : public RefCounted {
+	GDCLASS(IKBoneChain, RefCounted);
 
 private:
 	Ref<IKBone3D> root;

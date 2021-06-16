@@ -30,7 +30,7 @@
 #ifndef ik_effector_3d_H
 #define ik_effector_3d_H
 
-#include "core/object/reference.h"
+#include "core/object/ref_counted.h"
 #include "ik_bone_3d.h"
 #include "scene/3d/skeleton_3d.h"
 
@@ -38,8 +38,8 @@
 
 class IKBone3D;
 
-class IKEffector3D : public Reference {
-	GDCLASS(IKEffector3D, Reference);
+class IKEffector3D : public RefCounted {
+	GDCLASS(IKEffector3D, RefCounted);
 	friend class IKBone3D;
 	friend class IKBoneChain;
 
@@ -83,6 +83,7 @@ public:
 	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index) const;
 
 	IKEffector3D(const Ref<IKBone3D> &p_for_bone);
+	IKEffector3D() {}
 	~IKEffector3D() {}
 	bool get_follow_x() const { return follow_x; }
 	bool get_follow_y() const { return follow_y; }

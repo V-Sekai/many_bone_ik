@@ -31,7 +31,7 @@
 #ifndef EWBIK_SHADOW_BONE_3D_H
 #define EWBIK_SHADOW_BONE_3D_H
 
-#include "core/object/reference.h"
+#include "core/object/ref_counted.h"
 #include "ik_effector_3d.h"
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
@@ -40,8 +40,8 @@
 
 class IKEffector3D;
 
-class IKBone3D : public Reference {
-	GDCLASS(IKBone3D, Reference);
+class IKBone3D : public RefCounted {
+	GDCLASS(IKBone3D, RefCounted);
 
 private:
 	BoneId bone_id = -1;

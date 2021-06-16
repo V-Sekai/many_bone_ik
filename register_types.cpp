@@ -30,9 +30,14 @@
 
 #include "register_types.h"
 #include "skeleton_modification_3d_ewbik.h"
+#include "ik_effector_3d.h"
 
 void register_ewbik_types() {
 	ClassDB::register_class<SkeletonModification3DEWBIK>();
+	ClassDB::register_class<IKBone3D>();
+	ClassDB::register_class<IKEffector3D>();
+	ClassDB::register_class<IKBoneChain>();
+	
 }
 
 void unregister_ewbik_types() {
