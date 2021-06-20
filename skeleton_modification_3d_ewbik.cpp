@@ -426,7 +426,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		ERR_FAIL_INDEX_V(index, effector_count, true);
 		Ref<IKBone3D> effector = get_effector(index);
 		if (effector.is_null()) {
-			effector.instance();
+			effector.instantiate();
 			effector->create_effector();
 			set_effector(index, effector);
 		}
