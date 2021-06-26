@@ -101,8 +101,8 @@ public:
 	bool get_effector_use_node_rotation(int32_t p_index) const;
 	void update_skeleton();
 
-	virtual void execute(float delta) override;
-	virtual void setup_modification(SkeletonModificationStack3D *p_stack) override;
+	virtual void _execute(float p_delta) override;
+	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
 
 	void solve(real_t p_blending_delta);
 	void iterated_improved_solver(real_t p_damp);

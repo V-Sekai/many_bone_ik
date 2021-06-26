@@ -184,7 +184,7 @@ void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 	is_dirty = true;
 }
 
-void SkeletonModification3DEWBIK::execute(float delta) {
+void SkeletonModification3DEWBIK::_execute(float delta) {
 	ERR_FAIL_COND_MSG(!stack || !is_setup || skeleton == nullptr,
 			"Modification is not setup and therefore cannot execute!");
 	if (!enabled)
@@ -197,7 +197,7 @@ void SkeletonModification3DEWBIK::execute(float delta) {
 	execution_error_found = false;
 }
 
-void SkeletonModification3DEWBIK::setup_modification(SkeletonModificationStack3D *p_stack) {
+void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3D *p_stack) {
 	stack = p_stack;
 	if (!stack) {
 		return;
