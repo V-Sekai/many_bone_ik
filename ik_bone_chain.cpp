@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "ik_bone_chain.h"
+#include "scene/3d/skeleton_3d.h"
 
 Ref<IKBone3D> IKBoneChain::get_root() const {
 	return root;
