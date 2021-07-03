@@ -52,9 +52,9 @@ private:
 	bool debug_skeleton = true;
 
 	// Task
-	int32_t ik_iterations = 15;
-	float default_damp = Math::deg2rad(1.0f);
-	int32_t constraint_stabilization_passes = 4;
+	int32_t ik_iterations = 1;
+	float default_damp = Math::deg2rad(360.0f);
+	int32_t constraint_stabilization_passes = 1;
 
 	void update_segments();
 	void update_effectors_map();
