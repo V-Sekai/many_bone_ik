@@ -282,12 +282,6 @@ void SkeletonModification3DEWBIK::generate_default_effectors() {
 }
 
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
-	// Reset the local bone overrides
-	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
-		skeleton->set_bone_local_pose_override(bone_list[bone_i]->get_bone_id(),
-				Transform3D(), 0.0, false);
-	}
-
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		bone->set_initial_transform(skeleton);

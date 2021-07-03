@@ -82,7 +82,7 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 		Node3D *target_node = Object::cast_to<Node3D>(node);
 		Transform3D node_xform = target_node->get_global_transform();
 		if (use_target_node_rotation) {
-			goal_transform = p_skeleton->get_global_transform().affine_inverse() * node_xform;
+			goal_transform = p_skeleton->world_transform_to_global_pose(node_xform);
 		} else {
 			goal_transform = Transform3D(Basis(), p_skeleton->to_local(node_xform.origin));
 		}
