@@ -45,8 +45,10 @@ class IKEffector3D : public RefCounted {
 
 private:
 	Ref<IKBone3D> for_bone;
-	Transform3D target_transform;
-	NodePath target_nodepath = NodePath();
+	NodePath target_node;
+	ObjectID target_node_cache;
+	Node *target_node_reference = nullptr;
+
 	real_t depth_falloff = 0.0;
 	Transform3D goal_transform;
 	int32_t num_headings;
@@ -67,12 +69,10 @@ protected:
 	void create_headings(const Vector<real_t> &p_weights);
 
 public:
-	void set_target_transform(const Transform3D &p_target_transform);
-	Transform3D get_target_transform() const;
-	void set_target_node(const NodePath &p_target_node_path);
+	void update_target_cache(Node *p_skeleton);
+	void set_target_node(const NodePath &p_target_node_path, Node *p_skeleton);
 	NodePath get_target_node() const;
 	Transform3D get_goal_transform() const;
-	bool is_node_xform_changed(Skeleton3D *p_skeleton) const;
 	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;

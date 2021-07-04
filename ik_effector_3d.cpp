@@ -29,34 +29,19 @@
 /*************************************************************************/
 
 #include "ik_effector_3d.h"
+#include "math/ik_transform.h"
 
-void IKEffector3D::set_target_transform(const Transform3D &p_target_transform) {
-	target_transform = p_target_transform;
-}
-
-Transform3D IKEffector3D::get_target_transform() const {
-	return target_transform;
-}
-
-void IKEffector3D::set_target_node(const NodePath &p_target_node_path) {
-	target_nodepath = p_target_node_path;
+void IKEffector3D::set_target_node(const NodePath &p_target_node_path, Node *p_skeleton) {
+	target_node = p_target_node_path;
+	update_target_cache(p_skeleton);
 }
 
 NodePath IKEffector3D::get_target_node() const {
-	return target_nodepath;
+	return target_node;
 }
 
 Transform3D IKEffector3D::get_goal_transform() const {
 	return goal_transform;
-}
-
-bool IKEffector3D::is_node_xform_changed(Skeleton3D *p_skeleton) const {
-	Node *node = p_skeleton->get_node_or_null(target_nodepath);
-	if (node && node->is_class("Node3D")) {
-		Node3D *target_node = Object::cast_to<Node3D>(node);
-		return prev_node_xform != target_node->get_global_transform();
-	}
-	return false;
 }
 
 Ref<IKBone3D> IKEffector3D::get_shadow_bone() const {
@@ -69,16 +54,14 @@ bool IKEffector3D::is_following_translation_only() const {
 
 void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	goal_transform = Transform3D();
-	Node *node = p_skeleton->get_node_or_null(target_nodepath);
-	if (node && node->is_class("Node3D")) {
-		Node3D *target_node = Object::cast_to<Node3D>(node);
+	if (target_node_reference == nullptr) {
+		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
+	}
+	if (target_node_reference && target_node_reference->is_class("Node3D")) {
+		Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
 		Transform3D node_xform = target_node->get_global_transform();
 		goal_transform = node_xform;
 		prev_node_xform = node_xform;
-		goal_transform = target_transform * goal_transform;
-	} else {
-		// TODO fire 2021-07-03 Move to ui code
-		goal_transform = for_bone->get_global_transform() * target_transform;
 	}
 }
 
@@ -200,11 +183,6 @@ void IKEffector3D::update_effector_tip_headings(Ref<IKBone3D> p_for_bone, Packed
 }
 
 void IKEffector3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_target_transform", "transform"),
-			&IKEffector3D::set_target_transform);
-	ClassDB::bind_method(D_METHOD("get_target_transform"),
-			&IKEffector3D::get_target_transform);
-
 	ClassDB::bind_method(D_METHOD("set_target_node", "node"),
 			&IKEffector3D::set_target_node);
 	ClassDB::bind_method(D_METHOD("get_target_node"),
@@ -214,4 +192,23 @@ void IKEffector3D::_bind_methods() {
 IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_for_bone) {
 	for_bone = p_for_bone;
 	update_priorities();
+}
+
+void IKEffector3D::update_target_cache(Node *p_skeleton) {
+	target_node_cache = ObjectID();
+	if (!p_skeleton) {
+		return;
+	}
+	if (!p_skeleton->is_inside_tree()) {
+		return;
+	}
+	if (!p_skeleton->has_node(target_node)) {
+		return;
+	}
+	Node *node = p_skeleton->get_node(target_node);
+	ERR_FAIL_COND_MSG(!node || p_skeleton == node,
+			"Cannot update target cache: node is this modification's skeleton or cannot be found!");
+	ERR_FAIL_COND_MSG(!node->is_inside_tree(),
+			"Cannot update target cache: node is not in scene tree!");
+	target_node_cache = node->get_instance_id();
 }

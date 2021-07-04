@@ -82,12 +82,11 @@ int32_t SkeletonModification3DEWBIK::get_effector_count() const {
 	return effector_count;
 }
 
-void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodePath &p_target_node, bool p_use_node_rot,
-		const Transform3D &p_target_xform) {
+void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodePath &p_target_node, bool p_use_node_rot) {
 	Ref<IKBone3D> effector_bone = Ref<IKBone3D>(memnew(IKBone3D(p_name, skeleton, nullptr, get_default_damp())));
 	Ref<IKEffector3D> effector = Ref<IKEffector3D>(memnew(IKEffector3D(effector_bone)));
-	effector->set_target_node(p_target_node);
-	effector->set_target_transform(p_target_xform);
+	effector->set_target_node(p_target_node, skeleton);
+	effector->update_target_cache(skeleton);
 	effector_bone->set_effector(effector);
 	multi_effector.push_back(effector_bone);
 	effector_count++;
@@ -138,19 +137,11 @@ String SkeletonModification3DEWBIK::get_effector_bone(int32_t p_effector_index) 
 }
 
 void SkeletonModification3DEWBIK::set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node) {
-	multi_effector.write[p_index]->get_effector()->set_target_node(p_target_node);
+	multi_effector.write[p_index]->get_effector()->set_target_node(p_target_node, skeleton);
 }
 
 NodePath SkeletonModification3DEWBIK::get_effector_target_nodepath(int32_t p_index) const {
 	return multi_effector[p_index]->get_effector()->get_target_node();
-}
-
-void SkeletonModification3DEWBIK::set_effector_target_transform(int32_t p_index, const Transform3D &p_target_transform) {
-	multi_effector.write[p_index]->get_effector()->set_target_transform(p_target_transform);
-}
-
-Transform3D SkeletonModification3DEWBIK::get_effector_target_transform(int32_t p_index) const {
-	return multi_effector[p_index]->get_effector()->get_target_transform();
 }
 
 Vector<Ref<IKBone3D>> SkeletonModification3DEWBIK::get_bone_effectors() const {
@@ -178,8 +169,9 @@ void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 void SkeletonModification3DEWBIK::_execute(float delta) {
 	ERR_FAIL_COND_MSG(!stack || !is_setup || skeleton == nullptr,
 			"Modification is not setup and therefore cannot execute!");
-	if (!enabled)
+	if (!enabled) {
 		return;
+	}
 
 	if (is_dirty) {
 		update_skeleton();
@@ -350,8 +342,6 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(PropertyInfo(Variant::INT, "effectors/" + itos(i) + "/index"));
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
-		p_list->push_back(
-				PropertyInfo(Variant::TRANSFORM3D, "effectors/" + itos(i) + "/target_transform"));
 	}
 }
 
@@ -379,9 +369,6 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			return true;
 		} else if (what == "target_node") {
 			r_ret = get_effector_target_nodepath(index);
-			return true;
-		} else if (what == "target_transform") {
-			r_ret = get_effector_target_transform(index);
 			return true;
 		}
 	}
@@ -426,12 +413,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 
 			return true;
 		} else if (what == "target_node") {
-			set_effector_target_nodepath(index, p_value);
-
-			return true;
-		} else if (what == "target_transform") {
-			set_effector_target_transform(index, p_value);
-
+			set_effector_target_nodepath(index, p_value);			
 			return true;
 		}
 	}
@@ -447,7 +429,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3DEWBIK::get_effector_count);
 	ClassDB::bind_method(D_METHOD("set_effector_count", "count"),
 			&SkeletonModification3DEWBIK::set_effector_count);
-	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node", "target_transform", "budget"), &SkeletonModification3DEWBIK::add_effector);
+	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node", "budget"), &SkeletonModification3DEWBIK::add_effector);
 	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3DEWBIK::get_effector);
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DEWBIK::set_effector);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);

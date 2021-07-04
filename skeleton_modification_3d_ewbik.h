@@ -84,7 +84,7 @@ public:
 	void set_effector_count(int32_t p_value);
 	int32_t get_effector_count() const;
 	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(),
-			bool p_use_node_rot = false, const Transform3D &p_target_xform = Transform3D());
+			bool p_use_node_rot = false);
 	int32_t find_effector(const String &p_name) const;
 	void remove_effector(int32_t p_index);
 	Ref<IKBone3D> get_effector(int32_t p_index) const;
@@ -95,8 +95,6 @@ public:
 	String get_effector_bone(int32_t p_effector_index) const;
 	void set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node);
 	NodePath get_effector_target_nodepath(int32_t p_index) const;
-	void set_effector_target_transform(int32_t p_index, const Transform3D &p_target_transform);
-	Transform3D get_effector_target_transform(int32_t p_index) const;
 	void update_skeleton();
 
 	virtual void _execute(float p_delta) override;
