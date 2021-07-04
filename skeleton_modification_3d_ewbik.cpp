@@ -87,7 +87,7 @@ void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodeP
 	Ref<IKBone3D> effector_bone = Ref<IKBone3D>(memnew(IKBone3D(p_name, skeleton, nullptr, get_default_damp())));
 	Ref<IKEffector3D> effector = Ref<IKEffector3D>(memnew(IKEffector3D(effector_bone)));
 	effector->set_target_node(p_target_node, skeleton);
-	effector->update_target_cache(skeleton);
+	effector->call_deferred("update_target_cache", skeleton);
 	effector_bone->set_effector(effector);
 	multi_effector.push_back(effector_bone);
 	effector_count++;

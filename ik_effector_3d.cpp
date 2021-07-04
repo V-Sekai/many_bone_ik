@@ -199,7 +199,6 @@ IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_for_bone) {
 }
 
 void IKEffector3D::update_target_cache(Node *p_skeleton) {
-	target_node_cache = ObjectID();
 	if (!p_skeleton) {
 		return;
 	}
@@ -209,6 +208,7 @@ void IKEffector3D::update_target_cache(Node *p_skeleton) {
 	if (!p_skeleton->has_node(target_node)) {
 		return;
 	}
+	target_node_cache = ObjectID();
 	Node *node = p_skeleton->get_node(target_node);
 	ERR_FAIL_COND_MSG(!node || p_skeleton == node,
 			"Cannot update target cache: node is this modification's skeleton or cannot be found!");
