@@ -195,7 +195,7 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 
 	if (root_bone.is_empty()) {
 		Vector<int32_t> roots;
-		for (int32_t bone_i = 0; bone_i < skeleton->get_solve_count(); bone_i++) {
+		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 			int32_t parent = skeleton->get_bone_parent(bone_i);
 			if (parent == -1) {
 				roots.push_back(bone_i);
@@ -317,7 +317,7 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 	if (property.name == "root_bone") {
 		if (skeleton) {
 			String names = "None";
-			for (int i = 0; i < skeleton->get_solve_count(); i++) {
+			for (int i = 0; i < skeleton->get_bone_count(); i++) {
 				names += ",";
 				names += skeleton->get_bone_name(i);
 			}
@@ -340,7 +340,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		effector_name.name = "effectors/" + itos(i) + "/name";
 		if (skeleton) {
 			String names = "None";
-			for (int bone_i = 0; bone_i < skeleton->get_solve_count(); bone_i++) {
+			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 				names += ",";
 				names += skeleton->get_bone_name(bone_i);
 			}
