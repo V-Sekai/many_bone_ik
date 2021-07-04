@@ -325,6 +325,10 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 	Quaternion rot;
 	Vector3 translation;
 	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot, p_translate, translation);
+	Vector3 axis;
+	float angle;
+	rot.get_axis_angle(axis, angle);
+	angle = Math::rad2deg(angle);
 
 	float bone_damp = p_for_bone->get_cos_half_dampen();
 
@@ -361,13 +365,13 @@ PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone,
 		Ref<IKEffector3D> effector = effector_list[effector_i];
 		effector->update_target_headings(p_for_bone, &htarget, index, p_weights);
 	}
-	Quaternion skeleton_xform = skeleton->get_global_transform().basis.get_rotation_quaternion();
-	if (!skeleton_xform.is_equal_approx(Quaternion())) {
-		Quaternion root_inverse = skeleton_xform.inverse();
-		for (int i = 0; i < htarget.size(); i++) {
-			htarget.write[i] = root_inverse.xform(htarget[i]);
-		}
-	}
+	// Quaternion skeleton_xform = skeleton->get_global_transform().basis.get_rotation_quaternion();
+	// if (!skeleton_xform.is_equal_approx(Quaternion())) {
+	// 	Quaternion root_inverse = skeleton_xform.inverse();
+	// 	for (int i = 0; i < htarget.size(); i++) {
+	// 		htarget.write[i] = root_inverse.xform(htarget[i]);
+	// 	}
+	// }
 	return htarget;
 }
 
@@ -384,13 +388,13 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
 		effector->update_tip_headings(p_for_bone, &htip, index);
 	}
-	Quaternion skeleton_xform = skeleton->get_global_transform().basis.get_rotation_quaternion();
-	if (!skeleton_xform.is_equal_approx(Quaternion())) {
-		Quaternion root_inverse = skeleton_xform.inverse();
-		for (int i = 0; i < htip.size(); i++) {
-			htip.write[i] = root_inverse.xform(htip[i]);
-		}
-	}
+	// Quaternion skeleton_xform = skeleton->get_global_transform().basis.get_rotation_quaternion();
+	// if (!skeleton_xform.is_equal_approx(Quaternion())) {
+	// 	Quaternion root_inverse = skeleton_xform.inverse();
+	// 	for (int i = 0; i < htip.size(); i++) {
+	// 		htip.write[i] = root_inverse.xform(htip[i]);
+	// 	}
+	// }
 	return htip;
 }
 

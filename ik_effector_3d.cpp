@@ -152,7 +152,14 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index,
 		Vector<real_t> *p_weights) const {
 	ERR_FAIL_NULL(p_headings);
-	p_headings->write[p_index] = goal_transform.origin;
+	Vector3 origin = p_for_bone->get_global_transform().origin;
+	p_headings->write[p_index] = goal_transform.origin - origin;
+	Vector3 x = goal_transform.xform(Vector3(1.0f, 0.0f, 0.0f));
+	Vector3 y = goal_transform.xform(Vector3(0.0f, 1.0f, 0.0f));
+	Vector3 z = goal_transform.xform(Vector3(0.0f, 0.0f, 1.0f));
+	Vector3 t_x = target_transform.xform(Vector3(1.0f, 0.0f, 0.0f));
+	Vector3 t_y = target_transform.xform(Vector3(0.0f, 1.0f, 0.0f));
+	Vector3 t_z = target_transform.xform(Vector3(0.0f, 0.0f, 1.0f));
 	p_index++;
 
 	if (p_for_bone->get_parent().is_null()) {
@@ -162,54 +169,65 @@ void IKEffector3D::update_target_headings(Ref<IKBone3D> p_for_bone, PackedVector
 	if (get_follow_x()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(w, 0.0, 0.0);
-		p_headings->write[p_index] = goal_transform.xform(v);
-		p_headings->write[p_index + 1] = goal_transform.xform(-v);
+		p_headings->write[p_index] = goal_transform.xform(v) - origin;
+		p_headings->write[p_index + 1] = goal_transform.xform(-v) - origin;
 		p_index += 2;
 	}
 
 	if (get_follow_y()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(0.0, w, 0.0);
-		p_headings->write[p_index] = goal_transform.xform(v);
-		p_headings->write[p_index + 1] = goal_transform.xform(-v);
+		p_headings->write[p_index] = goal_transform.xform(v) - origin;
+		p_headings->write[p_index + 1] = goal_transform.xform(-v) - origin;
 		p_index += 2;
 	}
 
 	if (get_follow_z()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(0.0, 0.0, w);
-		p_headings->write[p_index] = goal_transform.xform(v);
-		p_headings->write[p_index + 1] = goal_transform.xform(-v);
+		p_headings->write[p_index] = goal_transform.xform(v) - origin;
+		p_headings->write[p_index + 1] = goal_transform.xform(-v) - origin;
 		p_index += 2;
 	}
 }
 
-void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
+void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
 	ERR_FAIL_NULL(p_headings);
-	ERR_FAIL_NULL(p_for_bone);
+	ERR_FAIL_NULL(p_current_bone);
 	Transform3D tip_xform = for_bone->get_global_transform();
-	p_headings->write[p_index] = tip_xform.origin;
+	Vector3 origin = p_current_bone->get_global_transform().origin;
+	p_headings->write[p_index] = tip_xform.origin - origin;
 	p_index++;
 	real_t scale_by = 1.0f; //MAX(goal_transform.origin, MIN_SCALE);
 
+	Vector3 x = goal_transform.xform(Vector3(1.0f, 0.0f, 0.0f));
+	Vector3 y = goal_transform.xform(Vector3(0.0f, 1.0f, 0.0f));
+	Vector3 z = goal_transform.xform(Vector3(0.0f, 0.0f, 1.0f));
+	Vector3 t_x = target_transform.xform(Vector3(1.0f, 0.0f, 0.0f));
+	Vector3 t_y = target_transform.xform(Vector3(0.0f, 1.0f, 0.0f));
+	Vector3 t_z = target_transform.xform(Vector3(0.0f, 0.0f, 1.0f));
+	Vector3 e_x = tip_xform.xform(Vector3(1.0f, 0.0f, 0.0f));
+	Vector3 e_y = tip_xform.xform(Vector3(0.0f, 1.0f, 0.0f));
+	Vector3 e_z = tip_xform.xform(Vector3(0.0f, 0.0f, 1.0f));
+
 	if (get_follow_x()) {
 		Vector3 v = Vector3(scale_by, 0.0, 0.0);
-		p_headings->write[p_index] = tip_xform.xform(v);
-		p_headings->write[p_index + 1] = tip_xform.xform(-v);
+		p_headings->write[p_index] = tip_xform.xform(v) - origin;
+		p_headings->write[p_index + 1] = tip_xform.xform(-v) - origin;
 		p_index += 2;
 	}
 
 	if (get_follow_y()) {
 		Vector3 v = Vector3(0.0, scale_by, 0.0);
-		p_headings->write[p_index] = tip_xform.xform(v);
-		p_headings->write[p_index + 1] = tip_xform.xform(-v);
+		p_headings->write[p_index] = tip_xform.xform(v) - origin;
+		p_headings->write[p_index + 1] = tip_xform.xform(-v) - origin;
 		p_index += 2;
 	}
 
 	if (get_follow_z()) {
 		Vector3 v = Vector3(0.0, 0.0, scale_by);
-		p_headings->write[p_index] = tip_xform.xform(v);
-		p_headings->write[p_index + 1] = tip_xform.xform(-v);
+		p_headings->write[p_index] = tip_xform.xform(v) - origin;
+		p_headings->write[p_index + 1] = tip_xform.xform(-v) - origin;
 		p_index += 2;
 	}
 }
