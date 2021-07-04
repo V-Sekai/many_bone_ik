@@ -62,6 +62,7 @@ private:
 	void generate_default_effectors();
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
+	void update_node_cache();
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;

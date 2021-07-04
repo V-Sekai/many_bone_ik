@@ -30,6 +30,7 @@
 
 #include "skeleton_modification_3d_ewbik.h"
 #include "core/templates/map.h"
+#include "ik_bone_3d.h"
 
 int32_t SkeletonModification3DEWBIK::get_ik_iterations() const {
 	return ik_iterations;
@@ -209,9 +210,21 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	is_dirty = true;
 	is_setup = true;
 	call_deferred("update_skeleton");
-
+	call_deferred("update_node_cache");
+	
 	execution_error_found = false;
 }
+
+void SkeletonModification3DEWBIK::update_node_cache() {
+	for (int32_t effector_i = 0; effector_i < get_effector_count(); effector_i++) {
+		Ref<IKEffector3D> effector = get_effector(effector_i);
+		if (effector.is_null()) {
+			continue;
+		}
+		effector->update_target_cache(skeleton);
+	}
+}
+
 
 void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
 	if (p_blending_delta <= 0.01f) {
@@ -273,7 +286,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 
 void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blending_delta) {
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
-		Ref<IKBone3D> bone = bone_list[bone_i];		
+		Ref<IKBone3D> bone = bone_list[bone_i];
 		bone->set_skeleton_bone_transform(skeleton, p_blending_delta);
 	}
 }
@@ -413,7 +426,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 
 			return true;
 		} else if (what == "target_node") {
-			set_effector_target_nodepath(index, p_value);			
+			set_effector_target_nodepath(index, p_value);
 			return true;
 		}
 	}
@@ -437,7 +450,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
-	
+
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
 }
