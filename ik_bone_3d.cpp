@@ -98,14 +98,11 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	if (is_effector()) {
 		effector->update_goal_transform(p_skeleton);
 	}
-	rot_delta = Quaternion();
-	translation_delta = Vector3();
 }
 
 void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {
 	Transform3D custom = Transform3D(Basis(rot_delta), translation_delta);
 	p_skeleton->set_bone_local_pose_override(bone_id, custom, p_strength, true);
-	p_skeleton->force_update_bone_children_transforms(bone_id);
 }
 
 void IKBone3D::create_effector() {
