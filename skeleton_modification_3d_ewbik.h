@@ -53,7 +53,7 @@ private:
 
 	// Task
 	int32_t ik_iterations = 10;
-	float default_damp = Math::deg2rad(5.0f);
+	float default_damp = Math::deg2rad(1.0f);
 	int32_t constraint_stabilization_passes = 2;
 
 	void update_segments();
