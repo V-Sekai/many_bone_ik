@@ -89,6 +89,7 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 		prev_node_xform = node_xform;
 		goal_transform = target_transform * goal_transform;
 	} else {
+		// TODO fire 2021-07-03 Move to ui code
 		goal_transform = for_bone->get_global_transform() * target_transform;
 	}
 }
