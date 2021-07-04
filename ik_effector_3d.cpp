@@ -57,12 +57,16 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	if (target_node_reference == nullptr) {
 		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
 	}
-	if (target_node_reference && target_node_reference->is_class("Node3D")) {
-		Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
-		Transform3D node_xform = target_node->get_global_transform();
-		goal_transform = node_xform;
-		prev_node_xform = node_xform;
+	if (!target_node_reference) {
+		return;
 	}
+	if (!target_node_reference->is_class("Node3D")) {
+		return;
+	}
+	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
+	Transform3D node_xform = target_node->get_global_transform();
+	goal_transform = node_xform;
+	prev_node_xform = node_xform;
 }
 
 void IKEffector3D::update_priorities() {
