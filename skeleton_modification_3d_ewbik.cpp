@@ -284,15 +284,6 @@ void SkeletonModification3DEWBIK::generate_default_effectors() {
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
-		if (bone->get_bone_id() == 2) {
-			Vector3 axis;
-			float angle;
-			bone->get_transform().get_basis().get_rotation_quaternion().get_axis_angle(axis, angle);
-			angle = Math::rad2deg(angle);
-			if (Math::is_zero_approx(angle)) {
-				print_error("Bone two is zero.");
-			}
-		}
 		bone->set_initial_transform(skeleton);
 	}
 }
@@ -301,15 +292,6 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
 		Ref<IKBone3D> bone = bone_list[bone_i];		
 		bone->set_skeleton_bone_transform(skeleton, p_blending_delta);
-		if (bone->get_bone_id() == 2) {
-			Vector3 axis;
-			float angle;
-			bone->get_transform().get_basis().get_rotation_quaternion().get_axis_angle(axis, angle);
-			angle = Math::rad2deg(angle);
-			if (Math::is_zero_approx(angle)) {
-				print_error("Bone two is zero.");
-			}
-		}
 	}
 }
 

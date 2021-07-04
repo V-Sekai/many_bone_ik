@@ -303,15 +303,6 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot, p_translate, translation);
 
 	float bone_damp = p_for_bone->get_cos_half_dampen();
-	if (p_for_bone->get_bone_id() == 2) {
-		Vector3 axis;
-		float angle;
-		p_for_bone->get_transform().get_basis().get_rotation_quaternion().get_axis_angle(axis, angle);
-		angle = Math::rad2deg(angle);
-		if (Math::is_zero_approx(angle)) {
-			print_error("Bone two is zero.");
-		}
-	}
 
 	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
 		bone_damp = p_dampening;
@@ -413,26 +404,11 @@ void IKBoneChain::qcp_solver(int32_t p_stabilization_passes, real_t p_damp, bool
 	// }
 	for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
 		Ref<IKBone3D> current_bone = list[bone_i];
-		
-		if (current_bone->get_bone_id() == 2) {
-			Vector3 axis;
-			float angle;
-			Quaternion rot = current_bone->get_transform().get_basis().get_rotation_quaternion();
-			rot.get_axis_angle(axis, angle);
-			// Basis
-			// if (current_bone->get_transform().get_basis().os) {
-			// 	print_error("Bone two is zero.");
-			// }
-			angle = Math::rad2deg(angle);
-			if (Math::is_zero_approx(angle)) {
-				print_error("Bone two is zero.");
-			}
-		}
 
 		if (!current_bone->get_orientation_lock()) {
 			update_optimal_rotation(current_bone, p_stabilization_passes, p_damp, p_translate);
 		}
-		
+
 		if (current_bone == root) {
 			break;
 		}
