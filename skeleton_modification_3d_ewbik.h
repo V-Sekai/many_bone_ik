@@ -62,7 +62,6 @@ private:
 	void generate_default_effectors();
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
-	void update_node_cache();
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
@@ -97,6 +96,7 @@ public:
 	void set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node);
 	NodePath get_effector_target_nodepath(int32_t p_index) const;
 	void update_skeleton();
+	void update_node_cache();
 
 	virtual void _execute(float p_delta) override;
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
