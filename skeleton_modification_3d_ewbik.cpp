@@ -165,6 +165,7 @@ void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 	effector_count--;
 
 	is_dirty = true;
+	notify_property_list_changed();
 }
 
 void SkeletonModification3DEWBIK::_execute(float delta) {
