@@ -97,8 +97,6 @@ public:
 	NodePath get_effector_target_nodepath(int32_t p_index) const;
 	void set_effector_target_transform(int32_t p_index, const Transform3D &p_target_transform);
 	Transform3D get_effector_target_transform(int32_t p_index) const;
-	void set_effector_use_node_rotation(int32_t p_index, bool p_use_node_rot);
-	bool get_effector_use_node_rotation(int32_t p_index) const;
 	void update_skeleton();
 
 	virtual void _execute(float p_delta) override;
