@@ -176,6 +176,7 @@ void SkeletonModification3DEWBIK::_execute(float delta) {
 
 	if (is_dirty) {
 		update_skeleton();
+		update_node_cache();
 	}
 	solve(stack->get_strength());
 	execution_error_found = false;
@@ -446,6 +447,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3DEWBIK::get_effector);
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DEWBIK::set_effector);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
+	ClassDB::bind_method(D_METHOD("update_node_cache"), &SkeletonModification3DEWBIK::update_node_cache);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
