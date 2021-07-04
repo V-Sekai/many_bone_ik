@@ -73,6 +73,7 @@ protected:
 	Vector<Ref<IKBone3D>> get_bone_effectors() const;
 
 public:
+	int get_solve_count() const;
 	bool get_debug_skeleton() const;
 	void set_debug_skeleton(bool p_enabled);
 	void set_ik_iterations(int32_t p_iterations);
