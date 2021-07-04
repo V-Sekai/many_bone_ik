@@ -252,7 +252,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_st
 	// String s = vformat("Root bone of Chain %s. Bone %s", skeleton->get_bone_name(root_bone), skeleton->get_bone_name(current_bone));
 	// print_line(s);
 
-	PackedVector3Array htarget = update_target_headings(p_for_bone, weights);
+	PackedVector3Array htarget = update_target_headings(weights);
 	PackedVector3Array htip = update_tip_headings(p_for_bone);
 
 	if (p_translate == true) {
@@ -327,33 +327,24 @@ void IKBoneChain::create_headings() {
 	}
 }
 
-PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights) {
-	PackedVector3Array htarget;
-	htarget = target_headings;
+PackedVector3Array IKBoneChain::update_target_headings(Vector<real_t> *&p_weights) {
+	PackedVector3Array htarget = target_headings;
 	p_weights = &heading_weights;
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	// String s = "[";
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		Transform3D xform;
-		effector->update_target_headings(p_for_bone, &htarget, index, p_weights, xform);
+		effector->update_effector_target_headings(&htarget, index, p_weights);
 	}
 	return htarget;
 }
 
 PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
-	PackedVector3Array htip;
-	// if (tip == p_for_bone && tip->is_effector()) {
-	// 	Ref<IKEffector3D> effector = tip->get_effector();
-	// 	htip = effector->tip_headings;
-	// } else {
-	htip = tip_headings;
-	// }
+	PackedVector3Array htip = tip_headings;
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		Transform3D xform;
-		effector->update_tip_headings(p_for_bone, &htip, index, xform);
+		effector->update_tip_headings(p_for_bone, &htip, index);
 	}
 	return htip;
 }
