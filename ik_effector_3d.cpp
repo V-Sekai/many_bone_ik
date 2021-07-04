@@ -199,9 +199,7 @@ IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_for_bone) {
 }
 
 void IKEffector3D::update_target_cache(Node *p_skeleton) {
-	if (!p_skeleton) {
-		return;
-	}
+	ERR_FAIL_NULL(p_skeleton);
 	if (!p_skeleton->is_inside_tree()) {
 		return;
 	}

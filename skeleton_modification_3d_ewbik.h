@@ -96,7 +96,6 @@ public:
 	void set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node);
 	NodePath get_effector_target_nodepath(int32_t p_index) const;
 	void update_skeleton();
-	void update_node_cache();
 
 	virtual void _execute(float p_delta) override;
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;

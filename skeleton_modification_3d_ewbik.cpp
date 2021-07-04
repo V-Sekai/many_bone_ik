@@ -96,7 +96,7 @@ void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodeP
 }
 
 Ref<IKBone3D> SkeletonModification3DEWBIK::get_effector(int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_index, multi_effector.size(), NULL);
+	ERR_FAIL_INDEX_V(p_index, multi_effector.size(), nullptr);
 	Ref<IKBone3D> effector = multi_effector[p_index];
 	return effector;
 }
@@ -176,7 +176,7 @@ void SkeletonModification3DEWBIK::_execute(float delta) {
 
 	if (is_dirty) {
 		update_skeleton();
-		update_node_cache();
+		return;
 	}
 	solve(stack->get_strength());
 	execution_error_found = false;
@@ -208,24 +208,10 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	}
 	ERR_FAIL_COND(root_bone.is_empty());
 
-	is_dirty = true;
 	is_setup = true;
-	call_deferred("update_skeleton");
-	call_deferred("update_node_cache");
-	
 	execution_error_found = false;
+	notify_property_list_changed();
 }
-
-void SkeletonModification3DEWBIK::update_node_cache() {
-	for (int32_t effector_i = 0; effector_i < get_effector_count(); effector_i++) {
-		Ref<IKEffector3D> effector = get_effector(effector_i);
-		if (effector.is_null()) {
-			continue;
-		}
-		effector->update_target_cache(skeleton);
-	}
-}
-
 
 void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
 	if (p_blending_delta <= 0.01f) {
@@ -247,9 +233,12 @@ void SkeletonModification3DEWBIK::iterated_improved_solver(real_t p_damp) {
 }
 
 void SkeletonModification3DEWBIK::update_skeleton() {
-	if (!is_dirty)
+	if (!is_dirty) {
 		return;
-
+	}
+	if (!skeleton) {
+		return;
+	}
 	if (effector_count) {
 		update_segments();
 	} else {
@@ -259,8 +248,16 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 		return;
 	}
 	segmented_skeleton->update_effector_list();
-	notify_property_list_changed();
-
+	for (int32_t effector_i = 0; effector_i < get_effector_count(); effector_i++) {
+		Ref<IKBone3D> bone = get_effector(effector_i);
+		if (!bone.is_valid()) {
+			return;
+		}
+		if (!bone->is_effector()) {
+			return;
+		}
+		bone->get_effector()->update_target_cache(skeleton);
+	}
 	is_dirty = false;
 }
 
@@ -447,7 +444,6 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3DEWBIK::get_effector);
 	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DEWBIK::set_effector);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
-	ClassDB::bind_method(D_METHOD("update_node_cache"), &SkeletonModification3DEWBIK::update_node_cache);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
