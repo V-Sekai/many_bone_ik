@@ -169,7 +169,7 @@ void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_heading
 	}
 }
 
-void IKEffector3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
+void IKEffector3D::update_effector_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
 	ERR_FAIL_NULL(p_headings);
 	ERR_FAIL_NULL(p_for_bone);
 	Transform3D tip_xform = for_bone->get_global_transform();
