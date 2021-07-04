@@ -59,8 +59,6 @@ private:
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
 
-	Transform3D prev_node_xform;
-
 	void update_priorities();
 	void update_goal_transform(Skeleton3D *p_skeleton);
 

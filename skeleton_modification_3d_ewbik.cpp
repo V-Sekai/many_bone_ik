@@ -353,6 +353,8 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(PropertyInfo(Variant::INT, "effectors/" + itos(i) + "/index"));
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
+		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/remove"));
 	}
 }
 
@@ -380,6 +382,9 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			return true;
 		} else if (what == "target_node") {
 			r_ret = get_effector_target_nodepath(index);
+			return true;
+		} else if (what == "remove") {
+			r_ret = false;
 			return true;
 		}
 	}
@@ -421,10 +426,14 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "index") {
 			set_effector_bone_index(index, p_value);
-
 			return true;
 		} else if (what == "target_node") {
 			set_effector_target_nodepath(index, p_value);
+			return true;
+		} else if (what == "remove") {
+			if (p_value) {
+				remove_effector(index);
+			}
 			return true;
 		}
 	}

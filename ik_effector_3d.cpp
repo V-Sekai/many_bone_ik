@@ -58,6 +58,7 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
 	}
 	if (!target_node_reference) {
+		goal_transform = for_bone->get_global_transform();
 		return;
 	}
 	if (!target_node_reference->is_class("Node3D")) {
@@ -66,7 +67,6 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
 	Transform3D node_xform = target_node->get_global_transform();
 	goal_transform = node_xform;
-	prev_node_xform = node_xform;
 }
 
 void IKEffector3D::update_priorities() {
