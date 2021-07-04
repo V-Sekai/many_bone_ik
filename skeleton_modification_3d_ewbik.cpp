@@ -351,7 +351,6 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 			effector_name.hint_string = "";
 		}
 		p_list->push_back(effector_name);
-		p_list->push_back(PropertyInfo(Variant::INT, "effectors/" + itos(i) + "/index"));
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
 		p_list->push_back(
@@ -377,9 +376,6 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		ERR_FAIL_COND_V(get_effector(index).is_null(), false);
 		if (what == "name") {
 			r_ret = get_effector_bone(index);
-			return true;
-		} else if (what == "index") {
-			r_ret = get_effector_bone_index(index);
 			return true;
 		} else if (what == "target_node") {
 			r_ret = get_effector_target_nodepath(index);
@@ -424,9 +420,6 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			int32_t bone = skeleton->find_bone(name);
 			ERR_FAIL_COND_V(bone == -1, false);
 			set_effector_bone_index(index, bone);
-			return true;
-		} else if (what == "index") {
-			set_effector_bone_index(index, p_value);
 			return true;
 		} else if (what == "target_node") {
 			set_effector_target_nodepath(index, p_value);
