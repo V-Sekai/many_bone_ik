@@ -238,7 +238,7 @@ void IKBoneChain::update_effector_list() {
 		effector_list.push_back(effector);
 		Vector<real_t> weights;
 		weights.push_back(effector->weight);
-		// TODO 2021-05-10 fire Use heading weights.
+		
 		if (effector->get_follow_x()) {
 			weights.push_back(effector->weight);
 			weights.push_back(effector->weight);
