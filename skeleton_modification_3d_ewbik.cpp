@@ -464,7 +464,7 @@ void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 }
 
 Vector3 SkeletonModification3DEWBIK::get_effector_priority(int32_t p_effector_index) const {
-	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), Vector3(0.5, 5.0, 0.0));
+	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), Vector3(0, 0.5, -5.0));
 	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
 	return data->priority;
 }
