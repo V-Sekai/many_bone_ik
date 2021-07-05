@@ -318,7 +318,7 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 }
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,65535,1"));
-	p_list->push_back(PropertyInfo(Variant::FLOAT, "default_damp_degrees", PROPERTY_HINT_RANGE, "0.01,180,0.01"));
+	p_list->push_back(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,179.99,1.0,degrees"));
 	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	for (int i = 0; i < effector_count; i++) {
 		PropertyInfo effector_name;
@@ -351,8 +351,8 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 	if (name == "ik_iterations") {
 		r_ret = get_ik_iterations();
 		return true;
-	} else if (name == "default_damp_degrees") {
-		r_ret = Math::rad2deg((double)get_default_damp());
+	} else if (name == "default_damp") {
+		r_ret = get_default_damp();
 		return true;
 	} else if (name == "effector_count") {
 		r_ret = get_effector_count();
@@ -386,8 +386,8 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 	if (name == "ik_iterations") {
 		set_ik_iterations(p_value);
 		return true;
-	} else if (name == "default_damp_degrees") {
-		set_default_damp(Math::deg2rad((double)p_value));
+	} else if (name == "default_damp") {
+		set_default_damp(p_value);
 		return true;
 	} else if (name == "effector_count") {
 		set_effector_count(p_value);
