@@ -29,27 +29,15 @@
 /*************************************************************************/
 
 #include "register_types.h"
-#include "editor/editor_node.h"
-#include "editor/editor_plugin.h"
-#include "ewbik_editor_inspector.h"
-#include "ik_effector_3d.h"
 #include "skeleton_modification_3d_ewbik.h"
+#include "ik_effector_3d.h"
 
-
-#ifdef TOOLS_ENABLED
-static void editor_init_callback() {
-	EditorNode::get_singleton()->add_editor_plugin(memnew(EWBIKEditorPlugin(EditorNode::get_singleton())));
-}
-#endif
 void register_ewbik_types() {
 	ClassDB::register_class<SkeletonModification3DEWBIK>();
 	ClassDB::register_class<IKBone3D>();
 	ClassDB::register_class<IKEffector3D>();
 	ClassDB::register_class<IKBoneChain>();
-#ifdef TOOLS_ENABLED
-
-	EditorNode::add_init_callback(editor_init_callback);
-#endif
+	
 }
 
 void unregister_ewbik_types() {

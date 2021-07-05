@@ -45,7 +45,8 @@ private:
 	BoneId root_bone_index = -1;
 	Ref<IKBoneChain> segmented_skeleton;
 	int32_t effector_count = 0;
-	Map<BoneId, Ref<IKBone3D>> effectors_map;
+	Vector<Ref<IKBone3D>> multi_effector;
+	HashMap<BoneId, Ref<IKBone3D>> effectors_map;
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool debug_skeleton = true;
@@ -63,7 +64,10 @@ private:
 	void update_skeleton_bones_transform(real_t p_blending_delta);
 
 protected:
-
+	virtual void _validate_property(PropertyInfo &property) const override;
+	bool _set(const StringName &p_name, const Variant &p_value);
+	bool _get(const StringName &p_name, Variant &r_ret) const;
+	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
 
 	Vector<Ref<IKBone3D>> get_bone_effectors() const;
@@ -77,10 +81,20 @@ public:
 	String get_root_bone() const;
 	void set_root_bone_index(BoneId p_index);
 	BoneId get_root_bone_index() const;
+	void set_effector_count(int32_t p_value);
+	int32_t get_effector_count() const;
 	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(),
 			bool p_use_node_rot = false);
-	void remove_effector(const String &p_name);
-	Ref<IKBone3D> find_effector(const String &p_bone) const;
+	int32_t find_effector(const String &p_name) const;
+	void remove_effector(int32_t p_index);
+	Ref<IKBone3D> get_effector(int32_t p_index) const;
+	void set_effector(int32_t p_index, const Ref<IKBone3D> &p_effector);
+	void set_effector_bone_index(int32_t p_effector_index, int32_t p_bone_index);
+	BoneId get_effector_bone_index(int32_t p_effector_index) const;
+	void set_effector_bone(int32_t p_effector_index, const String &p_bone);
+	String get_effector_bone(int32_t p_effector_index) const;
+	void set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node);
+	NodePath get_effector_target_nodepath(int32_t p_index) const;
 	void update_skeleton();
 
 	virtual void _execute(float p_delta) override;

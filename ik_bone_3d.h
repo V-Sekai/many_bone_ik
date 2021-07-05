@@ -31,7 +31,7 @@
 #ifndef EWBIK_SHADOW_BONE_3D_H
 #define EWBIK_SHADOW_BONE_3D_H
 
-#include "core/io/resource.h"
+#include "core/object/ref_counted.h"
 #include "ik_effector_3d.h"
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
@@ -40,8 +40,8 @@
 
 class IKEffector3D;
 
-class IKBone3D : public Resource {
-	GDCLASS(IKBone3D, Resource);
+class IKBone3D : public RefCounted {
+	GDCLASS(IKBone3D, RefCounted);
 
 private:
 	BoneId bone_id = -1;
@@ -55,13 +55,12 @@ private:
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
-	static bool has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const Map<BoneId, Ref<IKBone3D>> &p_map);
+	static bool has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map);
 
 protected:
 	static void _bind_methods();
 
 public:
-	void remove_effector();
 	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
@@ -82,10 +81,10 @@ public:
 	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);
 	void create_effector();
 	bool is_effector() const;
-	Vector<BoneId> get_children_with_effector_descendants(Skeleton3D *p_skeleton, const Map<BoneId, Ref<IKBone3D>> &p_map) const;
+	Vector<BoneId> get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const;
 
 	IKBone3D() {}
-	IKBone3D(BoneId p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
+	IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	~IKBone3D() {}
 	float get_cos_half_dampen() const;
