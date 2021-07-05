@@ -132,9 +132,9 @@ Vector<Ref<IKEffector3DData>> SkeletonModification3DEWBIK::get_bone_effectors() 
 
 void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
-	String bone = multi_effector[p_index]->get_name();
 	multi_effector.remove(p_index);
 	effector_count--;
+	multi_effector.resize(effector_count);
 
 	is_dirty = true;
 	notify_property_list_changed();
@@ -415,6 +415,8 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3DEWBIK::get_effector_count);
 	ClassDB::bind_method(D_METHOD("set_effector_count", "count"),
 			&SkeletonModification3DEWBIK::set_effector_count);
+	ClassDB::bind_method(D_METHOD("remove_effector", "index"),
+			&SkeletonModification3DEWBIK::remove_effector);
 	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node"), &SkeletonModification3DEWBIK::add_effector);
 	ClassDB::bind_method(D_METHOD("find_effector", "name"), &SkeletonModification3DEWBIK::find_effector);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
