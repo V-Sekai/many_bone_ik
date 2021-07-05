@@ -36,8 +36,8 @@
 #include "math/qcp.h"
 #include "scene/3d/skeleton_3d.h"
 
-class IKBoneChain : public RefCounted {
-	GDCLASS(IKBoneChain, RefCounted);
+class IKBoneChain : public Resource {
+	GDCLASS(IKBoneChain, Resource);
 
 private:
 	Ref<IKBone3D> root;

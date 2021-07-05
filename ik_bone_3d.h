@@ -40,8 +40,8 @@
 
 class IKEffector3D;
 
-class IKBone3D : public RefCounted {
-	GDCLASS(IKBone3D, RefCounted);
+class IKBone3D : public Resource {
+	GDCLASS(IKBone3D, Resource);
 
 private:
 	BoneId bone_id = -1;
