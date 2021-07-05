@@ -39,7 +39,6 @@
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 
-	friend class SkeletonModification3DEWBIKEditor;
 private:
 	Skeleton3D *skeleton = nullptr;
 	String root_bone;
