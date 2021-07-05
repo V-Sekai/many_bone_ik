@@ -31,13 +31,13 @@
 #ifndef ik_bone_chain_H
 #define ik_bone_chain_H
 
-#include "core/object/ref_counted.h"
+#include "core/io/resource.h"
 #include "ik_bone_3d.h"
 #include "math/qcp.h"
 #include "scene/3d/skeleton_3d.h"
 
-class IKBoneChain : public RefCounted {
-	GDCLASS(IKBoneChain, RefCounted);
+class IKBoneChain : public Resource {
+	GDCLASS(IKBoneChain, Resource);
 
 private:
 	Ref<IKBone3D> root;
@@ -56,7 +56,7 @@ private:
 	QCP qcp;
 
 	BoneId find_root_bone_id(BoneId p_bone);
-	void generate_skeleton_segments(const HashMap<BoneId, Ref<IKBone3D>> &p_map);
+	void generate_skeleton_segments(const Map<BoneId, Ref<IKBone3D>> &p_map);
 	void update_segmented_skeleton();
 	void update_effector_direct_descendents();
 	void generate_bones_map();
@@ -80,6 +80,7 @@ protected:
 	static void _bind_methods();
 
 public:
+	Ref<IKBone3D> find_bone(const BoneId p_bone);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_root_pinned() const;
@@ -96,7 +97,7 @@ public:
 	IKBoneChain() {}
 	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent = nullptr);
 	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
-			const HashMap<BoneId, Ref<IKBone3D>> &p_map, const Ref<IKBoneChain> &p_parent = nullptr);
+			const Map<BoneId, Ref<IKBone3D>> &p_map, const Ref<IKBoneChain> &p_parent = nullptr);
 	~IKBoneChain() {}
 };
 

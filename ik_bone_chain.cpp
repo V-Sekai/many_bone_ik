@@ -67,7 +67,7 @@ BoneId IKBoneChain::find_root_bone_id(BoneId p_bone) {
 	return root_id;
 }
 
-void IKBoneChain::generate_skeleton_segments(const HashMap<BoneId, Ref<IKBone3D>> &p_map) {
+void IKBoneChain::generate_skeleton_segments(const Map<BoneId, Ref<IKBone3D>> &p_map) {
 	child_chains.clear();
 
 	Ref<IKBone3D> tempTip = root;
@@ -87,7 +87,8 @@ void IKBoneChain::generate_skeleton_segments(const HashMap<BoneId, Ref<IKBone3D>
 				next->set_parent(tempTip);
 				tempTip = next;
 			} else {
-				Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(bone_id, tempTip)));
+				Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(bone_id, skeleton, tempTip)));
+				next->set_name(skeleton->get_bone_name(bone_id));
 				tempTip = next;
 			}
 		} else {
@@ -145,7 +146,8 @@ void IKBoneChain::generate_default_segments_from_root() {
 			break;
 		} else if (children.size() == 1) {
 			BoneId bone_id = children[0];
-			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(bone_id, tempTip)));
+			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(bone_id, skeleton, tempTip)));
+			next->set_name(skeleton->get_bone_name(bone_id));
 			tempTip = next;
 		} else {
 			tip = tempTip;
@@ -401,7 +403,8 @@ void IKBoneChain::_bind_methods() {
 
 IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent) {
 	skeleton = p_skeleton;
-	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone)));
+	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone, skeleton)));
+	root->set_name(skeleton->get_bone_name(p_root_bone));
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;
 		root->set_parent(p_parent->get_tip());
@@ -409,12 +412,13 @@ IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<I
 }
 
 IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
-		const HashMap<BoneId, Ref<IKBone3D>> &p_map, const Ref<IKBoneChain> &p_parent) {
+		const Map<BoneId, Ref<IKBone3D>> &p_map, const Ref<IKBoneChain> &p_parent) {
 	skeleton = p_skeleton;
 	if (p_map.has(p_root_bone)) {
 		root = p_map[p_root_bone];
 	} else {
-		root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone)));
+		root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone, skeleton)));
+		root->set_name(skeleton->get_bone_name(p_root_bone));
 	}
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;
@@ -435,4 +439,19 @@ real_t IKBoneChain::get_manual_sqrtmsd(const PackedVector3Array &p_htarget, cons
 	manual_sqrtmsd /= w_sum;
 
 	return manual_sqrtmsd;
+}
+Ref<IKBone3D> IKBoneChain::find_bone(const BoneId p_bone) {
+	if (bones_map.has(p_bone)) {
+		return bones_map[p_bone];
+	} 
+	for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
+		Ref<IKBoneChain> child_segment = child_chains.write[child_i];
+		if (child_segment.is_null()) {
+			continue;
+		}
+		if (bones_map.has(p_bone)) {
+			return child_segment->find_bone(p_bone);
+		}			
+	}
+	return nullptr;
 }

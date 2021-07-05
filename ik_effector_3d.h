@@ -30,7 +30,7 @@
 #ifndef ik_effector_3d_H
 #define ik_effector_3d_H
 
-#include "core/object/ref_counted.h"
+#include "core/io/resource.h"
 #include "ik_bone_3d.h"
 #include "scene/3d/skeleton_3d.h"
 
@@ -38,8 +38,8 @@
 
 class IKBone3D;
 
-class IKEffector3D : public RefCounted {
-	GDCLASS(IKEffector3D, RefCounted);
+class IKEffector3D : public Resource {
+	GDCLASS(IKEffector3D, Resource);
 	friend class IKBone3D;
 	friend class IKBoneChain;
 

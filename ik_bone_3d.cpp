@@ -108,13 +108,14 @@ void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_stre
 
 void IKBone3D::create_effector() {
 	effector = Ref<IKEffector3D>(memnew(IKEffector3D(this)));
+	effector->set_name(get_name());
 }
 
 bool IKBone3D::is_effector() const {
 	return effector.is_valid();
 }
 
-Vector<BoneId> IKBone3D::get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const {
+Vector<BoneId> IKBone3D::get_children_with_effector_descendants(Skeleton3D *p_skeleton, const Map<BoneId, Ref<IKBone3D>> &p_map) const {
 	Vector<BoneId> children_with_effector;
 	Vector<BoneId> children = p_skeleton->get_bone_children(bone_id);
 	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
@@ -126,7 +127,7 @@ Vector<BoneId> IKBone3D::get_children_with_effector_descendants(Skeleton3D *p_sk
 	return children_with_effector;
 }
 
-bool IKBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) {
+bool IKBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const Map<BoneId, Ref<IKBone3D>> &p_map) {
 	if (p_map.has(p_bone) && p_map[p_bone]->is_effector()) {
 		return true;
 	} else {
@@ -149,16 +150,18 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_effector);
 }
 
-IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent, float p_default_dampening) {
+IKBone3D::IKBone3D(BoneId p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, float p_default_dampening) {
 	if (!Math::is_equal_approx(default_dampening, p_default_dampening)) {
 		default_dampening = p_default_dampening;
 	}
 	bone_id = p_bone;
+	set_name(p_skeleton->get_bone_name(bone_id));
 	set_parent(p_parent);
 }
 
 IKBone3D::IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, float p_default_dampening) :
 		default_dampening(p_default_dampening) {
+	set_name(p_bone);
 	bone_id = p_skeleton->find_bone(p_bone);
 	set_parent(p_parent);
 }
@@ -176,4 +179,7 @@ void IKBone3D::set_translation_delta(Vector3 p_translation_delta) {
 	Transform3D xform = get_global_transform();
 	xform.origin += p_translation_delta;
 	set_global_transform(xform);
+}
+void IKBone3D::remove_effector() {
+	effector.unref();
 }
