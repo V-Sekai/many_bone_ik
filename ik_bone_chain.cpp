@@ -343,7 +343,6 @@ PackedVector3Array IKBoneChain::update_target_headings(Vector<real_t> *&p_weight
 	PackedVector3Array htarget = target_headings;
 	p_weights = &heading_weights;
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
-	// String s = "[";
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
 		effector->update_effector_target_headings(&htarget, index, p_weights);
