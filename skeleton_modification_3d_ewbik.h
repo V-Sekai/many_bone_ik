@@ -59,7 +59,7 @@ private:
 
 	// Task
 	int32_t ik_iterations = 10;
-	float default_damp = Math::deg2rad(1.0f);
+	float default_damp = 1.0f;
 
 	void update_segments();
 	void update_effectors_map();
