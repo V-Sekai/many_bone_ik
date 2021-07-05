@@ -67,6 +67,8 @@ protected:
 	void create_headings(const Vector<real_t> &p_weights);
 
 public:
+	Vector3 get_priority() const;
+	void set_priority(Vector3 p_priority);
 	void update_target_cache(Node *p_skeleton);
 	void set_target_node(const NodePath &p_target_node_path, Node *p_skeleton);
 	NodePath get_target_node() const;

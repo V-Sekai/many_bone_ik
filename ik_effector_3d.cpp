@@ -191,6 +191,11 @@ void IKEffector3D::_bind_methods() {
 			&IKEffector3D::set_target_node);
 	ClassDB::bind_method(D_METHOD("get_target_node"),
 			&IKEffector3D::get_target_node);
+	ClassDB::bind_method(D_METHOD("set_priority", "priority"),
+			&IKEffector3D::set_priority);
+	ClassDB::bind_method(D_METHOD("get_priority"),
+			&IKEffector3D::get_priority);		
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "priority"), "set_priority", "get_priority");
 }
 
 IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_for_bone) {
@@ -213,4 +218,12 @@ void IKEffector3D::update_target_cache(Node *p_skeleton) {
 	ERR_FAIL_COND_MSG(!node->is_inside_tree(),
 			"Cannot update target cache: node is not in scene tree!");
 	target_node_cache = node->get_instance_id();
+}
+
+void IKEffector3D::set_priority(Vector3 p_priority) {
+	priority = p_priority;
+}
+
+Vector3 IKEffector3D::get_priority() const {
+	return priority;
 }

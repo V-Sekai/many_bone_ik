@@ -283,16 +283,18 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		Ref<IKEffector3DData> data = multi_effector.write[effector_i];
 		String bone = data->get_name();
 		BoneId bone_id = skeleton->find_bone(bone);
+		Vector3 priority = data->priority;
 		ERR_CONTINUE(bone_id == -1);
 		Ref<IKBone3D> ik_bone_3d = segmented_skeleton->find_bone(bone_id);
 		ERR_FAIL_NULL(ik_bone_3d);
-		if(!ik_bone_3d->is_effector()) {
+		if (!ik_bone_3d->is_effector()) {
 			ik_bone_3d->create_effector();
 		}
 		effectors_map[ik_bone_3d->get_bone_id()] = ik_bone_3d;
 		Ref<IKEffector3D> effector_3d = ik_bone_3d->get_effector();
 		effector_3d->set_target_node(data->target_node, skeleton);
 		effector_3d->update_target_cache(skeleton);
+		effector_3d->set_priority(priority);
 	}
 	is_dirty = true;
 }
@@ -338,6 +340,8 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
 		p_list->push_back(
+				PropertyInfo(Variant::VECTOR3, "effectors/" + itos(i) + "/priority"));
+		p_list->push_back(
 				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/remove"));
 	}
 }
@@ -367,6 +371,9 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			return true;
 		} else if (what == "remove") {
 			r_ret = false;
+			return true;
+		} else if (what == "priority") {
+			r_ret = get_effector_priority(index);
 			return true;
 		}
 	}
@@ -400,6 +407,9 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			if (p_value) {
 				remove_effector(index);
 			}
+			return true;
+		} else if (what == "priority") {
+			set_effector_priority(index, p_value);
 			return true;
 		}
 	}
@@ -451,4 +461,18 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
 	update_bone_list(true);
+}
+
+Vector3 SkeletonModification3DEWBIK::get_effector_priority(int32_t p_effector_index) const {
+	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), Vector3(0.5, 5.0, 0.0));
+	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	return data->priority;
+}
+
+void SkeletonModification3DEWBIK::set_effector_priority(int32_t p_effector_index, Vector3 p_priority) {
+	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	ERR_FAIL_NULL(data);
+	data->priority = p_priority;
+	is_dirty = true;
+	notify_property_list_changed();
 }
