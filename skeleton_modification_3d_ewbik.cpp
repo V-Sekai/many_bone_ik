@@ -436,7 +436,6 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 }
 
 void SkeletonModification3DEWBIK::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_ik_bone_count"), &SkeletonModification3DEWBIK::get_ik_bone_count);
 	ClassDB::bind_method(D_METHOD("get_ik_iterations"), &SkeletonModification3DEWBIK::get_ik_iterations);
 	ClassDB::bind_method(D_METHOD("set_ik_iterations", "iterations"), &SkeletonModification3DEWBIK::set_ik_iterations);
 	ClassDB::bind_method(D_METHOD("set_root_bone", "root_bone"), &SkeletonModification3DEWBIK::set_root_bone);
@@ -455,15 +454,10 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "solve_count"), "", "get_ik_bone_count");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
 	enabled = true;
-}
-
-int SkeletonModification3DEWBIK::get_ik_bone_count() const {
-	return bone_list.size();
 }
 
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
