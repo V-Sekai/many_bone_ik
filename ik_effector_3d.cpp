@@ -162,24 +162,29 @@ void IKEffector3D::update_effector_tip_headings(Ref<IKBone3D> p_for_bone, Packed
 	Transform3D tip_xform = for_bone->get_global_transform();
 	p_headings->write[p_index] = tip_xform.origin;
 	p_index++;
-	real_t scale_by = MAX(goal_transform.origin.length(), MIN_SCALE);
-
+	Vector3 scale_by;
+	scale_by.x = MAX(goal_transform.x, MIN_SCALE);
+	scale_by.y = MAX(goal_transform.y, MIN_SCALE);
+	scale_by.z = MAX(goal_transform.z, MIN_SCALE);
 	if (get_follow_x()) {
-		Vector3 v = Vector3(scale_by, 0.0, 0.0);
+		Vector3 v;
+		v.x = scale_by.x;
 		p_headings->write[p_index] = tip_xform.xform(v);
 		p_headings->write[p_index + 1] = tip_xform.xform(-v);
 		p_index += 2;
 	}
 
 	if (get_follow_y()) {
-		Vector3 v = Vector3(0.0, scale_by, 0.0);
+		Vector3 v;
+		v.y = scale_by.y;
 		p_headings->write[p_index] = tip_xform.xform(v);
 		p_headings->write[p_index + 1] = tip_xform.xform(-v);
 		p_index += 2;
 	}
 
 	if (get_follow_z()) {
-		Vector3 v = Vector3(0.0, 0.0, scale_by);
+		Vector3 v;
+		v.z = scale_by.z;
 		p_headings->write[p_index] = tip_xform.xform(v);
 		p_headings->write[p_index + 1] = tip_xform.xform(-v);
 		p_index += 2;
@@ -194,7 +199,7 @@ void IKEffector3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_priority", "priority"),
 			&IKEffector3D::set_priority);
 	ClassDB::bind_method(D_METHOD("get_priority"),
-			&IKEffector3D::get_priority);		
+			&IKEffector3D::get_priority);
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "priority"), "set_priority", "get_priority");
 }
 
