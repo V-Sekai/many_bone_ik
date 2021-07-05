@@ -67,9 +67,9 @@ private:
 	real_t get_manual_sqrtmsd(const PackedVector3Array &p_htarget, const PackedVector3Array &p_htip, const Vector<real_t> &p_weights) const;
 	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 			PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening = -1, bool p_translate = false);
-	void segment_solver(int32_t p_stabilization_passes, real_t p_damp, bool p_translate = false);
-	void qcp_solver(int32_t p_stabilization_passes, real_t p_damp, bool p_translate = false);
-	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, int32_t p_stabilization_passes, real_t p_damp, bool p_translate);
+	void segment_solver(real_t p_damp, bool p_translate = false);
+	void qcp_solver(real_t p_damp, bool p_translate = false);
+	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);
 
 	// Orientation cos(angle/2) representation
 	Quaternion set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
@@ -91,7 +91,7 @@ public:
 	void get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root();
 	void update_effector_list();
-	void grouped_segment_solver(int32_t p_stabilization_passes, real_t p_damp);
+	void grouped_segment_solver(real_t p_damp);
 	void debug_print_chains(Vector<bool> p_levels = Vector<bool>());
 
 	IKBoneChain() {}

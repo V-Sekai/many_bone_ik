@@ -201,7 +201,7 @@ void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
 void SkeletonModification3DEWBIK::iterated_improved_solver(real_t p_damp) {
 	ERR_FAIL_NULL(segmented_skeleton);
 	for (int i = 0; i < ik_iterations; i++) {
-		segmented_skeleton->grouped_segment_solver(constraint_stabilization_passes, p_damp);
+		segmented_skeleton->grouped_segment_solver(p_damp);
 	}
 }
 

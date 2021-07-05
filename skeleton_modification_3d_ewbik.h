@@ -55,12 +55,11 @@ private:
 	HashMap<BoneId, Ref<IKBone3D>> effectors_map;
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
-	bool debug_skeleton = true;
+	bool debug_skeleton = false;
 
 	// Task
 	int32_t ik_iterations = 10;
 	float default_damp = Math::deg2rad(1.0f);
-	int32_t constraint_stabilization_passes = 2;
 
 	void update_segments();
 	void update_effectors_map();
