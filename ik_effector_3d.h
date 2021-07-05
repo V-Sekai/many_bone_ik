@@ -38,8 +38,8 @@
 
 class IKBone3D;
 
-class IKEffector3D : public RefCounted {
-	GDCLASS(IKEffector3D, RefCounted);
+class IKEffector3D : public Resource {
+	GDCLASS(IKEffector3D, Resource);
 	friend class IKBone3D;
 	friend class IKBoneChain;
 

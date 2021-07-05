@@ -162,8 +162,23 @@ Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &
 	} else {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
 			Ref<IKBoneChain> child_segment = child_chains.write[child_i]->get_child_segment_containing(p_bone);
-			if (child_segment.is_valid())
+			if (child_segment.is_valid()) {
 				return child_segment;
+			}
+		}
+	}
+	return nullptr;
+}
+
+Ref<IKBone3D> IKBoneChain::find_bone(const BoneId p_bone_id) {
+	if (bones_map.has(p_bone_id)) {
+		return bones_map[p_bone_id];
+	} else {
+		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
+			Ref<IKBoneChain> child_segment = child_chains.write[child_i]->find_bone(p_bone_id);
+			if (child_segment.is_valid()) {
+				return child_segment->bones_map[p_bone_id];
+			}
 		}
 	}
 	return nullptr;
