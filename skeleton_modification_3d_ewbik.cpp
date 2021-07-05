@@ -69,9 +69,7 @@ void SkeletonModification3DEWBIK::set_root_bone_index(BoneId p_index) {
 void SkeletonModification3DEWBIK::set_effector_count(int32_t p_value) {
 	multi_effector.resize(p_value);
 	for (int32_t i = effector_count; i < p_value; i++) {
-		Ref<IKBone3D> bone = Ref<IKBone3D>(memnew(IKBone3D()));
-		bone->create_effector();
-		multi_effector.write[i] = bone;
+		multi_effector.write[i].instantiate();
 	}
 	effector_count = p_value;
 	is_dirty = true;
@@ -95,10 +93,18 @@ void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodeP
 	is_dirty = true;
 }
 
-Ref<IKBone3D> SkeletonModification3DEWBIK::get_effector(int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_index, multi_effector.size(), nullptr);
-	Ref<IKBone3D> effector = multi_effector[p_index];
-	return effector;
+Ref<IKBone3D> SkeletonModification3DEWBIK::find_effector(const String &p_name) const {
+	if (!skeleton) {
+		return Ref<IKBone3D>();
+	}
+	BoneId bone = skeleton->find_bone(p_name);
+	if (bone == -1) {
+		return Ref<IKBone3D>();
+	}
+	if (!effectors_map.has(bone)) {
+		return Ref<IKBone3D>();
+	}
+	return effectors_map[bone];
 }
 
 void SkeletonModification3DEWBIK::set_effector(int32_t p_index, const Ref<IKBone3D> &p_effector) {
@@ -109,58 +115,33 @@ void SkeletonModification3DEWBIK::set_effector(int32_t p_index, const Ref<IKBone
 	is_dirty = true;
 }
 
-void SkeletonModification3DEWBIK::set_effector_bone_index(int32_t p_effector_index, int32_t p_bone_index) {
-	multi_effector.write[p_effector_index]->set_bone_id(p_bone_index);
-	is_dirty = true;
-}
-
-BoneId SkeletonModification3DEWBIK::get_effector_bone_index(int32_t p_effector_index) const {
-	return multi_effector[p_effector_index]->get_bone_id();
-}
-
 void SkeletonModification3DEWBIK::set_effector_bone(int32_t p_effector_index, const String &p_bone) {
-	if (skeleton) {
-		BoneId bone = skeleton->find_bone(p_bone);
-		multi_effector.write[p_effector_index]->set_bone_id(bone);
-	}
+	multi_effector.write[p_effector_index] = p_bone;
 	is_dirty = true;
 }
 
-String SkeletonModification3DEWBIK::get_effector_bone(int32_t p_effector_index) const {
-	if (!skeleton) {
-		return "";
-	}
-	BoneId bone = multi_effector[p_effector_index]->get_bone_id();
-	if (bone == -1) {
-		return "";
-	}
-	return skeleton->get_bone_name(bone);
+void SkeletonModification3DEWBIK::set_effector_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node) {
+	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	ERR_FAIL_NULL(data);
+	data->target_node = p_target_node;
+	is_dirty = true;
 }
 
-void SkeletonModification3DEWBIK::set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node) {
-	multi_effector.write[p_index]->get_effector()->set_target_node(p_target_node, skeleton);
+NodePath SkeletonModification3DEWBIK::get_effector_target_nodepath(int32_t p_effector_index) {
+	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), NodePath());
+	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	return data->target_node;
 }
 
-NodePath SkeletonModification3DEWBIK::get_effector_target_nodepath(int32_t p_index) const {
-	return multi_effector[p_index]->get_effector()->get_target_node();
-}
-
-Vector<Ref<IKBone3D>> SkeletonModification3DEWBIK::get_bone_effectors() const {
+Vector<Ref<IKEffector3DData>> SkeletonModification3DEWBIK::get_bone_effectors() const {
 	return multi_effector;
-}
-
-int32_t SkeletonModification3DEWBIK::find_effector(const String &p_name) const {
-	BoneId bone = skeleton->find_bone(p_name);
-	for (int32_t effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
-		if (multi_effector[effector_i].is_valid() && multi_effector[effector_i]->get_bone_id() == bone) {
-			return effector_i;
-		}
-	}
-	return -1;
 }
 
 void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
+	String bone = multi_effector[p_index]->get_name();
+	Ref<IKBone3D> ik_bone = find_effector(bone);
+	ik_bone->set_effector(Ref<IKBone3D>());
 	multi_effector.remove(p_index);
 	effector_count--;
 
@@ -249,15 +230,19 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 		return;
 	}
 	segmented_skeleton->update_effector_list();
-	for (int32_t effector_i = 0; effector_i < get_effector_count(); effector_i++) {
-		Ref<IKBone3D> bone = get_effector(effector_i);
+	for (int32_t i = 0; i < multi_effector.size(); i++) {
+		Ref<IKEffector3DData> data = multi_effector[i];
+		Ref<IKBone3D> bone = find_effector(data->get_name());
 		if (!bone.is_valid()) {
-			return;
+			continue;
 		}
-		if (!bone->is_effector()) {
-			return;
+		Ref<IKEffector3D> effector = bone->get_effector();
+		ERR_CONTINUE(effector.is_null());
+		if (data->target_node.is_empty()) {
+			continue;
 		}
-		bone->get_effector()->update_target_cache(skeleton);
+		effector->set_target_node(data->target_node, skeleton);
+		effector->update_target_cache(skeleton);
 	}
 	is_dirty = false;
 }
@@ -267,10 +252,17 @@ void SkeletonModification3DEWBIK::generate_default_effectors() {
 	segmented_skeleton->generate_default_segments_from_root();
 	Vector<Ref<IKBoneChain>> effector_chains = segmented_skeleton->get_effector_direct_descendents();
 	effector_count = effector_chains.size();
-	multi_effector.resize(effector_count);
 	for (int32_t chain_i = 0; chain_i < effector_count; chain_i++) {
-		multi_effector.write[chain_i] = effector_chains[chain_i]->get_tip();
-		Ref<IKBoneChain> segment = effector_chains[chain_i];
+		Ref<IKBone3D> bone = effector_chains[chain_i]->get_tip();
+		if (bone.is_null()) {
+			continue;
+		}
+		BoneId bone_id = bone->get_bone_id();
+		String bone_name = skeleton->get_bone_name(bone_id);
+		Ref<IKEffector3DData> data;
+		data.instantiate();
+		data->set_name(bone_name);
+		multi_effector.write[chain_i] = data;
 	}
 	update_effectors_map();
 	update_bone_list(get_debug_skeleton());
@@ -307,8 +299,12 @@ void SkeletonModification3DEWBIK::update_bone_list(bool p_debug_skeleton) {
 
 void SkeletonModification3DEWBIK::update_effectors_map() {
 	effectors_map.clear();
-	for (int32_t index = 0; index < effector_count; index++) {
-		Ref<IKBone3D> effector_bone = multi_effector[index];
+	ERR_FAIL_NULL(skeleton);
+	for (int effector_i = 0; effector_i < multi_effector.size(); effector_i++) {
+		Ref<IKEffector3DData> data = multi_effector.write[effector_i];
+		String bone = data->get_name();
+		Ref<IKBone3D> effector_bone = find_effector(bone);
+		ERR_CONTINUE(effector_bone.is_null());
 		effectors_map[effector_bone->get_bone_id()] = effector_bone;
 	}
 }
@@ -372,13 +368,14 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, get_effector_count(), false);
-		ERR_FAIL_COND_V(get_effector(index).is_null(), false);
+		ERR_FAIL_INDEX_V(index, multi_effector.size(), false);
+		Ref<IKEffector3DData> data = multi_effector[index];
+		ERR_FAIL_NULL_V(data, false);
 		if (what == "name") {
-			r_ret = get_effector_bone(index);
+			r_ret = data->get_name();
 			return true;
 		} else if (what == "target_node") {
-			r_ret = get_effector_target_nodepath(index);
+			r_ret = data->target_node;
 			return true;
 		} else if (what == "remove") {
 			r_ret = false;
@@ -404,25 +401,12 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, effector_count, true);
-		Ref<IKBone3D> effector = get_effector(index);
-		if (effector.is_null()) {
-			effector.instantiate();
-			effector->create_effector();
-			set_effector(index, effector);
-		}
+		Ref<IKEffector3DData> data = multi_effector.write[index];
 		if (what == "name") {
-			name = p_value;
-			ERR_FAIL_COND_V(name.is_empty(), false);
-			set_effector_bone(index, name);
-			if (!skeleton) {
-				return true;
-			}
-			int32_t bone = skeleton->find_bone(name);
-			ERR_FAIL_COND_V(bone == -1, false);
-			set_effector_bone_index(index, bone);
+			data->set_name(p_value);
 			return true;
 		} else if (what == "target_node") {
-			set_effector_target_nodepath(index, p_value);
+			data->target_node = p_value;
 			return true;
 		} else if (what == "remove") {
 			if (p_value) {
@@ -444,8 +428,8 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_effector_count", "count"),
 			&SkeletonModification3DEWBIK::set_effector_count);
 	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node", "budget"), &SkeletonModification3DEWBIK::add_effector);
-	ClassDB::bind_method(D_METHOD("get_effector", "index"), &SkeletonModification3DEWBIK::get_effector);
-	ClassDB::bind_method(D_METHOD("set_effector", "index", "effector"), &SkeletonModification3DEWBIK::set_effector);
+	ClassDB::bind_method(D_METHOD("find_effector", "name"), &SkeletonModification3DEWBIK::find_effector);
+	ClassDB::bind_method(D_METHOD("set_effector", "name", "effector"), &SkeletonModification3DEWBIK::set_effector);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);

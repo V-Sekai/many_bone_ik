@@ -36,6 +36,11 @@
 #include "ik_bone_chain.h"
 #include "scene/resources/skeleton_modification_3d.h"
 
+class IKEffector3DData : public Resource {
+	GDCLASS(IKEffector3DData, Resource);
+public:
+	NodePath target_node;
+};
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 
@@ -45,7 +50,7 @@ private:
 	BoneId root_bone_index = -1;
 	Ref<IKBoneChain> segmented_skeleton;
 	int32_t effector_count = 0;
-	Vector<Ref<IKBone3D>> multi_effector;
+	Vector<Ref<IKEffector3DData>> multi_effector;
 	HashMap<BoneId, Ref<IKBone3D>> effectors_map;
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
@@ -70,7 +75,7 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
 
-	Vector<Ref<IKBone3D>> get_bone_effectors() const;
+	Vector<Ref<IKEffector3DData>> get_bone_effectors() const;
 
 public:
 	bool get_debug_skeleton() const;
@@ -85,16 +90,13 @@ public:
 	int32_t get_effector_count() const;
 	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(),
 			bool p_use_node_rot = false);
-	int32_t find_effector(const String &p_name) const;
 	void remove_effector(int32_t p_index);
-	Ref<IKBone3D> get_effector(int32_t p_index) const;
+	Ref<IKBone3D> find_effector(const String &p_name) const;
 	void set_effector(int32_t p_index, const Ref<IKBone3D> &p_effector);
-	void set_effector_bone_index(int32_t p_effector_index, int32_t p_bone_index);
-	BoneId get_effector_bone_index(int32_t p_effector_index) const;
 	void set_effector_bone(int32_t p_effector_index, const String &p_bone);
 	String get_effector_bone(int32_t p_effector_index) const;
-	void set_effector_target_nodepath(int32_t p_index, const NodePath &p_target_node);
-	NodePath get_effector_target_nodepath(int32_t p_index) const;
+	void set_effector_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
+	NodePath get_effector_target_nodepath(int32_t p_effector_index);
 	void update_skeleton();
 
 	virtual void _execute(float p_delta) override;
