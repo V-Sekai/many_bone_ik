@@ -68,10 +68,6 @@ void SkeletonModification3DEWBIK::set_root_bone_index(BoneId p_index) {
 
 void SkeletonModification3DEWBIK::set_effector_count(int32_t p_value) {
 	multi_effector.resize(p_value);
-	for (int32_t i = effector_count; i < p_value; i++) {
-		multi_effector.write[i].instantiate();
-	}
-	effector_count = p_value;
 	is_dirty = true;
 
 	notify_property_list_changed();
