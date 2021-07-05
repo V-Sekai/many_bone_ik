@@ -434,17 +434,3 @@ IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
 	}
 	generate_skeleton_segments(p_map);
 }
-
-real_t IKBoneChain::get_manual_sqrtmsd(const PackedVector3Array &p_htarget, const PackedVector3Array &p_htip, const Vector<real_t> &p_weights) const {
-	double manual_sqrtmsd = 0.0;
-	double w_sum = 0.0;
-	for (int i = 0; i < p_htarget.size(); i++) {
-		real_t distance_sq = p_htarget[i].distance_squared_to(p_htip[i]);
-		double mag_sq = p_weights[i] * distance_sq;
-		manual_sqrtmsd += mag_sq;
-		w_sum += p_weights[i];
-	}
-	manual_sqrtmsd /= w_sum;
-
-	return manual_sqrtmsd;
-}
