@@ -228,7 +228,7 @@ void IKEffector3D::update_target_cache(Node *p_skeleton) {
 }
 
 void IKEffector3D::set_priority(Vector3 p_priority) {
-	priority = p_priority;
+	priority = p_priority.normalized().clamp(Vector3(0.01f, 0.01f, 0.01f), Vector3(1.0f, 1.0f, 1.0f));
 }
 
 Vector3 IKEffector3D::get_priority() const {
