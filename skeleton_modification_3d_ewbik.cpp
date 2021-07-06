@@ -344,7 +344,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::VECTOR3, "effectors/" + itos(i) + "/priority"));
 		p_list->push_back(
-				PropertyInfo(Variant::VECTOR3, "effectors/" + itos(i) + "/depth_falloff"));
+				PropertyInfo(Variant::FLOAT, "effectors/" + itos(i) + "/depth_falloff"));
 		p_list->push_back(
 				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/remove"));
 	}
