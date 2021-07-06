@@ -70,14 +70,6 @@ Transform3D IKBone3D::get_transform() const {
 	return xform.get_transform();
 }
 
-void IKBone3D::set_orientation_lock(const bool p_lock) {
-	orientation_lock = p_lock;
-}
-
-bool IKBone3D::get_orientation_lock() const {
-	return orientation_lock;
-}
-
 void IKBone3D::set_global_transform(const Transform3D &p_transform) {
 	xform.set_global_transform(p_transform);
 }

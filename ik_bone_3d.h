@@ -45,7 +45,6 @@ class IKBone3D : public Resource {
 
 private:
 	BoneId bone_id = -1;
-	bool orientation_lock = false;
 	Ref<IKBone3D> parent = nullptr;
 	Vector<Ref<IKBone3D>> children;
 	Ref<IKEffector3D> effector = nullptr;
@@ -69,8 +68,6 @@ public:
 	Ref<IKEffector3D> get_effector() const;
 	void set_transform(const Transform3D &p_transform);
 	Transform3D get_transform() const;
-	void set_orientation_lock(const bool p_lock);
-	bool get_orientation_lock() const;
 	void set_global_transform(const Transform3D &p_transform);
 	void set_rot_delta(const Quaternion &p_rot);
 	void set_translation_delta(Vector3 p_translation);

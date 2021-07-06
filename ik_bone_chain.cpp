@@ -395,9 +395,7 @@ void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 	for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
 		Ref<IKBone3D> current_bone = list[bone_i];
 
-		if (!current_bone->get_orientation_lock()) {
-			update_optimal_rotation(current_bone, p_damp, p_translate);
-		}
+		update_optimal_rotation(current_bone, p_damp, p_translate);
 
 		if (current_bone == root) {
 			break;
