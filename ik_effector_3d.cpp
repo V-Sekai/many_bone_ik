@@ -66,7 +66,7 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	}
 	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
 	Transform3D node_xform = target_node->get_global_transform();
-	goal_transform = p_skeleton->world_transform_to_global_pose(node_xform);
+	goal_transform = p_skeleton->get_global_transform().affine_inverse() * node_xform;
 }
 
 void IKEffector3D::update_priorities() {
