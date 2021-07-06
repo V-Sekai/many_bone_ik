@@ -197,6 +197,11 @@ void IKEffector3D::_bind_methods() {
 			&IKEffector3D::set_priority);
 	ClassDB::bind_method(D_METHOD("get_priority"),
 			&IKEffector3D::get_priority);
+	ClassDB::bind_method(D_METHOD("set_depth_falloff", "amount"),
+			&IKEffector3D::set_priority);
+	ClassDB::bind_method(D_METHOD("get_depth_falloff"),
+			&IKEffector3D::get_priority);
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "priority"), "set_priority", "get_priority");
 }
 
@@ -228,4 +233,12 @@ void IKEffector3D::set_priority(Vector3 p_priority) {
 
 Vector3 IKEffector3D::get_priority() const {
 	return priority;
+}
+
+void IKEffector3D::set_depth_falloff(float p_depth_falloff) {
+	depth_falloff = p_depth_falloff;
+}
+
+float IKEffector3D::get_depth_falloff() const {
+	return depth_falloff;
 }

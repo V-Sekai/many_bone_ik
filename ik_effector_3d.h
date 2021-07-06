@@ -67,6 +67,8 @@ protected:
 	void create_headings(const Vector<real_t> &p_weights);
 
 public:
+	float get_depth_falloff() const;
+	void set_depth_falloff(float p_depth_falloff);
 	Vector3 get_priority() const;
 	void set_priority(Vector3 p_priority);
 	void update_target_cache(Node *p_skeleton);

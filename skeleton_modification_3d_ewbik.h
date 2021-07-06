@@ -41,6 +41,7 @@ class IKEffector3DData : public Resource {
 public:
 	NodePath target_node;
 	Vector3 priority = Vector3(0.5, 5.0, 0.0);
+	float depth_falloff = 0.0f;
 };
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
@@ -95,6 +96,8 @@ public:
 	String get_effector_bone(int32_t p_effector_index) const;
 	void set_effector_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
 	NodePath get_effector_target_nodepath(int32_t p_effector_index);
+	void set_effector_depth_falloff(int32_t p_effector_index, const float p_depth_falloff);
+	float get_effector_depth_falloff(int32_t p_effector_index);
 	void set_effector_priority(int32_t p_effector_index, Vector3 p_priority);
 	Vector3 get_effector_priority(int32_t p_effector_index) const;
 

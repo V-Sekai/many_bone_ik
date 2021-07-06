@@ -284,6 +284,7 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		String bone = data->get_name();
 		BoneId bone_id = skeleton->find_bone(bone);
 		Vector3 priority = data->priority;
+		float depth_falloff = data->depth_falloff;
 		ERR_CONTINUE(bone_id == -1);
 		Ref<IKBone3D> ik_bone_3d = segmented_skeleton->find_bone(bone_id);
 		ERR_FAIL_NULL(ik_bone_3d);
@@ -295,6 +296,7 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		effector_3d->set_target_node(data->target_node, skeleton);
 		effector_3d->update_target_cache(skeleton);
 		effector_3d->set_priority(priority);
+		effector_3d->set_depth_falloff(depth_falloff);
 	}
 	is_dirty = true;
 }
@@ -473,6 +475,20 @@ void SkeletonModification3DEWBIK::set_effector_priority(int32_t p_effector_index
 	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
 	ERR_FAIL_NULL(data);
 	data->priority = p_priority;
+	is_dirty = true;
+	notify_property_list_changed();
+}
+
+float SkeletonModification3DEWBIK::get_effector_depth_falloff(int32_t p_effector_index) {
+	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), 0.0f);
+	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	return data->depth_falloff;
+}
+
+void SkeletonModification3DEWBIK::set_effector_depth_falloff(int32_t p_effector_index, const float p_depth_falloff) {
+	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	ERR_FAIL_NULL(data);
+	data->depth_falloff = p_depth_falloff;
 	is_dirty = true;
 	notify_property_list_changed();
 }
