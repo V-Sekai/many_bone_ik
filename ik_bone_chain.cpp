@@ -39,7 +39,7 @@ Ref<IKBone3D> IKBoneChain::get_tip() const {
 }
 
 bool IKBoneChain::is_root_pinned() const {
-	return root->get_parent().is_valid() && root->get_parent()->is_effector();
+	return root->get_parent().is_null() && root->is_effector();
 }
 
 bool IKBoneChain::is_tip_effector() const {
@@ -354,7 +354,7 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 }
 
 void IKBoneChain::grouped_segment_solver(real_t p_damp) {
-	segment_solver(p_damp);
+	segment_solver(p_damp, is_root_pinned());
 	for (int32_t i = 0; i < effector_direct_descendents.size(); i++) {
 		Ref<IKBoneChain> effector_chain = effector_direct_descendents[i];
 		for (int32_t child_i = 0; child_i < effector_chain->child_chains.size(); child_i++) {
