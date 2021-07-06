@@ -165,6 +165,6 @@ void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
 void IKBone3D::set_translation_delta(Vector3 p_translation_delta) {
 	translation_delta = p_translation_delta;
 	Transform3D xform = get_global_transform();
-	xform.origin = p_translation_delta;
+	xform.origin += p_translation_delta;
 	set_global_transform(xform);
 }
