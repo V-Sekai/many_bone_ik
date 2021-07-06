@@ -257,12 +257,6 @@ void IKBoneChain::update_effector_list() {
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
 	Vector<real_t> *weights = nullptr;
-
-	// BoneId root_bone = get_root()->get_bone_id();
-	// BoneId current_bone = p_for_bone->get_bone_id();
-	// String s = vformat("Root bone of Chain %s. Bone %s", skeleton->get_bone_name(root_bone), skeleton->get_bone_name(current_bone));
-	// print_line(s);
-
 	PackedVector3Array htarget = update_target_headings(weights);
 	PackedVector3Array htip = update_tip_headings(p_for_bone);
 
