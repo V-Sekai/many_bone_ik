@@ -64,7 +64,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	void create_headings(const Vector<real_t> &p_weights);
+	void create_headings(const Vector<double> &p_weights);
 
 public:
 	float get_depth_falloff() const;
@@ -76,9 +76,9 @@ public:
 	NodePath get_target_node() const;
 	Transform3D get_goal_transform() const;
 	Ref<IKBone3D> get_shadow_bone() const;
-	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
+	void create_weights(Vector<double> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;
-	void update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index, Vector<real_t> *p_weights) const;
+	void update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index, Vector<double> *p_weights) const;
 	void update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const;
 
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);

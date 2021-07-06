@@ -86,7 +86,7 @@ void IKEffector3D::update_priorities() {
 	}
 }
 
-void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
+void IKEffector3D::create_headings(const Vector<double> &p_weights) {
 	/**
 	 * Weights are given from the parent chain. The last two weights should
 	 * always correspond to this effector weights. In the parent only the origin
@@ -126,7 +126,7 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 }
 
 void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index,
-		Vector<real_t> *p_weights) const {
+		Vector<double> *p_weights) const {
 	ERR_FAIL_NULL(p_headings);
 	p_headings->write[p_index] = goal_transform.origin;
 	p_index++;
