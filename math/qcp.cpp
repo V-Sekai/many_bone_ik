@@ -78,8 +78,10 @@ real_t QCP::center_coords(PackedVector3Array &p_source, PackedVector3Array &p_ta
 		c2 += w * p_target[i];
 		wsum += w;
 	}
-	c1 /= wsum;
-	c2 /= wsum;
+	if (!Math::is_zero_approx(wsum)) {
+		c1 /= wsum;
+		c2 /= wsum;
+	}
 
 	for (int i = 0; i < p_weights.size(); i++) {
 		p_source.write[i] -= c1;
