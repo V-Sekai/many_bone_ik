@@ -344,6 +344,8 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::VECTOR3, "effectors/" + itos(i) + "/priority"));
 		p_list->push_back(
+				PropertyInfo(Variant::VECTOR3, "effectors/" + itos(i) + "/depth_falloff"));
+		p_list->push_back(
 				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/remove"));
 	}
 }
@@ -376,6 +378,9 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			return true;
 		} else if (what == "priority") {
 			r_ret = get_effector_priority(index);
+			return true;
+		} else if (what == "depth_falloff") {
+			r_ret = get_effector_depth_falloff(index);
 			return true;
 		}
 	}
@@ -412,6 +417,9 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "priority") {
 			set_effector_priority(index, p_value);
+			return true;
+		} else if (what == "depth_falloff") {
+			set_effector_depth_falloff(index, p_value);
 			return true;
 		}
 	}
@@ -479,7 +487,7 @@ void SkeletonModification3DEWBIK::set_effector_priority(int32_t p_effector_index
 	notify_property_list_changed();
 }
 
-float SkeletonModification3DEWBIK::get_effector_depth_falloff(int32_t p_effector_index) {
+float SkeletonModification3DEWBIK::get_effector_depth_falloff(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), 0.0f);
 	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
 	return data->depth_falloff;
