@@ -293,6 +293,7 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 		}
 	}
 }
+
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,65535,1"));
 	p_list->push_back(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,179.99,0.01,degrees"));
