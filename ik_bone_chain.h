@@ -65,7 +65,7 @@ private:
 	PackedVector3Array update_target_headings(Vector<real_t> *&p_weights);
 	PackedVector3Array update_tip_headings(Ref<IKBone3D> p_for_bone);
 	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone,
-			PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening = -1);
+			PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening = -1, bool p_translate = false);
 	void segment_solver(real_t p_damp, bool p_translate = false);
 	void qcp_solver(real_t p_damp, bool p_translate = false);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);
