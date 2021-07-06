@@ -191,7 +191,6 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 		}
 	}
 	Ref<IKBone3D> current_bone = tip;
-	// TODO Cache? 2021-06-04 Fire
 	Vector<Ref<IKBone3D>> list;
 	while (current_bone.is_valid()) {
 		list.push_back(current_bone);
@@ -386,12 +385,6 @@ void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 	Vector<Ref<IKBone3D>> list;
 	get_bone_list(list, false);
-	// for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
-	// Ref<IKBone3D> current_bone = list[bone_i];
-	// BoneId bone = current_bone->get_bone_id();
-	// String s = vformat("Bone %s", skeleton->get_bone_name(bone));
-	// print_line(s);
-	// }
 	for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
 		Ref<IKBone3D> current_bone = list[bone_i];
 
