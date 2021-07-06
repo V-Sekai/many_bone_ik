@@ -214,34 +214,9 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	}
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index)));
 	segmented_skeleton->generate_default_segments_from_root();
-	if (!effector_count) {
-		generate_default_effectors();
-	}
 	update_segments();
 	segmented_skeleton->update_effector_list();
 	is_dirty = false;
-}
-
-void SkeletonModification3DEWBIK::generate_default_effectors() {
-	Vector<Ref<IKBoneChain>> effector_chains = segmented_skeleton->get_effector_direct_descendents();
-	effector_count = effector_chains.size();
-	multi_effector.resize(effector_count);
-	for (int32_t chain_i = 0; chain_i < effector_count; chain_i++) {
-		multi_effector.write[chain_i].instantiate();
-	}
-	for (int32_t chain_i = 0; chain_i < effector_count; chain_i++) {
-		Ref<IKBone3D> bone = effector_chains[chain_i]->get_tip();
-		if (bone.is_null()) {
-			continue;
-		}
-		BoneId bone_id = bone->get_bone_id();
-		String bone_name = skeleton->get_bone_name(bone_id);
-		Ref<IKEffector3DData> data = multi_effector[chain_i];
-		data->set_name(bone_name);
-	}
-	update_effectors_map();
-	update_bone_list(get_debug_skeleton());
-	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {

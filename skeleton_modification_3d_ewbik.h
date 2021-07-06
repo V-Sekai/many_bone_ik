@@ -65,7 +65,6 @@ private:
 	void update_segments();
 	void update_effectors_map();
 	void update_bone_list(bool p_debug_skeleton = false);
-	void generate_default_effectors();
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
 
