@@ -40,20 +40,14 @@ void QCP::set_max_iterations(int32_t p_max) {
 }
 
 real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
-		const Vector<real_t> &p_weights, Quaternion &r_quat, bool p_translate, Vector3 &r_translation) {
+		const Vector<real_t> &p_weights, Quaternion &r_quat, Vector3 &r_translation) {
 	real_t wsum = 0.0;
 
 	PackedVector3Array source = p_source;
 	PackedVector3Array target = p_target;
 	Vector3 source_center;
 	Vector3 target_center;
-	if (p_translate) {
-		wsum = center_coords(source, target, p_weights, r_translation);
-	} else {
-		for (int i = 0; i < p_weights.size(); i++) {
-			wsum += p_weights[i];
-		}
-	}
+	wsum = center_coords(source, target, p_weights, r_translation);
 
 	real_t sqrmsd = 0.0;
 	// QCP doesn't handle alignment of single values, so if we only have one point

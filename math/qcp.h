@@ -53,7 +53,7 @@ public:
 	void set_precision(real_t p_evec_prec, real_t p_eval_prec);
 	void set_max_iterations(int32_t p_max);
 	real_t calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
-			const Vector<real_t> &p_weights, Quaternion &r_quat, bool p_translate, Vector3 &r_translation);
+			const Vector<real_t> &p_weights, Quaternion &r_quat, Vector3 &r_translation);
 };
 
 #endif // QCP_H

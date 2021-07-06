@@ -264,7 +264,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_dam
 		p_damp = Math_PI;
 	}
 
-	set_optimal_rotation(p_for_bone, htip, htarget, *weights, p_damp, p_translate);
+	set_optimal_rotation(p_for_bone, htip, htarget, *weights, p_damp);
 }
 
 Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
@@ -302,10 +302,10 @@ Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos
 }
 
 real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
-		PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening, bool p_translate) {
+		PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening) {
 	Quaternion rot;
 	Vector3 translation;
-	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot, p_translate, translation);
+	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot, translation);
 
 	float bone_damp = p_for_bone->get_cos_half_dampen();
 
