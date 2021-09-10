@@ -78,9 +78,9 @@ Transform3D IKBone3D::get_global_transform() const {
 	return xform.get_global_transform();
 }
 
-void IKBone3D::set_rot_delta(const Quaternion &p_rot) {
+void IKBone3D::set_rot_delta(const Basis &p_rot) {
 	rot_delta *= p_rot;
-	Transform3D rot_xform = Transform3D(Basis(p_rot), translation_delta);
+	Transform3D rot_xform = Transform3D(p_rot, translation_delta);
 	set_global_transform(get_global_transform() * rot_xform);
 }
 
