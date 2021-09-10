@@ -49,7 +49,7 @@ private:
 	Vector<Ref<IKEffector3D>> effector_list;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
-	Vector<real_t> heading_weights;
+	Vector<double> heading_weights;
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
 
 	Skeleton3D *skeleton = nullptr;
@@ -62,10 +62,10 @@ private:
 	void generate_bones_map();
 	Ref<IKBoneChain> get_child_segment_containing(const Ref<IKBone3D> &p_bone);
 	void create_headings();
-	PackedVector3Array update_target_headings(Vector<real_t> *&p_weights);
+	PackedVector3Array update_target_headings(Vector<double> *&p_weights);
 	PackedVector3Array update_tip_headings(Ref<IKBone3D> p_for_bone);
 	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone,
-			PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening = -1, bool p_translate = false);
+			PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<double> &p_weights, float p_dampening = -1, bool p_translate = false);
 	void segment_solver(real_t p_damp, bool p_translate = false);
 	void qcp_solver(real_t p_damp, bool p_translate = false);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);

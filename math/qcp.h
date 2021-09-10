@@ -36,24 +36,24 @@
 
 class QCP {
 private:
-	real_t evec_prec = UNIT_EPSILON;
-	real_t eval_prec = UNIT_EPSILON;
+	double evec_prec = FLT_EPSILON;
+	double eval_prec = CMP_EPSILON;
 	int32_t max_iterations = 20;
-	real_t Sxx, Sxy, Sxz, Syx, Syy, Syz, Szx, Szy, Szz = 0;
-	real_t SxxpSyy, SyzmSzy, SxzmSzx, SxymSyx = 0;
-	real_t SxxmSyy, SxypSyx, SxzpSzx, SyzpSzy = 0;
+	double Sxx, Sxy, Sxz, Syx, Syy, Syz, Szx, Szy, Szz = 0;
+	double SxxpSyy, SyzmSzy, SxzmSzx, SxymSyx = 0;
+	double SxxmSyy, SxypSyx, SxzpSzx, SyzpSzy = 0;
 
-	real_t inner_product(const PackedVector3Array &p_source, const PackedVector3Array &p_target, const Vector<real_t> &p_weights);
-	real_t center_coords(PackedVector3Array &r_source, PackedVector3Array &r_target, const Vector<real_t> &p_weights, Vector3 &translation) const;
-	real_t calc_sqrmsd(real_t &e0, real_t wsum);
-	Quaternion calc_rotation(real_t p_eigenv) const;
+	double inner_product(const PackedVector3Array &p_source, const PackedVector3Array &p_target, const Vector<double> &p_weights);
+	double center_coords(PackedVector3Array &r_source, PackedVector3Array &r_target, const Vector<double> &p_weights, Vector3 &translation) const;
+	double calc_sqrmsd(double &e0, double wsum);
+	Quaternion calc_rotation(double p_eigenv) const;
 	void translate(const Vector3 p_translate, PackedVector3Array &r_source);
 
 public:
-	void set_precision(real_t p_evec_prec, real_t p_eval_prec);
+	void set_precision(double p_evec_prec, double p_eval_prec);
 	void set_max_iterations(int32_t p_max);
-	real_t calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
-			const Vector<real_t> &p_weights, Quaternion &r_quat, bool p_translate, Vector3 &r_translation);
+	double calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
+			const Vector<double> &p_weights, Quaternion &r_quat, bool p_translate, Vector3 &r_translation);
 };
 
 #endif // QCP_H

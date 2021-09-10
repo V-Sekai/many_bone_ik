@@ -235,7 +235,7 @@ void IKBoneChain::update_effector_list() {
 	if (is_tip_effector()) {
 		Ref<IKEffector3D> effector = tip->get_effector();
 		effector_list.push_back(effector);
-		Vector<real_t> weights;
+		Vector<double> weights;
 		weights.push_back(effector->weight);
 		
 		if (effector->get_follow_x()) {
@@ -256,7 +256,7 @@ void IKBoneChain::update_effector_list() {
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
-	Vector<real_t> *weights = nullptr;
+	Vector<double> *weights = nullptr;
 	PackedVector3Array htarget = update_target_headings(weights);
 	PackedVector3Array htip = update_tip_headings(p_for_bone);
 
@@ -302,7 +302,7 @@ Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos
 }
 
 real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
-		PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening, bool p_translate) {
+		PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<double> &p_weights, float p_dampening, bool p_translate) {
 	Quaternion rot;
 	Vector3 translation;
 	real_t sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot, p_translate, translation);
@@ -332,7 +332,7 @@ void IKBoneChain::create_headings() {
 	}
 }
 
-PackedVector3Array IKBoneChain::update_target_headings(Vector<real_t> *&p_weights) {
+PackedVector3Array IKBoneChain::update_target_headings(Vector<double> *&p_weights) {
 	PackedVector3Array htarget = target_headings;
 	p_weights = &heading_weights;
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
