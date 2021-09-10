@@ -52,7 +52,7 @@ private:
 	real_t depth_falloff = 0.0;
 	Transform3D goal_transform;
 	int32_t num_headings;
-	Vector3 priority = Vector3(0.1, 1.0, 0.1);
+	Vector3 priority = Vector3(5.0f, 0.1f, 5.0f);
 	real_t weight = 1.0;
 	bool follow_x, follow_y, follow_z;
 	PackedVector3Array target_headings;
