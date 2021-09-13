@@ -39,7 +39,7 @@ void IKTransform3D::_propagate_transform_changed() {
 }
 
 void IKTransform3D::_update_local_transform() const {
-	local_transform.basis.set_euler_scale(rotation, scale);
+	local_transform.basis = rotation.scaled(scale);
 
 	dirty &= ~DIRTY_LOCAL;
 }
@@ -49,19 +49,15 @@ void IKTransform3D::set_translation(const Vector3 &p_translation) {
 	_propagate_transform_changed();
 }
 
-void IKTransform3D::set_rotation(const Vector3 &p_euler_rad) {
+void IKTransform3D::set_rotation(const Basis &p_rot) {
 	if (dirty & DIRTY_VECTORS) {
 		scale = local_transform.basis.get_scale();
 		dirty &= ~DIRTY_VECTORS;
 	}
 
-	rotation = p_euler_rad;
+	rotation = p_rot;
 	dirty |= DIRTY_LOCAL;
 	_propagate_transform_changed();
-}
-
-void IKTransform3D::set_rotation_degrees(const Vector3 &p_euler_deg) {
-	set_rotation(p_euler_deg * (Math_PI / 180.0));
 }
 
 void IKTransform3D::set_scale(const Vector3 &p_scale) {
@@ -79,7 +75,7 @@ Vector3 IKTransform3D::get_translation() const {
 	return local_transform.origin;
 }
 
-Vector3 IKTransform3D::get_rotation() const {
+Basis IKTransform3D::get_rotation() const {
 	if (dirty & DIRTY_VECTORS) {
 		scale = local_transform.basis.get_scale();
 		rotation = local_transform.basis.get_rotation();
@@ -88,10 +84,6 @@ Vector3 IKTransform3D::get_rotation() const {
 	}
 
 	return rotation;
-}
-
-Vector3 IKTransform3D::get_rotation_degrees() const {
-	return get_rotation() * (180.0 / Math_PI);
 }
 
 Vector3 IKTransform3D::get_scale() const {

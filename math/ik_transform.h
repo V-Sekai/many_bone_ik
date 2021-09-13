@@ -44,7 +44,7 @@ class IKTransform3D {
 
 	mutable Transform3D global_transform;
 	mutable Transform3D local_transform;
-	mutable Vector3 rotation;
+	mutable Basis rotation;
 	mutable Vector3 scale = Vector3(1, 1, 1);
 
 	mutable int dirty = DIRTY_NONE;
@@ -59,12 +59,10 @@ class IKTransform3D {
 
 public:
 	void set_translation(const Vector3 &p_translation);
-	void set_rotation(const Vector3 &p_euler_rad);
-	void set_rotation_degrees(const Vector3 &p_euler_deg);
+	void set_rotation(const Basis &p_euler_rad);
 	void set_scale(const Vector3 &p_scale);
 	Vector3 get_translation() const;
-	Vector3 get_rotation() const;
-	Vector3 get_rotation_degrees() const;
+	Basis get_rotation() const;
 	Vector3 get_scale() const;
 
 	void set_transform(const Transform3D &p_transform);
