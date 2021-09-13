@@ -58,13 +58,6 @@ class IKTransform3D {
 	void _update_local_transform() const;
 
 public:
-	void set_translation(const Vector3 &p_translation);
-	void set_rotation(const Basis &p_euler_rad);
-	void set_scale(const Vector3 &p_scale);
-	Vector3 get_translation() const;
-	Basis get_rotation() const;
-	Vector3 get_scale() const;
-
 	void set_transform(const Transform3D &p_transform);
 	void set_global_transform(const Transform3D &p_transform);
 	Transform3D get_transform() const;
@@ -75,20 +68,6 @@ public:
 
 	void set_parent(IKTransform3D *p_parent);
 	IKTransform3D *get_parent() const;
-
-	void rotate(const Vector3 &p_axis, real_t p_angle);
-	void rotate_x(real_t p_angle);
-	void rotate_y(real_t p_angle);
-	void rotate_z(real_t p_angle);
-	void translate(const Vector3 &p_offset);
-
-	void rotate_object_local(const Vector3 &p_axis, real_t p_angle);
-	void scale_object_local(const Vector3 &p_scale);
-	void translate_object_local(const Vector3 &p_offset);
-
-	void global_rotate(const Vector3 &p_axis, real_t p_angle);
-	void global_scale(const Vector3 &p_scale);
-	void global_translate(const Vector3 &p_offset);
 
 	Vector3 to_local(const Vector3 &p_global) const;
 	Vector3 to_global(const Vector3 &p_local) const;

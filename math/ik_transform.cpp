@@ -44,62 +44,10 @@ void IKTransform3D::_update_local_transform() const {
 	dirty &= ~DIRTY_LOCAL;
 }
 
-void IKTransform3D::set_translation(const Vector3 &p_translation) {
-	local_transform.origin = p_translation;
-	_propagate_transform_changed();
-}
-
-void IKTransform3D::set_rotation(const Basis &p_rot) {
-	if (dirty & DIRTY_VECTORS) {
-		scale = local_transform.basis.get_scale();
-		dirty &= ~DIRTY_VECTORS;
-	}
-
-	rotation = p_rot;
-	dirty |= DIRTY_LOCAL;
-	_propagate_transform_changed();
-}
-
-void IKTransform3D::set_scale(const Vector3 &p_scale) {
-	if (dirty & DIRTY_VECTORS) {
-		rotation = local_transform.basis.get_rotation();
-		dirty &= ~DIRTY_VECTORS;
-	}
-
-	scale = p_scale;
-	dirty |= DIRTY_LOCAL;
-	_propagate_transform_changed();
-}
-
-Vector3 IKTransform3D::get_translation() const {
-	return local_transform.origin;
-}
-
-Basis IKTransform3D::get_rotation() const {
-	if (dirty & DIRTY_VECTORS) {
-		scale = local_transform.basis.get_scale();
-		rotation = local_transform.basis.get_rotation();
-
-		dirty &= ~DIRTY_VECTORS;
-	}
-
-	return rotation;
-}
-
-Vector3 IKTransform3D::get_scale() const {
-	if (dirty & DIRTY_VECTORS) {
-		scale = local_transform.basis.get_scale();
-		rotation = local_transform.basis.get_rotation();
-
-		dirty &= ~DIRTY_VECTORS;
-	}
-
-	return scale;
-}
-
 void IKTransform3D::set_transform(const Transform3D &p_transform) {
-	if (local_transform == p_transform)
+	if (local_transform == p_transform) {
 		return;
+	}
 	local_transform = p_transform;
 	dirty |= DIRTY_VECTORS;
 	_propagate_transform_changed();
@@ -107,8 +55,8 @@ void IKTransform3D::set_transform(const Transform3D &p_transform) {
 
 void IKTransform3D::set_global_transform(const Transform3D &p_transform) {
 	Transform3D xform = parent ?
-								parent->get_global_transform().affine_inverse() * p_transform :
-								p_transform;
+								  parent->get_global_transform().affine_inverse() * p_transform :
+								  p_transform;
 	set_transform(xform);
 }
 
@@ -158,74 +106,6 @@ void IKTransform3D::set_parent(IKTransform3D *p_parent) {
 
 IKTransform3D *IKTransform3D::get_parent() const {
 	return parent;
-}
-
-void IKTransform3D::rotate_object_local(const Vector3 &p_axis, real_t p_angle) {
-	Transform3D t = get_transform();
-	t.basis.rotate_local(p_axis, p_angle);
-	set_transform(t);
-}
-
-void IKTransform3D::rotate(const Vector3 &p_axis, real_t p_angle) {
-	Transform3D t = get_transform();
-	t.basis.rotate(p_axis, p_angle);
-	set_transform(t);
-}
-
-void IKTransform3D::rotate_x(real_t p_angle) {
-	Transform3D t = get_transform();
-	t.basis.rotate(Vector3(1, 0, 0), p_angle);
-	set_transform(t);
-}
-
-void IKTransform3D::rotate_y(real_t p_angle) {
-	Transform3D t = get_transform();
-	t.basis.rotate(Vector3(0, 1, 0), p_angle);
-	set_transform(t);
-}
-
-void IKTransform3D::rotate_z(real_t p_angle) {
-	Transform3D t = get_transform();
-	t.basis.rotate(Vector3(0, 0, 1), p_angle);
-	set_transform(t);
-}
-
-void IKTransform3D::translate(const Vector3 &p_offset) {
-	Transform3D t = get_transform();
-	t.translate(p_offset);
-	set_transform(t);
-}
-
-void IKTransform3D::translate_object_local(const Vector3 &p_offset) {
-	Transform3D t = get_transform();
-
-	Transform3D s;
-	s.translate(p_offset);
-	set_transform(t * s);
-}
-
-void IKTransform3D::scale_object_local(const Vector3 &p_scale) {
-	Transform3D t = get_transform();
-	t.basis.scale_local(p_scale);
-	set_transform(t);
-}
-
-void IKTransform3D::global_rotate(const Vector3 &p_axis, real_t p_angle) {
-	Transform3D t = get_global_transform();
-	t.basis.rotate(p_axis, p_angle);
-	set_global_transform(t);
-}
-
-void IKTransform3D::global_scale(const Vector3 &p_scale) {
-	Transform3D t = get_global_transform();
-	t.basis.scale(p_scale);
-	set_global_transform(t);
-}
-
-void IKTransform3D::global_translate(const Vector3 &p_offset) {
-	Transform3D t = get_global_transform();
-	t.origin += p_offset;
-	set_global_transform(t);
 }
 
 Vector3 IKTransform3D::to_local(const Vector3 &p_global) const {
