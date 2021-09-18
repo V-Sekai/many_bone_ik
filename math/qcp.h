@@ -43,8 +43,8 @@ private:
 	double SxxpSyy, SyzmSzy, SxzmSzx, SxymSyx = 0;
 	double SxxmSyy, SxypSyx, SxzpSzx, SyzpSzy = 0;
 
-	double inner_product(const PackedVector3Array &p_source, const PackedVector3Array &p_target, const Vector<double> &p_weights);
-	double center_coords(PackedVector3Array &r_source, PackedVector3Array &r_target, const Vector<double> &p_weights, Vector3 &translation) const;
+	double inner_product(const PackedVector3Array &p_source, const PackedVector3Array &p_target, const Vector<real_t> &p_weights);
+	double center_coords(PackedVector3Array &r_source, PackedVector3Array &r_target, const Vector<real_t> &p_weights, Vector3 &translation) const;
 	double calc_sqrmsd(double &e0, double wsum);
 	Quaternion calc_rotation(double p_eigenv) const;
 	void translate(const Vector3 p_translate, PackedVector3Array &r_source);
@@ -53,7 +53,7 @@ public:
 	void set_precision(double p_evec_prec, double p_eval_prec);
 	void set_max_iterations(int32_t p_max);
 	double calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
-			const Vector<double> &p_weights, Quaternion &r_quat, bool p_translate, Vector3 &r_translation);
+			const Vector<real_t> &p_weights, Quaternion &r_quat, bool p_translate, Vector3 &r_translation);
 };
 
 #endif // QCP_H
