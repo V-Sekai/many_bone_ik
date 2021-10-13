@@ -149,9 +149,6 @@ void SkeletonModification3DEWBIK::_execute(float delta) {
 
 	if (is_dirty) {
 		update_skeleton();
-		if (debug_skeleton) {
-			update_bone_list(true);
-		}
 		return;
 	}
 	solve(stack->get_strength());
@@ -242,7 +239,7 @@ void SkeletonModification3DEWBIK::update_segments() {
 	}
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index, effectors_map)));
 	segmented_skeleton->generate_default_segments_from_root();
-	update_bone_list();
+	update_bone_list(debug_skeleton);
 	update_effectors_map();
 }
 
