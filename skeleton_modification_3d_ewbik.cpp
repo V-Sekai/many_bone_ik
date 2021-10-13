@@ -149,6 +149,9 @@ void SkeletonModification3DEWBIK::_execute(float delta) {
 
 	if (is_dirty) {
 		update_skeleton();
+		if (debug_skeleton) {
+			update_bone_list(true);
+		}
 		return;
 	}
 	solve(stack->get_strength());
@@ -446,7 +449,8 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
-	update_bone_list(true);
+	is_dirty = true;
+	notify_property_list_changed();
 }
 
 Vector3 SkeletonModification3DEWBIK::get_effector_priority(int32_t p_effector_index) const {
