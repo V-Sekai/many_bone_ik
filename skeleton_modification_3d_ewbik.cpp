@@ -216,6 +216,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton->generate_default_segments_from_root();
 	update_segments();
 	segmented_skeleton->update_effector_list();
+	update_bone_list(debug_skeleton);
 	is_dirty = false;
 }
 
@@ -239,7 +240,7 @@ void SkeletonModification3DEWBIK::update_segments() {
 	}
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index, effectors_map)));
 	segmented_skeleton->generate_default_segments_from_root();
-	update_bone_list(debug_skeleton);
+	update_bone_list();
 	update_effectors_map();
 }
 
