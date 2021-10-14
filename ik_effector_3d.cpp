@@ -40,14 +40,6 @@ NodePath IKEffector3D::get_target_node() const {
 	return target_node;
 }
 
-void IKEffector3D::set_use_target_node_rotation(bool p_use) {
-	use_target_node_rotation = p_use;
-}
-
-bool IKEffector3D::get_use_target_node_rotation() const {
-	return use_target_node_rotation;
-}
-
 Transform3D IKEffector3D::get_goal_transform() const {
 	return goal_transform;
 }
@@ -74,9 +66,6 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	}
 	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
 	Transform3D node_xform = target_node->get_global_transform();
-	if (!use_target_node_rotation) {
-		node_xform = Transform3D(Basis(), node_xform.origin);
-	}
 	goal_transform = p_skeleton->world_transform_to_global_pose(node_xform);
 }
 

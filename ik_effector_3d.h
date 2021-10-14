@@ -51,13 +51,10 @@ private:
 
 	real_t depth_falloff = 0.0;
 	Transform3D goal_transform;
-	int32_t num_headings = 0;
-	bool use_target_node_rotation = false;
+	int32_t num_headings;
 	Vector3 priority = Vector3(5.0f, 0.1f, 5.0f);
 	real_t weight = 1.0;
-	bool follow_x = true;
-	bool follow_y = true;
-	bool follow_z = true;
+	bool follow_x, follow_y, follow_z;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
@@ -78,8 +75,6 @@ public:
 	void set_target_node(const NodePath &p_target_node_path, Node *p_skeleton);
 	NodePath get_target_node() const;
 	Transform3D get_goal_transform() const;
-	bool get_use_target_node_rotation() const;
-	void set_use_target_node_rotation(bool p_use);
 	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;

@@ -38,12 +38,10 @@
 
 class IKEffector3DData : public Resource {
 	GDCLASS(IKEffector3DData, Resource);
-
 public:
 	NodePath target_node;
 	Vector3 priority = Vector3(5.0, 0.1, 5.0);
 	float depth_falloff = 0.0f;
-	bool use_target_node_rotation = false;
 };
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
@@ -102,8 +100,6 @@ public:
 	void set_effector_priority(int32_t p_effector_index, Vector3 p_priority);
 	Vector3 get_effector_priority(int32_t p_effector_index) const;
 
-	void set_effector_use_node_rotation(int32_t p_index, bool p_use_node_rot);
-	bool get_effector_use_node_rotation(int32_t p_index) const;
 	void update_skeleton();
 
 	virtual void _execute(float p_delta) override;
