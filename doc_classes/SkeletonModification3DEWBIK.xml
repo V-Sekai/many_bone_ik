@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="SkeletonModification3DEWBIK" inherits="SkeletonModification3D" version="4.0">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="add_effector">
+			<return type="void" />
+			<argument index="0" name="name" type="String" />
+			<argument index="1" name="target_node" type="NodePath" />
+			<description>
+			</description>
+		</method>
+		<method name="find_effector" qualifiers="const">
+			<return type="IKBone3D" />
+			<argument index="0" name="name" type="String" />
+			<description>
+			</description>
+		</method>
+		<method name="get_default_damp" qualifiers="const">
+			<return type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="get_effector_count" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_ik_iterations" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="remove_effector">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="set_default_damp">
+			<return type="void" />
+			<argument index="0" name="damp" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="set_effector_count">
+			<return type="void" />
+			<argument index="0" name="count" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="set_ik_iterations">
+			<return type="void" />
+			<argument index="0" name="iterations" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="update_skeleton">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="print_skeleton" type="bool" setter="set_debug_skeleton" getter="get_debug_skeleton" default="false">
+		</member>
+		<member name="root_bone" type="String" setter="set_root_bone" getter="get_root_bone" default="&quot;&quot;">
+		</member>
+	</members>
+</class>

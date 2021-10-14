@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="IKBone3D" inherits="Resource" version="4.0">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_effector" qualifiers="const">
+			<return type="IKEffector3D" />
+			<description>
+			</description>
+		</method>
+		<method name="is_pinned" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_effector">
+			<return type="void" />
+			<argument index="0" name="effector" type="IKEffector3D" />
+			<description>
+			</description>
+		</method>
+	</methods>
+</class>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="IKEffector3D" inherits="Resource" version="4.0">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_target_node" qualifiers="const">
+			<return type="NodePath" />
+			<description>
+			</description>
+		</method>
+		<method name="set_target_node">
+			<return type="void" />
+			<argument index="0" name="node" type="NodePath" />
+			<argument index="1" name="arg1" type="Node" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="depth_falloff" type="Vector3" setter="set_depth_falloff" getter="get_depth_falloff" default="Vector3(5, 0.1, 5)">
+		</member>
+		<member name="priority" type="Vector3" setter="set_priority" getter="get_priority" default="Vector3(5, 0.1, 5)">
+		</member>
+	</members>
+</class>
