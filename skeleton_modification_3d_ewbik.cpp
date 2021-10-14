@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  skeleton_modification_3d_ewbik.cpp                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -259,8 +259,6 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		Ref<IKEffector3DData> data = multi_effector.write[effector_i];
 		String bone = data->get_name();
 		BoneId bone_id = skeleton->find_bone(bone);
-		Vector3 priority = data->priority;
-		float depth_falloff = data->depth_falloff;
 		ERR_CONTINUE(bone_id == -1);
 		Ref<IKBone3D> ik_bone_3d = segmented_skeleton->find_bone(bone_id);
 		ERR_FAIL_NULL(ik_bone_3d);
@@ -271,8 +269,12 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		Ref<IKEffector3D> effector_3d = ik_bone_3d->get_effector();
 		effector_3d->set_target_node(data->target_node, skeleton);
 		effector_3d->update_target_cache(skeleton);
+		Vector3 priority = data->priority;
 		effector_3d->set_priority(priority);
+		float depth_falloff = data->depth_falloff;
 		effector_3d->set_depth_falloff(depth_falloff);
+		bool use_target_node_rotation = data->use_target_node_rotation;
+		effector_3d->set_use_target_node_rotation(use_target_node_rotation);
 	}
 	is_dirty = true;
 }
@@ -323,6 +325,8 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "effectors/" + itos(i) + "/depth_falloff"));
 		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/use_node_rotation"));
+		p_list->push_back(
 				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/remove"));
 	}
 }
@@ -352,6 +356,9 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			return true;
 		} else if (what == "remove") {
 			r_ret = false;
+			return true;
+		} else if (what == "use_node_rotation") {
+			r_ret = get_effector_use_node_rotation(index);
 			return true;
 		} else if (what == "priority") {
 			r_ret = get_effector_priority(index);
@@ -397,6 +404,9 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "depth_falloff") {
 			set_effector_depth_falloff(index, p_value);
+			return true;
+		} else if (what == "use_node_rotation") {
+			set_effector_use_node_rotation(index, p_value);
 			return true;
 		}
 	}
@@ -475,6 +485,20 @@ void SkeletonModification3DEWBIK::set_effector_depth_falloff(int32_t p_effector_
 	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
 	ERR_FAIL_NULL(data);
 	data->depth_falloff = p_depth_falloff;
+	is_dirty = true;
+	notify_property_list_changed();
+}
+
+bool SkeletonModification3DEWBIK::get_effector_use_node_rotation(int32_t p_effector_index) const {
+	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), false);
+	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	return data->use_target_node_rotation;
+}
+
+void SkeletonModification3DEWBIK::set_effector_use_node_rotation(int32_t p_effector_index, bool p_use) {
+	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	ERR_FAIL_NULL(data);
+	data->use_target_node_rotation = p_use;
 	is_dirty = true;
 	notify_property_list_changed();
 }
