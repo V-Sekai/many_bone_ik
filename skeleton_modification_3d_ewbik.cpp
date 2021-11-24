@@ -132,7 +132,7 @@ Vector<Ref<IKEffector3DData>> SkeletonModification3DEWBIK::get_bone_effectors() 
 
 void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, multi_effector.size());
-	multi_effector.remove(p_index);
+	multi_effector.remove_at(p_index);
 	effector_count--;
 	multi_effector.resize(effector_count);
 
