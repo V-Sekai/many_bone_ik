@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  skeleton_modification_3d_ewbik.cpp                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -151,7 +151,7 @@ void SkeletonModification3DEWBIK::_execute(float delta) {
 		update_skeleton();
 		return;
 	}
-	solve(stack->get_strength(), debug_ik);
+	solve(stack->get_strength());
 	execution_error_found = false;
 }
 
@@ -186,22 +186,22 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	notify_property_list_changed();
 }
 
-void SkeletonModification3DEWBIK::solve(real_t p_blending_delta, Dictionary p_debug) {
+void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
 	if (p_blending_delta <= 0.01f) {
 		return; // Skip solving
 	}
 
 	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
 		update_shadow_bones_transform();
-		iterated_improved_solver(get_default_damp(), p_debug);
+		iterated_improved_solver(get_default_damp());
 		update_skeleton_bones_transform(p_blending_delta);
 	}
 }
 
-void SkeletonModification3DEWBIK::iterated_improved_solver(real_t p_damp, Dictionary p_debug) {
+void SkeletonModification3DEWBIK::iterated_improved_solver(real_t p_damp) {
 	ERR_FAIL_NULL(segmented_skeleton);
 	for (int i = 0; i < ik_iterations; i++) {
-		segmented_skeleton->grouped_segment_solver(p_damp, false, p_debug);
+		segmented_skeleton->grouped_segment_solver(p_damp);
 	}
 }
 
@@ -425,12 +425,9 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
-	ClassDB::bind_method(D_METHOD("set_debug_ik", "enabled"), &SkeletonModification3DEWBIK::set_debug_ik);
-	ClassDB::bind_method(D_METHOD("get_debug_ik", "enabled"), &SkeletonModification3DEWBIK::get_debug_ik);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
 
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "debug_ik"), "set_debug_ik", "get_debug_ik");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
 }
@@ -486,13 +483,4 @@ void SkeletonModification3DEWBIK::set_effector_depth_falloff(int32_t p_effector_
 	data->depth_falloff = p_depth_falloff;
 	is_dirty = true;
 	notify_property_list_changed();
-}
-void SkeletonModification3DEWBIK::set_debug_ik(bool p_enabled) {
-	is_debug_ik = p_enabled;
-	is_dirty = true;
-	notify_property_list_changed();
-}
-
-bool SkeletonModification3DEWBIK::get_debug_ik() const {
-	return is_debug_ik;
 }

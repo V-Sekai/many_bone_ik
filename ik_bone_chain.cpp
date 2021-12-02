@@ -255,7 +255,7 @@ void IKBoneChain::update_effector_list() {
 	create_headings();
 }
 
-void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, Dictionary p_debug) {
+void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
 	Vector<real_t> *weights = nullptr;
 	PackedVector3Array htarget = update_target_headings(weights);
 	PackedVector3Array htip = update_tip_headings(p_for_bone);
@@ -353,36 +353,36 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 	return htip;
 }
 
-void IKBoneChain::grouped_segment_solver(real_t p_damp, bool p_translate, Dictionary p_debug) {
-	segment_solver(p_damp, is_root_pinned(), p_debug);
+void IKBoneChain::grouped_segment_solver(real_t p_damp) {
+	segment_solver(p_damp, is_root_pinned());
 	for (int32_t i = 0; i < effector_direct_descendents.size(); i++) {
 		Ref<IKBoneChain> effector_chain = effector_direct_descendents[i];
 		for (int32_t child_i = 0; child_i < effector_chain->child_chains.size(); child_i++) {
 			Ref<IKBoneChain> child = effector_chain->child_chains[child_i];
-			child->grouped_segment_solver(p_damp, p_translate, p_debug);
+			child->grouped_segment_solver(p_damp);
 		}
 	}
 }
 
-void IKBoneChain::segment_solver(real_t p_damp, bool p_translate, Dictionary p_debug) {
+void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 	if (child_chains.size() == 0 && !is_tip_effector()) {
 		return;
 	} else if (!is_tip_effector()) {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
 			Ref<IKBoneChain> child = child_chains[child_i];
-			child->segment_solver(p_damp, p_translate, p_debug);
+			child->segment_solver(p_damp, p_translate);
 		}
 	}
-	qcp_solver(p_damp, p_translate, p_debug);
+	qcp_solver(p_damp, p_translate);
 }
 
-void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate, Dictionary p_debug) {
+void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 	Vector<Ref<IKBone3D>> list;
 	get_bone_list(list, false);
 	for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
 		Ref<IKBone3D> current_bone = list[bone_i];
 
-		update_optimal_rotation(current_bone, p_damp, p_translate, p_debug);
+		update_optimal_rotation(current_bone, p_damp, p_translate);
 
 		if (current_bone == root) {
 			break;
