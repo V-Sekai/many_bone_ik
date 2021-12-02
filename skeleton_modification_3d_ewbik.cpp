@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  skeleton_modification_3d_ewbik.cpp                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -425,9 +425,12 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
+	ClassDB::bind_method(D_METHOD("set_debug_ik", "enabled"), &SkeletonModification3DEWBIK::set_debug_ik);
+	ClassDB::bind_method(D_METHOD("get_debug_ik", "enabled"), &SkeletonModification3DEWBIK::get_debug_ik);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
 
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "debug_ik"), "set_debug_ik", "get_debug_ik");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
 }
@@ -483,4 +486,13 @@ void SkeletonModification3DEWBIK::set_effector_depth_falloff(int32_t p_effector_
 	data->depth_falloff = p_depth_falloff;
 	is_dirty = true;
 	notify_property_list_changed();
+}
+void SkeletonModification3DEWBIK::set_debug_ik(bool p_enabled) {
+	debug_ik = p_enabled;
+	is_dirty = true;
+	notify_property_list_changed();
+}
+
+bool SkeletonModification3DEWBIK::get_debug_ik() const {
+	return debug_ik;
 }

@@ -38,6 +38,7 @@
 
 class IKEffector3DData : public Resource {
 	GDCLASS(IKEffector3DData, Resource);
+
 public:
 	NodePath target_node;
 	Vector3 priority = Vector3(5.0, 0.1, 5.0);
@@ -57,6 +58,7 @@ private:
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool debug_skeleton = false;
+	bool debug_ik = false;
 
 	// Task
 	int32_t ik_iterations = 10;
@@ -78,6 +80,8 @@ protected:
 	Vector<Ref<IKEffector3DData>> get_bone_effectors() const;
 
 public:
+	bool get_debug_ik() const;
+	void set_debug_ik(bool p_enabled);
 	bool get_debug_skeleton() const;
 	void set_debug_skeleton(bool p_enabled);
 	void set_ik_iterations(int32_t p_iterations);
