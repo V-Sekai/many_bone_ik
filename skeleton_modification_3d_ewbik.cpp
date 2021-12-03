@@ -151,7 +151,7 @@ void SkeletonModification3DEWBIK::_execute(float delta) {
 		update_skeleton();
 		return;
 	}
-	solve(stack->get_strength());
+	solve(stack->get_strength(), debug_ik);
 	execution_error_found = false;
 }
 
@@ -186,22 +186,22 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	notify_property_list_changed();
 }
 
-void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
+void SkeletonModification3DEWBIK::solve(real_t p_blending_delta, Dictionary p_debug) {
 	if (p_blending_delta <= 0.01f) {
 		return; // Skip solving
 	}
 
 	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
 		update_shadow_bones_transform();
-		iterated_improved_solver(get_default_damp());
+		iterated_improved_solver(get_default_damp(), p_debug);
 		update_skeleton_bones_transform(p_blending_delta);
 	}
 }
 
-void SkeletonModification3DEWBIK::iterated_improved_solver(real_t p_damp) {
+void SkeletonModification3DEWBIK::iterated_improved_solver(real_t p_damp, Dictionary p_debug) {
 	ERR_FAIL_NULL(segmented_skeleton);
 	for (int i = 0; i < ik_iterations; i++) {
-		segmented_skeleton->grouped_segment_solver(p_damp);
+		segmented_skeleton->grouped_segment_solver(p_damp, false, p_debug);
 	}
 }
 
@@ -488,11 +488,11 @@ void SkeletonModification3DEWBIK::set_effector_depth_falloff(int32_t p_effector_
 	notify_property_list_changed();
 }
 void SkeletonModification3DEWBIK::set_debug_ik(bool p_enabled) {
-	debug_ik = p_enabled;
+	is_debug_ik = p_enabled;
 	is_dirty = true;
 	notify_property_list_changed();
 }
 
 bool SkeletonModification3DEWBIK::get_debug_ik() const {
-	return debug_ik;
+	return is_debug_ik;
 }

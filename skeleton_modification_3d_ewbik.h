@@ -58,7 +58,8 @@ private:
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool debug_skeleton = false;
-	bool debug_ik = false;
+	Dictionary debug_ik;
+	bool is_debug_ik = false;
 
 	// Task
 	int32_t ik_iterations = 10;
@@ -109,8 +110,8 @@ public:
 	virtual void _execute(float p_delta) override;
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
 
-	void solve(real_t p_blending_delta);
-	void iterated_improved_solver(real_t p_damp);
+	void solve(real_t p_blending_delta, Dictionary p_debug);
+	void iterated_improved_solver(real_t p_damp, Dictionary p_debug);
 
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
