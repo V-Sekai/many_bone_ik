@@ -41,6 +41,12 @@
 			<description>
 			</description>
 		</method>
+		<method name="set_debug_ik">
+			<return type="void" />
+			<argument index="0" name="enabled" type="bool" />
+			<description>
+			</description>
+		</method>
 		<method name="set_default_damp">
 			<return type="void" />
 			<argument index="0" name="damp" type="float" />
