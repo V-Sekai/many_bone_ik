@@ -102,7 +102,7 @@ public:
 
 	void update_skeleton();
 
-	virtual void _execute(float p_delta) override;
+	virtual void _execute(real_t p_delta) override;
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
 
 	void solve(real_t p_blending_delta);

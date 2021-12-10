@@ -140,7 +140,7 @@ void SkeletonModification3DEWBIK::remove_effector(int32_t p_index) {
 	notify_property_list_changed();
 }
 
-void SkeletonModification3DEWBIK::_execute(float delta) {
+void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	ERR_FAIL_COND_MSG(!stack || !is_setup || skeleton == nullptr,
 			"Modification is not setup and therefore cannot execute!");
 	if (!enabled) {
