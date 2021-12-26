@@ -93,10 +93,8 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 }
 
 void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {
-	Transform3D custom = get_transform();
-	p_skeleton->set_bone_pose_position(bone_id, custom.origin);
-	p_skeleton->set_bone_pose_rotation(bone_id, custom.basis.get_rotation_quaternion());
-	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());
+	Transform3D custom = get_global_transform();
+	p_skeleton->set_bone_global_pose_override(bone_id, custom, p_strength, true);
 }
 
 void IKBone3D::create_effector() {
