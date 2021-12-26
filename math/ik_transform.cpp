@@ -28,6 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "transform_interpolate_3d.h"
+
 #include "ik_transform.h"
 
 void IKTransform3D::_propagate_transform_changed() {
@@ -54,9 +56,12 @@ void IKTransform3D::set_transform(const Transform3D &p_transform) {
 }
 
 void IKTransform3D::set_global_transform(const Transform3D &p_transform) {
-	Transform3D xform = parent ?
-								  parent->get_global_transform().affine_inverse() * p_transform :
-								  p_transform;
+	Transform3D xform;
+	if (parent) {
+		TransformInterpolate3D interpolate;
+		xform = interpolate.interpolate_with(parent->get_global_transform().affine_inverse() * p_transform);
+	}
+
 	set_transform(xform);
 }
 
@@ -75,7 +80,8 @@ Transform3D IKTransform3D::get_global_transform() const {
 		}
 
 		if (parent) {
-			global_transform = parent->get_global_transform() * local_transform;
+			TransformInterpolate3D interpolate;
+			global_transform = interpolate.interpolate_with(parent->get_global_transform() * local_transform);
 		} else {
 			global_transform = local_transform;
 		}
