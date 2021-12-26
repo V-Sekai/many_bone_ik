@@ -112,17 +112,16 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 		heading_weights.write[nw + index + 1] = weight * priority.x;
 	}
 	index += 2;
-
 	if (get_follow_y()) {
 		heading_weights.write[nw + index] = weight * priority.y;
 		heading_weights.write[nw + index + 1] = weight * priority.y;
 	}
 	index += 2;
-
 	if (get_follow_z()) {
 		heading_weights.write[nw + index] = weight * priority.z;
 		heading_weights.write[nw + index + 1] = weight * priority.z;
 	}
+	index += 2;
 }
 
 void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index,
