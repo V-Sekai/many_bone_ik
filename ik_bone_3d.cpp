@@ -85,8 +85,8 @@ void IKBone3D::set_rot_delta(const Basis &p_rot) {
 }
 
 void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
-	Transform3D bxform = p_skeleton->get_bone_rest(bone_id).affine_inverse() * p_skeleton->get_bone_global_pose(bone_id);
-	set_global_transform(bxform);
+	Transform3D bxform = p_skeleton->get_bone_global_pose(bone_id);
+	set_transform(p_skeleton->global_pose_to_local_pose(bone_id, bxform));
 	if (is_effector()) {
 		effector->update_goal_transform(p_skeleton);
 	}
@@ -94,11 +94,9 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 
 void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {
 	Transform3D custom = Transform3D(Basis(rot_delta), translation_delta);
-	custom = p_skeleton->get_bone_rest(bone_id) * custom;
-	
-	p_skeleton->set_bone_pose_position(bone_id, custom.origin);
-	p_skeleton->set_bone_pose_rotation(bone_id, custom.basis.get_rotation_quaternion());
-	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());
+	Transform3D global_pose = p_skeleton->get_bone_global_pose(bone_id);
+	custom = p_skeleton->global_pose_to_local_pose(bone_id, global_pose) * custom;
+	p_skeleton->set_bone_local_pose_override(bone_id, custom, p_strength, true);
 }
 
 void IKBone3D::create_effector() {
