@@ -383,7 +383,7 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		} else if (what == "follow_z") {
 			r_ret = get_effector_follow_z(index);
 			return true;
-		} 
+		}
 	}
 
 	return false;
@@ -421,6 +421,15 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "depth_falloff") {
 			set_effector_depth_falloff(index, p_value);
+			return true;
+		} else if (what == "follow_x") {
+			set_effector_follow_x(index, p_value);
+			return true;
+		} else if (what == "follow_y") {
+			set_effector_follow_y(index, p_value);
+			return true;
+		} else if (what == "follow_z") {
+			set_effector_follow_z(index, p_value);
 			return true;
 		}
 	}
