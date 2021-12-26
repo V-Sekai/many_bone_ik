@@ -28,6 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "math/transform_interpolate_3d.h"
+
 #include "ik_bone_3d.h"
 
 void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
@@ -63,7 +65,8 @@ Ref<IKEffector3D> IKBone3D::get_effector() const {
 }
 
 void IKBone3D::set_transform(const Transform3D &p_transform) {
-	xform.set_transform(p_transform);
+	TransformInterpolate3D interpolate;
+	xform.set_transform(interpolate.interpolate_with(p_transform));
 }
 
 Transform3D IKBone3D::get_transform() const {
@@ -71,7 +74,8 @@ Transform3D IKBone3D::get_transform() const {
 }
 
 void IKBone3D::set_global_transform(const Transform3D &p_transform) {
-	xform.set_global_transform(p_transform);
+	TransformInterpolate3D interpolate;
+	xform.set_global_transform(interpolate.interpolate_with(p_transform));
 }
 
 Transform3D IKBone3D::get_global_transform() const {
@@ -81,12 +85,16 @@ Transform3D IKBone3D::get_global_transform() const {
 void IKBone3D::set_rot_delta(const Basis &p_rot) {
 	rot_delta *= p_rot;
 	Transform3D rot_xform = Transform3D(p_rot, translation_delta);
-	set_global_transform(get_global_transform() * rot_xform);
+	TransformInterpolate3D interpolate;
+	interpolate.set(get_global_transform());
+	set_global_transform(interpolate.interpolate_with(get_global_transform() * rot_xform));
 }
 
 void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	Transform3D bxform = p_skeleton->get_bone_rest(bone_id).affine_inverse() * p_skeleton->get_bone_global_pose(bone_id);
-	set_global_transform(bxform);
+	TransformInterpolate3D interpolate;
+	interpolate.set(get_global_transform());
+	set_global_transform(interpolate.interpolate_with(bxform));
 	if (is_effector()) {
 		effector->update_goal_transform(p_skeleton);
 	}
@@ -94,8 +102,10 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 
 void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {
 	Transform3D custom = Transform3D(Basis(rot_delta), translation_delta);
+	TransformInterpolate3D interpolate;
+	custom = interpolate.interpolate_with(custom);
 	custom = p_skeleton->get_bone_rest(bone_id) * custom;
-	
+
 	p_skeleton->set_bone_pose_position(bone_id, custom.origin);
 	p_skeleton->set_bone_pose_rotation(bone_id, custom.basis.get_rotation_quaternion());
 	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());
