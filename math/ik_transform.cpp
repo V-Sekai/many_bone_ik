@@ -59,8 +59,9 @@ void IKTransform3D::set_global_transform(const Transform3D &p_transform) {
 	Transform3D xform;
 	if (parent) {
 		TransformInterpolate3D interpolate;
-		interpolate.set(parent->get_global_transform().affine_inverse());
-		xform = interpolate.interpolate_with(parent->get_global_transform().affine_inverse() * p_transform);
+		Transform3D global_transform = parent->get_global_transform().affine_inverse();
+		interpolate.set(global_transform);
+		xform = interpolate.interpolate_with(global_transform * p_transform);
 	}
 
 	set_transform(xform);
@@ -82,8 +83,9 @@ Transform3D IKTransform3D::get_global_transform() const {
 
 		if (parent) {
 			TransformInterpolate3D interpolate;
-			interpolate.set(parent->get_global_transform());
-			global_transform = interpolate.interpolate_with(parent->get_global_transform() * local_transform);
+			Transform3D global_transform = parent->get_global_transform();
+			interpolate.set(global_transform);
+			global_transform = interpolate.interpolate_with(global_transform * local_transform);
 		} else {
 			global_transform = local_transform;
 		}
