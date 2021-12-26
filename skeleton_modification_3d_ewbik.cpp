@@ -279,6 +279,9 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		effector_3d->update_target_cache(skeleton);
 		effector_3d->set_priority(priority);
 		effector_3d->set_depth_falloff(depth_falloff);
+		effector_3d->set_follow_x(data->follow_x);
+		effector_3d->set_follow_y(data->follow_y);
+		effector_3d->set_follow_z(data->follow_z);
 	}
 	is_dirty = true;
 }
@@ -329,6 +332,12 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "effectors/" + itos(i) + "/depth_falloff"));
 		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/follow_x"));
+		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/follow_y"));
+		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/follow_z"));
+		p_list->push_back(
 				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/remove"));
 	}
 }
@@ -365,7 +374,16 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		} else if (what == "depth_falloff") {
 			r_ret = get_effector_depth_falloff(index);
 			return true;
-		}
+		} else if (what == "follow_x") {
+			r_ret = get_effector_follow_x(index);
+			return true;
+		} else if (what == "follow_y") {
+			r_ret = get_effector_follow_y(index);
+			return true;
+		} else if (what == "follow_z") {
+			r_ret = get_effector_follow_z(index);
+			return true;
+		} 
 	}
 
 	return false;
