@@ -38,14 +38,10 @@
 
 class IKEffector3DData : public Resource {
 	GDCLASS(IKEffector3DData, Resource);
-
 public:
 	NodePath target_node;
 	Vector3 priority = Vector3(0.0, 0.0, 0.0);
 	float depth_falloff = 0.0f;
-	bool follow_x = true;
-	bool follow_y = true;
-	bool follow_z = true;
 };
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
@@ -104,42 +100,6 @@ public:
 	void set_effector_priority(int32_t p_effector_index, Vector3 p_priority);
 	Vector3 get_effector_priority(int32_t p_effector_index) const;
 
-	bool get_effector_follow_x(int32_t p_effector_index) const {
-		ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), false);
-		const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
-		return data->follow_x;
-	}
-	void set_effector_follow_x(int32_t p_effector_index, bool p_follow) {
-		Ref<IKEffector3DData> data = multi_effector[p_effector_index];
-		ERR_FAIL_NULL(data);
-		data->follow_x = p_follow;
-		is_dirty = true;
-		notify_property_list_changed();
-	}
-	bool get_effector_follow_y(int32_t p_effector_index) const {
-		ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), false);
-		const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
-		return data->follow_y;
-	}
-	void set_effector_follow_y(int32_t p_effector_index, bool p_follow) {
-		Ref<IKEffector3DData> data = multi_effector[p_effector_index];
-		ERR_FAIL_NULL(data);
-		data->follow_y = p_follow;
-		is_dirty = true;
-		notify_property_list_changed();
-	}
-	bool get_effector_follow_z(int32_t p_effector_index) const {
-		ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), false);
-		const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
-		return data->follow_z;
-	}
-	void set_effector_follow_z(int32_t p_effector_index, bool p_follow) {
-		Ref<IKEffector3DData> data = multi_effector[p_effector_index];
-		ERR_FAIL_NULL(data);
-		data->follow_z = p_follow;
-		is_dirty = true;
-		notify_property_list_changed();
-	}
 	void update_skeleton();
 
 	virtual void _execute(real_t p_delta) override;
