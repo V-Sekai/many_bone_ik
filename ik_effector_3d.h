@@ -49,10 +49,13 @@ private:
 	ObjectID target_node_cache;
 	Node *target_node_reference = nullptr;
 
-	real_t depth_falloff = 1.0;
 	Transform3D goal_transform;
 	int32_t num_headings = 0;
-	Vector3 priority = Vector3(5.0f, 0.1f, 5.0f);
+	// See IKEffector3DData
+	// These are set to off values for debugging.
+	real_t depth_falloff = 0.0;
+	Vector3 priority = Vector3(0.0f, 0.0f, 0.0f);
+	////
 	real_t weight = 1.0;
 	bool follow_x = true, follow_y = true, follow_z= true;
 	PackedVector3Array target_headings;

@@ -21,7 +21,7 @@
 		</method>
 	</methods>
 	<members>
-		<member name="depth_falloff" type="Vector3" setter="set_depth_falloff" getter="get_depth_falloff" default="Vector3(5, 0.1, 5)">
+		<member name="depth_falloff" type="float" setter="set_depth_falloff" getter="get_depth_falloff" default="1.0">
 		</member>
 		<member name="priority" type="Vector3" setter="set_priority" getter="get_priority" default="Vector3(5, 0.1, 5)">
 		</member>
