@@ -51,11 +51,10 @@ private:
 
 	Transform3D goal_transform;
 	int32_t num_headings = 0;
-	// See IKEffector3DData
-	// These are set to off values for debugging.
+	// See IKEffector3DData for the defaults.
 	real_t depth_falloff = 0.0;
 	Vector3 priority = Vector3(0.0f, 0.0f, 0.0f);
-	////
+	// End of the section.
 	real_t weight = 1.0;
 	bool follow_x = true, follow_y = true, follow_z= true;
 	PackedVector3Array target_headings;
