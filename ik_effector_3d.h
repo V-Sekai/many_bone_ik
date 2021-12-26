@@ -56,7 +56,7 @@ private:
 	Vector3 priority = Vector3(0.0f, 0.0f, 0.0f);
 	// End of the section.
 	real_t weight = 1.0;
-	bool follow_x = true, follow_y = true, follow_z= true;
+	bool follow_x = false, follow_y = false, follow_z = false;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
@@ -74,7 +74,7 @@ public:
 	Vector3 get_priority() const;
 	void set_priority(Vector3 p_priority);
 	void update_target_cache(Node *p_skeleton);
-	void set_target_node(const NodePath &p_target_node_path, Node *p_skeleton);
+	void set_target_node(Node *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
 	Transform3D get_goal_transform() const;
 	Ref<IKBone3D> get_shadow_bone() const;
