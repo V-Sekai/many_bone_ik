@@ -49,7 +49,7 @@ private:
 	ObjectID target_node_cache;
 	Node *target_node_reference = nullptr;
 
-	real_t depth_falloff = 0.0;
+	real_t depth_falloff = 1.0;
 	Transform3D goal_transform;
 	int32_t num_headings;
 	Vector3 priority = Vector3(5.0f, 0.1f, 5.0f);
