@@ -31,7 +31,7 @@
 #include "ik_effector_3d.h"
 #include "math/ik_transform.h"
 
-void IKEffector3D::set_target_node(const NodePath &p_target_node_path, Node *p_skeleton) {
+void IKEffector3D::set_target_node(Node *p_skeleton, const NodePath &p_target_node_path) {
 	target_node = p_target_node_path;
 	update_target_cache(p_skeleton);
 }
@@ -70,10 +70,6 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 }
 
 void IKEffector3D::update_priorities() {
-	follow_x = priority.x > 0.0;
-	follow_y = priority.y > 0.0;
-	follow_z = priority.z > 0.0;
-
 	num_headings = 1;
 	if (get_follow_x()) {
 		num_headings += 2;
@@ -189,7 +185,7 @@ void IKEffector3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, Pa
 }
 
 void IKEffector3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_target_node", "node"),
+	ClassDB::bind_method(D_METHOD("set_target_node", "skeleton", "node"),
 			&IKEffector3D::set_target_node);
 	ClassDB::bind_method(D_METHOD("get_target_node"),
 			&IKEffector3D::get_target_node);
