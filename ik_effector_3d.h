@@ -51,11 +51,13 @@ private:
 
 	Transform3D goal_transform;
 	int32_t num_headings = 0;
-	// See IKEffector3DData for the defaults.
+	// See IKEffector3DData
+	// These are set to off values for debugging.
 	real_t depth_falloff = 0.0;
 	Vector3 priority = Vector3(0.0f, 0.0f, 0.0f);
-	// End of the section.
+	////
 	real_t weight = 1.0;
+	bool follow_x = true, follow_y = true, follow_z= true;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
@@ -73,7 +75,7 @@ public:
 	Vector3 get_priority() const;
 	void set_priority(Vector3 p_priority);
 	void update_target_cache(Node *p_skeleton);
-	void set_target_node(Node *p_skeleton, const NodePath &p_target_node_path);
+	void set_target_node(const NodePath &p_target_node_path, Node *p_skeleton);
 	NodePath get_target_node() const;
 	Transform3D get_goal_transform() const;
 	Ref<IKBone3D> get_shadow_bone() const;
@@ -85,9 +87,9 @@ public:
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
 	IKEffector3D() {}
 	~IKEffector3D() {}
-	bool get_follow_x() const { return !Math::is_zero_approx(priority.x); }
-	bool get_follow_y() const { return !Math::is_zero_approx(priority.y); }
-	bool get_follow_z() const { return !Math::is_zero_approx(priority.z); }
+	bool get_follow_x() const { return follow_x; }
+	bool get_follow_y() const { return follow_y; }
+	bool get_follow_z() const { return follow_z; }
 };
 
 #endif // ik_effector_3d_H
