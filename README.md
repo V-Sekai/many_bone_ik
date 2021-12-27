@@ -1,6 +1,6 @@
 # EWBIK
 
-A new full body inverse kinematics system.
+A full body inverse kinematics system.
 
 ## See also
 
