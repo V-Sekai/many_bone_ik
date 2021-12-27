@@ -56,7 +56,6 @@ private:
 	Vector3 priority = Vector3(0.0f, 0.0f, 0.0f);
 	// End of the section.
 	real_t weight = 1.0;
-	bool follow_x = false, follow_y = false, follow_z = false;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
@@ -86,9 +85,9 @@ public:
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
 	IKEffector3D() {}
 	~IKEffector3D() {}
-	bool get_follow_x() const { return follow_x; }
-	bool get_follow_y() const { return follow_y; }
-	bool get_follow_z() const { return follow_z; }
+	bool get_follow_x() const { return !Math::is_zero_approx(priority.x); }
+	bool get_follow_y() const { return !Math::is_zero_approx(priority.y); }
+	bool get_follow_z() const { return !Math::is_zero_approx(priority.z); }
 };
 
 #endif // ik_effector_3d_H

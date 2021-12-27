@@ -70,10 +70,6 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 }
 
 void IKEffector3D::update_priorities() {
-	follow_x = priority.x > 0.0;
-	follow_y = priority.y > 0.0;
-	follow_z = priority.z > 0.0;
-
 	num_headings = 1;
 	if (get_follow_x()) {
 		num_headings += 2;
