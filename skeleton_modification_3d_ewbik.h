@@ -40,7 +40,7 @@ class IKEffector3DData : public Resource {
 	GDCLASS(IKEffector3DData, Resource);
 public:
 	NodePath target_node;
-	Vector3 priority = Vector3(1.0, 1.0, 1.0);
+	Vector3 priority = Vector3(1.0, 0.1, 1.0);
 	float depth_falloff = 1.0f;
 };
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
