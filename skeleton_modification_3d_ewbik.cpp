@@ -81,11 +81,12 @@ int32_t SkeletonModification3DEWBIK::get_effector_count() const {
 	return effector_count;
 }
 
-void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodePath &p_target_node) {
+void SkeletonModification3DEWBIK::add_effector(const String &p_name, const NodePath &p_target_node, const bool &p_use_node_rotation) {
 	int32_t count = get_effector_count();
 	set_effector_count(count + 1);
 	set_effector_bone(count, p_name);
 	set_effector_target_nodepath(count, p_target_node);
+	set_effector_use_node_rotation(count, p_use_node_rotation);
 
 	is_dirty = true;
 	notify_property_list_changed();
@@ -124,6 +125,20 @@ NodePath SkeletonModification3DEWBIK::get_effector_target_nodepath(int32_t p_eff
 	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), NodePath());
 	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
 	return data->target_node;
+}
+
+void SkeletonModification3DEWBIK::set_effector_use_node_rotation(int32_t p_effector_index, bool p_use_node_rot) {
+	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	ERR_FAIL_NULL(data);
+	data->use_target_node_rotation = p_use_node_rot;
+	is_dirty = true;
+	notify_property_list_changed();
+}
+
+bool SkeletonModification3DEWBIK::get_effector_use_node_rotation(int32_t p_effector_index) const {
+	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), false);
+	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	return data->use_target_node_rotation;
 }
 
 Vector<Ref<IKEffector3DData>> SkeletonModification3DEWBIK::get_bone_effectors() const {
@@ -324,6 +339,8 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(effector_name);
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "effectors/" + itos(i) + "/target_node"));
+
+		p_list->push_back(PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/use_node_rotation"));
 		p_list->push_back(
 				PropertyInfo(Variant::VECTOR3, "effectors/" + itos(i) + "/priority"));
 		p_list->push_back(
@@ -356,14 +373,17 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		} else if (what == "target_node") {
 			r_ret = data->target_node;
 			return true;
-		} else if (what == "remove") {
-			r_ret = false;
+		} else if (what == "use_node_rotation") {
+			r_ret = get_effector_use_node_rotation(index);
 			return true;
 		} else if (what == "priority") {
 			r_ret = get_effector_priority(index);
 			return true;
 		} else if (what == "depth_falloff") {
 			r_ret = get_effector_depth_falloff(index);
+			return true;
+		} else if (what == "remove") {
+			r_ret = false;
 			return true;
 		}
 	}
@@ -392,6 +412,10 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "target_node") {
 			set_effector_target_nodepath(index, p_value);
+			return true;
+		} else if (what == "use_node_rotation") {
+			set_effector_use_node_rotation(index, p_value);
+
 			return true;
 		} else if (what == "remove") {
 			if (p_value) {

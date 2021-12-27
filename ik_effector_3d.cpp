@@ -40,8 +40,12 @@ NodePath IKEffector3D::get_target_node() const {
 	return target_node;
 }
 
-Transform3D IKEffector3D::get_goal_transform() const {
-	return goal_transform;
+void IKEffector3D::set_use_target_node_rotation(bool p_use) {
+	use_target_node_rotation = p_use;
+}
+
+bool IKEffector3D::get_use_target_node_rotation() const {
+	return use_target_node_rotation;
 }
 
 Ref<IKBone3D> IKEffector3D::get_shadow_bone() const {
@@ -66,7 +70,16 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	}
 	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
 	Transform3D node_xform = target_node->get_global_transform();
+	if (use_target_node_rotation) {
+		goal_transform = p_skeleton->get_global_transform().affine_inverse() * node_xform;
+	} else {
+		goal_transform = Transform3D(Basis(), p_skeleton->to_local(node_xform.origin));
+	}
 	goal_transform = p_skeleton->world_transform_to_global_pose(node_xform);
+}
+
+Transform3D IKEffector3D::get_goal_transform() const {
+	return goal_transform;
 }
 
 void IKEffector3D::update_priorities() {
@@ -92,7 +105,7 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 	 * always correspond to this effector weights. In the parent only the origin
 	 * is considered for rotation, but here the last two headings must be replaced
 	 * by the corresponding number of "axis-orientation" headings.
-	*/
+	 */
 	int32_t nw = p_weights.size();
 	int32_t nheadings = nw + num_headings;
 	heading_weights.resize(nheadings);

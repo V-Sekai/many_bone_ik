@@ -42,6 +42,7 @@ public:
 	NodePath target_node;
 	Vector3 priority = Vector3(1.0, 0.1, 1.0);
 	float depth_falloff = 1.0f;
+	bool use_target_node_rotation = false;
 };
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
@@ -88,7 +89,7 @@ public:
 	BoneId get_root_bone_index() const;
 	void set_effector_count(int32_t p_value);
 	int32_t get_effector_count() const;
-	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath());
+	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
 	void remove_effector(int32_t p_index);
 	Ref<IKBone3D> find_effector(const String &p_name) const;
 	void set_effector_bone(int32_t p_effector_index, const String &p_bone);
@@ -100,6 +101,8 @@ public:
 	void set_effector_priority(int32_t p_effector_index, Vector3 p_priority);
 	Vector3 get_effector_priority(int32_t p_effector_index) const;
 
+	void set_effector_use_node_rotation(int32_t p_index, bool p_use_node_rot);
+	bool get_effector_use_node_rotation(int32_t p_index) const;
 	void update_skeleton();
 
 	virtual void _execute(real_t p_delta) override;
