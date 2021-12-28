@@ -38,17 +38,83 @@
 
 class IKEffector3DData : public Resource {
 	GDCLASS(IKEffector3DData, Resource);
+
 public:
 	NodePath target_node;
 	Vector3 priority = Vector3(1.0, 0.1, 1.0);
 	float depth_falloff = 1.0f;
 	bool use_target_node_rotation = false;
-	float kusudana_twist = 0.0f;
-	PackedColorArray kusudama_limit_cones;
-	IKEffector3DData () {
-		kusudama_limit_cones.resize(30);
+	IKEffector3DData() {
 	}
 };
+
+class IKConstraint : public Resource {
+	GDCLASS(IKConstraint, Resource);
+
+	// ClassDB::bind_method(D_METHOD("set_kusudama_twist", "twist"),
+	// 		&IKBone3D::set_kusudama_twist);
+	// ClassDB::bind_method(D_METHOD("get_kusudama_twist"),
+	// 		&IKBone3D::get_kusudama_twist);
+	// ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone", "index", "cone_center", "radius"),
+	// 		&IKBone3D::set_kusudama_limit_cone);
+	// ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone", "index"),
+	// 		&IKBone3D::get_kusudama_limit_cone);
+	// ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "kusudama_twist"), "set_kusudama_twist", "get_kusudama_twist");
+	int32_t bone_count = 0;
+	PackedInt32Array kusudama_limit_cone_count;
+	PackedFloat32Array kusudana_twist;
+	Vector<PackedColorArray> kusudama_limit_cones;
+	float MAX_KUSUDAMA_LIMIT_CONES = 30;
+public:
+	IKConstraint() {
+	}
+	float get_kusudama_twist(int32_t p_index) const {
+		ERR_FAIL_INDEX_V(p_index, kusudana_twist.size(), 0.0f);
+		return kusudana_twist[p_index];
+	}
+
+	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
+			Vector3 p_radius_center, float p_radius) {
+		ERR_FAIL_INDEX(p_bone, kusudama_limit_cones.size());
+		ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_bone].size());
+		Vector3 center = p_radius_center;
+		center.normalize();
+		Color cone;
+		cone.r = center.x;
+		cone.g = center.y;
+		cone.b = center.z;
+		cone.a = p_radius;
+		kusudama_limit_cones.write[p_index].write[p_index] = cone;
+	}
+
+	Vector3 get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
+		ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), Vector3(0.0, 0.0, 0.0));
+		ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), Vector3(0.0, 0.0, 0.0));
+		Color cone = kusudama_limit_cones[p_bone][p_index];
+		Vector3 ret;
+		ret.x = cone.r;
+		ret.y = cone.g;
+		ret.z = cone.b;
+		return ret;
+	}	
+	
+	float get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
+		ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), 0.0f);
+		ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), 0.0f);
+		return kusudama_limit_cones[p_bone][p_index].a;
+	}
+
+	int32_t get_kusudama_limit_cone_count(int32_t p_bone) const {
+		ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), 0);
+		return kusudama_limit_cones[p_bone].size();
+	}
+
+	void set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count) {
+		ERR_FAIL_INDEX(p_bone, kusudama_limit_cone_count.size());
+		kusudama_limit_cone_count.write[p_bone] = p_count;
+	}
+};
+
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 

@@ -254,21 +254,3 @@ void IKEffector3D::set_depth_falloff(float p_depth_falloff) {
 float IKEffector3D::get_depth_falloff() const {
 	return depth_falloff;
 }
-
-void IKEffector3D::set_kusudama_limit_cone(int32_t &p_index,
-		Vector3 p_radius_center, float p_radius) {
-	ERR_FAIL_INDEX(p_index, kusudama_limit_cones.size());
-	Vector3 center = p_radius_center;
-	center.normalize();
-	Color cone;
-	cone.r = center.x;
-	cone.g = center.y;
-	cone.b = center.z;
-	cone.a = p_radius;
-	kusudama_limit_cones.write[p_index] = cone;
-}
-
-Color IKEffector3D::get_kusudama_limit_cone(int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones.size(), Color(0.0, 0.0, 0.0, 0.0));
-	return kusudama_limit_cones[p_index];
-}

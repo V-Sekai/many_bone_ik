@@ -319,7 +319,33 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,65535,1"));
 	p_list->push_back(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,179.99,0.01,degrees"));
+	p_list->push_back(PropertyInfo(Variant::INT, "bone_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
+	int32_t bone_count = 0;
+	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
+		PropertyInfo bone_name;
+		bone_name.type = Variant::STRING;
+		bone_name.name = "bone/" + itos(bone_i) + "/name";
+		if (skeleton) {
+			String names = "None";
+			for (int bone_i = 0; bone_i < bone_count; bone_i++) {
+				names += ",";
+				names += skeleton->get_bone_name(bone_i);
+			}
+			bone_name.hint = PROPERTY_HINT_ENUM;
+			bone_name.hint_string = names;
+		} else {
+			bone_name.hint = PROPERTY_HINT_NONE;
+			bone_name.hint_string = "";
+		}
+		p_list->push_back(bone_name);
+		// p_list->push_back(
+		// 		PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/kusudama_twist"));
+		// p_list->push_back(
+		// 		PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/kusudama_limit_cone_count"));
+		// p_list->push_back(
+		// 		PropertyInfo(Variant::PACKED_VECTOR3_ARRAY, "bone/" + itos(bone_i) + "/kusudama_limit_cone"));
+	}
 	for (int i = 0; i < effector_count; i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING;
@@ -360,6 +386,9 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		return true;
 	} else if (name == "effector_count") {
 		r_ret = get_effector_count();
+		return true;
+	} else if (name == "bone_count") {
+		r_ret = 0;
 		return true;
 	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();

@@ -56,8 +56,6 @@ private:
 	// These are set to off values for debugging.
 	real_t depth_falloff = 0.0;
 	Vector3 priority = Vector3(0.0f, 0.0f, 0.0f);
-	float kusudama_twist = 0.0f;
-	PackedColorArray kusudama_limit_cones;
 	////
 	real_t weight = 1.0;
 	bool follow_x = true, follow_y = true, follow_z= true;
@@ -89,13 +87,8 @@ public:
 	bool is_following_translation_only() const;
 	void update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index, Vector<real_t> *p_weights) const;
 	void update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const;
-	void set_kusudama_limit_cone(int32_t &p_index,
-			Vector3 p_radius_center, float p_radius);
-	Color get_kusudama_limit_cone(int32_t p_index) const;
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
-	IKEffector3D() {
-		kusudama_limit_cones.resize(MAX_KUSUDAMA_LIMIT_CONES);
-	}
+	IKEffector3D() {}
 	~IKEffector3D() {}
 	bool get_follow_x() const { return follow_x; }
 	bool get_follow_y() const { return follow_y; }
