@@ -14,5 +14,6 @@ material = SubResource( "ShaderMaterial_4u15r" )
 [node name="Node3D" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.993054, 0.117659, 0, -0.117659, 0.993054, 0, 0, 0)
 mesh = SubResource( "SphereMesh_tl3il" )
 surface_material_override/0 = null
