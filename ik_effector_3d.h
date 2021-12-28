@@ -89,7 +89,9 @@ public:
 	bool is_following_translation_only() const;
 	void update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index, Vector<real_t> *p_weights) const;
 	void update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const;
-
+	void set_kusudama_limit_cone(int32_t &p_index,
+			Vector3 p_radius_center, float p_radius);
+	Color get_kusudama_limit_cone(int32_t p_index) const;
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
 	IKEffector3D() {
 		kusudama_limit_cones.resize(MAX_KUSUDAMA_LIMIT_CONES);
