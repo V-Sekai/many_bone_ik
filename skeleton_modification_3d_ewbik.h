@@ -156,7 +156,6 @@ public:
 		ERR_FAIL_INDEX(p_bone, kusudama_limit_cones.size());
 		ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_bone].size());
 		Vector3 center = p_center;
-		center.normalize();
 		Color cone;
 		cone.r = center.x;
 		cone.g = center.y;
