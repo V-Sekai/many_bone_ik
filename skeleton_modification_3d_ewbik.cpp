@@ -602,6 +602,8 @@ void SkeletonModification3DEWBIK::set_effector_depth_falloff(int32_t p_effector_
 void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 	int32_t old_count = constraint_count;
 	constraint_count = p_count;
+	kusudana_twist.resize(p_count);
+	kusudama_limit_cones.resize(p_count);
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		set_kusudama_twist(constraint_i, 0.0f);
 		set_kusudama_limit_cone_count(constraint_i, 0.0f);
