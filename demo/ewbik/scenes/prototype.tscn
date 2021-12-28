@@ -4,19 +4,13 @@
 
 [sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_bqj4w"]
 root_bone = "Bone"
-effector_count = 1
-effectors/0/name = "Bone.001"
-effectors/0/target_node = NodePath("../target")
-effectors/0/use_node_rotation = false
-effectors/0/priority = Vector3(5, 0.1, 5)
-effectors/0/depth_falloff = 0.0
-effectors/0/remove = true
-constraint_count = 1
+constraint_count = 2
 constraints/0/name = "0"
 constraints/0/kusudama_twist = 35.4
-constraints/0/kusudama_limit_cone_count = 1
-constraints/0/kusudama_limit_cone/0/center = null
-constraints/0/kusudama_limit_cone/0/radius = null
+constraints/0/kusudama_limit_cone_count = 0
+constraints/1/name = "1"
+constraints/1/kusudama_twist = 0.0
+constraints/1/kusudama_limit_cone_count = 0
 
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_7vlvp"]
 enabled = true

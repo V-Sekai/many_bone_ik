@@ -124,73 +124,16 @@ public:
 	~SkeletonModification3DEWBIK();
 	float get_default_damp() const;
 	void set_default_damp(float p_default_damp);
-
-	void set_constraint_count(int32_t p_count) {
-		kusudana_twist.resize(p_count);
-		kusudama_limit_cones.resize(p_count);
-		kusudama_limit_cone_count.resize(p_count);
-		constraint_count = p_count;
-		notify_property_list_changed();
-	}
-	int32_t get_constraint_count() const {
-		return constraint_count;
-	}
-	void set_kusudama_twist(int32_t p_index, float p_twist) {
-		ERR_FAIL_INDEX(p_index, kusudana_twist.size());
-		kusudana_twist.write[p_index] = p_twist;
-	}
-
-	float get_kusudama_twist(int32_t p_index) const {
-		ERR_FAIL_INDEX_V(p_index, kusudana_twist.size(), 0.0f);
-		return kusudana_twist[p_index];
-	}
-
+	void set_constraint_count(int32_t p_count);
+	int32_t get_constraint_count() const;
+	void set_kusudama_twist(int32_t p_index, float p_twist);
+	float get_kusudama_twist(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
-			Vector3 p_center, float p_radius) {
-		ERR_FAIL_INDEX(p_bone, kusudama_limit_cones.size());
-		ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_bone].size());
-		Vector3 center = p_center;
-		Color cone;
-		cone.r = center.x;
-		cone.g = center.y;
-		cone.b = center.z;
-		cone.a = p_radius;
-		kusudama_limit_cones.write[p_bone].write[p_index] = cone;
-		notify_property_list_changed();
-	}
-
-	Vector3 get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
-		ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), Vector3(0.0f, 1.0f, 0.0f));
-		ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), Vector3(0.0, 0.0, 0.0));
-		Color cone = kusudama_limit_cones[p_bone][p_index];
-		Vector3 ret;
-		ret.x = cone.r;
-		ret.y = cone.g;
-		ret.z = cone.b;
-		return ret;
-	}
-
-	float get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
-		ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), 0.0f);
-		ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), 0.0f);
-		return kusudama_limit_cones[p_bone][p_index].a;
-	}
-
-	int32_t get_kusudama_limit_cone_count(int32_t p_bone) const {
-		ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), 0);
-		return kusudama_limit_cones[p_bone].size();
-	}
-
-	void set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count) {
-		ERR_FAIL_INDEX(p_bone, kusudama_limit_cone_count.size());
-		kusudama_limit_cone_count.write[p_bone] = p_count;
-		int32_t old_count = kusudama_limit_cones.size();
-		kusudama_limit_cones.write[p_bone].resize(p_count);
-		for (int32_t cone_i = p_count; cone_i-- > old_count;) {
-			set_kusudama_limit_cone(p_bone, cone_i, Vector3(0.f, 0.f, 1.0f), 1.0f);
-		}
-		notify_property_list_changed();
-	}
+			Vector3 p_center, float p_radius);
+	Vector3 get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const;
+	float get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const;
+	int32_t get_kusudama_limit_cone_count(int32_t p_bone) const;
+	void set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count);
 };
 
 #endif // SKELETON_MODIFICATION_3D_EWBIK_H
