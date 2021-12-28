@@ -56,6 +56,8 @@ private:
 	// These are set to off values for debugging.
 	real_t depth_falloff = 0.0;
 	Vector3 priority = Vector3(0.0f, 0.0f, 0.0f);
+	float kusudama_twist = 0.0f;
+	PackedColorArray kusudama_limit_cones;
 	////
 	real_t weight = 1.0;
 	bool follow_x = true, follow_y = true, follow_z= true;
@@ -76,7 +78,7 @@ public:
 	Vector3 get_priority() const;
 	void set_priority(Vector3 p_priority);
 	void update_target_cache(Node *p_skeleton);
-	void set_target_node(const NodePath &p_target_node_path, Node *p_skeleton);
+	void set_target_node(Node *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
 	Transform3D get_goal_transform() const;
 	void set_use_target_node_rotation(bool p_use);
@@ -88,7 +90,9 @@ public:
 	void update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const;
 
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
-	IKEffector3D() {}
+	IKEffector3D() {
+		limit_cones.resize(30);
+	}
 	~IKEffector3D() {}
 	bool get_follow_x() const { return follow_x; }
 	bool get_follow_y() const { return follow_y; }

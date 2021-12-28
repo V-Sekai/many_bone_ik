@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  skeleton_modification_3d_ewbik.cpp                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -290,7 +290,7 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		}
 		effectors_map[ik_bone_3d->get_bone_id()] = ik_bone_3d;
 		Ref<IKEffector3D> effector_3d = ik_bone_3d->get_effector();
-		effector_3d->set_target_node(data->target_node, skeleton);
+		effector_3d->set_target_node(skeleton, data->target_node);
 		effector_3d->update_target_cache(skeleton);
 		effector_3d->set_priority(priority);
 		effector_3d->set_depth_falloff(depth_falloff);
