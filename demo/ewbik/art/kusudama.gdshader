@@ -49,8 +49,6 @@ int getAllowabilityCondition(in int currentCondition, in int setTo) {
 	return max(currentCondition, setTo);
 }
 
-
-
 //returns 1 if normalDir is beyond (cone.a) radians from cone.rgb
 //returns 0 if normalDir is within (cone.a + boundaryWidth) radians from cone.rgb 
 //return -1 if normalDir is less than (cone.a) radians from cone.rgb

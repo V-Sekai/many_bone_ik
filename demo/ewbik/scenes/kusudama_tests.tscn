@@ -2,17 +2,17 @@
 
 [ext_resource type="Shader" path="res://ewbik/art/kusudama.gdshader" id="1_8thmg"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_r0ko2"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4u15r"]
 render_priority = 0
 shader = ExtResource( "1_8thmg" )
-shader_param/coneCount = 30
+shader_param/coneCount = 1
 shader_param/coneSequence = PackedFloat32Array(0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-[sub_resource type="PointMesh" id="PointMesh_1i1i1"]
-material = SubResource( "ShaderMaterial_r0ko2" )
+[sub_resource type="SphereMesh" id="SphereMesh_tl3il"]
+material = SubResource( "ShaderMaterial_4u15r" )
 
 [node name="Node3D" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource( "PointMesh_1i1i1" )
+mesh = SubResource( "SphereMesh_tl3il" )
 surface_material_override/0 = null
