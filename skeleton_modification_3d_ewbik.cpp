@@ -319,33 +319,7 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,65535,1"));
 	p_list->push_back(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,179.99,0.01,degrees"));
-	p_list->push_back(PropertyInfo(Variant::INT, "bone_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
-	int32_t bone_count = 0;
-	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
-		PropertyInfo bone_name;
-		bone_name.type = Variant::STRING;
-		bone_name.name = "bone/" + itos(bone_i) + "/name";
-		if (skeleton) {
-			String names = "None";
-			for (int bone_i = 0; bone_i < bone_count; bone_i++) {
-				names += ",";
-				names += skeleton->get_bone_name(bone_i);
-			}
-			bone_name.hint = PROPERTY_HINT_ENUM;
-			bone_name.hint_string = names;
-		} else {
-			bone_name.hint = PROPERTY_HINT_NONE;
-			bone_name.hint_string = "";
-		}
-		p_list->push_back(bone_name);
-		// p_list->push_back(
-		// 		PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/kusudama_twist"));
-		// p_list->push_back(
-		// 		PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/kusudama_limit_cone_count"));
-		// p_list->push_back(
-		// 		PropertyInfo(Variant::PACKED_VECTOR3_ARRAY, "bone/" + itos(bone_i) + "/kusudama_limit_cone"));
-	}
 	for (int i = 0; i < effector_count; i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING;
@@ -374,6 +348,35 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::BOOL, "effectors/" + itos(i) + "/remove"));
 	}
+	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,65535,1"));
+	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+		PropertyInfo bone_name;
+		bone_name.type = Variant::STRING;
+		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
+		if (skeleton) {
+			String names = "None";
+			for (int bone_i = 0; bone_i < constraint_count; bone_i++) {
+				names += ",";
+				names += skeleton->get_bone_name(bone_i);
+			}
+			bone_name.hint = PROPERTY_HINT_ENUM;
+			bone_name.hint_string = names;
+		} else {
+			bone_name.hint = PROPERTY_HINT_NONE;
+			bone_name.hint_string = "";
+		}
+		p_list->push_back(bone_name);
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count"));
+		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+			p_list->push_back(
+					PropertyInfo(Variant::PACKED_VECTOR3_ARRAY, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center"));
+			p_list->push_back(
+					PropertyInfo(Variant::PACKED_VECTOR3_ARRAY, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius"));
+		}
+	}
 }
 
 bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret) const {
@@ -387,8 +390,8 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 	} else if (name == "effector_count") {
 		r_ret = get_effector_count();
 		return true;
-	} else if (name == "bone_count") {
-		r_ret = 0;
+	} else if (name == "constraint_count") {
+		r_ret = get_constraint_count();
 		return true;
 	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
@@ -412,7 +415,35 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			r_ret = get_effector_depth_falloff(index);
 			return true;
 		} else if (what == "remove") {
-			r_ret = false;
+			r_ret = true;
+			return true;
+		}
+	} else if (name.begins_with("constraints/")) {
+		int index = name.get_slicec('/', 1).to_int();
+		String what = name.get_slicec('/', 2);
+		ERR_FAIL_INDEX_V(index, constraint_count, false);
+		if (what == "name") {
+			// FIXME: ifire 2021-12-28 Return string
+			r_ret = itos(index);
+			return true;
+		} else if (what == "kusudama_twist") {
+			r_ret = get_kusudama_twist(index);
+			return true;
+		} else if (what == "kusudama_limit_cone_count") {
+			r_ret = get_kusudama_limit_cone_count(index);
+			return true;
+		} else if (name.begins_with("constraints/" + itos(index) + "/kusudama_limit_cone/")) {
+			String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
+			int cone_index = name.get_slice(begins, 1).to_int();
+			String what = name.get_slice(begins, 2);
+			ERR_FAIL_INDEX_V(cone_index, kusudama_limit_cone_count.size(), false);
+			if (what == "center") {
+				r_ret = get_kusudama_limit_cone_center(index, cone_index);
+				return true;
+			} else if (what == "radius") {
+				r_ret = get_kusudama_limit_cone_radius(index, cone_index);
+				return true;
+			}
 			return true;
 		}
 	}
@@ -430,6 +461,9 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		return true;
 	} else if (name == "effector_count") {
 		set_effector_count(p_value);
+		return true;
+	} else if (name == "constraint_count") {
+		set_constraint_count(p_value);
 		return true;
 	} else if (name.begins_with("effectors/")) {
 		int index = name.get_slicec('/', 1).to_int();
@@ -458,6 +492,31 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			set_effector_depth_falloff(index, p_value);
 			return true;
 		}
+	} else if (name.begins_with("constraints/")) {
+		int index = name.get_slicec('/', 1).to_int();
+		String what = name.get_slicec('/', 2);
+		ERR_FAIL_INDEX_V(index, constraint_count, false);
+		if (what == "name") {
+			return false;
+		} else if (what == "kusudama_twist") {
+			set_kusudama_twist(index, p_value);
+			return true;
+		} else if (what == "kusudama_limit_cone_count") {
+			set_kusudama_limit_cone_count(index, p_value);
+			return true;
+		} else if (name.begins_with("constraints/" + itos(index) + "/kusudama_limit_cone/")) {
+			String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
+			int cone_index = name.get_slice(begins, 1).to_int();
+			String what = name.get_slice(begins, 2);
+			ERR_FAIL_INDEX_V(cone_index, kusudama_limit_cone_count.size(), false);
+			if (what == "center") {
+				set_kusudama_limit_cone(index, cone_index, p_value, get_kusudama_limit_cone_radius(index, cone_index));
+				return true;
+			} else if (what == "radius") {
+				set_kusudama_limit_cone(index, cone_index, get_kusudama_limit_cone_center(index, cone_index), p_value);
+				return true;
+			}
+		}
 	}
 
 	return false;
@@ -468,6 +527,9 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_ik_iterations", "iterations"), &SkeletonModification3DEWBIK::set_ik_iterations);
 	ClassDB::bind_method(D_METHOD("set_root_bone", "root_bone"), &SkeletonModification3DEWBIK::set_root_bone);
 	ClassDB::bind_method(D_METHOD("get_root_bone"), &SkeletonModification3DEWBIK::get_root_bone);
+	ClassDB::bind_method(D_METHOD("get_constraint_count"), &SkeletonModification3DEWBIK::get_constraint_count);
+	ClassDB::bind_method(D_METHOD("set_constraint_count", "count"),
+			&SkeletonModification3DEWBIK::set_constraint_count);
 	ClassDB::bind_method(D_METHOD("get_effector_count"), &SkeletonModification3DEWBIK::get_effector_count);
 	ClassDB::bind_method(D_METHOD("set_effector_count", "count"),
 			&SkeletonModification3DEWBIK::set_effector_count);
