@@ -663,8 +663,8 @@ int32_t SkeletonModification3DEWBIK::get_kusudama_limit_cone_count(int32_t p_bon
 
 void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count) {
 	ERR_FAIL_INDEX(p_bone, kusudama_limit_cone_count.size());
+	int32_t old_count = kusudama_limit_cone_count.write[p_bone];
 	kusudama_limit_cone_count.write[p_bone] = p_count;
-	int32_t old_count = kusudama_limit_cones[p_bone].size();
 	kusudama_limit_cones.write[p_bone].resize(p_count);
 	for (int32_t cone_i = p_count; cone_i-- > old_count;) {
 		set_kusudama_limit_cone(p_bone, cone_i, Vector3(0.f, 0.f, 1.0f), 1.0f);
