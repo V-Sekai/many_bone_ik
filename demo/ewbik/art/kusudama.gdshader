@@ -1,4 +1,5 @@
 shader_type spatial;
+render_mode skip_vertex_transform;
 
 uniform int coneCount : hint_range(0, 30) = 30;
 
@@ -8,7 +9,7 @@ uniform int coneCount : hint_range(0, 30) = 30;
 
 uniform float coneSequence[120]; // 4 * max(coneCount)
 
-varying vec3 vertWorldNormal;
+varying vec3 vertModelNormal;
 
 bool isInInterConePath(in vec3 normalDir, in vec4 tangent1, in vec4 cone1, in vec4 tangent2, in vec4 cone2) {
 	vec3 c1xc2 = cross(cone1.xyz, cone2.xyz);		
@@ -163,18 +164,18 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 }
 
 void vertex() {
-	vertWorldNormal = normalize((MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
+	vertModelNormal = normalize((MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
 }
 
 void fragment() {
-	vec4 colorAllowed = colorAllowed(NORMAL, coneCount, 0.02, COLOR);  
+	vec4 colorAllowed = colorAllowed(vertModelNormal, coneCount, 0.02, COLOR);  
 	if (colorAllowed.a == 0.0) {
 			discard;
 	}
 	colorAllowed += (colorAllowed + fwidth(colorAllowed)); 
 	colorAllowed /= 2.0;
 	vec3 lightCol = vec3(1.0,0.8,0.0);
-	float gain = vertWorldNormal.z < 0.0 ? -0.3 : 0.5;
+	float gain = NORMAL.z < 0.0 ? -0.3 : 0.5;
 	// FIXME: fire 2021-12-28 What does gain do?
 	// colorAllowed.rgb = (colorAllowed.rgb + lightCol*(lightScalar + gain)) / 2.;
 	vec4 specCol = vec4(1.0, 1.0, 0.6, colorAllowed.a);  
