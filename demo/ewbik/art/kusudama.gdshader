@@ -88,10 +88,10 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 			
 			int idx = i*3; 
 			vec4 cone1 = vec4(
-				coneSequence[coneCount * 4 + idx + 0], 
-				coneSequence[coneCount * 4 + idx + 1], 
-				coneSequence[coneCount * 4 + idx + 2],
-				coneSequence[coneCount * 4 + idx + 3]);
+				coneSequence[coneCount * 4 + (idx * 4) + 0], 
+				coneSequence[coneCount * 4 + (idx * 4) + 1], 
+				coneSequence[coneCount * 4 + (idx * 4) + 2],
+				coneSequence[coneCount * 4 + (idx * 4) + 3]);
 			vec4 tangent1 = vec4(
 				coneSequence[coneCount * 4 + ((idx + 0) * 4) + 0],
 				coneSequence[coneCount * 4 + ((idx + 1) * 4) + 1],
