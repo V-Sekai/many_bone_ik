@@ -91,7 +91,7 @@ public:
 
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
 	IKEffector3D() {
-		limit_cones.resize(30);
+		kusudama_limit_cones.resize(30);
 	}
 	~IKEffector3D() {}
 	bool get_follow_x() const { return follow_x; }

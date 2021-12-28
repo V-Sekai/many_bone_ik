@@ -43,6 +43,11 @@ public:
 	Vector3 priority = Vector3(1.0, 0.1, 1.0);
 	float depth_falloff = 1.0f;
 	bool use_target_node_rotation = false;
+	float kusudana_twist = 0.0f;
+	PackedColorArray kusudama_limit_cones;
+	IKEffector3DData () {
+		kusudama_limit_cones.resize(30);
+	}
 };
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
