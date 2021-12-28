@@ -7,7 +7,7 @@ uniform int coneCount : hint_range(0, 30) = 30;
 // Each group of 4 represents the xyz coordinates of the cone direction
 // vector in model space and the fourth element represents radius
 
-uniform float coneSequence[120]; // 4 * max(coneCount)
+uniform float coneSequence[120]; // 4 * 30
 
 varying vec3 vertModelNormal;
 
