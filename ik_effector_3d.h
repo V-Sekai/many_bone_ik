@@ -73,6 +73,7 @@ protected:
 	void create_headings(const Vector<real_t> &p_weights);
 
 public:
+	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
 	Vector3 get_priority() const;
@@ -91,7 +92,7 @@ public:
 
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
 	IKEffector3D() {
-		kusudama_limit_cones.resize(30);
+		kusudama_limit_cones.resize(MAX_KUSUDAMA_LIMIT_CONES);
 	}
 	~IKEffector3D() {}
 	bool get_follow_x() const { return follow_x; }
