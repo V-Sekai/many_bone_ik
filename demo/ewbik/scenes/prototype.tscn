@@ -6,7 +6,7 @@
 root_bone = "Bone"
 constraint_count = 1
 constraints/0/name = "0"
-constraints/0/kusudama_twist = 1.0
+constraints/0/kusudama_twist = 0.0
 constraints/0/kusudama_limit_cone_count = 0
 
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_7vlvp"]
