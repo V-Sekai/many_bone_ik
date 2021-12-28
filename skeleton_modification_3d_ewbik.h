@@ -165,7 +165,7 @@ public:
 	}
 
 	Vector3 get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
-		ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), Vector3(0.0, 0.0, 0.0));
+		ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), Vector3(0.0f, 1.0f, 0.0f));
 		ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), Vector3(0.0, 0.0, 0.0));
 		Color cone = kusudama_limit_cones[p_bone][p_index];
 		Vector3 ret;
