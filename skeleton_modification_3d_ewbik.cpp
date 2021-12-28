@@ -367,14 +367,14 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_RANGE, "0,359.999999,0.1,degrees"));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
-					PropertyInfo(Variant::PACKED_VECTOR3_ARRAY, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center"));
+					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center"));
 			p_list->push_back(
-					PropertyInfo(Variant::PACKED_VECTOR3_ARRAY, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius"));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius"));
 		}
 	}
 }
@@ -422,6 +422,7 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, constraint_count, false);
+		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone";
 		if (what == "name") {
 			// FIXME: ifire 2021-12-28 Return string
 			r_ret = itos(index);
@@ -432,19 +433,19 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		} else if (what == "kusudama_limit_cone_count") {
 			r_ret = get_kusudama_limit_cone_count(index);
 			return true;
-		} else if (name.begins_with("constraints/" + itos(index) + "/kusudama_limit_cone/")) {
-			String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
-			int cone_index = name.get_slice(begins, 1).to_int();
-			String what = name.get_slice(begins, 2);
+		} else if (name.begins_with(begins)) {
+			int cone_index = name.get_slicec('/', 3).to_int();
+			String cone_what = name.get_slicec('/', 4);
 			ERR_FAIL_INDEX_V(cone_index, kusudama_limit_cone_count.size(), false);
-			if (what == "center") {
+			if (cone_what == "center") {
 				r_ret = get_kusudama_limit_cone_center(index, cone_index);
 				return true;
-			} else if (what == "radius") {
+			} else if (cone_what == "radius") {
 				r_ret = get_kusudama_limit_cone_radius(index, cone_index);
 				return true;
+			} else if (cone_index >= kusudama_limit_cone_count[cone_index]) {
+				return false;
 			}
-			return true;
 		}
 	}
 
@@ -478,7 +479,6 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "use_node_rotation") {
 			set_effector_use_node_rotation(index, p_value);
-
 			return true;
 		} else if (what == "remove") {
 			if (p_value) {
@@ -496,23 +496,28 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, constraint_count, false);
+		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
 		if (what == "name") {
 			return false;
 		} else if (what == "kusudama_twist") {
 			set_kusudama_twist(index, p_value);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
+			int32_t old_count = get_kusudama_limit_cone_count(index);
+			old_count = CLAMP(old_count, 0, int32_t(p_value) - 1);
 			set_kusudama_limit_cone_count(index, p_value);
+			for (int32_t cone_i = old_count; cone_i < get_kusudama_limit_cone_count(index); cone_i++) {
+				set_kusudama_limit_cone(index, cone_i, Vector3(0.f, 0.f, 1.0f), 1.0f);
+			}
 			return true;
-		} else if (name.begins_with("constraints/" + itos(index) + "/kusudama_limit_cone/")) {
-			String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
-			int cone_index = name.get_slice(begins, 1).to_int();
-			String what = name.get_slice(begins, 2);
+		} else if (name.begins_with(begins)) {
+			int cone_index = name.get_slicec('/', 3).to_int();
+			String cone_what = name.get_slicec('/', 4);
 			ERR_FAIL_INDEX_V(cone_index, kusudama_limit_cone_count.size(), false);
-			if (what == "center") {
+			if (cone_what == "center") {
 				set_kusudama_limit_cone(index, cone_index, p_value, get_kusudama_limit_cone_radius(index, cone_index));
 				return true;
-			} else if (what == "radius") {
+			} else if (cone_what == "radius") {
 				set_kusudama_limit_cone(index, cone_index, get_kusudama_limit_cone_center(index, cone_index), p_value);
 				return true;
 			}
