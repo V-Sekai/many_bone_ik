@@ -436,7 +436,6 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		} else if (name.begins_with(begins)) {
 			int cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
-			ERR_FAIL_INDEX_V(cone_index, kusudama_limit_cone_count.size(), false);
 			if (cone_what == "center") {
 				r_ret = get_kusudama_limit_cone_center(index, cone_index);
 				return true;
@@ -503,12 +502,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			set_kusudama_twist(index, p_value);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
-			int32_t old_count = get_kusudama_limit_cone_count(index);
-			old_count = CLAMP(old_count, 0, int32_t(p_value) - 1);
 			set_kusudama_limit_cone_count(index, p_value);
-			for (int32_t cone_i = old_count; cone_i < get_kusudama_limit_cone_count(index); cone_i++) {
-				set_kusudama_limit_cone(index, cone_i, Vector3(0.f, 0.f, 1.0f), 1.0f);
-			}
 			return true;
 		} else if (name.begins_with(begins)) {
 			int cone_index = name.get_slicec('/', 3).to_int();

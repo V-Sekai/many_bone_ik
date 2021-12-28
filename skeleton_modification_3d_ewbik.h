@@ -125,7 +125,6 @@ public:
 	float get_default_damp() const;
 	void set_default_damp(float p_default_damp);
 
-
 	void set_constraint_count(int32_t p_count) {
 		kusudana_twist.resize(p_count);
 		kusudama_limit_cones.resize(p_count);
@@ -135,7 +134,7 @@ public:
 			kusudana_twist.write[i] = 0.0f;
 			kusudama_limit_cone_count.write[i] = 0;
 			kusudama_limit_cones.write[i] = PackedColorArray();
- 		}
+		}
 		notify_property_list_changed();
 	}
 	int32_t get_constraint_count() const {
@@ -173,8 +172,8 @@ public:
 		ret.y = cone.g;
 		ret.z = cone.b;
 		return ret;
-	}		
-	
+	}
+
 	float get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
 		ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), 0.0f);
 		ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), 0.0f);
@@ -189,7 +188,11 @@ public:
 	void set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count) {
 		ERR_FAIL_INDEX(p_bone, kusudama_limit_cone_count.size());
 		kusudama_limit_cone_count.write[p_bone] = p_count;
+		int32_t old_count = kusudama_limit_cones.size();
 		kusudama_limit_cones.write[p_bone].resize(p_count);
+		for (int32_t cone_i = p_count; cone_i-- > old_count;) {
+			set_kusudama_limit_cone(p_bone, cone_i, Vector3(0.f, 0.f, 1.0f), 1.0f);
+		}
 		notify_property_list_changed();
 	}
 };
