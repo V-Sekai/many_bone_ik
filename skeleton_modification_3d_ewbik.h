@@ -130,11 +130,6 @@ public:
 		kusudama_limit_cones.resize(p_count);
 		kusudama_limit_cone_count.resize(p_count);
 		constraint_count = p_count;
-		for (int32_t i = 0; i < constraint_count; i++) {
-			kusudana_twist.write[i] = 0.0f;
-			kusudama_limit_cone_count.write[i] = 0;
-			kusudama_limit_cones.write[i] = PackedColorArray();
-		}
 		notify_property_list_changed();
 	}
 	int32_t get_constraint_count() const {
@@ -161,6 +156,7 @@ public:
 		cone.b = center.z;
 		cone.a = p_radius;
 		kusudama_limit_cones.write[p_bone].write[p_index] = cone;
+		notify_property_list_changed();
 	}
 
 	Vector3 get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
