@@ -5,14 +5,14 @@
 [sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_bqj4w"]
 root_bone = "Bone"
 constraint_count = 2
-constraints/0/name = "0"
+constraints/0/name = "Bone"
 constraints/0/kusudama_twist = 0.0
 constraints/0/kusudama_limit_cone_count = 2
 constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/0/kusudama_limit_cone/0/radius = 1.0
 constraints/0/kusudama_limit_cone/1/center = Vector3(0, 0, 1)
 constraints/0/kusudama_limit_cone/1/radius = 1.0
-constraints/1/name = "1"
+constraints/1/name = "Bone.001"
 constraints/1/kusudama_twist = 0.0
 constraints/1/kusudama_limit_cone_count = 1
 constraints/1/kusudama_limit_cone/0/center = Vector3(0, 0, 1)
