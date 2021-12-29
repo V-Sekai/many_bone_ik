@@ -424,8 +424,8 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		ERR_FAIL_INDEX_V(index, constraint_count, false);
 		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone";
 		if (what == "name") {
-			// FIXME: ifire 2021-12-28 Return string
-			r_ret = itos(index);
+			ERR_FAIL_INDEX_V(index, constraint_names.size(), false);
+			r_ret = constraint_names[index];
 			return true;
 		} else if (what == "kusudama_twist") {
 			r_ret = get_kusudama_twist(index);
@@ -497,7 +497,9 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		ERR_FAIL_INDEX_V(index, constraint_count, false);
 		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
 		if (what == "name") {
-			return false;
+			ERR_FAIL_INDEX_V(index, constraint_names.size(), false);
+			constraint_names.write[index] = p_value;
+			return true;
 		} else if (what == "kusudama_twist") {
 			set_kusudama_twist(index, p_value);
 			return true;
@@ -602,6 +604,7 @@ void SkeletonModification3DEWBIK::set_effector_depth_falloff(int32_t p_effector_
 void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 	int32_t old_count = constraint_count;
 	constraint_count = p_count;
+	constraint_names.resize(p_count);
 	kusudana_twist.resize(p_count);
 	kusudama_limit_cone_count.resize(p_count);
 	kusudama_limit_cones.resize(p_count);
