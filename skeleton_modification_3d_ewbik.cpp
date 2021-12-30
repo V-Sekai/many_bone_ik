@@ -411,7 +411,7 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			r_ret = get_effector_depth_falloff(index);
 			return true;
 		} else if (what == "remove") {
-			r_ret = true;
+			r_ret = false;
 			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
