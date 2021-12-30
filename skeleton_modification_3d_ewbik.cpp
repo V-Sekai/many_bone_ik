@@ -318,7 +318,6 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,65535,1"));
-	p_list->push_back(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,179.99,0.01,degrees"));
 	p_list->push_back(PropertyInfo(Variant::INT, "effector_count", PROPERTY_HINT_RANGE, "0,65535,1"));
 	for (int i = 0; i < effector_count; i++) {
 		PropertyInfo effector_name;
@@ -383,9 +382,6 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 	String name = p_name;
 	if (name == "ik_iterations") {
 		r_ret = get_ik_iterations();
-		return true;
-	} else if (name == "default_damp") {
-		r_ret = get_default_damp();
 		return true;
 	} else if (name == "effector_count") {
 		r_ret = get_effector_count();
@@ -455,9 +451,6 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 	String name = p_name;
 	if (name == "ik_iterations") {
 		set_ik_iterations(p_value);
-		return true;
-	} else if (name == "default_damp") {
-		set_default_damp(p_value);
 		return true;
 	} else if (name == "effector_count") {
 		set_effector_count(p_value);
@@ -541,9 +534,13 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
+	ClassDB::bind_method(D_METHOD("get_default_degrees_damp"), &SkeletonModification3DEWBIK::get_default_degrees_damp);
+	ClassDB::bind_method(D_METHOD("set_default_degrees_damp", "damp"), &SkeletonModification3DEWBIK::set_default_degrees_damp);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
 
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180,0.01", PROPERTY_USAGE_NO_EDITOR), "set_default_degrees_damp", "get_default_degrees_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_degrees_damp", PROPERTY_HINT_RANGE, "0.01,180,0.01,degrees", PROPERTY_USAGE_EDITOR), "set_default_degrees_damp", "get_default_degrees_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
 }
@@ -555,12 +552,12 @@ SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
 }
 
-float SkeletonModification3DEWBIK::get_default_damp() const {
-	return default_damp;
+float SkeletonModification3DEWBIK::get_default_degrees_damp() const {
+	return Math::rad2deg(default_damp);
 }
 
-void SkeletonModification3DEWBIK::set_default_damp(float p_default_damp) {
-	default_damp = p_default_damp;
+void SkeletonModification3DEWBIK::set_default_degrees_damp(float p_default_damp) {
+	default_damp = Math::deg2rad(p_default_damp);
 }
 
 bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
@@ -675,4 +672,12 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_bone, 
 		set_kusudama_limit_cone(p_bone, cone_i, Vector3(0.f, 0.f, 1.0f), 1.0f);
 	}
 	notify_property_list_changed();
+}
+
+float SkeletonModification3DEWBIK::get_default_damp() const {
+	return default_damp;
+}
+
+void SkeletonModification3DEWBIK::set_default_damp(float p_default_damp) {
+	default_damp = p_default_damp;
 }

@@ -123,6 +123,8 @@ public:
 
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
+	float get_default_degrees_damp() const;
+	void set_default_degrees_damp(float p_default_damp);
 	float get_default_damp() const;
 	void set_default_damp(float p_default_damp);
 	void set_constraint_count(int32_t p_count);
