@@ -206,7 +206,7 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 		Vector<int32_t> roots;
 		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 			int32_t parent = skeleton->get_bone_parent(bone_i);
-			if (parent == -1) {
+			if (parent != -1 && skeleton->get_bone_parent(parent) == -1) {
 				roots.push_back(bone_i);
 			}
 		}
