@@ -279,9 +279,13 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		BoneId bone_id = skeleton->find_bone(bone);
 		Vector3 priority = data->priority;
 		float depth_falloff = data->depth_falloff;
-		ERR_CONTINUE(bone_id == -1);
+		if (bone_id == -1) {
+			continue;
+		}
 		Ref<IKBone3D> ik_bone_3d = segmented_skeleton->find_bone(bone_id);
-		ERR_CONTINUE(ik_bone_3d.is_null());
+		if (ik_bone_3d.is_null()) {
+			continue;
+		}
 		if (!ik_bone_3d->is_pin()) {
 			ik_bone_3d->create_pin();
 		}
