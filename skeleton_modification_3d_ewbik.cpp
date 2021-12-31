@@ -680,5 +680,5 @@ void SkeletonModification3DEWBIK::set_default_damp(float p_default_damp) {
 String SkeletonModification3DEWBIK::get_effector_bone_name(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), "");
 	Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
-	data->get_name(p_bone);
+	return data->get_name();
 }
