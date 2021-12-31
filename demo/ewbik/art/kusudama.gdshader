@@ -1,4 +1,5 @@
 shader_type spatial;
+render_mode unshaded;
 
 uniform int coneCount : hint_range(0, 30) = 1;
 
