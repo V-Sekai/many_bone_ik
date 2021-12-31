@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode skip_vertex_transform;
+render_mode skip_vertex_transform, unshaded;
 
 uniform int coneCount : hint_range(0, 30) = 30;
 
@@ -174,8 +174,6 @@ void fragment() {
 	}
 	colorAllowed += (colorAllowed + fwidth(colorAllowed)); 
 	colorAllowed /= 2.0;
-	vec3 lightCol = vec3(1.0,0.8,0.0);
-	float gain = NORMAL.z < 0.0 ? -0.3 : 0.5;
 	ALBEDO = colorAllowed.rgb;
 	ALPHA = colorAllowed.a;
 }
