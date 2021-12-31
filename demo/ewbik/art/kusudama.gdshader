@@ -7,7 +7,7 @@ uniform int coneCount : hint_range(0, 30) = 30;
 // Each group of 4 represents the xyz coordinates of the cone direction
 // vector in model space and the fourth element represents radius
 
-uniform float coneSequence[120]; // 4 * 30
+uniform vec4 coneSequence[30];
 
 varying vec3 vertModelNormal;
 
@@ -72,7 +72,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 	int currentCondition = -3;
 	
 	if(coneCounts == 1) {
-		vec4 cone = vec4(coneSequence[0], coneSequence[1], coneSequence[3], coneSequence[4]);
+		vec4 cone = coneSequence[0];
 		int inCone = isInCone(normalDir, cone, boundaryWidth);
 		if (inCone == 0) {
 			inCone = -1;
@@ -87,31 +87,11 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 	} else {
 		for(int i=0; i<coneCounts-1; i+=3) {
 			
-			int idx = i*3; 
-			// FIXME: fire 2021-12-28 The indexing is wrong here.
-			vec4 cone1 = vec4(
-				coneSequence[coneCount * 4 + (idx * 4) + 0], 
-				coneSequence[coneCount * 4 + (idx * 4) + 1], 
-				coneSequence[coneCount * 4 + (idx * 4) + 2],
-				coneSequence[coneCount * 4 + (idx * 4) + 3]);
-			vec4 tangent1 = vec4(
-				coneSequence[coneCount * 4 + ((idx + 0) * 4) + 0],
-				coneSequence[coneCount * 4 + ((idx + 1) * 4) + 1],
-				coneSequence[coneCount * 4 + ((idx + 2) * 4) + 2],
-				coneSequence[coneCount * 4 + ((idx + 3) * 4) + 3]
-			);
-			vec4 tangent2 = vec4(
-				coneSequence[coneCount * 4 + ((idx+2) * 4) + 0],
-				coneSequence[coneCount * 4 + ((idx+2) * 4) + 1],
-				coneSequence[coneCount * 4 + ((idx+2) * 4) + 2],
-				coneSequence[coneCount * 4 + ((idx+2) * 4) + 3]
-			);
-			vec4 cone2 = vec4(
-				coneSequence[coneCount * 4 + ((idx+3) * 4) + 0],
-				coneSequence[coneCount * 4 + ((idx+3) * 4) + 1],
-				coneSequence[coneCount * 4 + ((idx+3) * 4) + 2],
-				coneSequence[coneCount * 4 + ((idx+3) * 4) + 3]
-			);
+			int idx = i*3;
+			vec4 cone1 = coneSequence[coneCount + idx];
+			vec4 tangent1 = coneSequence[coneCount + idx + 1];
+			vec4 tangent2 = coneSequence[coneCount + idx + 2];
+			vec4 cone2 = coneSequence[coneCount  + idx + 3];
 										
 			int inCone1 = isInCone(normalDir, cone1, boundaryWidth);
 			if (inCone1 == 0){

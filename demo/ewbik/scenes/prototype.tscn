@@ -23,7 +23,8 @@ modifications/0 = SubResource( "SkeletonModification3DEWBIK_bqj4w" )
 
 [node name="Skeleton3D" parent="Z_UP/Armature" index="0"]
 bones/0/rotation = Quaternion(0.707107, 1.47251e-07, 1.47251e-07, 0.707107)
-bones/1/rotation = Quaternion(4.69457e-09, -1.03832e-07, 0.000290398, 1)
+bones/1/position = Vector3(4.13784e-09, 4.18708, -0.0279775)
+bones/1/rotation = Quaternion(4.69699e-09, -1.03989e-07, 0.000290542, 1)
 bones/1/scale = Vector3(1, 1, 1)
 modification_stack = SubResource( "SkeletonModificationStack3D_7vlvp" )
 
