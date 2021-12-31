@@ -4,13 +4,15 @@
 
 [sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_bqj4w"]
 root_bone = "Bone"
+default_damp = 0.00174533
+ik_iterations = 1
 effector_count = 1
 effectors/0/name = "Bone.001"
 effectors/0/target_node = NodePath("../target")
 effectors/0/use_node_rotation = false
 effectors/0/priority = Vector3(1, 0.1, 1)
 effectors/0/depth_falloff = 1.0
-effectors/0/remove = true
+effectors/0/remove = false
 
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_7vlvp"]
 enabled = true
@@ -20,9 +22,12 @@ modifications/0 = SubResource( "SkeletonModification3DEWBIK_bqj4w" )
 [node name="RiggedSimple" instance=ExtResource( "1" )]
 
 [node name="Skeleton3D" parent="Z_UP/Armature" index="0"]
-bones/0/position = Vector3(0, -1.35973e-07, -4.18033)
-bones/1/rotation = Quaternion(0, -0.000290742, 0, 1)
+bones/0/rotation = Quaternion(0.707107, 1.47251e-07, 1.47251e-07, 0.707107)
+bones/1/rotation = Quaternion(4.69457e-09, -1.03832e-07, 0.000290398, 1)
+bones/1/scale = Vector3(1, 1, 1)
 modification_stack = SubResource( "SkeletonModificationStack3D_7vlvp" )
 
 [node name="target" type="Node3D" parent="Z_UP/Armature" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.15869, 1.82214, 4.52008)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.15869, 1.74157, 4.52008)
+
+[node name="Node3D" type="Node3D" parent="." index="2"]
