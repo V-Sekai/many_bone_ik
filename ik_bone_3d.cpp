@@ -54,12 +54,12 @@ Ref<IKBone3D> IKBone3D::get_parent() const {
 	return parent;
 }
 
-void IKBone3D::set_effector(const Ref<IKPin3D> &p_effector) {
-	effector = p_effector;
+void IKBone3D::set_pin(const Ref<IKPin3D> &p_pin) {
+	pin = p_pin;
 }
 
-Ref<IKPin3D> IKBone3D::get_effector() const {
-	return effector;
+Ref<IKPin3D> IKBone3D::get_pin() const {
+	return pin;
 }
 
 void IKBone3D::set_transform(const Transform3D &p_transform) {
@@ -86,10 +86,13 @@ void IKBone3D::set_rot_delta(const Basis &p_rot) {
 
 void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
+	if (bone_id == -1) {
+		return;
+	}
 	xform = p_skeleton->global_pose_to_local_pose(bone_id, xform);
 	set_transform(xform);
-	if (is_effector()) {
-		effector->update_goal_transform(p_skeleton);
+	if (is_pin()) {
+		pin->update_goal_transform(p_skeleton);
 	}
 }
 
@@ -101,35 +104,35 @@ void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_stre
 	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());
 }
 
-void IKBone3D::create_effector() {
-	effector = Ref<IKPin3D>(memnew(IKPin3D(this)));
+void IKBone3D::create_pin() {
+	pin = Ref<IKPin3D>(memnew(IKPin3D(this)));
 }
 
-bool IKBone3D::is_effector() const {
-	return effector.is_valid();
+bool IKBone3D::is_pin() const {
+	return pin.is_valid();
 }
 
-Vector<BoneId> IKBone3D::get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const {
-	Vector<BoneId> children_with_effector;
+Vector<BoneId> IKBone3D::get_children_with_pin_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const {
+	Vector<BoneId> children_with_pin;
 	Vector<BoneId> children = p_skeleton->get_bone_children(bone_id);
 	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 		BoneId child_bone = children[child_i];
-		if (IKBone3D::has_effector_descendant(child_bone, p_skeleton, p_map)) {
-			children_with_effector.push_back(child_bone);
+		if (IKBone3D::has_pin_descendant(child_bone, p_skeleton, p_map)) {
+			children_with_pin.push_back(child_bone);
 		}
 	}
-	return children_with_effector;
+	return children_with_pin;
 }
 
-bool IKBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) {
-	if (p_map.has(p_bone) && p_map[p_bone]->is_effector()) {
+bool IKBone3D::has_pin_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) {
+	if (p_map.has(p_bone) && p_map[p_bone]->is_pin()) {
 		return true;
 	} else {
 		bool result = false;
 		Vector<BoneId> children = p_skeleton->get_bone_children(p_bone);
 		for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 			BoneId child_bone = children[child_i];
-			if (IKBone3D::has_effector_descendant(child_bone, p_skeleton, p_map)) {
+			if (IKBone3D::has_pin_descendant(child_bone, p_skeleton, p_map)) {
 				result = true;
 				break;
 			}
@@ -139,9 +142,9 @@ bool IKBone3D::has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, co
 }
 
 void IKBone3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_effector"), &IKBone3D::get_effector);
-	ClassDB::bind_method(D_METHOD("set_effector", "effector"), &IKBone3D::set_effector);
-	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_effector);
+	ClassDB::bind_method(D_METHOD("get_pin"), &IKBone3D::get_pin);
+	ClassDB::bind_method(D_METHOD("set_pin", "pin"), &IKBone3D::set_pin);
+	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pin);
 }
 
 IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent, float p_default_dampening) {

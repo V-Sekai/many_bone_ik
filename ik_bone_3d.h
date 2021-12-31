@@ -47,14 +47,14 @@ private:
 	BoneId bone_id = -1;
 	Ref<IKBone3D> parent = nullptr;
 	Vector<Ref<IKBone3D>> children;
-	Ref<IKPin3D> effector = nullptr;
+	Ref<IKPin3D> pin = nullptr;
 	IKTransform3D xform;
 	Basis rot_delta;
 	Vector3 translation_delta;
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
-	static bool has_effector_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map);
+	static bool has_pin_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map);
 
 protected:
 	static void _bind_methods();
@@ -64,8 +64,8 @@ public:
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
 	Ref<IKBone3D> get_parent() const;
-	void set_effector(const Ref<IKPin3D> &p_effector);
-	Ref<IKPin3D> get_effector() const;
+	void set_pin(const Ref<IKPin3D> &p_pin);
+	Ref<IKPin3D> get_pin() const;
 	void set_transform(const Transform3D &p_transform);
 	Transform3D get_transform() const;
 	void set_global_transform(const Transform3D &p_transform);
@@ -76,9 +76,9 @@ public:
 	Transform3D get_global_transform() const;
 	void set_initial_transform(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);
-	void create_effector();
-	bool is_effector() const;
-	Vector<BoneId> get_children_with_effector_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const;
+	void create_pin();
+	bool is_pin() const;
+	Vector<BoneId> get_children_with_pin_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const;
 
 	IKBone3D() {}
 	IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);

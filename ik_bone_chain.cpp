@@ -39,11 +39,11 @@ Ref<IKBone3D> IKBoneChain::get_tip() const {
 }
 
 bool IKBoneChain::is_root_pinned() const {
-	return root->get_parent().is_null() && root->is_effector();
+	return root->get_parent().is_null() && root->is_pin();
 }
 
 bool IKBoneChain::is_tip_effector() const {
-	return tip->is_effector();
+	return tip->is_pin();
 }
 
 Vector<Ref<IKBoneChain>> IKBoneChain::get_child_chains() const {
@@ -72,16 +72,16 @@ void IKBoneChain::generate_skeleton_segments(const HashMap<BoneId, Ref<IKBone3D>
 
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
-		Vector<BoneId> children_with_effector_descendants = temp_tip->get_children_with_effector_descendants(skeleton, p_map);
-		if (children_with_effector_descendants.size() > 1 || temp_tip->is_effector()) {
+		Vector<BoneId> children_with_pin_descendants = temp_tip->get_children_with_pin_descendants(skeleton, p_map);
+		if (children_with_pin_descendants.size() > 1 || temp_tip->is_pin()) {
 			tip = temp_tip;
-			for (int32_t child_i = 0; child_i < children_with_effector_descendants.size(); child_i++) {
-				BoneId child_bone = children_with_effector_descendants[child_i];
+			for (int32_t child_i = 0; child_i < children_with_pin_descendants.size(); child_i++) {
+				BoneId child_bone = children_with_pin_descendants[child_i];
 				child_chains.push_back(Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, p_map, tip))));
 			}
 			break;
-		} else if (children_with_effector_descendants.size() == 1) {
-			BoneId bone_id = children_with_effector_descendants[0];
+		} else if (children_with_pin_descendants.size() == 1) {
+			BoneId bone_id = children_with_pin_descendants[0];
 			if (p_map.has(bone_id)) {
 				Ref<IKBone3D> next = p_map[bone_id];
 				next->set_parent(temp_tip);
@@ -149,7 +149,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 			temp_tip = next;
 		} else {
 			tip = temp_tip;
-			tip->create_effector();
+			tip->create_pin();
 			break;
 		}
 	}
@@ -204,7 +204,7 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 			BoneId bone = list[name_i]->get_bone_id();
 			String bone_name = skeleton->get_bone_name(bone);
 			String effector;
-			if (list[name_i]->is_effector()) {
+			if (list[name_i]->is_pin()) {
 				effector += "Effector ";
 			}
 			String prefix;
@@ -221,7 +221,7 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 
 void IKBoneChain::update_effector_list() {
 	heading_weights.clear();
-	real_t depth_falloff = is_tip_effector() ? tip->get_effector()->depth_falloff : 1.0;
+	real_t depth_falloff = is_tip_effector() ? tip->get_pin()->depth_falloff : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
 		chain->update_effector_list();
@@ -233,7 +233,7 @@ void IKBoneChain::update_effector_list() {
 		}
 	}
 	if (is_tip_effector()) {
-		Ref<IKPin3D> effector = tip->get_effector();
+		Ref<IKPin3D> effector = tip->get_pin();
 		effector_list.push_back(effector);
 		Vector<real_t> weights;
 		weights.push_back(effector->weight);
@@ -328,7 +328,7 @@ void IKBoneChain::create_headings() {
 	tip_headings.resize(n);
 
 	if (is_tip_effector()) {
-		tip->get_effector()->create_headings(heading_weights);
+		tip->get_pin()->create_headings(heading_weights);
 	}
 }
 

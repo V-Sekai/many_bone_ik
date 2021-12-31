@@ -282,11 +282,11 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		ERR_CONTINUE(bone_id == -1);
 		Ref<IKBone3D> ik_bone_3d = segmented_skeleton->find_bone(bone_id);
 		ERR_CONTINUE(ik_bone_3d.is_null());
-		if (!ik_bone_3d->is_effector()) {
-			ik_bone_3d->create_effector();
+		if (!ik_bone_3d->is_pin()) {
+			ik_bone_3d->create_pin();
 		}
 		effectors_map[ik_bone_3d->get_bone_id()] = ik_bone_3d;
-		Ref<IKPin3D> effector_3d = ik_bone_3d->get_effector();
+		Ref<IKPin3D> effector_3d = ik_bone_3d->get_pin();
 		effector_3d->set_target_node(skeleton, data->target_node);
 		effector_3d->update_target_cache(skeleton);
 		effector_3d->set_priority(priority);
