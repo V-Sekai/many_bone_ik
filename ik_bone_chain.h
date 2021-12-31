@@ -93,7 +93,6 @@ public:
 	void debug_print_chains(Vector<bool> p_levels = Vector<bool>());
 
 	IKBoneChain() {}
-	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent = nullptr);
 	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
 			const HashMap<BoneId, Ref<IKBone3D>> &p_map, const Ref<IKBoneChain> &p_parent = nullptr);
 	~IKBoneChain() {}

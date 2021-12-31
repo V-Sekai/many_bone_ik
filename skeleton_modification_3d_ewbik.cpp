@@ -230,7 +230,8 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	if (!skeleton) {
 		return;
 	}
-	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index)));
+	HashMap<BoneId, Ref<IKBone3D>> map;
+	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index, map)));
 	segmented_skeleton->generate_default_segments_from_root();
 	update_bone_list();
 	update_effectors_map();

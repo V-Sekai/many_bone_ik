@@ -39,10 +39,12 @@ Ref<IKBone3D> IKBoneChain::get_tip() const {
 }
 
 bool IKBoneChain::is_root_pinned() const {
+	ERR_FAIL_NULL_V(root, false);
 	return root->get_parent().is_null() && root->is_pin();
 }
 
 bool IKBoneChain::is_tip_effector() const {
+	ERR_FAIL_NULL_V(tip, false);
 	return tip->is_pin();
 }
 
@@ -130,7 +132,6 @@ void IKBoneChain::generate_bones_map() {
 
 void IKBoneChain::generate_default_segments_from_root() {
 	child_chains.clear();
-
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
 		Vector<BoneId> children = skeleton->get_bone_children(temp_tip->get_bone_id());
@@ -138,7 +139,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 			tip = temp_tip;
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
-				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, tip)));
+				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));				
 				child_segment->generate_default_segments_from_root();
 				child_chains.push_back(child_segment);
 			}
@@ -237,7 +238,7 @@ void IKBoneChain::update_effector_list() {
 		effector_list.push_back(effector);
 		Vector<real_t> weights;
 		weights.push_back(effector->weight);
-		
+
 		if (effector->get_follow_x()) {
 			weights.push_back(effector->weight);
 			weights.push_back(effector->weight);
@@ -382,15 +383,6 @@ void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 void IKBoneChain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_root_pinned"), &IKBoneChain::is_root_pinned);
 	ClassDB::bind_method(D_METHOD("is_tip_effector"), &IKBoneChain::is_tip_effector);
-}
-
-IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent) {
-	skeleton = p_skeleton;
-	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone)));
-	if (p_parent.is_valid()) {
-		parent_chain = p_parent;
-		root->set_parent(p_parent->get_tip());
-	}
 }
 
 IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
