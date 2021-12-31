@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded;
+render_mode unshaded, depth_draw_always;
 
 uniform int coneCount : hint_range(0, 30) = 1;
 
@@ -126,7 +126,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 			} else {				 
 				bool inIntercone = isInInterConePath(normalDir, tangent1, cone1, tangent2, cone2);
 				int interconeCondition = inIntercone ? 0 : -3; 
-				currentCondition = getAllowabilityCondition(currentCondition, interconeCondition);					
+				currentCondition = getAllowabilityCondition(currentCondition, interconeCondition);
 			}
 		}
 	}
@@ -142,7 +142,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 }
 
 void fragment() {
-	vec4 colorAllowed = colorAllowed(NORMAL, coneCount, 0.02, COLOR);  
+	vec4 colorAllowed = colorAllowed(NORMAL, coneCount, 0.02, COLOR);
 	if (colorAllowed.a == 0.0) {
 		discard;
 	}
