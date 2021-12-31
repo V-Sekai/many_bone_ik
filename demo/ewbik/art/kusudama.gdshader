@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode skip_vertex_transform, unshaded;
+render_mode unshaded;
 
 uniform int coneCount : hint_range(0, 30) = 30;
 
@@ -8,8 +8,6 @@ uniform int coneCount : hint_range(0, 30) = 30;
 // vector in model space and the fourth element represents radius
 
 uniform vec4 coneSequence[30];
-
-varying vec3 vertModelNormal;
 
 bool isInInterConePath(in vec3 normalDir, in vec4 tangent1, in vec4 cone1, in vec4 tangent2, in vec4 cone2) {
 	vec3 c1xc2 = cross(cone1.xyz, cone2.xyz);		
@@ -143,17 +141,11 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 	return result;
 }
 
-void vertex() {
-	vertModelNormal = normalize((MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
-}
-
 void fragment() {
-	vec4 colorAllowed = colorAllowed(vertModelNormal, coneCount, 0.02, COLOR);  
+	vec4 colorAllowed = colorAllowed(NORMAL, coneCount, 0.02, COLOR);  
 	if (colorAllowed.a == 0.0) {
 			discard;
 	}
-	colorAllowed += (colorAllowed + fwidth(colorAllowed)); 
-	colorAllowed /= 2.0;
 	ALBEDO = colorAllowed.rgb;
 	ALPHA = colorAllowed.a;
 }
