@@ -75,7 +75,7 @@ void IKBoneChain::generate_skeleton_segments(const HashMap<BoneId, Ref<IKBone3D>
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
 		Vector<BoneId> children_with_pin_descendants = temp_tip->get_children_with_pin_descendants(skeleton, p_map);
-		if (children_with_pin_descendants.size() > 1 || temp_tip->is_pin()) {
+		if (children_with_pin_descendants.size() > 1) {
 			tip = temp_tip;
 			for (int32_t child_i = 0; child_i < children_with_pin_descendants.size(); child_i++) {
 				BoneId child_bone = children_with_pin_descendants[child_i];

@@ -91,7 +91,7 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	}
 	xform = p_skeleton->global_pose_to_local_pose(bone_id, xform);
 	set_transform(xform);
-	if (is_pin()) {
+	if (pin.is_valid()) {
 		pin->update_goal_transform(p_skeleton);
 	}
 }
