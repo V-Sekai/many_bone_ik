@@ -88,7 +88,6 @@ protected:
 	Vector<Ref<IKEffector3DData>> get_bone_effectors() const;
 
 public:
-	void iterated_improved_solver(real_t p_damp);
 	bool get_debug_skeleton() const;
 	void set_debug_skeleton(bool p_enabled);
 	void set_ik_iterations(int32_t p_iterations);
