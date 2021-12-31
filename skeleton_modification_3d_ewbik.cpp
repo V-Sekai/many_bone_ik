@@ -239,7 +239,8 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	}
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index)));
 	segmented_skeleton->generate_default_segments_from_root();
-	update_segments();
+	update_bone_list();
+	update_effectors_map();
 	segmented_skeleton->update_effector_list();
 	update_bone_list(debug_skeleton);
 	is_dirty = false;
@@ -263,16 +264,6 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 		}
 		bone->set_skeleton_bone_transform(skeleton, p_blending_delta);
 	}
-}
-
-void SkeletonModification3DEWBIK::update_segments() {
-	if (!effector_count) {
-		return;
-	}
-	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index, effectors_map)));
-	segmented_skeleton->generate_default_segments_from_root();
-	update_bone_list();
-	update_effectors_map();
 }
 
 void SkeletonModification3DEWBIK::update_bone_list(bool p_debug_skeleton) {

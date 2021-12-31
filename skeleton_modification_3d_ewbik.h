@@ -73,7 +73,6 @@ private:
 	int32_t ik_iterations = 15;
 	float default_damp = Math::deg2rad(5.f);
 
-	void update_segments();
 	void update_effectors_map();
 	void update_bone_list(bool p_debug_skeleton = false);
 	void update_shadow_bones_transform();
