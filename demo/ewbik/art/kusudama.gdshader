@@ -67,8 +67,7 @@ int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
 //returns a color corresponding to the allowability of this region, or otherwise the boundaries corresponding 
 //to various cones and tangentCone 
 vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth, in vec4 color) {
-	int currentCondition = -3;
-	
+	int currentCondition = -3;	
 	if (coneCounts == 1) {
 		vec4 cone = coneSequence[0];		
 		int inCone = isInCone(normalDir, cone, boundaryWidth);
@@ -84,19 +83,19 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 		}
 		currentCondition = getAllowabilityCondition(currentCondition, inCone);
 	} else {
-		for(int i=0; i<coneCounts-1; i+=3) {
-			
+		for(int i=0; i < coneCounts-1; i += 3) {
 			int idx = i*3;
-			vec4 cone1 = coneSequence[coneCount + idx];
-			vec4 tangent1 = coneSequence[coneCount + idx + 1];
-			vec4 tangent2 = coneSequence[coneCount + idx + 2];
-			vec4 cone2 = coneSequence[coneCount  + idx + 3];
+			vec4 cone1 = coneSequence[idx];
+			vec4 tangent1 = coneSequence[idx + 1];
+			vec4 tangent2 = coneSequence[idx + 2];
+			vec4 cone2 = coneSequence[idx + 3];
 										
 			int inCone1 = isInCone(normalDir, cone1, boundaryWidth);
-			if (inCone1 == 0){
+			bool isInCone1 = inCone1 == 0;
+			if (isInCone1) {
 				inCone1 = -1;
 			} else {
-				if(inCone1 < 0) {
+				if (inCone1 < 0) {
 					inCone1 = 0;
 				} else {
 					inCone1 = -3;
@@ -105,7 +104,8 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 			currentCondition = getAllowabilityCondition(currentCondition, inCone1);
 				
 			int inCone2 = isInCone(normalDir, cone2, boundaryWidth);
-			if (inCone2 == 0) {
+			bool isInCone2 = inCone2 == 0;
+			if (isInCone1) {
 				inCone2 = -1;
 			} else {
 				if ( inCone2  < 0) {
@@ -143,7 +143,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 }
 
 void vertex() {
-	normalModelDir = NORMAL; 
+	normalModelDir = NORMAL;
 }
 
 void fragment() {
@@ -151,5 +151,6 @@ void fragment() {
 	if (colorAllowed.a == 0.0) {
 		discard;
 	}
+	ALBEDO = colorAllowed.rgb;
 	ALPHA = colorAllowed.a;
 }
