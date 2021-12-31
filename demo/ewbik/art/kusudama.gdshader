@@ -56,10 +56,10 @@ int getAllowabilityCondition(in int currentCondition, in int setTo) {
 //return -1 if normalDir is less than (cone.a) radians from cone.rgb
 int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
 	float arcDistToCone = acos(dot(normalDir, cone.rgb));
-	if(arcDistToCone > (cone.a+(boundaryWidth/2.))) {
+	if (arcDistToCone > (cone.a+(boundaryWidth/2.))) {
 		return 1; 
 	}
-	if(arcDistToCone < (cone.a-(boundaryWidth/2.))) {
+	if (arcDistToCone < (cone.a-(boundaryWidth/2.))) {
 		return -1;
 	}
 	return 0;
@@ -68,9 +68,9 @@ int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
 //returns a color corresponding to the allowability of this region, or otherwise the boundaries corresponding 
 //to various cones and tangentCone 
 vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth) {
-	int currentCondition = -3;	
+	int currentCondition = -3;
 	if (coneCounts == 1) {
-		vec4 cone = coneSequence[0];		
+		vec4 cone = coneSequence[0];
 		int inCone = isInCone(normalDir, cone, boundaryWidth);
 		bool isInCone = inCone == 0;
 		if (isInCone) {
@@ -82,16 +82,17 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 				inCone = -3;
 			}
 		}
-		currentCondition = getAllowabilityCondition(currentCondition, inCone);	} else {
+		currentCondition = getAllowabilityCondition(currentCondition, inCone);
+	} else {
 		for(int i=0; i < coneCounts-1; i += 3) {
-	
+			normalDir = normalize(normalDir);
 			int idx = i*3; 
 			vec4 cone1 = coneSequence[idx];
-			vec4 tangent1 = coneSequence[idx+1];			
-			vec4 tangent2 = coneSequence[idx+2];			
+			vec4 tangent1 = coneSequence[idx+1];
+			vec4 tangent2 = coneSequence[idx+2];
 			vec4 cone2 = coneSequence[idx+3];
-										
-			int inCone1 = isInCone(normalDir, cone1, boundaryWidth);
+
+			int inCone1 = isInCone(normalDir, cone1, 0);
 			if (inCone1 == 0) {
 				inCone1 = -1;
 			} else {
@@ -102,8 +103,8 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 				}
 			}
 			currentCondition = getAllowabilityCondition(currentCondition, inCone1);
-				
-			int inCone2 = isInCone(normalDir, cone2, boundaryWidth);
+
+			int inCone2 = isInCone(normalDir, cone2, 0);
 			if (inCone2 == 0) {
 				inCone2 = -1;
 			} else {
@@ -114,19 +115,19 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 				}
 			}
 			currentCondition = getAllowabilityCondition(currentCondition, inCone2);
-		
+
 			int inTan1 = isInCone(normalDir, tangent1, boundaryWidth); 
 			int inTan2 = isInCone(normalDir, tangent2, boundaryWidth);
 			
-			if (float(inTan1) < 1. || float(inTan2)  < 1.) {			
-				inTan1 =  inTan1 == 0 ? -2 : -3;
+			if (float(inTan1) < 1. || float(inTan2) < 1.) {
+				inTan1 = inTan1 == 0 ? -2 : -3;
 				currentCondition = getAllowabilityCondition(currentCondition, inTan1);
-				inTan2 =  inTan2 == 0 ? -2 : -3;
+				inTan2 = inTan2 == 0 ? -2 : -3;
 				currentCondition = getAllowabilityCondition(currentCondition, inTan2);
 			} else {				 
 				bool inIntercone = isInInterConePath(normalDir, tangent1, cone1, tangent2, cone2);
-				int interconeCondition = inIntercone ? 0 : -3; 
-				currentCondition = getAllowabilityCondition(currentCondition, interconeCondition);					
+				int interconeCondition = inIntercone ? 0 : -3;
+				currentCondition = getAllowabilityCondition(currentCondition, interconeCondition);
 			}
 		}
 	}
@@ -134,7 +135,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 	if (currentCondition != 0) {
 		float onTanBoundary = abs(currentCondition) == 2 ? 0.3 : 0.0; 
 		float onConeBoundary = abs(currentCondition) == 1 ? 0.3 : 0.0;
-		result += vec4(0.0, onConeBoundary, onTanBoundary, 1.0);
+		result += vec4(0.0, onConeBoundary, onTanBoundary, 0.0);
 	} else {
 		return vec4(0.0, 0.0, 0.0, 0.0);
 	}

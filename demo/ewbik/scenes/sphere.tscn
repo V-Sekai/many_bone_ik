@@ -6,8 +6,8 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_oppso"]
 render_priority = 0
 shader = ExtResource( "2_lsh2n" )
-shader_param/coneCount = 2
-shader_param/coneSequence = PackedFloat32Array(0, 1, 0, 1, 0, 0, 1, 1)
+shader_param/coneCount = 6
+shader_param/coneSequence = PackedFloat32Array(0, 0.7, -0.7, 0.78, -1, 0, 0, 0.785, 1, 0, 0, 0.785, 0, 0.707, 0.707, 0.785, 0, 0.707, -0.707, 0, 0, -0.707, 0.707, 0)
 
 [sub_resource type="SphereMesh" id="SphereMesh_av0vs"]
 material = SubResource( "ShaderMaterial_oppso" )
