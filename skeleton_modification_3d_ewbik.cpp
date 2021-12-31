@@ -169,7 +169,7 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		execution_error_found = false;
 		return;
 	}
-	if (pin_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
+	if (pin_count && segmented_skeleton.is_valid() && segmented_skeleton->get_pinned_direct_descendents_size() > 0) {
 		update_shadow_bones_transform();
 		if (segmented_skeleton == nullptr) {
 			return;
@@ -179,8 +179,8 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 			if (segmented_skeleton.is_null()) {
 				continue;
 			}
-			for (int32_t child_i = 0; child_i < segmented_skeleton->get_effector_direct_descendents().size(); child_i++) {
-				Ref<IKBoneChain> child = segmented_skeleton->get_effector_direct_descendents()[child_i];
+			for (int32_t child_i = 0; child_i < segmented_skeleton->get_pinned_direct_descendents().size(); child_i++) {
+				Ref<IKBoneChain> child = segmented_skeleton->get_pinned_direct_descendents()[child_i];
 				if (child.is_null()) {
 					continue;
 				}

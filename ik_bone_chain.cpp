@@ -52,11 +52,11 @@ Vector<Ref<IKBoneChain>> IKBoneChain::get_child_chains() const {
 	return child_chains;
 }
 
-Vector<Ref<IKBoneChain>> IKBoneChain::get_effector_direct_descendents() const {
+Vector<Ref<IKBoneChain>> IKBoneChain::get_pinned_direct_descendents() const {
 	return effector_direct_descendents;
 }
 
-int32_t IKBoneChain::get_effector_direct_descendents_size() const {
+int32_t IKBoneChain::get_pinned_direct_descendents_size() const {
 	return effector_direct_descendents.size();
 }
 
@@ -112,7 +112,7 @@ void IKBoneChain::update_effector_direct_descendents() {
 	} else {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
 			Ref<IKBoneChain> child_segment = child_chains[child_i];
-			effector_direct_descendents.append_array(child_segment->get_effector_direct_descendents());
+			effector_direct_descendents.append_array(child_segment->get_pinned_direct_descendents());
 		}
 	}
 }

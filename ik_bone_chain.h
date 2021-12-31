@@ -84,8 +84,8 @@ public:
 	bool is_root_pinned() const;
 	bool is_tip_effector() const;
 	Vector<Ref<IKBoneChain>> get_child_chains() const;
-	Vector<Ref<IKBoneChain>> get_effector_direct_descendents() const;
-	int32_t get_effector_direct_descendents_size() const;
+	Vector<Ref<IKBoneChain>> get_pinned_direct_descendents() const;
+	int32_t get_pinned_direct_descendents_size() const;
 	Ref<IKBone3D> find_bone(const BoneId p_bone_id);
 	void get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root();
