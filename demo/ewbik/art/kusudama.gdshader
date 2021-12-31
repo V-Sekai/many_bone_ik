@@ -93,7 +93,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 			vec4 tangent2 = coneSequence[idx+2];
 			vec4 cone2 = coneSequence[idx+3];
 
-			int inCone1 = isInCone(normalDir, cone1, 0);
+			int inCone1 = isInCone(normalDir, cone1, boundaryWidth);
 			if (inCone1 == 0) {
 				inCone1 = -1;
 			} else {
@@ -105,7 +105,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 			}
 			currentCondition = getAllowabilityCondition(currentCondition, inCone1);
 
-			int inCone2 = isInCone(normalDir, cone2, 0);
+			int inCone2 = isInCone(normalDir, cone2, boundaryWidth);
 			if (inCone2 == 0) {
 				inCone2 = -1;
 			} else {
