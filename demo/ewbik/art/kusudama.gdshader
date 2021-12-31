@@ -1,6 +1,7 @@
 shader_type spatial;
 render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
 
+uniform vec4 kusudamaColor : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
 uniform int coneCount : hint_range(0, 30) = 1;
 
 //This shader can display up to 30 cones (represented by 30 4d vectors) 
@@ -144,7 +145,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 
 void vertex() {
 	normalModelDir = NORMAL;
-	vertModelColor = COLOR;
+	vertModelColor.rgb = kusudamaColor.rgb;
 }
 
 void fragment() {
@@ -152,10 +153,6 @@ void fragment() {
 	if (colorAllowed.a == 0.0) {
 		discard;
 	}
-	float gain = normalModelDir.y > 0.0 ? -0.3 : 0.5;
-	colorAllowed.rgb = (colorAllowed.rgb + gain) / 2.;
-	vec4 specCol = vec4(1.0, 1.0, 0.6, colorAllowed.a);
-	colorAllowed = colorAllowed.g > 0.8 ? colorAllowed + specCol : colorAllowed;
 	ALBEDO = colorAllowed.rgb;
 	ALPHA = colorAllowed.a;
 }
