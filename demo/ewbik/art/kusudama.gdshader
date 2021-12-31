@@ -142,7 +142,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 }
 
 void fragment() {
-	vec4 colorAllowed = colorAllowed(NORMAL, coneCount, 0.02, COLOR);
+	vec4 colorAllowed = colorAllowed(NORMAL, coneCount, 0.02, vec4(ALBEDO, ALPHA));
 	if (colorAllowed.a == 0.0) {
 		discard;
 	}
