@@ -5,8 +5,8 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ugvrl"]
 render_priority = 0
 shader = ExtResource( "1_8thmg" )
-shader_param/coneCount = null
-shader_param/coneSequence = null
+shader_param/coneCount = 1
+shader_param/coneSequence = PackedFloat32Array(0, 0, 1, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_d41ww"]
 material = SubResource( "ShaderMaterial_ugvrl" )
