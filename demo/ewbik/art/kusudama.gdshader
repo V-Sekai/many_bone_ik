@@ -57,7 +57,7 @@ int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
 	if(arcDistToCone > (cone.a+(boundaryWidth/2.))) {
 		return 1; 
 	}
-	if(arcDistToCone < cone.a-(boundaryWidth/2.)) {
+	if(arcDistToCone < (cone.a-(boundaryWidth/2.))) {
 		return -1;
 	}
 	return 0;
@@ -69,10 +69,11 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 	normalDir = normalize(normalDir);
 	int currentCondition = -3;
 	
-	if(coneCounts == 1) {
-		vec4 cone = coneSequence[0];
+	if (coneCounts == 1) {
+		vec4 cone = coneSequence[0];		
 		int inCone = isInCone(normalDir, cone, boundaryWidth);
-		if (inCone == 0) {
+		bool isInCone = inCone == 0;
+		if (isInCone) {
 			inCone = -1;
 		} else {
 			if (inCone < 0) {
@@ -118,10 +119,10 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 			int inTan1 = isInCone(normalDir, tangent1, boundaryWidth); 
 			int inTan2 = isInCone(normalDir, tangent2, boundaryWidth);
 			
-			if( inTan1 < 1 || inTan2  < 1) {			
-				inTan1 =  inTan1 == 0 ? -2 : -3;
+			if (inTan1 < 1 || inTan2 < 1) {
+				inTan1 = inTan1 == 0 ? -2 : -3;
 				currentCondition = getAllowabilityCondition(currentCondition, inTan1);
-				inTan2 =  inTan2 == 0 ? -2 : -3;
+				inTan2 = inTan2 == 0 ? -2 : -3;
 				currentCondition = getAllowabilityCondition(currentCondition, inTan2);
 			} else {				 
 				bool inIntercone = isInInterConePath(normalDir, tangent1, cone1, tangent2, cone2);
@@ -142,6 +143,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 }
 
 void fragment() {
+	// Problem with left handed versus right handed
 	vec4 colorAllowed = colorAllowed(NORMAL, coneCount, 0.02, vec4(ALBEDO, ALPHA));
 	if (colorAllowed.a == 0.0) {
 		discard;

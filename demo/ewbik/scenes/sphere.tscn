@@ -1,15 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://bsyv5b4bfciqy"]
+[gd_scene load_steps=5 format=3 uid="uid://bsyv5b4bfciqy"]
 
 [ext_resource type="PackedScene" uid="uid://biwb6cjya1b11" path="res://ewbik/art/prototype/sphere.glb" id="1_2e20g"]
 [ext_resource type="Shader" path="res://ewbik/art/kusudama.gdshader" id="2_lsh2n"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_vvggc"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oppso"]
 render_priority = 0
 shader = ExtResource( "2_lsh2n" )
 shader_param/coneCount = 1
-shader_param/coneSequence = PackedFloat32Array(0, 0, 1, 0.6, 0, 0, 1, 0.5)
+shader_param/coneSequence = PackedFloat32Array(0, 0, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_av0vs"]
+material = SubResource( "ShaderMaterial_oppso" )
 
 [node name="sphere" instance=ExtResource( "1_2e20g" )]
 
 [node name="Sphere" parent="." index="0"]
-surface_material_override/0 = SubResource( "ShaderMaterial_vvggc" )
+mesh = SubResource( "SphereMesh_av0vs" )
