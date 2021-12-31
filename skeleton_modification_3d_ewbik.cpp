@@ -526,7 +526,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 			&SkeletonModification3DEWBIK::set_pin_count);
 	ClassDB::bind_method(D_METHOD("remove_pin", "index"),
 			&SkeletonModification3DEWBIK::remove_pin);
-	ClassDB::bind_method(D_METHOD("add_pin", "name", "target_node"), &SkeletonModification3DEWBIK::add_pin);
+	ClassDB::bind_method(D_METHOD("add_pin", "name", "target_node", "use_node_rotation"), &SkeletonModification3DEWBIK::add_pin);
 	ClassDB::bind_method(D_METHOD("find_pin", "name"), &SkeletonModification3DEWBIK::find_pin);
 	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &SkeletonModification3DEWBIK::get_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
