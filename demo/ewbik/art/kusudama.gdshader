@@ -13,7 +13,7 @@ bool isInInterConePath(in vec3 normalDir, in vec4 tangent1, in vec4 cone1, in ve
 	vec3 c1xc2 = cross(cone1.xyz, cone2.xyz);		
 	float c1c2dir = dot(normalDir, c1xc2);
 		
-	if(c1c2dir < 0.0) { 
+	if (c1c2dir < 0.0) { 
 		vec3 c1xt1 = cross(cone1.xyz, tangent1.xyz); 
 		vec3 t1xc2 = cross(tangent1.xyz, cone2.xyz);	
 		float c1t1dir = dot(normalDir, c1xt1);
@@ -21,7 +21,7 @@ bool isInInterConePath(in vec3 normalDir, in vec4 tangent1, in vec4 cone1, in ve
 		
 	 	return (c1t1dir > 0.0 && t1c2dir > 0.0); 
 			
-	}else {
+	} else {
 		vec3 t2xc1 = cross(tangent2.xyz, cone1.xyz);	
 		vec3 c2xt2 = cross(cone2.xyz, tangent2.xyz);	
 		float t2c1dir = dot(normalDir, t2xc1);
@@ -144,7 +144,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 void fragment() {
 	vec4 colorAllowed = colorAllowed(NORMAL, coneCount, 0.02, COLOR);  
 	if (colorAllowed.a == 0.0) {
-			discard;
+		discard;
 	}
 	ALBEDO = colorAllowed.rgb;
 	ALPHA = colorAllowed.a;
