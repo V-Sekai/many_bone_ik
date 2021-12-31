@@ -11,6 +11,7 @@
 			<return type="void" />
 			<argument index="0" name="name" type="String" />
 			<argument index="1" name="target_node" type="NodePath" />
+			<argument index="2" name="arg2" type="bool" />
 			<description>
 			</description>
 		</method>
@@ -20,17 +21,23 @@
 			<description>
 			</description>
 		</method>
-		<method name="get_default_damp" qualifiers="const">
-			<return type="float" />
-			<description>
-			</description>
-		</method>
-		<method name="get_pin_count" qualifiers="const">
+		<method name="get_constraint_count" qualifiers="const">
 			<return type="int" />
 			<description>
 			</description>
 		</method>
 		<method name="get_ik_iterations" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_pin_bone_name" qualifiers="const">
+			<return type="String" />
+			<argument index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_pin_count" qualifiers="const">
 			<return type="int" />
 			<description>
 			</description>
@@ -41,13 +48,7 @@
 			<description>
 			</description>
 		</method>
-		<method name="set_default_damp">
-			<return type="void" />
-			<argument index="0" name="damp" type="float" />
-			<description>
-			</description>
-		</method>
-		<method name="set_pin_count">
+		<method name="set_constraint_count">
 			<return type="void" />
 			<argument index="0" name="count" type="int" />
 			<description>
@@ -59,6 +60,12 @@
 			<description>
 			</description>
 		</method>
+		<method name="set_pin_count">
+			<return type="void" />
+			<argument index="0" name="count" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="update_skeleton">
 			<return type="void" />
 			<description>
@@ -66,6 +73,10 @@
 		</method>
 	</methods>
 	<members>
+		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.0872665">
+		</member>
+		<member name="default_degrees_damp" type="float" setter="set_default_degrees_damp" getter="get_default_degrees_damp" default="5.0">
+		</member>
 		<member name="print_skeleton" type="bool" setter="set_debug_skeleton" getter="get_debug_skeleton" default="false">
 		</member>
 		<member name="root_bone" type="String" setter="set_root_bone" getter="get_root_bone" default="&quot;&quot;">
