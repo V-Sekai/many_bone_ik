@@ -161,12 +161,34 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	if (!enabled) {
 		return;
 	}
-
 	if (is_dirty) {
 		update_skeleton();
 		return;
 	}
-	solve(stack->get_strength());
+	if (stack->get_strength() <= 0.01f) {
+		execution_error_found = false;
+		return;
+	}
+	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
+		update_shadow_bones_transform();
+		if (segmented_skeleton == nullptr) {
+			continue;
+		}
+		for (int i = 0; i < ik_iterations; i++) {
+			segmented_skeleton->segment_solver(get_default_damp(), segmented_skeleton->is_root_pinned());
+			if (segmented_skeleton.is_null()) {
+				continue;
+			}
+			for (int32_t child_i = 0; child_i < segmented_skeleton->get_effector_direct_descendents().size(); child_i++) {
+				Ref<IKBoneChain> child = segmented_skeleton->get_effector_direct_descendents()[child_i];
+				if (child.is_null()) {
+					continue;
+				}
+				child->segment_solver(get_default_damp(), child->is_root_pinned());
+			}
+		}
+		update_skeleton_bones_transform(delta);
+	}
 	execution_error_found = false;
 }
 
@@ -199,32 +221,6 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	is_setup = true;
 	execution_error_found = false;
 	notify_property_list_changed();
-}
-
-void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
-	if (p_blending_delta <= 0.01f) {
-		return; // Skip solving
-	}
-
-	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
-		update_shadow_bones_transform();
-
-	ERR_FAIL_NULL(segmented_skeleton);
-	for (int i = 0; i < ik_iterations; i++) {
-		segmented_skeleton->segment_solver(get_default_damp(), segmented_skeleton->is_root_pinned());
-		if (segmented_skeleton.is_null()) {
-			continue;
-		}
-		for (int32_t child_i = 0; child_i < segmented_skeleton->get_effector_direct_descendents().size(); child_i++) {
-			Ref<IKBoneChain> child = segmented_skeleton->get_effector_direct_descendents()[child_i];
-			if (child.is_null()) {
-				continue;
-			}
-			child->segment_solver(get_default_damp(), child->is_root_pinned());
-		}
-	}
-		update_skeleton_bones_transform(p_blending_delta);
-	}
 }
 
 void SkeletonModification3DEWBIK::update_skeleton() {

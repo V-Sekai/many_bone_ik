@@ -51,6 +51,17 @@ public:
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 
+protected:
+	virtual void _validate_property(PropertyInfo &property) const override;
+	bool _set(const StringName &p_name, const Variant &p_value);
+	bool _get(const StringName &p_name, Variant &r_ret) const;
+	void _get_property_list(List<PropertyInfo> *p_list) const;
+	static void _bind_methods();
+
+	Vector<Ref<IKEffector3DData>> get_bone_effectors() const;
+public:
+	virtual void _execute(real_t p_delta) override;
+	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
 private:
 	Skeleton3D *skeleton = nullptr;
 	String root_bone;
@@ -78,15 +89,6 @@ private:
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
 
-protected:
-	virtual void _validate_property(PropertyInfo &property) const override;
-	bool _set(const StringName &p_name, const Variant &p_value);
-	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
-	static void _bind_methods();
-
-	Vector<Ref<IKEffector3DData>> get_bone_effectors() const;
-
 public:
 	bool get_debug_skeleton() const;
 	void set_debug_skeleton(bool p_enabled);
@@ -109,18 +111,9 @@ public:
 	float get_effector_depth_falloff(int32_t p_effector_index) const;
 	void set_effector_priority(int32_t p_effector_index, Vector3 p_priority);
 	Vector3 get_effector_priority(int32_t p_effector_index) const;
-
 	void set_effector_use_node_rotation(int32_t p_index, bool p_use_node_rot);
 	bool get_effector_use_node_rotation(int32_t p_index) const;
 	void update_skeleton();
-
-	virtual void _execute(real_t p_delta) override;
-	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
-
-	void solve(real_t p_blending_delta);
-
-	SkeletonModification3DEWBIK();
-	~SkeletonModification3DEWBIK();
 	float get_default_degrees_damp() const;
 	void set_default_degrees_damp(float p_default_damp);
 	float get_default_damp() const;
@@ -135,6 +128,8 @@ public:
 	float get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const;
 	int32_t get_kusudama_limit_cone_count(int32_t p_bone) const;
 	void set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count);
+	SkeletonModification3DEWBIK();
+	~SkeletonModification3DEWBIK();
 };
 
 #endif // SKELETON_MODIFICATION_3D_EWBIK_H
