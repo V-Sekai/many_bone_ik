@@ -2,18 +2,19 @@
 
 [ext_resource type="Shader" path="res://ewbik/art/kusudama.gdshader" id="1_8thmg"]
 
-[sub_resource type="QuadMesh" id="QuadMesh_25ncn"]
-size = Vector2(2, 2)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_4u15r"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pigxt"]
 render_priority = 0
 shader = ExtResource( "1_8thmg" )
 shader_param/coneCount = 1
-shader_param/coneSequence = PackedFloat32Array(0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_param/coneSequence = PackedFloat32Array(0, 0, 1, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_25ncn"]
+material = SubResource( "ShaderMaterial_pigxt" )
+size = Vector2(2, 2)
 
 [node name="Node3D" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.993054, 0.117659, 0, -0.117659, 0.993054, 0, 0, 0)
 mesh = SubResource( "QuadMesh_25ncn" )
-surface_material_override/0 = SubResource( "ShaderMaterial_4u15r" )
+surface_material_override/0 = null
