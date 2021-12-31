@@ -1,7 +1,6 @@
 shader_type spatial;
-render_mode unshaded;
 
-uniform int coneCount : hint_range(0, 30) = 30;
+uniform int coneCount : hint_range(0, 30) = 1;
 
 //This shader can display up to 30 cones (represented by 30 4d vectors) 
 // Each group of 4 represents the xyz coordinates of the cone direction
