@@ -32,7 +32,7 @@
 #define EWBIK_SHADOW_BONE_3D_H
 
 #include "core/object/ref_counted.h"
-#include "ik_effector_3d.h"
+#include "ik_pin_3d.h"
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
 

@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "ik_effector_3d.h"
+#include "ik_pin_3d.h"
 #include "math/ik_transform.h"
 
 void IKPin3D::set_target_node(Node *p_skeleton, const NodePath &p_target_node_path) {
