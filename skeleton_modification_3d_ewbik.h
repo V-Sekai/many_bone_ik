@@ -89,6 +89,7 @@ protected:
 	Vector<Ref<IKEffector3DData>> get_bone_effectors() const;
 
 public:
+	void iterated_improved_solver(real_t p_damp);
 	bool get_debug_skeleton() const;
 	void set_debug_skeleton(bool p_enabled);
 	void set_ik_iterations(int32_t p_iterations);
@@ -119,7 +120,6 @@ public:
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
 
 	void solve(real_t p_blending_delta);
-	void iterated_improved_solver(real_t p_damp);
 
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();

@@ -216,7 +216,17 @@ void SkeletonModification3DEWBIK::solve(real_t p_blending_delta) {
 void SkeletonModification3DEWBIK::iterated_improved_solver(real_t p_damp) {
 	ERR_FAIL_NULL(segmented_skeleton);
 	for (int i = 0; i < ik_iterations; i++) {
-		segmented_skeleton->grouped_segment_solver(p_damp);
+		segmented_skeleton->segment_solver(p_damp, segmented_skeleton->is_root_pinned());
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		for (int32_t child_i = 0; child_i < segmented_skeleton->get_effector_direct_descendents().size(); child_i++) {
+			Ref<IKBoneChain> child = segmented_skeleton->get_effector_direct_descendents()[child_i];
+			if (child.is_null()) {
+				continue;
+			}
+			child->segment_solver(p_damp, child->is_root_pinned());
+		}
 	}
 }
 
@@ -284,7 +294,7 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		float depth_falloff = data->depth_falloff;
 		ERR_CONTINUE(bone_id == -1);
 		Ref<IKBone3D> ik_bone_3d = segmented_skeleton->find_bone(bone_id);
-		ERR_FAIL_NULL(ik_bone_3d);
+		ERR_CONTINUE(ik_bone_3d.is_null());
 		if (!ik_bone_3d->is_effector()) {
 			ik_bone_3d->create_effector();
 		}
@@ -543,7 +553,6 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.001, 3.14,0.001", PROPERTY_USAGE_NO_EDITOR), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_degrees_damp", PROPERTY_HINT_RANGE, "0.1,180,0.1,degrees", PROPERTY_USAGE_EDITOR), "set_default_degrees_damp", "get_default_degrees_damp");
-	
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
@@ -572,7 +581,7 @@ void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 }
 
 Vector3 SkeletonModification3DEWBIK::get_effector_priority(int32_t p_effector_index) const {
-	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), Vector3(0.5, 5.0, 0.0));
+	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), Vector3(1.0, 1.0, 1.0));
 	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
 	return data->priority;
 }

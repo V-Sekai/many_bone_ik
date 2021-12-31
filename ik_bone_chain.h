@@ -66,7 +66,6 @@ private:
 	PackedVector3Array update_tip_headings(Ref<IKBone3D> p_for_bone);
 	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 			PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening = -1, bool p_translate = false);
-	void segment_solver(real_t p_damp, bool p_translate = false);
 	void qcp_solver(real_t p_damp, bool p_translate = false);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);
 
@@ -79,6 +78,7 @@ protected:
 	static void _bind_methods();
 
 public:
+	void segment_solver(real_t p_damp, bool p_translate = false);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_root_pinned() const;
@@ -90,7 +90,6 @@ public:
 	void get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root();
 	void update_effector_list();
-	void grouped_segment_solver(real_t p_damp);
 	void debug_print_chains(Vector<bool> p_levels = Vector<bool>());
 
 	IKBoneChain() {}

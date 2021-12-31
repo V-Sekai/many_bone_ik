@@ -50,7 +50,10 @@ void IKTransform3D::set_transform(const Transform3D &p_transform) {
 	if (local_transform == p_transform) {
 		return;
 	}
-	local_transform = p_transform;
+	TransformInterpolate3D interpolate;
+	Transform3D prev_transform = local_transform;
+	interpolate.set(prev_transform);
+	local_transform = interpolate.interpolate_with(p_transform);
 	dirty |= DIRTY_VECTORS;
 	_propagate_transform_changed();
 }

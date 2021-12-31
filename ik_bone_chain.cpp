@@ -353,17 +353,6 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 	return htip;
 }
 
-void IKBoneChain::grouped_segment_solver(real_t p_damp) {
-	segment_solver(p_damp, is_root_pinned());
-	for (int32_t i = 0; i < effector_direct_descendents.size(); i++) {
-		Ref<IKBoneChain> effector_chain = effector_direct_descendents[i];
-		for (int32_t child_i = 0; child_i < effector_chain->child_chains.size(); child_i++) {
-			Ref<IKBoneChain> child = effector_chain->child_chains[child_i];
-			child->grouped_segment_solver(p_damp);
-		}
-	}
-}
-
 void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 	if (child_chains.size() == 0 && !is_tip_effector()) {
 		return;
