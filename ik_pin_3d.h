@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  ik_effector_3d.h                                             */
+/*  ik_on_3d.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -27,8 +27,8 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-#ifndef ik_effector_3d_H
-#define ik_effector_3d_H
+#ifndef ik_pin_3d_H
+#define ik_pin_3d_H
 
 #include "core/object/ref_counted.h"
 #include "ik_bone_3d.h"
