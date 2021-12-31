@@ -234,7 +234,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton->generate_default_segments_from_root();
 	update_bone_list();
 	update_effectors_map();
-	segmented_skeleton->update_effector_list();
+	segmented_skeleton->update_pinned_list();
 	update_bone_list(debug_skeleton);
 	is_dirty = false;
 }

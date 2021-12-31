@@ -220,12 +220,12 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 	p_list.append_array(list);
 }
 
-void IKBoneChain::update_effector_list() {
+void IKBoneChain::update_pinned_list() {
 	heading_weights.clear();
 	real_t depth_falloff = is_tip_effector() ? tip->get_pin()->depth_falloff : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
-		chain->update_effector_list();
+		chain->update_pinned_list();
 		if (depth_falloff > CMP_EPSILON) {
 			effector_list.append_array(chain->effector_list);
 			for (int32_t w_i = 0; w_i < chain->heading_weights.size(); w_i++) {
