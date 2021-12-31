@@ -152,6 +152,10 @@ void fragment() {
 	if (colorAllowed.a == 0.0) {
 		discard;
 	}
+	float gain = normalModelDir.y > 0.0 ? -0.3 : 0.5;
+	colorAllowed.rgb = (colorAllowed.rgb + gain) / 2.;
+	vec4 specCol = vec4(1.0, 1.0, 0.6, colorAllowed.a);
+	colorAllowed = colorAllowed.g > 0.8 ? colorAllowed + specCol : colorAllowed;
 	ALBEDO = colorAllowed.rgb;
 	ALPHA = colorAllowed.a;
 }
