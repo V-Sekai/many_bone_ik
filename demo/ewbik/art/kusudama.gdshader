@@ -8,6 +8,7 @@ uniform int coneCount : hint_range(0, 30) = 1;
 // vector in model space and the fourth element represents radius
 
 uniform vec4 coneSequence[30];
+varying vec3 normalModelDir;
 
 bool isInInterConePath(in vec3 normalDir, in vec4 tangent1, in vec4 cone1, in vec4 tangent2, in vec4 cone2) {
 	vec3 c1xc2 = cross(cone1.xyz, cone2.xyz);		
@@ -141,12 +142,14 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 	return result;
 }
 
+void vertex() {
+	normalModelDir = NORMAL; 
+}
+
 void fragment() {
-	// Problem with left handed versus right handed
-	vec4 colorAllowed = colorAllowed(NORMAL, coneCount, 0.02, vec4(ALBEDO, ALPHA));
+	vec4 colorAllowed = colorAllowed(normalModelDir, coneCount, 0.02, vec4(ALBEDO, ALPHA));
 	if (colorAllowed.a == 0.0) {
 		discard;
 	}
-	ALBEDO = colorAllowed.rgb;
 	ALPHA = colorAllowed.a;
 }
