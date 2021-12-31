@@ -107,14 +107,14 @@ Ref<IKBone3D> SkeletonModification3DEWBIK::find_effector(const String &p_name) c
 }
 
 void SkeletonModification3DEWBIK::set_effector_bone(int32_t p_effector_index, const String &p_bone) {
-	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
 	data->set_name(p_bone);
 	is_dirty = true;
 	notify_property_list_changed();
 }
 
 void SkeletonModification3DEWBIK::set_effector_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node) {
-	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
 	ERR_FAIL_NULL(data);
 	data->target_node = p_target_node;
 	is_dirty = true;
@@ -123,12 +123,12 @@ void SkeletonModification3DEWBIK::set_effector_target_nodepath(int32_t p_effecto
 
 NodePath SkeletonModification3DEWBIK::get_effector_target_nodepath(int32_t p_effector_index) {
 	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), NodePath());
-	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	const Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
 	return data->target_node;
 }
 
 void SkeletonModification3DEWBIK::set_effector_use_node_rotation(int32_t p_effector_index, bool p_use_node_rot) {
-	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
 	ERR_FAIL_NULL(data);
 	data->use_target_node_rotation = p_use_node_rot;
 	is_dirty = true;
@@ -137,11 +137,11 @@ void SkeletonModification3DEWBIK::set_effector_use_node_rotation(int32_t p_effec
 
 bool SkeletonModification3DEWBIK::get_effector_use_node_rotation(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), false);
-	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	const Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
 	return data->use_target_node_rotation;
 }
 
-Vector<Ref<IKEffector3DData>> SkeletonModification3DEWBIK::get_bone_effectors() const {
+Vector<Ref<IKEffectorTemplate>> SkeletonModification3DEWBIK::get_bone_effectors() const {
 	return multi_effector;
 }
 
@@ -172,7 +172,7 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	if (effector_count && segmented_skeleton.is_valid() && segmented_skeleton->get_effector_direct_descendents_size() > 0) {
 		update_shadow_bones_transform();
 		if (segmented_skeleton == nullptr) {
-			continue;
+			return;
 		}
 		for (int i = 0; i < ik_iterations; i++) {
 			segmented_skeleton->segment_solver(get_default_damp(), segmented_skeleton->is_root_pinned());
@@ -271,7 +271,7 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 	ERR_FAIL_NULL(skeleton);
 
 	for (int effector_i = 0; effector_i < get_effector_count(); effector_i++) {
-		Ref<IKEffector3DData> data = multi_effector.write[effector_i];
+		Ref<IKEffectorTemplate> data = multi_effector.write[effector_i];
 		String bone = data->get_name();
 		BoneId bone_id = skeleton->find_bone(bone);
 		Vector3 priority = data->priority;
@@ -295,10 +295,10 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) const {
 	if (property.name == "root_bone") {
 		if (skeleton) {
-			String names = "None";
+			String names;
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
-				names += ",";
 				names += skeleton->get_bone_name(i);
+				names += ",";
 			}
 
 			property.hint = PROPERTY_HINT_ENUM;
@@ -318,10 +318,10 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		effector_name.type = Variant::STRING;
 		effector_name.name = "effectors/" + itos(i) + "/name";
 		if (skeleton) {
-			String names = "None";
+			String names;
 			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-				names += ",";
 				names += skeleton->get_bone_name(bone_i);
+				names += ",";
 			}
 			effector_name.hint = PROPERTY_HINT_ENUM;
 			effector_name.hint_string = names;
@@ -387,7 +387,7 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, multi_effector.size(), false);
-		Ref<IKEffector3DData> data = multi_effector[index];
+		Ref<IKEffectorTemplate> data = multi_effector[index];
 		ERR_FAIL_NULL_V(data, false);
 		if (what == "name") {
 			r_ret = data->get_name();
@@ -456,7 +456,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, effector_count, true);
-		Ref<IKEffector3DData> data = multi_effector.write[index];
+		Ref<IKEffectorTemplate> data = multi_effector.write[index];
 		if (what == "name") {
 			set_effector_bone(index, p_value);
 			return true;
@@ -525,6 +525,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 			&SkeletonModification3DEWBIK::remove_effector);
 	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node"), &SkeletonModification3DEWBIK::add_effector);
 	ClassDB::bind_method(D_METHOD("find_effector", "name"), &SkeletonModification3DEWBIK::find_effector);
+	ClassDB::bind_method(D_METHOD("get_effector_bone_name", "index"), &SkeletonModification3DEWBIK::get_effector_bone_name);	
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
@@ -566,12 +567,12 @@ void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 
 Vector3 SkeletonModification3DEWBIK::get_effector_priority(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), Vector3(1.0, 1.0, 1.0));
-	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	const Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
 	return data->priority;
 }
 
 void SkeletonModification3DEWBIK::set_effector_priority(int32_t p_effector_index, Vector3 p_priority) {
-	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
 	ERR_FAIL_NULL(data);
 	data->priority = p_priority;
 	is_dirty = true;
@@ -580,12 +581,12 @@ void SkeletonModification3DEWBIK::set_effector_priority(int32_t p_effector_index
 
 float SkeletonModification3DEWBIK::get_effector_depth_falloff(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), 0.0f);
-	const Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	const Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
 	return data->depth_falloff;
 }
 
 void SkeletonModification3DEWBIK::set_effector_depth_falloff(int32_t p_effector_index, const float p_depth_falloff) {
-	Ref<IKEffector3DData> data = multi_effector[p_effector_index];
+	Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
 	ERR_FAIL_NULL(data);
 	data->depth_falloff = p_depth_falloff;
 	is_dirty = true;
@@ -674,4 +675,10 @@ float SkeletonModification3DEWBIK::get_default_damp() const {
 
 void SkeletonModification3DEWBIK::set_default_damp(float p_default_damp) {
 	default_damp = p_default_damp;
+}
+
+String SkeletonModification3DEWBIK::get_effector_bone_name(int32_t p_effector_index) const {
+	ERR_FAIL_INDEX_V(p_effector_index, multi_effector.size(), "");
+	Ref<IKEffectorTemplate> data = multi_effector[p_effector_index];
+	data->get_name(p_bone);
 }

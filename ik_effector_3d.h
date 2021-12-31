@@ -52,7 +52,7 @@ private:
 
 	Transform3D goal_transform;
 	int32_t num_headings = 0;
-	// See IKEffector3DData
+	// See IKEffectorTemplate
 	// These are set to off values for debugging.
 	real_t depth_falloff = 0.0;
 	Vector3 priority = Vector3(0.0f, 0.0f, 0.0f);
