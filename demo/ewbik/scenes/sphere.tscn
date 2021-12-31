@@ -7,7 +7,7 @@
 render_priority = 0
 shader = ExtResource( "2_lsh2n" )
 shader_param/coneCount = 1
-shader_param/coneSequence = PackedFloat32Array(0, 0, 1, 0.5, 0, 0, 1, 1)
+shader_param/coneSequence = PackedFloat32Array(0, 0, 1, 0.6, 0, 0, 1, 0.5)
 
 [node name="sphere" instance=ExtResource( "1_2e20g" )]
 

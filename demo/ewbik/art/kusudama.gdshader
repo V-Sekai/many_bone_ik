@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded, depth_draw_always;
+render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
 
 uniform int coneCount : hint_range(0, 30) = 1;
 
@@ -136,7 +136,7 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth,
 		float onConeBoundary = abs(currentCondition) == 1 ? 0.3 : 0.0;
 		result += vec4(0.0, onConeBoundary, onTanBoundary, 1.0);
 	} else {
-		return vec4(0.0, 0.0, 0.0, 1.0);
+		return vec4(0.0, 0.0, 0.0, 0.0);
 	}
 	return result;
 }
