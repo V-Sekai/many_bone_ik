@@ -54,11 +54,11 @@ Ref<IKBone3D> IKBone3D::get_parent() const {
 	return parent;
 }
 
-void IKBone3D::set_effector(const Ref<IKEffector3D> &p_effector) {
+void IKBone3D::set_effector(const Ref<IKPin3D> &p_effector) {
 	effector = p_effector;
 }
 
-Ref<IKEffector3D> IKBone3D::get_effector() const {
+Ref<IKPin3D> IKBone3D::get_effector() const {
 	return effector;
 }
 
@@ -102,7 +102,7 @@ void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_stre
 }
 
 void IKBone3D::create_effector() {
-	effector = Ref<IKEffector3D>(memnew(IKEffector3D(this)));
+	effector = Ref<IKPin3D>(memnew(IKPin3D(this)));
 }
 
 bool IKBone3D::is_effector() const {

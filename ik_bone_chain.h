@@ -46,7 +46,7 @@ private:
 	Vector<Ref<IKBoneChain>> effector_direct_descendents;
 	HashMap<BoneId, Ref<IKBone3D>> bones_map;
 	Ref<IKBoneChain> parent_chain;
-	Vector<Ref<IKEffector3D>> effector_list;
+	Vector<Ref<IKPin3D>> effector_list;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;

@@ -233,7 +233,7 @@ void IKBoneChain::update_effector_list() {
 		}
 	}
 	if (is_tip_effector()) {
-		Ref<IKEffector3D> effector = tip->get_effector();
+		Ref<IKPin3D> effector = tip->get_effector();
 		effector_list.push_back(effector);
 		Vector<real_t> weights;
 		weights.push_back(effector->weight);
@@ -337,7 +337,7 @@ PackedVector3Array IKBoneChain::update_target_headings(Vector<real_t> *&p_weight
 	p_weights = &heading_weights;
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
-		Ref<IKEffector3D> effector = effector_list[effector_i];
+		Ref<IKPin3D> effector = effector_list[effector_i];
 		effector->update_effector_target_headings(&htarget, index, p_weights);
 	}
 	return htarget;
@@ -347,7 +347,7 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 	PackedVector3Array htip = tip_headings;
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
-		Ref<IKEffector3D> effector = effector_list[effector_i];
+		Ref<IKPin3D> effector = effector_list[effector_i];
 		effector->update_effector_tip_headings(p_for_bone, &htip, index);
 	}
 	return htip;

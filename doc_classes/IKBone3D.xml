@@ -8,7 +8,7 @@
 	</tutorials>
 	<methods>
 		<method name="get_effector" qualifiers="const">
-			<return type="IKEffector3D" />
+			<return type="IKPin3D" />
 			<description>
 			</description>
 		</method>
@@ -19,7 +19,7 @@
 		</method>
 		<method name="set_effector">
 			<return type="void" />
-			<argument index="0" name="effector" type="IKEffector3D" />
+			<argument index="0" name="effector" type="IKPin3D" />
 			<description>
 			</description>
 		</method>

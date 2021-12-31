@@ -7,14 +7,14 @@
 	<tutorials>
 	</tutorials>
 	<methods>
-		<method name="add_effector">
+		<method name="add_pin">
 			<return type="void" />
 			<argument index="0" name="name" type="String" />
 			<argument index="1" name="target_node" type="NodePath" />
 			<description>
 			</description>
 		</method>
-		<method name="find_effector" qualifiers="const">
+		<method name="find_pin" qualifiers="const">
 			<return type="IKBone3D" />
 			<argument index="0" name="name" type="String" />
 			<description>
@@ -25,7 +25,7 @@
 			<description>
 			</description>
 		</method>
-		<method name="get_effector_count" qualifiers="const">
+		<method name="get_pin_count" qualifiers="const">
 			<return type="int" />
 			<description>
 			</description>
@@ -35,7 +35,7 @@
 			<description>
 			</description>
 		</method>
-		<method name="remove_effector">
+		<method name="remove_pin">
 			<return type="void" />
 			<argument index="0" name="index" type="int" />
 			<description>
@@ -47,7 +47,7 @@
 			<description>
 			</description>
 		</method>
-		<method name="set_effector_count">
+		<method name="set_pin_count">
 			<return type="void" />
 			<argument index="0" name="count" type="int" />
 			<description>

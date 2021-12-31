@@ -31,32 +31,32 @@
 #include "ik_effector_3d.h"
 #include "math/ik_transform.h"
 
-void IKEffector3D::set_target_node(Node *p_skeleton, const NodePath &p_target_node_path) {
+void IKPin3D::set_target_node(Node *p_skeleton, const NodePath &p_target_node_path) {
 	target_node = p_target_node_path;
 	update_target_cache(p_skeleton);
 }
 
-NodePath IKEffector3D::get_target_node() const {
+NodePath IKPin3D::get_target_node() const {
 	return target_node;
 }
 
-void IKEffector3D::set_use_target_node_rotation(bool p_use) {
+void IKPin3D::set_use_target_node_rotation(bool p_use) {
 	use_target_node_rotation = p_use;
 }
 
-bool IKEffector3D::get_use_target_node_rotation() const {
+bool IKPin3D::get_use_target_node_rotation() const {
 	return use_target_node_rotation;
 }
 
-Ref<IKBone3D> IKEffector3D::get_shadow_bone() const {
+Ref<IKBone3D> IKPin3D::get_shadow_bone() const {
 	return for_bone;
 }
 
-bool IKEffector3D::is_following_translation_only() const {
+bool IKPin3D::is_following_translation_only() const {
 	return !(get_follow_x() || get_follow_y() || get_follow_z());
 }
 
-void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
+void IKPin3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	goal_transform = Transform3D();
 	if (target_node_reference == nullptr) {
 		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
@@ -77,11 +77,11 @@ void IKEffector3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	goal_transform = p_skeleton->world_transform_to_global_pose(node_xform);
 }
 
-Transform3D IKEffector3D::get_goal_transform() const {
+Transform3D IKPin3D::get_goal_transform() const {
 	return goal_transform;
 }
 
-void IKEffector3D::update_priorities() {
+void IKPin3D::update_priorities() {
 	follow_x = priority.x > 0.0;
 	follow_y = priority.y > 0.0;
 	follow_z = priority.z > 0.0;
@@ -98,7 +98,7 @@ void IKEffector3D::update_priorities() {
 	}
 }
 
-void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
+void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
 	/**
 	 * Weights are given from the parent chain. The last two weights should
 	 * always correspond to this effector weights. In the parent only the origin
@@ -137,7 +137,7 @@ void IKEffector3D::create_headings(const Vector<real_t> &p_weights) {
 	}
 }
 
-void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index,
+void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index,
 		Vector<real_t> *p_weights) const {
 	ERR_FAIL_NULL(p_headings);
 	p_headings->write[p_index] = goal_transform.origin;
@@ -168,7 +168,7 @@ void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_heading
 	}
 }
 
-void IKEffector3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
+void IKPin3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
 	ERR_FAIL_NULL(p_headings);
 	ERR_FAIL_NULL(p_current_bone);
 	Transform3D tip_xform = for_bone->get_global_transform();
@@ -200,29 +200,29 @@ void IKEffector3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, Pa
 	}
 }
 
-void IKEffector3D::_bind_methods() {
+void IKPin3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_target_node", "skeleton", "node"),
-			&IKEffector3D::set_target_node);
+			&IKPin3D::set_target_node);
 	ClassDB::bind_method(D_METHOD("get_target_node"),
-			&IKEffector3D::get_target_node);
+			&IKPin3D::get_target_node);
 	ClassDB::bind_method(D_METHOD("set_priority", "priority"),
-			&IKEffector3D::set_priority);
+			&IKPin3D::set_priority);
 	ClassDB::bind_method(D_METHOD("get_priority"),
-			&IKEffector3D::get_priority);
+			&IKPin3D::get_priority);
 	ClassDB::bind_method(D_METHOD("set_depth_falloff", "amount"),
-			&IKEffector3D::set_depth_falloff);
+			&IKPin3D::set_depth_falloff);
 	ClassDB::bind_method(D_METHOD("get_depth_falloff"),
-			&IKEffector3D::get_depth_falloff);
+			&IKPin3D::get_depth_falloff);
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "priority"), "set_priority", "get_priority");
 }
 
-IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_current_bone) {
+IKPin3D::IKPin3D(const Ref<IKBone3D> &p_current_bone) {
 	for_bone = p_current_bone;
 	update_priorities();
 }
 
-void IKEffector3D::update_target_cache(Node *p_skeleton) {
+void IKPin3D::update_target_cache(Node *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
 	if (!p_skeleton->is_inside_tree()) {
 		return;
@@ -239,18 +239,18 @@ void IKEffector3D::update_target_cache(Node *p_skeleton) {
 	target_node_cache = node->get_instance_id();
 }
 
-void IKEffector3D::set_priority(Vector3 p_priority) {
+void IKPin3D::set_priority(Vector3 p_priority) {
 	priority = p_priority.clamp(Vector3(0.1f, 0.1f, 0.1f), Vector3(100.f, 100.f, 100.f));
 }
 
-Vector3 IKEffector3D::get_priority() const {
+Vector3 IKPin3D::get_priority() const {
 	return priority;
 }
 
-void IKEffector3D::set_depth_falloff(float p_depth_falloff) {
+void IKPin3D::set_depth_falloff(float p_depth_falloff) {
 	depth_falloff = p_depth_falloff;
 }
 
-float IKEffector3D::get_depth_falloff() const {
+float IKPin3D::get_depth_falloff() const {
 	return depth_falloff;
 }

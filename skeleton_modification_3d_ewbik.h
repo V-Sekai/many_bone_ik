@@ -54,9 +54,9 @@ public:
 	virtual void _execute(real_t p_delta) override;
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
 public:
-	void add_effector(const String &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
-	void remove_effector(int32_t p_index);
-	Ref<IKBone3D> find_effector(const String &p_name) const;
+	void add_pin(const String &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
+	void remove_pin(int32_t p_index);
+	Ref<IKBone3D> find_pin(const String &p_name) const;
 public:
 	// Expose properties bound by script
 	bool get_debug_skeleton() const;
@@ -67,10 +67,10 @@ public:
 	String get_root_bone() const;
 	void set_root_bone_index(BoneId p_index);
 	BoneId get_root_bone_index() const;
-	void set_effector_count(int32_t p_value);
-	int32_t get_effector_count() const;
+	void set_pin_count(int32_t p_value);
+	int32_t get_pin_count() const;
 	void set_effector_bone(int32_t p_effector_index, const String &p_bone);
-	String get_effector_bone_name(int32_t p_effector_index) const;
+	String get_pin_bone_name(int32_t p_effector_index) const;
 	void set_effector_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
 	NodePath get_effector_target_nodepath(int32_t p_effector_index);
 	void set_effector_depth_falloff(int32_t p_effector_index, const float p_depth_falloff);
@@ -108,7 +108,7 @@ private:
 	Ref<IKBoneChain> segmented_skeleton;
 	int32_t constraint_count = 0;
 	PackedStringArray constraint_names;
-	int32_t effector_count = 0;
+	int32_t pin_count = 0;
 	Vector<Ref<IKEffectorTemplate>> multi_effector;
 	HashMap<BoneId, Ref<IKBone3D>> effectors_map;
 	Vector<Ref<IKBone3D>> bone_list;

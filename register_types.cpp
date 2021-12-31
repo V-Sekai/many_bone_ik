@@ -35,7 +35,7 @@
 void register_ewbik_types() {
 	ClassDB::register_class<SkeletonModification3DEWBIK>();
 	ClassDB::register_class<IKBone3D>();
-	ClassDB::register_class<IKEffector3D>();
+	ClassDB::register_class<IKPin3D>();
 	ClassDB::register_class<IKBoneChain>();
 	
 }

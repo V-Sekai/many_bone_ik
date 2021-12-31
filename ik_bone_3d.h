@@ -38,7 +38,7 @@
 
 #define IK_DEFAULT_DAMPENING 0.20944f
 
-class IKEffector3D;
+class IKPin3D;
 
 class IKBone3D : public Resource {
 	GDCLASS(IKBone3D, Resource);
@@ -47,7 +47,7 @@ private:
 	BoneId bone_id = -1;
 	Ref<IKBone3D> parent = nullptr;
 	Vector<Ref<IKBone3D>> children;
-	Ref<IKEffector3D> effector = nullptr;
+	Ref<IKPin3D> effector = nullptr;
 	IKTransform3D xform;
 	Basis rot_delta;
 	Vector3 translation_delta;
@@ -64,8 +64,8 @@ public:
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
 	Ref<IKBone3D> get_parent() const;
-	void set_effector(const Ref<IKEffector3D> &p_effector);
-	Ref<IKEffector3D> get_effector() const;
+	void set_effector(const Ref<IKPin3D> &p_effector);
+	Ref<IKPin3D> get_effector() const;
 	void set_transform(const Transform3D &p_transform);
 	Transform3D get_transform() const;
 	void set_global_transform(const Transform3D &p_transform);

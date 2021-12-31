@@ -6,13 +6,13 @@
 root_bone = "Bone"
 default_damp = 0.00174533
 ik_iterations = 1
-effector_count = 1
-effectors/0/name = "Bone.001"
-effectors/0/target_node = NodePath("../target")
-effectors/0/use_node_rotation = false
-effectors/0/priority = Vector3(1, 0.1, 1)
-effectors/0/depth_falloff = 1.0
-effectors/0/remove = false
+pin_count = 1
+pins/0/name = "Bone.001"
+pins/0/target_node = NodePath("../target")
+pins/0/use_node_rotation = false
+pins/0/priority = Vector3(1, 0.1, 1)
+pins/0/depth_falloff = 1.0
+pins/0/remove = false
 
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_7vlvp"]
 enabled = true
