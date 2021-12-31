@@ -66,7 +66,6 @@ int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
 //returns a color corresponding to the allowability of this region, or otherwise the boundaries corresponding 
 //to various cones and tangentCone 
 vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth, in vec4 color) {
-	normalDir = normalize(normalDir);
 	int currentCondition = -3;
 	
 	if (coneCounts == 1) {
