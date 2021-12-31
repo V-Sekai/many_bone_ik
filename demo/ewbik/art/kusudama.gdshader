@@ -176,11 +176,6 @@ void fragment() {
 	colorAllowed /= 2.0;
 	vec3 lightCol = vec3(1.0,0.8,0.0);
 	float gain = NORMAL.z < 0.0 ? -0.3 : 0.5;
-	// FIXME: fire 2021-12-28 What does gain do?
-	// colorAllowed.rgb = (colorAllowed.rgb + lightCol*(lightScalar + gain)) / 2.;
-	vec4 specCol = vec4(1.0, 1.0, 0.6, colorAllowed.a);  
-	colorAllowed = colorAllowed.g > 0.8 ? colorAllowed+specCol : colorAllowed;  	
-
 	ALBEDO = colorAllowed.rgb;
 	ALPHA = colorAllowed.a;
 }
