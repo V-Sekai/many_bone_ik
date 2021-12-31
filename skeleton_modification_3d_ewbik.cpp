@@ -255,6 +255,9 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 		if (bone.is_null()) {
 			continue;
 		}
+		if (bone->get_bone_id() == -1) {
+			continue;
+		}
 		bone->set_skeleton_bone_transform(skeleton, p_blending_delta);
 	}
 }
@@ -525,7 +528,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 			&SkeletonModification3DEWBIK::remove_effector);
 	ClassDB::bind_method(D_METHOD("add_effector", "name", "target_node"), &SkeletonModification3DEWBIK::add_effector);
 	ClassDB::bind_method(D_METHOD("find_effector", "name"), &SkeletonModification3DEWBIK::find_effector);
-	ClassDB::bind_method(D_METHOD("get_effector_bone_name", "index"), &SkeletonModification3DEWBIK::get_effector_bone_name);	
+	ClassDB::bind_method(D_METHOD("get_effector_bone_name", "index"), &SkeletonModification3DEWBIK::get_effector_bone_name);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
