@@ -356,7 +356,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
 		if (skeleton) {
 			String names = "";
-			for (int bone_i = 0; bone_i < constraint_count; bone_i++) {
+			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 				if (skeleton->get_bone_parent(bone_i) == -1) {
 					continue;
 				}
