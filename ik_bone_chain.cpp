@@ -224,32 +224,6 @@ void IKBoneChain::update_pinned_list() {
 	heading_weights.clear();
 	target_headings.clear();
 	tip_headings.clear();
-	Vector<Ref<IKBone3D>> pins;
-	get_bone_list(pins, true);
-	for (int32_t pin_i = 0; pin_i < pins.size(); pin_i++) {
-		Ref<IKPin3D> effector = pins[pin_i]->get_pin();
-		if (effector.is_null()) {
-			continue;
-		}
-		effector_list.push_back(effector);
-		Vector<real_t> weights;
-		weights.push_back(effector->weight);
-
-		if (effector->get_follow_x()) {
-			weights.push_back(effector->weight);
-			weights.push_back(effector->weight);
-		}
-		if (effector->get_follow_y()) {
-			weights.push_back(effector->weight);
-			weights.push_back(effector->weight);
-		}
-		if (effector->get_follow_z()) {
-			weights.push_back(effector->weight);
-			weights.push_back(effector->weight);
-		}
-		heading_weights.append_array(weights);
-		effector->create_headings(heading_weights);
-	}
 	real_t depth_falloff = is_pin() ? tip->get_pin()->depth_falloff : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
@@ -260,6 +234,32 @@ void IKBoneChain::update_pinned_list() {
 				heading_weights.push_back(chain->heading_weights[w_i] * depth_falloff);
 			}
 		}
+	}
+	Vector<Ref<IKBone3D>> pins;
+	get_bone_list(pins, true);
+	for (int32_t pin_i = 0; pin_i < pins.size(); pin_i++) {
+		Ref<IKPin3D> effector = pins[pin_i]->get_pin();
+		if (effector.is_null()) {
+			continue;
+		}
+		effector_list.push_back(effector);
+		Vector<real_t> weights;
+		weights.push_back(effector->weight * depth_falloff);
+
+		if (effector->get_follow_x()) {
+			weights.push_back(effector->weight * depth_falloff);
+			weights.push_back(effector->weight * depth_falloff);
+		}
+		if (effector->get_follow_y()) {
+			weights.push_back(effector->weight * depth_falloff);
+			weights.push_back(effector->weight * depth_falloff);
+		}
+		if (effector->get_follow_z()) {
+			weights.push_back(effector->weight * depth_falloff);
+			weights.push_back(effector->weight * depth_falloff);
+		}
+		heading_weights.append_array(weights);
+		effector->create_headings(heading_weights);
 	}
 	int32_t n = heading_weights.size();
 	target_headings.resize(n);
