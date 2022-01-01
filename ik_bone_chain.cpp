@@ -150,6 +150,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 			temp_tip = next;
 		} else {
 			tip = temp_tip;
+			tip->create_pin();
 			break;
 		}
 	}
