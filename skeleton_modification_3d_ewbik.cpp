@@ -355,10 +355,13 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		bone_name.type = Variant::STRING;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
 		if (skeleton) {
-			String names = "None";
+			String names = "";
 			for (int bone_i = 0; bone_i < constraint_count; bone_i++) {
-				names += ",";
+				if (skeleton->get_bone_parent(bone_i) == -1) {
+					continue;
+				}
 				names += skeleton->get_bone_name(bone_i);
+				names += ",";
 			}
 			bone_name.hint = PROPERTY_HINT_ENUM;
 			bone_name.hint_string = names;
