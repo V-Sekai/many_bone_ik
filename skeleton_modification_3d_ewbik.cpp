@@ -286,9 +286,7 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		if (ik_bone_3d.is_null()) {
 			continue;
 		}
-		if (!ik_bone_3d->is_pin()) {
-			ik_bone_3d->create_pin();
-		}
+		ik_bone_3d->create_pin();
 		effectors_map[ik_bone_3d->get_bone_id()] = ik_bone_3d;
 		Ref<IKPin3D> effector_3d = ik_bone_3d->get_pin();
 		effector_3d->set_target_node(skeleton, data->target_node);

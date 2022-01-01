@@ -82,7 +82,7 @@ public:
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_root_pinned() const;
-	bool is_tip_effector() const;
+	bool is_pin() const;
 	Vector<Ref<IKBoneChain>> get_child_chains() const;
 	Vector<Ref<IKBoneChain>> get_pinned_direct_descendents() const;
 	int32_t get_pinned_direct_descendents_size() const;

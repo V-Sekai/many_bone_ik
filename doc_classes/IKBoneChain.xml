@@ -12,7 +12,7 @@
 			<description>
 			</description>
 		</method>
-		<method name="is_tip_effector" qualifiers="const">
+		<method name="is_pin" qualifiers="const">
 			<return type="bool" />
 			<description>
 			</description>

@@ -43,7 +43,7 @@ bool IKBoneChain::is_root_pinned() const {
 	return root->get_parent().is_null() && root->is_pin();
 }
 
-bool IKBoneChain::is_tip_effector() const {
+bool IKBoneChain::is_pin() const {
 	ERR_FAIL_NULL_V(tip, false);
 	return tip->is_pin();
 }
@@ -107,7 +107,7 @@ void IKBoneChain::update_segmented_skeleton() {
 
 void IKBoneChain::update_effector_direct_descendents() {
 	effector_direct_descendents.clear();
-	if (is_tip_effector()) {
+	if (is_pin()) {
 		effector_direct_descendents.push_back(this);
 	} else {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
@@ -149,8 +149,6 @@ void IKBoneChain::generate_default_segments_from_root() {
 			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(bone_id, temp_tip)));
 			temp_tip = next;
 		} else {
-			tip = temp_tip;
-			tip->create_pin();
 			break;
 		}
 	}
@@ -222,7 +220,7 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 
 void IKBoneChain::update_pinned_list() {
 	heading_weights.clear();
-	real_t depth_falloff = is_tip_effector() ? tip->get_pin()->depth_falloff : 1.0;
+	real_t depth_falloff = is_pin() ? tip->get_pin()->depth_falloff : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
 		chain->update_pinned_list();
@@ -233,7 +231,7 @@ void IKBoneChain::update_pinned_list() {
 			}
 		}
 	}
-	if (is_tip_effector()) {
+	if (is_pin()) {
 		Ref<IKPin3D> effector = tip->get_pin();
 		effector_list.push_back(effector);
 		Vector<real_t> weights;
@@ -328,7 +326,7 @@ void IKBoneChain::create_headings() {
 	target_headings.resize(n);
 	tip_headings.resize(n);
 
-	if (is_tip_effector()) {
+	if (is_pin()) {
 		tip->get_pin()->create_headings(heading_weights);
 	}
 }
@@ -355,9 +353,9 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 }
 
 void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
-	if (child_chains.size() == 0 && !is_tip_effector()) {
+	if (child_chains.size() == 0 && !is_pin()) {
 		return;
-	} else if (!is_tip_effector()) {
+	} else if (!is_pin()) {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
 			Ref<IKBoneChain> child = child_chains[child_i];
 			child->segment_solver(p_damp, p_translate);
@@ -382,7 +380,7 @@ void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 
 void IKBoneChain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_root_pinned"), &IKBoneChain::is_root_pinned);
-	ClassDB::bind_method(D_METHOD("is_tip_effector"), &IKBoneChain::is_tip_effector);
+	ClassDB::bind_method(D_METHOD("is_pin"), &IKBoneChain::is_pin);
 }
 
 IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
