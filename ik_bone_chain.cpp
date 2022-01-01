@@ -223,52 +223,35 @@ Vector<Ref<IKPin3D>> IKBoneChain::update_pinned_list() {
 			}
 		}
 	}
-	Ref<IKBone3D> current_bone = tip;
-	while (current_bone.is_valid()) {
-		if (current_bone->is_pin()) {
-			Ref<IKPin3D> pin = current_bone->get_pin();
-			if (pin_mappings.find(pin) != -1) {
-				pin_mappings.push_back(pin);
-			}
-			real_t depth_falloff = is_tip_effector() ? current_bone->get_pin()->depth_falloff : 1.0;
-			Ref<IKPin3D> effector = current_bone->get_pin();
-			Vector<real_t> weights;
-			weights.push_back(effector->weight);
-			if (effector->get_follow_x()) {
-				weights.push_back(effector->weight);
-				weights.push_back(effector->weight);
-			} else {
-				weights.push_back(0.0f);
-				weights.push_back(0.0f);
-			}
-			if (effector->get_follow_y()) {
-				weights.push_back(effector->weight);
-				weights.push_back(effector->weight);
-			} else {
-				weights.push_back(0.0f);
-				weights.push_back(0.0f);
-			}
-			if (effector->get_follow_z()) {
-				weights.push_back(effector->weight);
-				weights.push_back(effector->weight);
-			} else {
-				weights.push_back(0.0f);
-				weights.push_back(0.0f);
-			}
-			for (int32_t w_i = 0; w_i < weights.size(); w_i++) {
-				weights.write[w_i] = weights[w_i] * depth_falloff;
-			}
-			target_headings.clear();
-			tip_headings.clear();
-			int32_t n = heading_weights.size();
-			target_headings.resize(n);
-			tip_headings.resize(n);
-			effector->create_headings(weights);
+	if (is_tip_effector()) {
+		Ref<IKPin3D> pin = tip->get_pin();
+		if (pin_mappings.find(pin) != -1) {
+			pin_mappings.push_back(pin);
 		}
-		if (current_bone == root) {
-			break;
+		real_t depth_falloff = is_tip_effector() ? tip->get_pin()->depth_falloff : 1.0;
+		Vector<real_t> weights;
+		if (pin->get_follow_y()) {
+			weights.push_back(pin->weight * depth_falloff);
+			weights.push_back(pin->weight * depth_falloff);
 		}
-		current_bone = current_bone->get_parent();
+		if (pin->get_follow_y()) {
+			weights.push_back(pin->weight * depth_falloff);
+			weights.push_back(pin->weight * depth_falloff);
+		}
+		if (pin->get_follow_z()) {
+			weights.push_back(pin->weight * depth_falloff);
+			weights.push_back(pin->weight * depth_falloff);
+		}
+		heading_weights.append_array(weights);
+	}
+	target_headings.clear();
+	tip_headings.clear();
+	int32_t n = heading_weights.size();
+	target_headings.resize(n);
+	tip_headings.resize(n);
+
+	if (is_tip_effector()) {
+		tip->get_pin()->create_headings(heading_weights);
 	}
 	return pin_mappings;
 }
