@@ -82,20 +82,10 @@ Transform3D IKPin3D::get_goal_transform() const {
 }
 
 void IKPin3D::update_priorities() {
-	follow_x = priority.x > 0.0;
-	follow_y = priority.y > 0.0;
-	follow_z = priority.z > 0.0;
-
 	num_headings = 1;
-	if (get_follow_x()) {
-		num_headings += 2;
-	}
-	if (get_follow_y()) {
-		num_headings += 2;
-	}
-	if (get_follow_z()) {
-		num_headings += 2;
-	}
+	num_headings += 2;
+	num_headings += 2;
+	num_headings += 2;
 }
 
 void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
@@ -122,14 +112,14 @@ void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
 	if (get_follow_x()) {
 		heading_weights.write[nw + index] = weight * priority.x;
 		heading_weights.write[nw + index + 1] = weight * priority.x;
-		index += 2;
 	}
+	index += 2;
 
 	if (get_follow_y()) {
 		heading_weights.write[nw + index] = weight * priority.y;
 		heading_weights.write[nw + index + 1] = weight * priority.y;
-		index += 2;
 	}
+	index += 2;
 
 	if (get_follow_z()) {
 		heading_weights.write[nw + index] = weight * priority.z;
@@ -148,16 +138,16 @@ void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, in
 		Vector3 v = Vector3(w, 0.0, 0.0);
 		p_headings->write[p_index] = goal_transform.xform(v);
 		p_headings->write[p_index + 1] = goal_transform.xform(-v);
-		p_index += 2;
 	}
+	p_index += 2;
 
 	if (get_follow_y()) {
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(0.0, w, 0.0);
 		p_headings->write[p_index] = goal_transform.xform(v);
 		p_headings->write[p_index + 1] = goal_transform.xform(-v);
-		p_index += 2;
 	}
+	p_index += 2;
 
 	if (get_follow_z()) {
 		real_t w = p_weights->write[p_index];
