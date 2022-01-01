@@ -91,9 +91,6 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	}
 	xform = p_skeleton->global_pose_to_local_pose(bone_id, xform);
 	set_transform(xform);
-	if (pin.is_valid()) {
-		pin->update_goal_transform(p_skeleton);
-	}
 }
 
 void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {
@@ -145,4 +142,31 @@ void IKBone3D::set_translation_delta(Vector3 p_translation_delta) {
 	Transform3D xform = get_global_transform();
 	xform.origin += p_translation_delta;
 	set_global_transform(xform);
+}
+Vector<BoneId> IKBone3D::get_children_with_pin_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const {
+	Vector<BoneId> children_with_pin;
+	Vector<BoneId> children = p_skeleton->get_bone_children(bone_id);
+	for (int32_t child_i = 0; child_i < children.size(); child_i++) {
+		BoneId child_bone = children[child_i];
+		if (IKBone3D::has_pin_descendant(child_bone, p_skeleton, p_map)) {
+			children_with_pin.push_back(child_bone);
+		}
+	}
+	return children_with_pin;
+}
+bool IKBone3D::has_pin_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) {
+	if (p_map.has(p_bone) && p_map[p_bone]->is_pin()) {
+		return true;
+	} else {
+		bool result = false;
+		Vector<BoneId> children = p_skeleton->get_bone_children(p_bone);
+		for (int32_t child_i = 0; child_i < children.size(); child_i++) {
+			BoneId child_bone = children[child_i];
+			if (IKBone3D::has_pin_descendant(child_bone, p_skeleton, p_map)) {
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
 }

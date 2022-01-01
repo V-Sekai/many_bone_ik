@@ -64,13 +64,12 @@ private:
 	Vector<real_t> heading_weights;
 
 	void update_priorities();
-	void update_goal_transform(Skeleton3D *p_skeleton);
-
 protected:
 	static void _bind_methods();
 	void create_headings(const Vector<real_t> &p_weights);
 
 public:
+	void update_goal_transform(Skeleton3D *p_skeleton);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);

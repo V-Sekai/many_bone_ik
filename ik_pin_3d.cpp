@@ -62,19 +62,23 @@ void IKPin3D::update_goal_transform(Skeleton3D *p_skeleton) {
 		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
 	}
 	if (!target_node_reference) {
-		goal_transform = for_bone->get_global_transform();
-		return;
-	}
-	if (!target_node_reference->is_class("Node3D")) {
+		BoneId bone_id = for_bone->get_bone_id();
+		if (bone_id == -1) {
+			return;
+		}
+		Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
+		goal_transform = p_skeleton->global_pose_to_local_pose(bone_id, xform);
+		if (!use_target_node_rotation) {
+			goal_transform.basis = Basis();
+		}
 		return;
 	}
 	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
 	Transform3D node_xform = target_node->get_global_transform();
-	if (!use_target_node_rotation) {
-		node_xform.basis = Basis();
-		goal_transform = node_xform;
-	}
 	goal_transform = p_skeleton->world_transform_to_global_pose(node_xform);
+	if (!use_target_node_rotation) {
+		goal_transform.basis = Basis();
+	}
 }
 
 Transform3D IKPin3D::get_goal_transform() const {

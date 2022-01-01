@@ -246,6 +246,9 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 			continue;
 		}
 		bone->set_initial_transform(skeleton);
+		if (bone->is_pin()) {
+			bone->get_pin()->update_goal_transform(skeleton);
+		}
 	}
 }
 
