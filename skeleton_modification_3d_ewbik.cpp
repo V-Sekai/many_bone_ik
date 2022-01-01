@@ -82,14 +82,12 @@ int32_t SkeletonModification3DEWBIK::get_pin_count() const {
 }
 
 void SkeletonModification3DEWBIK::add_pin(const String &p_name, const NodePath &p_target_node, const bool &p_use_node_rotation) {
-	BoneId bone_id = skeleton->find_bone(p_name);	
-	ERR_FAIL_COND(bone_id == -1);
-	Ref<IKBone3D> bone = segmented_skeleton->find_bone(bone_id);
-	ERR_FAIL_COND(bone.is_null());
-	bone->create_pin();
-	Ref<IKPin3D> pin = bone->get_pin();
-	pin->set_target_node(skeleton, p_target_node);
-	pin->set_use_target_node_rotation(p_use_node_rotation);
+	int32_t count = get_pin_count();
+	set_pin_count(count + 1);
+	set_effector_bone(count, p_name);
+	set_effector_target_nodepath(count, p_target_node);
+	set_effector_use_node_rotation(count, p_use_node_rotation);
+
 	is_dirty = true;
 	notify_property_list_changed();
 }
@@ -232,12 +230,10 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	if (!skeleton) {
 		return;
 	}
-	effectors_map.clear();
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index, effectors_map)));
 	segmented_skeleton->generate_default_segments_from_root();
-	update_effectors_map();
 	update_bone_list();
-	segmented_skeleton->clear_pinned_list();
+	update_effectors_map();
 	segmented_skeleton->update_pinned_list();
 	update_bone_list(debug_skeleton);
 	is_dirty = false;
@@ -274,6 +270,7 @@ void SkeletonModification3DEWBIK::update_bone_list(bool p_debug_skeleton) {
 }
 
 void SkeletonModification3DEWBIK::update_effectors_map() {
+	effectors_map.clear();
 	ERR_FAIL_NULL(skeleton);
 
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
@@ -282,6 +279,9 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		BoneId bone_id = skeleton->find_bone(bone);
 		Vector3 priority = data->priority;
 		float depth_falloff = data->depth_falloff;
+		if (bone_id == -1) {
+			continue;
+		}
 		Ref<IKBone3D> ik_bone_3d = segmented_skeleton->find_bone(bone_id);
 		if (ik_bone_3d.is_null()) {
 			continue;
