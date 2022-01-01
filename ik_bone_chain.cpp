@@ -139,7 +139,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 			tip = temp_tip;
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
-				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));				
+				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));
 				child_segment->generate_default_segments_from_root();
 				child_chains.push_back(child_segment);
 			}
@@ -233,8 +233,13 @@ void IKBoneChain::update_pinned_list() {
 			}
 		}
 	}
-	if (is_pin()) {
-		Ref<IKPin3D> effector = tip->get_pin();
+	Vector<Ref<IKBone3D>> pins;
+	get_bone_list(pins, true);
+	for (int32_t pin_i = 0; pin_i < pins.size(); pin_i++) {
+		Ref<IKPin3D> effector = pins[pin_i]->get_pin();
+		if (effector.is_null()) {
+			continue;
+		}
 		effector_list.push_back(effector);
 		Vector<real_t> weights;
 		weights.push_back(effector->weight);
