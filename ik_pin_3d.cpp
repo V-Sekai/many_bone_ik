@@ -82,10 +82,6 @@ Transform3D IKPin3D::get_goal_transform() const {
 }
 
 void IKPin3D::update_priorities() {
-	follow_x = priority.x > 0.0;
-	follow_y = priority.y > 0.0;
-	follow_z = priority.z > 0.0;
-
 	num_headings = 1;
 	if (get_follow_x()) {
 		num_headings += 2;
@@ -120,19 +116,25 @@ void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
 	index++;
 
 	if (get_follow_x()) {
+		ERR_FAIL_INDEX(nw + index, heading_weights.size());
 		heading_weights.write[nw + index] = weight * priority.x;
+		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
 		heading_weights.write[nw + index + 1] = weight * priority.x;
 		index += 2;
 	}
 
 	if (get_follow_y()) {
+		ERR_FAIL_INDEX(nw + index, heading_weights.size());
 		heading_weights.write[nw + index] = weight * priority.y;
+		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
 		heading_weights.write[nw + index + 1] = weight * priority.y;
 		index += 2;
 	}
 
 	if (get_follow_z()) {
+		ERR_FAIL_INDEX(nw + index, heading_weights.size());
 		heading_weights.write[nw + index] = weight * priority.z;
+		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
 		heading_weights.write[nw + index + 1] = weight * priority.z;
 	}
 }
