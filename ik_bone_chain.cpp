@@ -222,17 +222,8 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 
 void IKBoneChain::update_pinned_list() {
 	heading_weights.clear();
-	real_t depth_falloff = is_pin() ? tip->get_pin()->depth_falloff : 1.0;
-	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
-		Ref<IKBoneChain> chain = child_chains[chain_i];
-		chain->update_pinned_list();
-		if (depth_falloff > CMP_EPSILON) {
-			effector_list.append_array(chain->effector_list);
-			for (int32_t w_i = 0; w_i < chain->heading_weights.size(); w_i++) {
-				heading_weights.push_back(chain->heading_weights[w_i] * depth_falloff);
-			}
-		}
-	}
+	target_headings.clear();
+	tip_headings.clear();
 	Vector<Ref<IKBone3D>> pins;
 	get_bone_list(pins, true);
 	for (int32_t pin_i = 0; pin_i < pins.size(); pin_i++) {
@@ -257,8 +248,22 @@ void IKBoneChain::update_pinned_list() {
 			weights.push_back(effector->weight);
 		}
 		heading_weights.append_array(weights);
+		effector->create_headings(heading_weights);
 	}
-	create_headings();
+	real_t depth_falloff = is_pin() ? tip->get_pin()->depth_falloff : 1.0;
+	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
+		Ref<IKBoneChain> chain = child_chains[chain_i];
+		chain->update_pinned_list();
+		if (depth_falloff > CMP_EPSILON) {
+			effector_list.append_array(chain->effector_list);
+			for (int32_t w_i = 0; w_i < chain->heading_weights.size(); w_i++) {
+				heading_weights.push_back(chain->heading_weights[w_i] * depth_falloff);
+			}
+		}
+	}
+	int32_t n = heading_weights.size();
+	target_headings.resize(n);
+	tip_headings.resize(n);
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
@@ -327,15 +332,6 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 }
 
 void IKBoneChain::create_headings() {
-	target_headings.clear();
-	tip_headings.clear();
-	int32_t n = heading_weights.size();
-	target_headings.resize(n);
-	tip_headings.resize(n);
-
-	if (is_pin()) {
-		tip->get_pin()->create_headings(heading_weights);
-	}
 }
 
 PackedVector3Array IKBoneChain::update_target_headings(Vector<real_t> *&p_weights) {
