@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "ik_bone_chain.h"
+#include "ik_pin_3d.h"
 #include "scene/3d/skeleton_3d.h"
 
 Ref<IKBone3D> IKBoneChain::get_root() const {
@@ -118,7 +119,6 @@ void IKBoneChain::update_effector_direct_descendents() {
 }
 
 void IKBoneChain::generate_bones_map() {
-	bones_map.clear();
 	Ref<IKBone3D> current_bone = tip;
 	Ref<IKBone3D> stop_on = root;
 	while (current_bone.is_valid()) {
@@ -139,7 +139,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 			tip = temp_tip;
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
-				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));				
+				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));
 				child_segment->generate_default_segments_from_root();
 				child_chains.push_back(child_segment);
 			}
@@ -150,7 +150,6 @@ void IKBoneChain::generate_default_segments_from_root() {
 			temp_tip = next;
 		} else {
 			tip = temp_tip;
-			tip->create_pin();
 			break;
 		}
 	}
@@ -174,13 +173,6 @@ Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &
 Ref<IKBone3D> IKBoneChain::find_bone(const BoneId p_bone_id) {
 	if (bones_map.has(p_bone_id)) {
 		return bones_map[p_bone_id];
-	} else {
-		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
-			Ref<IKBoneChain> child_segment = child_chains.write[child_i]->find_bone(p_bone_id);
-			if (child_segment.is_valid()) {
-				return child_segment->bones_map[p_bone_id];
-			}
-		}
 	}
 	return nullptr;
 }
@@ -220,40 +212,65 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 	p_list.append_array(list);
 }
 
-void IKBoneChain::update_pinned_list() {
+Vector<Ref<IKPin3D>> IKBoneChain::update_pinned_list() {
 	heading_weights.clear();
-	real_t depth_falloff = is_tip_effector() ? tip->get_pin()->depth_falloff : 1.0;
-	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
-		Ref<IKBoneChain> chain = child_chains[chain_i];
-		chain->update_pinned_list();
-		if (depth_falloff > CMP_EPSILON) {
-			effector_list.append_array(chain->effector_list);
-			for (int32_t w_i = 0; w_i < chain->heading_weights.size(); w_i++) {
-				heading_weights.push_back(chain->heading_weights[w_i] * depth_falloff);
+	for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
+		Vector<Ref<IKPin3D>> pins = child_chains.write[child_i]->update_pinned_list();
+		for (int32_t pin_i = 0; pin_i < pins.size(); pin_i++) {
+			Ref<IKPin3D> pin = pins.write[pin_i];
+			if (pin_mappings.find(pin) != -1) {
+				pin_mappings.push_back(pin);
 			}
 		}
 	}
-	if (is_tip_effector()) {
-		Ref<IKPin3D> effector = tip->get_pin();
-		effector_list.push_back(effector);
-		Vector<real_t> weights;
-		weights.push_back(effector->weight);
-
-		if (effector->get_follow_x()) {
+	Ref<IKBone3D> current_bone = tip;
+	while (current_bone.is_valid()) {
+		if (current_bone->is_pin()) {
+			Ref<IKPin3D> pin = current_bone->get_pin();
+			if (pin_mappings.find(pin) != -1) {
+				pin_mappings.push_back(pin);
+			}
+			real_t depth_falloff = is_tip_effector() ? current_bone->get_pin()->depth_falloff : 1.0;
+			Ref<IKPin3D> effector = current_bone->get_pin();
+			Vector<real_t> weights;
 			weights.push_back(effector->weight);
-			weights.push_back(effector->weight);
+			if (effector->get_follow_x()) {
+				weights.push_back(effector->weight);
+				weights.push_back(effector->weight);
+			} else {
+				weights.push_back(0.0f);
+				weights.push_back(0.0f);
+			}
+			if (effector->get_follow_y()) {
+				weights.push_back(effector->weight);
+				weights.push_back(effector->weight);
+			} else {
+				weights.push_back(0.0f);
+				weights.push_back(0.0f);
+			}
+			if (effector->get_follow_z()) {
+				weights.push_back(effector->weight);
+				weights.push_back(effector->weight);
+			} else {
+				weights.push_back(0.0f);
+				weights.push_back(0.0f);
+			}
+			for (int32_t w_i = 0; w_i < weights.size(); w_i++) {
+				weights.write[w_i] = weights[w_i] * depth_falloff;
+			}
+			target_headings.clear();
+			tip_headings.clear();
+			int32_t n = heading_weights.size();
+			target_headings.resize(n);
+			tip_headings.resize(n);
+			effector->create_headings(weights);
 		}
-		if (effector->get_follow_y()) {
-			weights.push_back(effector->weight);
-			weights.push_back(effector->weight);
+		if (current_bone == root) {
+			break;
 		}
-		if (effector->get_follow_z()) {
-			weights.push_back(effector->weight);
-			weights.push_back(effector->weight);
-		}
-		heading_weights.append_array(weights);
+		current_bone = current_bone->get_parent();
 	}
-	create_headings();
+	return pin_mappings;
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
@@ -321,24 +338,12 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 	return sqrmsd;
 }
 
-void IKBoneChain::create_headings() {
-	target_headings.clear();
-	tip_headings.clear();
-	int32_t n = heading_weights.size();
-	target_headings.resize(n);
-	tip_headings.resize(n);
-
-	if (is_tip_effector()) {
-		tip->get_pin()->create_headings(heading_weights);
-	}
-}
-
 PackedVector3Array IKBoneChain::update_target_headings(Vector<real_t> *&p_weights) {
 	PackedVector3Array htarget = target_headings;
 	p_weights = &heading_weights;
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
-	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
-		Ref<IKPin3D> effector = effector_list[effector_i];
+	for (int32_t effector_i = 0; effector_i < pin_mappings.size(); effector_i++) {
+		Ref<IKPin3D> effector = pin_mappings[effector_i];
 		effector->update_effector_target_headings(&htarget, index, p_weights);
 	}
 	return htarget;
@@ -347,8 +352,8 @@ PackedVector3Array IKBoneChain::update_target_headings(Vector<real_t> *&p_weight
 PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 	PackedVector3Array htip = tip_headings;
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
-	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
-		Ref<IKPin3D> effector = effector_list[effector_i];
+	for (int32_t effector_i = 0; effector_i < pin_mappings.size(); effector_i++) {
+		Ref<IKPin3D> effector = pin_mappings[effector_i];
 		effector->update_effector_tip_headings(p_for_bone, &htip, index);
 	}
 	return htip;
@@ -398,4 +403,7 @@ IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
 		root->set_parent(p_parent->get_tip());
 	}
 	generate_skeleton_segments(p_map);
+}
+void IKBoneChain::clear_pinned_list() {
+	pin_mappings.clear();
 }
