@@ -249,14 +249,23 @@ void IKBoneChain::update_pinned_list() {
 		if (effector->get_follow_x()) {
 			weights.push_back(effector->weight * depth_falloff);
 			weights.push_back(effector->weight * depth_falloff);
+		} else {
+			weights.push_back(0);
+			weights.push_back(0);
 		}
 		if (effector->get_follow_y()) {
 			weights.push_back(effector->weight * depth_falloff);
 			weights.push_back(effector->weight * depth_falloff);
+		} else {
+			weights.push_back(0);
+			weights.push_back(0);
 		}
 		if (effector->get_follow_z()) {
 			weights.push_back(effector->weight * depth_falloff);
 			weights.push_back(effector->weight * depth_falloff);
+		} else {
+			weights.push_back(0);
+			weights.push_back(0);
 		}
 		heading_weights.append_array(weights);
 		effector->create_headings(heading_weights);
