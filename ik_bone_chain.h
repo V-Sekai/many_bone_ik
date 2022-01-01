@@ -46,6 +46,7 @@ private:
 	Vector<Ref<IKBoneChain>> effector_direct_descendents;
 	HashMap<BoneId, Ref<IKBone3D>> bones_map;
 	Ref<IKBoneChain> parent_chain;
+	Vector<Ref<IKPin3D>> effector_list;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
@@ -53,7 +54,6 @@ private:
 
 	Skeleton3D *skeleton = nullptr;
 	QCP qcp;
-	Vector<Ref<IKPin3D>> pin_mappings;
 
 	BoneId find_root_bone_id(BoneId p_bone);
 	void generate_skeleton_segments(const HashMap<BoneId, Ref<IKBone3D>> &p_map);
@@ -61,6 +61,7 @@ private:
 	void update_effector_direct_descendents();
 	void generate_bones_map();
 	Ref<IKBoneChain> get_child_segment_containing(const Ref<IKBone3D> &p_bone);
+	void create_headings();
 	PackedVector3Array update_target_headings(Vector<real_t> *&p_weights);
 	PackedVector3Array update_tip_headings(Ref<IKBone3D> p_for_bone);
 	real_t set_optimal_rotation(Ref<IKBone3D> p_for_bone,
@@ -88,8 +89,7 @@ public:
 	Ref<IKBone3D> find_bone(const BoneId p_bone_id);
 	void get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root();
-	Vector<Ref<IKPin3D>> update_pinned_list();
-	void clear_pinned_list();
+	void update_pinned_list();
 	void debug_print_chains(Vector<bool> p_levels = Vector<bool>());
 
 	IKBoneChain() {}
