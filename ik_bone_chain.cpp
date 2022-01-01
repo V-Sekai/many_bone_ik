@@ -139,7 +139,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 			tip = temp_tip;
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
-				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));
+				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));				
 				child_segment->generate_default_segments_from_root();
 				child_chains.push_back(child_segment);
 			}
@@ -242,23 +242,14 @@ void IKBoneChain::update_pinned_list() {
 		if (effector->get_follow_x()) {
 			weights.push_back(effector->weight);
 			weights.push_back(effector->weight);
-		} else {
-			weights.push_back(0.0f);
-			weights.push_back(0.0f);
 		}
 		if (effector->get_follow_y()) {
 			weights.push_back(effector->weight);
 			weights.push_back(effector->weight);
-		} else {
-			weights.push_back(0.0f);
-			weights.push_back(0.0f);
 		}
 		if (effector->get_follow_z()) {
 			weights.push_back(effector->weight);
 			weights.push_back(effector->weight);
-		} else {
-			weights.push_back(0.0f);
-			weights.push_back(0.0f);
 		}
 		heading_weights.append_array(weights);
 	}
