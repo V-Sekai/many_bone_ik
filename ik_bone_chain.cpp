@@ -149,6 +149,8 @@ void IKBoneChain::generate_default_segments_from_root() {
 			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(bone_id, temp_tip)));
 			temp_tip = next;
 		} else {
+			tip = temp_tip;
+			tip->create_pin();
 			break;
 		}
 	}
