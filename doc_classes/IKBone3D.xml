@@ -7,7 +7,7 @@
 	<tutorials>
 	</tutorials>
 	<methods>
-		<method name="get_effector" qualifiers="const">
+		<method name="get_pin" qualifiers="const">
 			<return type="IKPin3D" />
 			<description>
 			</description>
@@ -17,9 +17,9 @@
 			<description>
 			</description>
 		</method>
-		<method name="set_effector">
+		<method name="set_pin">
 			<return type="void" />
-			<argument index="0" name="effector" type="IKPin3D" />
+			<argument index="0" name="pin" type="IKPin3D" />
 			<description>
 			</description>
 		</method>
