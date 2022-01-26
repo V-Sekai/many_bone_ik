@@ -33,6 +33,7 @@
 
 #include "../math/qcp.h"
 #include "core/math/basis.h"
+#include "core/math/vector3.h"
 
 #include "tests/test_macros.h"
 
@@ -51,7 +52,7 @@ void rotate_target_headings(const Vector<Vector3> &p_localizedTipHeadings, Vecto
 	for (int32_t i = 0; i < r_localizedTargetHeadings.size(); i++) {
 		r_localizedTargetHeadings.write[i] = p_basis.xform(p_localizedTipHeadings[i]);
 	}
-	Vector<float> weights;
+	Vector<real_t> weights;
 	weights.push_back(1.0);
 	weights.push_back(1.0);
 	weights.push_back(1.0);
@@ -68,7 +69,7 @@ void rotate_target_headings(const Vector<Vector3> &p_localizedTipHeadings, Vecto
 	memdelete(qcp);
 	Basis r1 = rot;
 	Basis r2 = p_basis;
-	float compare_angle;
+	real_t compare_angle;
 	Vector3 compare_axis;
 	(r1.inverse() * r2).get_axis_angle(compare_axis, compare_angle);
 	CHECK_MESSAGE(Math::is_zero_approx(compare_angle), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
