@@ -203,13 +203,7 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	}
 
 	if (root_bone.is_empty()) {
-		Vector<int32_t> roots;
-		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-			int32_t parent = skeleton->get_bone_parent(bone_i);
-			if (parent != -1 && skeleton->get_bone_parent(parent) == -1) {
-				roots.push_back(bone_i);
-			}
-		}
+		Vector<int32_t> roots = skeleton->get_parentless_bones();
 		if (roots.size()) {
 			set_root_bone_index(roots[0]);
 		}
@@ -303,13 +297,27 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) const {
 	if (property.name == "root_bone") {
 		if (skeleton) {
-			String names;
-			for (int i = 0; i < skeleton->get_bone_count(); i++) {
-				if (skeleton->get_bone_parent(i) == -1) {
+			String names = "None";
+			Vector<BoneId> bones = skeleton->get_parentless_bones();
+			List<BoneId> queue;
+			for (int i = 0; i < bones.size(); i++) {
+				queue.push_front(bones[i]);
+			}
+			while (!queue.is_empty()) {
+				List<BoneId>::Element *elem = queue.front();
+				if (!elem) {
+					queue.pop_front();
 					continue;
 				}
-				names += skeleton->get_bone_name(i);
+				BoneId bone_id = elem->get();
 				names += ",";
+				names += skeleton->get_bone_name(bone_id);
+				Vector<BoneId> children = skeleton->get_bone_children(bone_id);
+				for (BoneId child_i = 0; child_i < children.size(); child_i++) {
+					BoneId child = children[child_i];
+					queue.push_back(child);
+				}
+				queue.pop_front();
 			}
 
 			property.hint = PROPERTY_HINT_ENUM;
