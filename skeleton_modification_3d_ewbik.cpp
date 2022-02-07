@@ -298,28 +298,10 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 	if (property.name == "root_bone") {
 		if (skeleton) {
 			String names = "None";
-			Vector<BoneId> bones = skeleton->get_parentless_bones();
-			List<BoneId> queue;
-			for (int i = 0; i < bones.size(); i++) {
-				queue.push_front(bones[i]);
-			}
-			while (!queue.is_empty()) {
-				List<BoneId>::Element *elem = queue.front();
-				if (!elem) {
-					queue.pop_front();
-					continue;
-				}
-				BoneId bone_id = elem->get();
+			for (int i = 0; i < skeleton->get_bone_count(); i++) {
 				names += ",";
-				names += skeleton->get_bone_name(bone_id);
-				Vector<BoneId> children = skeleton->get_bone_children(bone_id);
-				for (BoneId child_i = 0; child_i < children.size(); child_i++) {
-					BoneId child = children[child_i];
-					queue.push_back(child);
-				}
-				queue.pop_front();
+				names += skeleton->get_bone_name(i);
 			}
-
 			property.hint = PROPERTY_HINT_ENUM;
 			property.hint_string = names;
 		} else {
