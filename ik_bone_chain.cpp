@@ -245,16 +245,15 @@ void IKBoneChain::update_pinned_list() {
 		effector_list.push_back(effector);
 		Vector<real_t> weights;
 		weights.push_back(effector->weight * depth_falloff);
-
-		if (effector->get_follow_x()) {
+		{
 			weights.push_back(effector->weight * depth_falloff);
 			weights.push_back(effector->weight * depth_falloff);
 		}
-		if (effector->get_follow_y()) {
+		{
 			weights.push_back(effector->weight * depth_falloff);
 			weights.push_back(effector->weight * depth_falloff);
 		}
-		if (effector->get_follow_z()) {
+		{
 			weights.push_back(effector->weight * depth_falloff);
 			weights.push_back(effector->weight * depth_falloff);
 		}

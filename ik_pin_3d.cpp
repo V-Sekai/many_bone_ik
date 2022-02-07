@@ -105,32 +105,27 @@ void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
 	heading_weights.resize(nheadings);
 	tip_headings.resize(nheadings);
 	target_headings.resize(nheadings);
-
 	for (int32_t i_w = 0; i_w < nw; i_w++) {
 		heading_weights.write[i_w] = p_weights[i_w];
 	}
-
 	int32_t index = 0;
 	heading_weights.write[nw + index] = weight;
 	index++;
-
-	if (get_follow_x()) {
+	{
 		ERR_FAIL_INDEX(nw + index, heading_weights.size());
 		heading_weights.write[nw + index] = weight * priority.x;
 		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
 		heading_weights.write[nw + index + 1] = weight * priority.x;
 		index += 2;
 	}
-
-	if (get_follow_y()) {
+	{
 		ERR_FAIL_INDEX(nw + index, heading_weights.size());
 		heading_weights.write[nw + index] = weight * priority.y;
 		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
 		heading_weights.write[nw + index + 1] = weight * priority.y;
 		index += 2;
 	}
-
-	if (get_follow_z()) {
+	{
 		ERR_FAIL_INDEX(nw + index, heading_weights.size());
 		heading_weights.write[nw + index] = weight * priority.z;
 		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
@@ -143,24 +138,21 @@ void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, in
 	ERR_FAIL_NULL(p_headings);
 	p_headings->write[p_index] = goal_transform.origin;
 	p_index++;
-
-	if (get_follow_x()) {
+	{
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(w, 0.0, 0.0);
 		p_headings->write[p_index] = goal_transform.xform(v);
 		p_headings->write[p_index + 1] = goal_transform.xform(-v);
 		p_index += 2;
 	}
-
-	if (get_follow_y()) {
+	{
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(0.0, w, 0.0);
 		p_headings->write[p_index] = goal_transform.xform(v);
 		p_headings->write[p_index + 1] = goal_transform.xform(-v);
 		p_index += 2;
 	}
-
-	if (get_follow_z()) {
+	{
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(0.0, 0.0, w);
 		p_headings->write[p_index] = goal_transform.xform(v);
