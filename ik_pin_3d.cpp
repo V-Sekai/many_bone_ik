@@ -82,106 +82,122 @@ Transform3D IKPin3D::get_goal_transform() const {
 
 void IKPin3D::update_priorities() {
 	num_headings = 1;
-	num_headings += 2;
-	num_headings += 2;
-	num_headings += 2;
+	if (get_follow_x()) {
+		num_headings += 2;
+	}
+	if (get_follow_y()) {
+		num_headings += 2;
+	}
+	if (get_follow_z()) {
+		num_headings += 2;
+	}
 }
 
 void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
-	int32_t number_weights = p_weights.size();
-	int32_t number_headings = number_weights + num_headings;
-	heading_weights.resize(number_headings);
-	tip_headings.resize(number_headings);
-	target_headings.resize(number_headings);
+	/**
+	 * Weights are given from the parent chain. The last two weights should
+	 * always correspond to this effector weights. In the parent only the origin
+	 * is considered for rotation, but here the last two headings must be replaced
+	 * by the corresponding number of "axis-orientation" headings.
+	 */
+	int32_t nw = p_weights.size();
+	int32_t nheadings = nw + num_headings;
+	heading_weights.resize(nheadings);
+	tip_headings.resize(nheadings);
+	target_headings.resize(nheadings);
 
-	for (int32_t i_w = 0; i_w < number_weights; i_w++) {
+	for (int32_t i_w = 0; i_w < nw; i_w++) {
 		heading_weights.write[i_w] = p_weights[i_w];
 	}
-	ERR_FAIL_INDEX(number_weights + 6, heading_weights.size());
+
 	int32_t index = 0;
-	heading_weights.write[number_weights + index] = weight;
-
+	heading_weights.write[nw + index] = weight;
 	index++;
-	heading_weights.write[number_weights + index] = weight * priority.x;
 
-	index++;
-	heading_weights.write[number_weights + index] = weight * priority.x;
+	if (get_follow_x()) {
+		ERR_FAIL_INDEX(nw + index, heading_weights.size());
+		heading_weights.write[nw + index] = weight * priority.x;
+		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
+		heading_weights.write[nw + index + 1] = weight * priority.x;
+		index += 2;
+	}
 
-	index++;
-	heading_weights.write[number_weights + index] = weight * priority.y;
+	if (get_follow_y()) {
+		ERR_FAIL_INDEX(nw + index, heading_weights.size());
+		heading_weights.write[nw + index] = weight * priority.y;
+		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
+		heading_weights.write[nw + index + 1] = weight * priority.y;
+		index += 2;
+	}
 
-	index++;
-	heading_weights.write[number_weights + index] = weight * priority.y;
-
-	index++;
-	heading_weights.write[number_weights + index] = weight * priority.z;
-
-	index++;
-	heading_weights.write[number_weights + index] = weight * priority.z;
+	if (get_follow_z()) {
+		ERR_FAIL_INDEX(nw + index, heading_weights.size());
+		heading_weights.write[nw + index] = weight * priority.z;
+		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
+		heading_weights.write[nw + index + 1] = weight * priority.z;
+	}
 }
 
 void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index,
 		Vector<real_t> *p_weights) const {
 	ERR_FAIL_NULL(p_headings);
-	ERR_FAIL_INDEX(p_index + 6, p_headings->size());
 	p_headings->write[p_index] = goal_transform.origin;
-	real_t w = 0.0;
-	Vector3 v;
-	{
-		p_index++;
-		w = p_weights->write[p_index];
-		v = Vector3(w, 0.0, 0.0);
+	p_index++;
+
+	if (get_follow_x()) {
+		real_t w = p_weights->write[p_index];
+		Vector3 v = Vector3(w, 0.0, 0.0);
 		p_headings->write[p_index] = goal_transform.xform(v);
-		p_index++;
-		p_headings->write[p_index] = goal_transform.xform(-v);
+		p_headings->write[p_index + 1] = goal_transform.xform(-v);
+		p_index += 2;
 	}
-	{
-		w = p_weights->write[p_index];
-		v = Vector3(0.0, w, 0.0);
+
+	if (get_follow_y()) {
+		real_t w = p_weights->write[p_index];
+		Vector3 v = Vector3(0.0, w, 0.0);
 		p_headings->write[p_index] = goal_transform.xform(v);
-		p_index++;
-		p_headings->write[p_index] = goal_transform.xform(-v);
+		p_headings->write[p_index + 1] = goal_transform.xform(-v);
+		p_index += 2;
 	}
-	{
-		p_index++;
-		w = p_weights->write[p_index];
-		v = Vector3(0.0, 0.0, w);
+
+	if (get_follow_z()) {
+		real_t w = p_weights->write[p_index];
+		Vector3 v = Vector3(0.0, 0.0, w);
 		p_headings->write[p_index] = goal_transform.xform(v);
-		p_index++;
-		p_headings->write[p_index] = goal_transform.xform(-v);
+		p_headings->write[p_index + 1] = goal_transform.xform(-v);
+		p_index += 2;
 	}
 }
 
 void IKPin3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
 	ERR_FAIL_NULL(p_headings);
 	ERR_FAIL_NULL(p_current_bone);
-	ERR_FAIL_INDEX(p_index + 6, p_headings->size());
 	Transform3D tip_xform = for_bone->get_global_transform();
 	p_headings->write[p_index] = tip_xform.origin;
+	p_index++;
 	float scale_by = tip_xform.origin.distance_to(goal_transform.origin);
-	{
+	if (get_follow_x()) {
 		Vector3 v;
 		v.x = scale_by;
-		p_index++;
 		p_headings->write[p_index] = tip_xform.xform(v);
-		p_index++;
-		p_headings->write[p_index] = tip_xform.xform(-v);
+		p_headings->write[p_index + 1] = tip_xform.xform(-v);
+		p_index += 2;
 	}
-	{
+
+	if (get_follow_y()) {
 		Vector3 v;
 		v.y = scale_by;
-		p_index++;
 		p_headings->write[p_index] = tip_xform.xform(v);
-		p_index++;
-		p_headings->write[p_index] = tip_xform.xform(-v);
+		p_headings->write[p_index + 1] = tip_xform.xform(-v);
+		p_index += 2;
 	}
-	{
+
+	if (get_follow_z()) {
 		Vector3 v;
 		v.z = scale_by;
-		p_index++;
 		p_headings->write[p_index] = tip_xform.xform(v);
-		p_index++;
-		p_headings->write[p_index] = tip_xform.xform(-v);
+		p_headings->write[p_index + 1] = tip_xform.xform(-v);
+		p_index += 2;
 	}
 }
 
