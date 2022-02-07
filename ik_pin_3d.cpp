@@ -168,23 +168,21 @@ void IKPin3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedV
 	p_headings->write[p_index] = tip_xform.origin;
 	p_index++;
 	float scale_by = tip_xform.origin.distance_to(goal_transform.origin);
-	if (get_follow_x()) {
+	{
 		Vector3 v;
 		v.x = scale_by;
 		p_headings->write[p_index] = tip_xform.xform(v);
 		p_headings->write[p_index + 1] = tip_xform.xform(-v);
 		p_index += 2;
 	}
-
-	if (get_follow_y()) {
+	{
 		Vector3 v;
 		v.y = scale_by;
 		p_headings->write[p_index] = tip_xform.xform(v);
 		p_headings->write[p_index + 1] = tip_xform.xform(-v);
 		p_index += 2;
 	}
-
-	if (get_follow_z()) {
+	{
 		Vector3 v;
 		v.z = scale_by;
 		p_headings->write[p_index] = tip_xform.xform(v);
