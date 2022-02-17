@@ -53,7 +53,7 @@ Ref<IKBone3D> IKPin3D::get_shadow_bone() const {
 }
 
 bool IKPin3D::is_following_translation_only() const {
-	return !(get_follow_x() || get_follow_y() || get_follow_z());
+	return false;
 }
 
 void IKPin3D::update_goal_transform(Skeleton3D *p_skeleton) {
@@ -80,19 +80,6 @@ Transform3D IKPin3D::get_goal_transform() const {
 	return goal_transform;
 }
 
-void IKPin3D::update_priorities() {
-	num_headings = 1;
-	if (get_follow_x()) {
-		num_headings += 2;
-	}
-	if (get_follow_y()) {
-		num_headings += 2;
-	}
-	if (get_follow_z()) {
-		num_headings += 2;
-	}
-}
-
 void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
 	/**
 	 * Weights are given from the parent chain. The last two weights should
@@ -113,23 +100,23 @@ void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
 	index++;
 	{
 		ERR_FAIL_INDEX(nw + index, heading_weights.size());
-		heading_weights.write[nw + index] = weight * priority.x;
+		heading_weights.write[nw + index] = weight;
 		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
-		heading_weights.write[nw + index + 1] = weight * priority.x;
+		heading_weights.write[nw + index + 1] = weight;
 		index += 2;
 	}
 	{
 		ERR_FAIL_INDEX(nw + index, heading_weights.size());
-		heading_weights.write[nw + index] = weight * priority.y;
+		heading_weights.write[nw + index] = weight;
 		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
-		heading_weights.write[nw + index + 1] = weight * priority.y;
+		heading_weights.write[nw + index + 1] = weight;
 		index += 2;
 	}
 	{
 		ERR_FAIL_INDEX(nw + index, heading_weights.size());
-		heading_weights.write[nw + index] = weight * priority.z;
+		heading_weights.write[nw + index] = weight;
 		ERR_FAIL_INDEX(nw + index + 1, heading_weights.size());
-		heading_weights.write[nw + index + 1] = weight * priority.z;
+		heading_weights.write[nw + index + 1] = weight;
 	}
 }
 
@@ -196,21 +183,15 @@ void IKPin3D::_bind_methods() {
 			&IKPin3D::set_target_node);
 	ClassDB::bind_method(D_METHOD("get_target_node"),
 			&IKPin3D::get_target_node);
-	ClassDB::bind_method(D_METHOD("set_priority", "priority"),
-			&IKPin3D::set_priority);
-	ClassDB::bind_method(D_METHOD("get_priority"),
-			&IKPin3D::get_priority);
 	ClassDB::bind_method(D_METHOD("set_depth_falloff", "amount"),
 			&IKPin3D::set_depth_falloff);
 	ClassDB::bind_method(D_METHOD("get_depth_falloff"),
 			&IKPin3D::get_depth_falloff);
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "priority"), "set_priority", "get_priority");
 }
 
 IKPin3D::IKPin3D(const Ref<IKBone3D> &p_current_bone) {
 	for_bone = p_current_bone;
-	update_priorities();
 }
 
 void IKPin3D::update_target_cache(Node *p_skeleton) {
@@ -228,14 +209,6 @@ void IKPin3D::update_target_cache(Node *p_skeleton) {
 	ERR_FAIL_COND_MSG(!node->is_inside_tree(),
 			"Cannot update target cache: node is not in scene tree!");
 	target_node_cache = node->get_instance_id();
-}
-
-void IKPin3D::set_priority(Vector3 p_priority) {
-	priority = p_priority.clamp(Vector3(0.1f, 0.1f, 0.1f), Vector3(100.f, 100.f, 100.f));
-}
-
-Vector3 IKPin3D::get_priority() const {
-	return priority;
 }
 
 void IKPin3D::set_depth_falloff(float p_depth_falloff) {

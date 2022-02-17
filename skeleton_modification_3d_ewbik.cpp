@@ -274,7 +274,6 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
 		String bone = data->get_name();
 		BoneId bone_id = skeleton->find_bone(bone);
-		Vector3 priority = data->priority;
 		float depth_falloff = data->depth_falloff;
 		if (bone_id == -1) {
 			continue;
@@ -288,7 +287,6 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		Ref<IKPin3D> effector_3d = ik_bone_3d->get_pin();
 		effector_3d->set_target_node(skeleton, data->target_node);
 		effector_3d->update_target_cache(skeleton);
-		effector_3d->set_priority(priority);
 		effector_3d->set_depth_falloff(depth_falloff);
 	}
 	is_dirty = true;
@@ -335,8 +333,6 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(i) + "/target_node"));
 
 		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(i) + "/use_node_rotation"));
-		p_list->push_back(
-				PropertyInfo(Variant::VECTOR3, "pins/" + itos(i) + "/priority"));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/depth_falloff"));
 		p_list->push_back(
@@ -401,9 +397,6 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			return true;
 		} else if (what == "use_node_rotation") {
 			r_ret = get_effector_use_node_rotation(index);
-			return true;
-		} else if (what == "priority") {
-			r_ret = get_effector_priority(index);
 			return true;
 		} else if (what == "depth_falloff") {
 			r_ret = get_effector_depth_falloff(index);
@@ -474,9 +467,6 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			if (p_value) {
 				remove_pin(index);
 			}
-			return true;
-		} else if (what == "priority") {
-			set_effector_priority(index, p_value);
 			return true;
 		} else if (what == "depth_falloff") {
 			set_effector_depth_falloff(index, p_value);
@@ -565,20 +555,6 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
-	is_dirty = true;
-	notify_property_list_changed();
-}
-
-Vector3 SkeletonModification3DEWBIK::get_effector_priority(int32_t p_effector_index) const {
-	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), Vector3(1.0, 1.0, 1.0));
-	const Ref<IKEffectorTemplate> data = pins[p_effector_index];
-	return data->priority;
-}
-
-void SkeletonModification3DEWBIK::set_effector_priority(int32_t p_effector_index, Vector3 p_priority) {
-	Ref<IKEffectorTemplate> data = pins[p_effector_index];
-	ERR_FAIL_NULL(data);
-	data->priority = p_priority;
 	is_dirty = true;
 	notify_property_list_changed();
 }

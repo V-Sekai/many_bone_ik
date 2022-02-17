@@ -41,7 +41,6 @@ class IKEffectorTemplate : public Resource {
 
 public:
 	NodePath target_node;
-	Vector3 priority = Vector3(1.0, 1.0, 1.0);
 	float depth_falloff = 1.0f;
 	bool use_target_node_rotation = false;
 	IKEffectorTemplate() {
@@ -75,8 +74,6 @@ public:
 	NodePath get_effector_target_nodepath(int32_t p_effector_index);
 	void set_effector_depth_falloff(int32_t p_effector_index, const float p_depth_falloff);
 	float get_effector_depth_falloff(int32_t p_effector_index) const;
-	void set_effector_priority(int32_t p_effector_index, Vector3 p_priority);
-	Vector3 get_effector_priority(int32_t p_effector_index) const;
 	void set_effector_use_node_rotation(int32_t p_index, bool p_use_node_rot);
 	bool get_effector_use_node_rotation(int32_t p_index) const;
 	float get_default_degrees_damp() const;
