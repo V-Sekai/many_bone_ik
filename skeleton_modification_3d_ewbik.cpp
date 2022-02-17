@@ -453,7 +453,6 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, pin_count, true);
-		Ref<IKEffectorTemplate> data = pins.write[index];
 		if (what == "name") {
 			set_effector_bone(index, p_value);
 			return true;
@@ -500,7 +499,6 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			}
 		}
 	}
-
 	return false;
 }
 
