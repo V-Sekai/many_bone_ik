@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="IKPin3D" inherits="Resource" version="4.0">
+<class name="IKPin3D" inherits="Resource" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
 	<brief_description>
 	</brief_description>
 	<description>
@@ -27,13 +27,6 @@
 			Changing this value makes ancestor bones aware and determines how much less they care with each level down.
 			Presuming all descendants of this pin have a falloff of 1, then: A pin falloff of 0 on this pin means only this pin is reported to ancestors. A pin falloff of 1 on this pin means ancestors care about all descendant pins equally (after accounting for their pin weight), regardless of how many levels down they are. A pin falloff of 0.5 means each descendant pin is used about half as much as its ancestor. The pin's falloff of a descendant is taken into account for each level with each level.
 			Meaning, if this pin has a falloff of 1 and its descendent has a falloff of 0.5, then it will be reported with total weight. Then, its descendant will be calculated with total weight; the descendant of that pin will be calculated with half weight. Finally, the descendant of that one's descendant will be with calculated quarter weight.
-		</member>
-		<member name="priority" type="Vector3" setter="set_priority" getter="get_priority" default="Vector3(0, 0, 0)">
-			Sets the priority of the orientation bases which effectors are reaching for this target will and won't align with together.
-			If all are set to 0, the target is treated as a simple position target. Therefore, it's usually better to put at least one of these three values to 0, as giving a nonzero value to all three is most often redundant.
-			X set to a positive value (recommended between 0 and 1) if you want the bone's X basis to point in the same direction as this target's X basis (by this library's convention, the X basis corresponds to a limb's twist).
-			Y set to a positive value (recommended between 0 and 1) if you want the bone's Y basis to point in the same direction as this target's y basis (by this library's convention, the Y basis corresponds to a limb's direction).
-			Z set to a positive value (recommended between 0 and 1) if you want the bone's Z basis to point in the same direction as this target's Z basis (by this library's convention, the Z basis corresponds to a limb's twist).
 		</member>
 	</members>
 </class>
