@@ -78,7 +78,7 @@ public:
 	bool get_effector_use_node_rotation(int32_t p_index) const;
 	float get_default_degrees_damp() const;
 	void set_default_degrees_damp(float p_default_damp);
-	float get_default_damp() const;
+	real_t get_default_damp() const;
 	void set_default_damp(float p_default_damp);
 	void set_constraint_count(int32_t p_count);
 	int32_t get_constraint_count() const;

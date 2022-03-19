@@ -647,7 +647,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_bone, 
 	notify_property_list_changed();
 }
 
-float SkeletonModification3DEWBIK::get_default_damp() const {
+real_t SkeletonModification3DEWBIK::get_default_damp() const {
 	return default_damp;
 }
 
