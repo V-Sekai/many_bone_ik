@@ -31,7 +31,7 @@
 #ifndef TEST_EWBIK_H
 #define TEST_EWBIK_H
 
-#include "../math/qcp.h"
+#include "ewbik/math/qcp.h"
 #include "core/math/basis.h"
 #include "core/math/vector3.h"
 
