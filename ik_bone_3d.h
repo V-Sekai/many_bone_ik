@@ -67,16 +67,16 @@ public:
 	Ref<IKBone3D> get_parent() const;
 	void set_pin(const Ref<IKPin3D> &p_pin);
 	Ref<IKPin3D> get_pin() const;
-	void set_transform(const Transform3D &p_transform);
-	Transform3D get_transform() const;
-	void set_global_transform(const Transform3D &p_transform);
+	void set_pose(const Transform3D &p_transform);
+	Transform3D get_pose() const;
+	void set_global_pose(const Transform3D &p_transform);
 	void set_rot_delta(const Basis &p_rot);
 	void set_translation_delta(Vector3 p_translation);
 	Vector3 get_translation_delta() const;
 
-	Transform3D get_global_transform() const;
-	void set_initial_transform(Skeleton3D *p_skeleton);
-	void set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strenght);
+	Transform3D get_global_pose() const;
+	void set_initial_pose(Skeleton3D *p_skeleton);
+	void set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strenght);
 	void create_pin();
 	bool is_pin() const;
 	IKBone3D() {}

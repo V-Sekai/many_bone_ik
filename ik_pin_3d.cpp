@@ -60,7 +60,7 @@ void IKPin3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	goal_transform = Transform3D();
 	if (!target_node_reference) {
 		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
-		goal_transform = for_bone->get_global_transform();
+		goal_transform = for_bone->get_global_pose();
 		if (!use_target_node_rotation) {
 			goal_transform.basis = Basis();
 		}
@@ -149,7 +149,7 @@ void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, in
 void IKPin3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
 	ERR_FAIL_NULL(p_headings);
 	ERR_FAIL_NULL(p_current_bone);
-	Transform3D tip_xform = for_bone->get_global_transform();
+	Transform3D tip_xform = for_bone->get_global_pose();
 	p_headings->write[p_index] = tip_xform.origin;
 	p_index++;
 	float scale_by = tip_xform.origin.distance_to(goal_transform.origin);

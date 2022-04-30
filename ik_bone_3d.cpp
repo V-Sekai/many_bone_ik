@@ -64,38 +64,38 @@ Ref<IKPin3D> IKBone3D::get_pin() const {
 	return pin;
 }
 
-void IKBone3D::set_transform(const Transform3D &p_transform) {
+void IKBone3D::set_pose(const Transform3D &p_transform) {
 	xform.set_transform(p_transform);
 }
 
-Transform3D IKBone3D::get_transform() const {
+Transform3D IKBone3D::get_pose() const {
 	return xform.get_transform();
 }
 
-void IKBone3D::set_global_transform(const Transform3D &p_transform) {
+void IKBone3D::set_global_pose(const Transform3D &p_transform) {
 	xform.set_global_transform(p_transform);
 }
 
-Transform3D IKBone3D::get_global_transform() const {
+Transform3D IKBone3D::get_global_pose() const {
 	return xform.get_global_transform();
 }
 
 void IKBone3D::set_rot_delta(const Basis &p_rot) {
 	rot_delta *= p_rot;
 	Transform3D rot_xform = Transform3D(p_rot, translation_delta);
-	set_global_transform(get_global_transform() * rot_xform);
+	set_global_pose(get_global_pose() * rot_xform);
 }
 
-void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
+void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
 	if (bone_id == -1) {
 		return;
 	}
-	set_transform(p_skeleton->global_pose_to_local_pose(bone_id, xform));
+	set_pose(p_skeleton->global_pose_to_local_pose(bone_id, xform));
 }
 
-void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {
-	Transform3D custom = get_transform();
+void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {
+	Transform3D custom = get_pose();
 	p_skeleton->set_bone_pose_position(bone_id, custom.origin);
 	p_skeleton->set_bone_pose_rotation(bone_id, custom.basis.get_rotation_quaternion());
 	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());
@@ -139,9 +139,9 @@ void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
 
 void IKBone3D::set_translation_delta(Vector3 p_translation_delta) {
 	translation_delta = p_translation_delta;
-	Transform3D xform = get_global_transform();
+	Transform3D xform = get_global_pose();
 	xform.origin += p_translation_delta;
-	set_global_transform(xform);
+	set_global_pose(xform);
 }
 Vector<BoneId> IKBone3D::get_children_with_pin_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const {
 	Vector<BoneId> children_with_pin;

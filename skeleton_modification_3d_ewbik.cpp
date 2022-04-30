@@ -225,7 +225,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 		if (bone.is_null()) {
 			continue;
 		}
-		bone->set_initial_transform(skeleton);
+		bone->set_initial_pose(skeleton);
 		if (bone->is_pin()) {
 			bone->get_pin()->update_goal_transform(skeleton);
 		}
@@ -241,7 +241,7 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 		if (bone->get_bone_id() == -1) {
 			continue;
 		}
-		bone->set_skeleton_bone_transform(skeleton, p_blending_delta);
+		bone->set_skeleton_bone_pose(skeleton, p_blending_delta);
 	}
 }
 
