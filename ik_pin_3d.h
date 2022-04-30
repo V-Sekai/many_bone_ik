@@ -50,7 +50,7 @@ private:
 	ObjectID target_node_cache;
 	Node *target_node_reference = nullptr;
 
-	Transform3D goal_transform;
+	Transform3D goal_global_pose;
 	int32_t num_headings = 7;
 	// These are set to off values for debugging.
 	real_t depth_falloff = 0.0;
@@ -66,14 +66,14 @@ protected:
 	void create_headings(const Vector<real_t> &p_weights);
 
 public:
-	void update_goal_transform(Skeleton3D *p_skeleton);
+	void update_goal_global_pose(Skeleton3D *p_skeleton);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
 	void update_target_cache(Node *p_skeleton);
 	void set_target_node(Node *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
-	Transform3D get_goal_transform() const;
+	Transform3D get_goal_global_pose() const;
 	void set_use_target_node_rotation(bool p_use);
 	bool get_use_target_node_rotation() const;
 	Ref<IKBone3D> get_shadow_bone() const;

@@ -56,26 +56,26 @@ bool IKPin3D::is_following_translation_only() const {
 	return false;
 }
 
-void IKPin3D::update_goal_transform(Skeleton3D *p_skeleton) {
-	goal_transform = Transform3D();
+void IKPin3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
+	goal_global_pose = Transform3D();
 	if (!target_node_reference) {
 		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
-		goal_transform = for_bone->get_global_pose();
+		goal_global_pose = for_bone->get_global_pose();
 		if (!use_target_node_rotation) {
-			goal_transform.basis = Basis();
+			goal_global_pose.basis = Basis();
 		}
 		return;
 	}
 	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
 	Transform3D node_xform = target_node->get_global_transform();
-	goal_transform = p_skeleton->world_transform_to_global_pose(node_xform);
+	goal_global_pose = p_skeleton->world_transform_to_global_pose(node_xform);
 	if (!use_target_node_rotation) {
-		goal_transform.basis = Basis();
+		goal_global_pose.basis = Basis();
 	}
 }
 
-Transform3D IKPin3D::get_goal_transform() const {
-	return goal_transform;
+Transform3D IKPin3D::get_goal_global_pose() const {
+	return goal_global_pose;
 }
 
 void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
@@ -121,27 +121,27 @@ void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
 void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index,
 		Vector<real_t> *p_weights) const {
 	ERR_FAIL_NULL(p_headings);
-	p_headings->write[p_index] = goal_transform.origin;
+	p_headings->write[p_index] = goal_global_pose.origin;
 	p_index++;
 	{
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(w, 0.0, 0.0);
-		p_headings->write[p_index] = goal_transform.xform(v);
-		p_headings->write[p_index + 1] = goal_transform.xform(-v);
+		p_headings->write[p_index] = goal_global_pose.xform(v);
+		p_headings->write[p_index + 1] = goal_global_pose.xform(-v);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(0.0, w, 0.0);
-		p_headings->write[p_index] = goal_transform.xform(v);
-		p_headings->write[p_index + 1] = goal_transform.xform(-v);
+		p_headings->write[p_index] = goal_global_pose.xform(v);
+		p_headings->write[p_index + 1] = goal_global_pose.xform(-v);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
 		Vector3 v = Vector3(0.0, 0.0, w);
-		p_headings->write[p_index] = goal_transform.xform(v);
-		p_headings->write[p_index + 1] = goal_transform.xform(-v);
+		p_headings->write[p_index] = goal_global_pose.xform(v);
+		p_headings->write[p_index + 1] = goal_global_pose.xform(-v);
 		p_index += 2;
 	}
 }
@@ -152,7 +152,7 @@ void IKPin3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedV
 	Transform3D tip_xform = for_bone->get_global_pose();
 	p_headings->write[p_index] = tip_xform.origin;
 	p_index++;
-	float scale_by = tip_xform.origin.distance_to(goal_transform.origin);
+	float scale_by = tip_xform.origin.distance_to(goal_global_pose.origin);
 	{
 		Vector3 v;
 		v.x = scale_by;
