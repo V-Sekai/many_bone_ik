@@ -99,7 +99,6 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
 private:
-	bool p_debug_skeleton = false;
 	Skeleton3D *skeleton = nullptr;
 	String root_bone;
 	BoneId root_bone_index = -1;

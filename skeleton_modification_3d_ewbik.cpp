@@ -212,7 +212,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	}
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index, effectors_map)));
 	segmented_skeleton->generate_default_segments_from_root();
-	segmented_skeleton->get_bone_list(bone_list, true, p_debug_skeleton);
+	segmented_skeleton->get_bone_list(bone_list, true, false);
 	update_effectors_map();
 	segmented_skeleton->update_pinned_list();
 	is_dirty = false;
@@ -534,7 +534,7 @@ void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	is_dirty = true;
 	bone_list.clear();
 	ERR_FAIL_NULL(segmented_skeleton);
-	segmented_skeleton->get_bone_list(bone_list, true, p_debug_skeleton);
+	segmented_skeleton->get_bone_list(bone_list, true, debug_skeleton);
 	notify_property_list_changed();
 }
 
