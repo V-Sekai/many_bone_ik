@@ -86,7 +86,7 @@ void IKBone3D::set_rot_delta(const Basis &p_rot) {
 	set_global_pose(get_global_pose() * rot_xform);
 }
 
-void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
+void IKBone3D::set_initial_global_pose(Skeleton3D *p_skeleton) {
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
 	if (bone_id == -1) {
 		return;

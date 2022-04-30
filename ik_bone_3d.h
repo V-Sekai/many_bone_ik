@@ -75,7 +75,7 @@ public:
 	Vector3 get_translation_delta() const;
 
 	Transform3D get_global_pose() const;
-	void set_initial_pose(Skeleton3D *p_skeleton);
+	void set_initial_global_pose(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strenght);
 	void create_pin();
 	bool is_pin() const;

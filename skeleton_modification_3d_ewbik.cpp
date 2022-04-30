@@ -225,7 +225,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 		if (bone.is_null()) {
 			continue;
 		}
-		bone->set_initial_pose(skeleton);
+		bone->set_initial_global_pose(skeleton);
 		if (bone->is_pin()) {
 			bone->get_pin()->update_goal_global_pose(skeleton);
 		}
