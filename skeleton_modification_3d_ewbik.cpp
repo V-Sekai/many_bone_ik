@@ -506,7 +506,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.001, 3.14,0.001", PROPERTY_USAGE_NO_EDITOR), "set_default_damp", "get_default_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.001, 3.14,0.001,radians", PROPERTY_USAGE_NO_EDITOR), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_degrees_damp", PROPERTY_HINT_RANGE, "0.1,180,0.1,degrees", PROPERTY_USAGE_EDITOR), "set_default_degrees_damp", "get_default_degrees_damp");
 }
 
