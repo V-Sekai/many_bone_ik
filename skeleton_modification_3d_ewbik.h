@@ -99,6 +99,7 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
 private:
+	bool p_debug_skeleton = false;
 	Skeleton3D *skeleton = nullptr;
 	String root_bone;
 	BoneId root_bone_index = -1;
@@ -119,7 +120,6 @@ private:
 	float default_damp = Math::deg2rad(5.f);
 
 	void update_effectors_map();
-	void update_bone_list(bool p_debug_skeleton = false);
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
 	void update_skeleton();
