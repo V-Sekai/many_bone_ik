@@ -163,7 +163,6 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	}
 	if (is_dirty) {
 		update_skeleton();
-		return;
 	}
 	if (stack->get_strength() <= 0.01f) {
 		execution_error_found = false;
