@@ -207,9 +207,6 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 }
 
 void SkeletonModification3DEWBIK::update_skeleton() {
-	if (!is_dirty) {
-		return;
-	}
 	if (!skeleton) {
 		return;
 	}
