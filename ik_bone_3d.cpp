@@ -30,8 +30,9 @@
 
 #include "ik_bone_3d.h"
 
-#include "math/transform_interpolate_3d.h"
 #include "math/ik_transform.h"
+#include "math/transform_interpolate_3d.h"
+
 
 void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	bone_id = p_bone_id;
@@ -92,16 +93,11 @@ void IKBone3D::set_initial_transform(Skeleton3D *p_skeleton) {
 	if (bone_id == -1) {
 		return;
 	}
-	xform = p_skeleton->global_pose_to_local_pose(bone_id, xform);
-	TransformInterpolate3D transform_interpolate;
-	transform_interpolate.set(xform);
-	set_transform(transform_interpolate.interpolate_with(xform, 1.0));
+	set_transform(p_skeleton->global_pose_to_local_pose(bone_id, xform));
 }
 
 void IKBone3D::set_skeleton_bone_transform(Skeleton3D *p_skeleton, real_t p_strength) {
-	TransformInterpolate3D transform_interpolate;
-	transform_interpolate.set(get_transform());
-	Transform3D custom = transform_interpolate.interpolate_with(get_transform(), p_strength);
+	Transform3D custom = get_transform();
 	p_skeleton->set_bone_pose_position(bone_id, custom.origin);
 	p_skeleton->set_bone_pose_rotation(bone_id, custom.basis.get_rotation_quaternion());
 	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());

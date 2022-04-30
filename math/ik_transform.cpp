@@ -50,10 +50,7 @@ void IKTransform3D::set_transform(const Transform3D &p_transform) {
 	if (local_transform == p_transform) {
 		return;
 	}
-	TransformInterpolate3D interpolate;
-	Transform3D prev_transform = local_transform;
-	interpolate.set(prev_transform);
-	local_transform = interpolate.interpolate_with(p_transform);
+	local_transform = p_transform;
 	dirty |= DIRTY_VECTORS;
 	_propagate_transform_changed();
 }
@@ -61,10 +58,7 @@ void IKTransform3D::set_transform(const Transform3D &p_transform) {
 void IKTransform3D::set_global_transform(const Transform3D &p_transform) {
 	Transform3D xform = p_transform;
 	if (parent) {
-		TransformInterpolate3D interpolate;
-		Transform3D prev_transform = parent->get_global_transform().affine_inverse();
-		interpolate.set(prev_transform);
-		xform = interpolate.interpolate_with(prev_transform * p_transform);
+		xform = parent->get_global_transform().affine_inverse() * p_transform;
 	}
 
 	set_transform(xform);
@@ -85,10 +79,7 @@ Transform3D IKTransform3D::get_global_transform() const {
 		}
 
 		if (parent) {
-			TransformInterpolate3D interpolate;
-			Transform3D prev_transform = parent->get_global_transform();
-			interpolate.set(prev_transform);
-			global_transform = interpolate.interpolate_with(prev_transform * local_transform);
+			global_transform =  parent->get_global_transform() * local_transform;
 		} else {
 			global_transform = local_transform;
 		}
