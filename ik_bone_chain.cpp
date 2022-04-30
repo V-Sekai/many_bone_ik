@@ -214,6 +214,7 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 		}
 	}
 	p_list.append_array(list);
+	list.reverse();
 }
 
 void IKBoneChain::update_pinned_list() {
