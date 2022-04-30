@@ -156,21 +156,15 @@ void IKPin3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedV
 	p_headings->write[p_index] = tip_xform.origin;
 	p_index++;
 	Vector3 v = tip_xform.xform(Vector3());
-	{
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
-		p_index += 2;
-	}
-	{
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
-		p_index += 2;
-	}
-	{
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
-		p_index += 2;
-	}
+	p_headings->write[p_index] = v;
+	p_headings->write[p_index + 1] = -v;
+	p_index += 2;
+	p_headings->write[p_index] = v;
+	p_headings->write[p_index + 1] = -v;
+	p_index += 2;
+	p_headings->write[p_index] = v;
+	p_headings->write[p_index + 1] = -v;
+	p_index += 2;
 }
 
 void IKPin3D::_bind_methods() {
