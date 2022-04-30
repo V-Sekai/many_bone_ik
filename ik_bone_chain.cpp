@@ -70,8 +70,6 @@ BoneId IKBoneChain::find_root_bone_id(BoneId p_bone) {
 }
 
 void IKBoneChain::generate_skeleton_segments(const HashMap<BoneId, Ref<IKBone3D>> &p_map) {
-	child_chains.clear();
-
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
 		Vector<BoneId> children_with_pin_descendants = temp_tip->get_children_with_pin_descendants(skeleton, p_map);
@@ -131,7 +129,6 @@ void IKBoneChain::generate_bones_map() {
 }
 
 void IKBoneChain::generate_default_segments_from_root() {
-	child_chains.clear();
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
 		Vector<BoneId> children = skeleton->get_bone_children(temp_tip->get_bone_id());
@@ -139,9 +136,9 @@ void IKBoneChain::generate_default_segments_from_root() {
 			tip = temp_tip;
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
-				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));
-				child_segment->generate_default_segments_from_root();
+				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));				
 				child_chains.push_back(child_segment);
+				child_segment->generate_default_segments_from_root();
 			}
 			break;
 		} else if (children.size() == 1) {

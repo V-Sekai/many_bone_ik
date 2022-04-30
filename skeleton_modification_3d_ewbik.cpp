@@ -253,7 +253,6 @@ void SkeletonModification3DEWBIK::update_bone_list(bool p_debug_skeleton) {
 	bone_list.clear();
 	ERR_FAIL_NULL(segmented_skeleton);
 	segmented_skeleton->get_bone_list(bone_list, true, p_debug_skeleton);
-	bone_list.reverse();
 }
 
 void SkeletonModification3DEWBIK::update_effectors_map() {
