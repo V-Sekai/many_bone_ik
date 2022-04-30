@@ -80,13 +80,13 @@ Transform3D IKBone3D::get_global_pose() const {
 	return xform.get_global_transform();
 }
 
-void IKBone3D::set_rot_delta(const Basis &p_rot) {
+void IKBone3D::set_global_pose_rot_delta(const Basis &p_rot) {
 	rot_delta *= p_rot;
 	Transform3D rot_xform = Transform3D(p_rot, translation_delta);
 	set_global_pose(get_global_pose() * rot_xform);
 }
 
-void IKBone3D::set_initial_global_pose(Skeleton3D *p_skeleton) {
+void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
 	if (bone_id == -1) {
 		return;
@@ -137,7 +137,7 @@ void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
 	cos_half_dampen = p_cos_half_dampen;
 }
 
-void IKBone3D::set_translation_delta(Vector3 p_translation_delta) {
+void IKBone3D::set_global_pose_translation_delta(Vector3 p_translation_delta) {
 	translation_delta = p_translation_delta;
 	Transform3D xform = get_global_pose();
 	xform.origin += p_translation_delta;

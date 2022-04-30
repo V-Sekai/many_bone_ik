@@ -318,8 +318,8 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 	} else {
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
-	p_for_bone->set_rot_delta(rot);
-	p_for_bone->set_translation_delta(translation);
+	p_for_bone->set_global_pose_rot_delta(rot);
+	p_for_bone->set_global_pose_translation_delta(translation);
 	return sqrmsd;
 }
 
