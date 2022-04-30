@@ -499,15 +499,12 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
-	ClassDB::bind_method(D_METHOD("get_default_degrees_damp"), &SkeletonModification3DEWBIK::get_default_degrees_damp);
-	ClassDB::bind_method(D_METHOD("set_default_degrees_damp", "damp"), &SkeletonModification3DEWBIK::set_default_degrees_damp);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.001, 3.14,0.001,radians", PROPERTY_USAGE_NO_EDITOR), "set_default_damp", "get_default_damp");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_degrees_damp", PROPERTY_HINT_RANGE, "0.1,180,0.1,degrees", PROPERTY_USAGE_EDITOR), "set_default_degrees_damp", "get_default_degrees_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01, 5.0f, 180,radians"), "set_default_damp", "get_default_damp");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
@@ -515,14 +512,6 @@ SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
 }
 
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
-}
-
-float SkeletonModification3DEWBIK::get_default_degrees_damp() const {
-	return Math::rad2deg(default_damp);
-}
-
-void SkeletonModification3DEWBIK::set_default_degrees_damp(float p_default_damp) {
-	default_damp = Math::deg2rad(p_default_damp);
 }
 
 bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
