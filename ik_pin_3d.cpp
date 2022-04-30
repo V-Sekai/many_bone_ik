@@ -125,26 +125,29 @@ void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, in
 	p_index++;
 	{
 		real_t w = p_weights->write[p_index];
-		Vector3 v = goal_global_pose.xform(Vector3());
-		v *= Vector3(w, 1.0, 1.0);
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
+		Vector3 axis_aligned = Vector3(1.0f, 0.0f, 0.0f);
+		p_headings->write[p_index] = goal_global_pose.basis.xform(axis_aligned - goal_global_pose.origin);
+		p_headings->write[p_index] *= Vector3(w, 1.0f, 1.0f);
+		p_headings->write[p_index + 1] = goal_global_pose.basis.xform(-axis_aligned - goal_global_pose.origin);
+		p_headings->write[p_index] *= Vector3(w, 1.0f, 1.0f);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
-		Vector3 v = goal_global_pose.xform(Vector3());
-		v *= Vector3(1.0, w, 1.0);
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
+		Vector3 axis_aligned = Vector3(0.0f, 1.0f, 0.0f);
+		p_headings->write[p_index] = goal_global_pose.basis.xform(axis_aligned - goal_global_pose.origin);
+		p_headings->write[p_index] *= Vector3(1.0, w, 1.0);
+		p_headings->write[p_index + 1] = goal_global_pose.basis.xform(-axis_aligned - goal_global_pose.origin);
+		p_headings->write[p_index + 1] *= Vector3(1.0, w, 1.0);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
-		Vector3 v = goal_global_pose.xform(Vector3());
-		v *= Vector3(1.0, 1.0, w);
-		p_headings->write[p_index] = v;
-		p_headings->write[p_index + 1] = -v;
+		Vector3 axis_aligned = Vector3(0.0f, 0.0f, 1.0f);
+		p_headings->write[p_index] = goal_global_pose.basis.xform(axis_aligned - goal_global_pose.origin);
+		p_headings->write[p_index] *= Vector3(1.0, 1.0, w);
+		p_headings->write[p_index + 1] = goal_global_pose.basis.xform(-axis_aligned - goal_global_pose.origin);
+		p_headings->write[p_index + 1] *= Vector3(1.0, 1.0, w);
 		p_index += 2;
 	}
 }
@@ -154,17 +157,35 @@ void IKPin3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedV
 	ERR_FAIL_NULL(p_current_bone);
 	Transform3D tip_xform = for_bone->get_global_pose();
 	p_headings->write[p_index] = tip_xform.origin;
+	float scale_by = tip_xform.origin.length();
+	if (for_bone->get_parent().is_valid()) {
+		scale_by = for_bone->get_parent()->get_global_pose().origin.distance_to(tip_xform.origin);
+	}
 	p_index++;
-	Vector3 v = tip_xform.xform(Vector3());
-	p_headings->write[p_index] = v;
-	p_headings->write[p_index + 1] = -v;
-	p_index += 2;
-	p_headings->write[p_index] = v;
-	p_headings->write[p_index + 1] = -v;
-	p_index += 2;
-	p_headings->write[p_index] = v;
-	p_headings->write[p_index + 1] = -v;
-	p_index += 2;
+	{
+		Vector3 axis_aligned = tip_xform.origin + Vector3(1.0f, 0.0f, 0.0f);
+		p_headings->write[p_index] = tip_xform.basis.xform(axis_aligned - tip_xform.origin);
+		p_headings->write[p_index] *= Vector3(scale_by, 1.0f, 1.0f);
+		p_headings->write[p_index + 1] = tip_xform.basis.xform(-axis_aligned - tip_xform.origin);
+		p_headings->write[p_index + 1] *= Vector3(scale_by, 1.0f, 1.0f);
+		p_index += 2;
+	}
+	{
+		Vector3 axis_aligned = tip_xform.origin + Vector3(0.0f, 1.0f, 0.0f);
+		p_headings->write[p_index] = tip_xform.basis.xform(axis_aligned - tip_xform.origin);
+		p_headings->write[p_index] *= Vector3(1.0f, scale_by, 1.0f);
+		p_headings->write[p_index + 1] = tip_xform.basis.xform(-axis_aligned - tip_xform.origin);
+		p_headings->write[p_index + 1] *= Vector3(1.0f, scale_by, 1.0f);
+		p_index += 2;
+	}
+	{
+		Vector3 axis_aligned = tip_xform.origin + Vector3(0.0f, 0.0f, 1.0f);
+		p_headings->write[p_index] = tip_xform.basis.xform(axis_aligned - tip_xform.origin);
+		p_headings->write[p_index] *= Vector3(1.0f, 1.0f, scale_by);
+		p_headings->write[p_index + 1] = tip_xform.basis.xform(-axis_aligned - tip_xform.origin);
+		p_headings->write[p_index] *= Vector3(1.0f, 1.0f, scale_by);
+		p_index += 2;
+	}
 }
 
 void IKPin3D::_bind_methods() {
