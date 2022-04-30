@@ -176,15 +176,6 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		}
 		for (int i = 0; i < ik_iterations; i++) {
 			segmented_skeleton->segment_solver(get_default_damp(), segmented_skeleton->is_root_pinned());
-			if (segmented_skeleton.is_null()) {
-				continue;
-			}
-			for (Ref<IKBoneChain> child : segmented_skeleton->get_pinned_direct_descendents()) {
-				if (child.is_null()) {
-					continue;
-				}
-				child->segment_solver(get_default_damp(), child->is_root_pinned());
-			}
 		}
 		update_skeleton_bones_transform(delta);
 	}
