@@ -217,6 +217,9 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 }
 
 void IKBoneChain::update_pinned_list() {
+	heading_weights.clear();
+	target_headings.clear();
+	tip_headings.clear();
 	real_t depth_falloff = is_pin() ? tip->get_pin()->depth_falloff : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
