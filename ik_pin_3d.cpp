@@ -125,23 +125,26 @@ void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, in
 	p_index++;
 	{
 		real_t w = p_weights->write[p_index];
-		Vector3 v = Vector3(w, 0.0, 0.0);
-		p_headings->write[p_index] = goal_global_pose.xform(v);
-		p_headings->write[p_index + 1] = goal_global_pose.xform(-v);
+		Vector3 v = goal_global_pose.xform(Vector3());
+		v *= Vector3(w, 1.0, 1.0);
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index + 1] = -v;
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
-		Vector3 v = Vector3(0.0, w, 0.0);
-		p_headings->write[p_index] = goal_global_pose.xform(v);
-		p_headings->write[p_index + 1] = goal_global_pose.xform(-v);
+		Vector3 v = goal_global_pose.xform(Vector3());
+		v *= Vector3(1.0, w, 1.0);
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index + 1] = -v;
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
-		Vector3 v = Vector3(0.0, 0.0, w);
-		p_headings->write[p_index] = goal_global_pose.xform(v);
-		p_headings->write[p_index + 1] = goal_global_pose.xform(-v);
+		Vector3 v = goal_global_pose.xform(Vector3());
+		v *= Vector3(1.0, 1.0, w);
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index + 1] = -v;
 		p_index += 2;
 	}
 }
@@ -152,26 +155,20 @@ void IKPin3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedV
 	Transform3D tip_xform = for_bone->get_global_pose();
 	p_headings->write[p_index] = tip_xform.origin;
 	p_index++;
-	float scale_by = tip_xform.origin.distance_to(goal_global_pose.origin);
+	Vector3 v = tip_xform.xform(Vector3());
 	{
-		Vector3 v;
-		v.x = scale_by;
-		p_headings->write[p_index] = tip_xform.xform(v);
-		p_headings->write[p_index + 1] = tip_xform.xform(-v);
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index + 1] = -v;
 		p_index += 2;
 	}
 	{
-		Vector3 v;
-		v.y = scale_by;
-		p_headings->write[p_index] = tip_xform.xform(v);
-		p_headings->write[p_index + 1] = tip_xform.xform(-v);
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index + 1] = -v;
 		p_index += 2;
 	}
 	{
-		Vector3 v;
-		v.z = scale_by;
-		p_headings->write[p_index] = tip_xform.xform(v);
-		p_headings->write[p_index + 1] = tip_xform.xform(-v);
+		p_headings->write[p_index] = v;
+		p_headings->write[p_index + 1] = -v;
 		p_index += 2;
 	}
 }
