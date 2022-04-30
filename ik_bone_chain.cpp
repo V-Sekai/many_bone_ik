@@ -138,7 +138,6 @@ void IKBoneChain::generate_default_segments_from_root() {
 				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));
 				child_segment->generate_default_segments_from_root();
 				child_chains.push_back(child_segment);
-				child_chains.append_array(child_segment->get_pinned_direct_descendents());
 			}
 			break;
 		} else if (children.size() == 1) {
