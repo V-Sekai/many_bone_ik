@@ -31,8 +31,6 @@
 #include "ik_bone_3d.h"
 
 #include "math/ik_transform.h"
-#include "math/transform_interpolate_3d.h"
-
 
 void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	bone_id = p_bone_id;

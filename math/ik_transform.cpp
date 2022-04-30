@@ -28,8 +28,6 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "transform_interpolate_3d.h"
-
 #include "ik_transform.h"
 
 void IKTransform3D::_propagate_transform_changed() {
@@ -79,7 +77,7 @@ Transform3D IKTransform3D::get_global_transform() const {
 		}
 
 		if (parent) {
-			global_transform =  parent->get_global_transform() * local_transform;
+			global_transform = parent->get_global_transform() * local_transform;
 		} else {
 			global_transform = local_transform;
 		}
