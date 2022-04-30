@@ -187,8 +187,9 @@ Ref<IKBone3D> IKBoneChain::find_bone(const BoneId p_bone_id) {
 
 void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
 	if (p_recursive) {
-		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
-			child_chains[child_i]->get_bone_list(p_list, p_recursive, p_debug_skeleton);
+		Vector<Ref<IKBoneChain>> parent_chains = get_child_chains();
+		for (Ref<IKBoneChain> child_chain : parent_chains) {
+			child_chain->get_bone_list(p_list, p_recursive, p_debug_skeleton);
 		}
 	}
 	Ref<IKBone3D> current_bone = tip;
@@ -367,15 +368,11 @@ void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 }
 
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
-	Vector<Ref<IKBone3D>> list;
-	get_bone_list(list, false);
-	for (int32_t bone_i = 0; bone_i < list.size(); bone_i++) {
-		Ref<IKBone3D> current_bone = list[bone_i];
-
-		update_optimal_rotation(current_bone, p_damp, p_translate);
-
-		if (current_bone == root) {
-			break;
+	for (Ref<IKBoneChain> child : get_pinned_direct_descendents()) {
+		Vector<Ref<IKBone3D>> bones;
+		child->get_bone_list(bones, true);
+		for (Ref<IKBone3D> bone : bones) {
+			child->update_optimal_rotation(bone, p_damp, p_translate);
 		}
 	}
 }
