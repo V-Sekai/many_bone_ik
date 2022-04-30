@@ -56,10 +56,6 @@ Vector<Ref<IKBoneChain>> IKBoneChain::get_pinned_direct_descendents() const {
 	return effector_direct_descendents;
 }
 
-int32_t IKBoneChain::get_pinned_direct_descendents_size() const {
-	return effector_direct_descendents.size();
-}
-
 BoneId IKBoneChain::find_root_bone_id(BoneId p_bone) {
 	BoneId root_id = p_bone;
 	while (skeleton->get_bone_parent(root_id) != -1) {
