@@ -58,10 +58,8 @@ bool IKPin3D::is_following_translation_only() const {
 
 void IKPin3D::update_goal_transform(Skeleton3D *p_skeleton) {
 	goal_transform = Transform3D();
-	if (target_node_reference == nullptr) {
-		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
-	}
 	if (!target_node_reference) {
+		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
 		goal_transform = for_bone->get_global_transform();
 		if (!use_target_node_rotation) {
 			goal_transform.basis = Basis();
