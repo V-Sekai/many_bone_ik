@@ -138,6 +138,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, bones_map, tip)));
 				child_segment->generate_default_segments_from_root();
 				child_chains.push_back(child_segment);
+				child_chains.append_array(child_segment->get_pinned_direct_descendents());
 			}
 			break;
 		} else if (children.size() == 1) {
@@ -217,9 +218,6 @@ void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 }
 
 void IKBoneChain::update_pinned_list() {
-	heading_weights.clear();
-	target_headings.clear();
-	tip_headings.clear();
 	real_t depth_falloff = is_pin() ? tip->get_pin()->depth_falloff : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
@@ -332,7 +330,7 @@ void IKBoneChain::create_headings() {
 PackedVector3Array IKBoneChain::update_target_headings(Vector<real_t> *&p_weights) {
 	PackedVector3Array htarget = target_headings;
 	p_weights = &heading_weights;
-	int32_t index = 0; // Index is increased by effector->update_target_headings() function
+	int32_t index = 0; // Index is increased by effector->update_effector_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKPin3D> effector = effector_list[effector_i];
 		effector->update_effector_target_headings(&htarget, index, p_weights);
