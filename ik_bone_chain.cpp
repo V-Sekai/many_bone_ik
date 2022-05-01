@@ -295,7 +295,7 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKPin3D> effector = effector_list[effector_i];
-		effector->update_effector_tip_headings(p_for_bone, &htip, index);
+		effector->update_effector_tip_headings(&htip, index);
 	}
 	return htip;
 }

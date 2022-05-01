@@ -150,9 +150,8 @@ void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, in
 	}
 }
 
-void IKPin3D::update_effector_tip_headings(Ref<IKBone3D> p_current_bone, PackedVector3Array *p_headings, int32_t &p_index) const {
+void IKPin3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index) const {
 	ERR_FAIL_NULL(p_headings);
-	ERR_FAIL_NULL(p_current_bone);
 	Transform3D tip_xform = for_bone->get_global_pose();
 	p_headings->write[p_index] = tip_xform.origin;
 	Vector3 axis;
