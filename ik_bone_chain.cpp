@@ -102,6 +102,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 			break;
 		}
 	}
+	child_chains.reverse();
 	update_segmented_skeleton();
 }
 
@@ -300,13 +301,9 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 }
 
 void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
-	if (child_chains.size() == 0 && !is_pin()) {
-		return;
-	} else if (!is_pin()) {
-		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
-			Ref<IKBoneChain> child = child_chains[child_i];
-			child->segment_solver(p_damp, p_translate);
-		}
+	for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
+		Ref<IKBoneChain> child = child_chains[child_i];
+		child->segment_solver(p_damp, p_translate);
 	}
 	qcp_solver(p_damp, p_translate);
 }
