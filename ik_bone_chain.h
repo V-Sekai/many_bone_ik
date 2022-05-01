@@ -72,6 +72,9 @@ private:
 	Quaternion clamp_to_angle(Quaternion p_quat, real_t p_angle) const;
 	Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
 
+	Ref<IKBoneChain> get_parent_chain() {
+		return parent_chain;
+	}
 protected:
 	static void _bind_methods();
 
