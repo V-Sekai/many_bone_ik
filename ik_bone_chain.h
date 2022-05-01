@@ -44,7 +44,6 @@ private:
 	Ref<IKBone3D> tip;
 	Vector<Ref<IKBoneChain>> child_chains; // Contains only direct child chains that end with effectors or have child that end with effectors
 	Vector<Ref<IKBoneChain>> effector_direct_descendents;
-	HashMap<BoneId, Ref<IKBone3D>> bones_map;
 	Ref<IKBoneChain> parent_chain;
 	Vector<Ref<IKPin3D>> effector_list;
 	PackedVector3Array target_headings;
@@ -56,8 +55,6 @@ private:
 	QCP qcp;
 
 	BoneId find_root_bone_id(BoneId p_bone);
-	void update_segmented_skeleton();
-	void generate_bones_map();
 	Ref<IKBoneChain> get_child_segment_containing(const Ref<IKBone3D> &p_bone);
 	void create_headings();
 	PackedVector3Array update_target_headings(Vector<real_t> *&p_weights);
@@ -85,14 +82,12 @@ public:
 	bool is_root_pinned() const;
 	bool is_pin() const;
 	Vector<Ref<IKBoneChain>> get_child_chains() const;
-	Ref<IKBone3D> find_bone(const BoneId p_bone_id);
 	void get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root();
 	void update_pinned_list();
 
 	IKBoneChain() {}
-	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
-			const HashMap<BoneId, Ref<IKBone3D>> &p_map, const Ref<IKBoneChain> &p_parent = nullptr);
+	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent = nullptr);
 	~IKBoneChain() {}
 };
 

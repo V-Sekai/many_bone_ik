@@ -210,7 +210,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	if (!skeleton) {
 		return;
 	}
-	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index, effectors_map)));
+	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index)));
 	segmented_skeleton->generate_default_segments_from_root();
 	segmented_skeleton->get_bone_list(bone_list, true, false);
 	update_effectors_map();
@@ -247,25 +247,24 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 void SkeletonModification3DEWBIK::update_effectors_map() {
 	effectors_map.clear();
 	ERR_FAIL_NULL(skeleton);
-
+	Vector<Ref<IKBone3D>> list;
+	segmented_skeleton->get_bone_list(list, true);
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
 		String bone = data->get_name();
 		BoneId bone_id = skeleton->find_bone(bone);
 		float depth_falloff = data->depth_falloff;
-		if (bone_id == -1) {
-			continue;
+		for (Ref<IKBone3D> ik_bone_3d : list) {
+			if (ik_bone_3d->get_bone_id() != bone_id) {
+				continue;
+			}
+			ik_bone_3d->create_pin();
+			effectors_map[ik_bone_3d->get_bone_id()] = ik_bone_3d;
+			Ref<IKPin3D> effector_3d = ik_bone_3d->get_pin();
+			effector_3d->set_target_node(skeleton, data->target_node);
+			effector_3d->update_target_cache(skeleton);
+			effector_3d->set_depth_falloff(depth_falloff);
 		}
-		Ref<IKBone3D> ik_bone_3d = segmented_skeleton->find_bone(bone_id);
-		if (ik_bone_3d.is_null()) {
-			continue;
-		}
-		ik_bone_3d->create_pin();
-		effectors_map[ik_bone_3d->get_bone_id()] = ik_bone_3d;
-		Ref<IKPin3D> effector_3d = ik_bone_3d->get_pin();
-		effector_3d->set_target_node(skeleton, data->target_node);
-		effector_3d->update_target_cache(skeleton);
-		effector_3d->set_depth_falloff(depth_falloff);
 	}
 	is_dirty = true;
 }
