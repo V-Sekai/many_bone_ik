@@ -92,20 +92,6 @@ void SkeletonModification3DEWBIK::add_pin(const String &p_name, const NodePath &
 	notify_property_list_changed();
 }
 
-Ref<IKBone3D> SkeletonModification3DEWBIK::find_pin(const String &p_name) const {
-	if (!skeleton) {
-		return Ref<IKBone3D>();
-	}
-	BoneId bone = skeleton->find_bone(p_name);
-	if (bone == -1) {
-		return Ref<IKBone3D>();
-	}
-	if (!effectors_map.has(bone)) {
-		return Ref<IKBone3D>();
-	}
-	return effectors_map[bone];
-}
-
 void SkeletonModification3DEWBIK::set_effector_bone(int32_t p_effector_index, const String &p_bone) {
 	Ref<IKEffectorTemplate> data = pins[p_effector_index];
 	data->set_name(p_bone);
@@ -245,7 +231,6 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 }
 
 void SkeletonModification3DEWBIK::update_effectors_map() {
-	effectors_map.clear();
 	ERR_FAIL_NULL(skeleton);
 	Vector<Ref<IKBone3D>> list;
 	segmented_skeleton->get_bone_list(list, true);
@@ -259,7 +244,6 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 				continue;
 			}
 			ik_bone_3d->create_pin();
-			effectors_map[ik_bone_3d->get_bone_id()] = ik_bone_3d;
 			Ref<IKPin3D> effector_3d = ik_bone_3d->get_pin();
 			effector_3d->set_target_node(skeleton, data->target_node);
 			effector_3d->update_target_cache(skeleton);
@@ -493,7 +477,6 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("remove_pin", "index"),
 			&SkeletonModification3DEWBIK::remove_pin);
 	ClassDB::bind_method(D_METHOD("add_pin", "name", "target_node", "use_node_rotation"), &SkeletonModification3DEWBIK::add_pin);
-	ClassDB::bind_method(D_METHOD("find_pin", "name"), &SkeletonModification3DEWBIK::find_pin);
 	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &SkeletonModification3DEWBIK::get_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &SkeletonModification3DEWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &SkeletonModification3DEWBIK::get_debug_skeleton);

@@ -55,7 +55,6 @@ public:
 public:
 	void add_pin(const String &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
 	void remove_pin(int32_t p_index);
-	Ref<IKBone3D> find_pin(const String &p_name) const;
 public:
 	// Expose properties bound by script
 	bool get_debug_skeleton() const;
