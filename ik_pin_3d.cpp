@@ -154,10 +154,7 @@ void IKPin3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32
 	ERR_FAIL_NULL(p_headings);
 	Transform3D tip_xform = for_bone->get_global_pose();
 	p_headings->write[p_index] = tip_xform.origin;
-	Vector3 axis;
-	float angle;
-	tip_xform.basis.get_axis_angle(axis, angle);
-	float scale = axis.length();
+	float scale = 1.0f;
 	p_index++;
 	{
 		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(scale, 0.0, 0.0);
