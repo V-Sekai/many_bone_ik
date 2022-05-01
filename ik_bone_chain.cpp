@@ -276,9 +276,6 @@ void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 	Vector<Ref<IKBone3D>> list;
 	Ref<IKBoneChain> current_chain = this;
-	while (current_chain->get_parent_chain().is_valid()) {
-		current_chain = current_chain->get_parent_chain();
-	}
 	current_chain->get_bone_list(list, true);
 	for (Ref<IKBone3D> current_bone : list) {
 		update_optimal_rotation(current_bone, p_damp, p_translate);
