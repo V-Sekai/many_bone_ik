@@ -52,10 +52,6 @@ Vector<Ref<IKBoneChain>> IKBoneChain::get_child_chains() const {
 	return child_chains;
 }
 
-Vector<Ref<IKBoneChain>> IKBoneChain::get_pinned_direct_descendents() const {
-	return effector_direct_descendents;
-}
-
 BoneId IKBoneChain::find_root_bone_id(BoneId p_bone) {
 	BoneId root_id = p_bone;
 	while (skeleton->get_bone_parent(root_id) != -1) {
@@ -65,52 +61,8 @@ BoneId IKBoneChain::find_root_bone_id(BoneId p_bone) {
 	return root_id;
 }
 
-void IKBoneChain::generate_skeleton_segments(const HashMap<BoneId, Ref<IKBone3D>> &p_map) {
-	child_chains.clear();
-
-	Ref<IKBone3D> temp_tip = root;
-	while (true) {
-		Vector<BoneId> children_with_pin_descendants = temp_tip->get_children_with_pin_descendants(skeleton, p_map);
-		if (children_with_pin_descendants.size() > 1) {
-			tip = temp_tip;
-			for (int32_t child_i = 0; child_i < children_with_pin_descendants.size(); child_i++) {
-				BoneId child_bone = children_with_pin_descendants[child_i];
-				child_chains.push_back(Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, p_map, tip))));
-			}
-			break;
-		} else if (children_with_pin_descendants.size() == 1) {
-			BoneId bone_id = children_with_pin_descendants[0];
-			if (p_map.has(bone_id)) {
-				Ref<IKBone3D> next = p_map[bone_id];
-				next->set_parent(temp_tip);
-				temp_tip = next;
-			} else {
-				Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(bone_id, temp_tip)));
-				temp_tip = next;
-			}
-		} else {
-			tip = temp_tip;
-			break;
-		}
-	}
-	update_segmented_skeleton();
-}
-
 void IKBoneChain::update_segmented_skeleton() {
-	update_effector_direct_descendents();
 	generate_bones_map();
-}
-
-void IKBoneChain::update_effector_direct_descendents() {
-	effector_direct_descendents.clear();
-	if (is_pin()) {
-		effector_direct_descendents.push_back(this);
-	} else {
-		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
-			Ref<IKBoneChain> child_segment = child_chains[child_i];
-			effector_direct_descendents.append_array(child_segment->get_pinned_direct_descendents());
-		}
-	}
 }
 
 void IKBoneChain::generate_bones_map() {
@@ -390,5 +342,4 @@ IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone,
 		parent_chain = p_parent;
 		root->set_parent(p_parent->get_tip());
 	}
-	generate_skeleton_segments(p_map);
 }

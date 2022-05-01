@@ -168,7 +168,7 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		execution_error_found = false;
 		return;
 	}
-	if (pin_count && segmented_skeleton.is_valid() && segmented_skeleton->get_pinned_direct_descendents().size() > 0) {
+	if (pin_count && segmented_skeleton.is_valid()) {
 		update_shadow_bones_transform();
 		if (segmented_skeleton == nullptr) {
 			return;

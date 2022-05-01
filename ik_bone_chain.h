@@ -56,9 +56,7 @@ private:
 	QCP qcp;
 
 	BoneId find_root_bone_id(BoneId p_bone);
-	void generate_skeleton_segments(const HashMap<BoneId, Ref<IKBone3D>> &p_map);
 	void update_segmented_skeleton();
-	void update_effector_direct_descendents();
 	void generate_bones_map();
 	Ref<IKBoneChain> get_child_segment_containing(const Ref<IKBone3D> &p_bone);
 	void create_headings();
@@ -84,7 +82,6 @@ public:
 	bool is_root_pinned() const;
 	bool is_pin() const;
 	Vector<Ref<IKBoneChain>> get_child_chains() const;
-	Vector<Ref<IKBoneChain>> get_pinned_direct_descendents() const;
 	Ref<IKBone3D> find_bone(const BoneId p_bone_id);
 	void get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root();
