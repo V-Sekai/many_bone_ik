@@ -79,12 +79,6 @@ Transform3D IKPin3D::get_goal_global_pose() const {
 }
 
 void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
-	/**
-	 * Weights are given from the parent chain. The last two weights should
-	 * always correspond to this effector weights. In the parent only the origin
-	 * is considered for rotation, but here the last two headings must be replaced
-	 * by the corresponding number of "axis-orientation" headings.
-	 */
 	int32_t nw = p_weights.size();
 	int32_t nheadings = nw + num_headings;
 	heading_weights.resize(nheadings);

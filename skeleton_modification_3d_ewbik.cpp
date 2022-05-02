@@ -273,6 +273,7 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 void SkeletonModification3DEWBIK::update_effectors_map() {
 	ERR_FAIL_NULL(skeleton);
 	Vector<Ref<IKBone3D>> list;
+	// TODO REMOVE set_bone_list
 	segmented_skeleton->set_bone_list(list, true);
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
