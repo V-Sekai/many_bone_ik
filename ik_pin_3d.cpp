@@ -67,8 +67,8 @@ void IKPin3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 		return;
 	}
 	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
-	Transform3D global_transform = cast_to<Node3D>(target_node->get_owner())->get_relative_transform(target_node);
-	goal_global_pose = global_transform.affine_inverse() * target_node->get_transform();
+	Transform3D node_xform = target_node->get_global_transform();
+	goal_global_pose = p_skeleton->world_transform_to_global_pose(node_xform);
 	if (!use_target_node_rotation) {
 		goal_global_pose.basis = Basis();
 	}
