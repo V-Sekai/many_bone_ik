@@ -154,21 +154,22 @@ void IKPin3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32
 	ERR_FAIL_NULL(p_headings);
 	Transform3D tip_xform = for_bone->get_global_pose();
 	p_headings->write[p_index] = tip_xform.origin;
-	float scale = goal_global_pose.origin.distance_to(tip_xform.origin);
+	float scale_squared = goal_global_pose.origin.distance_squared_to(tip_xform.origin);
+	scale_squared = 1.0f / scale_squared;
 	p_index++;
 	{
-		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(scale, 0.0, 0.0);
-		p_headings->write[p_index + 1] = tip_xform.origin + tip_xform.origin * Vector3(-scale, 0.0, 0.0);
+		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(scale_squared, 0.0, 0.0);
+		p_headings->write[p_index + 1] = tip_xform.origin + tip_xform.origin * Vector3(-scale_squared, 0.0, 0.0);
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(0.0, scale, 0.0);
-		p_headings->write[p_index + 1] = tip_xform.origin + tip_xform.origin * Vector3(0.0, -scale, 0.0f);
+		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(0.0, scale_squared, 0.0);
+		p_headings->write[p_index + 1] = tip_xform.origin + tip_xform.origin * Vector3(0.0, -scale_squared, 0.0f);
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(0.0, 0.0, scale);
-		p_headings->write[p_index + 1] = tip_xform.origin + tip_xform.origin * Vector3(0.0, 0.0, -scale);
+		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(0.0, 0.0, scale_squared);
+		p_headings->write[p_index + 1] = tip_xform.origin + tip_xform.origin * Vector3(0.0, 0.0, -scale_squared);
 		p_index += 2;
 	}
 }
