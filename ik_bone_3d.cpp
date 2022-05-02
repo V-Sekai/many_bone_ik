@@ -115,14 +115,6 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pin);
 }
 
-IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent, float p_default_dampening) {
-	if (!Math::is_equal_approx(default_dampening, p_default_dampening)) {
-		default_dampening = p_default_dampening;
-	}
-	bone_id = p_bone;
-	set_parent(p_parent);
-}
-
 IKBone3D::IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, float p_default_dampening) :
 		default_dampening(p_default_dampening) {
 	set_name(p_bone);

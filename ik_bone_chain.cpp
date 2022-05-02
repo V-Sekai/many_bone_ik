@@ -77,7 +77,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 			break;
 		} else if (children.size() == 1) {
 			BoneId bone_id = children[0];
-			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(bone_id, temp_tip)));
+			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip)));
 			temp_tip = next;
 		} else {
 			tip = temp_tip;
@@ -139,7 +139,6 @@ void IKBoneChain::update_pinned_list() {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
 		chain->update_pinned_list();
 		if (depth_falloff > CMP_EPSILON) {
-			effector_list.append_array(chain->effector_list);
 			for (int32_t w_i = 0; w_i < chain->heading_weights.size(); w_i++) {
 				heading_weights.push_back(chain->heading_weights[w_i] * depth_falloff);
 			}
@@ -297,7 +296,7 @@ void IKBoneChain::_bind_methods() {
 
 IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent) {
 	skeleton = p_skeleton;
-	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone)));
+	root = Ref<IKBone3D>(memnew(IKBone3D(p_skeleton->get_bone_name(p_root_bone), p_skeleton, p_parent)));
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;
 		root->set_parent(p_parent->get_tip());

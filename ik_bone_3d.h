@@ -80,7 +80,6 @@ public:
 	void create_pin();
 	bool is_pin() const;
 	IKBone3D() {}
-	IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	~IKBone3D() {}
 	float get_cos_half_dampen() const;
