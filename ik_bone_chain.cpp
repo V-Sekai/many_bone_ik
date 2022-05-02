@@ -70,7 +70,8 @@ void IKBoneChain::generate_default_segments_from_root() {
 			tip = temp_tip;
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
-				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, tip)));
+				Ref<IKBoneChain> parent(this);
+				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, parent)));
 				child_segment->generate_default_segments_from_root();
 				child_chains.push_back(child_segment);
 			}
