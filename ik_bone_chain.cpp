@@ -153,18 +153,18 @@ void IKBoneChain::update_pinned_list() {
 	for (Ref<IKPin3D> effector : effector_list) {
 		// TODO: 2021-05-02 fire Implement proper weights
 		Vector<real_t> weights;
-		weights.push_back(depth_falloff);
+		weights.push_back(1.0f);
 		{
-			weights.push_back(depth_falloff);
-			weights.push_back(depth_falloff);
+			weights.push_back(1.0f);
+			weights.push_back(1.0f);
 		}
 		{
-			weights.push_back(depth_falloff);
-			weights.push_back(depth_falloff);
+			weights.push_back(1.0f);
+			weights.push_back(1.0f);
 		}
 		{
-			weights.push_back(depth_falloff);
-			weights.push_back(depth_falloff);
+			weights.push_back(1.0f);
+			weights.push_back(1.0f);
 		}
 		heading_weights.append_array(weights);
 		effector->create_headings(heading_weights);
