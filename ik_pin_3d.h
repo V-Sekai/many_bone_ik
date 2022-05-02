@@ -67,7 +67,7 @@ protected:
 
 public:
 	void update_goal_global_pose(Skeleton3D *p_skeleton);
-	const float MAX_KU_rename_target_nodeSUDAMA_LIMIT_CONES = 30;
+	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
 	void update_target_cache(Node *p_skeleton);
