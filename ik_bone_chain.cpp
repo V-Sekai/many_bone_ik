@@ -85,6 +85,9 @@ void IKBoneChain::generate_default_segments_from_root() {
 			break;
 		}
 	}
+	set_name(vformat("IKBoneChain%sRoot%sTip", root->get_name(), tip->get_name()));
+	bones.clear();
+	set_bone_list(bones, false);
 }
 
 Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &p_bone) {
@@ -98,10 +101,10 @@ Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &
 	return nullptr;
 }
 
-void IKBoneChain::get_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
+void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
 	if (p_recursive) {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
-			child_chains[child_i]->get_bone_list(p_list, p_recursive, p_debug_skeleton);
+			child_chains[child_i]->set_bone_list(p_list, p_recursive, p_debug_skeleton);
 		}
 	}
 	Ref<IKBone3D> current_bone = tip;
@@ -204,7 +207,7 @@ void IKBoneChain::update_pinned_list() {
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
 	Vector<real_t> *weights = nullptr;
-	PackedVector3Array htarget = update_target_headings(weights);
+	PackedVector3Array htarget = update_target_headings(p_for_bone, weights);
 	PackedVector3Array htip = update_tip_headings(p_for_bone);
 
 	if (p_translate == true) {
@@ -270,13 +273,13 @@ real_t IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
 void IKBoneChain::create_headings() {
 }
 
-PackedVector3Array IKBoneChain::update_target_headings(Vector<real_t> *&p_weights) {
+PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights) {
 	PackedVector3Array htarget = target_headings;
 	p_weights = &heading_weights;
 	int32_t index = 0; // Index is increased by effector->update_effector_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKPin3D> effector = effector_list[effector_i];
-		effector->update_effector_target_headings(&htarget, index, p_weights);
+		effector->update_effector_target_headings(&htarget, index, p_for_bone, p_weights);
 	}
 	return htarget;
 }
@@ -286,34 +289,35 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKPin3D> effector = effector_list[effector_i];
-		effector->update_effector_tip_headings(&htip, index);
+		effector->update_effector_tip_headings(&htip, index, p_for_bone);
 	}
 	return htip;
 }
 
 void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
-	Ref<IKBoneChain> current_chain = this;
-	while (current_chain.is_valid() && current_chain != this) {
-		for (Ref<IKBoneChain> child : current_chain->child_chains) {
-			if (child.is_null()) {
-				continue;
-			}
-			child->segment_solver(p_damp, p_translate);
-		}
-		current_chain = current_chain->get_parent_chain();
+	// TODO Make robust!
+
+	for (Ref<IKBoneChain> child : child_chains) {
+		child->segment_solver(p_damp, p_translate);
 	}
 	qcp_solver(p_damp, p_translate);
+
+	//Ref<IKBoneChain> current_chain = this;
+	//while (current_chain.is_valid() && current_chain != this) {
+	//	for (Ref<IKBoneChain> child : current_chain->child_chains) {
+	//		if (child.is_null()) {
+	//			continue;
+	//		}
+	//		child->segment_solver(p_damp, p_translate);
+	//	}
+	//	current_chain = current_chain->get_parent_chain();
+	//}
+	//qcp_solver(p_damp, p_translate);
 }
 
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
-	Vector<Ref<IKBone3D>> list;
-	Ref<IKBoneChain> current_chain = this;
-	current_chain->get_bone_list(list, true);
-	for (Ref<IKBone3D> current_bone : list) {
+	for (Ref<IKBone3D> current_bone : bones) {
 		update_optimal_rotation(current_bone, p_damp, p_translate);
-		if (current_bone == root) {
-			break;
-		}
 	}
 }
 

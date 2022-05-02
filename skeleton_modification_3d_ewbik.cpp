@@ -183,7 +183,7 @@ void SkeletonModification3DEWBIK::remove_pin(int32_t p_index) {
 
 void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	ERR_FAIL_COND_MSG(!stack || !is_setup || skeleton == nullptr,
-			"Modification is not setup and therefore cannot execute!");
+			"The modification is not set up and therefore cannot execute.");
 	if (!enabled) {
 		return;
 	}
@@ -238,7 +238,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	}
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index)));
 	segmented_skeleton->generate_default_segments_from_root();
-	segmented_skeleton->get_bone_list(bone_list, true, false);
+	segmented_skeleton->set_bone_list(bone_list, true, false);
 	update_effectors_map();
 	segmented_skeleton->update_pinned_list();
 	is_dirty = false;
@@ -273,7 +273,7 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 void SkeletonModification3DEWBIK::update_effectors_map() {
 	ERR_FAIL_NULL(skeleton);
 	Vector<Ref<IKBone3D>> list;
-	segmented_skeleton->get_bone_list(list, true);
+	segmented_skeleton->set_bone_list(list, true);
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
 		String bone = data->get_name();
@@ -545,7 +545,7 @@ void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	is_dirty = true;
 	bone_list.clear();
 	ERR_FAIL_NULL(segmented_skeleton);
-	segmented_skeleton->get_bone_list(bone_list, true, debug_skeleton);
+	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
 	notify_property_list_changed();
 }
 

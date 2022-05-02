@@ -67,8 +67,8 @@ void IKPin3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 		return;
 	}
 	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
-	Transform3D node_xform = target_node->get_global_transform();
-	goal_global_pose = p_skeleton->world_transform_to_global_pose(node_xform);
+	Transform3D global_transform = cast_to<Node3D>(target_node->get_owner())->get_relative_transform(target_node);
+	goal_global_pose = global_transform.affine_inverse() * target_node->get_transform();
 	if (!use_target_node_rotation) {
 		goal_global_pose.basis = Basis();
 	}
@@ -118,57 +118,62 @@ void IKPin3D::create_headings(const Vector<real_t> &p_weights) {
 	}
 }
 
-void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index,
-		Vector<real_t> *p_weights) const {
+void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings,
+		int32_t &p_index, Ref<IKBone3D> p_for_bone, Vector<real_t> *p_weights) const {
 	ERR_FAIL_NULL(p_headings);
-	p_headings->write[p_index] = goal_global_pose.origin;
 
+	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
+
+	p_headings->write[p_index] = goal_global_pose.origin - bone_origin;
 	p_index++;
 	{
 		real_t w = p_weights->write[p_index];
-		p_headings->write[p_index] = goal_global_pose.origin;
-		p_headings->write[p_index] *= Vector3(w, 1.0f, 1.0f);
-		p_headings->write[p_index + 1] = goal_global_pose.origin;
-		p_headings->write[p_index + 1] *= Vector3(-w, 1.0f, 1.0f);
+		p_headings->write[p_index] = (goal_global_pose.basis.get_axis(Vector3::AXIS_X) + goal_global_pose.origin) - bone_origin;
+		// TODO Scale by distance ...
+		p_headings->write[p_index] *= Vector3(w, w, w);
+		p_headings->write[p_index + 1] = (goal_global_pose.origin - goal_global_pose.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
+		p_headings->write[p_index + 1] *= Vector3(w, w, w);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
-		p_headings->write[p_index] = goal_global_pose.origin;
-		p_headings->write[p_index] *= Vector3(1.0, w, 1.0);
-		p_headings->write[p_index + 1] = goal_global_pose.origin;
-		p_headings->write[p_index + 1] *= Vector3(1.0, -w, 1.0);
+		p_headings->write[p_index] = (goal_global_pose.basis.get_axis(Vector3::AXIS_Y) + goal_global_pose.origin) - bone_origin;
+		p_headings->write[p_index] *= Vector3(w, w, w);
+		p_headings->write[p_index + 1] = (goal_global_pose.origin - goal_global_pose.basis.get_axis(Vector3::AXIS_Y)) - bone_origin;
+		p_headings->write[p_index + 1] *= Vector3(w, w, w);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
-		p_headings->write[p_index] = goal_global_pose.origin;
-		p_headings->write[p_index] *= Vector3(1.0, 1.0, w);
-		p_headings->write[p_index + 1] = goal_global_pose.origin;
-		p_headings->write[p_index + 1] *= Vector3(1.0, 1.0, -w);
+		p_headings->write[p_index] = (goal_global_pose.basis.get_axis(Vector3::AXIS_Z) + goal_global_pose.origin) - bone_origin;
+		p_headings->write[p_index] *= Vector3(w, w, w);
+		p_headings->write[p_index + 1] = (goal_global_pose.origin - goal_global_pose.basis.get_axis(Vector3::AXIS_Z)) - bone_origin;
+		p_headings->write[p_index + 1] *= Vector3(w, w, w);
 		p_index += 2;
 	}
 }
 
-void IKPin3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index) const {
+void IKPin3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone) const {
 	ERR_FAIL_NULL(p_headings);
 	Transform3D tip_xform = for_bone->get_global_pose();
-	p_headings->write[p_index] = tip_xform.origin;
+	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
+	p_headings->write[p_index] = tip_xform.origin - bone_origin;
 	float scale = goal_global_pose.origin.distance_to(tip_xform.origin);
+	// TODO Scale
 	p_index++;
 	{
-		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(scale, 0.0, 0.0);
-		p_headings->write[p_index + 1] = tip_xform.origin + tip_xform.origin * Vector3(-scale, 0.0, 0.0);
+		p_headings->write[p_index] = (tip_xform.basis.get_axis(Vector3::AXIS_X) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(0.0, scale, 0.0);
-		p_headings->write[p_index + 1] = tip_xform.origin + tip_xform.origin * Vector3(0.0, -scale, 0.0f);
+		p_headings->write[p_index] = (tip_xform.basis.get_axis(Vector3::AXIS_Y) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Y)) - bone_origin;
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = tip_xform.origin + tip_xform.origin * Vector3(0.0, 0.0, scale);
-		p_headings->write[p_index + 1] = tip_xform.origin + tip_xform.origin * Vector3(0.0, 0.0, -scale);
+		p_headings->write[p_index] = (tip_xform.basis.get_axis(Vector3::AXIS_Z) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Z)) - bone_origin;
 		p_index += 2;
 	}
 }
