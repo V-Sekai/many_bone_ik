@@ -52,9 +52,7 @@ private:
 
 	Transform3D goal_global_pose;
 	int32_t num_headings = 7;
-	// These are set to off values for debugging.
-	real_t depth_falloff = 0.0;
-	////
+	real_t depth_falloff = 1.0;
 	real_t weight = 1.0;
 	bool follow_x = true, follow_y = true, follow_z = true;
 	PackedVector3Array target_headings;
