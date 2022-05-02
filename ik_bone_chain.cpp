@@ -138,33 +138,61 @@ void IKBoneChain::update_pinned_list() {
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
 		chain->update_pinned_list();
-		if (depth_falloff > CMP_EPSILON) {
-			for (int32_t w_i = 0; w_i < chain->heading_weights.size(); w_i++) {
-				heading_weights.push_back(chain->heading_weights[w_i] * depth_falloff);
-			}
+		// ERR_FAIL_COND(chain->get_tip().is_null());
+		// Ref<IKPin3D> effector = chain->get_tip()->get_pin();
+		// if (effector.is_null()) {
+		//	continue;
+		// }
+		// if (!Math::is_zero_approx(depth_falloff)) {
+		//	for (Ref<IKBoneChain> child : child_chains) {
+		//		effector_list.append_array(child->effector_list);
+		//	}
+		//	continue;
+		// }
+		// for (int32_t w_i = 0; w_i < chain->heading_weights.size(); w_i++) {
+		//	heading_weights.push_back(chain->heading_weights[w_i] * depth_falloff);
+		// }
+		//  TODO
+		//  Vector<real_t> weights;
+		//  weights.push_back(effector->weight * depth_falloff);
+		//{
+		//	weights.push_back(effector->weight * depth_falloff);
+		//	weights.push_back(effector->weight * depth_falloff);
+		// }
+		//{
+		//	weights.push_back(effector->weight * depth_falloff);
+		//	weights.push_back(effector->weight * depth_falloff);
+		// }
+		//{
+		//	weights.push_back(effector->weight * depth_falloff);
+		//	weights.push_back(effector->weight * depth_falloff);
+		// }
+		//  heading_weights.append_array(weights);
+		//  effector->create_headings(heading_weights);
+	}
+	if (is_pin()) {
+		effector_list.push_back(tip->get_pin());
+	}
+	if (!Math::is_zero_approx(depth_falloff)) {
+		for (Ref<IKBoneChain> child : child_chains) {
+			effector_list.append_array(child->effector_list);
 		}
 	}
-	Vector<Ref<IKBone3D>> pins;
-	get_bone_list(pins, true);
-	for (int32_t pin_i = 0; pin_i < pins.size(); pin_i++) {
-		Ref<IKPin3D> effector = pins[pin_i]->get_pin();
-		if (effector.is_null()) {
-			continue;
-		}
-		effector_list.push_back(effector);
+	for (Ref<IKPin3D> effector : effector_list) {
 		Vector<real_t> weights;
-		weights.push_back(effector->weight * depth_falloff);
+		weights.push_back(1.0f);
+		// TODO: 2021-05-02 fire Implement proper weights
 		{
-			weights.push_back(effector->weight * depth_falloff);
-			weights.push_back(effector->weight * depth_falloff);
+			weights.push_back(1.0f);
+			weights.push_back(1.0f);
 		}
 		{
-			weights.push_back(effector->weight * depth_falloff);
-			weights.push_back(effector->weight * depth_falloff);
+			weights.push_back(1.0f);
+			weights.push_back(1.0f);
 		}
 		{
-			weights.push_back(effector->weight * depth_falloff);
-			weights.push_back(effector->weight * depth_falloff);
+			weights.push_back(1.0f);
+			weights.push_back(1.0f);
 		}
 		heading_weights.append_array(weights);
 		effector->create_headings(heading_weights);
@@ -265,7 +293,7 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 
 void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 	Ref<IKBoneChain> current_chain = this;
-	while(current_chain.is_valid() && current_chain != this) {
+	while (current_chain.is_valid() && current_chain != this) {
 		for (Ref<IKBoneChain> child : current_chain->child_chains) {
 			if (child.is_null()) {
 				continue;
