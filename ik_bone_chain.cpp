@@ -62,7 +62,6 @@ BoneId IKBoneChain::find_root_bone_id(BoneId p_bone) {
 }
 
 void IKBoneChain::generate_default_segments_from_root() {
-	child_chains.clear();
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
 		Vector<BoneId> children = skeleton->get_bone_children(temp_tip->get_bone_id());
@@ -86,7 +85,6 @@ void IKBoneChain::generate_default_segments_from_root() {
 			break;
 		}
 	}
-	child_chains.reverse();
 }
 
 Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &p_bone) {
@@ -267,7 +265,6 @@ PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
 }
 
 void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
-	qcp_solver(p_damp, p_translate);
 	Ref<IKBoneChain> current_chain = this;
 	while(current_chain.is_valid() && current_chain != this) {
 		for (Ref<IKBoneChain> child : current_chain->child_chains) {
@@ -278,6 +275,7 @@ void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 		}
 		current_chain = current_chain->get_parent_chain();
 	}
+	qcp_solver(p_damp, p_translate);
 }
 
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
