@@ -125,6 +125,7 @@ IKBone3D::IKBone3D(BoneId p_bone, const Ref<IKBone3D> &p_parent, float p_default
 
 IKBone3D::IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, float p_default_dampening) :
 		default_dampening(p_default_dampening) {
+	set_name(p_bone);
 	bone_id = p_skeleton->find_bone(p_bone);
 	set_parent(p_parent);
 }
