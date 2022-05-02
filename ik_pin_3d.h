@@ -56,7 +56,7 @@ private:
 	real_t depth_falloff = 0.0;
 	////
 	real_t weight = 1.0;
-	bool follow_x = true, follow_y = true, follow_z= true;
+	bool follow_x = true, follow_y = true, follow_z = true;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
@@ -67,7 +67,7 @@ protected:
 
 public:
 	void update_goal_global_pose(Skeleton3D *p_skeleton);
-	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
+	const float MAX_KU_rename_target_nodeSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
 	void update_target_cache(Node *p_skeleton);

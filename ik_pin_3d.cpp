@@ -182,6 +182,7 @@ void IKPin3D::_bind_methods() {
 			&IKPin3D::set_depth_falloff);
 	ClassDB::bind_method(D_METHOD("get_depth_falloff"),
 			&IKPin3D::get_depth_falloff);
+
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
 }
 
