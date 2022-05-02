@@ -90,17 +90,6 @@ void IKBoneChain::generate_default_segments_from_root() {
 	set_bone_list(bones, false);
 }
 
-Ref<IKBoneChain> IKBoneChain::get_child_segment_containing(const Ref<IKBone3D> &p_bone) {
-	for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
-		Ref<IKBoneChain> child_segment = child_chains.write[child_i]->get_child_segment_containing(p_bone);
-		if (child_segment.is_valid()) {
-			return child_segment;
-		}
-	}
-
-	return nullptr;
-}
-
 void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
 	if (p_recursive) {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
