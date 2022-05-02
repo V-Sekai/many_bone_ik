@@ -151,20 +151,20 @@ void IKBoneChain::update_pinned_list() {
 		}
 	}
 	for (Ref<IKPin3D> effector : effector_list) {
-		Vector<real_t> weights;
-		weights.push_back(effector->weight * depth_falloff);
 		// TODO: 2021-05-02 fire Implement proper weights
+		Vector<real_t> weights;
+		weights.push_back(depth_falloff);
 		{
-			weights.push_back(effector->weight * depth_falloff);
-			weights.push_back(effector->weight * depth_falloff);
+			weights.push_back(depth_falloff);
+			weights.push_back(depth_falloff);
 		}
 		{
-			weights.push_back(effector->weight * depth_falloff);
-			weights.push_back(effector->weight * depth_falloff);
+			weights.push_back(depth_falloff);
+			weights.push_back(depth_falloff);
 		}
 		{
-			weights.push_back(effector->weight * depth_falloff);
-			weights.push_back(effector->weight * depth_falloff);
+			weights.push_back(depth_falloff);
+			weights.push_back(depth_falloff);
 		}
 		heading_weights.append_array(weights);
 		effector->create_headings(heading_weights);
