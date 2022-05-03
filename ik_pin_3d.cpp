@@ -117,7 +117,7 @@ void IKManipulator3D::update_effector_target_headings(PackedVector3Array *p_head
 	ERR_FAIL_NULL(p_headings);
 
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
-		
+
 	// Multiply the target basis vectors by the distance to the current bone origin before adding them to the target origin.
 	// The scaling amount we use is linear with distance and seems to work pretty well.
 	// Haven't considered what would be the most mathematically rigorous scaling function.
@@ -164,21 +164,20 @@ void IKManipulator3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	p_index++;
 	{
 		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_X) + tip_xform.origin) * tip_scale - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_X)) * tip_scale - bone_origin;
 		p_index += 2;
 	}
 	{
 		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_Y) + tip_xform.origin) * tip_scale - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Y)) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Y)) * tip_scale - bone_origin;
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_Z) + tip_xform.origin) * tip_scale  - bone_origin;
- 		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Z)) - bone_origin;
+		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_Z) + tip_xform.origin) * tip_scale - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Z)) * tip_scale - bone_origin;
 		p_index += 2;
 	}
 }
-
 
 void IKManipulator3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_target_node", "skeleton", "node"),
