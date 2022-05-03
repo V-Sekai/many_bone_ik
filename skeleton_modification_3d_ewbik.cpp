@@ -113,21 +113,18 @@ void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, c
 		return;
 	}
 	bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
-	if (is_tree_entered_connected) {
-		node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
+	if (!is_tree_entered_connected) {
+		node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node));
 	}
-	node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node));
 
 	bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
-	if (is_tree_exited_connected) {
-		node->disconnect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
+	if (!is_tree_exited_connected) {
+		node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node));
 	}
-	node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node));
 	bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
-	if (is_renamed_connected) {
-		node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
+	if (!is_renamed_connected) {
+		node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node));
 	}
-	node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node));
 }
 
 void SkeletonModification3DEWBIK::update_pin_target_nodepath(int32_t p_pin_index, Node *p_node) {
