@@ -36,8 +36,8 @@
 
 class QCP {
 private:
-	double evec_prec = CMP_EPSILON2;
-	double eval_prec = CMP_EPSILON2;
+	double evec_prec = 1E-6;
+	double eval_prec = 1E-11;
 	int32_t max_iterations = 30;
 	double Sxx, Sxy, Sxz, Syx, Syy, Syz, Szx, Szy, Szz = 0;
 	double SxxpSyy, SyzmSzy, SxzmSzx, SxymSyx = 0;
