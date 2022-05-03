@@ -118,10 +118,10 @@ void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings,
 
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 		
-	// You multiply the target basis vectors by the distance to the current bone origin before adding them to the target origin
-	// The scaling amount I use is linear with distance and seems to work pretty well, 
-	// I haven't considered what would be the most mathematically rigorous scaling function.
-	// Probably something like d / (4 pi r^2)
+	// Multiply the target basis vectors by the distance to the current bone origin before adding them to the target origin.
+	// The scaling amount we use is linear with distance and seems to work pretty well.
+	// Haven't considered what would be the most mathematically rigorous scaling function.
+	// Probably something like d / (4 pi r^2).
 
 	p_headings->write[p_index] = goal_global_pose.origin - bone_origin;
 	p_index++;
