@@ -82,7 +82,13 @@ Transform3D IKBone3D::get_global_pose() const {
 
 void IKBone3D::set_global_pose_rot_delta(const Basis &p_rot) {
 	rot_delta = p_rot;
-	Transform3D xform = get_global_pose() * Transform3D(p_rot, translation_delta);
+	Transform3D xform = get_global_pose() * Transform3D(p_rot, Vector3());
+	set_global_pose(xform);
+}
+
+void IKBone3D::set_global_pose_translation_delta(Vector3 p_translation_delta) {
+	translation_delta = p_translation_delta;
+	Transform3D xform = get_global_pose() * Transform3D(Basis(), p_translation_delta);
 	set_global_pose(xform);
 }
 
@@ -126,11 +132,4 @@ float IKBone3D::get_cos_half_dampen() const {
 
 void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
 	cos_half_dampen = p_cos_half_dampen;
-}
-
-void IKBone3D::set_global_pose_translation_delta(Vector3 p_translation_delta) {
-	translation_delta = p_translation_delta;
-	Transform3D xform = get_global_pose();
-	xform.origin += p_translation_delta;
-	set_global_pose(xform);
 }
