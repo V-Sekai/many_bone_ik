@@ -83,7 +83,6 @@ Transform3D IKBone3D::get_global_pose() const {
 void IKBone3D::set_global_pose_rot_delta(const Basis &p_rot) {
 	rot_delta = p_rot;
 	Transform3D xform = get_global_pose() * Transform3D(p_rot, translation_delta);
-	xform.orthogonalize();
 	set_global_pose(xform);
 }
 
@@ -91,8 +90,7 @@ void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	const Vector3 &position = p_skeleton->get_bone_pose_position(bone_id);
 	const Quaternion &rot = p_skeleton->get_bone_pose_rotation(bone_id);
 	const Vector3 &scale = p_skeleton->get_bone_pose_scale(bone_id);
-	const Transform3D &xform = Transform3D(Basis(rot, scale), position);
-	xform.orthogonalize();
+	Transform3D xform = Transform3D(Basis(rot, scale), position);
 	set_pose(xform);
 }
 
