@@ -70,9 +70,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	Ref<IKBoneChain> get_parent_chain() {
-		return parent_chain;
-	}
+	Ref<IKBoneChain> get_parent_chain();
+	Vector<Ref<IKManipulator3D>> get_effector_list();
 	void segment_solver(real_t p_damp, bool p_translate = false);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;

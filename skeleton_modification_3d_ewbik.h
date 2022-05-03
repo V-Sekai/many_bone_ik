@@ -115,8 +115,6 @@ private:
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	int32_t ik_iterations = 8;
 	float default_damp = Math::deg2rad(0.03f);
-
-	void update_effectors_map();
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
 	void update_skeleton();
