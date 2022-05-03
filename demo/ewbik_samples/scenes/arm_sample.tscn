@@ -1,0 +1,46 @@
+[gd_scene load_steps=4 format=3 uid="uid://c0o663nevwhpb"]
+
+[ext_resource type="PackedScene" uid="uid://d35nd14euhmox" path="res://ewbik_samples/art/ewbik_simple_test_rig.glb" id="1_j36wc"]
+
+[sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_yh8j1"]
+root_bone = "Bone_01"
+pin_count = 2
+pins/0/name = "Bone_04"
+pins/0/target_node = NodePath("../../../04")
+pins/0/use_node_rotation = true
+pins/0/depth_falloff = 1.0
+pins/0/remove = false
+pins/1/name = "Bone_05"
+pins/1/target_node = NodePath("../../../05")
+pins/1/use_node_rotation = true
+pins/1/depth_falloff = 1.0
+pins/1/remove = false
+
+[sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_hqig5"]
+modification_count = 1
+modifications/0 = SubResource( "SkeletonModification3DEWBIK_yh8j1" )
+
+[node name="Node3D" type="Node3D"]
+
+[node name="ewbik_simple_test_rig" parent="." instance=ExtResource( "1_j36wc" )]
+
+[node name="Skeleton3D" parent="ewbik_simple_test_rig/Simple_Test_Rig_Armature" index="0"]
+modification_stack = SubResource( "SkeletonModificationStack3D_hqig5" )
+
+[node name="04" type="BoneAttachment3D" parent="ewbik_simple_test_rig/Simple_Test_Rig_Armature/Skeleton3D" index="1"]
+transform = Transform3D(1, -5.73771e-17, 1.51495e-08, 1.97808e-15, 1, -1.26784e-07, -1.51495e-08, 1.26784e-07, 1, -1.0328e-16, 1.8, 2.28211e-07)
+bone_name = "Bone_04"
+bone_idx = 3
+
+[node name="05" type="BoneAttachment3D" parent="ewbik_simple_test_rig/Simple_Test_Rig_Armature/Skeleton3D" index="2"]
+transform = Transform3D(1, -5.73771e-17, 1.51495e-08, 1.97808e-15, 1, -1.26784e-07, -1.51495e-08, 1.26784e-07, 1, -1.37707e-16, 2.4, 3.04282e-07)
+bone_name = "Bone_05"
+bone_idx = 4
+
+[node name="04" type="Position3D" parent="."]
+transform = Transform3D(1, -5.73771e-17, 1.51495e-08, 1.97808e-15, 1, -1.26784e-07, -1.51495e-08, 1.26784e-07, 1, -1.0328e-16, 1.8, 2.28211e-07)
+
+[node name="05" type="Position3D" parent="."]
+transform = Transform3D(1, -5.73771e-17, 1.51495e-08, 1.97808e-15, 1, -1.26784e-07, -1.51495e-08, 1.26784e-07, 1, -1.37707e-16, 2.4, 3.04282e-07)
+
+[editable path="ewbik_simple_test_rig"]
