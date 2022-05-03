@@ -57,8 +57,7 @@ private:
 	void create_headings();
 	PackedVector3Array update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights);
 	PackedVector3Array update_tip_headings(Ref<IKBone3D> p_for_bone);
-	double set_optimal_rotation(Ref<IKBone3D> p_for_bone,
-			PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening = -1, bool p_translate = false);
+	double set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array * r_htip, PackedVector3Array * r_htarget, Vector<real_t>* r_weights, float p_dampening = -1, bool p_translate = false);
 	void qcp_solver(real_t p_damp, bool p_translate = false);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);
 
@@ -66,6 +65,9 @@ private:
 	Quaternion set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
 	Quaternion clamp_to_angle(Quaternion p_quat, real_t p_angle) const;
 	Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
+
+	float get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights);
+
 protected:
 	static void _bind_methods();
 

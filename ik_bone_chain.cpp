@@ -172,7 +172,7 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_dam
 		p_damp = Math_PI;
 	}
 
-	set_optimal_rotation(p_for_bone, heading_tip, heading_target, *weights, p_damp, p_translate);
+	set_optimal_rotation(p_for_bone, &heading_tip, &heading_target, weights, p_damp, p_translate);
 }
 
 Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
@@ -209,23 +209,51 @@ Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos
 	return rot;
 }
 
-double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone,
-		PackedVector3Array &r_htip, PackedVector3Array &r_htarget, const Vector<real_t> &p_weights, float p_dampening, bool p_translate) {
+float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights) {
+	float manual_RMSD = 0.0f;
+	float wsum = 0.0f;
+	for (int i = 0; i < r_htarget.size(); i++) {
+		float x_d = r_htarget[i].x - r_htip[i].x;
+		float y_d = r_htarget[i].y - r_htip[i].y;
+		float z_d = r_htarget[i].z - r_htip[i].z;
+		float mag_sq = p_weights[i] * (x_d * x_d + y_d * y_d + z_d * z_d);
+		manual_RMSD += mag_sq;
+		wsum += p_weights[i];
+	}
+	manual_RMSD /= wsum;
+	return manual_RMSD;
+}
+
+double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
 	Quaternion rot;
 	Vector3 translation;
-	double sqrmsd = qcp.calc_optimal_rotation(r_htip, r_htarget, p_weights, rot, p_translate, translation);
 
-	double bone_damp = p_for_bone->get_cos_half_dampen();
-
-	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
-		bone_damp = p_dampening;
-		rot = clamp_to_angle(rot, bone_damp);
-	} else {
-		rot = clamp_to_quadrance_angle(rot, bone_damp);
+	float best_root_mean_square_deviation = get_manual_msd(*r_htip, *r_htarget, *r_weights);
+	float new_root_mean_square_deviation = 999999.0f;
+	int32_t stabilization_passes = 4;
+	for (int32_t i = 0; i < stabilization_passes; i++) {
+		new_root_mean_square_deviation = qcp.calc_optimal_rotation(*r_htip, *r_htarget, *r_weights, rot, p_translate, translation);
+		double bone_damp = p_for_bone->get_cos_half_dampen();
+		if (!Math::is_equal_approx(p_dampening, -1.0f)) {
+			bone_damp = p_dampening;
+			rot = clamp_to_angle(rot, bone_damp);
+		} else {
+			rot = clamp_to_quadrance_angle(rot, bone_damp);
+		}
+		if (best_root_mean_square_deviation >= new_root_mean_square_deviation) {
+			best_root_mean_square_deviation = new_root_mean_square_deviation;
+			break;
+		}
+		best_root_mean_square_deviation = new_root_mean_square_deviation;
+		p_for_bone->set_global_pose_rot_delta(rot);
+		p_for_bone->set_global_pose_translation_delta(translation);
+		*r_htarget = update_target_headings(p_for_bone, r_weights);
+		*r_htip = update_tip_headings(p_for_bone);
+		best_root_mean_square_deviation = get_manual_msd(*r_htip, *r_htarget, *r_weights);
 	}
 	p_for_bone->set_global_pose_rot_delta(rot);
 	p_for_bone->set_global_pose_translation_delta(translation);
-	return sqrmsd;
+	return best_root_mean_square_deviation;
 }
 
 void IKBoneChain::create_headings() {
