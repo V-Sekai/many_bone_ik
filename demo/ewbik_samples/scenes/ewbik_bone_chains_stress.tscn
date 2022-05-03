@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmvvytqmdsavo"]
+
+[ext_resource type="PackedScene" uid="uid://b7a4gxkuaioec" path="res://ewbik_samples/art/ewbik_6_bone_chain.glb" id="1_h2irg"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="ewbik_6_bone_chain" parent="." instance=ExtResource( "1_h2irg" )]
+
+[editable path="ewbik_6_bone_chain"]
