@@ -46,7 +46,7 @@ private:
 	Vector<Ref<IKBoneChain>> child_chains; // Contains only direct child chains that end with effectors or have child that end with effectors
 	Vector<Ref<IKBoneChain>> effector_direct_descendents;
 	Ref<IKBoneChain> parent_chain;
-	Vector<Ref<IKPin3D>> effector_list;
+	Vector<Ref<IKManipulator3D>> effector_list;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;

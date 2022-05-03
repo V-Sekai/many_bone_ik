@@ -8,7 +8,7 @@ def get_doc_classes():
     return [
         "SkeletonModification3DEWBIK",
         "IKBone3D",
-		"IKPin3D",
+		"IKManipulator3D",
 		"IKBoneChain",
     ]
 

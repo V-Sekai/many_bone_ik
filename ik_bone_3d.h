@@ -38,7 +38,7 @@
 
 #define IK_DEFAULT_DAMPENING 0.20944f
 
-class IKPin3D;
+class IKManipulator3D;
 
 class IKBone3D : public Resource {
 	GDCLASS(IKBone3D, Resource);
@@ -47,7 +47,7 @@ private:
 	BoneId bone_id = -1;
 	Ref<IKBone3D> parent = nullptr;
 	Vector<Ref<IKBone3D>> children;
-	Ref<IKPin3D> pin = nullptr;
+	Ref<IKManipulator3D> pin = nullptr;
 	IKTransform3D xform;
 	Basis rot_delta;
 	Vector3 translation_delta;
@@ -65,8 +65,8 @@ public:
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
 	Ref<IKBone3D> get_parent() const;
-	void set_pin(const Ref<IKPin3D> &p_pin);
-	Ref<IKPin3D> get_pin() const;
+	void set_pin(const Ref<IKManipulator3D> &p_pin);
+	Ref<IKManipulator3D> get_pin() const;
 	void set_pose(const Transform3D &p_transform);
 	Transform3D get_pose() const;
 	void set_global_pose(const Transform3D &p_transform);

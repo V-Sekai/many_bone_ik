@@ -56,11 +56,11 @@ Ref<IKBone3D> IKBone3D::get_parent() const {
 	return parent;
 }
 
-void IKBone3D::set_pin(const Ref<IKPin3D> &p_pin) {
+void IKBone3D::set_pin(const Ref<IKManipulator3D> &p_pin) {
 	pin = p_pin;
 }
 
-Ref<IKPin3D> IKBone3D::get_pin() const {
+Ref<IKManipulator3D> IKBone3D::get_pin() const {
 	return pin;
 }
 
@@ -102,7 +102,7 @@ void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength)
 }
 
 void IKBone3D::create_pin() {
-	pin = Ref<IKPin3D>(memnew(IKPin3D(this)));
+	pin = Ref<IKManipulator3D>(memnew(IKManipulator3D(this)));
 }
 
 bool IKBone3D::is_pin() const {
