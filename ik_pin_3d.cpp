@@ -57,25 +57,25 @@ bool IKManipulator3D::is_following_translation_only() const {
 }
 
 void IKManipulator3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
-	goal_global_pose = Transform3D();
+	target_global_pose = Transform3D();
 	if (!target_node_reference) {
 		target_node_reference = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
-		goal_global_pose = for_bone->get_global_pose();
+		target_global_pose = for_bone->get_global_pose();
 		if (!use_target_node_rotation) {
-			goal_global_pose.basis = Basis();
+			target_global_pose.basis = Basis();
 		}
 		return;
 	}
 	Node3D *target_node = Object::cast_to<Node3D>(target_node_reference);
 	Transform3D node_xform = target_node->get_global_transform();
-	goal_global_pose = p_skeleton->world_transform_to_global_pose(node_xform);
+	target_global_pose = p_skeleton->world_transform_to_global_pose(node_xform);
 	if (!use_target_node_rotation) {
-		goal_global_pose.basis = Basis();
+		target_global_pose.basis = Basis();
 	}
 }
 
 Transform3D IKManipulator3D::get_goal_global_pose() const {
-	return goal_global_pose;
+	return target_global_pose;
 }
 
 void IKManipulator3D::create_headings(const Vector<real_t> &p_weights) {
@@ -123,24 +123,24 @@ void IKManipulator3D::update_effector_target_headings(PackedVector3Array *p_head
 	// Haven't considered what would be the most mathematically rigorous scaling function.
 	// Probably something like d / (4 pi r^2).
 
-	p_headings->write[p_index] = goal_global_pose.origin - bone_origin;
+	p_headings->write[p_index] = target_global_pose.origin - bone_origin;
 	p_index++;
 	{
 		// real_t w = p_weights->write[p_index];
-		p_headings->write[p_index] = (goal_global_pose.basis.get_axis(Vector3::AXIS_X) + goal_global_pose.origin) - bone_origin;
-		p_headings->write[p_index + 1] = (goal_global_pose.origin - goal_global_pose.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
+		p_headings->write[p_index] = (target_global_pose.basis.get_axis(Vector3::AXIS_X) + target_global_pose.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
 		p_index += 2;
 	}
 	{
 		// real_t w = p_weights->write[p_index];
-		p_headings->write[p_index] = (goal_global_pose.basis.get_axis(Vector3::AXIS_Y) + goal_global_pose.origin) - bone_origin;
-		p_headings->write[p_index + 1] = (goal_global_pose.origin - goal_global_pose.basis.get_axis(Vector3::AXIS_Y)) - bone_origin;
+		p_headings->write[p_index] = (target_global_pose.basis.get_axis(Vector3::AXIS_Y) + target_global_pose.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_axis(Vector3::AXIS_Y)) - bone_origin;
 		p_index += 2;
 	}
 	{
 		// real_t w = p_weights->write[p_index];
-		p_headings->write[p_index] = (goal_global_pose.basis.get_axis(Vector3::AXIS_Z) + goal_global_pose.origin) - bone_origin;
-		p_headings->write[p_index + 1] = (goal_global_pose.origin - goal_global_pose.basis.get_axis(Vector3::AXIS_Z)) - bone_origin;
+		p_headings->write[p_index] = (target_global_pose.basis.get_axis(Vector3::AXIS_Z) + target_global_pose.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_axis(Vector3::AXIS_Z)) - bone_origin;
 		p_index += 2;
 	}
 }
