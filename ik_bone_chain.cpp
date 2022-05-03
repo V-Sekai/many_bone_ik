@@ -176,10 +176,10 @@ void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_dam
 }
 
 Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
-	float squared_sine = p_quat.x * p_quat.x + p_quat.y * p_quat.y + p_quat.z * p_quat.z;
+	double squared_sine = p_quat.get_axis().length();
 	Quaternion rot = p_quat;
 	if (!Math::is_zero_approx(squared_sine)) {
-		float inverse_coeff = Math::sqrt(((1.0f - (p_cos_half_angle * p_cos_half_angle)) / squared_sine));
+		double inverse_coeff = Math::sqrt(((1.0f - (p_cos_half_angle * p_cos_half_angle)) / squared_sine));
 		rot.x = inverse_coeff * p_quat.x;
 		rot.y = inverse_coeff * p_quat.y;
 		rot.z = inverse_coeff * p_quat.z;
@@ -189,7 +189,7 @@ Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half
 }
 
 Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const {
-	float cos_half_angle = Math::cos(0.5f * p_angle);
+	double cos_half_angle = Math::cos(0.5 * p_angle);
 	return clamp_to_quadrance_angle(p_quat, cos_half_angle);
 }
 
