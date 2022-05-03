@@ -280,11 +280,3 @@ IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<I
 		root->set_parent(p_parent->get_tip());
 	}
 }
-
-Vector<Ref<IKManipulator3D>> IKBoneChain::get_effector_list() {
-	return effector_list;
-}
-
-Ref<IKBoneChain> IKBoneChain::get_parent_chain() {
-	return parent_chain;
-}

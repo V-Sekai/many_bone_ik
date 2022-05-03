@@ -31,7 +31,6 @@
 #include "skeleton_modification_3d_ewbik.h"
 #include "core/templates/map.h"
 #include "ik_bone_3d.h"
-#include "ik_bone_chain.h"
 
 int32_t SkeletonModification3DEWBIK::get_ik_iterations() const {
 	return ik_iterations;
@@ -237,6 +236,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index)));
 	segmented_skeleton->generate_default_segments_from_root();
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
+	update_effectors_map();
 	segmented_skeleton->update_pinned_list();
 	is_dirty = false;
 }
@@ -265,6 +265,29 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 		}
 		bone->set_skeleton_bone_pose(skeleton, p_blending_delta);
 	}
+}
+
+void SkeletonModification3DEWBIK::update_effectors_map() {
+	ERR_FAIL_NULL(skeleton);
+	Vector<Ref<IKBone3D>> list;
+	segmented_skeleton->set_bone_list(list, true);
+	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
+		Ref<IKEffectorTemplate> data = pins.write[effector_i];
+		String bone = data->get_name();
+		BoneId bone_id = skeleton->find_bone(bone);
+		float depth_falloff = data->depth_falloff;
+		for (Ref<IKBone3D> ik_bone_3d : list) {
+			if (ik_bone_3d->get_bone_id() != bone_id) {
+				continue;
+			}
+			ik_bone_3d->create_pin();
+			Ref<IKManipulator3D> effector_3d = ik_bone_3d->get_pin();
+			effector_3d->set_target_node(skeleton, data->target_node);
+			effector_3d->update_target_cache(skeleton);
+			effector_3d->set_depth_falloff(depth_falloff);
+		}
+	}
+	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) const {
