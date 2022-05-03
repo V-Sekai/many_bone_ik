@@ -82,16 +82,15 @@ Transform3D IKBone3D::get_global_pose() const {
 
 void IKBone3D::set_global_pose_rot_delta(const Basis &p_rot) {
 	rot_delta = p_rot;
-	Transform3D xform = get_global_pose() * Transform3D(p_rot, translation_delta);
+	Transform3D xform =  get_global_pose() * Transform3D(p_rot, translation_delta);
 	set_global_pose(xform);
 }
 
 void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
-	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
-	if (bone_id == -1) {
-		return;
-	}
-	set_pose(p_skeleton->global_pose_to_local_pose(bone_id, xform));
+	const Vector3 &position = p_skeleton->get_bone_pose_position(bone_id);
+	const Quaternion &rot = p_skeleton->get_bone_pose_rotation(bone_id);
+	const Vector3 &scale = p_skeleton->get_bone_pose_scale(bone_id);
+	set_pose(Transform3D(Basis(rot, scale), position));
 }
 
 void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {
