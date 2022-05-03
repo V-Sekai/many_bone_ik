@@ -194,13 +194,13 @@ Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const 
 }
 
 Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
-	float new_coeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
-	float current_coeff = p_quat.x * p_quat.x + p_quat.y * p_quat.y + p_quat.z * p_quat.z;
+	double new_coeff = 1.0 - (p_cos_half_angle * p_cos_half_angle);
+	double current_coeff = p_quat.get_axis().length();
 	Quaternion rot = p_quat;
 	if (new_coeff > current_coeff) {
 		return rot;
 	} else {
-		float compositeCoeff = Math::sqrt(new_coeff / current_coeff);
+		double compositeCoeff = Math::sqrt(new_coeff / current_coeff);
 		rot.x *= compositeCoeff;
 		rot.y *= compositeCoeff;
 		rot.z *= compositeCoeff;

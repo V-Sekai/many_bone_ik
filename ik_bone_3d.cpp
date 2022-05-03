@@ -82,7 +82,7 @@ Transform3D IKBone3D::get_global_pose() const {
 
 void IKBone3D::set_global_pose_rot_delta(const Basis &p_rot) {
 	rot_delta = p_rot;
-	Transform3D xform =  get_global_pose() * Transform3D(p_rot, translation_delta);
+	Transform3D xform = get_global_pose() * Transform3D(p_rot, translation_delta);
 	set_global_pose(xform);
 }
 
