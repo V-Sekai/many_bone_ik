@@ -88,7 +88,7 @@ void IKBone3D::set_global_pose_rot_delta(const Basis &p_rot) {
 
 void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	const Vector3 &position = p_skeleton->get_bone_pose_position(bone_id);
-	const Quaternion &rot = p_skeleton->get_bone_pose_rotation(bone_id);
+	const Quaternion &rot = p_skeleton->get_bone_pose_rotation(bone_id).normalized();
 	const Vector3 &scale = p_skeleton->get_bone_pose_scale(bone_id);
 	Transform3D xform = Transform3D(Basis(rot, scale), position);
 	set_pose(xform);
