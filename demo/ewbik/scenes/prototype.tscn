@@ -8,9 +8,8 @@ default_damp = 0.00174533
 ik_iterations = 1
 pin_count = 1
 pins/0/name = "Bone.001"
-pins/0/target_node = NodePath("../target")
-pins/0/use_node_rotation = false
-pins/0/priority = Vector3(1, 0.1, 1)
+pins/0/target_node = NodePath("../../../Tip")
+pins/0/use_node_rotation = true
 pins/0/depth_falloff = 1.0
 pins/0/remove = false
 
@@ -21,14 +20,20 @@ modifications/0 = SubResource( "SkeletonModification3DEWBIK_bqj4w" )
 
 [node name="RiggedSimple" instance=ExtResource( "1" )]
 
+[node name="Tip" type="Position3D" parent="." index="0"]
+transform = Transform3D(1, -0.000579845, 2.09851e-07, 2.09846e-07, -9.55472e-09, -1, 0.000579845, 1, -9.43304e-09, -7.51773e-09, 1.61018, 0.00674772)
+
 [node name="Skeleton3D" parent="Z_UP/Armature" index="0"]
-bones/0/rotation = Quaternion(0.707107, 1.47251e-07, 1.47251e-07, 0.707107)
-bones/1/position = Vector3(4.13784e-09, 4.18708, -0.0279775)
-bones/1/rotation = Quaternion(4.69699e-09, -1.03989e-07, 0.000290542, 1)
-bones/1/scale = Vector3(1, 1, 1)
+bones/0/rotation = Quaternion(0.34542, -0.114979, 0.594582, 0.716895)
+bones/0/scale = Vector3(0.999996, 1, 0.999998)
+bones/1/position = Vector3(-9.799e-05, 4.18737, -0.0278904)
+bones/1/rotation = Quaternion(-0.0717947, 0.560134, 0.324259, 0.758915)
+bones/1/scale = Vector3(1.00006, 1.00006, 1.00006)
 modification_stack = SubResource( "SkeletonModificationStack3D_7vlvp" )
 
-[node name="target" type="Node3D" parent="Z_UP/Armature" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.15869, 1.74157, 4.52008)
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="Z_UP/Armature/Skeleton3D" index="1"]
+transform = Transform3D(-0.561036, -0.816471, -0.136862, 0.714544, -0.561061, 0.418037, -0.41808, 0.136733, 0.898128, -3.90925, 0.244991, -2.69958)
+bone_name = "Bone.001"
+bone_idx = 1
 
-[node name="Node3D" type="Node3D" parent="." index="2"]
+[node name="Node3D" type="Node3D" parent="." index="3"]

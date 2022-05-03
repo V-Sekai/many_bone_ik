@@ -1,0 +1,82 @@
+[gd_scene load_steps=4 format=3 uid="uid://c1ytwckso3688"]
+
+[ext_resource type="PackedScene" uid="uid://deuapcn1ywqqi" path="res://ewbik_samples/art/ewbik_3_bone_chain.glb" id="1_7dei6"]
+
+[sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_m1d4s"]
+root_bone = "A0"
+pin_count = 2
+pins/0/name = "B3"
+pins/0/target_node = NodePath("../../../B3")
+pins/0/use_node_rotation = true
+pins/0/depth_falloff = 1.0
+pins/0/remove = false
+pins/1/name = "C3"
+pins/1/target_node = NodePath("../../../C3")
+pins/1/use_node_rotation = true
+pins/1/depth_falloff = 1.0
+pins/1/remove = false
+
+[sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_a3l1v"]
+enabled = true
+modification_count = 1
+modifications/0 = SubResource( "SkeletonModification3DEWBIK_m1d4s" )
+
+[node name="Node3D" type="Node3D"]
+
+[node name="ewbik_3_bone_chain2" parent="." instance=ExtResource( "1_7dei6" )]
+
+[node name="Skeleton3D" parent="ewbik_3_bone_chain2/Armature" index="0"]
+bones/0/rotation = Quaternion(0.0276633, 0.0149957, -0.716618, 0.696756)
+bones/0/scale = Vector3(1, 1, 0.999998)
+bones/1/position = Vector3(4.28408e-07, 0.926512, 2.58908e-07)
+bones/1/rotation = Quaternion(-0.00546695, -0.0467938, -0.0145049, 0.998784)
+bones/1/scale = Vector3(1.00006, 1.00001, 1.00006)
+bones/2/position = Vector3(-3.20375e-07, 1.07367, 1.00117e-08)
+bones/2/rotation = Quaternion(0.00132561, 0.015784, 0.0075888, 0.999846)
+bones/2/scale = Vector3(0.999992, 0.999989, 0.999969)
+bones/3/position = Vector3(-4.09782e-08, 1, 4.00469e-08)
+bones/3/rotation = Quaternion(0.00112573, -1.13145e-06, 7.76889e-05, 0.999999)
+bones/3/scale = Vector3(0.999968, 0.99997, 1.00001)
+bones/4/position = Vector3(-1.66334e-06, 0.999969, -2.29105e-07)
+bones/4/rotation = Quaternion(0.00155944, -0.0944277, 4.07296e-05, 0.99553)
+bones/4/scale = Vector3(0.999953, 0.999967, 0.99999)
+bones/5/position = Vector3(-5.02914e-08, 0.982278, 1.00583e-07)
+bones/5/rotation = Quaternion(0.00361384, 0.0938728, 0.0233442, 0.995304)
+bones/5/scale = Vector3(1.00005, 1.00004, 1.00005)
+bones/6/position = Vector3(6.55651e-07, 1.00002, -1.93715e-07)
+bones/6/rotation = Quaternion(0.00108002, -0.000406131, -0.0121854, 0.999925)
+bones/6/scale = Vector3(0.999968, 1, 0.999981)
+bones/7/position = Vector3(4.17233e-07, 1.00003, -3.98606e-07)
+bones/7/rotation = Quaternion(0.00164937, -0.000716645, 0.00971163, 0.999951)
+bones/7/scale = Vector3(1.00002, 1.00002, 1.00002)
+bones/8/position = Vector3(-1.69314e-06, 0.999969, -2.62633e-07)
+bones/8/rotation = Quaternion(0.000527532, 0.00127955, 0.55074, 0.834676)
+bones/8/scale = Vector3(0.999958, 0.999944, 0.99999)
+bones/9/position = Vector3(1.16825e-05, 1.00004, -1.2666e-07)
+bones/9/rotation = Quaternion(0.000818272, 0.00101633, 0.220993, 0.975275)
+bones/9/scale = Vector3(1.00004, 1.00003, 1.00004)
+bones/10/position = Vector3(1.43051e-06, 1.00002, -9.12696e-08)
+bones/10/rotation = Quaternion(0.000981899, 0.000722207, 0.000468836, 0.999999)
+bones/10/scale = Vector3(1.00001, 1.00001, 1.00002)
+bones/11/position = Vector3(-1.19209e-05, 1.00003, -1.67638e-08)
+bones/11/rotation = Quaternion(0.000961806, 0.000827823, -0.000156121, 0.999999)
+bones/11/scale = Vector3(1.00001, 1.00002, 1)
+modification_stack = SubResource( "SkeletonModificationStack3D_a3l1v" )
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="ewbik_3_bone_chain2/Armature/Skeleton3D" index="1"]
+transform = Transform3D(0.000417914, 0.999759, -0.0216015, -0.999997, 0.000534092, 0.00522742, 0.00522377, 0.0216002, 0.999826, 7.05076, -0.200362, 0.0752157)
+bone_name = "B3"
+bone_idx = 7
+
+[node name="BoneAttachment3D2" type="BoneAttachment3D" parent="ewbik_3_bone_chain2/Armature/Skeleton3D" index="2"]
+transform = Transform3D(0.999971, 4.0995e-05, -0.0051694, -8.23164e-05, 1, -0.00698319, 0.00516786, 0.00698453, 1.00005, 4.50208, 2.75609, 0.040838)
+bone_name = "C3"
+bone_idx = 11
+
+[node name="B3" type="Position3D" parent="."]
+transform = Transform3D(-6.64964e-07, 0.999999, -3.74789e-07, -1, -5.43892e-07, -3.11932e-07, -3.73099e-07, 3.51982e-07, 1, 7.05137, -0.201288, 2.54521e-06)
+
+[node name="C3" type="Position3D" parent="."]
+transform = Transform3D(0.999999, 2.41399e-06, -5.52442e-08, -2.29478e-06, 1, 1.05491e-07, 3.27758e-08, -1.01729e-07, 1, 4.50187, 2.75651, 1.36398e-06)
+
+[editable path="ewbik_3_bone_chain2"]
