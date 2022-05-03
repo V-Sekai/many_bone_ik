@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="EWBIK Game Project"
+run/main_scene="res://ewbik_samples/scenes/ewbik_3_bone_chain_ewbik.tscn"
 config/icon="res://icon.png"
 config/features=PackedStringArray("4.0")
 
