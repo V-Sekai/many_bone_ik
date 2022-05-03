@@ -280,7 +280,7 @@ Quaternion QCP::calc_rotation(double p_eigenv) const {
 	min = q3 < min ? q3 : min;
 	min = q4 < min ? q4 : min;
 
-	return Quaternion(q2, q3, q4, q1);
+	return Quaternion(q2, q3, q4, q1).normalized();
 }
 
 void QCP::translate(const Vector3 p_translate, PackedVector3Array &r_source) {
