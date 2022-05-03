@@ -193,9 +193,6 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	}
 	if (pin_count && segmented_skeleton.is_valid()) {
 		update_shadow_bones_transform();
-		if (segmented_skeleton == nullptr) {
-			return;
-		}
 		for (int i = 0; i < ik_iterations; i++) {
 			segmented_skeleton->segment_solver(get_default_damp(), segmented_skeleton->is_root_pinned());
 		}
