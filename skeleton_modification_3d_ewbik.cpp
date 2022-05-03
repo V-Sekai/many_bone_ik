@@ -311,8 +311,8 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 }
 
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
-	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,65535,1"));
-	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,65535,1"));
+	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "0,4,1"));
+	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1"));
 	for (int i = 0; i < pin_count; i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING;
@@ -339,7 +339,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::BOOL, "pins/" + itos(i) + "/remove"));
 	}
-	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,65535,1"));
+	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING;
@@ -526,7 +526,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01, 5.0f, 180,radians"), "set_default_damp", "get_default_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01, 5.0f, 0.01,radians"), "set_default_damp", "get_default_damp");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {

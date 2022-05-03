@@ -123,7 +123,6 @@ void IKPin3D::update_effector_target_headings(PackedVector3Array *p_headings,
 	{
 		real_t w = p_weights->write[p_index];
 		p_headings->write[p_index] = (goal_global_pose.basis.get_axis(Vector3::AXIS_X) + goal_global_pose.origin) - bone_origin;
-		// TODO Scale by distance ...
 		p_headings->write[p_index] *= Vector3(w, w, w);
 		p_headings->write[p_index + 1] = (goal_global_pose.origin - goal_global_pose.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
 		p_headings->write[p_index + 1] *= Vector3(w, w, w);
@@ -152,21 +151,19 @@ void IKPin3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32
 	Transform3D tip_xform = for_bone->get_global_pose();
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 	p_headings->write[p_index] = tip_xform.origin - bone_origin;
-	float scale = goal_global_pose.origin.distance_to(tip_xform.origin);
-	// TODO Scale
 	p_index++;
 	{
-		p_headings->write[p_index] = (tip_xform.basis.get_axis(Vector3::AXIS_X) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index] = (tip_xform.basis.get_axis(Vector3::AXIS_X) + tip_xform.origin) * scale - bone_origin;
 		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = (tip_xform.basis.get_axis(Vector3::AXIS_Y) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index] = (tip_xform.basis.get_axis(Vector3::AXIS_Y) + tip_xform.origin) * scale - bone_origin;
 		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Y)) - bone_origin;
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = (tip_xform.basis.get_axis(Vector3::AXIS_Z) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index] = (tip_xform.basis.get_axis(Vector3::AXIS_Z) + tip_xform.origin) * scale - bone_origin;
 		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Z)) - bone_origin;
 		p_index += 2;
 	}
