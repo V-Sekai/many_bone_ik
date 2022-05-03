@@ -49,5 +49,4 @@ skins/use_named_skins=true
 animation/import=true
 animation/fps=30
 import_script/path=""
-_subresources={
-}
+_subresources={}
