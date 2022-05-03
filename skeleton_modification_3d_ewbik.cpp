@@ -114,16 +114,16 @@ void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, c
 	}
 	bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
 	if (!is_tree_entered_connected) {
-		node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node));
+		node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node), CONNECT_REFERENCE_COUNTED);
 	}
 
 	bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
 	if (!is_tree_exited_connected) {
-		node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node));
+		node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node), CONNECT_REFERENCE_COUNTED);
 	}
 	bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
 	if (!is_renamed_connected) {
-		node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node));
+		node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node), CONNECT_REFERENCE_COUNTED);
 	}
 }
 
