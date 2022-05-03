@@ -165,14 +165,14 @@ void IKBoneChain::update_pinned_list() {
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
 	Vector<real_t> *weights = nullptr;
-	PackedVector3Array htarget = update_target_headings(p_for_bone, weights);
-	PackedVector3Array htip = update_tip_headings(p_for_bone);
+	PackedVector3Array heading_target = update_target_headings(p_for_bone, weights);
+	PackedVector3Array heading_tip = update_tip_headings(p_for_bone);
 
 	if (p_translate == true) {
 		p_damp = Math_PI;
 	}
 
-	set_optimal_rotation(p_for_bone, htip, htarget, *weights, p_damp, p_translate);
+	set_optimal_rotation(p_for_bone, heading_tip, heading_target, *weights, p_damp, p_translate);
 }
 
 Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
@@ -243,13 +243,13 @@ PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone,
 }
 
 PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
-	PackedVector3Array htip = tip_headings;
+	PackedVector3Array heading_tip = tip_headings;
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKManipulator3D> effector = effector_list[effector_i];
-		effector->update_effector_tip_headings(&htip, index, p_for_bone);
+		effector->update_effector_tip_headings(&heading_tip, index, p_for_bone);
 	}
-	return htip;
+	return heading_tip;
 }
 
 void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
