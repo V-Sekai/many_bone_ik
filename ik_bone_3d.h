@@ -54,13 +54,11 @@ private:
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
-	static bool has_pin_descendant(BoneId p_bone, Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map);
 
 protected:
 	static void _bind_methods();
 
 public:
-	Vector<BoneId> get_children_with_pin_descendants(Skeleton3D *p_skeleton, const HashMap<BoneId, Ref<IKBone3D>> &p_map) const;
 	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
