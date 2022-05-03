@@ -49,8 +49,6 @@ private:
 	Vector<Ref<IKBone3D>> children;
 	Ref<IKManipulator3D> pin = nullptr;
 	IKTransform3D xform;
-	Basis rot_delta;
-	Vector3 translation_delta;
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
@@ -70,8 +68,6 @@ public:
 	void set_global_pose(const Transform3D &p_transform);
 	void set_global_pose_rot_delta(const Basis &p_rot);
 	void set_global_pose_translation_delta(Vector3 p_translation);
-	Vector3 get_translation_delta() const;
-
 	Transform3D get_global_pose() const;
 	void set_initial_pose(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength);

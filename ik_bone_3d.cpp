@@ -48,10 +48,6 @@ void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 	}
 }
 
-Vector3 IKBone3D::get_translation_delta() const {
-	return translation_delta;
-}
-
 Ref<IKBone3D> IKBone3D::get_parent() const {
 	return parent;
 }
@@ -81,13 +77,11 @@ Transform3D IKBone3D::get_global_pose() const {
 }
 
 void IKBone3D::set_global_pose_rot_delta(const Basis &p_rot) {
-	rot_delta = p_rot;
 	Transform3D xform = get_global_pose() * Transform3D(p_rot, Vector3());
 	set_global_pose(xform);
 }
 
 void IKBone3D::set_global_pose_translation_delta(Vector3 p_translation_delta) {
-	translation_delta = p_translation_delta;
 	Transform3D xform = get_global_pose() * Transform3D(Basis(), p_translation_delta);
 	set_global_pose(xform);
 }
