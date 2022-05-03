@@ -91,7 +91,9 @@ void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	const Vector3 &position = p_skeleton->get_bone_pose_position(bone_id);
 	const Quaternion &rot = p_skeleton->get_bone_pose_rotation(bone_id);
 	const Vector3 &scale = p_skeleton->get_bone_pose_scale(bone_id);
-	set_pose(Transform3D(Basis(rot, scale), position));
+	Transform xform = Transform3D(Basis(rot, scale), position);
+	xform.orthogonalize();
+	set_pose(xform);
 }
 
 void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {
