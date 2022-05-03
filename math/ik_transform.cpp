@@ -49,6 +49,7 @@ void IKTransform3D::set_transform(const Transform3D &p_transform) {
 		return;
 	}
 	local_transform = p_transform;
+	local_transform.orthogonalize();
 	dirty |= DIRTY_VECTORS;
 	_propagate_transform_changed();
 }
@@ -58,7 +59,7 @@ void IKTransform3D::set_global_transform(const Transform3D &p_transform) {
 	if (parent) {
 		xform = parent->get_global_transform().affine_inverse() * p_transform;
 	}
-
+	xform.orthogonalize();
 	set_transform(xform);
 }
 
