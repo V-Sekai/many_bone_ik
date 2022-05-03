@@ -41,8 +41,8 @@ class IKEffectorTemplate : public Resource {
 
 public:
 	NodePath target_node;
-	float depth_falloff = 1.0f;
-	bool use_target_node_rotation = false;
+	float depth_falloff = 0.0f;
+	bool use_target_node_rotation = true;
 	IKEffectorTemplate() {
 	}
 };
@@ -114,7 +114,7 @@ private:
 	Vector<PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	int32_t ik_iterations = 2;
-	float default_damp = Math::deg2rad(1.f);
+	float default_damp = Math::deg2rad(0.1f);
 
 	void update_effectors_map();
 	void update_shadow_bones_transform();
