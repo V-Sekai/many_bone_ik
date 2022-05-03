@@ -105,7 +105,6 @@ private:
 	PackedStringArray constraint_names;
 	int32_t pin_count = 0;
 	Vector<Ref<IKEffectorTemplate>> pins;
-	HashMap<BoneId, Ref<IKBone3D>> effectors_map;
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool debug_skeleton = false;
