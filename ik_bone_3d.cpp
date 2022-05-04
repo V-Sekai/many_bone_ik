@@ -78,8 +78,7 @@ Transform3D IKBone3D::get_global_pose() const {
 
 void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
-	xform = p_skeleton->global_pose_to_local_pose(bone_id, xform);
-	set_pose(xform);
+	set_global_pose(xform);
 }
 
 void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {

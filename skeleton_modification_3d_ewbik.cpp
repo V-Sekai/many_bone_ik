@@ -239,7 +239,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 }
 
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
-	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
+	for (int32_t bone_i = bone_list.size(); bone_i --> 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {
 			continue;
@@ -252,7 +252,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 }
 
 void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blending_delta) {
-	for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
+	for (int32_t bone_i = bone_list.size(); bone_i --> 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {
 			continue;
