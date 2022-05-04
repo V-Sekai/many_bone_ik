@@ -159,24 +159,23 @@ void IKManipulator3D::update_effector_target_headings(PackedVector3Array *p_head
 void IKManipulator3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone) const {
 	ERR_FAIL_NULL(p_headings);
 	Transform3D tip_xform = for_bone->get_global_pose();
-	Vector3 tip_scale = for_bone->get_global_pose().basis.get_scale();
-	Basis tip_basis = tip_xform.basis.orthonormalized();
+	Basis tip_basis = tip_xform.basis;
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 	p_headings->write[p_index] = tip_xform.origin - bone_origin;
 	p_index++;
 	{
-		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_X) + tip_xform.origin) * tip_scale - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_X)) * tip_scale - bone_origin;
+		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_X) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_Y) + tip_xform.origin) * tip_scale - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Y)) * tip_scale - bone_origin;
+		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_Y) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Y)) - bone_origin;
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_Z) + tip_xform.origin) * tip_scale - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Z)) * tip_scale - bone_origin;
+		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_Z) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Z)) - bone_origin;
 		p_index += 2;
 	}
 }
