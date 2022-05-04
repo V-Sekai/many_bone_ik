@@ -90,37 +90,39 @@ void IKBoneChain::generate_default_segments_from_root() {
 	set_bone_list(bones, false);
 }
 
-void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>>& r_list, bool p_recursive, bool p_debug_skeleton) const {
+void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
 	if (p_recursive) {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
-			child_chains[child_i]->set_bone_list(r_list, p_recursive, p_debug_skeleton);
+			child_chains[child_i]->set_bone_list(p_list, p_recursive, p_debug_skeleton);
 		}
 	}
 	Ref<IKBone3D> current_bone = tip;
+	Vector<Ref<IKBone3D>> list;
 	while (current_bone.is_valid()) {
-		r_list.push_back(current_bone);
+		list.push_back(current_bone);
 		if (current_bone == root) {
 			break;
 		}
 		current_bone = current_bone->get_parent();
 	}
 	if (p_debug_skeleton) {
-		for (int32_t name_i = 0; name_i < r_list.size(); name_i++) {
-			BoneId bone = r_list[name_i]->get_bone_id();
+		for (int32_t name_i = 0; name_i < list.size(); name_i++) {
+			BoneId bone = list[name_i]->get_bone_id();
 			String bone_name = skeleton->get_bone_name(bone);
 			String effector;
-			if (r_list[name_i]->is_pin()) {
+			if (list[name_i]->is_pin()) {
 				effector += "Effector ";
 			}
 			String prefix;
-			if (r_list[name_i] == root) {
+			if (list[name_i] == root) {
 				prefix += "(" + effector + "Root) ";
-			} else if (r_list[name_i] == tip) {
+			} else if (list[name_i] == tip) {
 				prefix += "(" + effector + "Tip) ";
 			}
 			print_line(prefix + bone_name);
 		}
 	}
+	p_list.append_array(list);
 }
 
 void IKBoneChain::update_pinned_list() {
