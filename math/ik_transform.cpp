@@ -58,7 +58,9 @@ void IKTransform3D::set_global_transform(const Transform3D &p_transform) {
 	if (parent) {
 		xform = parent->get_global_transform().affine_inverse() * p_transform;
 	}
-	set_transform(xform);
+	local_transform = xform;
+	dirty |= DIRTY_VECTORS;
+	_propagate_transform_changed();
 }
 
 Transform3D IKTransform3D::get_transform() const {
