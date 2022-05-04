@@ -253,9 +253,6 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	return best_root_mean_square_deviation;
 }
 
-void IKBoneChain::create_headings() {
-}
-
 PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights) {
 	PackedVector3Array htarget = target_headings;
 	p_weights = &heading_weights;

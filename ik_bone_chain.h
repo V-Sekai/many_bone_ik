@@ -54,7 +54,6 @@ private:
 	QCP qcp;
 
 	BoneId find_root_bone_id(BoneId p_bone);
-	void create_headings();
 	PackedVector3Array update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights);
 	PackedVector3Array update_tip_headings(Ref<IKBone3D> p_for_bone);
 	double set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array * r_htip, PackedVector3Array * r_htarget, Vector<real_t>* r_weights, float p_dampening = -1, bool p_translate = false);
