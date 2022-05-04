@@ -75,7 +75,6 @@ void IKManipulator3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 	if (!use_target_node_rotation) {
 		target_global_pose.basis = for_bone->get_global_pose().basis;
 	}
-	target_global_pose.orthogonalize();
 }
 
 Transform3D IKManipulator3D::get_goal_global_pose() const {
