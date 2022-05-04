@@ -274,13 +274,12 @@ Quaternion QCP::calc_rotation(double p_eigenv) const {
 		}
 	}
 
-	//prenormalize the result to avoid floating point errors.
+	// Prenormalize the result to avoid floating point errors.
 	float min = q1;
 	min = q2 < min ? q2 : min;
 	min = q3 < min ? q3 : min;
 	min = q4 < min ? q4 : min;
-
-	return Quaternion(q2, q3, q4, q1).normalized();
+	return Quaternion(q2/min, q3/min, q4/min, q1/min).normalized();
 }
 
 void QCP::translate(const Vector3 p_translate, PackedVector3Array &r_source) {
