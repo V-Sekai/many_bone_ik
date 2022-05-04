@@ -60,9 +60,9 @@ void IKManipulator3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 	if (target_node == NodePath()) {
 		target_global_pose = for_bone->get_global_pose();
 		if (!use_target_node_rotation) {
-			target_global_pose.basis = Basis();
+			Vector3 scale = target_global_pose.basis.get_scale();
+			target_global_pose.basis = Basis().scaled(scale);
 		}
-		target_global_pose.orthogonalize();
 		return;
 	}
 	if (!target_node_reference && target_node != NodePath()) {
@@ -73,7 +73,8 @@ void IKManipulator3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 	Transform3D node_xform = target_node->get_global_transform();
 	target_global_pose = p_skeleton->world_transform_to_global_pose(node_xform);
 	if (!use_target_node_rotation) {
-		target_global_pose.basis = Basis();
+		Vector3 scale = target_global_pose.basis.get_scale();
+		target_global_pose.basis = Basis().scaled(scale);
 	}
 }
 
