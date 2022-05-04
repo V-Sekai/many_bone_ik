@@ -139,7 +139,7 @@ void IKBoneChain::update_pinned_list() {
 			effector_list.append_array(child->effector_list);
 		}
 	}
-	for (Ref<IKManipulator3D> effector : effector_list) {
+	for (Ref<IKEffector3D> effector : effector_list) {
 		// TODO: 2021-05-02 fire Implement proper weights
 		heading_weights.push_back(1.0f);
 		{
@@ -254,7 +254,7 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 void IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_target_headings) {
 	int32_t index = 0; // Index is increased by effector->update_effector_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
-		Ref<IKManipulator3D> effector = effector_list[effector_i];
+		Ref<IKEffector3D> effector = effector_list[effector_i];
 		effector->update_effector_target_headings(r_target_headings, index, p_for_bone, r_weights);
 	}
 }
@@ -262,7 +262,7 @@ void IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t
 void IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip) {
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
-		Ref<IKManipulator3D> effector = effector_list[effector_i];
+		Ref<IKEffector3D> effector = effector_list[effector_i];
 		effector->update_effector_tip_headings(r_heading_tip, index, p_for_bone);
 	}
 }

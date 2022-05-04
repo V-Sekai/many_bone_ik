@@ -278,7 +278,7 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 				continue;
 			}
 			ik_bone_3d->create_pin();
-			Ref<IKManipulator3D> effector_3d = ik_bone_3d->get_pin();
+			Ref<IKEffector3D> effector_3d = ik_bone_3d->get_pin();
 			effector_3d->set_target_node(skeleton, data->target_node);
 			effector_3d->update_target_cache(skeleton);
 			effector_3d->set_depth_falloff(depth_falloff);

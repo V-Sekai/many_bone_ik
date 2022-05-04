@@ -31,32 +31,32 @@
 #include "ik_pin_3d.h"
 #include "math/ik_transform.h"
 
-void IKManipulator3D::set_target_node(Node *p_skeleton, const NodePath &p_target_node_path) {
+void IKEffector3D::set_target_node(Node *p_skeleton, const NodePath &p_target_node_path) {
 	target_node = p_target_node_path;
 	update_target_cache(p_skeleton);
 }
 
-NodePath IKManipulator3D::get_target_node() const {
+NodePath IKEffector3D::get_target_node() const {
 	return target_node;
 }
 
-void IKManipulator3D::set_use_target_node_rotation(bool p_use) {
+void IKEffector3D::set_use_target_node_rotation(bool p_use) {
 	use_target_node_rotation = p_use;
 }
 
-bool IKManipulator3D::get_use_target_node_rotation() const {
+bool IKEffector3D::get_use_target_node_rotation() const {
 	return use_target_node_rotation;
 }
 
-Ref<IKBone3D> IKManipulator3D::get_shadow_bone() const {
+Ref<IKBone3D> IKEffector3D::get_shadow_bone() const {
 	return for_bone;
 }
 
-bool IKManipulator3D::is_following_translation_only() const {
+bool IKEffector3D::is_following_translation_only() const {
 	return false;
 }
 
-void IKManipulator3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
+void IKEffector3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 	if (target_node == NodePath()) {
 		target_global_pose = for_bone->get_global_pose();
 		if (!use_target_node_rotation) {
@@ -78,11 +78,11 @@ void IKManipulator3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 	}
 }
 
-Transform3D IKManipulator3D::get_goal_global_pose() const {
+Transform3D IKEffector3D::get_goal_global_pose() const {
 	return target_global_pose;
 }
 
-void IKManipulator3D::create_headings(Vector<real_t> &p_weights) {
+void IKEffector3D::create_headings(Vector<real_t> &p_weights) {
 	int32_t nw = p_weights.size();
 	int32_t nheadings = nw + num_headings;
 	heading_weights.resize(nheadings);
@@ -116,7 +116,7 @@ void IKManipulator3D::create_headings(Vector<real_t> &p_weights) {
 	}
 }
 
-void IKManipulator3D::update_effector_target_headings(PackedVector3Array *p_headings,
+void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_headings,
 		int32_t &p_index, Ref<IKBone3D> p_for_bone, Vector<real_t> *p_weights) const {
 	ERR_FAIL_NULL(p_headings);
 
@@ -158,7 +158,7 @@ void IKManipulator3D::update_effector_target_headings(PackedVector3Array *p_head
 	}
 }
 
-void IKManipulator3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone) const {
+void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone) const {
 	ERR_FAIL_NULL(p_headings);
 	Transform3D tip_xform = for_bone->get_global_pose();
 	Basis tip_basis = tip_xform.basis;
@@ -182,24 +182,24 @@ void IKManipulator3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	}
 }
 
-void IKManipulator3D::_bind_methods() {
+void IKEffector3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_target_node", "skeleton", "node"),
-			&IKManipulator3D::set_target_node);
+			&IKEffector3D::set_target_node);
 	ClassDB::bind_method(D_METHOD("get_target_node"),
-			&IKManipulator3D::get_target_node);
+			&IKEffector3D::get_target_node);
 	ClassDB::bind_method(D_METHOD("set_depth_falloff", "amount"),
-			&IKManipulator3D::set_depth_falloff);
+			&IKEffector3D::set_depth_falloff);
 	ClassDB::bind_method(D_METHOD("get_depth_falloff"),
-			&IKManipulator3D::get_depth_falloff);
+			&IKEffector3D::get_depth_falloff);
 
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
 }
 
-IKManipulator3D::IKManipulator3D(const Ref<IKBone3D> &p_current_bone) {
+IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_current_bone) {
 	for_bone = p_current_bone;
 }
 
-void IKManipulator3D::update_target_cache(Node *p_skeleton) {
+void IKEffector3D::update_target_cache(Node *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
 	if (!p_skeleton->is_inside_tree()) {
 		return;
@@ -216,10 +216,10 @@ void IKManipulator3D::update_target_cache(Node *p_skeleton) {
 	target_node_cache = node->get_instance_id();
 }
 
-void IKManipulator3D::set_depth_falloff(float p_depth_falloff) {
+void IKEffector3D::set_depth_falloff(float p_depth_falloff) {
 	depth_falloff = p_depth_falloff;
 }
 
-float IKManipulator3D::get_depth_falloff() const {
+float IKEffector3D::get_depth_falloff() const {
 	return depth_falloff;
 }

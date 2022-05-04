@@ -38,8 +38,8 @@
 
 class IKBone3D;
 
-class IKManipulator3D : public Resource {
-	GDCLASS(IKManipulator3D, Resource);
+class IKEffector3D : public Resource {
+	GDCLASS(IKEffector3D, Resource);
 	friend class IKBone3D;
 	friend class IKBoneChain;
 
@@ -79,9 +79,9 @@ public:
 	bool is_following_translation_only() const;
 	void update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone, Vector<real_t> *p_weights) const;
 	void update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone) const;
-	IKManipulator3D(const Ref<IKBone3D> &p_current_bone);
-	IKManipulator3D() {}
-	~IKManipulator3D() {}
+	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
+	IKEffector3D() {}
+	~IKEffector3D() {}
 };
 
 #endif // ik_effector_3d_H
