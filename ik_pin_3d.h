@@ -61,7 +61,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	void create_headings(const Vector<real_t> &p_weights);
+	void create_headings(Vector<real_t> &p_weights);
 
 public:
 	void update_goal_global_pose(Skeleton3D *p_skeleton);

@@ -141,21 +141,19 @@ void IKBoneChain::update_pinned_list() {
 	}
 	for (Ref<IKManipulator3D> effector : effector_list) {
 		// TODO: 2021-05-02 fire Implement proper weights
-		Vector<real_t> weights;
-		weights.push_back(1.0f);
+		heading_weights.push_back(1.0f);
 		{
-			weights.push_back(1.0f);
-			weights.push_back(1.0f);
+			heading_weights.push_back(1.0f);
+			heading_weights.push_back(1.0f);
 		}
 		{
-			weights.push_back(1.0f);
-			weights.push_back(1.0f);
+			heading_weights.push_back(1.0f);
+			heading_weights.push_back(1.0f);
 		}
 		{
-			weights.push_back(1.0f);
-			weights.push_back(1.0f);
+			heading_weights.push_back(1.0f);
+			heading_weights.push_back(1.0f);
 		}
-		heading_weights.append_array(weights);
 		effector->create_headings(heading_weights);
 	}
 	int32_t n = heading_weights.size();
@@ -164,15 +162,14 @@ void IKBoneChain::update_pinned_list() {
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
-	Vector<real_t> *weights = nullptr;
-	PackedVector3Array heading_target = update_target_headings(p_for_bone, weights);
-	PackedVector3Array heading_tip = update_tip_headings(p_for_bone);
+	update_target_headings(p_for_bone, &heading_weights, &target_headings);
+	update_tip_headings(p_for_bone, &tip_headings);
 
 	if (p_translate == true) {
 		p_damp = Math_PI;
 	}
 
-	set_optimal_rotation(p_for_bone, &heading_tip, &heading_target, weights, p_damp, p_translate);
+	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate);
 }
 
 Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
@@ -245,33 +242,28 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 			break;
 		}
 		best_root_mean_square_deviation = new_root_mean_square_deviation;
-		*r_htarget = update_target_headings(p_for_bone, r_weights);
-		*r_htip = update_tip_headings(p_for_bone);
+		update_target_headings(p_for_bone, r_weights, r_htarget);
+		update_tip_headings(p_for_bone, r_htip);
 		best_root_mean_square_deviation = get_manual_msd(*r_htip, *r_htarget, *r_weights);
 	}
 	p_for_bone->set_global_pose(p_for_bone->get_global_pose() * Transform3D(rot, translation));
 	return best_root_mean_square_deviation;
 }
 
-PackedVector3Array IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *&p_weights) {
-	PackedVector3Array htarget = target_headings;
-	p_weights = &heading_weights;
+void IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_target_headings) {
 	int32_t index = 0; // Index is increased by effector->update_effector_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKManipulator3D> effector = effector_list[effector_i];
-		effector->update_effector_target_headings(&htarget, index, p_for_bone, p_weights);
+		effector->update_effector_target_headings(r_target_headings, index, p_for_bone, r_weights);
 	}
-	return htarget;
 }
 
-PackedVector3Array IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone) {
-	PackedVector3Array heading_tip = tip_headings;
+void IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip) {
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKManipulator3D> effector = effector_list[effector_i];
-		effector->update_effector_tip_headings(&heading_tip, index, p_for_bone);
+		effector->update_effector_tip_headings(r_heading_tip, index, p_for_bone);
 	}
-	return heading_tip;
 }
 
 void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {

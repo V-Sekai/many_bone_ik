@@ -82,7 +82,7 @@ Transform3D IKManipulator3D::get_goal_global_pose() const {
 	return target_global_pose;
 }
 
-void IKManipulator3D::create_headings(const Vector<real_t> &p_weights) {
+void IKManipulator3D::create_headings(Vector<real_t> &p_weights) {
 	int32_t nw = p_weights.size();
 	int32_t nheadings = nw + num_headings;
 	heading_weights.resize(nheadings);
