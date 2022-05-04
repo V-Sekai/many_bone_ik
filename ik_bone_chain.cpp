@@ -247,7 +247,7 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		update_tip_headings(p_for_bone, r_htip);
 		best_root_mean_square_deviation = get_manual_msd(*r_htip, *r_htarget, *r_weights);
 	}
-	p_for_bone->set_global_pose(p_for_bone->get_global_pose() * Transform3D(rot, translation));
+	p_for_bone->set_pose(p_for_bone->get_pose() * Transform3D(rot, translation));
 	return best_root_mean_square_deviation;
 }
 
