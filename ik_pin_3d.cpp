@@ -131,27 +131,27 @@ void IKManipulator3D::update_effector_target_headings(PackedVector3Array *p_head
 	{
 		real_t w = p_weights->write[p_index];
 		w = MAX(w, 1.0f);
-		p_headings->write[p_index] = (target_global_pose.basis.get_axis(Vector3::AXIS_X) + target_global_pose.origin) - bone_origin;
+		p_headings->write[p_index] = (target_global_pose.basis.get_column(Vector3::AXIS_X) + target_global_pose.origin) - bone_origin;
 		p_headings->write[p_index] *= Vector3(w, w, w);
-		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
+		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_X)) - bone_origin;
 		p_headings->write[p_index + 1] *= Vector3(w, w, w);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
 		w = MAX(w, 1.0f);
-		p_headings->write[p_index] = (target_global_pose.basis.get_axis(Vector3::AXIS_Y) + target_global_pose.origin) - bone_origin;
+		p_headings->write[p_index] = (target_global_pose.basis.get_column(Vector3::AXIS_Y) + target_global_pose.origin) - bone_origin;
 		p_headings->write[p_index] *= Vector3(w, w, w);
-		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_axis(Vector3::AXIS_Y)) - bone_origin;
+		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_Y)) - bone_origin;
 		p_headings->write[p_index + 1] *= Vector3(w, w, w);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
 		w = MAX(w, 1.0f);
-		p_headings->write[p_index] = (target_global_pose.basis.get_axis(Vector3::AXIS_Z) + target_global_pose.origin) - bone_origin;
+		p_headings->write[p_index] = (target_global_pose.basis.get_column(Vector3::AXIS_Z) + target_global_pose.origin) - bone_origin;
 		p_headings->write[p_index] *= Vector3(w, w, w);
-		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_axis(Vector3::AXIS_Z)) - bone_origin;
+		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_Z)) - bone_origin;
 		p_headings->write[p_index + 1] *= Vector3(w, w, w);
 		p_index += 2;
 	}
@@ -165,18 +165,18 @@ void IKManipulator3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	p_headings->write[p_index] = tip_xform.origin - bone_origin;
 	p_index++;
 	{
-		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_X) + tip_xform.origin) - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_X)) - bone_origin;
+		p_headings->write[p_index] = (tip_basis.get_column(Vector3::AXIS_X) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_column(Vector3::AXIS_X)) - bone_origin;
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_Y) + tip_xform.origin) - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Y)) - bone_origin;
+		p_headings->write[p_index] = (tip_basis.get_column(Vector3::AXIS_Y) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_column(Vector3::AXIS_Y)) - bone_origin;
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = (tip_basis.get_axis(Vector3::AXIS_Z) + tip_xform.origin) - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_axis(Vector3::AXIS_Z)) - bone_origin;
+		p_headings->write[p_index] = (tip_basis.get_column(Vector3::AXIS_Z) + tip_xform.origin) - bone_origin;
+		p_headings->write[p_index + 1] = (tip_xform.origin - tip_xform.basis.get_column(Vector3::AXIS_Z)) - bone_origin;
 		p_index += 2;
 	}
 }
