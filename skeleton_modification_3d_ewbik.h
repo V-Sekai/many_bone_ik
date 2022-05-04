@@ -113,7 +113,7 @@ private:
 	Vector<PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	int32_t ik_iterations = 20;
-	float default_damp = Math::deg2rad(5.0f);
+	float default_damp = Math::deg2rad(0.1f);
 
 	void update_effectors_map();
 	void update_shadow_bones_transform();
