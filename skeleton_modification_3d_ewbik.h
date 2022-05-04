@@ -112,8 +112,8 @@ private:
 	PackedFloat32Array kusudana_twist;
 	Vector<PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
-	int32_t ik_iterations = 25;
-	float default_damp = Math::deg2rad(0.04f);
+	int32_t ik_iterations = 10;
+	float default_damp = Math::deg2rad(0.1f);
 
 	void update_effectors_map();
 	void update_shadow_bones_transform();
