@@ -40,8 +40,8 @@ void QCP::setMaxIterations(int max) {
 }
 
 void QCP::set(PackedVector3Array &p_target, PackedVector3Array &p_moved) {
-    target = p_target;
-    moved = p_moved;
+	target = p_target;
+	moved = p_moved;
 	rmsdCalculated = false;
 	transformationCalculated = false;
 	innerProductCalculated = false;
@@ -112,10 +112,28 @@ Quaternion QCP::calcRotation() {
 	// QCP doesn't handle single targets, so if we only have one point and one
 	// target, we just rotate by the angular distance between them
 	if (moved.size() == 1) {
-        // TODO: fire 2022-05-05 fix.
-		Basis moved_rot;
-		Basis target_rot;
-		return (moved_rot.from_euler(moved[0]).orthonormalized() * target_rot.from_euler(target[0]).orthonormalized()).get_rotation_quaternion();
+		Vector3 u = moved[0];
+		Vector3 v = target[0];
+		double normProduct = u.length() * v.length();
+		if (normProduct == 0.0) {
+			return Quaternion();
+		}
+		double dot = u.dot(v);
+		if (dot < ((2.0e-15 - 1.0) * normProduct)) {
+			// special case 		u = -v : we select a PI angle rotation around
+			// an arbitrary vector orthogonal to u
+			Vector3 w = u.normalized();
+			return Quaternion(-w.x, -w.y, -w.z, 0.0f);
+		}
+		// general case: (u, v) defines a plane, we select
+		// the shortest possible rotation: axis orthogonal to this plane
+		double q0 = Math::sqrt(0.5 * (1.0 + dot / normProduct));
+		double coeff = 1.0 / (2.0 * q0 * normProduct);
+		Vector3 q = v.cross(u);
+		double q1 = coeff * q.x;
+		double q2 = coeff * q.y;
+		double q3 = coeff * q.z;
+		return Quaternion(q1, q2, q3, q0);
 	} else {
 		double a11 = SxxpSyy + Szz - mxEigenV;
 		double a12 = SyzmSzy;
