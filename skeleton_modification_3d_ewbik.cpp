@@ -221,7 +221,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			if (ik_bone_3d->get_bone_id() != bone_id) {
 				continue;
 			}
-			Node *node = skeleton->get_node(get_pin_target_nodepath(effector_i));
+			Node *node = skeleton->get_node(data->target_node);
 			if (!node) {
 				continue;
 			}
@@ -287,7 +287,6 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 			ik_bone_3d->create_pin();
 			Ref<IKEffector3D> effector_3d = ik_bone_3d->get_pin();
 			effector_3d->set_target_node(skeleton, data->target_node);
-			effector_3d->update_target_cache(skeleton);
 			effector_3d->set_depth_falloff(depth_falloff);
 		}
 	}
