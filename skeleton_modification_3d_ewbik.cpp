@@ -102,8 +102,7 @@ void SkeletonModification3DEWBIK::set_pin_bone(int32_t p_pin_index, const String
 void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_target_node) {
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	ERR_FAIL_NULL(data);
-	String current_target_node = p_target_node;
-	data->target_node = current_target_node.simplify_path();
+	data->target_node = p_target_node;
 	is_dirty = true;
 	notify_property_list_changed();
 }
