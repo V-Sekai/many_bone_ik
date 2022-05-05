@@ -70,7 +70,6 @@ public:
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
 	String get_pin_bone_name(int32_t p_effector_index) const;
 	void set_pin_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
-	void update_pin_target_nodepath(int32_t p_pin_index, Node *p_node);
 	NodePath get_pin_target_nodepath(int32_t p_pin_index);
 	void set_pin_depth_falloff(int32_t p_effector_index, const float p_depth_falloff);
 	float get_pin_depth_falloff(int32_t p_effector_index) const;

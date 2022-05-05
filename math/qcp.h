@@ -113,15 +113,12 @@ class QCP {
 	 * @author Eron Gjoni (adopted to EWB IK)
 	 */
 
-private:
 	double evec_prec = static_cast<double>(1E-6);
 	double eval_prec = static_cast<double>(1E-11);
 	int max_iterations = 5;
 
-public:
 	PackedVector3Array target;
 
-private:
 	PackedVector3Array moved;
 
 	Vector<real_t> weight;

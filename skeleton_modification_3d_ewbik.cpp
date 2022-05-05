@@ -105,37 +105,6 @@ void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, c
 	data->target_node = p_target_node;
 	is_dirty = true;
 	notify_property_list_changed();
-	if (!skeleton) {
-		return;
-	}
-	Node *node = skeleton->get_node(p_target_node);
-	if (!node) {
-		return;
-	}
-	bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
-	if (!is_tree_entered_connected) {
-		node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node), CONNECT_REFERENCE_COUNTED);
-	}
-
-	bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
-	if (!is_tree_exited_connected) {
-		node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node), CONNECT_REFERENCE_COUNTED);
-	}
-	bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
-	if (!is_renamed_connected) {
-		node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node), CONNECT_REFERENCE_COUNTED);
-	}
-}
-
-void SkeletonModification3DEWBIK::update_pin_target_nodepath(int32_t p_pin_index, Node *p_node) {
-	if (!skeleton) {
-		return;
-	}
-	if (!p_node) {
-		return;
-	}
-	NodePath node_path = skeleton->get_path_to(p_node);
-	set_pin_target_nodepath(p_pin_index, node_path);
 }
 
 NodePath SkeletonModification3DEWBIK::get_pin_target_nodepath(int32_t p_pin_index) {
@@ -166,9 +135,17 @@ void SkeletonModification3DEWBIK::remove_pin(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, pins.size());
 	Node *node = skeleton->get_node(get_pin_target_nodepath(p_index));
 	if (node) {
-		bool is_connected = !node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
-		if (is_connected) {
-			node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
+		bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+		if (is_tree_exited_connected) {
+			node->disconnect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+		}
+		bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+		if (is_tree_entered_connected) {
+			node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+		}
+		bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+		if (is_renamed_connected) {
+			node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
 		}
 	}
 	pins.remove_at(p_index);
@@ -235,6 +212,36 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
 	update_effectors_map();
 	segmented_skeleton->update_pinned_list();
+
+	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
+		Ref<IKEffectorTemplate> data = pins.write[effector_i];
+		String bone = data->get_name();
+		BoneId bone_id = skeleton->find_bone(bone);
+		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+			if (ik_bone_3d->get_bone_id() != bone_id) {
+				continue;
+			}
+			Node *node = skeleton->get_node(get_pin_target_nodepath(effector_i));
+			if (!node) {
+				continue;
+			}
+			bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			if (is_tree_exited_connected) {
+				node->disconnect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			}
+			bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			if (is_tree_entered_connected) {
+				node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			}
+			bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			if (is_renamed_connected) {
+				node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			}
+			node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->target_node), CONNECT_REFERENCE_COUNTED);
+			node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->target_node), CONNECT_REFERENCE_COUNTED);
+			node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->target_node), CONNECT_REFERENCE_COUNTED);
+		}
+	}
 	is_dirty = false;
 }
 
