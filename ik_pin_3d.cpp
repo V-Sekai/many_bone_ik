@@ -32,7 +32,14 @@
 #include "math/ik_transform.h"
 
 void IKEffector3D::set_target_node(Node *p_skeleton, const NodePath &p_target_node_path) {
+	// Node *current_target_node = p_skeleton->get_node(p_target_node_path);
+	// ERR_FAIL_NULL(target_node);
+	// ERR_FAIL_COND(!target_node->is_visible_in_tree());
+	// ERR_FAIL_NULL(p_skeleton);
+	// ERR_FAIL_COND(!p_skeleton->is_visible_in_tree());
+	// ERR_FAIL_COND(!p_skeleton->is_ancestor_of(target_node));
 	target_node = p_target_node_path;
+	update_target_cache(p_skeleton);
 }
 
 NodePath IKEffector3D::get_target_node() const {
@@ -60,12 +67,11 @@ void IKEffector3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 	if (target_node == NodePath()) {
 		return;
 	}
-	Node3D *current_target_node = cast_to<Node3D>(p_skeleton->get_node(target_node));
-	if (!current_target_node) {
+	Node3D *target_node = Object::cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
+	if (!target_node) {
 		return;
 	}
-	// TODO fire 2022-05-04 cache.
-	target_global_pose = current_target_node->get_global_transform();
+	target_global_pose = target_node->get_global_transform();
 	target_global_pose = p_skeleton->world_transform_to_global_pose(target_global_pose);
 }
 
@@ -137,7 +143,7 @@ void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_heading
 		w = MAX(w, 1.0f);
 		p_headings->write[p_index] = (target_global_pose.basis.get_column(Vector3::AXIS_Y) + target_global_pose.origin) - bone_origin;
 		// 0.3 - 2.4 = 2.1
-		//
+		// 
 		p_headings->write[p_index] *= Vector3(w, w, w);
 		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_Y)) - bone_origin;
 		p_headings->write[p_index + 1] *= Vector3(w, w, w);
@@ -198,6 +204,23 @@ void IKEffector3D::_bind_methods() {
 
 IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_current_bone) {
 	for_bone = p_current_bone;
+}
+
+void IKEffector3D::update_target_cache(Node *p_skeleton) {
+	ERR_FAIL_NULL(p_skeleton);
+	if (!p_skeleton->is_inside_tree()) {
+		return;
+	}
+	if (!p_skeleton->has_node(target_node)) {
+		return;
+	}
+	target_node_cache = ObjectID();
+	Node *node = p_skeleton->get_node(target_node);
+	ERR_FAIL_COND_MSG(!node || p_skeleton == node,
+			"Cannot update target cache: node is this modification's skeleton or cannot be found!");
+	ERR_FAIL_COND_MSG(!node->is_inside_tree(),
+			"Cannot update target cache: node is not in scene tree!");
+	target_node_cache = node->get_instance_id();
 }
 
 void IKEffector3D::set_depth_falloff(float p_depth_falloff) {

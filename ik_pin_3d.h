@@ -68,6 +68,7 @@ public:
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
+	void update_target_cache(Node *p_skeleton);
 	void set_target_node(Node *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
 	Transform3D get_goal_global_pose() const;
