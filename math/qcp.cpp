@@ -222,7 +222,7 @@ Quaternion QCP::calcRotation() {
 		real_t norm = Math::sqrt(q1_m * q1_m + q2_m * q2_m + q3_m * q3_m + q4_m * q4_m);
 		Vector3 axis = getAxis(q2_m / norm, q3_m / norm, q4_m / norm, q1_m / norm);
 		real_t angle = getAngle(q2_m / norm, q3_m / norm, q4_m / norm, q1_m / norm);
-		return Quaternion(axis, angle);
+		return Quaternion(axis, angle).normalized();
 	}
 }
 

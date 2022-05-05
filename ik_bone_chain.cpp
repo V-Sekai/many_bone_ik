@@ -231,16 +231,16 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	// } else {
 	// 	rot = clamp_to_quadrance_angle(rot, bone_damp);
 	// }
-	Transform3D xform;
-	IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
-	if (parent_transform_ik) {
-		Basis parent_basis = parent_transform_ik->get_global_transform().basis.inverse();
-		Basis current_basis = p_for_bone->get_ik_transform().get_global_transform().basis;
-		xform.basis = parent_basis  * current_basis * rot;
-	} else {
-		xform.basis = rot;
-	}
-	p_for_bone->set_global_pose(p_for_bone->get_global_pose() * xform);
+	// Transform3D xform;
+	// IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
+	// if (parent_transform_ik) {
+	// 	Basis parent_basis = parent_transform_ik->get_global_transform().basis.inverse();
+	// 	Basis current_basis = p_for_bone->get_ik_transform().get_global_transform().basis;
+	// 	xform.basis = parent_basis  * rot * current_basis;
+	// } else {
+	// 	xform.basis = rot;
+	// }
+	p_for_bone->set_pose(p_for_bone->get_pose() * Transform3D(rot, translation));
 	return 0.0f;
 }
 
