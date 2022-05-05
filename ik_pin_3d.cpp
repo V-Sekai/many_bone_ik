@@ -115,35 +115,32 @@ void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_heading
 
 	// Vector3(0.f, 0.f, 0.f) is the current bone's origin.
 
-	p_headings->write[p_index] = target_global_pose.origin - bone_origin;
+	p_headings->write[p_index] = bone_origin - target_global_pose.origin;
 	p_index++;
 	{
 		real_t w = p_weights->write[p_index];
 		w = MAX(w, 1.0f);
-		p_headings->write[p_index] = (target_global_pose.basis.get_column(Vector3::AXIS_X) + target_global_pose.origin) - bone_origin;
-
+		p_headings->write[p_index] = bone_origin - (target_global_pose.basis.get_column(Vector3::AXIS_X) + target_global_pose.origin);
 		p_headings->write[p_index] *= Vector3(w, w, w);
-		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_X)) - bone_origin;
+		p_headings->write[p_index + 1] = bone_origin - (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_X));
 		p_headings->write[p_index + 1] *= Vector3(w, w, w);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
 		w = MAX(w, 1.0f);
-		p_headings->write[p_index] = (target_global_pose.basis.get_column(Vector3::AXIS_Y) + target_global_pose.origin) - bone_origin;
-		// 0.3 - 2.4 = 2.1
-		//
+		p_headings->write[p_index] = bone_origin - (target_global_pose.basis.get_column(Vector3::AXIS_Y) + target_global_pose.origin);
 		p_headings->write[p_index] *= Vector3(w, w, w);
-		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_Y)) - bone_origin;
+		p_headings->write[p_index + 1] = bone_origin - (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_Y));
 		p_headings->write[p_index + 1] *= Vector3(w, w, w);
 		p_index += 2;
 	}
 	{
 		real_t w = p_weights->write[p_index];
 		w = MAX(w, 1.0f);
-		p_headings->write[p_index] = (target_global_pose.basis.get_column(Vector3::AXIS_Z) + target_global_pose.origin) - bone_origin;
+		p_headings->write[p_index] = bone_origin - (target_global_pose.basis.get_column(Vector3::AXIS_Z) + target_global_pose.origin);
 		p_headings->write[p_index] *= Vector3(w, w, w);
-		p_headings->write[p_index + 1] = (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_Z)) - bone_origin;
+		p_headings->write[p_index + 1] = bone_origin - (target_global_pose.origin - target_global_pose.basis.get_column(Vector3::AXIS_Z));
 		p_headings->write[p_index + 1] *= Vector3(w, w, w);
 		p_index += 2;
 	}
@@ -154,7 +151,7 @@ void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, 
 	Transform3D tip_xform = for_bone->get_global_pose();
 	Basis tip_basis = tip_xform.basis;
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
-	p_headings->write[p_index] = tip_xform.origin - bone_origin;
+	p_headings->write[p_index] = bone_origin - tip_xform.origin;
 	// Multiply the target basis vectors by the distance to the current bone origin before adding them to the target origin.
 	// The scaling amount we use is linear with distance and seems to work pretty well.
 	// Haven't considered what would be the most mathematically rigorous scaling function.
@@ -163,18 +160,18 @@ void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, 
 	// Vector3(0.f, 0.f, 0.f) is the current bone's origin.
 	p_index++;
 	{
-		p_headings->write[p_index] = ((tip_basis.get_column(Vector3::AXIS_X) * scale_by) + tip_xform.origin) - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_X) * scale_by)) - bone_origin;
+		p_headings->write[p_index] = bone_origin - ((tip_basis.get_column(Vector3::AXIS_X) * scale_by) + tip_xform.origin);
+		p_headings->write[p_index + 1] = bone_origin - (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_X) * scale_by));
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = ((tip_basis.get_column(Vector3::AXIS_Y) * scale_by) + tip_xform.origin) - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_Y) * scale_by)) - bone_origin;
+		p_headings->write[p_index] = bone_origin - ((tip_basis.get_column(Vector3::AXIS_Y) * scale_by) + tip_xform.origin);
+		p_headings->write[p_index + 1] = bone_origin - (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_Y) * scale_by));
 		p_index += 2;
 	}
 	{
-		p_headings->write[p_index] = ((tip_basis.get_column(Vector3::AXIS_Z) * scale_by) + tip_xform.origin) - bone_origin;
-		p_headings->write[p_index + 1] = (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_Z) * scale_by)) - bone_origin;
+		p_headings->write[p_index] = bone_origin - ((tip_basis.get_column(Vector3::AXIS_Z) * scale_by) + tip_xform.origin);
+		p_headings->write[p_index + 1] = bone_origin - (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_Z) * scale_by));
 		p_index += 2;
 	}
 }
