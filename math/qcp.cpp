@@ -213,7 +213,7 @@ Quaternion QCP::calcRotation() {
 	}
 }
 
-double QCP::getRmsd(PackedVector3Array &fixed, PackedVector3Array &moved) {
+double QCP::getRmsd(PackedVector3Array &moved, PackedVector3Array &fixed) {
 	set(moved, fixed);
 	return getRmsd();
 }
@@ -241,7 +241,7 @@ Vector3 QCP::moveToWeightedCenter(PackedVector3Array &toCenter, Vector<real_t> &
 	return center;
 }
 
-void QCP::innerProduct(PackedVector3Array &coords2, PackedVector3Array &coords1) {
+void QCP::innerProduct(PackedVector3Array &coords1, PackedVector3Array &coords2) {
 	double x1, x2, y1, y2, z1, z2;
 	double g1 = 0, g2 = 0;
 

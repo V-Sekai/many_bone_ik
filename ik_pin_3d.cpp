@@ -158,20 +158,24 @@ void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, 
 	// Probably something like d / (4 pi r^2).
 	double scale_by = MAX(1.0f, target_global_pose.origin.distance_to(bone_origin));
 	// The global transform becomes global pose becomes current bone space.
-
+	// In orientation of the skeleton global pose
+	// The translation is in skeleton tip global pose - current bone global pose -
 	// Vector3(0.f, 0.f, 0.f) is the current bone's origin.
 	p_index++;
 	{
+		float distance = tip_basis.xform(Vector3(1.0f, 0.0f, 0.0f)).distance_to(tip_basis.get_column(Vector3::AXIS_X));
 		p_headings->write[p_index] = ((tip_basis.get_column(Vector3::AXIS_X) * scale_by) + tip_xform.origin) - bone_origin;
 		p_headings->write[p_index + 1] = (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_X) * scale_by)) - bone_origin;
 		p_index += 2;
 	}
 	{
+		float distance = tip_basis.xform(Vector3(0.0f, 1.0f, 0.0f)).distance_to(tip_basis.get_column(Vector3::AXIS_Y));
 		p_headings->write[p_index] = ((tip_basis.get_column(Vector3::AXIS_Y) * scale_by) + tip_xform.origin) - bone_origin;
 		p_headings->write[p_index + 1] = (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_Y) * scale_by)) - bone_origin;
 		p_index += 2;
 	}
 	{
+		float distance = tip_basis.xform(Vector3(0.0f, 0.0f, 1.0f)).distance_to(tip_basis.get_column(Vector3::AXIS_Z));
 		p_headings->write[p_index] = ((tip_basis.get_column(Vector3::AXIS_Z) * scale_by) + tip_xform.origin) - bone_origin;
 		p_headings->write[p_index + 1] = (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_Z) * scale_by)) - bone_origin;
 		p_index += 2;
