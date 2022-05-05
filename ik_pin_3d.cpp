@@ -113,11 +113,6 @@ void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_heading
 
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 
-	// Multiply the target basis vectors by the distance to the current bone origin before adding them to the target origin.
-	// The scaling amount we use is linear with distance and seems to work pretty well.
-	// Haven't considered what would be the most mathematically rigorous scaling function.
-	// Probably something like d / (4 pi r^2).
-
 	// Vector3(0.f, 0.f, 0.f) is the current bone's origin.
 
 	p_headings->write[p_index] = target_global_pose.origin - bone_origin;
@@ -155,14 +150,15 @@ void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_heading
 }
 
 void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone) const {
-	// AbstractAxes targetAxes = pin.forBone.getPinnedAxes();
-	//         targetAxes.updateGlobal();            localizedTipHeadings[hdx].set(tipAxes.origin_()).sub(origin);
-	//         double scaleBy  = Math.max(1d, thisBoneAxes.origin_().dist(targetAxes.origin_()));
 	ERR_FAIL_NULL(p_headings);
 	Transform3D tip_xform = for_bone->get_global_pose();
 	Basis tip_basis = tip_xform.basis;
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 	p_headings->write[p_index] = tip_xform.origin - bone_origin;
+	// Multiply the target basis vectors by the distance to the current bone origin before adding them to the target origin.
+	// The scaling amount we use is linear with distance and seems to work pretty well.
+	// Haven't considered what would be the most mathematically rigorous scaling function.
+	// Probably something like d / (4 pi r^2).
 	double scale_by = MAX(1.0f, target_global_pose.origin.distance_to(bone_origin));
 	// Vector3(0.f, 0.f, 0.f) is the current bone's origin.
 	p_index++;
