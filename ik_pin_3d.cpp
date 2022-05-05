@@ -66,7 +66,6 @@ void IKEffector3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 	}
 	// TODO fire 2022-05-04 cache.
 	target_global_pose = current_target_node->get_global_transform();
-	target_global_pose = p_skeleton->world_transform_to_global_pose(target_global_pose);
 }
 
 Transform3D IKEffector3D::get_goal_global_pose() const {
