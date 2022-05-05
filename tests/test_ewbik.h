@@ -47,7 +47,7 @@ Vector3 rad2deg(const Vector3 &p_rotation) {
 	return p_rotation / Math_PI * 180.0;
 }
 
-void rotate_target_headings(const Vector<Vector3> &p_localizedTipHeadings, Vector<Vector3> &r_localizedTargetHeadings,
+void rotate_target_headings(Vector<Vector3> &p_localizedTipHeadings, Vector<Vector3> &r_localizedTargetHeadings,
 		Basis p_basis) {
 	for (int32_t i = 0; i < r_localizedTargetHeadings.size(); i++) {
 		r_localizedTargetHeadings.write[i] = p_basis.xform(p_localizedTipHeadings[i]);
@@ -62,10 +62,10 @@ void rotate_target_headings(const Vector<Vector3> &p_localizedTipHeadings, Vecto
 	weights.push_back(1.0);
 	Quaternion rot;
 	Vector3 translation;
-	QCP *qcp = memnew(QCP);
-	qcp->set_max_iterations(10);
-	qcp->calc_optimal_rotation(p_localizedTipHeadings, r_localizedTargetHeadings,
-			weights, rot, false, translation);
+	QCP *qcp = memnew(QCP(1E-6, 1E-11));
+	qcp->setMaxIterations(10);
+	rot = qcp->weightedSuperpose(p_localizedTipHeadings, r_localizedTargetHeadings,
+			weights, false);
 	memdelete(qcp);
 	Basis r1 = rot;
 	Basis r2 = p_basis;
@@ -75,7 +75,7 @@ void rotate_target_headings(const Vector<Vector3> &p_localizedTipHeadings, Vecto
 	CHECK_MESSAGE(Math::is_zero_approx(compare_angle), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
 }
 
-void rotate_target_headings_quaternion(const Vector<Vector3> &p_localizedTipHeadings, Vector<Vector3> &r_localizedTargetHeadings,
+void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, Vector<Vector3> &r_localizedTargetHeadings,
 		Quaternion p_rot) {
 	for (int32_t i = 0; i < r_localizedTargetHeadings.size(); i++) {
 		r_localizedTargetHeadings.write[i] = p_rot.xform(p_localizedTipHeadings[i]);
@@ -90,10 +90,10 @@ void rotate_target_headings_quaternion(const Vector<Vector3> &p_localizedTipHead
 	weights.push_back(1.0);
 	Quaternion rot;
 	Vector3 translation;
-	QCP *qcp = memnew(QCP);
-	qcp->set_max_iterations(10);
-	qcp->calc_optimal_rotation(p_localizedTipHeadings, r_localizedTargetHeadings,
-			weights, rot, false, translation);
+	QCP *qcp = memnew(QCP(1E-6, 1E-11));
+	qcp->setMaxIterations(10);
+	rot = qcp->weightedSuperpose(p_localizedTipHeadings, r_localizedTargetHeadings,
+			weights, false);
 	memdelete(qcp);
 	Quaternion r1 = rot;
 	Quaternion r2 = p_rot;
