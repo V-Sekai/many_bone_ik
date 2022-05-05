@@ -64,7 +64,7 @@ void rotate_target_headings(Vector<Vector3> &p_localizedTipHeadings, Vector<Vect
 	Quaternion rot;
 	Vector3 translation;
 	QCP *qcp = memnew(QCP(1E-6, 1E-11));
-	qcp->setMaxIterations(10);
+	qcp->setMaxIterations(20);
 	rot = qcp->weightedSuperpose(p_localizedTipHeadings, r_localizedTargetHeadings,
 			weights, true);
 	CHECK_MESSAGE(qcp->getTranslation().is_equal_approx(Vector3()), vformat("%sis not zero.", qcp->getTranslation()).utf8().ptr());
@@ -93,7 +93,7 @@ void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, 
 	Quaternion rot;
 	Vector3 translation;
 	QCP *qcp = memnew(QCP(1E-6, 1E-11));
-	qcp->setMaxIterations(10);
+	qcp->setMaxIterations(20);
 	rot = qcp->weightedSuperpose(p_localizedTipHeadings, r_localizedTargetHeadings,
 			weights, true);
 	CHECK_MESSAGE(qcp->getTranslation().is_equal_approx(Vector3()), vformat("%sis not zero.", qcp->getTranslation()).utf8().ptr());

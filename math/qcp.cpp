@@ -221,3 +221,145 @@ double QCP::getRmsd(PackedVector3Array &fixed, PackedVector3Array &moved) {
 Vector3 QCP::getTranslation() {
 	return targetCenter - movedCenter;
 }
+
+Vector3 QCP::moveToWeightedCenter(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center) {
+	if (!weight.is_empty()) {
+		for (int i = 0; i < toCenter.size(); i++) {
+			center = toCenter[i] * weight[i];
+			wsum += weight[i];
+		}
+
+		center /= Vector3(wsum, wsum, wsum);
+	} else {
+		for (int i = 0; i < toCenter.size(); i++) {
+			center += toCenter[i];
+			wsum++;
+		}
+		center /= Vector3(wsum, wsum, wsum);
+	}
+
+	return center;
+}
+
+void QCP::innerProduct(PackedVector3Array &coords2, PackedVector3Array &coords1) {
+	double x1, x2, y1, y2, z1, z2;
+	double g1 = 0, g2 = 0;
+
+	Sxx = 0;
+	Sxy = 0;
+	Sxz = 0;
+	Syx = 0;
+	Syy = 0;
+	Syz = 0;
+	Szx = 0;
+	Szy = 0;
+	Szz = 0;
+
+	if (!weight.is_empty()) {
+		// wsum = 0;
+		for (int i = 0; i < coords1.size(); i++) {
+			// wsum += weight[i];
+
+			x1 = weight[i] * coords1[i].x;
+			y1 = weight[i] * coords1[i].y;
+			z1 = weight[i] * coords1[i].z;
+
+			g1 += x1 * coords1[i].x + y1 * coords1[i].y + z1 * coords1[i].z;
+
+			x2 = coords2[i].x;
+			y2 = coords2[i].y;
+			z2 = coords2[i].z;
+
+			g2 += weight[i] * (x2 * x2 + y2 * y2 + z2 * z2);
+
+			Sxx += (x1 * x2);
+			Sxy += (x1 * y2);
+			Sxz += (x1 * z2);
+
+			Syx += (y1 * x2);
+			Syy += (y1 * y2);
+			Syz += (y1 * z2);
+
+			Szx += (z1 * x2);
+			Szy += (z1 * y2);
+			Szz += (z1 * z2);
+		}
+	} else {
+		for (int i = 0; i < coords1.size(); i++) {
+			g1 += coords1[i].x * coords1[i].x + coords1[i].y * coords1[i].y + coords1[i].z * coords1[i].z;
+			g2 += coords2[i].x * coords2[i].x + coords2[i].y * coords2[i].y + coords2[i].z * coords2[i].z;
+
+			Sxx += coords1[i].x * coords2[i].x;
+			Sxy += coords1[i].x * coords2[i].y;
+			Sxz += coords1[i].x * coords2[i].z;
+
+			Syx += coords1[i].y * coords2[i].x;
+			Syy += coords1[i].y * coords2[i].y;
+			Syz += coords1[i].y * coords2[i].z;
+
+			Szx += coords1[i].z * coords2[i].x;
+			Szy += coords1[i].z * coords2[i].y;
+			Szz += coords1[i].z * coords2[i].z;
+		}
+		// wsum = coords1.length;
+	}
+
+	e0 = (g1 + g2) * 0.5;
+
+	SxzpSzx = Sxz + Szx;
+	SyzpSzy = Syz + Szy;
+	SxypSyx = Sxy + Syx;
+	SyzmSzy = Syz - Szy;
+	SxzmSzx = Sxz - Szx;
+	SxymSyx = Sxy - Syx;
+	SxxpSyy = Sxx + Syy;
+	SxxmSyy = Sxx - Syy;
+	mxEigenV = e0;
+
+	innerProductCalculated = true;
+}
+
+void QCP::calcRmsd(PackedVector3Array &x, PackedVector3Array &y) {
+	// QCP doesn't handle alignment of single values, so if we only have one point
+	// we just compute regular distance.
+	if (x.size() == 1) {
+		rmsd = x[0].distance_to(y[0]);
+		rmsdCalculated = true;
+	} else {
+		if (!innerProductCalculated) {
+			innerProduct(y, x);
+		}
+		calcRmsd(wsum);
+	}
+}
+
+Quaternion QCP::weightedSuperpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate) {
+	set(p_moved, p_target, p_weight, translate);
+	return getRotation();
+}
+
+void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate) {
+	rmsdCalculated = false;
+	transformationCalculated = false;
+	innerProductCalculated = false;
+
+	this->moved = p_moved;
+	this->target = p_target;
+	this->weight = p_weight;
+
+	if (p_translate) {
+		moveToWeightedCenter(this->moved, this->weight, movedCenter);
+		wsum = 0; // set wsum to 0 so we don't double up.
+		moveToWeightedCenter(this->target, this->weight, targetCenter);
+		translate(movedCenter * -1, this->moved);
+		translate(targetCenter * -1, this->target);
+	} else {
+		if (!p_weight.is_empty()) {
+			for (int i = 0; i < p_weight.size(); i++) {
+				wsum += p_weight[i];
+			}
+		} else {
+			wsum = p_moved.size();
+		}
+	}
+}
