@@ -119,7 +119,7 @@ void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, c
 
 	bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
 	if (!is_tree_exited_connected) {
-		node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node), CONNECT_REFERENCE_COUNTED);
+		node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath), varray(p_pin_index, node), CONNECT_REFERENCE_COUNTED);
 	}
 	bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::update_pin_target_nodepath));
 	if (!is_renamed_connected) {
@@ -239,7 +239,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 }
 
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
-	for (int32_t bone_i = bone_list.size(); bone_i --> 0;) {
+	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {
 			continue;
@@ -252,7 +252,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 }
 
 void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blending_delta) {
-	for (int32_t bone_i = bone_list.size(); bone_i --> 0;) {
+	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {
 			continue;

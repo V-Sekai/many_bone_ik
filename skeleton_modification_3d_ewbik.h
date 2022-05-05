@@ -117,6 +117,18 @@ private:
 
 	void update_effectors_map();
 	void update_shadow_bones_transform();
+	void check_shadow_bones_transform() {
+	for (int32_t bone_i = bone_list.size(); bone_i --> 0;) {
+		Ref<IKBone3D> bone = bone_list[bone_i];
+		if (bone.is_null()) {
+			continue;
+		}
+		bone->set_initial_pose(skeleton);
+		if (bone->is_pin()) {
+			bone->get_pin()->update_goal_global_pose(skeleton);
+		}
+	}
+}
 	void update_skeleton_bones_transform(real_t p_blending_delta);
 	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;

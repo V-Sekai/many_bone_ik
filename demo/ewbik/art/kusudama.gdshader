@@ -4,9 +4,12 @@ render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
 uniform vec4 kusudamaColor : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
 uniform int coneCount : hint_range(0, 30) = 1;
 
-//This shader can display up to 30 cones (represented by 30 4d vectors) 
+// This shader can display up to 30 cones (represented by 30 4d vectors) 
 // Each group of 4 represents the xyz coordinates of the cone direction
 // vector in model space and the fourth element represents radius
+
+// TODO: Use a texture to store bone parameters.
+// Use the uv to get the row of the bone.
 
 uniform vec4 coneSequence[30];
 varying vec3 normalModelDir;
@@ -52,9 +55,9 @@ int getAllowabilityCondition(in int currentCondition, in int setTo) {
 	return max(currentCondition, setTo);
 }
 
-//returns 1 if normalDir is beyond (cone.a) radians from cone.rgb
-//returns 0 if normalDir is within (cone.a + boundaryWidth) radians from cone.rgb 
-//return -1 if normalDir is less than (cone.a) radians from cone.rgb
+// returns 1 if normalDir is beyond (cone.a) radians from the cone.rgb
+// returns 0 if normalDir is within (cone.a + boundaryWidth) radians from the cone.rgb
+// return -1 if normalDir is less than (cone.a) radians from the cone.rgb
 int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
 	float arcDistToCone = acos(dot(normalDir, cone.rgb));
 	if (arcDistToCone > (cone.a+(boundaryWidth/2.))) {
@@ -66,8 +69,9 @@ int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
 	return 0;
 } 
 
-//returns a color corresponding to the allowability of this region, or otherwise the boundaries corresponding 
-//to various cones and tangentCone 
+// Returns a color corresponding to the allowability of this region,
+// or otherwise the boundaries corresponding 
+// to various cones and tangentCone.
 vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth) {
 	int currentCondition = -3;
 	if (coneCounts == 1) {

@@ -30,7 +30,7 @@
 
 #include "qcp.h"
 
-void QCP::set_precision(double p_evec_prec, double p_eval_prec) {
+void QCP::set_precision(real_t p_evec_prec, real_t p_eval_prec) {
 	evec_prec = p_evec_prec;
 	eval_prec = p_eval_prec;
 }
@@ -39,64 +39,55 @@ void QCP::set_max_iterations(int32_t p_max) {
 	max_iterations = p_max;
 }
 
-double QCP::calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
-		const Vector<real_t> &p_weights, Quaternion &r_quat, bool p_translate, Vector3 &r_translation) {
-	double wsum = 0.0;
-
-	PackedVector3Array source = p_source;
-	PackedVector3Array target = p_target;
-	Vector3 source_center;
-	Vector3 target_center;
-	if (p_translate) {
-		wsum = center_coords(source, target, p_weights, r_translation);
-	} else {
-		for (int i = 0; i < p_weights.size(); i++) {
-			wsum += p_weights[i];
-		}
+real_t QCP::calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
+		const Vector<real_t> &p_weights, Quaternion &p_quat, bool p_translate, Vector3 &r_translation) {
+	real_t wsum = 0.0;
+	for (int i = 0; i < p_weights.size(); i++) {
+		wsum += p_weights[i];
 	}
 
-	double sqrmsd = 0.0;
+	real_t sqrmsd = 0.0;
 	// QCP doesn't handle alignment of single values, so if we only have one point
 	// we just compute regular distance.
 	if (p_weights.size() == 1) {
-		sqrmsd = source[0].distance_squared_to(target[0]);
+		sqrmsd = p_source[0].distance_squared_to(p_target[0]);
+		Quaternion q1 = Quaternion(p_source[0]);
+		Quaternion q2 = Quaternion(p_target[0]);
+		p_quat = q1 * q2;
 	} else {
-		double e0 = inner_product(source, target, p_weights);
+		real_t e0 = inner_product(p_source, p_target, p_weights);
 		sqrmsd = calc_sqrmsd(e0, wsum);
-		r_quat = calc_rotation(e0);
+		p_quat = calc_rotation(e0);
 	}
 	return sqrmsd;
 }
 
-double QCP::center_coords(PackedVector3Array &p_source, PackedVector3Array &p_target, const Vector<real_t> &p_weights, Vector3 &translation) const {
+real_t QCP::center_coords(PackedVector3Array &p_source, PackedVector3Array &p_target, const Vector<real_t> &p_weights, Vector3 &translation) const {
 	Vector3 c1 = Vector3();
 	Vector3 c2 = Vector3();
-	double wsum = 0.0;
+	real_t wsum = 0.0;
 	for (int i = 0; i < p_weights.size(); i++) {
-		double w = p_weights[i];
+		real_t w = p_weights[i];
 		c1 += w * p_source[i];
 		c2 += w * p_target[i];
 		wsum += w;
 	}
-	if (!Math::is_zero_approx(wsum)) {
-		c1 /= wsum;
-		c2 /= wsum;
-	}
+	c1 /= wsum;
+	c2 /= wsum;
 
 	for (int i = 0; i < p_weights.size(); i++) {
 		p_source.write[i] -= c1;
 		p_target.write[i] -= c2;
 	}
-
 	translation = c2 - c1;
 
 	return wsum;
 }
 
-double QCP::inner_product(const PackedVector3Array &p_source, const PackedVector3Array &p_target, const Vector<real_t> &p_weights) {
-	double g1 = 0.0f;
-	double g2 = 0.0f;
-	double x1, x2, y1, y2, z1, z2;
+real_t QCP::inner_product(const PackedVector3Array &p_source, const PackedVector3Array &p_target, const Vector<real_t> &p_weights) {
+	real_t g1 = 0.0f;
+	real_t g2 = 0.0f;
+	real_t x1, x2, y1, y2, z1, z2;
 
 	Sxx = 0;
 	Sxy = 0;
@@ -137,24 +128,24 @@ double QCP::inner_product(const PackedVector3Array &p_source, const PackedVector
 	return (g1 + g2) * 0.5;
 }
 
-double QCP::calc_sqrmsd(double &e0, double wsum) {
-	double Sxx2 = Sxx * Sxx;
-	double Syy2 = Syy * Syy;
-	double Szz2 = Szz * Szz;
+real_t QCP::calc_sqrmsd(real_t &e0, real_t wsum) {
+	real_t Sxx2 = Sxx * Sxx;
+	real_t Syy2 = Syy * Syy;
+	real_t Szz2 = Szz * Szz;
 
-	double Sxy2 = Sxy * Sxy;
-	double Syz2 = Syz * Syz;
-	double Sxz2 = Sxz * Sxz;
+	real_t Sxy2 = Sxy * Sxy;
+	real_t Syz2 = Syz * Syz;
+	real_t Sxz2 = Sxz * Sxz;
 
-	double Syx2 = Syx * Syx;
-	double Szy2 = Szy * Szy;
-	double Szx2 = Szx * Szx;
+	real_t Syx2 = Syx * Syx;
+	real_t Szy2 = Szy * Szy;
+	real_t Szx2 = Szx * Szx;
 
-	double SyzSzymSyySzz2 = 2.0 * (Syz * Szy - Syy * Szz);
-	double Sxx2Syy2Szz2Syz2Szy2 = Syy2 + Szz2 - Sxx2 + Syz2 + Szy2;
+	real_t SyzSzymSyySzz2 = 2.0 * (Syz * Szy - Syy * Szz);
+	real_t Sxx2Syy2Szz2Syz2Szy2 = Syy2 + Szz2 - Sxx2 + Syz2 + Szy2;
 
-	double c2 = -2.0 * (Sxx2 + Syy2 + Szz2 + Sxy2 + Syx2 + Sxz2 + Szx2 + Syz2 + Szy2);
-	double c1 = 8.0 * (Sxx * Syz * Szy + Syy * Szx * Sxz + Szz * Sxy * Syx - Sxx * Syy * Szz - Syz * Szx * Sxy -
+	real_t c2 = -2.0 * (Sxx2 + Syy2 + Szz2 + Sxy2 + Syx2 + Sxz2 + Szx2 + Syz2 + Szy2);
+	real_t c1 = 8.0 * (Sxx * Syz * Szy + Syy * Szx * Sxz + Szz * Sxy * Syx - Sxx * Syy * Szz - Syz * Szx * Sxy -
 							  Szy * Syx * Sxz);
 
 	SxzpSzx = Sxz + Szx;
@@ -166,9 +157,9 @@ double QCP::calc_sqrmsd(double &e0, double wsum) {
 	SxxpSyy = Sxx + Syy;
 	SxxmSyy = Sxx - Syy;
 
-	double Sxy2Sxz2Syx2Szx2 = Sxy2 + Sxz2 - Syx2 - Szx2;
+	real_t Sxy2Sxz2Syx2Szx2 = Sxy2 + Sxz2 - Syx2 - Szx2;
 
-	double c0 = Sxy2Sxz2Syx2Szx2 * Sxy2Sxz2Syx2Szx2 +
+	real_t c0 = Sxy2Sxz2Syx2Szx2 * Sxy2Sxz2Syx2Szx2 +
 				(Sxx2Syy2Szz2Syz2Szy2 + SyzSzymSyySzz2) * (Sxx2Syy2Szz2Syz2Szy2 - SyzSzymSyySzz2) +
 				(-(SxzpSzx) * (SyzmSzy) + (SxymSyx) * (SxxmSyy - Szz)) * (-(SxzmSzx) * (SyzpSzy) + (SxymSyx) * (SxxmSyy + Szz)) +
 				(-(SxzpSzx) * (SyzpSzy) - (SxypSyx) * (SxxpSyy - Szz)) * (-(SxzmSzx) * (SyzmSzy) - (SxypSyx) * (SxxpSyy + Szz)) +
@@ -176,20 +167,20 @@ double QCP::calc_sqrmsd(double &e0, double wsum) {
 				(+(SxypSyx) * (SyzmSzy) + (SxzmSzx) * (SxxmSyy - Szz)) * (-(SxymSyx) * (SyzpSzy) + (SxzmSzx) * (SxxpSyy - Szz));
 
 	/* Newton-Raphson */
-	double eignv = e0;
+	real_t eignv = e0;
 
 	int32_t i;
 	for (i = 0; i < max_iterations; ++i) {
-		double x2 = eignv * eignv;
-		double b = (x2 + c2) * eignv;
-		double a = b + c1;
-		double d = (2.0 * x2 * eignv + b + a);
+		real_t x2 = eignv * eignv;
+		real_t b = (x2 + c2) * eignv;
+		real_t a = b + c1;
+		real_t d = (2.0 * x2 * eignv + b + a);
 		if (d == 0.0) {
 			break;
 		}
-		double delta = (a * eignv + c0) / d;
+		real_t delta = (a * eignv + c0) / d;
 		eignv -= delta;
-		if (Math::absd(delta) < Math::absd(eval_prec * eignv)) {
+		if (Math::abs(delta) < Math::abs(eval_prec * eignv)) {
 			break;
 		}
 	}
@@ -199,40 +190,40 @@ double QCP::calc_sqrmsd(double &e0, double wsum) {
 	// 	WARN_PRINT(vformat("More than %d iterations needed!", max_iterations));
 	// }
 
-	double sqrmsd = Math::absd(2.0f * (e0 - eignv) / wsum);
+	real_t sqrmsd = Math::abs(2.0f * (e0 - eignv) / wsum);
 	e0 = eignv;
 	return sqrmsd;
 }
 
-Quaternion QCP::calc_rotation(double p_eigenv) const {
-	double a11 = SxxpSyy + Szz - p_eigenv;
-	double a12 = SyzmSzy;
-	double a13 = -SxzmSzx;
-	double a14 = SxymSyx;
-	double a21 = SyzmSzy;
-	double a22 = SxxmSyy - Szz - p_eigenv;
-	double a23 = SxypSyx;
-	double a24 = SxzpSzx;
-	double a31 = a13;
-	double a32 = a23;
-	double a33 = Syy - Sxx - Szz - p_eigenv;
-	double a34 = SyzpSzy;
-	double a41 = a14;
-	double a42 = a24;
-	double a43 = a34;
-	double a44 = Szz - SxxpSyy - p_eigenv;
-	double a3344_4334 = a33 * a44 - a43 * a34;
-	double a3244_4234 = a32 * a44 - a42 * a34;
-	double a3243_4233 = a32 * a43 - a42 * a33;
-	double a3143_4133 = a31 * a43 - a41 * a33;
-	double a3144_4134 = a31 * a44 - a41 * a34;
-	double a3142_4132 = a31 * a42 - a41 * a32;
-	double q1 = a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
-	double q2 = -a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
-	double q3 = a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
-	double q4 = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
+Quaternion QCP::calc_rotation(real_t p_eigenv) const {
+	real_t a11 = SxxpSyy + Szz - p_eigenv;
+	real_t a12 = SyzmSzy;
+	real_t a13 = -SxzmSzx;
+	real_t a14 = SxymSyx;
+	real_t a21 = SyzmSzy;
+	real_t a22 = SxxmSyy - Szz - p_eigenv;
+	real_t a23 = SxypSyx;
+	real_t a24 = SxzpSzx;
+	real_t a31 = a13;
+	real_t a32 = a23;
+	real_t a33 = Syy - Sxx - Szz - p_eigenv;
+	real_t a34 = SyzpSzy;
+	real_t a41 = a14;
+	real_t a42 = a24;
+	real_t a43 = a34;
+	real_t a44 = Szz - SxxpSyy - p_eigenv;
+	real_t a3344_4334 = a33 * a44 - a43 * a34;
+	real_t a3244_4234 = a32 * a44 - a42 * a34;
+	real_t a3243_4233 = a32 * a43 - a42 * a33;
+	real_t a3143_4133 = a31 * a43 - a41 * a33;
+	real_t a3144_4134 = a31 * a44 - a41 * a34;
+	real_t a3142_4132 = a31 * a42 - a41 * a32;
+	real_t q1 = a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
+	real_t q2 = -a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
+	real_t q3 = a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
+	real_t q4 = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
 
-	double qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
+	real_t qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
 	/**
 	 * The following code tries to calculate another column in the adjoint matrix when the norm of the
@@ -248,9 +239,9 @@ Quaternion QCP::calc_rotation(double p_eigenv) const {
 		qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
 		if (qsqr < evec_prec) {
-			double a1324_1423 = a13 * a24 - a14 * a23, a1224_1422 = a12 * a24 - a14 * a22;
-			double a1223_1322 = a12 * a23 - a13 * a22, a1124_1421 = a11 * a24 - a14 * a21;
-			double a1123_1321 = a11 * a23 - a13 * a21, a1122_1221 = a11 * a22 - a12 * a21;
+			real_t a1324_1423 = a13 * a24 - a14 * a23, a1224_1422 = a12 * a24 - a14 * a22;
+			real_t a1223_1322 = a12 * a23 - a13 * a22, a1124_1421 = a11 * a24 - a14 * a21;
+			real_t a1123_1321 = a11 * a23 - a13 * a21, a1122_1221 = a11 * a22 - a12 * a21;
 
 			q1 = a42 * a1324_1423 - a43 * a1224_1422 + a44 * a1223_1322;
 			q2 = -a41 * a1324_1423 + a43 * a1124_1421 - a44 * a1123_1321;
@@ -274,16 +265,11 @@ Quaternion QCP::calc_rotation(double p_eigenv) const {
 		}
 	}
 
-	// Prenormalize the result to avoid floating point errors.
+	// prenormalize the result to avoid floating point errors.
 	float min = q1;
 	min = q2 < min ? q2 : min;
 	min = q3 < min ? q3 : min;
 	min = q4 < min ? q4 : min;
-	return Quaternion(q2/min, q3/min, q4/min, q1/min).normalized();
-}
 
-void QCP::translate(const Vector3 p_translate, PackedVector3Array &r_source) {
-	for (int i = 0; i < r_source.size(); i++) {
-		r_source.write[i] += p_translate;
-	}
+	return Quaternion(q2 / min, q3 / min, q4 / min, q1 / min).normalized();
 }

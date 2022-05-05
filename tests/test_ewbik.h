@@ -100,7 +100,7 @@ void rotate_target_headings_quaternion(const Vector<Vector3> &p_localizedTipHead
 	real_t compare_angle;
 	Vector3 compare_axis;
 	(r1.inverse() * r2).get_axis_angle(compare_axis, compare_angle);
-	compare_angle = fmodf(compare_angle, Math_TAU);
+	compare_angle = fmod(compare_angle, Math_TAU);
 	CHECK_MESSAGE(Math::is_zero_approx(compare_angle), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
 }
 

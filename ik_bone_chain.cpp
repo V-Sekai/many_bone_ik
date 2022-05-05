@@ -57,7 +57,6 @@ BoneId IKBoneChain::find_root_bone_id(BoneId p_bone) {
 	while (skeleton->get_bone_parent(root_id) != -1) {
 		root_id = skeleton->get_bone_parent(root_id);
 	}
-
 	return root_id;
 }
 
@@ -91,6 +90,7 @@ void IKBoneChain::generate_default_segments_from_root() {
 }
 
 void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
+	// TODO: make fake root for parentless bones
 	if (p_recursive) {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
 			child_chains[child_i]->set_bone_list(p_list, p_recursive, p_debug_skeleton);
