@@ -162,7 +162,7 @@ public:
 	 *
 	 * @param max
 	 */
-	virtual void setMaxIterations(int max);
+	void setMaxIterations(int max);
 
 	/**
 	 * Sets the two input coordinate arrays. These input arrays must be of equal
@@ -222,7 +222,7 @@ public:
 	 *
 	 * @return root mean square deviation for superposition of y onto x
 	 */
-	virtual double getRmsd();
+	double getRmsd();
 
 	/**
 	 * Weighted superposition.
@@ -360,7 +360,7 @@ private:
 
 public:
 	Quaternion getRotation();
-	virtual double getRmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
+	double getRmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
 	static void translate(Vector3 trans, PackedVector3Array &x) {
 		for (Vector3 &p : x) {
 			p += trans;
