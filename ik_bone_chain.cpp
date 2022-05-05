@@ -225,12 +225,12 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	Quaternion rot = qcp.weightedSuperpose(*r_htip, *r_htarget, *r_weights, p_translate);
 	Vector3 translation = qcp.getTranslation();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
-	// if (!Math::is_equal_approx(p_dampening, -1.0f)) {
-	// 	bone_damp = p_dampening;
-	// 	rot = clamp_to_angle(rot, bone_damp);
-	// } else {
-	// 	rot = clamp_to_quadrance_angle(rot, bone_damp);
-	// }
+	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
+		bone_damp = p_dampening;
+		rot = clamp_to_angle(rot, bone_damp);
+	} else {
+		rot = clamp_to_quadrance_angle(rot, bone_damp);
+	}
 	// Transform3D xform;
 	// IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
 	// if (parent_transform_ik) {
