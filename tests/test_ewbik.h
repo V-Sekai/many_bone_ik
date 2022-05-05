@@ -69,7 +69,8 @@ void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, 
 	CHECK_MESSAGE(qcp->getTranslation().is_equal_approx(Vector3()), vformat("%sis not zero.", qcp->getTranslation()).utf8().ptr());
 	memdelete(qcp);
 	for (int32_t i = 0; i < p_localizedTipHeadings.size(); i++) {
-		CHECK_MESSAGE(rot.xform(p_localizedTipHeadings[0]) == r_localizedTargetHeadings[i], vformat("%s does not match compared %s.", rot.xform(p_localizedTipHeadings[0]), r_localizedTargetHeadings[i]).utf8().ptr());
+		float d = rot.xform(p_localizedTipHeadings[0]).distance_to(r_localizedTargetHeadings[i]);
+		CHECK_MESSAGE(Math::is_zero_approx(d), vformat("%s is not approximately zero.", d).utf8().ptr());
 	}
 }
 
