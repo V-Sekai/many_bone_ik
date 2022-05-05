@@ -35,7 +35,6 @@
 #include "core/math/vector3.h"
 #include "ewbik/math/qcp.h"
 
-
 #include "tests/test_macros.h"
 
 namespace TestEWBIK {
@@ -46,35 +45,6 @@ Vector3 deg2rad(const Vector3 &p_rotation) {
 
 Vector3 rad2deg(const Vector3 &p_rotation) {
 	return p_rotation / Math_PI * 180.0;
-}
-
-void rotate_target_headings(Vector<Vector3> &p_localizedTipHeadings, Vector<Vector3> &r_localizedTargetHeadings,
-		Basis p_basis) {
-	for (int32_t i = 0; i < r_localizedTargetHeadings.size(); i++) {
-		r_localizedTargetHeadings.write[i] = p_basis.xform(p_localizedTipHeadings[i]);
-	}
-	Vector<real_t> weights;
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	weights.push_back(1.0);
-	Quaternion rot;
-	Vector3 translation;
-	QCP *qcp = memnew(QCP(1E-6, 1E-11));
-	qcp->setMaxIterations(20);
-	rot = qcp->weightedSuperpose(p_localizedTipHeadings, r_localizedTargetHeadings,
-			weights, true);
-	CHECK_MESSAGE(qcp->getTranslation().is_equal_approx(Vector3()), vformat("%sis not zero.", qcp->getTranslation()).utf8().ptr());
-	memdelete(qcp);
-	Basis r1 = rot;
-	Basis r2 = p_basis;
-	real_t compare_angle;
-	Vector3 compare_axis;
-	(r1.inverse() * r2).get_axis_angle(compare_axis, compare_angle);
-	CHECK_MESSAGE(Math::is_equal_approx(compare_angle, 0.f, 0.001f), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
 }
 
 void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, Vector<Vector3> &r_localizedTargetHeadings,
@@ -94,37 +64,13 @@ void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, 
 	Vector3 translation;
 	QCP *qcp = memnew(QCP(1E-6, 1E-11));
 	qcp->setMaxIterations(20);
-	rot = qcp->weightedSuperpose(p_localizedTipHeadings, r_localizedTargetHeadings,
+	rot = qcp->weightedSuperpose(r_localizedTargetHeadings, p_localizedTipHeadings,
 			weights, true);
 	CHECK_MESSAGE(qcp->getTranslation().is_equal_approx(Vector3()), vformat("%sis not zero.", qcp->getTranslation()).utf8().ptr());
 	memdelete(qcp);
-	Quaternion r1 = rot;
-	Quaternion r2 = p_rot;
-	real_t compare_angle;
-	Vector3 compare_axis;
-	(r1.inverse() * r2).get_axis_angle(compare_axis, compare_angle);
-	compare_angle = fmod(compare_angle, Math_TAU);
-	CHECK_MESSAGE(Math::is_equal_approx(compare_angle, 0.f, 0.001f), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
-}
-
-TEST_CASE("[Modules][EWBIK] qcp basis") {
-	Vector<Vector3> localizedTipHeadings;
-	localizedTipHeadings.push_back(Vector3(-14.739, -18.673, 15.040));
-	localizedTipHeadings.push_back(Vector3(-12.473, -15.810, 16.074));
-	localizedTipHeadings.push_back(Vector3(-14.802, -13.307, 14.408));
-	localizedTipHeadings.push_back(Vector3(-17.782, -14.852, 16.171));
-	localizedTipHeadings.push_back(Vector3(-16.124, -14.617, 19.584));
-	localizedTipHeadings.push_back(Vector3(-15.029, -11.037, 18.902));
-	localizedTipHeadings.push_back(Vector3(-18.577, -10.001, 17.996));
-
-	Vector<Vector3> localizedTargetHeadings;
-	localizedTargetHeadings.resize(7);
-	Basis basis_x = Basis(Vector3(1.f, 0.0f, 0.0f), Math_PI / 2.0f);
-	Basis basis_y = Basis(Vector3(0.0f, 1.f, 0.0f), Math_PI / 2.0f);
-	Basis basis_z = Basis(Vector3(0.0f, 0.0f, 1.f), Math_PI / 2.0f);
-	rotate_target_headings(localizedTipHeadings, localizedTargetHeadings, basis_x);
-	rotate_target_headings(localizedTipHeadings, localizedTargetHeadings, basis_y);
-	rotate_target_headings(localizedTipHeadings, localizedTargetHeadings, basis_z);
+	for (int32_t i = 0; i < p_localizedTipHeadings.size(); i++) {
+		CHECK_MESSAGE(rot.xform(p_localizedTipHeadings[0]) == r_localizedTargetHeadings[i], vformat("%s does not match compared %s.", rot.xform(p_localizedTipHeadings[0]), r_localizedTargetHeadings[i]).utf8().ptr());
+	}
 }
 
 TEST_CASE("[Modules][EWBIK] qcp quaternion") {
@@ -140,10 +86,12 @@ TEST_CASE("[Modules][EWBIK] qcp quaternion") {
 	Vector<Vector3> localizedTargetHeadings;
 	localizedTargetHeadings.resize(7);
 	Quaternion basis_x = Quaternion(Vector3(1.f, 0.0f, 0.0f), Math_PI / 2.0f);
-	Quaternion basis_y = Quaternion(Vector3(0.0f, 1.f, 0.0f), Math_PI / 2.0f);
-	Quaternion basis_z = Quaternion(Vector3(0.0f, 0.0f, 1.f), Math_PI / 2.0f);
 	rotate_target_headings_quaternion(localizedTipHeadings, localizedTargetHeadings, basis_x);
+	basis_x = Quaternion(Vector3(0.5f, 0.5f, 0.0f).normalized(), Math_PI / 2.0f);
+	rotate_target_headings_quaternion(localizedTipHeadings, localizedTargetHeadings, basis_x);
+	Quaternion basis_y = Quaternion(Vector3(0.0f, 1.f, 0.0f), Math_PI / 2.0f);
 	rotate_target_headings_quaternion(localizedTipHeadings, localizedTargetHeadings, basis_y);
+	Quaternion basis_z = Quaternion(Vector3(0.0f, 0.0f, 1.f), Math_PI / 2.0f);
 	rotate_target_headings_quaternion(localizedTipHeadings, localizedTargetHeadings, basis_z);
 }
 
