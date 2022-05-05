@@ -51,7 +51,7 @@ private:
 	Vector<real_t> heading_weights;
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
 	Skeleton3D *skeleton = nullptr;
-	QCP qcp;
+	QCP qcp = QCP(1E-6, 1E-11);
 
 	BoneId find_root_bone_id(BoneId p_bone);
 	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);

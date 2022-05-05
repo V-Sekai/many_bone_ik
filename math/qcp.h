@@ -28,32 +28,365 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef QCP_H
-#define QCP_H
-
-#include "core/math/quaternion.h"
+#include "core/math/basis.h"
+#include "core/math/vector3.h"
 #include "core/variant/variant.h"
 
 class QCP {
-private:
-	real_t evec_prec = 1E-6;
-	real_t eval_prec = 1E-11;
-	int32_t max_iterations = 100;
-	real_t Sxx, Sxy, Sxz, Syx, Syy, Syz, Szx, Szy, Szz = 0;
-	real_t SxxpSyy, SyzmSzy, SxzmSzx, SxymSyx = 0;
-	real_t SxxmSyy, SxypSyx, SxzpSzx, SyzpSzy = 0;
+	/**
+	 * Implementation of the Quaternionf-Based Characteristic Polynomial algorithm
+	 * for RMSD and Superposition calculations.
+	 * <p>
+	 * Usage:
+	 * <p>
+	 * The input consists of 2 SGVec_3d arrays of equal length. The input
+	 * coordinates are not changed.
+	 *
+	 * <pre>
+	 *    SGVec_3d[] x = ...
+	 *    SGVec_3d[] y = ...
+	 *    SuperPositionQCP qcp = new SuperPositionQCP();
+	 *    qcp.set(x, y);
+	 * </pre>
+	 * <p>
+	 * or with weighting factors [0 - 1]]
+	 *
+	 * <pre>
+	 *    double[] weights = ...
+	 *    qcp.set(x, y, weights);
+	 * </pre>
+	 * <p>
+	 * For maximum efficiency, create a SuperPositionQCP object once and reuse it.
+	 * <p>
+	 * A. Calculate rmsd only
+	 *
+	 * <pre>
+	 * double rmsd = qcp.getRmsd();
+	 * </pre>
+	 * <p>
+	 * B. Calculate a 4x4 transformation (Quaternionation and translation) matrix
+	 *
+	 * <pre>
+	 * Matrix4f Quaterniontrans = qcp.getTransformationMatrix();
+	 * </pre>
+	 * <p>
+	 * C. Get transformated points (y superposed onto the reference x)
+	 *
+	 * <pre>
+	 * SGVec_3d[] ySuperposed = qcp.getTransformedCoordinates();
+	 * </pre>
+	 * <p>
+	 * Citations:
+	 * <p>
+	 * Liu P, Agrafiotis DK, & Theobald DL (2011) Reply to comment on: "Fast
+	 * determination of the optimal Quaternionation matrix for macromolecular
+	 * superpositions." Journal of Computational Chemistry 32(1):185-186.
+	 * [http://dx.doi.org/10.1002/jcc.21606]
+	 * <p>
+	 * Liu P, Agrafiotis DK, & Theobald DL (2010) "Fast determination of the optimal
+	 * Quaternionation matrix for macromolecular superpositions." Journal of Computational
+	 * Chemistry 31(7):1561-1563. [http://dx.doi.org/10.1002/jcc.21439]
+	 * <p>
+	 * Douglas L Theobald (2005) "Rapid calculation of RMSDs using a
+	 * quaternion-based characteristic polynomial." Acta Crystallogr A
+	 * 61(4):478-480. [http://dx.doi.org/10.1107/S0108767305015266 ]
+	 * <p>
+	 * This is an adoption of the original C code QCPQuaternion 1.4 (2012, October 10) to
+	 * Java. The original C source code is available from
+	 * http://theobald.brandeis.edu/qcp/ and was developed by
+	 * <p>
+	 * Douglas L. Theobald Department of Biochemistry MS 009 Brandeis University 415
+	 * South St Waltham, MA 02453 USA
+	 * <p>
+	 * dtheobald@brandeis.edu
+	 * <p>
+	 * Pu Liu Johnson & Johnson Pharmaceutical Research and Development, L.L.C. 665
+	 * Stockton Drive Exton, PA 19341 USA
+	 * <p>
+	 * pliu24@its.jnj.com
+	 * <p>
+	 *
+	 * @author Douglas L. Theobald (original C code)
+	 * @author Pu Liu (original C code)
+	 * @author Peter Rose (adopted to Java)
+	 * @author Aleix Lafita (adopted to Java)
+	 * @author Eron Gjoni (adopted to EWB IK)
+	 */
 
-	real_t inner_product(const PackedVector3Array &p_source, const PackedVector3Array &p_target, const Vector<real_t> &p_weights);
-	real_t center_coords(PackedVector3Array &r_source, PackedVector3Array &r_target, const Vector<real_t> &p_weights, Vector3 &translation) const;
-	real_t calc_sqrmsd(real_t &e0, real_t wsum);
-	Quaternion calc_rotation(real_t p_eigenv) const;
-	void translate(const Vector3 p_translate, PackedVector3Array &r_source);
+private:
+	double evec_prec = static_cast<double>(1E-6);
+	double eval_prec = static_cast<double>(1E-11);
+	int max_iterations = 5;
 
 public:
-	void set_precision(real_t p_evec_prec, real_t p_eval_prec);
-	void set_max_iterations(int32_t p_max);
-	real_t calc_optimal_rotation(const PackedVector3Array &p_source, const PackedVector3Array &p_target,
-			const Vector<real_t> &p_weights, Quaternion &r_quat, bool p_translate, Vector3 &r_translation);
-};
+	PackedVector3Array target;
 
-#endif // QCP_H
+private:
+	PackedVector3Array moved;
+
+	Vector<real_t> weight;
+	double wsum = 0;
+
+	Vector3 targetCenter;
+	Vector3 movedCenter;
+
+	double e0 = 0;
+	// private Matrix3f Quaternionmat = new Matrix3f();
+	// private Matrix4f transformation = new Matrix4f();
+	double rmsd = 0;
+	double Sxy = 0, Sxz = 0, Syx = 0, Syz = 0, Szx = 0, Szy = 0;
+	double SxxpSyy = 0, Szz = 0, mxEigenV = 0, SyzmSzy = 0, SxzmSzx = 0, SxymSyx = 0;
+	double SxxmSyy = 0, SxypSyx = 0, SxzpSzx = 0;
+	double Syy = 0, Sxx = 0, SyzpSzy = 0;
+	bool rmsdCalculated = false;
+	bool transformationCalculated = false;
+	bool innerProductCalculated = false;
+	int length = 0;
+
+	/**
+	 * Constructor with option to set the precision values.
+	 *
+	 * @param centered
+	 *            true if the point arrays are centered at the origin (faster),
+	 *            false otherwise
+	 * @param evec_prec
+	 *            required eigenvector precision
+	 * @param eval_prec
+	 *            required eigenvalue precision
+	 */
+public:
+	QCP(double evec_prec, double eval_prec);
+
+	/**
+	 * Sets the maximum number of iterations QCP should run before giving up. In
+	 * most situations QCP converges in 3 or 4 iterations, but in some situations
+	 * convergence occurs slowly or not at all, and so an exit condition is used.
+	 * The default value is 20. Increase it for more stability.
+	 *
+	 * @param max
+	 */
+	virtual void setMaxIterations(int max);
+
+	/**
+	 * Sets the two input coordinate arrays. These input arrays must be of equal
+	 * length. Input coordinates are not modified.
+	 *
+	 * @param x
+	 *            3f points of reference coordinate set
+	 * @param y
+	 *            3f points of coordinate set for superposition
+	 */
+private:
+	void set(Vector<PackedVector3Array &> &target, Vector<PackedVector3Array &> &moved);
+
+	/**
+	 * Sets the two input coordinate arrays and weight array. All input arrays must
+	 * be of equal length. Input coordinates are not modified.
+	 *
+	 * @param fixed
+	 *            3f points of reference coordinate set
+	 * @param moved
+	 *            3f points of coordinate set for superposition
+	 * @param weight
+	 *            a weight in the inclusive range [0,1] for each point
+	 */
+public:
+	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate) {
+		rmsdCalculated = false;
+		transformationCalculated = false;
+		innerProductCalculated = false;
+
+		this->moved = p_moved;
+		this->target = p_target;
+		this->weight = p_weight;
+
+		if (p_translate) {
+			moveToWeightedCenter(this->moved, this->weight, movedCenter);
+			wsum = 0; // set wsum to 0 so we don't double up.
+			moveToWeightedCenter(this->target, this->weight, targetCenter);
+			translate(movedCenter * -1, this->moved);
+			translate(targetCenter * -1, this->target);
+		} else {
+			if (!p_weight.is_empty()) {
+				for (int i = 0; i < p_weight.size(); i++) {
+					wsum += p_weight[i];
+				}
+			} else {
+				wsum = p_moved.size();
+			}
+		}
+	}
+
+	/**
+	 * Return the RMSD of the superposition of input coordinate set y onto x. Note,
+	 * this is the fasted way to calculate an RMSD without actually superposing the
+	 * two sets. The calculation is performed "lazy", meaning calculations are only
+	 * performed if necessary.
+	 *
+	 * @return root mean square deviation for superposition of y onto x
+	 */
+	virtual double getRmsd();
+
+	/**
+	 * Weighted superposition.
+	 *
+	 * @param fixed
+	 * @param moved
+	 * @param weight
+	 *            array of weights for each equivalent point position
+	 * @return
+	 */
+	Quaternion weightedSuperpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate) {
+		set(p_moved, p_target, p_weight, translate);
+		return getRotation();
+	}
+
+private:
+	/**
+	 * Calculates the RMSD value for superposition of y onto x. This requires the
+	 * coordinates to be precentered.
+	 *
+	 * @param x
+	 *            3f points of reference coordinate set
+	 * @param y
+	 *            3f points of coordinate set for superposition
+	 */
+	void calcRmsd(PackedVector3Array &x, PackedVector3Array &y) {
+		// QCP doesn't handle alignment of single values, so if we only have one point
+		// we just compute regular distance.
+		if (x.size() == 1) {
+			rmsd = x[0].distance_to(y[0]);
+			rmsdCalculated = true;
+		} else {
+			if (!innerProductCalculated) {
+				innerProduct(y, x);
+			}
+			calcRmsd(wsum);
+		}
+	}
+
+	/**
+	 * Calculates the inner product between two coordinate sets x and y (optionally
+	 * weighted, if weights set through
+	 * {@link #set(SGVec_3d[], SGVec_3d[], double[])}). It also calculates an upper
+	 * bound of the most positive root of the key matrix.
+	 * http://theobald.brandeis.edu/qcp/qcpQuaternion.c
+	 *
+	 * @param coords1
+	 * @param coords2
+	 * @return
+	 */
+	void innerProduct(PackedVector3Array &coords1, PackedVector3Array &coords2) {
+		double x1, x2, y1, y2, z1, z2;
+		double g1 = 0, g2 = 0;
+
+		Sxx = 0;
+		Sxy = 0;
+		Sxz = 0;
+		Syx = 0;
+		Syy = 0;
+		Syz = 0;
+		Szx = 0;
+		Szy = 0;
+		Szz = 0;
+
+		if (!weight.is_empty()) {
+			// wsum = 0;
+			for (int i = 0; i < coords1.size(); i++) {
+				// wsum += weight[i];
+
+				x1 = weight[i] * coords1[i].x;
+				y1 = weight[i] * coords1[i].y;
+				z1 = weight[i] * coords1[i].z;
+
+				g1 += x1 * coords1[i].x + y1 * coords1[i].y + z1 * coords1[i].z;
+
+				x2 = coords2[i].x;
+				y2 = coords2[i].y;
+				z2 = coords2[i].z;
+
+				g2 += weight[i] * (x2 * x2 + y2 * y2 + z2 * z2);
+
+				Sxx += (x1 * x2);
+				Sxy += (x1 * y2);
+				Sxz += (x1 * z2);
+
+				Syx += (y1 * x2);
+				Syy += (y1 * y2);
+				Syz += (y1 * z2);
+
+				Szx += (z1 * x2);
+				Szy += (z1 * y2);
+				Szz += (z1 * z2);
+			}
+		} else {
+			for (int i = 0; i < coords1.size(); i++) {
+				g1 += coords1[i].x * coords1[i].x + coords1[i].y * coords1[i].y + coords1[i].z * coords1[i].z;
+				g2 += coords2[i].x * coords2[i].x + coords2[i].y * coords2[i].y + coords2[i].z * coords2[i].z;
+
+				Sxx += coords1[i].x * coords2[i].x;
+				Sxy += coords1[i].x * coords2[i].y;
+				Sxz += coords1[i].x * coords2[i].z;
+
+				Syx += coords1[i].y * coords2[i].x;
+				Syy += coords1[i].y * coords2[i].y;
+				Syz += coords1[i].y * coords2[i].z;
+
+				Szx += coords1[i].z * coords2[i].x;
+				Szy += coords1[i].z * coords2[i].y;
+				Szz += coords1[i].z * coords2[i].z;
+			}
+			// wsum = coords1.length;
+		}
+
+		e0 = (g1 + g2) * 0.5;
+
+		SxzpSzx = Sxz + Szx;
+		SyzpSzy = Syz + Szy;
+		SxypSyx = Sxy + Syx;
+		SyzmSzy = Syz - Szy;
+		SxzmSzx = Sxz - Szx;
+		SxymSyx = Sxy - Syx;
+		SxxpSyy = Sxx + Syy;
+		SxxmSyy = Sxx - Syy;
+		mxEigenV = e0;
+
+		innerProductCalculated = true;
+	}
+
+	void calcRmsd(double len);
+
+	Quaternion calcQuaternionation();
+	void set(PackedVector3Array &target, PackedVector3Array &moved);
+
+	Quaternion calcRotation();
+
+public:
+	Quaternion getRotation();
+	virtual double getRmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
+	static void translate(Vector3 trans, PackedVector3Array &x) {
+		for (Vector3 &p : x) {
+			p += trans;
+		}
+	}
+
+	Vector3 moveToWeightedCenter(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center) {
+		if (!weight.is_empty()) {
+			for (int i = 0; i < toCenter.size(); i++) {
+				center = toCenter[i] * weight[i];
+				wsum += weight[i];
+			}
+
+			center /= Vector3(wsum, wsum, wsum);
+		} else {
+			for (int i = 0; i < toCenter.size(); i++) {
+				center += toCenter[i];
+				wsum++;
+			}
+			center /= Vector3(wsum, wsum, wsum);
+		}
+
+		return center;
+	}
+	Vector3 getTranslation();
+};
