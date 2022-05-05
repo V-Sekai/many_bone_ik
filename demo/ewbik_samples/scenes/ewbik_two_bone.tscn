@@ -1,0 +1,59 @@
+[gd_scene load_steps=5 format=3 uid="uid://dldkxew4d73l5"]
+
+[ext_resource type="PackedScene" uid="uid://bjjiy2toj1hdi" path="res://ewbik_samples/art/ewbik_test_rig_2_bone.glb" id="1_7vofn"]
+
+[sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_3rh2l"]
+execution_mode = 1
+root_bone = "Bone_01"
+default_damp = 0.0872665
+ik_iterations = 20
+pin_count = 1
+pins/0/name = "Bone_03"
+pins/0/target_node = NodePath("../../../BoneAttachment3D")
+pins/0/use_node_rotation = false
+pins/0/depth_falloff = 1.0
+pins/0/remove = false
+
+[sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_xr835"]
+enabled = true
+modification_count = 1
+modifications/0 = SubResource( "SkeletonModification3DEWBIK_3rh2l" )
+
+[sub_resource type="BoxMesh" id="BoxMesh_cy8x8"]
+size = Vector3(0.25, 0.25, 0.125)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="ewbik_test_rig_2_bone" parent="." instance=ExtResource( "1_7vofn" )]
+
+[node name="Skeleton3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature" index="0"]
+bones/0/rotation = Quaternion(-0.180852, 0.969501, 0.0303349, 0.162602)
+bones/0/scale = Vector3(1.00009, 1.00009, 1.00009)
+bones/1/position = Vector3(2.47784e-06, 0.600025, 3.0057e-06)
+bones/1/rotation = Quaternion(3.25507e-06, 0.238299, -7.30535e-06, 0.971192)
+bones/1/scale = Vector3(0.999849, 0.999849, 0.999844)
+bones/2/position = Vector3(-6.73312e-06, 0.599987, -2.06548e-06)
+bones/2/rotation = Quaternion(-0.182877, 0.980319, -0.0136401, 0.0731124)
+bones/2/scale = Vector3(0.999975, 0.999943, 1.00001)
+modification_stack = SubResource( "SkeletonModificationStack3D_xr835" )
+
+[node name="Simple_Test_Rig" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D" index="0"]
+visible = false
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D" index="1"]
+transform = Transform3D(0.999915, 7.45058e-08, 3.72529e-07, 3.36207e-07, 0.999882, 5.58794e-08, 4.17233e-07, 2.45869e-07, 0.999947, -0.432657, 1.11932, -4.76529e-07)
+bone_name = "Bone_03"
+bone_idx = 2
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D/BoneAttachment3D"]
+mesh = SubResource( "BoxMesh_cy8x8" )
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.299979, -0.77607, 3.96345e-07)
+bone_name = "Bone_03"
+bone_idx = 2
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="BoneAttachment3D"]
+mesh = SubResource( "BoxMesh_cy8x8" )
+
+[editable path="ewbik_test_rig_2_bone"]

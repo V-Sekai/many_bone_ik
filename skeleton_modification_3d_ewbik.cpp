@@ -209,6 +209,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	}
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index)));
 	segmented_skeleton->generate_default_segments_from_root();
+	segmented_skeleton->update_root_transform(skeleton->get_transform());
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
 	update_effectors_map();
 	segmented_skeleton->update_pinned_list();
@@ -526,7 +527,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton"), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04, 5.0, 0.01,radians"), "set_default_damp", "get_default_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,360.0,0.01,radians"), "set_default_damp", "get_default_damp");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {

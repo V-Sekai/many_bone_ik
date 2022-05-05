@@ -52,6 +52,7 @@ private:
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
 	Skeleton3D *skeleton = nullptr;
 	QCP qcp = QCP(1E-6, 1E-11);
+	IKTransform3D root_transform;
 
 	BoneId find_root_bone_id(BoneId p_bone);
 	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);
@@ -71,6 +72,12 @@ protected:
 	static void _bind_methods();
 
 public:
+	void update_root_transform(Transform3D p_root_transform) {
+		if (root.is_valid() && parent_chain.is_null()) {
+			root_transform.set_transform(p_root_transform);
+			root->get_ik_transform().set_parent(&root_transform);
+		}
+	}
 	Ref<IKBoneChain> get_parent_chain() {
 		return parent_chain;
 	}
