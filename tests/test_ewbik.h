@@ -31,9 +31,10 @@
 #ifndef TEST_EWBIK_H
 #define TEST_EWBIK_H
 
-#include "ewbik/math/qcp.h"
 #include "core/math/basis.h"
 #include "core/math/vector3.h"
+#include "ewbik/math/qcp.h"
+
 
 #include "tests/test_macros.h"
 
@@ -65,14 +66,15 @@ void rotate_target_headings(Vector<Vector3> &p_localizedTipHeadings, Vector<Vect
 	QCP *qcp = memnew(QCP(1E-6, 1E-11));
 	qcp->setMaxIterations(10);
 	rot = qcp->weightedSuperpose(p_localizedTipHeadings, r_localizedTargetHeadings,
-			weights, false);
+			weights, true);
+	CHECK_MESSAGE(qcp->getTranslation().is_equal_approx(Vector3()), vformat("%sis not zero.", qcp->getTranslation()).utf8().ptr());
 	memdelete(qcp);
 	Basis r1 = rot;
 	Basis r2 = p_basis;
 	real_t compare_angle;
 	Vector3 compare_axis;
 	(r1.inverse() * r2).get_axis_angle(compare_axis, compare_angle);
-	CHECK_MESSAGE(Math::is_zero_approx(compare_angle), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
+	CHECK_MESSAGE(Math::is_equal_approx(compare_angle, 0.f, 0.001f), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
 }
 
 void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, Vector<Vector3> &r_localizedTargetHeadings,
@@ -93,7 +95,8 @@ void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, 
 	QCP *qcp = memnew(QCP(1E-6, 1E-11));
 	qcp->setMaxIterations(10);
 	rot = qcp->weightedSuperpose(p_localizedTipHeadings, r_localizedTargetHeadings,
-			weights, false);
+			weights, true);
+	CHECK_MESSAGE(qcp->getTranslation().is_equal_approx(Vector3()), vformat("%sis not zero.", qcp->getTranslation()).utf8().ptr());
 	memdelete(qcp);
 	Quaternion r1 = rot;
 	Quaternion r2 = p_rot;
@@ -101,7 +104,7 @@ void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, 
 	Vector3 compare_axis;
 	(r1.inverse() * r2).get_axis_angle(compare_axis, compare_angle);
 	compare_angle = fmod(compare_angle, Math_TAU);
-	CHECK_MESSAGE(Math::is_zero_approx(compare_angle), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
+	CHECK_MESSAGE(Math::is_equal_approx(compare_angle, 0.f, 0.001f), vformat("%s does not match float compared %s.", rtos(0.0f), rtos(compare_angle)).utf8().ptr());
 }
 
 TEST_CASE("[Modules][EWBIK] qcp basis") {
