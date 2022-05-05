@@ -233,7 +233,7 @@ public:
 	 *            array of weights for each equivalent point position
 	 * @return
 	 */
-	Quaternion weightedSuperpose(PackedVector3Array &p_target, PackedVector3Array &p_moved, Vector<real_t> &p_weight, bool translate) {
+	Quaternion weightedSuperpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate) {
 		set(p_moved, p_target, p_weight, translate);
 		return getRotation();
 	}
@@ -248,7 +248,7 @@ private:
 	 * @param y
 	 *            3f points of coordinate set for superposition
 	 */
-	void calcRmsd(PackedVector3Array &y, PackedVector3Array &x) {
+	void calcRmsd(PackedVector3Array &x, PackedVector3Array &y) {
 		// QCP doesn't handle alignment of single values, so if we only have one point
 		// we just compute regular distance.
 		if (x.size() == 1) {
