@@ -231,9 +231,9 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	for (int32_t i = 0; i < stabilization_passes; i++) {
 		update_target_headings(p_for_bone, r_weights, r_htarget);
 		update_tip_headings(p_for_bone, r_htip);
-		rot = qcp.weightedSuperpose(*r_htip, *r_htarget, *r_weights, p_translate);
-		best_root_mean_square_deviation = qcp.getRmsd();
-		translation = qcp.getTranslation();
+		rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+		best_root_mean_square_deviation = qcp.get_rmsd();
+		translation = qcp.get_translation();
 		double bone_damp = p_for_bone->get_cos_half_dampen();
 		if (!Math::is_equal_approx(p_dampening, -1.0f)) {
 			bone_damp = p_dampening;

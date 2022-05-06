@@ -149,7 +149,7 @@ class QCP {
 	 *            required eigenvalue precision
 	 */
 public:
-	QCP(double evec_prec, double eval_prec);
+	QCP(double p_evec_prec, double p_eval_prec);
 
 private:
 
@@ -162,7 +162,7 @@ private:
 	 * @param y
 	 *            3f points of coordinate set for superposition
 	 */
-	void calcRmsd(PackedVector3Array &x, PackedVector3Array &y);
+	void calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y);
 
 	/**
 	 * Calculates the inner product between two coordinate sets x and y (optionally
@@ -175,13 +175,13 @@ private:
 	 * @param coords2
 	 * @return
 	 */
-	void innerProduct(PackedVector3Array &coords1, PackedVector3Array &coords2);
+	void inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2);
 
-	void calcRmsd(double len);
+	void calculate_rmsd(double len);
 
 	void set(PackedVector3Array &target, PackedVector3Array &moved);
 
-	Quaternion calcRotation();
+	Quaternion calculate_rotation();
 
 public:
 	/**
@@ -206,7 +206,7 @@ public:
 	 *
 	 * @return root mean square deviation for superposition of y onto x
 	 */
-	double getRmsd();
+	double get_rmsd();
 
 	/**
 	 * Weighted superposition.
@@ -217,13 +217,13 @@ public:
 	 *            array of weights for each equivalent point position
 	 * @return
 	 */
-	Quaternion weightedSuperpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate);
+	Quaternion weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate);
 
 public:
-	Quaternion getRotation();
-	double getRmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
+	Quaternion get_rotation();
+	double get_rmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
 	static void translate(Vector3 trans, PackedVector3Array &x);
 
-	Vector3 moveToWeightedCenter(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center);
-	Vector3 getTranslation();
+	Vector3 move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center);
+	Vector3 get_translation();
 };

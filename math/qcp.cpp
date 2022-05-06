@@ -30,7 +30,7 @@
 
 #include "qcp.h"
 
-QCP::QCP(double evec_prec, double eval_prec) {
+QCP::QCP(double p_evec_prec, double p_eval_prec) {
 	this->evec_prec = evec_prec;
 	this->eval_prec = eval_prec;
 }
@@ -43,31 +43,31 @@ void QCP::set(PackedVector3Array &p_target, PackedVector3Array &p_moved) {
 	innerProductCalculated = false;
 }
 
-double QCP::getRmsd() {
+double QCP::get_rmsd() {
 	if (!rmsdCalculated) {
-		calcRmsd(moved, target);
+		calculate_rmsd(moved, target);
 		rmsdCalculated = true;
 	}
 	return rmsd;
 }
 
-Quaternion QCP::getRotation() {
+Quaternion QCP::get_rotation() {
 	Quaternion result;
 	if (!transformationCalculated) {
 		if (!innerProductCalculated) {
-			innerProduct(target, moved);
+			inner_product(target, moved);
 		}
-		result = calcRotation();
+		result = calculate_rotation();
 		transformationCalculated = true;
 	}
 	return result;
 }
 
-void QCP::calcRmsd(double len) {
+void QCP::calculate_rmsd(double len) {
 	rmsd = Math::sqrt(Math::abs(2.0f * (e0 - mxEigenV) / len));
 }
 
-Quaternion QCP::calcRotation() {
+Quaternion QCP::calculate_rotation() {
 	// QCP doesn't handle single targets, so if we only have one point and one
 	// target, we just rotate by the angular distance between them
 	if (moved.size() == 1) {
@@ -172,9 +172,9 @@ Quaternion QCP::calcRotation() {
 	}
 }
 
-double QCP::getRmsd(PackedVector3Array &moved, PackedVector3Array &fixed) {
+double QCP::get_rmsd(PackedVector3Array &moved, PackedVector3Array &fixed) {
 	set(moved, fixed);
-	return getRmsd();
+	return get_rmsd();
 }
 
 void QCP::translate(Vector3 trans, PackedVector3Array &x) {
@@ -183,11 +183,11 @@ void QCP::translate(Vector3 trans, PackedVector3Array &x) {
 	}
 }
 
-Vector3 QCP::getTranslation() {
+Vector3 QCP::get_translation() {
 	return targetCenter - movedCenter;
 }
 
-Vector3 QCP::moveToWeightedCenter(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center) {
+Vector3 QCP::move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center) {
 	if (!weight.is_empty()) {
 		for (int i = 0; i < toCenter.size(); i++) {
 			center = toCenter[i] * weight[i];
@@ -206,7 +206,7 @@ Vector3 QCP::moveToWeightedCenter(PackedVector3Array &toCenter, Vector<real_t> &
 	return center;
 }
 
-void QCP::innerProduct(PackedVector3Array &coords1, PackedVector3Array &coords2) {
+void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2) {
 	double x1, x2, y1, y2, z1, z2;
 	double g1 = 0, g2 = 0;
 
@@ -284,7 +284,7 @@ void QCP::innerProduct(PackedVector3Array &coords1, PackedVector3Array &coords2)
 	innerProductCalculated = true;
 }
 
-void QCP::calcRmsd(PackedVector3Array &x, PackedVector3Array &y) {
+void QCP::calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y) {
 	// QCP doesn't handle alignment of single values, so if we only have one point
 	// we just compute regular distance.
 	if (x.size() == 1) {
@@ -292,15 +292,15 @@ void QCP::calcRmsd(PackedVector3Array &x, PackedVector3Array &y) {
 		rmsdCalculated = true;
 	} else {
 		if (!innerProductCalculated) {
-			innerProduct(y, x);
+			inner_product(y, x);
 		}
-		calcRmsd(wsum);
+		calculate_rmsd(wsum);
 	}
 }
 
-Quaternion QCP::weightedSuperpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate) {
+Quaternion QCP::weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate) {
 	set(p_moved, p_target, p_weight, translate);
-	return getRotation();
+	return get_rotation();
 }
 
 void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate) {
@@ -313,9 +313,9 @@ void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<
 	this->weight = p_weight;
 
 	if (p_translate) {
-		moveToWeightedCenter(this->moved, this->weight, movedCenter);
+		move_to_weighted_center(this->moved, this->weight, movedCenter);
 		wsum = 0; // set wsum to 0 so we don't double up.
-		moveToWeightedCenter(this->target, this->weight, targetCenter);
+		move_to_weighted_center(this->target, this->weight, targetCenter);
 		translate(movedCenter * -1, this->moved);
 		translate(targetCenter * -1, this->target);
 	} else {
