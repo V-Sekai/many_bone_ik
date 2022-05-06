@@ -29,16 +29,22 @@
 /*************************************************************************/
 
 #include "register_types.h"
-#include "skeleton_modification_3d_ewbik.h"
-#include "ik_pin_3d.h"
 
-void register_ewbik_types() {
+#include "ik_pin_3d.h"
+#include "skeleton_modification_3d_ewbik.h"
+
+void initialize_ewbik_module(ModuleInitializationLevel  p_level) {
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+		return;
+	}
 	ClassDB::register_class<SkeletonModification3DEWBIK>();
 	ClassDB::register_class<IKBone3D>();
 	ClassDB::register_class<IKEffector3D>();
 	ClassDB::register_class<IKBoneChain>();
-	
 }
 
-void unregister_ewbik_types() {
+void uninitialize_ewbik_module(ModuleInitializationLevel  p_level) {
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+		return;
+	}
 }
