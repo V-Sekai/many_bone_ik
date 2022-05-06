@@ -313,9 +313,9 @@ void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<
 	this->weight = p_weight;
 
 	if (p_translate) {
-		move_to_weighted_center(this->moved, this->weight, movedCenter);
+		movedCenter = move_to_weighted_center(this->moved, this->weight, movedCenter);
 		wsum = 0; // set wsum to 0 so we don't double up.
-		move_to_weighted_center(this->target, this->weight, targetCenter);
+		targetCenter = move_to_weighted_center(this->target, this->weight, targetCenter);
 		translate(movedCenter * -1, this->moved);
 		translate(targetCenter * -1, this->target);
 	} else {
