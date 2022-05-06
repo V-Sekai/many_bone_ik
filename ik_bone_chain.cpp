@@ -222,33 +222,24 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 }
 
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
-	// print_line(vformat("Name %s Transform3D %s", p_for_bone->get_name(), p_for_bone->get_global_pose()));	
 	QCP qcp = QCP(1E-6, 1E-11);
 	Quaternion rot = qcp.weightedSuperpose(*r_htip, *r_htarget, *r_weights, p_translate);
 	Vector3 translation = qcp.getTranslation();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
-	// if (!Math::is_equal_approx(p_dampening, -1.0f)) {
-	// 	bone_damp = p_dampening;
-	// 	rot = clamp_to_angle(rot, bone_damp);
-	// } else {
-	// 	rot = clamp_to_quadrance_angle(rot, bone_damp);
-	// }
+	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
+		bone_damp = p_dampening;
+		rot = clamp_to_angle(rot, bone_damp);
+	} else {
+		rot = clamp_to_quadrance_angle(rot, bone_damp);
+	}
 	IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
 	ERR_FAIL_NULL_V(parent_transform_ik, INFINITY);
-	// Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis.inverse();
-	// Basis current_pose_basis = p_for_bone->get_ik_transform().get_transform().basis;
-	// Transform3D xform = Transform3D(parent_global_pose_basis * rot * current_pose_basis, Vector3());
 	const Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
 	const Quaternion new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
-	const Quaternion parent_global_transform = parent_transform_ik->get_global_transform().basis; 
-	const Quaternion parent_global_transform_basis_inv = parent_transform_ik->get_global_transform().basis.inverse(); 
 	const Transform3D bone_pose = p_for_bone->get_pose();
 	const Quaternion composed_rotation = new_rotation * bone_pose.basis;
-	const Transform3D before = p_for_bone->get_global_pose();
-	const Transform3D result = Transform3D(composed_rotation, bone_pose.origin);
+	const Transform3D result = Transform3D(composed_rotation, bone_pose.origin + translation);
 	p_for_bone->set_pose(result);
-	const Transform3D after = p_for_bone->get_global_pose();
-	// print_line(vformat("Name %s Transform3D %s QCP rotation %s", p_for_bone->get_name(), result, rot));
 	return 0.0f;
 }
 
