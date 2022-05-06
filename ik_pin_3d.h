@@ -43,7 +43,6 @@ class IKEffector3D : public Resource {
 	friend class IKBone3D;
 	friend class IKBoneChain;
 
-private:
 	Ref<IKBone3D> for_bone;
 	bool use_target_node_rotation = true;
 	NodePath target_node;

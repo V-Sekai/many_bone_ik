@@ -39,7 +39,6 @@
 class IKBoneChain : public Resource {
 	GDCLASS(IKBoneChain, Resource);
 
-private:
 	Ref<IKBone3D> root;
 	Ref<IKBone3D> tip;
 	Vector<Ref<IKBone3D>> bones;

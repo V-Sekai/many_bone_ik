@@ -43,7 +43,6 @@ class IKEffector3D;
 class IKBone3D : public Resource {
 	GDCLASS(IKBone3D, Resource);
 
-private:
 	BoneId bone_id = -1;
 	Ref<IKBone3D> parent = nullptr;
 	Vector<Ref<IKBone3D>> children;
