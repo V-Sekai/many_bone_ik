@@ -35,10 +35,6 @@ QCP::QCP(double evec_prec, double eval_prec) {
 	this->eval_prec = eval_prec;
 }
 
-void QCP::setMaxIterations(int max) {
-	max_iterations = max;
-}
-
 void QCP::set(PackedVector3Array &p_target, PackedVector3Array &p_moved) {
 	target = p_target;
 	moved = p_moved;
@@ -68,43 +64,6 @@ Quaternion QCP::getRotation() {
 }
 
 void QCP::calcRmsd(double len) {
-	if (max_iterations > 0) {
-		double Sxx2 = Sxx * Sxx;
-		double Syy2 = Syy * Syy;
-		double Szz2 = Szz * Szz;
-
-		double Sxy2 = Sxy * Sxy;
-		double Syz2 = Syz * Syz;
-		double Sxz2 = Sxz * Sxz;
-
-		double Syx2 = Syx * Syx;
-		double Szy2 = Szy * Szy;
-		double Szx2 = Szx * Szx;
-
-		double SyzSzymSyySzz2 = 2.0 * (Syz * Szy - Syy * Szz);
-		double Sxx2Syy2Szz2Syz2Szy2 = Syy2 + Szz2 - Sxx2 + Syz2 + Szy2;
-
-		double c2 = -2.0 * (Sxx2 + Syy2 + Szz2 + Sxy2 + Syx2 + Sxz2 + Szx2 + Syz2 + Szy2);
-		double c1 = 8.0 * (Sxx * Syz * Szy + Syy * Szx * Sxz + Szz * Sxy * Syx - Sxx * Syy * Szz - Syz * Szx * Sxy - Szy * Syx * Sxz);
-
-		double Sxy2Sxz2Syx2Szx2 = Sxy2 + Sxz2 - Syx2 - Szx2;
-
-		double c0 = Sxy2Sxz2Syx2Szx2 * Sxy2Sxz2Syx2Szx2 + (Sxx2Syy2Szz2Syz2Szy2 + SyzSzymSyySzz2) * (Sxx2Syy2Szz2Syz2Szy2 - SyzSzymSyySzz2) + (-(SxzpSzx) * (SyzmSzy) + (SxymSyx) * (SxxmSyy - Szz)) * (-(SxzmSzx) * (SyzpSzy) + (SxymSyx) * (SxxmSyy + Szz)) + (-(SxzpSzx) * (SyzpSzy) - (SxypSyx) * (SxxpSyy - Szz)) * (-(SxzmSzx) * (SyzmSzy) - (SxypSyx) * (SxxpSyy + Szz)) + (+(SxypSyx) * (SyzpSzy) + (SxzpSzx) * (SxxmSyy + Szz)) * (-(SxymSyx) * (SyzmSzy) + (SxzpSzx) * (SxxpSyy + Szz)) + (+(SxypSyx) * (SyzmSzy) + (SxzmSzx) * (SxxmSyy - Szz)) * (-(SxymSyx) * (SyzpSzy) + (SxzmSzx) * (SxxpSyy - Szz));
-
-		int i;
-		for (i = 1; i < (max_iterations + 1); ++i) {
-			double oldg = mxEigenV;
-			double Y = 1 / mxEigenV;
-			double Y2 = Y * Y;
-			double delta = ((((Y * c0 + c1) * Y + c2) * Y2 + 1) / ((Y * c1 + 2 * c2) * Y2 * Y + 4));
-			mxEigenV -= delta;
-
-			if (Math::abs(mxEigenV - oldg) < Math::abs(eval_prec * mxEigenV)) {
-				break;
-			}
-		}
-	}
-
 	rmsd = Math::sqrt(Math::abs(2.0f * (e0 - mxEigenV) / len));
 }
 
@@ -216,6 +175,12 @@ Quaternion QCP::calcRotation() {
 double QCP::getRmsd(PackedVector3Array &moved, PackedVector3Array &fixed) {
 	set(moved, fixed);
 	return getRmsd();
+}
+
+void QCP::translate(Vector3 trans, PackedVector3Array &x) {
+	for (Vector3 &p : x) {
+		p += trans;
+	}
 }
 
 Vector3 QCP::getTranslation() {

@@ -115,7 +115,6 @@ class QCP {
 
 	double evec_prec = static_cast<double>(1E-6);
 	double eval_prec = static_cast<double>(1E-11);
-	int max_iterations = 5;
 
 	PackedVector3Array target;
 
@@ -128,8 +127,6 @@ class QCP {
 	Vector3 movedCenter;
 
 	double e0 = 0;
-	// private Matrix3f Quaternionmat = new Matrix3f();
-	// private Matrix4f transformation = new Matrix4f();
 	double rmsd = 0;
 	double Sxy = 0, Sxz = 0, Syx = 0, Syz = 0, Szx = 0, Szy = 0;
 	double SxxpSyy = 0, Szz = 0, mxEigenV = 0, SyzmSzy = 0, SxzmSzx = 0, SxymSyx = 0;
@@ -154,64 +151,8 @@ class QCP {
 public:
 	QCP(double evec_prec, double eval_prec);
 
-	/**
-	 * Sets the maximum number of iterations QCP should run before giving up. In
-	 * most situations QCP converges in 3 or 4 iterations, but in some situations
-	 * convergence occurs slowly or not at all, and so an exit condition is used.
-	 * The default value is 20. Increase it for more stability.
-	 *
-	 * @param max
-	 */
-	void setMaxIterations(int max);
-
-	/**
-	 * Sets the two input coordinate arrays. These input arrays must be of equal
-	 * length. Input coordinates are not modified.
-	 *
-	 * @param x
-	 *            3f points of reference coordinate set
-	 * @param y
-	 *            3f points of coordinate set for superposition
-	 */
 private:
-	void set(Vector<PackedVector3Array &> &target, Vector<PackedVector3Array &> &moved);
 
-	/**
-	 * Sets the two input coordinate arrays and weight array. All input arrays must
-	 * be of equal length. Input coordinates are not modified.
-	 *
-	 * @param fixed
-	 *            3f points of reference coordinate set
-	 * @param moved
-	 *            3f points of coordinate set for superposition
-	 * @param weight
-	 *            a weight in the inclusive range [0,1] for each point
-	 */
-public:
-	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate);
-
-	/**
-	 * Return the RMSD of the superposition of input coordinate set y onto x. Note,
-	 * this is the fasted way to calculate an RMSD without actually superposing the
-	 * two sets. The calculation is performed "lazy", meaning calculations are only
-	 * performed if necessary.
-	 *
-	 * @return root mean square deviation for superposition of y onto x
-	 */
-	double getRmsd();
-
-	/**
-	 * Weighted superposition.
-	 *
-	 * @param fixed
-	 * @param moved
-	 * @param weight
-	 *            array of weights for each equivalent point position
-	 * @return
-	 */
-	Quaternion weightedSuperpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate);
-
-private:
 	/**
 	 * Calculates the RMSD value for superposition of y onto x. This requires the
 	 * coordinates to be precentered.
@@ -238,19 +179,50 @@ private:
 
 	void calcRmsd(double len);
 
-	Quaternion calcQuaternionation();
 	void set(PackedVector3Array &target, PackedVector3Array &moved);
 
 	Quaternion calcRotation();
 
 public:
+	/**
+	 * Sets the two input coordinate arrays and weight array. All input arrays must
+	 * be of equal length. Input coordinates are not modified.
+	 *
+	 * @param fixed
+	 *            3f points of reference coordinate set
+	 * @param moved
+	 *            3f points of coordinate set for superposition
+	 * @param weight
+	 *            a weight in the inclusive range [0,1] for each point
+	 */
+
+	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate);
+
+	/**
+	 * Return the RMSD of the superposition of input coordinate set y onto x. Note,
+	 * this is the fasted way to calculate an RMSD without actually superposing the
+	 * two sets. The calculation is performed "lazy", meaning calculations are only
+	 * performed if necessary.
+	 *
+	 * @return root mean square deviation for superposition of y onto x
+	 */
+	double getRmsd();
+
+	/**
+	 * Weighted superposition.
+	 *
+	 * @param fixed
+	 * @param moved
+	 * @param weight
+	 *            array of weights for each equivalent point position
+	 * @return
+	 */
+	Quaternion weightedSuperpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate);
+
+public:
 	Quaternion getRotation();
 	double getRmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
-	static void translate(Vector3 trans, PackedVector3Array &x) {
-		for (Vector3 &p : x) {
-			p += trans;
-		}
-	}
+	static void translate(Vector3 trans, PackedVector3Array &x);
 
 	Vector3 moveToWeightedCenter(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center);
 	Vector3 getTranslation();
