@@ -116,3 +116,6 @@ float IKBone3D::get_cos_half_dampen() const {
 void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
 	cos_half_dampen = p_cos_half_dampen;
 }
+IKTransform3D &IKBone3D::get_ik_transform() {
+	return xform;
+}
