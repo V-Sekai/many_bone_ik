@@ -37,6 +37,7 @@ void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
+	ClassDB::register_class<IKEffectorTemplate>();
 	ClassDB::register_class<SkeletonModification3DEWBIK>();
 	ClassDB::register_class<IKBone3D>();
 	ClassDB::register_class<IKEffector3D>();

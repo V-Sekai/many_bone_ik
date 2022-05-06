@@ -102,7 +102,7 @@ void SkeletonModification3DEWBIK::set_pin_bone(int32_t p_pin_index, const String
 void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_target_node) {
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	ERR_FAIL_NULL(data);
-	data->target_node = p_target_node;
+	data->set_target_node(p_target_node);
 	is_dirty = true;
 	notify_property_list_changed();
 }
@@ -110,13 +110,13 @@ void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, c
 NodePath SkeletonModification3DEWBIK::get_pin_target_nodepath(int32_t p_pin_index) {
 	ERR_FAIL_INDEX_V(p_pin_index, pins.size(), NodePath());
 	const Ref<IKEffectorTemplate> data = pins[p_pin_index];
-	return data->target_node;
+	return data->get_target_node();
 }
 
 void SkeletonModification3DEWBIK::set_pin_use_node_rotation(int32_t p_pin_index, bool p_use_node_rot) {
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	ERR_FAIL_NULL(data);
-	data->use_target_node_rotation = p_use_node_rot;
+	data->set_target_node_rotation(p_use_node_rot);
 	is_dirty = true;
 	notify_property_list_changed();
 }
@@ -124,7 +124,7 @@ void SkeletonModification3DEWBIK::set_pin_use_node_rotation(int32_t p_pin_index,
 bool SkeletonModification3DEWBIK::get_pin_use_node_rotation(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
 	const Ref<IKEffectorTemplate> data = pins[p_effector_index];
-	return data->use_target_node_rotation;
+	return data->get_target_node_rotation();
 }
 
 Vector<Ref<IKEffectorTemplate>> SkeletonModification3DEWBIK::get_bone_effectors() const {
@@ -222,7 +222,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			if (ik_bone_3d->get_bone_id() != bone_id) {
 				continue;
 			}
-			Node *node = skeleton->get_node(data->target_node);
+			Node *node = skeleton->get_node(data->get_target_node());
 			if (!node) {
 				continue;
 			}
@@ -238,9 +238,9 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			if (is_renamed_connected) {
 				node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
 			}
-			node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->target_node), CONNECT_REFERENCE_COUNTED);
-			node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->target_node), CONNECT_REFERENCE_COUNTED);
-			node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->target_node), CONNECT_REFERENCE_COUNTED);
+			node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
+			node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
+			node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
 		}
 	}
 	is_dirty = false;
@@ -280,14 +280,14 @@ void SkeletonModification3DEWBIK::update_effectors_map() {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
 		String bone = data->get_name();
 		BoneId bone_id = skeleton->find_bone(bone);
-		float depth_falloff = data->depth_falloff;
+		float depth_falloff = data->get_depth_falloff();
 		for (Ref<IKBone3D> ik_bone_3d : list) {
 			if (ik_bone_3d->get_bone_id() != bone_id) {
 				continue;
 			}
 			ik_bone_3d->create_pin();
 			Ref<IKEffector3D> effector_3d = ik_bone_3d->get_pin();
-			effector_3d->set_target_node(skeleton, data->target_node);
+			effector_3d->set_target_node(skeleton, data->get_target_node());
 			effector_3d->set_depth_falloff(depth_falloff);
 		}
 	}
@@ -395,7 +395,7 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			r_ret = data->get_name();
 			return true;
 		} else if (what == "target_node") {
-			r_ret = data->target_node;
+			r_ret = data->get_target_node();
 			return true;
 		} else if (what == "use_node_rotation") {
 			r_ret = get_pin_use_node_rotation(index);
@@ -550,13 +550,13 @@ void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 float SkeletonModification3DEWBIK::get_pin_depth_falloff(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), 0.0f);
 	const Ref<IKEffectorTemplate> data = pins[p_effector_index];
-	return data->depth_falloff;
+	return data->get_depth_falloff();
 }
 
 void SkeletonModification3DEWBIK::set_pin_depth_falloff(int32_t p_effector_index, const float p_depth_falloff) {
 	Ref<IKEffectorTemplate> data = pins[p_effector_index];
 	ERR_FAIL_NULL(data);
-	data->depth_falloff = p_depth_falloff;
+	data->set_depth_falloff(p_depth_falloff);
 	is_dirty = true;
 	notify_property_list_changed();
 }

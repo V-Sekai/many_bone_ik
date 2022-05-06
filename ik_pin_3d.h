@@ -78,8 +78,8 @@ public:
 	void set_target_node(Node *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
 	Transform3D get_goal_global_pose() const;
-	void set_use_target_node_rotation(bool p_use);
-	bool get_use_target_node_rotation() const;
+	void set_target_node_rotation(bool p_use);
+	bool get_target_node_rotation() const;
 	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;

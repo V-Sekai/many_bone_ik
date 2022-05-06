@@ -39,11 +39,11 @@ NodePath IKEffector3D::get_target_node() const {
 	return target_node;
 }
 
-void IKEffector3D::set_use_target_node_rotation(bool p_use) {
+void IKEffector3D::set_target_node_rotation(bool p_use) {
 	use_target_node_rotation = p_use;
 }
 
-bool IKEffector3D::get_use_target_node_rotation() const {
+bool IKEffector3D::get_target_node_rotation() const {
 	return use_target_node_rotation;
 }
 
