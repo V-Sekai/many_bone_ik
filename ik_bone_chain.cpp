@@ -243,11 +243,7 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		}
 		IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
 		ERR_FAIL_NULL_V(parent_transform_ik, INFINITY);
-		Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
-		Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
-		Transform3D bone_pose = p_for_bone->get_pose();
-		Basis composed_rotation = new_rotation * bone_pose.basis;
-		Transform3D result = Transform3D(composed_rotation.orthogonalized(), bone_pose.origin);
+		Transform3D result = parent_transform_ik->get_global_transform().affine_inverse() * Transform3D(rot, translation) * parent_transform_ik->get_global_transform() * p_for_bone->get_pose();
 		if (best_root_mean_square_deviation >= new_root_mean_square_deviation) {
 			best_root_mean_square_deviation = new_root_mean_square_deviation;
 			p_for_bone->set_pose(result);
