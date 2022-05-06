@@ -15,12 +15,6 @@
 			<description>
 			</description>
 		</method>
-		<method name="find_pin" qualifiers="const">
-			<return type="IKBone3D" />
-			<argument index="0" name="name" type="String" />
-			<description>
-			</description>
-		</method>
 		<method name="get_constraint_count" qualifiers="const">
 			<return type="int" />
 			<description>
@@ -74,8 +68,6 @@
 	</methods>
 	<members>
 		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.0872665">
-		</member>
-		<member name="default_degrees_damp" type="float" setter="set_default_degrees_damp" getter="get_default_degrees_damp" default="5.0">
 		</member>
 		<member name="print_skeleton" type="bool" setter="set_debug_skeleton" getter="get_debug_skeleton" default="false">
 		</member>
