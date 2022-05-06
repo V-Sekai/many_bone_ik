@@ -233,7 +233,7 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		update_target_headings(p_for_bone, r_weights, r_htarget);
 		update_tip_headings(p_for_bone, r_htip);
 		rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
-		best_root_mean_square_deviation = qcp.get_rmsd();
+		new_root_mean_square_deviation = qcp.get_rmsd();
 		translation = qcp.get_translation();
 		double bone_damp = p_for_bone->get_cos_half_dampen();
 		if (!Math::is_equal_approx(p_dampening, -1.0f)) {
@@ -254,7 +254,6 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 			p_for_bone->set_pose(result);
 			break;
 		}
-		best_root_mean_square_deviation = new_root_mean_square_deviation;
 		p_for_bone->set_pose(result);
 	}
 	return best_root_mean_square_deviation;
