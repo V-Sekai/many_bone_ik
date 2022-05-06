@@ -650,6 +650,7 @@ String SkeletonModification3DEWBIK::get_pin_bone_name(int32_t p_effector_index) 
 	Ref<IKEffectorTemplate> data = pins[p_effector_index];
 	return data->get_name();
 }
+
 void SkeletonModification3DEWBIK::check_shadow_bones_transform() {
 	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
