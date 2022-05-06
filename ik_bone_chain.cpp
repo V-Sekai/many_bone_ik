@@ -40,12 +40,12 @@ Ref<IKBone3D> IKBoneChain::get_tip() const {
 
 bool IKBoneChain::is_root_pinned() const {
 	ERR_FAIL_NULL_V(root, false);
-	return root->get_parent().is_null() && root->is_pin();
+	return root->get_parent().is_null() && root->is_pinned();
 }
 
-bool IKBoneChain::is_pin() const {
+bool IKBoneChain::is_pinned() const {
 	ERR_FAIL_NULL_V(tip, false);
-	return tip->is_pin();
+	return tip->is_pinned();
 }
 
 Vector<Ref<IKBoneChain>> IKBoneChain::get_child_chains() const {
@@ -110,7 +110,7 @@ void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 			BoneId bone = list[name_i]->get_bone_id();
 			String bone_name = skeleton->get_bone_name(bone);
 			String effector;
-			if (list[name_i]->is_pin()) {
+			if (list[name_i]->is_pinned()) {
 				effector += "Effector ";
 			}
 			String prefix;
@@ -126,12 +126,12 @@ void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 }
 
 void IKBoneChain::update_pinned_list() {
-	real_t depth_falloff = is_pin() ? tip->get_pin()->depth_falloff : 1.0;
+	real_t depth_falloff = is_pinned() ? tip->get_pin()->depth_falloff : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
 		chain->update_pinned_list();
 	}
-	if (is_pin()) {
+	if (is_pinned()) {
 		effector_list.push_back(tip->get_pin());
 	}
 	if (!Math::is_zero_approx(depth_falloff)) {
@@ -292,7 +292,7 @@ void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 
 void IKBoneChain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_root_pinned"), &IKBoneChain::is_root_pinned);
-	ClassDB::bind_method(D_METHOD("is_pin"), &IKBoneChain::is_pin);
+	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBoneChain::is_pinned);
 }
 
 void IKBoneChain::update_root_transform(Transform3D p_root_transform) {

@@ -92,14 +92,14 @@ void IKBone3D::create_pin() {
 	pin = Ref<IKEffector3D>(memnew(IKEffector3D(this)));
 }
 
-bool IKBone3D::is_pin() const {
+bool IKBone3D::is_pinned() const {
 	return pin.is_valid();
 }
 
 void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_pin"), &IKBone3D::get_pin);
 	ClassDB::bind_method(D_METHOD("set_pin", "pin"), &IKBone3D::set_pin);
-	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pin);
+	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pinned);
 }
 
 IKBone3D::IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, float p_default_dampening) :

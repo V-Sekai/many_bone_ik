@@ -70,7 +70,7 @@ public:
 	void set_initial_pose(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength);
 	void create_pin();
-	bool is_pin() const;
+	bool is_pinned() const;
 	IKBone3D() {}
 	IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	~IKBone3D() {}

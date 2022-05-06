@@ -76,7 +76,7 @@ public:
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_root_pinned() const;
-	bool is_pin() const;
+	bool is_pinned() const;
 	Vector<Ref<IKBoneChain>> get_child_chains() const;
 	void set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root();
