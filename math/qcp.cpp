@@ -124,9 +124,7 @@ Quaternion QCP::calcRotation() {
 			// We select a PI angle rotation around
 			// an arbitrary vector orthogonal to u.
 			Vector3 w = u.normalized();
-			Vector3 axis = getAxis(-w.x, -w.y, -w.z, 0.0f);
-			real_t angle = getAngle(-w.x, -w.y, -w.z, 0.0f);
-			return Quaternion(axis, angle);
+			return Quaternion(-1 * -w.x, -1 * -w.y, -1 * -w.z, 0.0f).normalized();
 		}
 		// The general case: (u, v) defines a plane, we select
 		// the shortest possible rotation: axis orthogonal to this plane.
@@ -136,9 +134,7 @@ Quaternion QCP::calcRotation() {
 		double q1 = coeff * q.x;
 		double q2 = coeff * q.y;
 		double q3 = coeff * q.z;
-		Vector3 axis = getAxis(q1, q2, q3, q0);
-		real_t angle = getAngle(q1, q2, q3, q0);
-		return Quaternion(axis, angle);
+		return Quaternion(-1 * q1, -1 * q2, -1 * q3, q0).normalized();
 	} else {
 		double a11 = SxxpSyy + Szz - mxEigenV;
 		double a12 = SyzmSzy;
@@ -213,16 +209,7 @@ Quaternion QCP::calcRotation() {
 		min = q2 < min ? q2 : min;
 		min = q3 < min ? q3 : min;
 		min = q4 < min ? q4 : min;
-
-		// Copy the axis angle code from the EWBIK.
-		real_t q1_m = q1 / min;
-		real_t q2_m = q2 / min;
-		real_t q3_m = q3 / min;
-		real_t q4_m = q4 / min;
-		real_t norm = Math::sqrt(q1_m * q1_m + q2_m * q2_m + q3_m * q3_m + q4_m * q4_m);
-		Vector3 axis = getAxis(q2_m / norm, q3_m / norm, q4_m / norm, q1_m / norm);
-		real_t angle = getAngle(q2_m / norm, q3_m / norm, q4_m / norm, q1_m / norm);
-		return Quaternion(axis, angle).normalized();
+		return Quaternion(-1 * q2, -1 * q3, -1 * q4, q1).normalized();
 	}
 }
 

@@ -176,35 +176,6 @@ public:
 private:
 	void set(Vector<PackedVector3Array &> &target, Vector<PackedVector3Array &> &moved);
 
-	/** Get the normalized axis of the rotation.
-	 * @return normalized axis of the rotation
-	 * @see #Rotation(T , double)
-	 */
-	Vector3 getAxis(real_t p_x, real_t p_y, real_t p_z, real_t p_w) const {
-		real_t squaredSine = p_x * p_x + p_y * p_y + p_z * p_z;
-		if (squaredSine == 0.0f) {
-			return Vector3(1.0f, 0.0f, 0.0f);
-		} else if (p_w < 0.0f) {
-			real_t inverse = 1.0f / Math::sqrt(squaredSine);
-			return Vector3(p_x * inverse, p_y * inverse, p_z * inverse);
-		}
-		real_t inverse = -1.0f / Math::sqrt(squaredSine);
-		return Vector3(p_x * inverse, p_y * inverse, p_z * inverse);
-	}
-
-	/** Get the angle of the rotation.
-	 * @return angle of the rotation (between 0 and &pi;)
-	 * @see #Rotation(T , double)
-	 */
-	real_t getAngle(real_t p_x, real_t p_y, real_t p_z, real_t p_w) const {
-		if ((p_w < -0.1f) || (p_w > 0.1f)) {
-			return 2.0f * Math::asin(Math::sqrt(p_x * p_x + p_y * p_y + p_z * p_z));
-		} else if (p_w < 0) {
-			return 2.0f * Math::acos(-p_w);
-		}
-		return 2.0f * Math::acos(p_w);
-	}
-
 	/**
 	 * Sets the two input coordinate arrays and weight array. All input arrays must
 	 * be of equal length. Input coordinates are not modified.
