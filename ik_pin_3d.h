@@ -57,15 +57,7 @@ class IKEffector3D : public Resource {
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
-
-	Vector3 setToInvertedTip(Vector3 p1, Vector3 p2) const {
-		Vector3 vec;
-		vec.x = (p1.x - p2.x) + p1.x;
-		vec.y = (p1.y - p2.y) + p1.y;
-		vec.z = (p1.z - p2.z) + p1.z;
-		return vec;
-	}
-
+	
 protected:
 	static void _bind_methods();
 	void create_headings(Vector<real_t> &p_weights);
