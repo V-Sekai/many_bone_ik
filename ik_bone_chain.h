@@ -40,7 +40,6 @@ class IKBoneChain : public Resource {
 	GDCLASS(IKBoneChain, Resource);
 
 private:
-	QCP qcp = QCP(1E-6, 1E-11);
 	Ref<IKBone3D> root;
 	Ref<IKBone3D> tip;
 	Vector<Ref<IKBone3D>> bones;
