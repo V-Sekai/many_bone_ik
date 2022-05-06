@@ -221,10 +221,7 @@ void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2
 	Szz = 0;
 
 	if (!weight.is_empty()) {
-		// wsum = 0;
 		for (int i = 0; i < coords1.size(); i++) {
-			// wsum += weight[i];
-
 			x1 = weight[i] * coords1[i].x;
 			y1 = weight[i] * coords1[i].y;
 			z1 = weight[i] * coords1[i].z;
