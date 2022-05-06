@@ -63,7 +63,7 @@ public:
 	Ref<IKBone3D> get_parent() const;
 	void set_pin(const Ref<IKEffector3D> &p_pin);
 	Ref<IKEffector3D> get_pin() const;
-	IKTransform3D get_ik_transform() const {
+	IKTransform3D &get_ik_transform() {
 		return xform;
 	}
 	void set_pose(const Transform3D &p_transform);

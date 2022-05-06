@@ -51,7 +51,6 @@ private:
 	Vector<real_t> heading_weights;
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
 	Skeleton3D *skeleton = nullptr;
-	QCP qcp = QCP(1E-6, 1E-11);
 	IKTransform3D root_transform;
 
 	BoneId find_root_bone_id(BoneId p_bone);

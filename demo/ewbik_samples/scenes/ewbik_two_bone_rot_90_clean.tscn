@@ -1,0 +1,50 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" uid="uid://bjjiy2toj1hdi" path="res://ewbik_samples/art/ewbik_test_rig_2_bone.glb" id="1_7vofn"]
+
+[sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_3rh2l"]
+execution_mode = 1
+root_bone = "Bone_01"
+default_damp = 0.0872665
+ik_iterations = 1
+pin_count = 1
+pins/0/name = "Bone_03"
+pins/0/target_node = NodePath("../../../BoneAttachment3D")
+pins/0/use_node_rotation = false
+pins/0/depth_falloff = 1.0
+pins/0/remove = false
+
+[sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_xr835"]
+modification_count = 1
+modifications/0 = SubResource( "SkeletonModification3DEWBIK_3rh2l" )
+
+[sub_resource type="BoxMesh" id="BoxMesh_cy8x8"]
+size = Vector3(0.25, 0.25, 0.125)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="ewbik_test_rig_2_bone" parent="." instance=ExtResource( "1_7vofn" )]
+
+[node name="Skeleton3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature" index="0"]
+modification_stack = SubResource( "SkeletonModificationStack3D_xr835" )
+
+[node name="Simple_Test_Rig" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D" index="0"]
+visible = false
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D" index="1"]
+transform = Transform3D(1, 7.96616e-16, 5.67414e-08, 1.79443e-14, 1, -3.30287e-07, -5.67414e-08, 3.30287e-07, 1, 9.5594e-16, 1.2, 3.96345e-07)
+bone_name = "Bone_03"
+bone_idx = 2
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D/BoneAttachment3D"]
+mesh = SubResource( "BoxMesh_cy8x8" )
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="."]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 9.5594e-16, 1.2, 3.96345e-07)
+bone_name = "Bone_03"
+bone_idx = 2
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="BoneAttachment3D"]
+mesh = SubResource( "BoxMesh_cy8x8" )
+
+[editable path="ewbik_test_rig_2_bone"]
