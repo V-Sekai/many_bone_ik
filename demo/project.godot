@@ -15,6 +15,15 @@ run/main_scene="res://ewbik_samples/scenes/ewbik_3_bone_chain_ewbik.tscn"
 config/icon="res://icon.png"
 config/features=PackedStringArray("4.0")
 
+[debug]
+
+file_logging/enable_file_logging=true
+
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true
+theme/default_font_generate_mipmaps=true
+
 [rendering]
 
 environment/default_environment="res://default_env.tres"
