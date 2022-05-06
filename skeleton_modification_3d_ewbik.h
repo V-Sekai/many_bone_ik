@@ -42,7 +42,7 @@ class IKEffectorTemplate : public Resource {
 public:
 	NodePath target_node;
 	float depth_falloff = 1.0f;
-	bool use_target_node_rotation = false;
+	bool use_target_node_rotation = true;
 	IKEffectorTemplate() {
 	}
 };
