@@ -221,20 +221,20 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 	return manual_RMSD;
 }
 
-
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
 	float best_root_mean_square_deviation = get_manual_msd(*r_htip, *r_htarget, *r_weights);
 	float new_root_mean_square_deviation = 999999.0f;
 	int32_t stabilization_passes = 4;
-	Quaternion rot;
-	Vector3 translation;
 	QCP qcp = QCP(1E-6, 1E-11);
 	for (int32_t i = 0; i < stabilization_passes; i++) {
 		update_target_headings(p_for_bone, r_weights, r_htarget);
 		update_tip_headings(p_for_bone, r_htip);
-		rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 		new_root_mean_square_deviation = qcp.get_rmsd();
-		translation = qcp.get_translation();
+		Vector3 translation;
+		if (p_translate) {
+			translation = qcp.get_translation();
+		}
 		double bone_damp = p_for_bone->get_cos_half_dampen();
 		if (!Math::is_equal_approx(p_dampening, -1.0f)) {
 			bone_damp = p_dampening;
