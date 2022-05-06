@@ -238,7 +238,7 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	const Quaternion new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
 	const Transform3D bone_pose = p_for_bone->get_pose();
 	const Quaternion composed_rotation = new_rotation * bone_pose.basis;
-	const Transform3D result = Transform3D(composed_rotation, bone_pose.origin + translation);
+	const Transform3D result = Transform3D(composed_rotation.orthogonalized(), bone_pose.origin + translation);
 	p_for_bone->set_pose(result);
 	return 0.0f;
 }
