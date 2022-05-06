@@ -166,6 +166,24 @@ class QCP {
 
 	Quaternion calculate_rotation();
 
+	/**
+	 * Sets the two input coordinate arrays and weight array. All input arrays must
+	 * be of equal length. Input coordinates are not modified.
+	 *
+	 * @param fixed
+	 *            3f points of reference coordinate set
+	 * @param moved
+	 *            3f points of coordinate set for superposition
+	 * @param weight
+	 *            a weight in the inclusive range [0,1] for each point
+	 */
+	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate);
+
+	static void translate(Vector3 trans, PackedVector3Array &x);
+
+	double get_rmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
+	Vector3 move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center);
+
 public:
 	/**
 	 * Constructor with option to set the precision values.
@@ -179,20 +197,6 @@ public:
 	 *            required eigenvalue precision
 	 */
 	QCP(double p_evec_prec, double p_eval_prec);
-
-	/**
-	 * Sets the two input coordinate arrays and weight array. All input arrays must
-	 * be of equal length. Input coordinates are not modified.
-	 *
-	 * @param fixed
-	 *            3f points of reference coordinate set
-	 * @param moved
-	 *            3f points of coordinate set for superposition
-	 * @param weight
-	 *            a weight in the inclusive range [0,1] for each point
-	 */
-
-	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate);
 
 	/**
 	 * Return the RMSD of the superposition of input coordinate set y onto x. Note,
@@ -215,11 +219,6 @@ public:
 	 */
 	Quaternion weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate);
 
-public:
 	Quaternion get_rotation();
-	double get_rmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
-	static void translate(Vector3 trans, PackedVector3Array &x);
-
-	Vector3 move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center);
 	Vector3 get_translation();
 };
