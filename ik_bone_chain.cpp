@@ -208,16 +208,16 @@ Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos
 
 float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights) {
 	float manual_RMSD = 0.0f;
-	float wsum = 0.0f;
+	float w_sum = 0.0f;
 	for (int i = 0; i < r_htarget.size(); i++) {
 		float x_d = r_htarget[i].x - r_htip[i].x;
 		float y_d = r_htarget[i].y - r_htip[i].y;
 		float z_d = r_htarget[i].z - r_htip[i].z;
 		float mag_sq = p_weights[i] * (x_d * x_d + y_d * y_d + z_d * z_d);
 		manual_RMSD += mag_sq;
-		wsum += p_weights[i];
+		w_sum += p_weights[i];
 	}
-	manual_RMSD /= wsum;
+	manual_RMSD /= w_sum;
 	return manual_RMSD;
 }
 

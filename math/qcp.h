@@ -120,10 +120,10 @@ class QCP {
 	PackedVector3Array moved;
 
 	Vector<real_t> weight;
-	double wsum = 0;
+	double w_sum = 0;
 
-	Vector3 targetCenter;
-	Vector3 movedCenter;
+	Vector3 target_center;
+	Vector3 moved_center;
 
 	double e0 = 0;
 	double rmsd = 0;
@@ -131,9 +131,9 @@ class QCP {
 	double SxxpSyy = 0, Szz = 0, mxEigenV = 0, SyzmSzy = 0, SxzmSzx = 0, SxymSyx = 0;
 	double SxxmSyy = 0, SxypSyx = 0, SxzpSzx = 0;
 	double Syy = 0, Sxx = 0, SyzpSzy = 0;
-	bool rmsdCalculated = false;
-	bool transformationCalculated = false;
-	bool innerProductCalculated = false;
+	bool rmsd_calculated = false;
+	bool transformation_calculated = false;
+	bool inner_product_calculated = false;
 	int length = 0;
 
 	/**

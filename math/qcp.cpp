@@ -38,27 +38,27 @@ QCP::QCP(double p_evec_prec, double p_eval_prec) {
 void QCP::set(PackedVector3Array &p_target, PackedVector3Array &p_moved) {
 	target = p_target;
 	moved = p_moved;
-	rmsdCalculated = false;
-	transformationCalculated = false;
-	innerProductCalculated = false;
+	rmsd_calculated = false;
+	transformation_calculated = false;
+	inner_product_calculated = false;
 }
 
 double QCP::get_rmsd() {
-	if (!rmsdCalculated) {
+	if (!rmsd_calculated) {
 		calculate_rmsd(moved, target);
-		rmsdCalculated = true;
+		rmsd_calculated = true;
 	}
 	return rmsd;
 }
 
 Quaternion QCP::get_rotation() {
 	Quaternion result;
-	if (!transformationCalculated) {
-		if (!innerProductCalculated) {
+	if (!transformation_calculated) {
+		if (!inner_product_calculated) {
 			inner_product(target, moved);
 		}
 		result = calculate_rotation();
-		transformationCalculated = true;
+		transformation_calculated = true;
 	}
 	return result;
 }
@@ -184,23 +184,23 @@ void QCP::translate(Vector3 trans, PackedVector3Array &x) {
 }
 
 Vector3 QCP::get_translation() {
-	return targetCenter - movedCenter;
+	return target_center - moved_center;
 }
 
 Vector3 QCP::move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center) {
 	if (!weight.is_empty()) {
 		for (int i = 0; i < toCenter.size(); i++) {
 			center = toCenter[i] * weight[i];
-			wsum += weight[i];
+			w_sum += weight[i];
 		}
 
-		center /= Vector3(wsum, wsum, wsum);
+		center /= Vector3(w_sum, w_sum, w_sum);
 	} else {
 		for (int i = 0; i < toCenter.size(); i++) {
 			center += toCenter[i];
-			wsum++;
+			w_sum++;
 		}
-		center /= Vector3(wsum, wsum, wsum);
+		center /= Vector3(w_sum, w_sum, w_sum);
 	}
 
 	return center;
@@ -281,7 +281,7 @@ void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2
 	SxxmSyy = Sxx - Syy;
 	mxEigenV = e0;
 
-	innerProductCalculated = true;
+	inner_product_calculated = true;
 }
 
 void QCP::calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y) {
@@ -289,12 +289,12 @@ void QCP::calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y) {
 	// we just compute regular distance.
 	if (x.size() == 1) {
 		rmsd = x[0].distance_to(y[0]);
-		rmsdCalculated = true;
+		rmsd_calculated = true;
 	} else {
-		if (!innerProductCalculated) {
+		if (!inner_product_calculated) {
 			inner_product(y, x);
 		}
-		calculate_rmsd(wsum);
+		calculate_rmsd(w_sum);
 	}
 }
 
@@ -304,27 +304,27 @@ Quaternion QCP::weighted_superpose(PackedVector3Array &p_moved, PackedVector3Arr
 }
 
 void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate) {
-	rmsdCalculated = false;
-	transformationCalculated = false;
-	innerProductCalculated = false;
+	rmsd_calculated = false;
+	transformation_calculated = false;
+	inner_product_calculated = false;
 
-	this->moved = p_moved;
-	this->target = p_target;
-	this->weight = p_weight;
+	moved = p_moved;
+	target = p_target;
+	weight = p_weight;
 
 	if (p_translate) {
-		movedCenter = move_to_weighted_center(this->moved, this->weight, movedCenter);
-		wsum = 0; // set wsum to 0 so we don't double up.
-		targetCenter = move_to_weighted_center(this->target, this->weight, targetCenter);
-		translate(movedCenter * -1, this->moved);
-		translate(targetCenter * -1, this->target);
+		moved_center = move_to_weighted_center(moved, weight, moved_center);
+		w_sum = 0; // set wsum to 0 so we don't double up.
+		target_center = move_to_weighted_center(target, weight, target_center);
+		translate(moved_center * -1, moved);
+		translate(target_center * -1, target);
 	} else {
 		if (!p_weight.is_empty()) {
 			for (int i = 0; i < p_weight.size(); i++) {
-				wsum += p_weight[i];
+				w_sum += p_weight[i];
 			}
 		} else {
-			wsum = p_moved.size();
+			w_sum = p_moved.size();
 		}
 	}
 }
