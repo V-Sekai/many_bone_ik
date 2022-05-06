@@ -221,17 +221,20 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 	return manual_RMSD;
 }
 
+
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
 	float best_root_mean_square_deviation = get_manual_msd(*r_htip, *r_htarget, *r_weights);
 	float new_root_mean_square_deviation = 999999.0f;
 	int32_t stabilization_passes = 4;
 	Quaternion rot;
+	Vector3 translation;
 	QCP qcp = QCP(1E-6, 1E-11);
 	for (int32_t i = 0; i < stabilization_passes; i++) {
 		update_target_headings(p_for_bone, r_weights, r_htarget);
 		update_tip_headings(p_for_bone, r_htip);
 		rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 		best_root_mean_square_deviation = qcp.get_rmsd();
+		translation = qcp.get_translation();
 		double bone_damp = p_for_bone->get_cos_half_dampen();
 		if (!Math::is_equal_approx(p_dampening, -1.0f)) {
 			bone_damp = p_dampening;
@@ -241,14 +244,11 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		}
 		IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
 		ERR_FAIL_NULL_V(parent_transform_ik, INFINITY);
-
 		Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
 		Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
 		Transform3D bone_pose = p_for_bone->get_pose();
 		Basis composed_rotation = new_rotation * bone_pose.basis;
 		Transform3D result = Transform3D(composed_rotation.orthogonalized(), bone_pose.origin);
-		if (p_translate) {
-		}
 		if (best_root_mean_square_deviation >= new_root_mean_square_deviation) {
 			best_root_mean_square_deviation = new_root_mean_square_deviation;
 			p_for_bone->set_pose(result);
