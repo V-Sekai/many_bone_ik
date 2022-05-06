@@ -1,4 +1,5 @@
 # https://gist.github.com/fire/f3981ad4a48ccae08224d3b82b9f95bc
+
 # Example Project Content Structure
 
 ```

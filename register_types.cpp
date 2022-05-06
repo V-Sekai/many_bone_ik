@@ -33,7 +33,7 @@
 #include "ik_pin_3d.h"
 #include "skeleton_modification_3d_ewbik.h"
 
-void initialize_ewbik_module(ModuleInitializationLevel  p_level) {
+void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
@@ -43,7 +43,7 @@ void initialize_ewbik_module(ModuleInitializationLevel  p_level) {
 	ClassDB::register_class<IKBoneChain>();
 }
 
-void uninitialize_ewbik_module(ModuleInitializationLevel  p_level) {
+void uninitialize_ewbik_module(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}

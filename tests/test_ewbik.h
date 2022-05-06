@@ -91,7 +91,7 @@ TEST_CASE("[Modules][EWBIK] qcp quaternion") {
 	Vector<Vector3> localizedTargetHeadings;
 	localizedTargetHeadings.resize(7);
 	Vector3 norm = Vector3(1.f, 2.0f, 0.0f).normalized();
-	Quaternion basis_x = Quaternion(norm, Math_PI / 2.0f);	
+	Quaternion basis_x = Quaternion(norm, Math_PI / 2.0f);
 	rotate_target_headings_quaternion(localizedTipHeadings, localizedTargetHeadings, basis_x);
 	Quaternion basis_y = Quaternion(Vector3(0.0f, 1.f, 0.0f), Math_PI / 2.0f);
 	rotate_target_headings_quaternion(localizedTipHeadings, localizedTargetHeadings, basis_y);

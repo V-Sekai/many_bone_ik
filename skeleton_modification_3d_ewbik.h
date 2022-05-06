@@ -49,12 +49,15 @@ public:
 
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
+
 public:
 	virtual void _execute(real_t p_delta) override;
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
+
 public:
 	void add_pin(const String &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
 	void remove_pin(int32_t p_index);
+
 public:
 	// Expose properties bound by script
 	bool get_debug_skeleton() const;
@@ -89,12 +92,14 @@ public:
 	void set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count);
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
+
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
+
 private:
 	Skeleton3D *skeleton = nullptr;
 	String root_bone;
