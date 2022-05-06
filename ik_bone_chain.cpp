@@ -222,7 +222,6 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 }
 
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
-	QCP qcp = QCP(1E-6, 1E-11);
 	Quaternion rot = qcp.weightedSuperpose(*r_htip, *r_htarget, *r_weights, p_translate);
 	Vector3 translation = qcp.getTranslation();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
