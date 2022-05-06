@@ -295,6 +295,17 @@ void IKBoneChain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pin"), &IKBoneChain::is_pin);
 }
 
+void IKBoneChain::update_root_transform(Transform3D p_root_transform) {
+	if (root.is_valid() && parent_chain.is_null()) {
+		root_transform.set_transform(p_root_transform);
+		root->get_ik_transform().set_parent(&root_transform);
+	}
+}
+
+Ref<IKBoneChain> IKBoneChain::get_parent_chain() {
+	return parent_chain;
+}
+
 IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent) {
 	skeleton = p_skeleton;
 	root = Ref<IKBone3D>(memnew(IKBone3D(p_skeleton->get_bone_name(p_root_bone), p_skeleton, p_parent)));

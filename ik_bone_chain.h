@@ -70,15 +70,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	void update_root_transform(Transform3D p_root_transform) {
-		if (root.is_valid() && parent_chain.is_null()) {
-			root_transform.set_transform(p_root_transform);
-			root->get_ik_transform().set_parent(&root_transform);
-		}
-	}
-	Ref<IKBoneChain> get_parent_chain() {
-		return parent_chain;
-	}
+	void update_root_transform(Transform3D p_root_transform);
+	Ref<IKBoneChain> get_parent_chain();
 	void segment_solver(real_t p_damp, bool p_translate = false);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
@@ -88,7 +81,6 @@ public:
 	void set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root();
 	void update_pinned_list();
-
 	IKBoneChain() {}
 	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent = nullptr);
 	~IKBoneChain() {}
