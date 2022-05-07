@@ -263,7 +263,6 @@ void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2
 			Szy += coords1[i].z * coords2[i].y;
 			Szz += coords1[i].z * coords2[i].z;
 		}
-		// wsum = coords1.length;
 	}
 
 	e0 = (g1 + g2) * 0.5;
