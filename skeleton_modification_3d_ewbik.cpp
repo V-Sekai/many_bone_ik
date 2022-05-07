@@ -95,7 +95,6 @@ void SkeletonModification3DEWBIK::set_pin_bone(int32_t p_pin_index, const String
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	data->set_name(p_bone);
 	is_dirty = true;
-	update_skeleton();
 	notify_property_list_changed();
 }
 
@@ -168,10 +167,10 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		execution_error_found = false;
 		return;
 	}
-	if (segmented_skeleton.is_null) {
+	if (segmented_skeleton.is_null()) {
 		update_skeleton();
 	}
-	if (pin_count &&) {
+	if (pin_count && segmented_skeleton.is_valid()) {
 		update_shadow_bones_transform();
 		for (int i = 0; i < ik_iterations; i++) {
 			segmented_skeleton->segment_solver(get_default_damp(), segmented_skeleton->get_parent_chain().is_null());
