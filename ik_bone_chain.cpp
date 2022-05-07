@@ -94,6 +94,9 @@ void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 	Vector<Ref<IKBone3D>> list;
 	while (current_bone.is_valid()) {
 		list.push_back(current_bone);
+		if (current_bone == root) {
+			break;
+		}
 		current_bone = current_bone->get_parent();
 	}
 	if (p_debug_skeleton) {
