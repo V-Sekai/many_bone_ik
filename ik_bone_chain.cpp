@@ -240,12 +240,6 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	return 0.0f;
 }
 
-//
-// Transform3D result = p_for_bone->get_global_pose();
-// Vector3 translated_result = result.origin + qcp.get_translation();
-// result.origin = result.origin + qcp.get_translation();
-// p_for_bone->set_global_pose(result);
-
 void IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_target_headings) {
 	int32_t index = 0; // Index is increased by effector->update_effector_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
@@ -263,8 +257,6 @@ void IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Arr
 }
 
 void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
-	// TODO Make robust!
-
 	for (Ref<IKBoneChain> child : child_chains) {
 		child->segment_solver(p_damp, false);
 	}
