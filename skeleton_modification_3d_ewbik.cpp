@@ -337,8 +337,6 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(i) + "/use_node_rotation"));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/depth_falloff"));
-		p_list->push_back(
-				PropertyInfo(Variant::BOOL, "pins/" + itos(i) + "/remove"));
 	}
 	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
@@ -405,9 +403,6 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		} else if (what == "depth_falloff") {
 			r_ret = get_pin_depth_falloff(index);
 			return true;
-		} else if (what == "remove") {
-			r_ret = false;
-			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
@@ -433,8 +428,6 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			} else if (cone_what == "radius") {
 				r_ret = get_kusudama_limit_cone_radius(index, cone_index);
 				return true;
-			} else if (cone_index >= kusudama_limit_cone_count[cone_index]) {
-				return false;
 			}
 		}
 	}
@@ -465,11 +458,6 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "use_node_rotation") {
 			set_pin_use_node_rotation(index, p_value);
-			return true;
-		} else if (what == "remove") {
-			if (p_value) {
-				remove_pin(index);
-			}
 			return true;
 		} else if (what == "depth_falloff") {
 			set_pin_depth_falloff(index, p_value);
