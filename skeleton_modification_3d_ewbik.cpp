@@ -50,6 +50,7 @@ void SkeletonModification3DEWBIK::set_root_bone(const String &p_root_bone) {
 	if (skeleton) {
 		root_bone_index = skeleton->find_bone(root_bone);
 	}
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -62,6 +63,7 @@ void SkeletonModification3DEWBIK::set_root_bone_index(BoneId p_index) {
 	if (skeleton) {
 		root_bone = skeleton->get_bone_name(p_index);
 	}
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -201,7 +203,7 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	is_setup = true;
 	execution_error_found = false;
 	notify_property_list_changed();
-	is_dirty = true;
+	update_skeleton();
 }
 
 void SkeletonModification3DEWBIK::update_skeleton() {
@@ -574,6 +576,7 @@ int32_t SkeletonModification3DEWBIK::get_constraint_count() const {
 void SkeletonModification3DEWBIK::set_kusudama_twist(int32_t p_index, float p_twist) {
 	ERR_FAIL_INDEX(p_index, kusudana_twist.size());
 	kusudana_twist.write[p_index] = p_twist;
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
