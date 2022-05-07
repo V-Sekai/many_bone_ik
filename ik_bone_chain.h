@@ -56,14 +56,8 @@ class IKBoneChain : public Resource {
 	Skeleton3D *skeleton = nullptr;
 	bool pinned_descendants = false;
 	IKTransform3D root_transform;
-
-	bool has_pinned_descendants() {
-		return pinned_descendants;
-	}
-	void enable_pinned_descendants() {
-		pinned_descendants = true;
-	}
-
+	bool has_pinned_descendants();
+	void enable_pinned_descendants();
 	BoneId find_root_bone_id(BoneId p_bone);
 	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);
 	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip);

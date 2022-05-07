@@ -304,3 +304,11 @@ IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, StringName p_root_bone_name, Ve
 		}
 	}
 }
+
+void IKBoneChain::enable_pinned_descendants() {
+	pinned_descendants = true;
+}
+
+bool IKBoneChain::has_pinned_descendants() {
+	return pinned_descendants;
+}
