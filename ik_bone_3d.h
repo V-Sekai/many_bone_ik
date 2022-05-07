@@ -35,6 +35,7 @@
 #include "ik_pin_3d.h"
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
+#include "ik_effector_template.h"
 
 #define IK_DEFAULT_DAMPENING 0.20944f
 
@@ -72,7 +73,7 @@ public:
 	void create_pin();
 	bool is_pinned() const;
 	IKBone3D() {}
-	IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent = nullptr, float p_default_dampening = IK_DEFAULT_DAMPENING);
+	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	~IKBone3D() {}
 	float get_cos_half_dampen() const;
 	void set_cos_half_dampen(float p_cos_half_dampen);

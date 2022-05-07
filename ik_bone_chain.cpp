@@ -38,11 +38,6 @@ Ref<IKBone3D> IKBoneChain::get_tip() const {
 	return tip;
 }
 
-bool IKBoneChain::is_root_pinned() const {
-	ERR_FAIL_NULL_V(root, false);
-	return root->get_parent().is_null() && root->is_pinned();
-}
-
 bool IKBoneChain::is_pinned() const {
 	ERR_FAIL_NULL_V(tip, false);
 	return tip->is_pinned();
@@ -60,27 +55,27 @@ BoneId IKBoneChain::find_root_bone_id(BoneId p_bone) {
 	return root_id;
 }
 
-void IKBoneChain::generate_default_segments_from_root() {
+void IKBoneChain::generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins) {
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
 		Vector<BoneId> children = skeleton->get_bone_children(temp_tip->get_bone_id());
-		if (children.size() > 1) {
+		if (children.size() > 1 || temp_tip->is_pinned()) {
 			tip = temp_tip;
 			Ref<IKBoneChain> parent(this);
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
-				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_bone, parent)));
-				child_segment->generate_default_segments_from_root();
+				String child_name = skeleton->get_bone_name(child_bone);
+				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_name, p_pins, parent)));
+				child_segment->generate_default_segments_from_root(p_pins);
 				child_chains.push_back(child_segment);
 			}
 			break;
 		} else if (children.size() == 1) {
 			BoneId bone_id = children[0];
-			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip)));
+			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip, p_pins)));
 			temp_tip = next;
 		} else {
 			tip = temp_tip;
-			tip->create_pin();
 			break;
 		}
 	}
@@ -90,7 +85,6 @@ void IKBoneChain::generate_default_segments_from_root() {
 }
 
 void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
-	// TODO: make fake root for parentless bones
 	if (p_recursive) {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
 			child_chains[child_i]->set_bone_list(p_list, p_recursive, p_debug_skeleton);
@@ -100,9 +94,6 @@ void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 	Vector<Ref<IKBone3D>> list;
 	while (current_bone.is_valid()) {
 		list.push_back(current_bone);
-		if (current_bone == root) {
-			break;
-		}
 		current_bone = current_bone->get_parent();
 	}
 	if (p_debug_skeleton) {
@@ -191,17 +182,17 @@ Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const 
 }
 
 Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
-	double new_coeff = 1.0 - (p_cos_half_angle * p_cos_half_angle);
-	double current_coeff = p_quat.get_axis().length_squared();
+	double newCoeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
 	Quaternion rot = p_quat;
-	if (new_coeff > current_coeff) {
+	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
+	if (newCoeff > currentCoeff) {
 		return rot;
 	} else {
-		double compositeCoeff = Math::sqrt(new_coeff / current_coeff);
+		rot.w = rot.w < 0.0f ? -p_cos_half_angle : p_cos_half_angle;
+		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
 		rot.x *= compositeCoeff;
 		rot.y *= compositeCoeff;
 		rot.z *= compositeCoeff;
-		rot.w = p_quat.w < 0 ? -p_cos_half_angle : p_cos_half_angle;
 	}
 	return rot;
 }
@@ -222,42 +213,35 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 }
 
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
-	float best_root_mean_square_deviation = get_manual_msd(*r_htip, *r_htarget, *r_weights);
-	float new_root_mean_square_deviation = 999999.0f;
-	int32_t stabilization_passes = 4;
 	QCP qcp = QCP(1E-6, 1E-11);
-	for (int32_t i = 0; i < stabilization_passes; i++) {
-		update_target_headings(p_for_bone, r_weights, r_htarget);
-		update_tip_headings(p_for_bone, r_htip);
-		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
-		new_root_mean_square_deviation = qcp.get_rmsd();
-		Vector3 translation;
-		if (p_translate) {
-			translation = qcp.get_translation();
-		}
-		double bone_damp = p_for_bone->get_cos_half_dampen();
-		if (!Math::is_equal_approx(p_dampening, -1.0f)) {
-			bone_damp = p_dampening;
-			rot = clamp_to_angle(rot, bone_damp);
-		} else {
-			rot = clamp_to_quadrance_angle(rot, bone_damp);
-		}
-		IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
-		ERR_FAIL_NULL_V(parent_transform_ik, INFINITY);
-		Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
-		Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
-		Transform3D bone_pose = p_for_bone->get_pose();
-		Basis composed_rotation = new_rotation * bone_pose.basis;
-		Transform3D result = Transform3D(composed_rotation, bone_pose.origin).orthogonalized();
-		if (best_root_mean_square_deviation >= new_root_mean_square_deviation) {
-			best_root_mean_square_deviation = new_root_mean_square_deviation;
-			p_for_bone->set_pose(result);
-			break;
-		}
-		p_for_bone->set_pose(result);
-	}
-	return best_root_mean_square_deviation;
+	Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+	// TODO: 2022-05-06 RESTORE TRANSLATION
+	// Vector3 translation = qcp.get_translation();
+	Vector3 translation;
+	// double bone_damp = p_for_bone->get_cos_half_dampen();
+	// if (!Math::is_equal_approx(p_dampening, -1.0f)) {
+	//	bone_damp = p_dampening;
+	//	rot = clamp_to_angle(rot, bone_damp);
+	// } else {
+	//	rot = clamp_to_quadrance_angle(rot, bone_damp);
+	// }
+	IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
+	ERR_FAIL_NULL_V(parent_transform_ik, INFINITY);
+	Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
+	Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
+	Transform3D bone_pose = p_for_bone->get_pose();
+	Basis composed_rotation = new_rotation * bone_pose.basis;
+	Transform3D result = Transform3D(composed_rotation, bone_pose.origin).orthogonalized();
+	p_for_bone->set_pose(result);
+	p_for_bone->set_global_pose(Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation));
+	return 0.0f;
 }
+
+//
+// Transform3D result = p_for_bone->get_global_pose();
+// Vector3 translated_result = result.origin + qcp.get_translation();
+// result.origin = result.origin + qcp.get_translation();
+// p_for_bone->set_global_pose(result);
 
 void IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_target_headings) {
 	int32_t index = 0; // Index is increased by effector->update_effector_target_headings() function
@@ -279,7 +263,7 @@ void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 	// TODO Make robust!
 
 	for (Ref<IKBoneChain> child : child_chains) {
-		child->segment_solver(p_damp, p_translate);
+		child->segment_solver(p_damp, false);
 	}
 	qcp_solver(p_damp, p_translate);
 }
@@ -291,7 +275,6 @@ void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 }
 
 void IKBoneChain::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("is_root_pinned"), &IKBoneChain::is_root_pinned);
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBoneChain::is_pinned);
 }
 
@@ -306,11 +289,23 @@ Ref<IKBoneChain> IKBoneChain::get_parent_chain() {
 	return parent_chain;
 }
 
-IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent) {
+IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneChain> &p_parent) {
 	skeleton = p_skeleton;
-	root = Ref<IKBone3D>(memnew(IKBone3D(p_skeleton->get_bone_name(p_root_bone), p_skeleton, p_parent)));
+	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, IK_DEFAULT_DAMPENING)));
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;
 		root->set_parent(p_parent->get_tip());
+	} else {
+		root->create_pin();
+	}
+	for (Ref<IKEffectorTemplate> elem : p_pins) {
+		if (elem.is_null()) {
+			continue;
+		}
+		if (elem->get_name() == p_root_bone_name) {
+			enable_pinned_descendants();
+			root->create_pin();
+			break;
+		}
 	}
 }

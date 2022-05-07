@@ -31,6 +31,7 @@
 #include "ik_bone_3d.h"
 
 #include "math/ik_transform.h"
+#include "skeleton_modification_3d_ewbik.h"
 
 void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	bone_id = p_bone_id;
@@ -102,11 +103,20 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pinned);
 }
 
-IKBone3D::IKBone3D(String p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, float p_default_dampening) :
-		default_dampening(p_default_dampening) {
+IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening) {
+	default_dampening = p_default_dampening;
 	set_name(p_bone);
 	bone_id = p_skeleton->find_bone(p_bone);
 	set_parent(p_parent);
+	for (Ref<IKEffectorTemplate> elem : p_pins) {
+		if (elem.is_null()) {
+			continue;
+		}
+		if (elem->get_name() == p_bone) {
+			create_pin();
+			break;
+		}
+	}
 }
 
 float IKBone3D::get_cos_half_dampen() const {

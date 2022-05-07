@@ -32,9 +32,13 @@
 #define ik_bone_chain_H
 
 #include "core/object/ref_counted.h"
-#include "ik_bone_3d.h"
+
 #include "math/qcp.h"
 #include "scene/3d/skeleton_3d.h"
+
+#include "ik_effector_template.h"
+
+#include "ik_bone_3d.h"
 
 class IKBoneChain : public Resource {
 	GDCLASS(IKBoneChain, Resource);
@@ -50,7 +54,15 @@ class IKBoneChain : public Resource {
 	Vector<real_t> heading_weights;
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
 	Skeleton3D *skeleton = nullptr;
+	bool pinned_descendants = false;
 	IKTransform3D root_transform;
+
+	bool has_pinned_descendants() {
+		return pinned_descendants;
+	}
+	bool enable_pinned_descendants() {
+		pinned_descendants = true;
+	}
 
 	BoneId find_root_bone_id(BoneId p_bone);
 	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);
@@ -75,14 +87,13 @@ public:
 	void segment_solver(real_t p_damp, bool p_translate = false);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
-	bool is_root_pinned() const;
 	bool is_pinned() const;
 	Vector<Ref<IKBoneChain>> get_child_chains() const;
 	void set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
-	void generate_default_segments_from_root();
+	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins);
 	void update_pinned_list();
 	IKBoneChain() {}
-	IKBoneChain(Skeleton3D *p_skeleton, BoneId p_root_bone, const Ref<IKBoneChain> &p_parent = nullptr);
+	IKBoneChain(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneChain> &p_parent = nullptr);
 	~IKBoneChain() {}
 };
 

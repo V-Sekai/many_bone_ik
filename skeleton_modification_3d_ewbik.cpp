@@ -171,7 +171,7 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	if (pin_count && segmented_skeleton.is_valid()) {
 		update_shadow_bones_transform();
 		for (int i = 0; i < ik_iterations; i++) {
-			segmented_skeleton->segment_solver(get_default_damp(), segmented_skeleton->is_root_pinned());
+			segmented_skeleton->segment_solver(get_default_damp(), segmented_skeleton->get_parent_chain().is_null());
 		}
 		update_skeleton_bones_transform(delta);
 	}
@@ -207,46 +207,46 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	if (!skeleton) {
 		return;
 	}
-	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, root_bone_index)));
-	segmented_skeleton->generate_default_segments_from_root();
+	//for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
+	//	Ref<IKEffectorTemplate> data = pins.write[effector_i];
+	//	String bone = data->get_name();
+	//	BoneId bone_id = skeleton->find_bone(bone);
+	//	//for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+	//	//	if (ik_bone_3d->get_bone_id() != bone_id) {
+	//	//		continue;
+	//	//	}
+	//	//	Node *node = skeleton->get_node(data->get_target_node());
+	//	//	if (!node) {
+	//	//		continue;
+	//	//	}
+	//	//	bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+	//	//	if (is_tree_exited_connected) {
+	//	//		node->disconnect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+	//	//	}
+	//	//	bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+	//	//	if (is_tree_entered_connected) {
+	//	//		node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+	//	//	}
+	//	//	bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+	//	//	if (is_renamed_connected) {
+	//	//		node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+	//	//	}
+	//	//	node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
+	//	//	node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
+	//	//	node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
+	//	//}
+	//}
+	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
+	segmented_skeleton->generate_default_segments_from_root(pins);
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
 	segmented_skeleton->update_root_transform(skeleton->get_transform());
 	update_effectors_map();
 	segmented_skeleton->update_pinned_list();
-
-	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
-		Ref<IKEffectorTemplate> data = pins.write[effector_i];
-		String bone = data->get_name();
-		BoneId bone_id = skeleton->find_bone(bone);
-		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-			if (ik_bone_3d->get_bone_id() != bone_id) {
-				continue;
-			}
-			Node *node = skeleton->get_node(data->get_target_node());
-			if (!node) {
-				continue;
-			}
-			bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-			if (is_tree_exited_connected) {
-				node->disconnect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-			}
-			bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-			if (is_tree_entered_connected) {
-				node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-			}
-			bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-			if (is_renamed_connected) {
-				node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-			}
-			node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
-			node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
-			node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
-		}
-	}
 	is_dirty = false;
 }
 
-void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
+void SkeletonModification3DEWBIK::update_shadow_bones_transform() {	
+	segmented_skeleton->update_root_transform(skeleton->get_transform());
 	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {
@@ -664,44 +664,3 @@ void SkeletonModification3DEWBIK::check_shadow_bones_transform() {
 	}
 }
 
-void IKEffectorTemplate::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_target_node"), &IKEffectorTemplate::get_target_node);
-	ClassDB::bind_method(D_METHOD("set_target_node", "target_node"), &IKEffectorTemplate::set_target_node);
-
-	ClassDB::bind_method(D_METHOD("get_depth_falloff"), &IKEffectorTemplate::get_depth_falloff);
-	ClassDB::bind_method(D_METHOD("set_depth_falloff", "depth_falloff"), &IKEffectorTemplate::set_depth_falloff);
-
-	ClassDB::bind_method(D_METHOD("get_target_node_rotation"), &IKEffectorTemplate::get_target_node_rotation);
-	ClassDB::bind_method(D_METHOD("set_target_node_rotation", "enabled"), &IKEffectorTemplate::set_target_node_rotation);
-
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "target_node"), "set_target_node", "get_target_node");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
-	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "target_node"), "set_target_node", "get_target_node");
-}
-
-NodePath IKEffectorTemplate::get_target_node() const {
-	return target_node;
-}
-
-void IKEffectorTemplate::set_target_node(NodePath p_node_path) {
-	target_node = p_node_path;
-}
-
-float IKEffectorTemplate::get_depth_falloff() const {
-	return depth_falloff;
-}
-
-void IKEffectorTemplate::set_depth_falloff(float p_depth_falloff) {
-	depth_falloff = p_depth_falloff;
-}
-
-bool IKEffectorTemplate::get_target_node_rotation() const {
-	return is_target_node_rotation;
-}
-
-void IKEffectorTemplate::set_target_node_rotation(bool p_target_node_rotation) {
-	is_target_node_rotation = p_target_node_rotation;
-}
-
-IKEffectorTemplate::IKEffectorTemplate() {
-}
