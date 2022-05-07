@@ -31,12 +31,13 @@
 #include "ik_effector_3d.h"
 #include "math/ik_transform.h"
 
-void IKEffector3D::set_target_node(Node *p_skeleton, const NodePath &p_target_node_path) {
-	target_node = p_target_node_path;
+void IKEffector3D::set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path) {
+	target_node_path = p_target_node_path;
+	update_cache_target(p_skeleton);
 }
 
 NodePath IKEffector3D::get_target_node() const {
-	return target_node;
+	return target_node_path;
 }
 
 void IKEffector3D::set_target_node_rotation(bool p_use) {
@@ -56,12 +57,19 @@ bool IKEffector3D::is_following_translation_only() const {
 }
 
 void IKEffector3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
+	if (target_node_cache.is_null()) {
+		update_cache_target(p_skeleton);
+	}
 	target_global_pose = for_bone->get_global_pose();
 	if (target_node == NodePath()) {
 		return;
 	}
-	Node3D *current_target_node = cast_to<Node3D>(p_skeleton->get_node(target_node));
+	Node3D *current_target_node = cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
 	if (!current_target_node) {
+		return;
+	}
+	if (!current_target_node->is_inside_tree()) {
+		update_cache_target(p_skeleton);
 		return;
 	}
 	// TODO fire 2022-05-04 cache.
@@ -195,4 +203,18 @@ void IKEffector3D::set_depth_falloff(float p_depth_falloff) {
 
 float IKEffector3D::get_depth_falloff() const {
 	return depth_falloff;
+}
+
+void IKEffector3D::update_cache_target(Skeleton3D *p_skeleton) {
+	target_node_cache = ObjectID();
+	if (p_skeleton->is_inside_tree() && target_node_path.is_empty() == false) {
+		if (p_skeleton->has_node(target_node_path)) {
+			Node *node = p_skeleton->get_node(target_node_path);
+			ERR_FAIL_COND_MSG(!node || p_skeleton == node,
+					"Cannot update target cache: Target node is this modification's skeleton or cannot be found. Cannot execute modification");
+			ERR_FAIL_COND_MSG(!node->is_inside_tree(),
+					"Cannot update target cache: Target node is not in the scene tree. Cannot execute modification!");
+			target_node_cache = node->get_instance_id();
+		}
+	}
 }

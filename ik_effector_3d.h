@@ -45,7 +45,7 @@ class IKEffector3D : public Resource {
 
 	Ref<IKBone3D> for_bone;
 	bool use_target_node_rotation = true;
-	NodePath target_node;
+	NodePath target_node_path;
 	ObjectID target_node_cache;
 	Node *target_node_reference = nullptr;
 
@@ -57,7 +57,8 @@ class IKEffector3D : public Resource {
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
-	
+	void update_cache_target(Skeleton3D *p_skeleton);
+
 protected:
 	static void _bind_methods();
 	void create_headings(Vector<real_t> &p_weights);
@@ -67,7 +68,7 @@ public:
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
-	void set_target_node(Node *p_skeleton, const NodePath &p_target_node_path);
+	void set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
 	Transform3D get_goal_global_pose() const;
 	void set_target_node_rotation(bool p_use);
