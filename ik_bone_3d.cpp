@@ -78,6 +78,9 @@ Transform3D IKBone3D::get_global_pose() const {
 }
 
 void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
+	if (!p_skeleton) {
+		return;
+	}
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
 	set_global_pose(xform);
 }
@@ -114,6 +117,10 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 		}
 		if (elem->get_name() == p_bone) {
 			create_pin();
+			Ref<IKEffector3D> effector = get_pin();
+			effector->set_target_node(p_skeleton, elem->get_target_node());
+			effector->set_depth_falloff(elem->get_depth_falloff());
+			effector->set_target_node_rotation(elem->get_target_node_rotation());
 			break;
 		}
 	}

@@ -218,9 +218,8 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
 	QCP qcp = QCP(1E-6, 1E-11);
 	Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
-	// TODO: 2022-05-06 RESTORE TRANSLATION
-	// Vector3 translation = qcp.get_translation();
 	Vector3 translation;
+	// translation = qcp.get_translation();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
 		bone_damp = p_dampening;
@@ -256,11 +255,11 @@ void IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Arr
 	}
 }
 
-void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
+void IKBoneChain::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneChain> child : child_chains) {
-		child->segment_solver(p_damp, false);
+		child->segment_solver(p_damp);
 	}
-	qcp_solver(p_damp, p_translate);
+	qcp_solver(p_damp, get_parent_chain().is_null());
 }
 
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {

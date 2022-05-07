@@ -163,6 +163,7 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	ERR_FAIL_COND_MSG(!stack || !is_setup || skeleton == nullptr,
 			"The modification is not set up and therefore cannot execute.");
 	if (!enabled) {
+		is_dirty = true;
 		return;
 	}
 	if (stack->get_strength() <= 0.01f) {
@@ -172,13 +173,11 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	if (is_dirty || segmented_skeleton.is_null()) {
 		update_skeleton();
 	}
-	if (pin_count && segmented_skeleton.is_valid()) {
-		update_shadow_bones_transform();
-		for (int i = 0; i < ik_iterations; i++) {
-			segmented_skeleton->segment_solver(get_default_damp(), segmented_skeleton->get_parent_chain().is_null());
-		}
-		update_skeleton_bones_transform(delta);
+	update_shadow_bones_transform();
+	for (int i = 0; i < ik_iterations; i++) {
+		segmented_skeleton->segment_solver(get_default_damp());
 	}
+	update_skeleton_bones_transform(delta);
 	execution_error_found = false;
 }
 
@@ -191,7 +190,17 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	if (!skeleton) {
 		return;
 	}
+	update_skeleton();
+	notify_property_list_changed();
+	is_setup = true;
+	is_dirty = false;
+	execution_error_found = false;
+}
 
+void SkeletonModification3DEWBIK::update_skeleton() {
+	if (!skeleton) {
+		return;
+	}
 	if (root_bone.is_empty()) {
 		Vector<int32_t> roots = skeleton->get_parentless_bones();
 		if (roots.size()) {
@@ -201,16 +210,6 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 		set_root_bone(root_bone);
 	}
 	ERR_FAIL_COND(root_bone.is_empty());
-	is_setup = true;
-	execution_error_found = false;
-	notify_property_list_changed();
-	is_dirty = true;
-}
-
-void SkeletonModification3DEWBIK::update_skeleton() {
-	if (!skeleton) {
-		return;
-	}
 #ifdef TOOLS_ENABLED
 	if (InspectorDock::get_inspector_singleton()->is_connected("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty))) {
 		InspectorDock::get_inspector_singleton()->disconnect("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty));
@@ -221,7 +220,6 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton->generate_default_segments_from_root(pins);
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
 	segmented_skeleton->update_root_transform(skeleton->get_transform());
-	update_effectors_map();
 	segmented_skeleton->update_pinned_list();
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
@@ -235,39 +233,22 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			if (!node) {
 				continue;
 			}
-			bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			Callable callable = callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath);
+			bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable);
 			if (is_tree_exited_connected) {
-				node->disconnect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+				node->disconnect(SNAME("tree_exited"), callable);
 			}
-			bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable);
 			if (is_tree_entered_connected) {
-				node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+				node->disconnect(SNAME("tree_entered"), callable);
 			}
-			bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable);
 			if (is_renamed_connected) {
-				node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+				node->disconnect(SNAME("renamed"), callable);
 			}
-		}
-	}
-	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
-		Ref<IKEffectorTemplate> data = pins.write[effector_i];
-		String bone = data->get_name();
-		BoneId bone_id = skeleton->find_bone(bone);
-		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-			if (ik_bone_3d->get_bone_id() != bone_id) {
-				continue;
-			}
-			if (ik_bone_3d->get_pin().is_null()) {
-				continue;
-			}
-			ik_bone_3d->get_pin()->update_cache_target(skeleton);
-			Node *node = skeleton->get_node(data->get_target_node());
-			if (!node) {
-				continue;
-			}
-			node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()));
-			node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()));
-			node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()));
+			node->connect(SNAME("tree_exited"), callable, varray(effector_i, data->get_target_node()));
+			node->connect(SNAME("tree_entered"), callable, varray(effector_i, data->get_target_node()));
+			node->connect(SNAME("renamed"), callable, varray(effector_i, data->get_target_node()));
 		}
 	}
 	is_dirty = false;
@@ -298,28 +279,6 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 		}
 		bone->set_skeleton_bone_pose(skeleton, p_blending_delta);
 	}
-}
-
-void SkeletonModification3DEWBIK::update_effectors_map() {
-	ERR_FAIL_NULL(skeleton);
-	Vector<Ref<IKBone3D>> list;
-	segmented_skeleton->set_bone_list(list, true);
-	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
-		Ref<IKEffectorTemplate> data = pins.write[effector_i];
-		String bone = data->get_name();
-		BoneId bone_id = skeleton->find_bone(bone);
-		float depth_falloff = data->get_depth_falloff();
-		for (Ref<IKBone3D> ik_bone_3d : list) {
-			if (ik_bone_3d->get_bone_id() != bone_id) {
-				continue;
-			}
-			ik_bone_3d->create_pin();
-			Ref<IKEffector3D> effector_3d = ik_bone_3d->get_pin();
-			effector_3d->set_target_node(skeleton, data->get_target_node());
-			effector_3d->set_depth_falloff(depth_falloff);
-		}
-	}
-	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) const {

@@ -78,7 +78,7 @@ protected:
 public:
 	void update_root_transform(Transform3D p_root_transform);
 	Ref<IKBoneChain> get_parent_chain();
-	void segment_solver(real_t p_damp, bool p_translate = false);
+	void segment_solver(real_t p_damp);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_pinned() const;
