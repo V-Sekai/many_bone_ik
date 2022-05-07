@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "ik_pin_3d.h"
+#include "ik_effector_3d.h"
 #include "math/ik_transform.h"
 
 void IKEffector3D::set_target_node(Node *p_skeleton, const NodePath &p_target_node_path) {
@@ -150,7 +150,6 @@ void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, 
 	Basis tip_basis = tip_xform.basis;
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 	p_headings->write[p_index] = tip_xform.origin - bone_origin;
-	
 	// The scaling amount we use is linear with distance and seems to work pretty well.
 	// Haven't considered what would be the most mathematically rigorous scaling function.
 	// Probably something like d / (4 pi r^2).
