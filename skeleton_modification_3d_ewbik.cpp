@@ -71,9 +71,8 @@ void SkeletonModification3DEWBIK::set_pin_count(int32_t p_value) {
 		pins.write[i].instantiate();
 	}
 	pin_count = p_value;
-	is_dirty = true;
-
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 int32_t SkeletonModification3DEWBIK::get_pin_count() const {
@@ -87,8 +86,8 @@ void SkeletonModification3DEWBIK::add_pin(const String &p_name, const NodePath &
 	set_pin_target_nodepath(count, p_target_node);
 	set_pin_use_node_rotation(count, p_use_node_rotation);
 
-	is_dirty = true;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
@@ -102,8 +101,8 @@ void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, c
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	ERR_FAIL_NULL(data);
 	data->set_target_node(p_target_node);
-	is_dirty = true;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 NodePath SkeletonModification3DEWBIK::get_pin_target_nodepath(int32_t p_pin_index) {
@@ -116,8 +115,8 @@ void SkeletonModification3DEWBIK::set_pin_use_node_rotation(int32_t p_pin_index,
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	ERR_FAIL_NULL(data);
 	data->set_target_node_rotation(p_use_node_rot);
-	is_dirty = true;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 bool SkeletonModification3DEWBIK::get_pin_use_node_rotation(int32_t p_effector_index) const {
@@ -150,8 +149,8 @@ void SkeletonModification3DEWBIK::remove_pin(int32_t p_index) {
 	pins.remove_at(p_index);
 	pin_count--;
 	pins.resize(pin_count);
-	is_dirty = true;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::_execute(real_t delta) {
@@ -201,8 +200,8 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	ERR_FAIL_COND(root_bone.is_empty());
 	is_setup = true;
 	execution_error_found = false;
-	is_dirty = true;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::update_skeleton() {
@@ -535,8 +534,8 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
-	is_dirty = true;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 float SkeletonModification3DEWBIK::get_pin_depth_falloff(int32_t p_effector_index) const {
@@ -549,8 +548,8 @@ void SkeletonModification3DEWBIK::set_pin_depth_falloff(int32_t p_effector_index
 	Ref<IKEffectorTemplate> data = pins[p_effector_index];
 	ERR_FAIL_NULL(data);
 	data->set_depth_falloff(p_depth_falloff);
-	is_dirty = true;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
@@ -564,8 +563,8 @@ void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 		set_kusudama_twist(constraint_i, 0.0f);
 		set_kusudama_limit_cone_count(constraint_i, 0.0f);
 	}
-	is_dirty = true;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 int32_t SkeletonModification3DEWBIK::get_constraint_count() const {
@@ -595,6 +594,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone(int32_t p_bone, int32_
 	cone.a = p_radius;
 	kusudama_limit_cones.write[p_bone].write[p_index] = cone;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
@@ -628,8 +628,8 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_bone, 
 	for (int32_t cone_i = p_count; cone_i-- > old_count;) {
 		set_kusudama_limit_cone(p_bone, cone_i, Vector3(0.f, 0.f, 1.0f), 1.0f);
 	}
-	is_dirty = true;
 	notify_property_list_changed();
+	is_dirty = true;
 }
 
 real_t SkeletonModification3DEWBIK::get_default_damp() const {
