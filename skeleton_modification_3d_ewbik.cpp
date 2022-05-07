@@ -564,6 +564,7 @@ void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 		set_kusudama_twist(constraint_i, 0.0f);
 		set_kusudama_limit_cone_count(constraint_i, 0.0f);
 	}
+	is_dirty = true;
 	notify_property_list_changed();
 }
 
@@ -574,6 +575,7 @@ int32_t SkeletonModification3DEWBIK::get_constraint_count() const {
 void SkeletonModification3DEWBIK::set_kusudama_twist(int32_t p_index, float p_twist) {
 	ERR_FAIL_INDEX(p_index, kusudana_twist.size());
 	kusudana_twist.write[p_index] = p_twist;
+	is_dirty = true;
 }
 
 float SkeletonModification3DEWBIK::get_kusudama_twist(int32_t p_index) const {
@@ -626,6 +628,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_bone, 
 	for (int32_t cone_i = p_count; cone_i-- > old_count;) {
 		set_kusudama_limit_cone(p_bone, cone_i, Vector3(0.f, 0.f, 1.0f), 1.0f);
 	}
+	is_dirty = true;
 	notify_property_list_changed();
 }
 
