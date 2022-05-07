@@ -218,13 +218,13 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	// TODO: 2022-05-06 RESTORE TRANSLATION
 	// Vector3 translation = qcp.get_translation();
 	Vector3 translation;
-	// double bone_damp = p_for_bone->get_cos_half_dampen();
-	// if (!Math::is_equal_approx(p_dampening, -1.0f)) {
-	//	bone_damp = p_dampening;
-	//	rot = clamp_to_angle(rot, bone_damp);
-	// } else {
-	//	rot = clamp_to_quadrance_angle(rot, bone_damp);
-	// }
+	double bone_damp = p_for_bone->get_cos_half_dampen();
+	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
+		bone_damp = p_dampening;
+		rot = clamp_to_angle(rot, bone_damp);
+	} else {
+		rot = clamp_to_quadrance_angle(rot, bone_damp);
+	}
 	IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
 	ERR_FAIL_NULL_V(parent_transform_ik, INFINITY);
 	Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
