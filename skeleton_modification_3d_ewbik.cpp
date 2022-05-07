@@ -32,6 +32,10 @@
 #include "core/templates/map.h"
 #include "ik_bone_3d.h"
 
+#ifdef TOOLS_ENABLED
+#include "editor/editor_node.h"
+#endif
+
 int32_t SkeletonModification3DEWBIK::get_ik_iterations() const {
 	return ik_iterations;
 }
@@ -161,14 +165,11 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	if (!enabled) {
 		return;
 	}
-	if (is_dirty) {
-		update_skeleton();
-	}
 	if (stack->get_strength() <= 0.01f) {
 		execution_error_found = false;
 		return;
 	}
-	if (segmented_skeleton.is_null()) {
+	if (is_dirty || segmented_skeleton.is_null()) {
 		update_skeleton();
 	}
 	if (pin_count && segmented_skeleton.is_valid()) {
@@ -203,48 +204,72 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	is_setup = true;
 	execution_error_found = false;
 	notify_property_list_changed();
-	update_skeleton();
+	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::update_skeleton() {
 	if (!skeleton) {
 		return;
 	}
-	// for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
-	//	Ref<IKEffectorTemplate> data = pins.write[effector_i];
-	//	String bone = data->get_name();
-	//	BoneId bone_id = skeleton->find_bone(bone);
-	//	//for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-	//	//	if (ik_bone_3d->get_bone_id() != bone_id) {
-	//	//		continue;
-	//	//	}
-	//	//	Node *node = skeleton->get_node(data->get_target_node());
-	//	//	if (!node) {
-	//	//		continue;
-	//	//	}
-	//	//	bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-	//	//	if (is_tree_exited_connected) {
-	//	//		node->disconnect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-	//	//	}
-	//	//	bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-	//	//	if (is_tree_entered_connected) {
-	//	//		node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-	//	//	}
-	//	//	bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-	//	//	if (is_renamed_connected) {
-	//	//		node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-	//	//	}
-	//	//	node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
-	//	//	node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
-	//	//	node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()), CONNECT_REFERENCE_COUNTED);
-	//	//}
-	// }
+#ifdef TOOLS_ENABLED
+	if (InspectorDock::get_inspector_singleton()->is_connected("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty))) {
+		InspectorDock::get_inspector_singleton()->disconnect("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty));
+	}
+	InspectorDock::get_inspector_singleton()->connect("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty));
+#endif
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
 	segmented_skeleton->generate_default_segments_from_root(pins);
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
 	segmented_skeleton->update_root_transform(skeleton->get_transform());
 	update_effectors_map();
 	segmented_skeleton->update_pinned_list();
+	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
+		Ref<IKEffectorTemplate> data = pins.write[effector_i];
+		String bone = data->get_name();
+		BoneId bone_id = skeleton->find_bone(bone);
+		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+			if (ik_bone_3d->get_bone_id() != bone_id) {
+				continue;
+			}
+			Node *node = skeleton->get_node(data->get_target_node());
+			if (!node) {
+				continue;
+			}
+			bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			if (is_tree_exited_connected) {
+				node->disconnect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			}
+			bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			if (is_tree_entered_connected) {
+				node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			}
+			bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			if (is_renamed_connected) {
+				node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
+			}
+		}
+	}
+	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
+		Ref<IKEffectorTemplate> data = pins.write[effector_i];
+		String bone = data->get_name();
+		BoneId bone_id = skeleton->find_bone(bone);
+		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+			if (ik_bone_3d->get_bone_id() != bone_id) {
+				continue;
+			}
+			if (ik_bone_3d->get_pin().is_null()) {
+				continue;
+			}
+			ik_bone_3d->get_pin()->update_cache_target(skeleton);
+			Node *node = skeleton->get_node(data->get_target_node());
+			if (!node) {
+				continue;
+			}
+			node->connect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()));
+			node->connect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()));
+			node->connect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath), varray(effector_i, data->get_target_node()));
+		}
+	}
 	is_dirty = false;
 }
 
@@ -365,9 +390,9 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_RANGE, "0,359.999999,0.1,degrees"));
 		p_list->push_back(
-				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count", 
-				PROPERTY_HINT_NONE, "",	PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, 
-				vformat("Limit Cones,constraints/%s/kusudama_limit_cone/", itos(constraint_i))));
+				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
+						PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+						vformat("Limit Cones,constraints/%s/kusudama_limit_cone/", itos(constraint_i))));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
 					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center"));

@@ -57,13 +57,13 @@ class IKEffector3D : public Resource {
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
-	void update_cache_target(Skeleton3D *p_skeleton);
 
 protected:
 	static void _bind_methods();
 	void create_headings(Vector<real_t> &p_weights);
 
 public:
+	void update_cache_target(Skeleton3D *p_skeleton);
 	void update_goal_global_pose(Skeleton3D *p_skeleton);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;

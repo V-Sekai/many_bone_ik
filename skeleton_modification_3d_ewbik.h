@@ -65,6 +65,9 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
 
+	void set_dirty() {
+		is_dirty = true;
+	}
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
 	bool _set(const StringName &p_name, const Variant &p_value);

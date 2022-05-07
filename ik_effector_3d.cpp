@@ -207,14 +207,16 @@ float IKEffector3D::get_depth_falloff() const {
 
 void IKEffector3D::update_cache_target(Skeleton3D *p_skeleton) {
 	target_node_cache = ObjectID();
-	if (p_skeleton->is_inside_tree() && target_node_path.is_empty() == false) {
-		if (p_skeleton->has_node(target_node_path)) {
-			Node *node = p_skeleton->get_node(target_node_path);
-			ERR_FAIL_COND_MSG(!node || p_skeleton == node,
-					"Cannot update target cache: Target node is this modification's skeleton or cannot be found. Cannot execute modification");
-			ERR_FAIL_COND_MSG(!node->is_inside_tree(),
-					"Cannot update target cache: Target node is not in the scene tree. Cannot execute modification!");
-			target_node_cache = node->get_instance_id();
-		}
+	if (!(p_skeleton->is_inside_tree() && target_node_path.is_empty() == false)) {
+		return;
 	}
+	if (!p_skeleton->has_node(target_node_path)) {
+		return;
+	}
+	Node *node = p_skeleton->get_node(target_node_path);
+	ERR_FAIL_COND_MSG(!node || p_skeleton == node,
+			"Cannot update target cache: Target node is this modification's skeleton or cannot be found. Cannot execute modification");
+	ERR_FAIL_COND_MSG(!node->is_inside_tree(),
+			"Cannot update target cache: Target node is not in the scene tree. Cannot execute modification!");
+	target_node_cache = node->get_instance_id();
 }
