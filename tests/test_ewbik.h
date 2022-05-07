@@ -104,15 +104,6 @@ TEST_CASE("[Modules][EWBIK] qcp quaternion") {
 	basis_z = Quaternion(Vector3(0.0f, 0.0f, -1.f), Math_PI / 2.0f);
 	rotate_target_headings_quaternion(localizedTipHeadings, localizedTargetHeadings, basis_z);
 }
-
-TEST_CASE("[Modules][EWBIK] headings") {
-	// TODO: headings with generated information
-}
-
-TEST_CASE("[Modules][EWBIK] skeleton for two bone ik one iterations") {
-	// TODO: headings with generated information
-}
-
 } // namespace TestEWBIK
 
 #endif
