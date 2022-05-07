@@ -60,7 +60,7 @@ class IKBoneChain : public Resource {
 	bool has_pinned_descendants() {
 		return pinned_descendants;
 	}
-	bool enable_pinned_descendants() {
+	void enable_pinned_descendants() {
 		pinned_descendants = true;
 	}
 
