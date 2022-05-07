@@ -46,6 +46,7 @@ class IKEffector3D : public Resource {
 	Ref<IKBone3D> for_bone;
 	bool use_target_node_rotation = true;
 	NodePath target_node;
+	ObjectID target_node_cache;
 	Node *target_node_reference = nullptr;
 
 	Transform3D target_global_pose;
