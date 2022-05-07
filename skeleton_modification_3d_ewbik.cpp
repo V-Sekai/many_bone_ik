@@ -315,7 +315,7 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "1,60,1"));
-	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Pins,pins/"));
+	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED, "Pins,pins/"));
 	for (int i = 0; i < pin_count; i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING;
@@ -340,7 +340,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/depth_falloff"));
 	}
-	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
+	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED, "Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING;
@@ -365,7 +365,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_RANGE, "0,359.999999,0.1,degrees"));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count", PROPERTY_HINT_NONE, "",
-						PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+						PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED,
 						vformat("Limit Cones,constraints/%s/kusudama_limit_cone/", itos(constraint_i))));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
