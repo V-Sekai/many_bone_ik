@@ -58,13 +58,15 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	int32_t ik_iterations = 10;
 	float default_damp = Math::deg2rad(5.0f);
 
-	void update_effectors_map();
 	void update_shadow_bones_transform();
 	void check_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
 	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
 
+	void set_dirty() {
+		is_dirty = true;
+	}
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
 	bool _set(const StringName &p_name, const Variant &p_value);
