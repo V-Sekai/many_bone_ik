@@ -219,8 +219,7 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
 	QCP qcp = QCP(1E-6, 1E-11);
 	Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
-	Vector3 translation;
-	// translation = qcp.get_translation();
+	Vector3 translation = qcp.get_translation();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
 		bone_damp = p_dampening;
@@ -260,7 +259,7 @@ void IKBoneChain::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneChain> child : child_chains) {
 		child->segment_solver(p_damp);
 	}
-	qcp_solver(p_damp, get_parent_chain().is_null());
+	qcp_solver(p_damp, is_root_motion_pinned());
 }
 
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
@@ -270,6 +269,7 @@ void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 }
 
 void IKBoneChain::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("is_root_motion_pinned"), &IKBoneChain::is_root_motion_pinned);
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBoneChain::is_pinned);
 }
 
@@ -311,4 +311,9 @@ void IKBoneChain::enable_pinned_descendants() {
 
 bool IKBoneChain::has_pinned_descendants() {
 	return pinned_descendants;
+}
+
+bool IKBoneChain::is_root_motion_pinned() const {
+	ERR_FAIL_NULL_V(root, false);
+	return root->get_parent().is_null() && root->is_pinned();
 }
