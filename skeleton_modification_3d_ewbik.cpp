@@ -125,7 +125,7 @@ NodePath SkeletonModification3DEWBIK::get_pin_target_nodepath(int32_t p_pin_inde
 }
 
 void SkeletonModification3DEWBIK::set_pin_use_node_rotation(int32_t p_pin_index, bool p_use_node_rot) {
-	ERR_FAIL_INDEX_V(p_pin_index, pins.size(), NodePath());
+	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	ERR_FAIL_NULL(data);
 	data->set_target_node_rotation(p_use_node_rot);
