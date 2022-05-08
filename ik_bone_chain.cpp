@@ -180,19 +180,19 @@ Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half
 }
 
 Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const {
-	double cos_half_angle = Math::cos(real_t(0.5) * p_angle);
+	real_t cos_half_angle = Math::cos(real_t(0.5) * p_angle);
 	return clamp_to_quadrance_angle(p_quat, cos_half_angle);
 }
 
 Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
-	double newCoeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
+	real_t newCoeff = real_t(1.0) - (p_cos_half_angle * p_cos_half_angle);
 	Quaternion rot = p_quat;
-	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
+	real_t currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
 	if (newCoeff > currentCoeff) {
 		return rot;
 	} else {
-		rot.w = rot.w < 0.0f ? -p_cos_half_angle : p_cos_half_angle;
-		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
+		rot.w = rot.w < real_t(0.0) ? -p_cos_half_angle : p_cos_half_angle;
+		real_t compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
 		rot.x *= compositeCoeff;
 		rot.y *= compositeCoeff;
 		rot.z *= compositeCoeff;
