@@ -86,6 +86,11 @@ int32_t SkeletonModification3DEWBIK::get_pin_count() const {
 }
 
 void SkeletonModification3DEWBIK::add_pin(const String &p_name, const NodePath &p_target_node, const bool &p_use_node_rotation) {
+	for (Ref<IKEffectorTemplate> pin : pins) {
+		if (pin->get_name() == p_name) {
+			return;
+		}
+	}
 	int32_t count = get_pin_count();
 	set_pin_count(count + 1);
 	set_pin_bone(count, p_name);
@@ -218,6 +223,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 #endif
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
 	segmented_skeleton->generate_default_segments_from_root(pins);
+	bone_list.clear();
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
 	segmented_skeleton->update_root_transform(skeleton->get_transform());
 	segmented_skeleton->update_pinned_list();
