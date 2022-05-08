@@ -102,6 +102,7 @@ void SkeletonModification3DEWBIK::add_pin(const String &p_name, const NodePath &
 }
 
 void SkeletonModification3DEWBIK::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
+	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	data->set_name(p_bone);
 	notify_property_list_changed();
@@ -109,6 +110,7 @@ void SkeletonModification3DEWBIK::set_pin_bone(int32_t p_pin_index, const String
 }
 
 void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_target_node) {
+	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	ERR_FAIL_NULL(data);
 	data->set_target_node(p_target_node);
