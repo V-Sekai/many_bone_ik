@@ -295,7 +295,7 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 				names += ",";
 				names += skeleton->get_bone_name(i);
 			}
-			property.hint = PROPERTY_HINT_ENUM;
+			property.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			property.hint_string = names;
 		} else {
 			property.hint = PROPERTY_HINT_NONE;
@@ -317,7 +317,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				names += skeleton->get_bone_name(bone_i);
 				names += ",";
 			}
-			effector_name.hint = PROPERTY_HINT_ENUM;
+			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			effector_name.hint_string = names;
 		} else {
 			effector_name.hint = PROPERTY_HINT_NONE;
@@ -345,7 +345,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				names += skeleton->get_bone_name(bone_i);
 				names += ",";
 			}
-			bone_name.hint = PROPERTY_HINT_ENUM;
+			bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			bone_name.hint_string = names;
 		} else {
 			bone_name.hint = PROPERTY_HINT_NONE;
