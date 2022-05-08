@@ -290,8 +290,16 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) const {
 	if (property.name == "root_bone") {
 		if (skeleton) {
+			Set<String> existing_pins;
+			for(Ref<IKEffectorTemplate> pin : pins {
+				existing_pins.insert(pin.get_name());
+			}
+
 			String names = "None";
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
+				if (existing_pins.has(skeleton->get_bone_name(i))) {
+					continue;
+				}
 				names += ",";
 				names += skeleton->get_bone_name(i);
 			}
@@ -325,7 +333,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		}
 		p_list->push_back(effector_name);
 		p_list->push_back(
-				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(i) + "/target_node"));
+				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(i) + "/target_node", PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE));
 
 		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(i) + "/use_node_rotation"));
 		p_list->push_back(
