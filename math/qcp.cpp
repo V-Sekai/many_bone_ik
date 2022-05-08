@@ -187,7 +187,8 @@ Vector3 QCP::get_translation() {
 	return target_center - moved_center;
 }
 
-Vector3 QCP::move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center) {
+Vector3 QCP::move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight) {
+	Vector3 center;
 	if (!weight.is_empty()) {
 		for (int i = 0; i < toCenter.size(); i++) {
 			center = toCenter[i] * weight[i];
@@ -309,9 +310,9 @@ void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<
 	weight = p_weight;
 
 	if (p_translate) {
-		moved_center = move_to_weighted_center(moved, weight, moved_center);
+		moved_center = move_to_weighted_center(moved, weight);
 		w_sum = 0; // set wsum to 0 so we don't double up.
-		target_center = move_to_weighted_center(target, weight, target_center);
+		target_center = move_to_weighted_center(target, weight);
 		translate(moved_center * -1, moved);
 		translate(target_center * -1, target);
 	} else {

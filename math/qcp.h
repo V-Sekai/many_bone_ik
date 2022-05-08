@@ -182,7 +182,7 @@ class QCP {
 	static void translate(Vector3 trans, PackedVector3Array &x);
 
 	double get_rmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
-	Vector3 move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center);
+	Vector3 move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight);
 
 public:
 	/**

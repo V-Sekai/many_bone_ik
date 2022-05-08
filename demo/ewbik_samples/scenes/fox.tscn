@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bmueapwa1c4o1"]
+[gd_scene load_steps=4 format=3 uid="uid://bmueapwa1c4o1"]
 
 [ext_resource type="PackedScene" uid="uid://c7cddg60ptw4l" path="res://ewbik_samples/art/Fox_corrected_bone_directions.glb" id="1_cy4mh"]
 
@@ -7,256 +7,167 @@ root_bone = "_rootJoint"
 default_damp = 0.0872665
 ik_iterations = 20
 pin_count = 7
-pins/0/name = "b_Head_05"
-pins/0/target_node = NodePath("../../../../Head")
+pins/0/name = "b_Hip_01"
+pins/0/target_node = NodePath("../../../../b_Hip_01")
 pins/0/use_node_rotation = true
 pins/0/depth_falloff = 1.0
-pins/0/remove = false
-pins/1/name = "b_LeftFoot02_018"
-pins/1/target_node = NodePath("../../../../LeftFoot")
+pins/1/name = "b_LeftHand_011"
+pins/1/target_node = NodePath("../../../../b_LeftHand_011")
 pins/1/use_node_rotation = true
 pins/1/depth_falloff = 1.0
-pins/1/remove = false
-pins/2/name = "b_RightFoot02_022"
-pins/2/target_node = NodePath("../../../../RightFoot")
+pins/2/name = "b_RightHand_08"
+pins/2/target_node = NodePath("../../../../b_RightHand_08")
 pins/2/use_node_rotation = true
 pins/2/depth_falloff = 1.0
-pins/2/remove = false
-pins/3/name = "b_LeftHand_011"
-pins/3/target_node = NodePath("../../../../LeftHand")
+pins/3/name = "b_LeftFoot02_018"
+pins/3/target_node = NodePath("../../../../b_LeftFoot02_018")
 pins/3/use_node_rotation = true
 pins/3/depth_falloff = 1.0
-pins/3/remove = false
-pins/4/name = "b_RightHand_08"
-pins/4/target_node = NodePath("../../../../RightHand")
+pins/4/name = "b_Head_05"
+pins/4/target_node = NodePath("../../../../b_Head_05")
 pins/4/use_node_rotation = true
 pins/4/depth_falloff = 1.0
-pins/4/remove = false
-pins/5/name = "b_Head_05"
-pins/5/target_node = NodePath("../../../../Head")
+pins/5/name = "_rootjoint"
+pins/5/target_node = NodePath("../../../../_rootjoint")
 pins/5/use_node_rotation = true
 pins/5/depth_falloff = 1.0
-pins/5/remove = false
-pins/6/name = "b_Hip_01"
-pins/6/target_node = NodePath("../../../../Hips")
+pins/6/name = "b_RightFoot02_022"
+pins/6/target_node = NodePath("b_RightFoot02_022")
 pins/6/use_node_rotation = true
 pins/6/depth_falloff = 1.0
-pins/6/remove = false
 
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_wpwf5"]
 enabled = true
 modification_count = 1
 modifications/0 = SubResource( "SkeletonModification3DEWBIK_arbsc" )
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_vodsq"]
-top_radius = 0.0
-bottom_radius = 1.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_283bm"]
-albedo_color = Color(0.764706, 0.690196, 0.192157, 1)
-
 [node name="Node3D" type="Node3D"]
 
 [node name="Fox" parent="." instance=ExtResource( "1_cy4mh" )]
 
 [node name="Skeleton3D" parent="Fox/Fox/root" index="0"]
-bones/0/rotation = Quaternion(-0.0583506, 0.44053, -0.596591, 0.668287)
-bones/0/scale = Vector3(1.00001, 1, 1)
-bones/1/rotation = Quaternion(-0.283729, -0.44399, 0.340161, 0.778885)
-bones/1/scale = Vector3(1.00034, 1.00019, 1.00033)
-bones/2/position = Vector3(0.00014019, 50.5879, 5.91278e-05)
-bones/2/rotation = Quaternion(0.755138, -0.375571, 0.509451, 0.170802)
-bones/2/scale = Vector3(0.999776, 0.999869, 1.00001)
-bones/3/position = Vector3(9.00572, 9.1674, 0.000106812)
-bones/3/rotation = Quaternion(-0.178081, -0.0542603, -0.448049, 0.874411)
-bones/3/scale = Vector3(0.999691, 0.999654, 0.999853)
-bones/4/position = Vector3(-8.58307e-05, 21.6561, 0.000320435)
-bones/4/rotation = Quaternion(0.053951, -0.776882, -0.0430764, 0.62585)
-bones/4/scale = Vector3(0.999928, 1.00008, 1.00003)
-bones/5/position = Vector3(-3.46666, 25.4134, 0.00016737)
-bones/5/rotation = Quaternion(0.00974116, -0.145613, 0.0660787, 0.987084)
-bones/5/scale = Vector3(0.999936, 1.00003, 0.999846)
-bones/6/position = Vector3(2.28882e-05, 13.3766, 9.82285e-05)
-bones/6/rotation = Quaternion(-0.0796089, 0.119817, -0.397695, 0.906171)
-bones/6/scale = Vector3(0.999791, 0.999875, 0.999901)
-bones/7/position = Vector3(1.73357, 19.087, 6.96762)
-bones/7/rotation = Quaternion(0.0867151, 0.0698866, -0.73996, 0.663367)
-bones/7/scale = Vector3(1.00007, 1.00008, 0.999896)
-bones/8/position = Vector3(0.000181198, 23.0448, 4.19617e-05)
-bones/8/rotation = Quaternion(-0.0908599, 0.614683, -0.104424, 0.776534)
-bones/8/scale = Vector3(1, 0.999312, 0.999912)
-bones/9/position = Vector3(-0.000138283, 19.3505, 0)
-bones/9/rotation = Quaternion(-0.280285, -0.651215, 0.400552, 0.580446)
-bones/9/scale = Vector3(0.999807, 0.999662, 0.999882)
-bones/10/position = Vector3(1.73353, 19.0871, -6.96791)
-bones/10/rotation = Quaternion(0.174824, 0.0648898, -0.714674, 0.674141)
-bones/10/scale = Vector3(1.00004, 0.999847, 0.999834)
-bones/11/position = Vector3(1.14441e-05, 23.0446, 0.000228882)
-bones/11/rotation = Quaternion(-0.183922, 0.398946, -0.214763, 0.872291)
-bones/11/scale = Vector3(0.999917, 0.99937, 0.99957)
-bones/12/position = Vector3(0.000175476, 19.3508, -4.3869e-05)
-bones/12/rotation = Quaternion(-0.17266, -0.539717, 0.481274, 0.668781)
-bones/12/scale = Vector3(1.00026, 0.999646, 0.999557)
-bones/13/position = Vector3(-8.39863, 14.223, 0.000411987)
-bones/13/rotation = Quaternion(0.0330695, 0.00199, 0.966082, 0.256102)
-bones/13/scale = Vector3(0.999702, 0.999704, 0.999873)
-bones/14/position = Vector3(0.000128746, 12.4119, 9.53674e-05)
-bones/14/rotation = Quaternion(0.145434, 0.0180782, -0.0123545, 0.989126)
-bones/14/scale = Vector3(0.999767, 0.999846, 0.999725)
-bones/15/position = Vector3(-4.95911e-05, 24.2404, -0.000312805)
-bones/15/rotation = Quaternion(0.320665, 0.721497, -0.0265002, 0.613118)
-bones/15/scale = Vector3(0.999985, 0.99989, 0.99985)
-bones/16/position = Vector3(-0.302988, 7.04615, -6.96796)
-bones/16/rotation = Quaternion(-0.226211, 0.875168, 0.421113, 0.0746537)
-bones/16/scale = Vector3(0.999856, 0.999889, 0.99966)
-bones/17/position = Vector3(0.000175476, 18.9444, -4.86374e-05)
-bones/17/rotation = Quaternion(0.00509545, -0.00841827, -0.00934567, 0.999908)
-bones/17/scale = Vector3(0.999847, 0.999867, 0.999709)
-bones/18/position = Vector3(-1.14441e-05, 17.9427, 0.000114441)
-bones/18/rotation = Quaternion(-0.00198099, 0.186255, 0.00293148, 0.982495)
-bones/18/scale = Vector3(0.999825, 0.999834, 0.999817)
-bones/19/position = Vector3(8.01086e-05, 15.7802, 4.00543e-05)
-bones/19/rotation = Quaternion(-0.109987, 0.194119, 0.695251, 0.683262)
-bones/19/scale = Vector3(0.999571, 0.999913, 1.00018)
-bones/20/position = Vector3(-0.302998, 7.04606, 6.96755)
-bones/20/rotation = Quaternion(-0.128398, 0.758562, 0.616649, 0.166859)
-bones/20/scale = Vector3(0.999771, 0.999843, 0.999815)
-bones/21/position = Vector3(0.000148773, 18.9448, -1.71661e-05)
-bones/21/rotation = Quaternion(0.000303517, 0.0114216, -0.000604487, 0.999935)
-bones/21/scale = Vector3(0.999829, 0.999971, 0.999843)
-bones/22/position = Vector3(-7.82013e-05, 17.9424, -1.71661e-05)
-bones/22/rotation = Quaternion(-4.30271e-05, 0.0435705, 6.17614e-05, 0.99905)
-bones/22/scale = Vector3(0.999734, 0.999822, 0.999749)
-bones/23/position = Vector3(-5.34058e-05, 15.7799, 3.8147e-06)
-bones/23/rotation = Quaternion(0.182889, 0.285473, 0.591177, 0.731824)
-bones/23/scale = Vector3(0.999915, 0.999751, 0.999746)
+bones/1/rotation = Quaternion(-0.274911, 8.60762e-05, -2.53388e-05, 0.96147)
+bones/1/scale = Vector3(1, 0.999994, 0.999996)
+bones/2/position = Vector3(6.38422e-07, 50.5987, -0.0020771)
+bones/2/rotation = Quaternion(0.0474369, -0.70558, -0.0473568, 0.705453)
+bones/2/scale = Vector3(1.00055, 1.00019, 1)
+bones/3/position = Vector3(9.00836, 9.16938, 6.36033e-05)
+bones/3/rotation = Quaternion(4.78484e-05, -9.06402e-07, -0.852625, 0.522523)
+bones/3/scale = Vector3(1.00049, 1.00046, 1)
+bones/4/position = Vector3(-0.000152588, 21.6612, 4.74975e-08)
+bones/4/rotation = Quaternion(2.04646e-05, 0.000128496, -0.0577716, 0.99833)
+bones/4/scale = Vector3(1.00064, 1.00046, 1.00008)
+bones/5/position = Vector3(-3.46457, 25.4183, 0.000190923)
+bones/5/rotation = Quaternion(-4.67892e-05, -0.000561592, 0.369453, 0.929249)
+bones/5/scale = Vector3(1.00024, 1.00024, 1.00022)
+bones/6/position = Vector3(0.00162888, 13.3764, -1.08033e-07)
+bones/6/rotation = Quaternion(-4.66076e-05, 0.000364763, -0.398951, 0.916972)
+bones/6/scale = Vector3(0.999798, 0.99999, 0.999864)
+bones/7/position = Vector3(1.73146, 19.091, 6.97023)
+bones/7/rotation = Quaternion(0.000453004, 0.000462554, -0.664115, 0.74763)
+bones/7/scale = Vector3(1.00027, 1.00014, 1.00021)
+bones/8/position = Vector3(0.000253677, 23.057, -0.000134468)
+bones/8/rotation = Quaternion(0.000242722, -6.80928e-06, 0.0474249, 0.998875)
+bones/8/scale = Vector3(1.00068, 1.00097, 1.0004)
+bones/9/position = Vector3(0.000209808, 19.3499, -0.00010252)
+bones/9/rotation = Quaternion(0.0077125, -0.0120273, 0.452798, 0.891498)
+bones/9/scale = Vector3(0.99971, 0.999444, 1.00015)
+bones/10/position = Vector3(1.73143, 19.0912, -6.97043)
+bones/10/rotation = Quaternion(0.000863106, 0.000547797, -0.664075, 0.747665)
+bones/10/scale = Vector3(1.00033, 1.00041, 0.999971)
+bones/11/position = Vector3(1.90735e-06, 23.057, 0.000248909)
+bones/11/rotation = Quaternion(0.000456865, 1.57317e-05, 0.0475684, 0.998868)
+bones/11/scale = Vector3(1.00057, 1.00065, 1.00001)
+bones/12/position = Vector3(-6.29425e-05, 19.3506, -1.04904e-05)
+bones/12/rotation = Quaternion(-0.0142602, 0.0166228, 0.452245, 0.891625)
+bones/12/scale = Vector3(1.00019, 1.00038, 1.0001)
+bones/13/position = Vector3(-8.40051, 14.2257, 0.000209584)
+bones/13/rotation = Quaternion(5.30212e-06, -3.58847e-06, 0.837106, 0.547041)
+bones/13/scale = Vector3(1.00044, 1.00045, 1)
+bones/14/position = Vector3(-0.000747681, 12.4156, 4.51691e-08)
+bones/14/rotation = Quaternion(-1.42485e-09, -4.06909e-09, -0.0695921, 0.997576)
+bones/14/scale = Vector3(1.0004, 1.00041, 1)
+bones/15/position = Vector3(-0.00140381, 24.2464, -2.32831e-09)
+bones/15/rotation = Quaternion(-1.07395e-09, -6.88364e-09, -0.0538252, 0.99855)
+bones/15/scale = Vector3(1.00036, 1.00035, 1)
+bones/16/position = Vector3(-0.30319, 7.04721, -6.97026)
+bones/16/rotation = Quaternion(0.000270093, -1.79877e-05, 0.989874, 0.14195)
+bones/16/scale = Vector3(1.00063, 1.00044, 1)
+bones/17/position = Vector3(0.000141144, 18.9495, 8.34465e-05)
+bones/17/rotation = Quaternion(-3.27505e-05, -0.000236437, -0.375142, 0.926967)
+bones/17/scale = Vector3(1.00026, 1.00032, 1.00008)
+bones/18/position = Vector3(0.00179291, 17.9471, 9.34601e-05)
+bones/18/rotation = Quaternion(0.000195074, -0.000106038, 0.459685, 0.888082)
+bones/18/scale = Vector3(1.00053, 1.00007, 0.999877)
+bones/19/position = Vector3(-0.00071907, 15.7809, -1.09673e-05)
+bones/19/rotation = Quaternion(0.000513174, 0.000510178, 0.548318, 0.836269)
+bones/19/scale = Vector3(1.00004, 1.00001, 0.999993)
+bones/20/position = Vector3(-0.303108, 7.04762, 6.96984)
+bones/20/rotation = Quaternion(-1.07403e-06, -6.12499e-06, 0.98989, 0.141837)
+bones/20/scale = Vector3(1.00046, 1.00047, 1)
+bones/21/position = Vector3(-0.00107193, 18.9499, -6.24657e-05)
+bones/21/rotation = Quaternion(3.28588e-06, 6.50826e-06, -0.373579, 0.927598)
+bones/21/scale = Vector3(1.00015, 1.00014, 1)
+bones/22/position = Vector3(-0.00136566, 17.9478, -7.15256e-05)
+bones/22/rotation = Quaternion(3.93758e-05, -0.000114734, 0.45663, 0.889657)
+bones/22/scale = Vector3(1.00068, 1.00039, 1)
+bones/23/position = Vector3(-0.00203133, 15.7853, -1.7643e-05)
+bones/23/rotation = Quaternion(-1.82251e-05, -3.34909e-07, 0.549289, 0.835633)
+bones/23/scale = Vector3(1.00041, 1.00027, 0.999891)
 modification_stack = SubResource( "SkeletonModificationStack3D_wpwf5" )
 
-[node name="Hips" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="1"]
-transform = Transform3D(0.613314, -0.702796, 0.360987, 0.176036, -0.323829, -0.929866, 0.770087, 0.633646, -0.0750391, -0.448408, 37.4385, -34.0333)
+[node name="b_Hip_01" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="1"]
+transform = Transform3D(6.70846e-06, -9.95615e-05, -1, 0.410573, 0.912094, -8.80215e-05, 0.912427, -0.410422, 4.70021e-05, 7.10155e-05, 42.9493, -26.75)
 bone_name = "b_Hip_01"
 bone_idx = 2
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Fox/Fox/root/Skeleton3D/Hips"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="LeftHand" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="2"]
-transform = Transform3D(0.0427707, 0.00783291, -0.998202, -0.833902, -0.549318, -0.0401319, -0.549569, 0.834425, -0.0165406, 6.94334, -0.898344, 17.8388)
+[node name="b_LeftHand_011" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="2"]
+transform = Transform3D(0.0427195, 0.00805453, -0.999219, -0.836538, -0.551305, -0.0402007, -0.55122, 0.837351, -0.0168123, 6.94304, 6.69442, 17.8388)
 bone_name = "b_LeftHand_011"
 bone_idx = 12
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Fox/Fox/root/Skeleton3D/LeftHand"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="RightHand" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="3"]
-transform = Transform3D(-0.0277967, -0.00417244, -0.999289, -0.834509, -0.548953, 0.025414, -0.549174, 0.835027, 0.0119579, -6.96684, -0.908993, 17.8275)
+[node name="b_RightHand_08" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="3"]
+transform = Transform3D(-0.0278555, -0.00409499, -1.00043, -0.837017, -0.550403, 0.0255822, -0.550624, 0.836927, 0.0119152, -6.96753, 6.69439, 17.8278)
 bone_name = "b_RightHand_08"
 bone_idx = 9
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Fox/Fox/root/Skeleton3D/RightHand"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="LeftFoot" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="4"]
-transform = Transform3D(-7.38204e-05, -6.44326e-05, -0.999696, -0.995678, -0.0857857, -3.25739e-05, -0.0857773, 0.995754, -0.000222132, -30.1096, -6.12729, -32.8544)
+[node name="b_LeftFoot02_018" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="4"]
+transform = Transform3D(-2.07142e-05, -0.000150607, -0.999946, -0.997471, -0.0855971, 3.3087e-05, -0.0863244, 0.99816, -0.000151285, 6.96534, 0.992647, -32.8905)
 bone_name = "b_LeftFoot02_018"
 bone_idx = 19
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Fox/Fox/root/Skeleton3D/LeftFoot"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="RightFoot" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="5"]
-transform = Transform3D(6.97672e-05, 0.000271857, -0.999313, -0.884576, -0.465857, -0.000123061, -0.465994, 0.883952, 0.000377357, -6.72261, -22.3115, -43.2175)
+[node name="b_RightFoot02_022" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="5"]
+transform = Transform3D(4.34739e-05, 0.000310318, -0.999891, -0.997925, -0.0866986, -7.00838e-05, -0.0871852, 0.998213, 0.000305386, -6.96529, 0.930372, -32.8713)
 bone_name = "b_RightFoot02_022"
 bone_idx = 23
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Fox/Fox/root/Skeleton3D/RightFoot"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="Head" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="6"]
-transform = Transform3D(-0.118278, -0.0274598, -0.992271, -0.80354, -0.584214, 0.112086, -0.58295, 0.810763, 0.0471692, -0.0989611, 48.8198, 38.0101)
+[node name="b_Head_05" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="6"]
+transform = Transform3D(6.95989e-07, 2.41271e-07, -1.00017, -0.975553, -0.226092, -9.97097e-08, -0.226383, 0.975713, 1.95956e-07, 4.69449e-05, 60.7259, 36.1552)
 bone_name = "b_Head_05"
 bone_idx = 6
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Fox/Fox/root/Skeleton3D/Head"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="Root" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="7"]
-transform = Transform3D(-0.0999757, 0.745982, 0.658424, -0.848808, 0.28135, -0.447643, -0.519183, -0.603625, 0.605058, 0, 0, 0)
+[node name="_rootjoint" type="BoneAttachment3D" parent="Fox/Fox/root/Skeleton3D" index="7"]
 bone_name = "_rootJoint"
 bone_idx = 0
 
-[node name="Root" type="BoneAttachment3D" parent="."]
-transform = Transform3D(0.916177, -0.227063, -0.330245, 0.258657, 0.964432, 0.0544711, 0.306131, -0.135325, 0.942322, 0, 0, 0)
-bone_name = "_rootJoint"
-bone_idx = 0
+[node name="b_Hip_01" type="Position3D" parent="."]
+transform = Transform3D(-4.29153e-06, 1.1012e-05, -1, 0.401677, 0.915781, 8.32698e-06, 0.915782, -0.401677, -8.41766e-06, 7.20022e-07, 42.9381, -26.7486)
 
-[node name="Hips" type="BoneAttachment3D" parent="."]
-transform = Transform3D(-4.29153e-06, 1.1012e-05, -1, 0.0151671, 0.999884, 1.09394e-05, 0.999885, -0.0151675, -4.53042e-06, 7.15256e-07, 23.0058, -22.1449)
-bone_name = "b_Hip_01"
-bone_idx = 2
+[node name="b_LeftHand_011" type="Position3D" parent="."]
+transform = Transform3D(0.0427082, 0.00805285, -0.999055, -0.834266, -0.549902, -0.0400962, -0.549706, 0.83519, -0.0167672, 6.94305, 6.6946, 17.8388)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hips"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
+[node name="b_RightHand_08" type="Position3D" parent="."]
+transform = Transform3D(-0.0278453, -0.00409405, -0.999604, -0.835118, -0.549478, 0.0255138, -0.549365, 0.835498, 0.0118813, -6.96752, 6.69463, 17.8278)
 
-[node name="LeftHand" type="BoneAttachment3D" parent="."]
-transform = Transform3D(0.0427082, 0.00805285, -0.999055, -0.834266, -0.549902, -0.0400962, -0.549706, 0.83519, -0.0167672, 6.94305, -0.896014, 17.8388)
-bone_name = "b_LeftHand_011"
-bone_idx = 12
+[node name="b_LeftFoot02_018" type="Position3D" parent="."]
+transform = Transform3D(-2.03698e-05, -0.000151521, -1, -0.996309, -0.0858315, 3.32661e-05, -0.0858316, 0.996309, -0.000149278, 6.96534, 0.992615, -32.8905)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="LeftHand"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
+[node name="b_RightFoot02_022" type="Position3D" parent="."]
+transform = Transform3D(1.97293e-05, 0.000307259, -1, -0.996239, -0.0866504, -4.6313e-05, -0.0866505, 0.996239, 0.000304329, -6.96533, 0.984612, -32.8871)
 
-[node name="RightHand" type="BoneAttachment3D" parent="."]
-transform = Transform3D(-0.0278453, -0.00409405, -0.999604, -0.835118, -0.549478, 0.0255138, -0.549365, 0.835498, 0.0118813, -6.96752, -0.895984, 17.8278)
-bone_name = "b_RightHand_08"
-bone_idx = 9
+[node name="b_Head_05" type="Position3D" parent="."]
+transform = Transform3D(2.41241e-07, 1.00397e-06, -1, -0.974152, -0.225894, -4.95551e-07, -0.225894, 0.974152, 8.59222e-07, 5.05984e-05, 60.7255, 36.1544)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="RightHand"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="LeftFoot" type="BoneAttachment3D" parent="."]
-transform = Transform3D(-2.03698e-05, -0.000151521, -1, -0.996309, -0.0858315, 3.32661e-05, -0.0858316, 0.996309, -0.000149278, -30.3283, -6.598, -32.8905)
-bone_name = "b_LeftFoot02_018"
-bone_idx = 19
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="LeftFoot"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="RightFoot" type="BoneAttachment3D" parent="."]
-transform = Transform3D(1.97293e-05, 0.000307259, -1, -0.884704, -0.466154, -0.000160691, -0.466154, 0.884704, 0.000262563, -6.96533, -25.679, -44.0703)
-bone_name = "b_RightFoot02_022"
-bone_idx = 23
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="RightFoot"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="Head" type="BoneAttachment3D" parent="."]
-transform = Transform3D(-0.118415, -0.0274581, -0.992584, -0.803695, -0.584396, 0.112047, -0.583139, 0.811004, 0.0471334, 5.05447e-05, 49.8251, 42.734)
-bone_name = "b_Head_05"
-bone_idx = 6
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Head"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
-
-[node name="Hips2" type="BoneAttachment3D" parent="."]
-transform = Transform3D(0.166043, 0.656296, -0.736021, 0.247201, 0.694855, 0.67535, 0.954633, -0.294091, -0.0468994, -40.8472, -29.8177, -1.2411)
-bone_name = "b_Hip_01"
-bone_idx = 2
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hips2"]
-mesh = SubResource( "CylinderMesh_vodsq" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_283bm" )
+[node name="_rootjoint" type="Position3D" parent="."]
 
 [editable path="Fox"]
