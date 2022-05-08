@@ -55,7 +55,9 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	PackedFloat32Array kusudana_twist;
 	Vector<PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
+	float time_budget_millisecond = 0.01f;
 	int32_t ik_iterations = 10;
+	int32_t max_ik_iterations = 30;
 	float default_damp = Math::deg2rad(5.0f);
 
 	void update_shadow_bones_transform();
@@ -75,6 +77,18 @@ protected:
 	static void _bind_methods();
 
 public:
+	float get_max_ik_iterations() const {
+		return max_ik_iterations;
+	}
+	void set_max_ik_iterations(const float &p_max_ik_iterations) {
+		max_ik_iterations = p_max_ik_iterations;
+	}
+	float get_time_budget_millisecond() const {
+		return time_budget_millisecond;
+	}
+	void set_time_budget_millisecond(const float &p_time_budget) {
+		time_budget_millisecond = p_time_budget;
+	}
 	virtual void _execute(real_t p_delta) override;
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
 	void add_pin(const String &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
