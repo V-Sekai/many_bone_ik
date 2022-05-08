@@ -290,16 +290,8 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) const {
 	if (property.name == "root_bone") {
 		if (skeleton) {
-			Set<String> existing_pins;
-			for(Ref<IKEffectorTemplate> pin : pins {
-				existing_pins.insert(pin.get_name());
-			}
-
-			String names = "None";
+			String names;
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
-				if (existing_pins.has(skeleton->get_bone_name(i))) {
-					continue;
-				}
 				names += ",";
 				names += skeleton->get_bone_name(i);
 			}
@@ -320,10 +312,25 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		effector_name.type = Variant::STRING;
 		effector_name.name = "pins/" + itos(i) + "/name";
 		if (skeleton) {
+			Set<String> existing_pins;
+			for (Ref<IKEffectorTemplate> pin : pins) {
+				if (pin.is_null()) {
+					continue;
+				}
+				const String name = pin->get_name();
+				existing_pins.insert(name);
+			}
 			String names;
-			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-				names += skeleton->get_bone_name(bone_i);
+			for (Ref<IKBone3D> bone : bone_list) {
+				if (bone.is_null()) {
+					continue;
+				}
+				String name = bone->get_name();
+				if (existing_pins.has(name)) {
+					continue;
+				}
 				names += ",";
+				names += name;
 			}
 			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			effector_name.hint_string = names;
@@ -333,7 +340,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		}
 		p_list->push_back(effector_name);
 		p_list->push_back(
-				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(i) + "/target_node", PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE));
+				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D"));
 
 		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(i) + "/use_node_rotation"));
 		p_list->push_back(
@@ -456,6 +463,12 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "target_node") {
 			set_pin_target_nodepath(index, p_value);
+			String existing_bone = get_pin_bone_name(index);
+			if (!existing_bone.is_empty() && existing_bone != "None") {
+				return true;
+			}
+			String node_path = p_value;
+			set_pin_bone(index, node_path.get_file());
 			return true;
 		} else if (what == "use_node_rotation") {
 			set_pin_use_node_rotation(index, p_value);
