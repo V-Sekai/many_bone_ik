@@ -92,8 +92,11 @@ void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength)
 	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());
 }
 
-void IKBone3D::create_pin() {
+void IKBone3D::create_pin(Skeleton3D *p_skeleton, Ref<IKEffectorTemplate> p_template) {
 	pin = Ref<IKEffector3D>(memnew(IKEffector3D(this)));
+	pin->set_target_node(p_skeleton, p_template->get_target_node());
+	pin->set_depth_falloff(p_template->get_depth_falloff());
+	pin->set_target_node_rotation(p_template->get_target_node_rotation());
 }
 
 bool IKBone3D::is_pinned() const {
@@ -116,11 +119,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			continue;
 		}
 		if (elem->get_name() == p_bone) {
-			create_pin();
-			Ref<IKEffector3D> effector = get_pin();
-			effector->set_target_node(p_skeleton, elem->get_target_node());
-			effector->set_depth_falloff(elem->get_depth_falloff());
-			effector->set_target_node_rotation(elem->get_target_node_rotation());
+			create_pin(p_skeleton, elem);
 			break;
 		}
 	}

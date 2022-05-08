@@ -31,8 +31,8 @@
 #include "qcp.h"
 
 QCP::QCP(double p_evec_prec, double p_eval_prec) {
-	this->evec_prec = evec_prec;
-	this->eval_prec = eval_prec;
+	evec_prec = p_evec_prec;
+	eval_prec = p_eval_prec;
 }
 
 void QCP::set(PackedVector3Array &p_target, PackedVector3Array &p_moved) {
@@ -177,9 +177,9 @@ double QCP::get_rmsd(PackedVector3Array &moved, PackedVector3Array &fixed) {
 	return get_rmsd();
 }
 
-void QCP::translate(Vector3 trans, PackedVector3Array &x) {
-	for (Vector3 &p : x) {
-		p += trans;
+void QCP::translate(const Vector3 &p_translate, PackedVector3Array &p_x) {
+	for (Vector3 &p : p_x) {
+		p += p_translate;
 	}
 }
 
@@ -187,22 +187,21 @@ Vector3 QCP::get_translation() {
 	return target_center - moved_center;
 }
 
-Vector3 QCP::move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight, Vector3 center) {
-	if (!weight.is_empty()) {
-		for (int i = 0; i < toCenter.size(); i++) {
-			center = toCenter[i] * weight[i];
-			w_sum += weight[i];
+Vector3 QCP::move_to_weighted_center(const PackedVector3Array &p_toCenter, const Vector<real_t> &p_weight) {
+	Vector3 center;
+	if (!p_weight.is_empty()) {
+		for (int i = 0; i < p_toCenter.size(); i++) {
+			center += p_toCenter[i] * p_weight[i];
+			w_sum += p_weight[i];
 		}
-
 		center /= Vector3(w_sum, w_sum, w_sum);
 	} else {
-		for (int i = 0; i < toCenter.size(); i++) {
-			center += toCenter[i];
+		for (int i = 0; i < p_toCenter.size(); i++) {
+			center += p_toCenter[i];
 			w_sum++;
 		}
 		center /= Vector3(w_sum, w_sum, w_sum);
 	}
-
 	return center;
 }
 
@@ -309,9 +308,9 @@ void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<
 	weight = p_weight;
 
 	if (p_translate) {
-		moved_center = move_to_weighted_center(moved, weight, moved_center);
+		moved_center = move_to_weighted_center(moved, weight);
 		w_sum = 0; // set wsum to 0 so we don't double up.
-		target_center = move_to_weighted_center(target, weight, target_center);
+		moved_center = move_to_weighted_center(target, weight);
 		translate(moved_center * -1, moved);
 		translate(target_center * -1, target);
 	} else {

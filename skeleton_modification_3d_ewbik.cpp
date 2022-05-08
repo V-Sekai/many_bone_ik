@@ -223,10 +223,10 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 #endif
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
 	segmented_skeleton->generate_default_segments_from_root(pins);
+	segmented_skeleton->create_headings(segmented_skeleton->get_root()->get_pin(), segmented_skeleton->get_root()->get_pin()->get_depth_falloff());
 	bone_list.clear();
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
 	segmented_skeleton->update_root_transform(skeleton->get_transform());
-	segmented_skeleton->update_pinned_list();
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
 		String bone = data->get_name();

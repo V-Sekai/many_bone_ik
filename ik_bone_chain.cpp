@@ -58,8 +58,37 @@ BoneId IKBoneChain::find_root_bone_id(BoneId p_bone) {
 void IKBoneChain::generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins) {
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
+		if (temp_tip->is_pinned()) {
+			enable_pinned_descendants();
+		}
 		Vector<BoneId> children = skeleton->get_bone_children(temp_tip->get_bone_id());
-		if (children.size() > 1 || temp_tip->is_pinned()) {
+		if (children.size() == 1 && temp_tip->is_pinned()) {
+			tip = temp_tip;
+			BoneId bone_id = children[0];
+			String child_name = skeleton->get_bone_name(bone_id);
+			Ref<IKBoneChain> parent(this);
+			Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_name, p_pins, parent)));
+			child_segment->generate_default_segments_from_root(p_pins);
+			child_segment->enable_pinned_descendants();
+			child_chains.push_back(child_segment);
+			break;
+		} else if (children.size() == 1 && !temp_tip->is_pinned()) {
+			BoneId bone_id = children[0];
+			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip, p_pins)));
+			temp_tip = next;
+		} else if (children.size() > 1 && temp_tip->is_pinned()) {
+			tip = temp_tip;
+			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
+				BoneId child_bone = children[child_i];
+				String child_name = skeleton->get_bone_name(child_bone);
+				Ref<IKBoneChain> parent(this);
+				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_name, p_pins, parent)));
+				child_segment->generate_default_segments_from_root(p_pins);
+				child_segment->enable_pinned_descendants();
+				child_chains.push_back(child_segment);
+			}
+			break;
+		} else if (children.size() > 1 && !temp_tip->is_pinned()) {
 			tip = temp_tip;
 			Ref<IKBoneChain> parent(this);
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
@@ -70,10 +99,6 @@ void IKBoneChain::generate_default_segments_from_root(Vector<Ref<IKEffectorTempl
 				child_chains.push_back(child_segment);
 			}
 			break;
-		} else if (children.size() == 1) {
-			BoneId bone_id = children[0];
-			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip, p_pins)));
-			temp_tip = next;
 		} else {
 			tip = temp_tip;
 			break;
@@ -85,7 +110,6 @@ void IKBoneChain::generate_default_segments_from_root(Vector<Ref<IKEffectorTempl
 }
 
 void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
-	p_list.clear();
 	if (p_recursive) {
 		for (int32_t child_i = 0; child_i < child_chains.size(); child_i++) {
 			child_chains[child_i]->set_bone_list(p_list, p_recursive, p_debug_skeleton);
@@ -118,42 +142,6 @@ void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 		}
 	}
 	p_list.append_array(list);
-}
-
-void IKBoneChain::update_pinned_list() {
-	real_t depth_falloff = is_pinned() ? tip->get_pin()->depth_falloff : 1.0;
-	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
-		Ref<IKBoneChain> chain = child_chains[chain_i];
-		chain->update_pinned_list();
-	}
-	if (is_pinned()) {
-		effector_list.push_back(tip->get_pin());
-	}
-	if (!Math::is_zero_approx(depth_falloff)) {
-		for (Ref<IKBoneChain> child : child_chains) {
-			effector_list.append_array(child->effector_list);
-		}
-	}
-	for (Ref<IKEffector3D> effector : effector_list) {
-		// TODO: 2021-05-02 fire Implement proper weights
-		heading_weights.push_back(1.0f);
-		{
-			heading_weights.push_back(1.0f);
-			heading_weights.push_back(1.0f);
-		}
-		{
-			heading_weights.push_back(1.0f);
-			heading_weights.push_back(1.0f);
-		}
-		{
-			heading_weights.push_back(1.0f);
-			heading_weights.push_back(1.0f);
-		}
-		effector->create_headings(heading_weights);
-	}
-	int32_t n = heading_weights.size();
-	target_headings.resize(n);
-	tip_headings.resize(n);
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
@@ -219,8 +207,7 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
 	QCP qcp = QCP(1E-6, 1E-11);
 	Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
-	Vector3 translation;
-	// translation = qcp.get_translation();
+	Vector3 translation = qcp.get_translation();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
 		bone_damp = p_dampening;
@@ -228,15 +215,17 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	} else {
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
-	IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
-	ERR_FAIL_NULL_V(parent_transform_ik, INFINITY);
-	Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
+	IKTransform3D *parent = p_for_bone->get_ik_transform().get_parent();
+	Basis parent_global_pose_basis = root_transform.get_global_transform().basis;
+	if (parent) {
+		parent_global_pose_basis = parent->get_global_transform().basis;
+	}
 	Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
 	Transform3D bone_pose = p_for_bone->get_pose();
 	Basis composed_rotation = new_rotation * bone_pose.basis;
 	Transform3D result = Transform3D(composed_rotation, bone_pose.origin).orthogonalized();
 	p_for_bone->set_pose(result);
-	p_for_bone->set_global_pose(Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation));
+	p_for_bone->set_pose(p_for_bone->get_pose() * Transform3D(Basis(), translation));
 	return 0.0f;
 }
 
@@ -260,12 +249,13 @@ void IKBoneChain::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneChain> child : child_chains) {
 		child->segment_solver(p_damp);
 	}
-	qcp_solver(p_damp, get_parent_chain().is_null());
+	qcp_solver(p_damp);
 }
 
-void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
+void IKBoneChain::qcp_solver(real_t p_damp) {
 	for (Ref<IKBone3D> current_bone : bones) {
-		update_optimal_rotation(current_bone, p_damp, p_translate);
+		bool is_root_bone = get_parent_chain().is_null() && current_bone->get_parent().is_null();
+		update_optimal_rotation(current_bone, p_damp, is_root_bone);
 	}
 }
 
@@ -287,19 +277,17 @@ Ref<IKBoneChain> IKBoneChain::get_parent_chain() {
 IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneChain> &p_parent) {
 	skeleton = p_skeleton;
 	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, IK_DEFAULT_DAMPENING)));
-	if (p_parent.is_valid()) {
-		parent_chain = p_parent;
-		root->set_parent(p_parent->get_tip());
-	} else {
-		root->create_pin();
-	}
 	for (Ref<IKEffectorTemplate> elem : p_pins) {
 		if (elem.is_null()) {
 			continue;
 		}
 		if (elem->get_name() == p_root_bone_name) {
+			root->create_pin(skeleton, elem);
 			enable_pinned_descendants();
-			root->create_pin();
+			if (p_parent.is_valid()) {
+				parent_chain = p_parent;
+				get_root()->set_parent(p_parent->get_tip());
+			}
 			break;
 		}
 	}
@@ -311,4 +299,32 @@ void IKBoneChain::enable_pinned_descendants() {
 
 bool IKBoneChain::has_pinned_descendants() {
 	return pinned_descendants;
+}
+
+void IKBoneChain::create_headings(Ref<IKEffector3D> p_pin, float p_depth_falloff) {
+	effector_list.push_back(p_pin);
+	// TODO: 2021-05-02 fire Implement proper weights
+
+	if (!Math::is_zero_approx(p_depth_falloff)) {
+		for (Ref<IKBoneChain> child : child_chains) {
+			effector_list.append_array(child->effector_list);
+		}
+	}
+
+	heading_weights.push_back(p_depth_falloff);
+	{
+		heading_weights.push_back(p_depth_falloff);
+		heading_weights.push_back(p_depth_falloff);
+	}
+	{
+		heading_weights.push_back(p_depth_falloff);
+		heading_weights.push_back(p_depth_falloff);
+	}
+	{
+		heading_weights.push_back(p_depth_falloff);
+		heading_weights.push_back(p_depth_falloff);
+	}
+	int32_t n = heading_weights.size();
+	target_headings.resize(n);
+	tip_headings.resize(n);
 }

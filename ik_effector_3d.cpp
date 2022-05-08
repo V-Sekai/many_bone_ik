@@ -190,7 +190,7 @@ void IKEffector3D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
 }
 
-IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_current_bone) {
+IKEffector3D::IKEffector3D(Ref<IKBone3D> p_current_bone) {
 	for_bone = p_current_bone;
 }
 
