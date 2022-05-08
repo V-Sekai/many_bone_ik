@@ -227,7 +227,9 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
 	IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
-	ERR_FAIL_NULL_V(parent_transform_ik, INFINITY);
+	if (!parent_transform_ik) {
+		parent_transform_ik = &root_transform;
+	}
 	Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
 	Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
 	Transform3D bone_pose = p_for_bone->get_pose();
