@@ -180,8 +180,7 @@ Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half
 }
 
 Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const {
-	constexpr real_t angle = 0.5 * p_angle;
-	double cos_half_angle = Math::cos(angle);
+	double cos_half_angle = Math::cos(real_t(0.5) * p_angle);
 	return clamp_to_quadrance_angle(p_quat, cos_half_angle);
 }
 
