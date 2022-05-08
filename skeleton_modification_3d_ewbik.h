@@ -34,9 +34,8 @@
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
 #include "ik_bone_chain.h"
-#include "ik_effector_template.h"
 #include "scene/resources/skeleton_modification_3d.h"
-
+#include "ik_effector_template.h"
 
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
@@ -70,7 +69,6 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	void set_dirty() {
 		is_dirty = true;
 	}
-
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
 	bool _set(const StringName &p_name, const Variant &p_value);

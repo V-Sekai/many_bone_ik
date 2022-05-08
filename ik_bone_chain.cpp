@@ -180,31 +180,19 @@ Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half
 }
 
 Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const {
-	// https://stackoverflow.com/questions/18662261/fastest-implementation-of-sine-cosine-and-square-root-in-c-doesnt-need-to-b/28050328#28050328
-	real_t x = real_t(0.5) * p_angle;
-	// This is a cosine(x) implementation.
-	{
-		constexpr real_t tp = 1. / (2. * M_PI);
-		x *= tp;
-		x -= real_t(.25) + std::floor(x + real_t(.25));
-		x *= real_t(16.) * (std::abs(x) - real_t(.5));
-#if EXTRA_PRECISION
-		x += real_t(.225) * x * (std::abs(x) - real_t(1.));
-#endif
-	}
-	real_t cos_half_angle = x;
+	double cos_half_angle = Math::cos(0.5 * p_angle);
 	return clamp_to_quadrance_angle(p_quat, cos_half_angle);
 }
 
 Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
-	real_t newCoeff = real_t(1.0) - (p_cos_half_angle * p_cos_half_angle);
+	double newCoeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
 	Quaternion rot = p_quat;
-	real_t currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
+	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
 	if (newCoeff > currentCoeff) {
 		return rot;
 	} else {
-		rot.w = rot.w < real_t(0.0) ? -p_cos_half_angle : p_cos_half_angle;
-		real_t compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
+		rot.w = rot.w < 0.0f ? -p_cos_half_angle : p_cos_half_angle;
+		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
 		rot.x *= compositeCoeff;
 		rot.y *= compositeCoeff;
 		rot.z *= compositeCoeff;
@@ -230,7 +218,7 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
 	QCP qcp = QCP(1E-6, 1E-11);
 	Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
-	// Vector3 translation = qcp.get_translation();
+	Vector3 translation = qcp.get_translation();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
 		bone_damp = p_dampening;
@@ -242,10 +230,13 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	if (!parent_transform_ik) {
 		parent_transform_ik = &root_transform;
 	}
-	Quaternion new_rotation = parent_transform_ik->get_global_transform().basis.inverse() * rot * parent_transform_ik->get_global_transform().basis;
-	Transform3D result = Transform3D(new_rotation * p_for_bone->get_pose().basis, p_for_bone->get_pose().origin);
+	Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
+	Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
+	Transform3D bone_pose = p_for_bone->get_pose();
+	Basis composed_rotation = new_rotation * bone_pose.basis;
+	Transform3D result = Transform3D(composed_rotation, bone_pose.origin).orthogonalized();
 	p_for_bone->set_pose(result);
-	// p_for_bone->set_global_pose(Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation));
+	p_for_bone->set_global_pose(Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation));
 	return 0.0f;
 }
 
