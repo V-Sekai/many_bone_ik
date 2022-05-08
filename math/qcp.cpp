@@ -191,7 +191,7 @@ Vector3 QCP::move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t
 	Vector3 center;
 	if (!weight.is_empty()) {
 		for (int i = 0; i < toCenter.size(); i++) {
-			center = toCenter[i] * weight[i];
+			center += toCenter[i] * weight[i];
 			w_sum += weight[i];
 		}
 
