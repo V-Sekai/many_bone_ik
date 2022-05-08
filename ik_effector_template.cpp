@@ -13,6 +13,7 @@ void IKEffectorTemplate::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_target_node_rotation"), &IKEffectorTemplate::get_target_node_rotation);
 	ClassDB::bind_method(D_METHOD("set_target_node_rotation", "enabled"), &IKEffectorTemplate::set_target_node_rotation);
 
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "target_node"), "set_target_node", "get_target_node");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "target_node"), "set_target_node", "get_target_node");
 }

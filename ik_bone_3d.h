@@ -36,11 +36,11 @@
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
 #include "ik_effector_template.h"
-#include "ik_bone_chain.h"
 
 #define IK_DEFAULT_DAMPENING 0.20944f
 
-class IKBoneChain;
+class IKEffector3D;
+
 class IKBone3D : public Resource {
 	GDCLASS(IKBone3D, Resource);
 
@@ -70,7 +70,7 @@ public:
 	Transform3D get_global_pose() const;
 	void set_initial_pose(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength);
-	void create_pin(Skeleton3D *p_skeleton, Ref<IKEffectorTemplate> p_template);
+	void create_pin();
 	bool is_pinned() const;
 	IKBone3D() {}
 	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening = IK_DEFAULT_DAMPENING);
