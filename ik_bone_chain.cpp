@@ -62,12 +62,20 @@ void IKBoneChain::generate_default_segments_from_root(Vector<Ref<IKEffectorTempl
 		if (children.size() > 1 || temp_tip->is_pinned()) {
 			tip = temp_tip;
 			Ref<IKBoneChain> parent(this);
+			if (temp_tip->is_pinned()) {
+				enable_pinned_descendants();
+			}
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
 				String child_name = skeleton->get_bone_name(child_bone);
 				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_name, p_pins, parent)));
+				if (has_pinned_descendants()) {
+					child_segment->enable_pinned_descendants();
+				}
 				child_segment->generate_default_segments_from_root(p_pins);
-				child_chains.push_back(child_segment);
+				if (child_segment->has_pinned_descendants()) {
+					child_chains.push_back(child_segment);
+				}
 			}
 			break;
 		} else if (children.size() == 1) {
