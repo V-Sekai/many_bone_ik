@@ -229,7 +229,7 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 
 double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
 	QCP qcp = QCP(1E-6, 1E-11);
-	Basis rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+	Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 	Vector3 translation = qcp.get_translation();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
@@ -244,8 +244,7 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	Basis composed_rotation = new_rotation * bone_pose.basis;
 	Transform3D result = Transform3D(composed_rotation, bone_pose.origin).orthogonalized();
 	p_for_bone->set_pose(result);
-	result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
-	p_for_bone->set_global_pose(result);
+	p_for_bone->set_global_pose(Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation));
 	return 0.0f;
 }
 
