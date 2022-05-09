@@ -263,15 +263,15 @@ void IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Arr
 	}
 }
 
-void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
+void IKBoneChain::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneChain> child : child_chains) {
-		bool is_translate = !get_child_chains().size() && !get_root()->is_pinned();
-		if (is_translate) {
-			p_damp = Math_PI;
-		}
-		child->segment_solver(p_damp, is_translate);
+		child->segment_solver(p_damp);
 	}
-	qcp_solver(p_damp, p_translate);
+	bool is_translate = get_parent_chain().is_null() && get_root()->get_parent().is_null();
+	if (is_translate) {
+		p_damp = Math_PI;
+	}
+	qcp_solver(p_damp, is_translate);
 }
 
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
@@ -296,8 +296,6 @@ IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, StringName p_root_bone_name, Ve
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;
 		root->set_parent(p_parent->get_tip());
-	} else {
-		root->create_pin();
 	}
 	for (Ref<IKEffectorTemplate> elem : p_pins) {
 		if (elem.is_null()) {
