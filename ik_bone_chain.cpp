@@ -155,17 +155,15 @@ void IKBoneChain::update_pinned_list() {
 	tip_headings.resize(n);
 }
 
-void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
-	if (p_for_bone == get_root() && get_root()->is_pinned()) {
-		p_translate = true;
-	}
-	if (p_translate) {
+void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp) {
+	bool is_translate = !root->is_pinned() && root->get_parent().is_null();
+	if (is_translate) {
 		p_damp = Math_PI;
 	}
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
 	update_tip_headings(p_for_bone, &tip_headings);
 
-	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate);
+	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, is_translate);
 }
 
 Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
@@ -201,8 +199,15 @@ Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const 
 Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
 	double newCoeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
 	Quaternion rot = p_quat;
+	// Hamilton quaternion convention from EWBIK to Godot Engine JPL convention quaternion uses -1 on axis.
+	rot.x *= -1;
+	rot.y *= -1;
+	rot.z *= -1;
 	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
 	if (newCoeff > currentCoeff) {
+		rot.x *= -1;
+		rot.y *= -1;
+		rot.z *= -1;
 		return rot;
 	} else {
 		rot.w = rot.w < 0.0f ? -p_cos_half_angle : p_cos_half_angle;
@@ -211,6 +216,9 @@ Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos
 		rot.y *= compositeCoeff;
 		rot.z *= compositeCoeff;
 	}
+	rot.x *= -1;
+	rot.y *= -1;
+	rot.z *= -1;
 	return rot;
 }
 
@@ -266,16 +274,18 @@ void IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Arr
 	}
 }
 
-void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
+void IKBoneChain::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneChain> child : child_chains) {
-		child->segment_solver(p_damp, p_translate);
+		child->segment_solver(p_damp);
 	}
-	qcp_solver(p_damp, p_translate);
+	qcp_solver(p_damp);
 }
 
-void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
-	for (Ref<IKBone3D> current_bone : bones) {
-		update_optimal_rotation(current_bone, p_damp, p_translate);
+void IKBoneChain::qcp_solver(real_t p_damp) {
+	Vector<Ref<IKBone3D>> list;
+	set_bone_list(list, false);
+	for (Ref<IKBone3D> current_bone : list) {
+		update_optimal_rotation(current_bone, p_damp);
 	}
 }
 

@@ -185,7 +185,7 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	double time_ms = OS::get_singleton()->get_ticks_msec() + get_time_budget_millisecond();
 	ik_iterations = 0;
 	do {
-		segmented_skeleton->segment_solver(get_default_damp(), false);
+		segmented_skeleton->segment_solver(get_default_damp());
 		ik_iterations++;
 	} while (time_ms > OS::get_singleton()->get_ticks_msec() && ik_iterations < get_max_ik_iterations());
 	set_ik_iterations(ik_iterations);
