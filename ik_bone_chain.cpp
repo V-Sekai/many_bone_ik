@@ -242,7 +242,7 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
 	Transform3D result = Transform3D((new_rotation * p_for_bone->get_pose().basis).orthogonalized(), p_for_bone->get_pose().origin);
 	p_for_bone->set_pose(result);
-	result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
+	result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation).orthogonalized();
 	p_for_bone->set_global_pose(result);
 	return 0.0f;
 }
