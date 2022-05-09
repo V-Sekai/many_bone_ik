@@ -168,7 +168,7 @@ Quaternion QCP::calculate_rotation() {
 		min = q2 < min ? q2 : min;
 		min = q3 < min ? q3 : min;
 		min = q4 < min ? q4 : min;
-		return Quaternion(-1 * q2, -1 * q3, -1 * q4, q1).normalized();
+		return Quaternion(-1 * q2 / min, -1 * q3 / min, -1 * q4 / min, q1).normalized();
 	}
 }
 
