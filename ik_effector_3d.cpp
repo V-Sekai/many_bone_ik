@@ -156,8 +156,7 @@ void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, 
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 	p_headings->write[p_index] = tip_xform.origin - bone_origin;
 	// The scaling amount we use is linear with distance and seems to work pretty well.
-	// Haven't considered what would be the most mathematically rigorous scaling function.
-	// Probably something like d / (4 pi r^2).
+	// Using the inverse square law has numerical problems in testing.
 	double scale_by = MAX(1.0f, target_global_pose.origin.distance_to(bone_origin));
 	p_index++;
 	{
