@@ -199,15 +199,8 @@ Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const 
 Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
 	double newCoeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
 	Quaternion rot = p_quat;
-	// Hamilton quaternion convention from EWBIK to Godot Engine JPL convention quaternion uses -1 on axis.
-	rot.x *= -1;
-	rot.y *= -1;
-	rot.z *= -1;
 	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
 	if (newCoeff > currentCoeff) {
-		rot.x *= -1;
-		rot.y *= -1;
-		rot.z *= -1;
 		return rot;
 	} else {
 		rot.w = rot.w < 0.0f ? -p_cos_half_angle : p_cos_half_angle;
@@ -216,9 +209,6 @@ Quaternion IKBoneChain::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos
 		rot.y *= compositeCoeff;
 		rot.z *= compositeCoeff;
 	}
-	rot.x *= -1;
-	rot.y *= -1;
-	rot.z *= -1;
 	return rot;
 }
 
