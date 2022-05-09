@@ -297,8 +297,9 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 		if (skeleton) {
 			String names;
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
-				names += ",";
-				names += skeleton->get_bone_name(i);
+				String name = skeleton->get_bone_name(i);
+					names += ",";
+				names += name;
 			}
 			property.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			property.hint_string = names;
@@ -334,7 +335,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				if (existing_pins.has(name)) {
 					continue;
 				}
-				names += ",";
+					name += ",";
 				names += name;
 			}
 			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
@@ -362,8 +363,11 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				if (skeleton->get_bone_parent(bone_i) == -1) {
 					continue;
 				}
-				names += skeleton->get_bone_name(bone_i);
-				names += ",";
+				String name = skeleton->get_bone_name(bone_i);;
+				if (bone_i != 0) {
+					name = ",";
+				}
+				names += name;
 			}
 			bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			bone_name.hint_string = names;
