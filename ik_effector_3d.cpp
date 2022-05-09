@@ -155,12 +155,10 @@ void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, 
 	Basis tip_basis = tip_xform.basis;
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 	p_headings->write[p_index] = tip_xform.origin - bone_origin;
-	double distance = target_global_pose.origin.distance_to(bone_origin);
-	double radius = distance;
-	if (!Math::is_zero_approx(radius)) {
-		radius = radius / real_t(2);
-	}
-	double scale_by = MAX(1.0f, real_t(1.0) / (real_t(4) * Math_PI * radius * radius));
+	// The scaling amount we use is linear with distance and seems to work pretty well.
+	// Haven't considered what would be the most mathematically rigorous scaling function.
+	// Probably something like d / (4 pi r^2).
+	double scale_by = MAX(1.0f, target_global_pose.origin.distance_to(bone_origin));
 	p_index++;
 	{
 		p_headings->write[p_index] = ((tip_basis.get_column(Vector3::AXIS_X) * scale_by) + tip_xform.origin) - bone_origin;
