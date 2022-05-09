@@ -267,7 +267,7 @@ void IKBoneChain::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneChain> child : child_chains) {
 		child->segment_solver(p_damp);
 	}
-	bool is_translate = get_parent_chain().is_null() && get_root()->get_parent().is_null();
+	bool is_translate = get_child_chains().size() && get_root()->is_pinned() ;
 	if (is_translate) {
 		p_damp = Math_PI;
 	}
