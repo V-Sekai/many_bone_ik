@@ -379,7 +379,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 						vformat("Limit Cones,constraints/%s/kusudama_limit_cone/", itos(constraint_i))));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
-					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center"));
+					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"));
 			p_list->push_back(
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius"));
 		}
@@ -501,7 +501,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			String cone_what = name.get_slicec('/', 4);
 			ERR_FAIL_INDEX_V(cone_index, kusudama_limit_cone_count.size(), false);
 			if (cone_what == "center") {
-				set_kusudama_limit_cone(index, cone_index, p_value, get_kusudama_limit_cone_radius(index, cone_index));
+				set_kusudama_limit_cone(index, cone_index, Vector3(p_value).normalized(), get_kusudama_limit_cone_radius(index, cone_index));
 				return true;
 			} else if (cone_what == "radius") {
 				set_kusudama_limit_cone(index, cone_index, get_kusudama_limit_cone_center(index, cone_index), p_value);
