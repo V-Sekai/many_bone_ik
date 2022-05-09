@@ -155,14 +155,10 @@ void IKBoneChain::update_pinned_list() {
 	tip_headings.resize(n);
 }
 
-void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp) {
+void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
 	update_tip_headings(p_for_bone, &tip_headings);
-	bool is_translate = get_root()->get_parent().is_null() && !get_root()->is_pinned();
-	if (is_translate) {
-		p_damp = Math_PI;
-	}
-	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, is_translate);
+	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate);
 }
 
 Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
@@ -237,13 +233,16 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	} else {
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
-	Basis parent_global_pose_basis = p_for_bone->get_global_pose().basis;
+	Basis parent_global_pose_basis = p_for_bone->get_pose().basis;
+	Vector3 parent_global_pose_origin = p_for_bone->get_pose().origin;
+	if (p_for_bone->get_parent().is_valid()) {
+		parent_global_pose_basis = p_for_bone->get_parent()->get_global_pose().basis;
+		parent_global_pose_origin = p_for_bone->get_parent()->get_global_pose().origin;
+	}
 	Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
-	Transform3D bone_pose = p_for_bone->get_pose();
-	Basis composed_rotation = new_rotation * bone_pose.basis;
-	Transform3D result = Transform3D(composed_rotation, bone_pose.origin).orthogonalized();
+	Transform3D result = Transform3D((new_rotation * p_for_bone->get_pose().basis).orthogonalized(), p_for_bone->get_pose().origin);
 	p_for_bone->set_pose(result);
-	result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation).orthogonalized();
+	result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 	p_for_bone->set_global_pose(result);
 	return 0.0f;
 }
@@ -264,18 +263,22 @@ void IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Arr
 	}
 }
 
-void IKBoneChain::segment_solver(real_t p_damp) {
+void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 	for (Ref<IKBoneChain> child : child_chains) {
-		child->segment_solver(p_damp);
+		bool is_translate = !get_child_chains().size() && !get_root()->is_pinned();
+		if (is_translate) {
+			p_damp = Math_PI;
+		}
+		child->segment_solver(p_damp, is_translate);
 	}
-	qcp_solver(p_damp);
+	qcp_solver(p_damp, p_translate);
 }
 
-void IKBoneChain::qcp_solver(real_t p_damp) {
+void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 	Vector<Ref<IKBone3D>> list;
 	set_bone_list(list, false);
 	for (Ref<IKBone3D> current_bone : list) {
-		update_optimal_rotation(current_bone, p_damp);
+		update_optimal_rotation(current_bone, p_damp, p_translate);
 	}
 }
 

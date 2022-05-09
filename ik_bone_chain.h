@@ -61,8 +61,8 @@ class IKBoneChain : public Resource {
 	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);
 	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip);
 	double set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_heading_tip, Vector<real_t> *r_weights, float p_dampening = -1, bool p_translate = false);
-	void qcp_solver(real_t p_damp);
-	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp);
+	void qcp_solver(real_t p_damp, bool p_translate);
+	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);
 
 	// Orientation cos(angle/2) representation
 	Quaternion set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
@@ -70,13 +70,13 @@ class IKBoneChain : public Resource {
 	Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
 
 	float get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights);
-	
+
 protected:
 	static void _bind_methods();
 
 public:
 	Ref<IKBoneChain> get_parent_chain();
-	void segment_solver(real_t p_damp);
+	void segment_solver(real_t p_damp, bool p_translate);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_pinned() const;
