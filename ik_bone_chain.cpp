@@ -67,8 +67,10 @@ void IKBoneChain::generate_default_segments_from_root(Vector<Ref<IKEffectorTempl
 				String child_name = skeleton->get_bone_name(child_bone);
 				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_name, p_pins, parent)));
 				child_segment->generate_default_segments_from_root(p_pins);
-				// TODO: fire 2022-05-09 Optimize the many hair bones problem case.
-				child_chains.push_back(child_segment);
+				if (child_segment->has_pinned_descendants()) {
+					enable_pinned_descendants();
+					child_chains.push_back(child_segment);
+				}
 			}
 			break;
 		} else if (children.size() == 1) {
@@ -80,6 +82,9 @@ void IKBoneChain::generate_default_segments_from_root(Vector<Ref<IKEffectorTempl
 		}
 	}
 	tip = temp_tip;
+	if (tip->is_pinned()) {
+		enable_pinned_descendants();
+	}
 	set_name(vformat("IKBoneChain%sRoot%sTip", root->get_name(), tip->get_name()));
 	bones.clear();
 	set_bone_list(bones, false);
@@ -266,7 +271,7 @@ void IKBoneChain::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneChain> child : child_chains) {
 		child->segment_solver(p_damp);
 	}
-	bool is_translate = parent_chain.is_null(); 
+	bool is_translate = parent_chain.is_null();
 	if (is_translate) {
 		p_damp = Math_PI;
 	}
