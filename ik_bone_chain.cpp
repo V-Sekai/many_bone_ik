@@ -76,10 +76,10 @@ void IKBoneChain::generate_default_segments_from_root(Vector<Ref<IKEffectorTempl
 			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip, p_pins)));
 			temp_tip = next;
 		} else {
-			tip = temp_tip;
 			break;
 		}
 	}
+	tip = temp_tip;
 	set_name(vformat("IKBoneChain%sRoot%sTip", root->get_name(), tip->get_name()));
 	bones.clear();
 	set_bone_list(bones, false);
@@ -111,7 +111,8 @@ void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 			String prefix;
 			if (list[name_i] == root) {
 				prefix += "(" + effector + "Root) ";
-			} else if (list[name_i] == tip) {
+			}
+			if (list[name_i] == tip) {
 				prefix += "(" + effector + "Tip) ";
 			}
 			print_line(prefix + bone_name);
@@ -265,7 +266,7 @@ void IKBoneChain::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneChain> child : child_chains) {
 		child->segment_solver(p_damp);
 	}
-	bool is_translate = get_child_chains().size() && get_root()->is_pinned();
+	bool is_translate = parent_chain.is_null(); 
 	if (is_translate) {
 		p_damp = Math_PI;
 	}
@@ -274,7 +275,7 @@ void IKBoneChain::segment_solver(real_t p_damp) {
 
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 	for (Ref<IKBone3D> current_bone : bones) {
-		update_optimal_rotation(current_bone, p_damp, p_translate);
+		update_optimal_rotation(current_bone, p_damp, p_translate && current_bone == root);
 	}
 }
 
@@ -292,16 +293,6 @@ IKBoneChain::IKBoneChain(Skeleton3D *p_skeleton, StringName p_root_bone_name, Ve
 	if (p_parent.is_valid()) {
 		parent_chain = p_parent;
 		root->set_parent(p_parent->get_tip());
-	}
-	for (Ref<IKEffectorTemplate> elem : p_pins) {
-		if (elem.is_null()) {
-			continue;
-		}
-		if (elem->get_name() == p_root_bone_name) {
-			enable_pinned_descendants();
-			root->create_pin();
-			break;
-		}
 	}
 }
 
