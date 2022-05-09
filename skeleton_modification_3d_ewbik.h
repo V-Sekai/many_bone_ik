@@ -56,7 +56,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	PackedFloat32Array kusudana_twist;
 	Vector<PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
-	float time_budget_millisecond = 0.01f;
+	float time_budget_millisecond = 0.1f;
 	int32_t ik_iterations = 10;
 	int32_t max_ik_iterations = 30;
 	float default_damp = Math::deg2rad(5.0f);
