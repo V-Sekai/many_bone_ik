@@ -156,12 +156,14 @@ void IKBoneChain::update_pinned_list() {
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
-	update_target_headings(p_for_bone, &heading_weights, &target_headings);
-	update_tip_headings(p_for_bone, &tip_headings);
-
-	if (p_translate == true) {
+	if (p_for_bone == get_root() && get_root()->is_pinned()) {
+		p_translate = true;
+	}
+	if (p_translate) {
 		p_damp = Math_PI;
 	}
+	update_target_headings(p_for_bone, &heading_weights, &target_headings);
+	update_tip_headings(p_for_bone, &tip_headings);
 
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate);
 }
@@ -264,11 +266,11 @@ void IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Arr
 	}
 }
 
-void IKBoneChain::segment_solver(real_t p_damp) {
+void IKBoneChain::segment_solver(real_t p_damp, bool p_translate) {
 	for (Ref<IKBoneChain> child : child_chains) {
-		child->segment_solver(p_damp);
+		child->segment_solver(p_damp, p_translate);
 	}
-	qcp_solver(p_damp, get_parent_chain().is_null());
+	qcp_solver(p_damp, p_translate);
 }
 
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
