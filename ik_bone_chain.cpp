@@ -179,10 +179,10 @@ Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const 
 	real_t x = real_t(0.5) * p_angle;
 	// This is a cosine(x) implementation.
 	{
-		constexpr real_t tp = 1. / (2. * M_PI);
+		constexpr real_t tp = 1. / (2. * Math_PI);
 		x *= tp;
-		x -= real_t(.25) + std::floor(x + real_t(.25));
-		x *= real_t(16.) * (std::abs(x) - real_t(.5));
+		x -= real_t(.25) + Math::floor(x + real_t(.25));
+		x *= real_t(16.) * (Math::abs(x) - real_t(.5));
 #if EXTRA_PRECISION
 		x += real_t(.225) * x * (std::abs(x) - real_t(1.));
 #endif
@@ -267,7 +267,7 @@ void IKBoneChain::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneChain> child : child_chains) {
 		child->segment_solver(p_damp);
 	}
-	bool is_translate = get_child_chains().size() && get_root()->is_pinned() ;
+	bool is_translate = get_child_chains().size() && get_root()->is_pinned();
 	if (is_translate) {
 		p_damp = Math_PI;
 	}
@@ -275,9 +275,7 @@ void IKBoneChain::segment_solver(real_t p_damp) {
 }
 
 void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
-	Vector<Ref<IKBone3D>> list;
-	set_bone_list(list, false);
-	for (Ref<IKBone3D> current_bone : list) {
+	for (Ref<IKBone3D> current_bone : bones) {
 		update_optimal_rotation(current_bone, p_damp, p_translate);
 	}
 }
