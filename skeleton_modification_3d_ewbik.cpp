@@ -501,7 +501,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			String cone_what = name.get_slicec('/', 4);
 			ERR_FAIL_INDEX_V(cone_index, kusudama_limit_cone_count.size(), false);
 			if (cone_what == "center") {
-				set_kusudama_limit_cone(index, cone_index, Vector3(p_value).normalized(), get_kusudama_limit_cone_radius(index, cone_index));
+				set_kusudama_limit_cone(index, cone_index, p_value, get_kusudama_limit_cone_radius(index, cone_index));
 				return true;
 			} else if (cone_what == "radius") {
 				set_kusudama_limit_cone(index, cone_index, get_kusudama_limit_cone_center(index, cone_index), p_value);
@@ -616,8 +616,10 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone(int32_t p_bone, int32_
 	cone.b = center.z;
 	cone.a = p_radius;
 	kusudama_limit_cones.write[p_bone].write[p_index] = cone;
-	notify_property_list_changed();
-	is_dirty = true;
+	// Do not trigger notify_property_list_changed update.
+	// Do not trigger the skeleton is dirty.
+	// There's a pitfall where if the vector3 is forced normalized
+	// here the x component would also change the y component before the edit is finished. 
 }
 
 Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
