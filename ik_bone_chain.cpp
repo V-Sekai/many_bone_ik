@@ -67,6 +67,7 @@ void IKBoneChain::generate_default_segments_from_root(Vector<Ref<IKEffectorTempl
 				String child_name = skeleton->get_bone_name(child_bone);
 				Ref<IKBoneChain> child_segment = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, child_name, p_pins, parent)));
 				child_segment->generate_default_segments_from_root(p_pins);
+				// TODO: fire 2022-05-09 Optimize the many hair bones problem case.
 				child_chains.push_back(child_segment);
 			}
 			break;
