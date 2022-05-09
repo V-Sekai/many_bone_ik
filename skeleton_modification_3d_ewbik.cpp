@@ -232,7 +232,6 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton->generate_default_segments_from_root(pins);
 	bone_list.clear();
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
-	segmented_skeleton->update_root_transform(skeleton->get_transform());
 	segmented_skeleton->update_pinned_list();
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
@@ -268,7 +267,6 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 }
 
 void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
-	segmented_skeleton->update_root_transform(skeleton->get_transform());
 	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {

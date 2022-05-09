@@ -238,11 +238,7 @@ double IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	} else {
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
-	IKTransform3D *parent_transform_ik = p_for_bone->get_ik_transform().get_parent();
-	if (!parent_transform_ik) {
-		parent_transform_ik = &root_transform;
-	}
-	Basis parent_global_pose_basis = parent_transform_ik->get_global_transform().basis;
+	Basis parent_global_pose_basis = p_for_bone->get_global_pose().basis;
 	Basis new_rotation = parent_global_pose_basis.inverse() * rot * parent_global_pose_basis;
 	Transform3D bone_pose = p_for_bone->get_pose();
 	Basis composed_rotation = new_rotation * bone_pose.basis;
@@ -283,13 +279,6 @@ void IKBoneChain::qcp_solver(real_t p_damp, bool p_translate) {
 
 void IKBoneChain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBoneChain::is_pinned);
-}
-
-void IKBoneChain::update_root_transform(Transform3D p_root_transform) {
-	if (root.is_valid() && parent_chain.is_null()) {
-		root_transform.set_transform(p_root_transform);
-		root->get_ik_transform().set_parent(&root_transform);
-	}
 }
 
 Ref<IKBoneChain> IKBoneChain::get_parent_chain() {
