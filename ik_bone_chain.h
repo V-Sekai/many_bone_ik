@@ -46,8 +46,8 @@ class IKBoneChain : public Resource {
 	Ref<IKBone3D> root;
 	Ref<IKBone3D> tip;
 	Vector<Ref<IKBone3D>> bones;
-	Vector<Ref<IKBoneChain>> child_chains; // Contains only direct child chains that end with effectors or have child that end with effectors
-	Ref<IKBoneChain> parent_chain;
+	Vector<Ref<IKBoneChain>> child_segments; // Contains only direct child chains that end with effectors or have child that end with effectors
+	Ref<IKBoneChain> parent_segment;
 	Vector<Ref<IKEffector3D>> effector_list;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
@@ -76,12 +76,12 @@ protected:
 	static void _bind_methods();
 
 public:
-	Ref<IKBoneChain> get_parent_chain();
+	Ref<IKBoneChain> get_parent_segment();
 	void segment_solver(real_t p_damp);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_pinned() const;
-	Vector<Ref<IKBoneChain>> get_child_chains() const;
+	Vector<Ref<IKBoneChain>> get_child_segments() const;
 	void set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins);
 	void update_pinned_list();
