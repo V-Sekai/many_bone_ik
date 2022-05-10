@@ -53,7 +53,9 @@ class IKEffector3D : public Resource {
 	int32_t num_headings = 7;
 	real_t depth_falloff = 0.0;
 	real_t weight = 1.0;
+	// float priority = 0.0f;
 	bool follow_x = true, follow_y = true, follow_z = true;
+	Vector3 axes_weighting = Vector3(1.0f, 1.0f, 1.0f);
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
