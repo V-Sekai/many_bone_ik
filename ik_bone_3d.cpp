@@ -34,6 +34,7 @@
 #include "skeleton_modification_3d_ewbik.h"
 
 void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
+	ERR_FAIL_NULL(p_skeleton);
 	bone_id = p_bone_id;
 }
 
@@ -42,6 +43,7 @@ BoneId IKBone3D::get_bone_id() const {
 }
 
 void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
+	ERR_FAIL_NULL(p_parent);
 	parent = p_parent;
 	if (parent.is_valid()) {
 		parent->children.push_back(this);
@@ -54,6 +56,7 @@ Ref<IKBone3D> IKBone3D::get_parent() const {
 }
 
 void IKBone3D::set_pin(const Ref<IKEffector3D> &p_pin) {
+	ERR_FAIL_NULL(p_pin);
 	pin = p_pin;
 }
 
@@ -78,14 +81,13 @@ Transform3D IKBone3D::get_global_pose() const {
 }
 
 void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
-	if (!p_skeleton) {
-		return;
-	}
+	ERR_FAIL_NULL(p_skeleton);
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
 	set_global_pose(xform);
 }
 
 void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {
+	ERR_FAIL_NULL(p_skeleton);
 	Transform3D custom = get_pose();
 	p_skeleton->set_bone_pose_position(bone_id, custom.origin);
 	p_skeleton->set_bone_pose_rotation(bone_id, custom.basis.get_rotation_quaternion());
@@ -107,6 +109,8 @@ void IKBone3D::_bind_methods() {
 }
 
 IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening) {
+	ERR_FAIL_NULL(p_skeleton);
+	ERR_FAIL_NULL(p_parent);
 	default_dampening = p_default_dampening;
 	set_name(p_bone);
 	bone_id = p_skeleton->find_bone(p_bone);
