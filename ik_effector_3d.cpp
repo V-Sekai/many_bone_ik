@@ -61,6 +61,7 @@ void IKEffector3D::update_target_global_pose(Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
 	if (target_node_cache.is_null()) {
 		update_cache_target(p_skeleton);
+		return;
 	}
 	target_global_pose = for_bone->get_global_pose();
 	Node3D *current_target_node = cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
