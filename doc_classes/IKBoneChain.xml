@@ -7,12 +7,7 @@
 	<tutorials>
 	</tutorials>
 	<methods>
-		<method name="is_pin" qualifiers="const">
-			<return type="bool" />
-			<description>
-			</description>
-		</method>
-		<method name="is_root_pinned" qualifiers="const">
+		<method name="is_pinned" qualifiers="const">
 			<return type="bool" />
 			<description>
 			</description>
