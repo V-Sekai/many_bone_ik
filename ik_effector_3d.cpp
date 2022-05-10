@@ -59,11 +59,12 @@ bool IKEffector3D::is_following_translation_only() const {
 
 void IKEffector3D::update_target_global_pose(Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
+	ERR_FAIL_NULL(for_bone);
+	target_global_pose = for_bone->get_global_pose();
 	if (target_node_cache.is_null()) {
 		update_cache_target(p_skeleton);
 		return;
 	}
-	target_global_pose = for_bone->get_global_pose();
 	Node3D *current_target_node = cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
 	if (!current_target_node && !target_node_path.is_empty() && current_target_node->is_inside_tree()) {
 		update_cache_target(p_skeleton);
