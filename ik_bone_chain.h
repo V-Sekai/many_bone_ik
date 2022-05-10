@@ -83,7 +83,7 @@ public:
 	Vector<Ref<IKBoneChain>> get_child_chains() const;
 	void set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins);
-	Vector<real_t> update_pinned_list();
+	void update_pinned_list();
 	IKBoneChain() {}
 	IKBoneChain(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneChain> &p_parent = nullptr);
 	~IKBoneChain() {}

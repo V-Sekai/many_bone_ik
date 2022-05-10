@@ -126,36 +126,20 @@ void IKBoneChain::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive,
 	p_list.append_array(list);
 }
 
-Vector<real_t> IKBoneChain::update_pinned_list() {
-	real_t depth_falloff = is_pinned() ? tip->get_pin()->depth_falloff : 0.0f;
-	// Vector<real_t> final_tip_weights;
+void IKBoneChain::update_pinned_list() {
+	real_t depth_falloff = is_pinned() ? tip->get_pin()->depth_falloff : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_chains.size(); chain_i++) {
 		Ref<IKBoneChain> chain = child_chains[chain_i];
 		chain->update_pinned_list();
-		// Vector<real_t> descendant_tip_weights = chain->update_pinned_list();
-		// if (is_pinned()) {
-		// 	for(int32_t weight_i = 0; weight_i < descendant_tip_weights.size(); weight_i++) {
-		// 		descendant_tip_weights.write[weight_i] *= tip->get_pin()->priority;
-		// 	}
-		// }
 	}
-	// if (is_pinned()) {
-	// 	effector_list.push_back(tip->get_pin());
-	// 	final_tip_weights.push_back(1.0f);
-	// }
-	// if (!Math::is_zero_approx(depth_falloff)) {
-	// 	for (Ref<IKBoneChain> child : child_chains) {
-	// 		Vector<Ref<IKEffector3D>> scaled_descendants = child->effector_list;
-	// 		Vector<real_t> tip_weights;
-	// 		tip_weights.resize(scaled_descendants.size());
-	// 		if (!is_pinned()) {
-	// 			for (Ref<IKEffector3D> effector : scaled_descendants) {
-	// 			}
-	// 		}
-	// 		final_tip_weights.append_array(tip_weights);
-	// 		effector_list.append_array(scaled_descendants);
-	// 	}
-	// }	
+	if (is_pinned()) {
+		effector_list.push_back(tip->get_pin());
+	}
+	if (!Math::is_zero_approx(depth_falloff)) {
+		for (Ref<IKBoneChain> child : child_chains) {
+			effector_list.append_array(child->effector_list);
+		}
+	}
 	for (Ref<IKEffector3D> effector : effector_list) {
 		// TODO: 2021-05-02 fire Implement proper weights
 		heading_weights.push_back(1.0f);
@@ -176,7 +160,6 @@ Vector<real_t> IKBoneChain::update_pinned_list() {
 	int32_t n = heading_weights.size();
 	target_headings.resize(n);
 	tip_headings.resize(n);
-	return Vector<real_t>();
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
@@ -211,18 +194,18 @@ Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const 
 		x += real_t(.225) * x * (std::abs(x) - real_t(1.));
 #endif
 	}
-	// 	if (false) {
-	// 		// real_t sine(float x)
-	// 		constexpr real_t B = 4. / Math_PI;
-	// 		constexpr real_t C = -4. / (Math_PI * Math_PI);
-	// 		real_t y = B * x + C * x * Math::abs(x);
-	// #ifdef EXTRA_PRECISION
-	// 		//  const real_t Q = 0.775;
-	// 		const real_t P = 0.225;
+// 	if (false) {
+// 		// real_t sine(float x)
+// 		constexpr real_t B = 4. / Math_PI;
+// 		constexpr real_t C = -4. / (Math_PI * Math_PI);
+// 		real_t y = B * x + C * x * Math::abs(x);
+// #ifdef EXTRA_PRECISION
+// 		//  const real_t Q = 0.775;
+// 		const real_t P = 0.225;
 
-	// 		y = P * (y * Math::abs(y) - y) + y; // Q * y + P * y * Math::abs(y)
-	// #endif
-	// 	}
+// 		y = P * (y * Math::abs(y) - y) + y; // Q * y + P * y * Math::abs(y)
+// #endif
+// 	}
 	real_t cos_half_angle = x;
 	return clamp_to_quadrance_angle(p_quat, cos_half_angle);
 }
