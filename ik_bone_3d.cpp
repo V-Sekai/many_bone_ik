@@ -82,6 +82,9 @@ Transform3D IKBone3D::get_global_pose() const {
 
 void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
+	if (bone_id == -1) {
+		return;
+	}
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
 	set_global_pose(xform);
 }
@@ -110,11 +113,12 @@ void IKBone3D::_bind_methods() {
 
 IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening) {
 	ERR_FAIL_NULL(p_skeleton);
-	ERR_FAIL_NULL(p_parent);
 	default_dampening = p_default_dampening;
 	set_name(p_bone);
 	bone_id = p_skeleton->find_bone(p_bone);
-	set_parent(p_parent);
+	if (p_parent.is_valid()) {
+		set_parent(p_parent);
+	}
 	for (Ref<IKEffectorTemplate> elem : p_pins) {
 		if (elem.is_null()) {
 			continue;
