@@ -32,6 +32,7 @@
 #include "math/ik_transform.h"
 
 void IKEffector3D::set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path) {
+	ERR_FAIL_NULL(p_skeleton);
 	target_node_path = p_target_node_path;
 	update_cache_target(p_skeleton);
 }
@@ -57,6 +58,7 @@ bool IKEffector3D::is_following_translation_only() const {
 }
 
 void IKEffector3D::update_target_global_pose(Skeleton3D *p_skeleton) {
+	ERR_FAIL_NULL(p_skeleton);
 	if (target_node_cache.is_null()) {
 		update_cache_target(p_skeleton);
 	}
@@ -115,6 +117,7 @@ void IKEffector3D::create_headings(Vector<real_t> &p_weights) {
 void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_headings,
 		int32_t &p_index, Ref<IKBone3D> p_for_bone, Vector<real_t> *p_weights) const {
 	ERR_FAIL_NULL(p_headings);
+	ERR_FAIL_NULL(p_for_bone);
 
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 
@@ -151,6 +154,8 @@ void IKEffector3D::update_effector_target_headings(PackedVector3Array *p_heading
 
 void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone) const {
 	ERR_FAIL_NULL(p_headings);
+	ERR_FAIL_NULL(for_bone);
+	ERR_FAIL_NULL(p_for_bone);
 	Transform3D tip_xform = for_bone->get_global_pose();
 	Basis tip_basis = tip_xform.basis;
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
@@ -190,6 +195,7 @@ void IKEffector3D::_bind_methods() {
 }
 
 IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_current_bone) {
+	ERR_FAIL_NULL(p_current_bone);
 	for_bone = p_current_bone;
 }
 
@@ -202,6 +208,7 @@ float IKEffector3D::get_depth_falloff() const {
 }
 
 void IKEffector3D::update_cache_target(Skeleton3D *p_skeleton) {
+	ERR_FAIL_NULL(p_skeleton);
 	target_node_cache = ObjectID();
 	if (!(p_skeleton->is_inside_tree() && target_node_path.is_empty() == false)) {
 		return;
