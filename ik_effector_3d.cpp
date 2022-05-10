@@ -156,8 +156,8 @@ void IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, 
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
 	p_headings->write[p_index] = tip_xform.origin - bone_origin;
 	const double distance = target_global_pose.origin.distance_to(bone_origin);
-	const double radius = !Math::is_zero_approx(distance) ? distance / real_t(2) : distance;
-	double scale_by = MAX(1.0f, real_t(1.0) / (real_t(4) * radius * radius * Math_PI));
+	const double radius = Math::is_zero_approx(distance) ? distance : distance / real_t(2);
+	double scale_by = MAX(1.0f, distance / (real_t(4) * radius * radius * Math_PI));
 	p_index++;
 	{
 		p_headings->write[p_index] = ((tip_basis.get_column(Vector3::AXIS_X) * scale_by) + tip_xform.origin) - bone_origin;
