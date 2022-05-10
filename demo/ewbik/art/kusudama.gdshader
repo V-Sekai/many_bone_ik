@@ -2,7 +2,8 @@ shader_type spatial;
 render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
 
 uniform vec4 kusudamaColor : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
-uniform int coneCount : hint_range(0, 30) = 1;
+const int CONE_COUNT_MAX = 30;
+uniform vec4 coneSequence[30];
 
 // This shader can display up to 30 cones (represented by 30 4d vectors) 
 // Each group of 4 represents the xyz coordinates of the cone direction
@@ -11,7 +12,6 @@ uniform int coneCount : hint_range(0, 30) = 1;
 // TODO: Use a texture to store bone parameters.
 // Use the uv to get the row of the bone.
 
-uniform vec4 coneSequence[30];
 varying vec3 normalModelDir;
 varying vec4 vertModelColor;
 
@@ -153,10 +153,13 @@ void vertex() {
 }
 
 void fragment() {
-	vec4 colorAllowed = colorAllowed(normalModelDir, coneCount, 0.02);
-	if (colorAllowed.a == 0.0) {
+	vec4 resultColorAllowed = vec4(0.0, 0.0, 0.0, 0.0);
+	if (coneSequence.length() == 30) {
+		resultColorAllowed = colorAllowed(normalModelDir, CONE_COUNT_MAX, 0.02);
+	}
+	if (resultColorAllowed.a == 0.0) {
 		discard;
 	}
-	ALBEDO = colorAllowed.rgb;
-	ALPHA = colorAllowed.a;
+	ALBEDO = resultColorAllowed.rgb;
+	ALPHA = resultColorAllowed.a;
 }
