@@ -52,7 +52,11 @@ class IKBone3D : public Resource {
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
+	Transform3D constraint_transform; // In the space of the local parent bone transform // Origin is the origin of the bone direction transform // Can be independent and should be calculated
+	// to keep -y to be the opposite of its bone forward orientation // To avoid singularity that is ambigous. // constraint_transform
 
+	IKTransform3D bone_pose_transform; // Copy of animation pose axes. // xform
+	IKTransform3D bone_direction_transform; // Physical direction of the bone. Calculate Y is the bone up. 
 protected:
 	static void _bind_methods();
 

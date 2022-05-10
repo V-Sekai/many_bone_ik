@@ -348,6 +348,16 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(i) + "/use_node_rotation"));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/depth_falloff"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/priority"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/weight_translation"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/weight_x_direction"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/weight_y_direction"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/weight_z_direction"));
 	}
 	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
