@@ -209,7 +209,7 @@ void IKEffector3D::update_cache_target(Skeleton3D *p_skeleton) {
 	if (!p_skeleton->has_node(target_node_path)) {
 		return;
 	}
-	Node *node = p_skeleton->get_node(target_node_path);
+	Node *node = p_skeleton->get_node_or_null(target_node_path);
 	ERR_FAIL_COND_MSG(!node || p_skeleton == node,
 			"Cannot update target cache: Target node is this modification's skeleton or cannot be found. Cannot execute modification");
 	ERR_FAIL_COND_MSG(!node->is_inside_tree(),
