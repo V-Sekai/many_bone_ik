@@ -163,6 +163,7 @@ void IKBoneChain::update_pinned_list() {
 }
 
 void IKBoneChain::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
+	ERR_FAIL_NULL(p_for_bone);
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
 	update_tip_headings(p_for_bone, &tip_headings);
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate);
@@ -242,6 +243,10 @@ float IKBoneChain::get_manual_msd(const PackedVector3Array &r_htip, const Packed
 }
 
 void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
+	ERR_FAIL_NULL(p_for_bone);
+	ERR_FAIL_NULL(r_htip);
+	ERR_FAIL_NULL(r_htarget);
+	ERR_FAIL_NULL(r_weights);
 	QCP qcp = QCP(1E-6, 1E-11);
 	Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 	Vector3 translation = qcp.get_translation();
@@ -266,6 +271,9 @@ void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 }
 
 void IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_target_headings) {
+	ERR_FAIL_NULL(p_for_bone);
+	ERR_FAIL_NULL(r_weights);
+	ERR_FAIL_NULL(r_target_headings);
 	int32_t index = 0; // Index is increased by effector->update_effector_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
@@ -274,6 +282,8 @@ void IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t
 }
 
 void IKBoneChain::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip) {
+	ERR_FAIL_NULL(r_heading_tip);
+	ERR_FAIL_NULL(p_for_bone);
 	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
