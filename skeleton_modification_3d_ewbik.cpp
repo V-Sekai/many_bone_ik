@@ -425,6 +425,16 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		} else if (what == "depth_falloff") {
 			r_ret = get_pin_depth_falloff(index);
 			return true;
+		} else if (what == "priority") {
+			return true;
+		} else if (what == "weight_translation") {
+			return true;
+		} else if (what == "weight_x_direction") {
+			return true;
+		} else if (what == "weight_y_direction") {
+			return true;
+		} else if (what == "weight_z_direction") {
+			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
@@ -489,6 +499,16 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			return true;
 		} else if (what == "depth_falloff") {
 			set_pin_depth_falloff(index, p_value);
+			return true;
+		} else if (what == "priority") {
+			return true;
+		} else if (what == "weight_translation") {
+			return true;
+		} else if (what == "weight_x_direction") {
+			return true;
+		} else if (what == "weight_y_direction") {
+			return true;
+		} else if (what == "weight_z_direction") {
 			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
@@ -629,7 +649,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone(int32_t p_bone, int32_
 	// Do not trigger notify_property_list_changed update.
 	// Do not trigger the skeleton is dirty.
 	// There's a pitfall where if the vector3 is forced normalized
-	// here the x component would also change the y component before the edit is finished. 
+	// here the x component would also change the y component before the edit is finished.
 }
 
 Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
