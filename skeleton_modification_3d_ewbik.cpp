@@ -145,7 +145,7 @@ Vector<Ref<IKEffectorTemplate>> SkeletonModification3DEWBIK::get_bone_effectors(
 
 void SkeletonModification3DEWBIK::remove_pin(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, pins.size());
-	Node *node = skeleton->get_node(get_pin_target_nodepath(p_index));
+	Node *node = skeleton->get_node_or_null(get_pin_target_nodepath(p_index));
 	if (node) {
 		bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
 		if (is_tree_exited_connected) {
@@ -241,7 +241,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			if (ik_bone_3d->get_bone_id() != bone_id) {
 				continue;
 			}
-			Node *node = skeleton->get_node(data->get_target_node());
+			Node *node = skeleton->get_node_or_null(data->get_target_node());
 			if (!node) {
 				continue;
 			}
