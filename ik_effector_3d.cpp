@@ -56,7 +56,7 @@ bool IKEffector3D::is_following_translation_only() const {
 	return false;
 }
 
-void IKEffector3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
+void IKEffector3D::update_target_global_pose(Skeleton3D *p_skeleton) {
 	if (target_node_cache.is_null()) {
 		update_cache_target(p_skeleton);
 	}
@@ -74,7 +74,7 @@ void IKEffector3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 	target_global_pose = p_skeleton->world_transform_to_global_pose(target_global_pose);
 }
 
-Transform3D IKEffector3D::get_goal_global_pose() const {
+Transform3D IKEffector3D::get_target_global_pose() const {
 	return target_global_pose;
 }
 

@@ -64,13 +64,13 @@ protected:
 
 public:
 	void update_cache_target(Skeleton3D *p_skeleton);
-	void update_goal_global_pose(Skeleton3D *p_skeleton);
+	void update_target_global_pose(Skeleton3D *p_skeleton);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
 	void set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
-	Transform3D get_goal_global_pose() const;
+	Transform3D get_target_global_pose() const;
 	void set_target_node_rotation(bool p_use);
 	bool get_target_node_rotation() const;
 	Ref<IKBone3D> get_shadow_bone() const;
