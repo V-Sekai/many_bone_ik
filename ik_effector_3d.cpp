@@ -62,7 +62,7 @@ void IKEffector3D::update_goal_global_pose(Skeleton3D *p_skeleton) {
 	}
 	target_global_pose = for_bone->get_global_pose();
 	Node3D *current_target_node = cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
-	if (!current_target_node && !target_node_path.is_empty()) {
+	if (!current_target_node && !target_node_path.is_empty() && current_target_node->is_inside_tree()) {
 		update_cache_target(p_skeleton);
 		current_target_node = cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
 	}
