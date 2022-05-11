@@ -1390,11 +1390,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	real_t bone_axis_length = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_settings/bone_axis_length");
 	int bone_shape = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_settings/bone_shape");
 
-	LocalVector<Color> axis_colors;
-	axis_colors.push_back(Node3DEditor::get_singleton()->get_theme_color(SNAME("axis_x_color"), SNAME("Editor")));
-	axis_colors.push_back(Node3DEditor::get_singleton()->get_theme_color(SNAME("axis_y_color"), SNAME("Editor")));
-	axis_colors.push_back(Node3DEditor::get_singleton()->get_theme_color(SNAME("axis_z_color"), SNAME("Editor")));
-
 	Ref<SurfaceTool> surface_tool(memnew(SurfaceTool));
 	surface_tool->begin(Mesh::PRIMITIVE_LINES);
 
@@ -1433,9 +1428,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			if (child_bones_vector[i] < 0) {
 				continue;
 			}
-
 			int child_bone_idx = child_bones_vector[i];
-
 			Vector3 v0 = skeleton->get_bone_global_rest(current_bone_idx).origin;
 			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
 			Vector3 d = (v1 - v0).normalized();
@@ -1453,21 +1446,12 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			// Draw bone.
 			switch (bone_shape) {
 				case 0: { // Wire shape.
-					surface_tool->set_color(current_bone_color);
 					bones[0] = current_bone_idx;
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v0);
 					bones[0] = child_bone_idx;
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1);
 				} break;
 
 				case 1: { // Octahedron shape.
 					Vector3 first;
-					Vector3 points[6];
-					int point_idx = 0;
 					for (int j = 0; j < 3; j++) {
 						Vector3 axis;
 						if (first == Vector3()) {
@@ -1476,58 +1460,21 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 						} else {
 							axis = d.cross(first).normalized();
 						}
-
-						surface_tool->set_color(current_bone_color);
 						for (int k = 0; k < 2; k++) {
 							if (k == 1) {
 								axis = -axis;
 							}
-							Vector3 point = v0 + d * dist * 0.2;
-							point += axis * dist * 0.1;
-
 							bones[0] = current_bone_idx;
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(v0);
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(point);
-
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(point);
 							bones[0] = child_bone_idx;
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(v1);
-							points[point_idx++] = point;
 						}
 					}
-					surface_tool->set_color(current_bone_color);
-					SWAP(points[1], points[2]);
 					bones[0] = current_bone_idx;
-					for (int j = 0; j < 6; j++) {
-						surface_tool->set_bones(bones);
-						surface_tool->set_weights(weights);
-						surface_tool->add_vertex(points[j]);
-						surface_tool->set_bones(bones);
-						surface_tool->set_weights(weights);
-						surface_tool->add_vertex(points[(j + 1) % 6]);
-					}
 				} break;
 			}
 
 			// Axis as root of the bone.
 			for (int j = 0; j < 3; j++) {
 				bones[0] = current_bone_idx;
-				surface_tool->set_color(axis_colors[j]);
-				surface_tool->set_bones(bones);
-				surface_tool->set_weights(weights);
-				surface_tool->add_vertex(v0);
-				surface_tool->set_bones(bones);
-				surface_tool->set_weights(weights);
-				surface_tool->add_vertex(v0 + (skeleton->get_bone_global_rest(current_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
-
 				if (j == closest) {
 					continue;
 				}
@@ -1537,14 +1484,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			if (i == child_bones_size - 1) {
 				for (int j = 0; j < 3; j++) {
 					bones[0] = child_bone_idx;
-					surface_tool->set_color(axis_colors[j]);
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1);
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1 + (skeleton->get_bone_global_rest(child_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
-
 					if (j == closest) {
 						continue;
 					}
@@ -1606,7 +1545,4 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			bones_to_process.push_back(child_bones_vector[i]);
 		}
 	}
-
-	// Ref<ArrayMesh> m = surface_tool->commit();
-	// p_gizmo->add_mesh(m, Ref<Material>(), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 }
