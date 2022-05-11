@@ -763,7 +763,7 @@ EWBIKSkeleton3DEditor::EWBIKSkeleton3DEditor(EWBIKEditorInspectorPluginSkeleton 
 // Skeleton 3D gizmo handle shader.
 
 shader_type spatial;
-render_mode unshaded, depth_test_disabled, cull_back;
+render_mode unshaded, depth_test_disabled, cull_disabled;
 uniform sampler2D texture_albedo : hint_albedo;
 uniform float point_size : hint_range(0,128) = 32;
 void vertex() {
@@ -1279,7 +1279,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			kusudama_shader->set_code(R"(
 // Skeleton 3D gizmo kusudama constraint shader.
 shader_type spatial;
-render_mode depth_draw_always, depth_prepass_alpha;
+render_mode depth_draw_always, depth_prepass_alpha, cull_back;
 
 uniform vec4 kusudamaColor : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
 const int CONE_COUNT_MAX = 30;
