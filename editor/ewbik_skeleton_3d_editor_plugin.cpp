@@ -42,6 +42,7 @@
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/resources/capsule_shape_3d.h"
+#include "scene/resources/primitive_meshes.h"
 #include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/surface_tool.h"
 
@@ -784,7 +785,7 @@ void fragment() {
 }
 )");
 	handle_material->set_shader(handle_shader);
-	Ref<Texture2D> handle = EditorNode::get_singleton()->get_gui_base()->get_theme_icon(SNAME("EditorBoneHandle"), SNAME("EditorIcons"));
+	Ref<Texture2D> handle = EditorNode::get_singleton()->get_gui_base()->get_theme_icon(SNAME("EditorHandle"), SNAME("EditorIcons"));
 	handle_material->set_shader_param("point_size", handle->get_width());
 	handle_material->set_shader_param("texture_albedo", handle);
 
@@ -955,7 +956,7 @@ EWBIKSkeleton3DEditor::~EWBIKSkeleton3DEditor() {
 		ne->remove_control_from_menu_panel(separator);
 		memdelete(separator);
 	}
-	
+
 	if (edit_mode_button) {
 		ne->remove_control_from_menu_panel(edit_mode_button);
 		memdelete(edit_mode_button);
@@ -1264,6 +1265,13 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					closest = j;
 				}
 			}
+
+			Ref<SphereMesh> sphere_mesh;
+			sphere_mesh.instantiate();
+			sphere_mesh->set_radius(dist / 4.0f);
+			sphere_mesh->set_height(dist / 2.0f);
+			p_gizmo->add_mesh(sphere_mesh, Ref<Material>(), skeleton->get_bone_global_rest(current_bone_idx), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+
 			// Draw bone.
 			switch (bone_shape) {
 				case 0: { // Wire shape.
@@ -1331,40 +1339,39 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				} break;
 			}
 
-			// // Axis as root of the bone.
-			// for (int j = 0; j < 3; j++) {
-			// 	bones[0] = current_bone_idx;
-			// 	surface_tool->set_color(axis_colors[j]);
-			// 	surface_tool->set_bones(bones);
-			// 	surface_tool->set_weights(weights);
-			// 	surface_tool->add_vertex(v0);
-			// 	surface_tool->set_bones(bones);
-			// 	surface_tool->set_weights(weights);
-			// 	surface_tool->add_vertex(v0 + (skeleton->get_bone_global_rest(current_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
+			// Axis as root of the bone.
+			for (int j = 0; j < 3; j++) {
+				bones[0] = current_bone_idx;
+				surface_tool->set_color(axis_colors[j]);
+				surface_tool->set_bones(bones);
+				surface_tool->set_weights(weights);
+				surface_tool->add_vertex(v0);
+				surface_tool->set_bones(bones);
+				surface_tool->set_weights(weights);
+				surface_tool->add_vertex(v0 + (skeleton->get_bone_global_rest(current_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
 
-			// 	if (j == closest) {
-			// 		continue;
-			// 	}
-			// }
+				if (j == closest) {
+					continue;
+				}
+			}
 
-			// // Axis at the end of the bone children.
-			// if (i == child_bones_size - 1) {
-			// 	for (int j = 0; j < 3; j++) {
-			// 		bones[0] = child_bone_idx;
-			// 		surface_tool->set_color(axis_colors[j]);
-			// 		surface_tool->set_bones(bones);
-			// 		surface_tool->set_weights(weights);
-			// 		surface_tool->add_vertex(v1);
-			// 		surface_tool->set_bones(bones);
-			// 		surface_tool->set_weights(weights);
-			// 		surface_tool->add_vertex(v1 + (skeleton->get_bone_global_rest(child_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
+			// Axis at the end of the bone children.
+			if (i == child_bones_size - 1) {
+				for (int j = 0; j < 3; j++) {
+					bones[0] = child_bone_idx;
+					surface_tool->set_color(axis_colors[j]);
+					surface_tool->set_bones(bones);
+					surface_tool->set_weights(weights);
+					surface_tool->add_vertex(v1);
+					surface_tool->set_bones(bones);
+					surface_tool->set_weights(weights);
+					surface_tool->add_vertex(v1 + (skeleton->get_bone_global_rest(child_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
 
-			// 		if (j == closest) {
-			// 			continue;
-			// 		}
-			// 	}
-			// }
-
+					if (j == closest) {
+						continue;
+					}
+				}
+			}
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
 		}
