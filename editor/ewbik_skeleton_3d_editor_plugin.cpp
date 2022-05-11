@@ -1239,6 +1239,7 @@ void fragment() {
 	ALPHA = resultColorAllowed.a;
 }
 )");
+	kusudama_material->set_shader(kusudama_shader);
 }
 
 bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
@@ -1542,12 +1543,10 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			{
 				Vector3 current_v = skeleton->get_bone_global_pose(current_bone_idx).origin;
 				Vector3 parent_v = skeleton->get_bone_global_pose(child_bone_idx).origin;
-				Vector3 distance = (parent_v - current_v).normalized();
 				real_t scalar_dist = v0.distance_to(v1);
 				sphere_mesh->set_radius(scalar_dist / 4.0f);
 				sphere_mesh->set_height(scalar_dist / 2.0f);
 			}
-			kusudama_material->set_shader(kusudama_shader);
 			PackedFloat32Array kusudama_limit_cones;
 			kusudama_limit_cones.resize(30 * 4);
 			kusudama_limit_cones.fill(0.0f);
@@ -1611,7 +1610,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				int32_t index = index_array[index_i];
 				kusudama_surface_tool->add_index(index);
 			}
-			p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+			p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material->duplicate(), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
