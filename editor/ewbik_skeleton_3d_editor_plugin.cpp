@@ -1005,7 +1005,27 @@ EditorPlugin::AfterGUIInput EWBIKSkeleton3DEditorPlugin::forward_spatial_gui_inp
 }
 
 bool EWBIKSkeleton3DEditorPlugin::handles(Object *p_object) const {
-	return p_object->is_class("Skeleton3D");
+	if (!p_object->is_class("Skeleton3D")) {
+		return false;
+	}
+	Skeleton3D *skeleton = cast_to<Skeleton3D>(p_object)
+			Ref<SkeletonModificationStack3D>
+					stack = skeleton->get_modification_stack();
+	if (stack.is_null()) {
+		return false;
+	}
+	if (!stack->get_modification_count()) {
+		return false;
+	}
+	for (int32_t count_i = 0; count_i < stack->get_modification_count(); count_i++) {
+		Ref<SkeletonModification3D> mod = stack->get_modification(count_i);
+		if (mod.is_null()) {
+			continue;
+		}
+		mod->is_class("SkeletonModification3DEWBIK");
+		return true;
+	}
+	return false;
 }
 
 void EWBIKSkeleton3DEditor::_bone_enabled_changed(const int p_bone_id) {
