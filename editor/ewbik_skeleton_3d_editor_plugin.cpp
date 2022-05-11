@@ -1265,6 +1265,107 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					closest = j;
 				}
 			}
+			// Draw bone.
+			switch (bone_shape) {
+				case 0: { // Wire shape.
+					surface_tool->set_color(current_bone_color);
+					bones[0] = current_bone_idx;
+					surface_tool->set_bones(bones);
+					surface_tool->set_weights(weights);
+					surface_tool->add_vertex(v0);
+					bones[0] = child_bone_idx;
+					surface_tool->set_bones(bones);
+					surface_tool->set_weights(weights);
+					surface_tool->add_vertex(v1);
+				} break;
+
+				case 1: { // Octahedron shape.
+					Vector3 first;
+					Vector3 points[6];
+					int point_idx = 0;
+					for (int j = 0; j < 3; j++) {
+						Vector3 axis;
+						if (first == Vector3()) {
+							axis = d.cross(d.cross(skeleton->get_bone_global_rest(current_bone_idx).basis[j])).normalized();
+							first = axis;
+						} else {
+							axis = d.cross(first).normalized();
+						}
+
+						surface_tool->set_color(current_bone_color);
+						for (int k = 0; k < 2; k++) {
+							if (k == 1) {
+								axis = -axis;
+							}
+							Vector3 point = v0 + d * dist * 0.2;
+							point += axis * dist * 0.1;
+
+							bones[0] = current_bone_idx;
+							surface_tool->set_bones(bones);
+							surface_tool->set_weights(weights);
+							surface_tool->add_vertex(v0);
+							surface_tool->set_bones(bones);
+							surface_tool->set_weights(weights);
+							surface_tool->add_vertex(point);
+
+							surface_tool->set_bones(bones);
+							surface_tool->set_weights(weights);
+							surface_tool->add_vertex(point);
+							bones[0] = child_bone_idx;
+							surface_tool->set_bones(bones);
+							surface_tool->set_weights(weights);
+							surface_tool->add_vertex(v1);
+							points[point_idx++] = point;
+						}
+					}
+					surface_tool->set_color(current_bone_color);
+					SWAP(points[1], points[2]);
+					bones[0] = current_bone_idx;
+					for (int j = 0; j < 6; j++) {
+						surface_tool->set_bones(bones);
+						surface_tool->set_weights(weights);
+						surface_tool->add_vertex(points[j]);
+						surface_tool->set_bones(bones);
+						surface_tool->set_weights(weights);
+						surface_tool->add_vertex(points[(j + 1) % 6]);
+					}
+				} break;
+			}
+
+			// Axis as root of the bone.
+			for (int j = 0; j < 3; j++) {
+				bones[0] = current_bone_idx;
+				surface_tool->set_color(axis_colors[j]);
+				surface_tool->set_bones(bones);
+				surface_tool->set_weights(weights);
+				surface_tool->add_vertex(v0);
+				surface_tool->set_bones(bones);
+				surface_tool->set_weights(weights);
+				surface_tool->add_vertex(v0 + (skeleton->get_bone_global_rest(current_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
+
+				if (j == closest) {
+					continue;
+				}
+			}
+
+			// Axis at the end of the bone children.
+			if (i == child_bones_size - 1) {
+				for (int j = 0; j < 3; j++) {
+					bones[0] = child_bone_idx;
+					surface_tool->set_color(axis_colors[j]);
+					surface_tool->set_bones(bones);
+					surface_tool->set_weights(weights);
+					surface_tool->add_vertex(v1);
+					surface_tool->set_bones(bones);
+					surface_tool->set_weights(weights);
+					surface_tool->add_vertex(v1 + (skeleton->get_bone_global_rest(child_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
+
+					if (j == closest) {
+						continue;
+					}
+				}
+			}
+			
 			Ref<SphereMesh> sphere_mesh;
 			sphere_mesh.instantiate();
 			Vector3 current_v = skeleton->get_bone_global_pose(current_bone_idx).origin;
@@ -1447,6 +1548,7 @@ void fragment() {
 			kusudama_material->set_shader(kusudama_shader);
 			PackedFloat32Array kusudama_limit_cones;
 			kusudama_limit_cones.resize(30 * 4);
+			kusudama_limit_cones.fill(0.0f);
 			kusudama_limit_cones.write[0] = 0.0f;
 			kusudama_limit_cones.write[1] = 0.7f;
 			kusudama_limit_cones.write[2] = -0.7f;
@@ -1475,106 +1577,6 @@ void fragment() {
 			kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
 			p_gizmo->add_mesh(sphere_mesh, kusudama_material, skeleton->get_bone_global_pose(current_bone_idx), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 
-			// Draw bone.
-			switch (bone_shape) {
-				case 0: { // Wire shape.
-					surface_tool->set_color(current_bone_color);
-					bones[0] = current_bone_idx;
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v0);
-					bones[0] = child_bone_idx;
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1);
-				} break;
-
-				case 1: { // Octahedron shape.
-					Vector3 first;
-					Vector3 points[6];
-					int point_idx = 0;
-					for (int j = 0; j < 3; j++) {
-						Vector3 axis;
-						if (first == Vector3()) {
-							axis = d.cross(d.cross(skeleton->get_bone_global_rest(current_bone_idx).basis[j])).normalized();
-							first = axis;
-						} else {
-							axis = d.cross(first).normalized();
-						}
-
-						surface_tool->set_color(current_bone_color);
-						for (int k = 0; k < 2; k++) {
-							if (k == 1) {
-								axis = -axis;
-							}
-							Vector3 point = v0 + d * dist * 0.2;
-							point += axis * dist * 0.1;
-
-							bones[0] = current_bone_idx;
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(v0);
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(point);
-
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(point);
-							bones[0] = child_bone_idx;
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(v1);
-							points[point_idx++] = point;
-						}
-					}
-					surface_tool->set_color(current_bone_color);
-					SWAP(points[1], points[2]);
-					bones[0] = current_bone_idx;
-					for (int j = 0; j < 6; j++) {
-						surface_tool->set_bones(bones);
-						surface_tool->set_weights(weights);
-						surface_tool->add_vertex(points[j]);
-						surface_tool->set_bones(bones);
-						surface_tool->set_weights(weights);
-						surface_tool->add_vertex(points[(j + 1) % 6]);
-					}
-				} break;
-			}
-
-			// Axis as root of the bone.
-			for (int j = 0; j < 3; j++) {
-				bones[0] = current_bone_idx;
-				surface_tool->set_color(axis_colors[j]);
-				surface_tool->set_bones(bones);
-				surface_tool->set_weights(weights);
-				surface_tool->add_vertex(v0);
-				surface_tool->set_bones(bones);
-				surface_tool->set_weights(weights);
-				surface_tool->add_vertex(v0 + (skeleton->get_bone_global_rest(current_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
-
-				if (j == closest) {
-					continue;
-				}
-			}
-
-			// Axis at the end of the bone children.
-			if (i == child_bones_size - 1) {
-				for (int j = 0; j < 3; j++) {
-					bones[0] = child_bone_idx;
-					surface_tool->set_color(axis_colors[j]);
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1);
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1 + (skeleton->get_bone_global_rest(child_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
-
-					if (j == closest) {
-						continue;
-					}
-				}
-			}
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
 		}
