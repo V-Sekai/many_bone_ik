@@ -1548,8 +1548,34 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				sphere_mesh->set_height(scalar_dist / 2.0f);
 			}
 			PackedFloat32Array kusudama_limit_cones;
-			kusudama_limit_cones.resize(30 * 4);
+			constexpr int32_t KUSUDAMA_MAX_CONES = 30;
+			kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 			kusudama_limit_cones.fill(0.0f);
+
+			kusudama_limit_cones.write[0] = 0.0f;
+			kusudama_limit_cones.write[1] = 0.7f;
+			kusudama_limit_cones.write[2] = -0.7f;
+			kusudama_limit_cones.write[3] = 0.78f;
+			kusudama_limit_cones.write[4] = -1.0f;
+			kusudama_limit_cones.write[5] = 0.0f;
+			kusudama_limit_cones.write[6] = 0.0f;
+			kusudama_limit_cones.write[7] = 0.78f;
+			kusudama_limit_cones.write[8] = 1.0f;
+			kusudama_limit_cones.write[9] = 0.0f;
+			kusudama_limit_cones.write[10] = 0.0f;
+			kusudama_limit_cones.write[11] = 0.78f;
+			kusudama_limit_cones.write[12] = 0.0f;
+			kusudama_limit_cones.write[13] = 0.70f;
+			kusudama_limit_cones.write[14] = 0.7f;
+			kusudama_limit_cones.write[15] = 0.78f;
+			kusudama_limit_cones.write[16] = 0.0f;
+			kusudama_limit_cones.write[17] = 0.7f;
+			kusudama_limit_cones.write[18] = -0.7f;
+			kusudama_limit_cones.write[19] = 0.0f;
+			kusudama_limit_cones.write[20] = 0.0f;
+			kusudama_limit_cones.write[21] = -0.70f;
+			kusudama_limit_cones.write[22] = 0.70f;
+			kusudama_limit_cones.write[23] = 0.0f;
 			kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
 			kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
 
