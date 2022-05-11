@@ -1078,6 +1078,11 @@ render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
 
 uniform vec4 kusudamaColor : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
 const int CONE_COUNT_MAX = 30;
+
+
+// 0,0,0 is the center of the kusudama. The kusudamas have their own bases that automatically get reoriented such that +y points in the direction that is the weighted average of the limitcones on the kusudama.
+// But, if you have a kusuduma with just 1 limitcone, then in general that limitcone should be 0,1,0 in the kusudama's basis unless the user has specifically specified otherwise.
+
 uniform vec4 coneSequence[30];
 
 // This shader can display up to 30 cones (represented by 30 4d vectors) 
@@ -1551,31 +1556,11 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			constexpr int32_t KUSUDAMA_MAX_CONES = 30;
 			kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 			kusudama_limit_cones.fill(0.0f);
-
-			kusudama_limit_cones.write[0] = 0.0f;
-			kusudama_limit_cones.write[1] = 0.7f;
-			kusudama_limit_cones.write[2] = -0.7f;
-			kusudama_limit_cones.write[3] = 0.78f;
-			kusudama_limit_cones.write[4] = -1.0f;
-			kusudama_limit_cones.write[5] = 0.0f;
-			kusudama_limit_cones.write[6] = 0.0f;
-			kusudama_limit_cones.write[7] = 0.78f;
-			kusudama_limit_cones.write[8] = 1.0f;
-			kusudama_limit_cones.write[9] = 0.0f;
-			kusudama_limit_cones.write[10] = 0.0f;
-			kusudama_limit_cones.write[11] = 0.78f;
-			kusudama_limit_cones.write[12] = 0.0f;
-			kusudama_limit_cones.write[13] = 0.70f;
-			kusudama_limit_cones.write[14] = 0.7f;
-			kusudama_limit_cones.write[15] = 0.78f;
-			kusudama_limit_cones.write[16] = 0.0f;
-			kusudama_limit_cones.write[17] = 0.7f;
-			kusudama_limit_cones.write[18] = -0.7f;
-			kusudama_limit_cones.write[19] = 0.0f;
-			kusudama_limit_cones.write[20] = 0.0f;
-			kusudama_limit_cones.write[21] = -0.70f;
-			kusudama_limit_cones.write[22] = 0.70f;
-			kusudama_limit_cones.write[23] = 0.0f;
+			Vector3 origin = Vector3(0.0f, 1.0f, 0.0f);
+			kusudama_limit_cones.write[0] = origin.x;
+			kusudama_limit_cones.write[1] = origin.y;
+			kusudama_limit_cones.write[2] = origin.z;
+			kusudama_limit_cones.write[3] = 1.f;
 			kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
 			kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
 
