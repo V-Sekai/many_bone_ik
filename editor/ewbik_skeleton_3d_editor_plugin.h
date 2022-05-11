@@ -236,6 +236,7 @@ class EWBIKSkeleton3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	Ref<StandardMaterial3D> unselected_mat;
 	Ref<ShaderMaterial> selected_mat;
 	Ref<Shader> selected_sh;
+	Ref<ShaderMaterial> kusudama_material;
 
 public:
 	bool has_gizmo(Node3D *p_spatial) override;

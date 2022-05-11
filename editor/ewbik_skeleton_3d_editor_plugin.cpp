@@ -1068,6 +1068,177 @@ void fragment() {
 }
 )");
 	selected_mat->set_shader(selected_sh);
+
+	kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+	Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
+	kusudama_shader->set_code(R"(
+// Skeleton 3D gizmo kusudama constraint shader.
+shader_type spatial;
+render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
+
+uniform vec4 kusudamaColor : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
+const int CONE_COUNT_MAX = 30;
+uniform vec4 coneSequence[30];
+
+// This shader can display up to 30 cones (represented by 30 4d vectors) 
+// Each group of 4 represents the xyz coordinates of the cone direction
+// vector in model space and the fourth element represents radius
+
+// TODO: Use a texture to store bone parameters.
+// Use the uv to get the row of the bone.
+
+varying vec3 normalModelDir;
+varying vec4 vertModelColor;
+
+bool isInInterConePath(in vec3 normalDir, in vec4 tangent1, in vec4 cone1, in vec4 tangent2, in vec4 cone2) {
+	vec3 c1xc2 = cross(cone1.xyz, cone2.xyz);		
+	float c1c2dir = dot(normalDir, c1xc2);
+		
+	if (c1c2dir < 0.0) { 
+		vec3 c1xt1 = cross(cone1.xyz, tangent1.xyz); 
+		vec3 t1xc2 = cross(tangent1.xyz, cone2.xyz);	
+		float c1t1dir = dot(normalDir, c1xt1);
+		float t1c2dir = dot(normalDir, t1xc2);
+		
+	 	return (c1t1dir > 0.0 && t1c2dir > 0.0); 
+			
+	} else {
+		vec3 t2xc1 = cross(tangent2.xyz, cone1.xyz);	
+		vec3 c2xt2 = cross(cone2.xyz, tangent2.xyz);	
+		float t2c1dir = dot(normalDir, t2xc1);
+		float c2t2dir = dot(normalDir, c2xt2);
+		
+		return (c2t2dir > 0.0 && t2c1dir > 0.0);
+	}	
+	return false;
+}
+
+//determines the current draw condition based on the desired draw condition in the setToArgument
+// -3 = disallowed entirely; 
+// -2 = disallowed and on tangentCone boundary
+// -1 = disallowed and on controlCone boundary
+// 0 =  allowed and empty; 
+// 1 =  allowed and on controlCone boundary
+// 2  = allowed and on tangentCone boundary
+int getAllowabilityCondition(in int currentCondition, in int setTo) {
+	if((currentCondition == -1 || currentCondition == -2)
+		&& setTo >= 0) {
+		return currentCondition *= -1;
+	} else if(currentCondition == 0 && (setTo == -1 || setTo == -2)) {
+		return setTo *=-2;
+	}  	
+	return max(currentCondition, setTo);
+}
+
+// returns 1 if normalDir is beyond (cone.a) radians from the cone.rgb
+// returns 0 if normalDir is within (cone.a + boundaryWidth) radians from the cone.rgb
+// return -1 if normalDir is less than (cone.a) radians from the cone.rgb
+int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
+	float arcDistToCone = acos(dot(normalDir, cone.rgb));
+	if (arcDistToCone > (cone.a+(boundaryWidth/2.))) {
+		return 1; 
+	}
+	if (arcDistToCone < (cone.a-(boundaryWidth/2.))) {
+		return -1;
+	}
+	return 0;
+} 
+
+// Returns a color corresponding to the allowability of this region,
+// or otherwise the boundaries corresponding 
+// to various cones and tangentCone.
+vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth) {
+	int currentCondition = -3;
+	if (coneCounts == 1) {
+		vec4 cone = coneSequence[0];
+		int inCone = isInCone(normalDir, cone, boundaryWidth);
+		bool isInCone = inCone == 0;
+		if (isInCone) {
+			inCone = -1;
+		} else {
+			if (inCone < 0) {
+				inCone = 0;
+			} else {
+				inCone = -3;
+			}
+		}
+		currentCondition = getAllowabilityCondition(currentCondition, inCone);
+	} else {
+		for(int i=0; i < coneCounts-1; i += 3) {
+			normalDir = normalize(normalDir);
+			int idx = i*3; 
+			vec4 cone1 = coneSequence[idx];
+			vec4 tangent1 = coneSequence[idx+1];
+			vec4 tangent2 = coneSequence[idx+2];
+			vec4 cone2 = coneSequence[idx+3];
+
+			int inCone1 = isInCone(normalDir, cone1, boundaryWidth);
+			if (inCone1 == 0) {
+				inCone1 = -1;
+			} else {
+				if (inCone1 < 0) {
+					inCone1 = 0;
+				} else {
+					inCone1 = -3;
+				}
+			}
+			currentCondition = getAllowabilityCondition(currentCondition, inCone1);
+
+			int inCone2 = isInCone(normalDir, cone2, boundaryWidth);
+			if (inCone2 == 0) {
+				inCone2 = -1;
+			} else {
+				if (inCone2 < 0) {
+					inCone2 = 0;
+				} else {
+					inCone2 = -3;
+				}
+			}
+			currentCondition = getAllowabilityCondition(currentCondition, inCone2);
+
+			int inTan1 = isInCone(normalDir, tangent1, boundaryWidth); 
+			int inTan2 = isInCone(normalDir, tangent2, boundaryWidth);
+			
+			if (float(inTan1) < 1. || float(inTan2) < 1.) {
+				inTan1 = inTan1 == 0 ? -2 : -3;
+				currentCondition = getAllowabilityCondition(currentCondition, inTan1);
+				inTan2 = inTan2 == 0 ? -2 : -3;
+				currentCondition = getAllowabilityCondition(currentCondition, inTan2);
+			} else {				 
+				bool inIntercone = isInInterConePath(normalDir, tangent1, cone1, tangent2, cone2);
+				int interconeCondition = inIntercone ? 0 : -3;
+				currentCondition = getAllowabilityCondition(currentCondition, interconeCondition);
+			}
+		}
+	}
+	vec4 result = vertModelColor;
+	if (currentCondition != 0) {
+		float onTanBoundary = abs(currentCondition) == 2 ? 0.3 : 0.0; 
+		float onConeBoundary = abs(currentCondition) == 1 ? 0.3 : 0.0;
+		result += vec4(0.0, onConeBoundary, onTanBoundary, 0.0);
+	} else {
+		return vec4(0.0, 0.0, 0.0, 0.0);
+	}
+	return result;
+}
+
+void vertex() {
+	normalModelDir = NORMAL;
+	vertModelColor.rgb = kusudamaColor.rgb;
+}
+
+void fragment() {
+	vec4 resultColorAllowed = vec4(0.0, 0.0, 0.0, 0.0);
+	if (coneSequence.length() == 30) {
+		resultColorAllowed = colorAllowed(normalModelDir, CONE_COUNT_MAX, 0.02);
+	}
+	if (resultColorAllowed.a == 0.0) {
+		discard;
+	}
+	ALBEDO = resultColorAllowed.rgb;
+	ALPHA = resultColorAllowed.a;
+}
+)");
 }
 
 bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
@@ -1365,186 +1536,17 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					}
 				}
 			}
-			
+
 			Ref<SphereMesh> sphere_mesh;
 			sphere_mesh.instantiate();
-			Vector3 current_v = skeleton->get_bone_global_pose(current_bone_idx).origin;
-			Vector3 parent_v = skeleton->get_bone_global_pose(child_bone_idx).origin;
-			Vector3 distance = (parent_v - current_v).normalized();
-			real_t scalar_dist = v0.distance_to(v1);
-			sphere_mesh->set_radius(scalar_dist / 4.0f);
-			sphere_mesh->set_height(scalar_dist / 2.0f);
-			// Move to class variable to optimize.
-			Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
-			Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
-			kusudama_shader->set_code(R"(
-// Skeleton 3D gizmo kusudama constraint shader.
-shader_type spatial;
-render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
-
-uniform vec4 kusudamaColor : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
-const int CONE_COUNT_MAX = 30;
-uniform vec4 coneSequence[30];
-
-// This shader can display up to 30 cones (represented by 30 4d vectors) 
-// Each group of 4 represents the xyz coordinates of the cone direction
-// vector in model space and the fourth element represents radius
-
-// TODO: Use a texture to store bone parameters.
-// Use the uv to get the row of the bone.
-
-varying vec3 normalModelDir;
-varying vec4 vertModelColor;
-
-bool isInInterConePath(in vec3 normalDir, in vec4 tangent1, in vec4 cone1, in vec4 tangent2, in vec4 cone2) {
-	vec3 c1xc2 = cross(cone1.xyz, cone2.xyz);		
-	float c1c2dir = dot(normalDir, c1xc2);
-		
-	if (c1c2dir < 0.0) { 
-		vec3 c1xt1 = cross(cone1.xyz, tangent1.xyz); 
-		vec3 t1xc2 = cross(tangent1.xyz, cone2.xyz);	
-		float c1t1dir = dot(normalDir, c1xt1);
-		float t1c2dir = dot(normalDir, t1xc2);
-		
-	 	return (c1t1dir > 0.0 && t1c2dir > 0.0); 
-			
-	} else {
-		vec3 t2xc1 = cross(tangent2.xyz, cone1.xyz);	
-		vec3 c2xt2 = cross(cone2.xyz, tangent2.xyz);	
-		float t2c1dir = dot(normalDir, t2xc1);
-		float c2t2dir = dot(normalDir, c2xt2);
-		
-		return (c2t2dir > 0.0 && t2c1dir > 0.0);
-	}	
-	return false;
-}
-
-//determines the current draw condition based on the desired draw condition in the setToArgument
-// -3 = disallowed entirely; 
-// -2 = disallowed and on tangentCone boundary
-// -1 = disallowed and on controlCone boundary
-// 0 =  allowed and empty; 
-// 1 =  allowed and on controlCone boundary
-// 2  = allowed and on tangentCone boundary
-int getAllowabilityCondition(in int currentCondition, in int setTo) {
-	if((currentCondition == -1 || currentCondition == -2)
-		&& setTo >= 0) {
-		return currentCondition *= -1;
-	} else if(currentCondition == 0 && (setTo == -1 || setTo == -2)) {
-		return setTo *=-2;
-	}  	
-	return max(currentCondition, setTo);
-}
-
-// returns 1 if normalDir is beyond (cone.a) radians from the cone.rgb
-// returns 0 if normalDir is within (cone.a + boundaryWidth) radians from the cone.rgb
-// return -1 if normalDir is less than (cone.a) radians from the cone.rgb
-int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
-	float arcDistToCone = acos(dot(normalDir, cone.rgb));
-	if (arcDistToCone > (cone.a+(boundaryWidth/2.))) {
-		return 1; 
-	}
-	if (arcDistToCone < (cone.a-(boundaryWidth/2.))) {
-		return -1;
-	}
-	return 0;
-} 
-
-// Returns a color corresponding to the allowability of this region,
-// or otherwise the boundaries corresponding 
-// to various cones and tangentCone.
-vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth) {
-	int currentCondition = -3;
-	if (coneCounts == 1) {
-		vec4 cone = coneSequence[0];
-		int inCone = isInCone(normalDir, cone, boundaryWidth);
-		bool isInCone = inCone == 0;
-		if (isInCone) {
-			inCone = -1;
-		} else {
-			if (inCone < 0) {
-				inCone = 0;
-			} else {
-				inCone = -3;
+			{
+				Vector3 current_v = skeleton->get_bone_global_pose(current_bone_idx).origin;
+				Vector3 parent_v = skeleton->get_bone_global_pose(child_bone_idx).origin;
+				Vector3 distance = (parent_v - current_v).normalized();
+				real_t scalar_dist = v0.distance_to(v1);
+				sphere_mesh->set_radius(scalar_dist / 4.0f);
+				sphere_mesh->set_height(scalar_dist / 2.0f);
 			}
-		}
-		currentCondition = getAllowabilityCondition(currentCondition, inCone);
-	} else {
-		for(int i=0; i < coneCounts-1; i += 3) {
-			normalDir = normalize(normalDir);
-			int idx = i*3; 
-			vec4 cone1 = coneSequence[idx];
-			vec4 tangent1 = coneSequence[idx+1];
-			vec4 tangent2 = coneSequence[idx+2];
-			vec4 cone2 = coneSequence[idx+3];
-
-			int inCone1 = isInCone(normalDir, cone1, boundaryWidth);
-			if (inCone1 == 0) {
-				inCone1 = -1;
-			} else {
-				if (inCone1 < 0) {
-					inCone1 = 0;
-				} else {
-					inCone1 = -3;
-				}
-			}
-			currentCondition = getAllowabilityCondition(currentCondition, inCone1);
-
-			int inCone2 = isInCone(normalDir, cone2, boundaryWidth);
-			if (inCone2 == 0) {
-				inCone2 = -1;
-			} else {
-				if (inCone2 < 0) {
-					inCone2 = 0;
-				} else {
-					inCone2 = -3;
-				}
-			}
-			currentCondition = getAllowabilityCondition(currentCondition, inCone2);
-
-			int inTan1 = isInCone(normalDir, tangent1, boundaryWidth); 
-			int inTan2 = isInCone(normalDir, tangent2, boundaryWidth);
-			
-			if (float(inTan1) < 1. || float(inTan2) < 1.) {
-				inTan1 = inTan1 == 0 ? -2 : -3;
-				currentCondition = getAllowabilityCondition(currentCondition, inTan1);
-				inTan2 = inTan2 == 0 ? -2 : -3;
-				currentCondition = getAllowabilityCondition(currentCondition, inTan2);
-			} else {				 
-				bool inIntercone = isInInterConePath(normalDir, tangent1, cone1, tangent2, cone2);
-				int interconeCondition = inIntercone ? 0 : -3;
-				currentCondition = getAllowabilityCondition(currentCondition, interconeCondition);
-			}
-		}
-	}
-	vec4 result = vertModelColor;
-	if (currentCondition != 0) {
-		float onTanBoundary = abs(currentCondition) == 2 ? 0.3 : 0.0; 
-		float onConeBoundary = abs(currentCondition) == 1 ? 0.3 : 0.0;
-		result += vec4(0.0, onConeBoundary, onTanBoundary, 0.0);
-	} else {
-		return vec4(0.0, 0.0, 0.0, 0.0);
-	}
-	return result;
-}
-
-void vertex() {
-	normalModelDir = NORMAL;
-	vertModelColor.rgb = kusudamaColor.rgb;
-}
-
-void fragment() {
-	vec4 resultColorAllowed = vec4(0.0, 0.0, 0.0, 0.0);
-	if (coneSequence.length() == 30) {
-		resultColorAllowed = colorAllowed(normalModelDir, CONE_COUNT_MAX, 0.02);
-	}
-	if (resultColorAllowed.a == 0.0) {
-		discard;
-	}
-	ALBEDO = resultColorAllowed.rgb;
-	ALPHA = resultColorAllowed.a;
-}
-)");
 			kusudama_material->set_shader(kusudama_shader);
 			PackedFloat32Array kusudama_limit_cones;
 			kusudama_limit_cones.resize(30 * 4);
@@ -1575,7 +1577,41 @@ void fragment() {
 			kusudama_limit_cones.write[23] = 0.0f;
 			kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
 			kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
-			p_gizmo->add_mesh(sphere_mesh, kusudama_material, skeleton->get_bone_global_pose(current_bone_idx), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+
+			Ref<SurfaceTool> kusudama_surface_tool;
+			kusudama_surface_tool.instantiate();
+			kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+			kusudama_surface_tool->create_from(sphere_mesh, 0);
+			Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
+			kusudama_surface_tool->clear();
+			kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+			Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
+			PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
+			PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
+			PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
+			PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
+			for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
+				Vector3 sphere_vertex = vertex_array[vertex_i];
+				kusudama_surface_tool->set_color(current_bone_color);
+				kusudama_surface_tool->set_bones(bones);
+				kusudama_surface_tool->set_weights(weights);
+				Vector2 uv_vertex = uv_array[vertex_i];
+				kusudama_surface_tool->set_uv(uv_vertex);
+				Vector3 normal_vertex = normal_array[vertex_i];
+				kusudama_surface_tool->set_normal(normal_vertex);
+				Plane tangent_vertex;
+				tangent_vertex.normal.x = tangent_array[vertex_i + 0];
+				tangent_vertex.normal.y = tangent_array[vertex_i + 1];
+				tangent_vertex.normal.z = tangent_array[vertex_i + 2];
+				tangent_vertex.d = tangent_array[vertex_i + 3];
+				kusudama_surface_tool->set_tangent(tangent_vertex);
+				kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).origin + sphere_vertex);
+			}
+			for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
+				int32_t index = index_array[index_i];
+				kusudama_surface_tool->add_index(index);
+			}
+			p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
