@@ -95,14 +95,6 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 
 	friend class EWBIKSkeleton3DEditorPlugin;
 
-	enum SkeletonOption {
-		SKELETON_OPTION_INIT_ALL_POSES,
-		SKELETON_OPTION_INIT_SELECTED_POSES,
-		SKELETON_OPTION_ALL_POSES_TO_RESTS,
-		SKELETON_OPTION_SELECTED_POSES_TO_RESTS,
-		SKELETON_OPTION_CREATE_PHYSICAL_SKELETON,
-	};
-
 	struct BoneInfo {
 		PhysicalBone3D *physical_bone = nullptr;
 		Transform3D relative_rest; // Relative to skeleton node.
@@ -232,7 +224,6 @@ public:
 
 	bool has_main_screen() const override { return false; }
 	virtual bool handles(Object *p_object) const override;
-
 	virtual String get_name() const override { return "Skeleton3D"; }
 
 	EWBIKSkeleton3DEditorPlugin();
@@ -257,7 +248,7 @@ public:
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 
 	int get_priority() const override {
-		return 0;
+		return -2;
 	}
 	EWBIKSkeleton3DGizmoPlugin();
 };
