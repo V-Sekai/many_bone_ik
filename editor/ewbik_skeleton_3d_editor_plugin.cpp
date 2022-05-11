@@ -1606,7 +1606,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				tangent_vertex.normal.z = tangent_array[vertex_i + 2];
 				tangent_vertex.d = tangent_array[vertex_i + 3];
 				kusudama_surface_tool->set_tangent(tangent_vertex);
-				kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).origin + sphere_vertex);
+				kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).xform(sphere_vertex));
 			}
 			for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
 				int32_t index = index_array[index_i];
