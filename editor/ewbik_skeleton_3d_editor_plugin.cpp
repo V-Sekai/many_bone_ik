@@ -1129,10 +1129,6 @@ void fragment() {
 	ALPHA = COLOR.a;
 }
 )");
-	Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/ewbik_skeleton");
-	Color selected_bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/selected_bone");
-	real_t bone_axis_length = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_settings/bone_axis_length");
-	int bone_shape = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_settings/bone_shape");
 	selected_mat->set_shader(selected_sh);
 }
 
@@ -1331,7 +1327,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					closest = j;
 				}
 			}
-
 			// Draw bone.
 			switch (bone_shape) {
 				case 0: { // Wire shape.
