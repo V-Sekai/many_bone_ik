@@ -116,10 +116,7 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 	EWBIKBoneTransformEditor *rest_editor = nullptr;
 	EWBIKBoneTransformEditor *pose_editor = nullptr;
 
-	VSeparator *separator = nullptr;
-	MenuButton *skeleton_options = nullptr;
 	Button *edit_mode_button = nullptr;
-
 	bool edit_mode = false;
 
 	HBoxContainer *animation_hb = nullptr;
@@ -135,7 +132,6 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 
 	static EWBIKSkeleton3DEditor *singleton;
 
-	void _on_click_skeleton_option(int p_skeleton_option);
 	void _file_selected(const String &p_file);
 	TreeItem *_find(TreeItem *p_node, const NodePath &p_path);
 	void edit_mode_toggled(const bool pressed);
@@ -160,7 +156,6 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 	void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
 	void set_keyable(const bool p_keyable);
-	void set_bone_options_enabled(const bool p_bone_options_enabled);
 
 	// Handle.
 	MeshInstance3D *handles_mesh_instance = nullptr;

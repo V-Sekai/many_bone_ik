@@ -219,40 +219,6 @@ void EWBIKSkeleton3DEditor::set_keyable(const bool p_keyable) {
 	}
 };
 
-void EWBIKSkeleton3DEditor::set_bone_options_enabled(const bool p_bone_options_enabled) {
-	skeleton_options->get_popup()->set_item_disabled(SKELETON_OPTION_INIT_SELECTED_POSES, !p_bone_options_enabled);
-	skeleton_options->get_popup()->set_item_disabled(SKELETON_OPTION_SELECTED_POSES_TO_RESTS, !p_bone_options_enabled);
-};
-
-void EWBIKSkeleton3DEditor::_on_click_skeleton_option(int p_skeleton_option) {
-	if (!skeleton) {
-		return;
-	}
-
-	switch (p_skeleton_option) {
-		case SKELETON_OPTION_INIT_ALL_POSES: {
-			init_pose(true);
-			break;
-		}
-		case SKELETON_OPTION_INIT_SELECTED_POSES: {
-			init_pose(false);
-			break;
-		}
-		case SKELETON_OPTION_ALL_POSES_TO_RESTS: {
-			pose_to_rest(true);
-			break;
-		}
-		case SKELETON_OPTION_SELECTED_POSES_TO_RESTS: {
-			pose_to_rest(false);
-			break;
-		}
-		case SKELETON_OPTION_CREATE_PHYSICAL_SKELETON: {
-			create_physical_skeleton();
-			break;
-		}
-	}
-}
-
 void EWBIKSkeleton3DEditor::init_pose(const bool p_all_bones) {
 	if (!skeleton) {
 		return;
@@ -562,8 +528,6 @@ void EWBIKSkeleton3DEditor::_joint_tree_selection_changed() {
 	if (pose_editor && pose_editor->is_inside_tree()) {
 		pose_editor->set_visible(selected);
 	}
-	set_bone_options_enabled(selected);
-
 	_update_properties();
 	_update_gizmo_visible();
 }
@@ -631,28 +595,6 @@ void EWBIKSkeleton3DEditor::create_editors() {
 	Node3DEditor *ne = Node3DEditor::get_singleton();
 	AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
 
-	// Create Top Menu Bar.
-	separator = memnew(VSeparator);
-	ne->add_control_to_menu_panel(separator);
-
-	// Create Skeleton Option in Top Menu Bar.
-	skeleton_options = memnew(MenuButton);
-	ne->add_control_to_menu_panel(skeleton_options);
-
-	skeleton_options->set_text(TTR("Skeleton3D"));
-	skeleton_options->set_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon(SNAME("Skeleton3D"), SNAME("EditorIcons")));
-
-	// Skeleton options.
-	PopupMenu *p = skeleton_options->get_popup();
-	p->add_shortcut(ED_SHORTCUT("skeleton_3d_editor/init_all_poses", TTR("Init all Poses")), SKELETON_OPTION_INIT_ALL_POSES);
-	p->add_shortcut(ED_SHORTCUT("skeleton_3d_editor/init_selected_poses", TTR("Init selected Poses")), SKELETON_OPTION_INIT_SELECTED_POSES);
-	p->add_shortcut(ED_SHORTCUT("skeleton_3d_editor/all_poses_to_rests", TTR("Apply all poses to rests")), SKELETON_OPTION_ALL_POSES_TO_RESTS);
-	p->add_shortcut(ED_SHORTCUT("skeleton_3d_editor/selected_poses_to_rests", TTR("Apply selected poses to rests")), SKELETON_OPTION_SELECTED_POSES_TO_RESTS);
-	p->add_item(TTR("Create physical skeleton"), SKELETON_OPTION_CREATE_PHYSICAL_SKELETON);
-
-	p->connect("id_pressed", callable_mp(this, &EWBIKSkeleton3DEditor::_on_click_skeleton_option));
-	set_bone_options_enabled(false);
-
 	Vector<Variant> button_binds;
 	button_binds.resize(1);
 
@@ -674,7 +616,6 @@ void EWBIKSkeleton3DEditor::create_editors() {
 	// Keying buttons.
 	animation_hb = memnew(HBoxContainer);
 	ne->add_control_to_menu_panel(animation_hb);
-	animation_hb->add_child(memnew(VSeparator));
 	animation_hb->hide();
 
 	key_loc_button = memnew(Button);
@@ -781,7 +722,6 @@ void EWBIKSkeleton3DEditor::_notification(int p_what) {
 void EWBIKSkeleton3DEditor::_node_removed(Node *p_node) {
 	if (skeleton && p_node == skeleton) {
 		skeleton = nullptr;
-		skeleton_options->hide();
 	}
 
 	_update_properties();
@@ -792,7 +732,6 @@ void EWBIKSkeleton3DEditor::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_joint_tree_selection_changed"), &EWBIKSkeleton3DEditor::_joint_tree_selection_changed);
 	ClassDB::bind_method(D_METHOD("_joint_tree_rmb_select"), &EWBIKSkeleton3DEditor::_joint_tree_rmb_select);
 	ClassDB::bind_method(D_METHOD("_update_properties"), &EWBIKSkeleton3DEditor::_update_properties);
-	ClassDB::bind_method(D_METHOD("_on_click_skeleton_option"), &EWBIKSkeleton3DEditor::_on_click_skeleton_option);
 
 	ClassDB::bind_method(D_METHOD("get_drag_data_fw"), &EWBIKSkeleton3DEditor::get_drag_data_fw);
 	ClassDB::bind_method(D_METHOD("can_drop_data_fw"), &EWBIKSkeleton3DEditor::can_drop_data_fw);
@@ -1007,16 +946,6 @@ EWBIKSkeleton3DEditor::~EWBIKSkeleton3DEditor() {
 	if (animation_hb) {
 		ne->remove_control_from_menu_panel(animation_hb);
 		memdelete(animation_hb);
-	}
-
-	if (separator) {
-		ne->remove_control_from_menu_panel(separator);
-		memdelete(separator);
-	}
-
-	if (skeleton_options) {
-		ne->remove_control_from_menu_panel(skeleton_options);
-		memdelete(skeleton_options);
 	}
 
 	if (edit_mode_button) {
