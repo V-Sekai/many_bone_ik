@@ -594,6 +594,9 @@ void EWBIKSkeleton3DEditor::create_editors() {
 
 	Node3DEditor *ne = Node3DEditor::get_singleton();
 	AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
+	
+	separator = memnew(VSeparator);
+	ne->add_control_to_menu_panel(separator);
 
 	Vector<Variant> button_binds;
 	button_binds.resize(1);

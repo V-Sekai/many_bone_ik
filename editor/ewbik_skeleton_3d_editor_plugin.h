@@ -108,6 +108,7 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 	EWBIKBoneTransformEditor *rest_editor = nullptr;
 	EWBIKBoneTransformEditor *pose_editor = nullptr;
 
+	VSeparator *separator = nullptr;
 	Button *edit_mode_button = nullptr;
 	bool edit_mode = false;
 
