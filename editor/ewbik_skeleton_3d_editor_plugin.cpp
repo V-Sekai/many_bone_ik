@@ -1444,7 +1444,7 @@ void fragment() {
 )");
 			kusudama_material->set_shader(kusudama_shader);
 			PackedFloat32Array kusudama_limit_cones;
-			kusudama_limit_cones.resize(6 * 4);
+			kusudama_limit_cones.resize(30 * 4);
 			kusudama_limit_cones.write[0] = 0.0f;
 			kusudama_limit_cones.write[1] = 0.7f;
 			kusudama_limit_cones.write[2] = -0.7f;
