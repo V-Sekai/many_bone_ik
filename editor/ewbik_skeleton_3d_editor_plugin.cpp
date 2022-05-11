@@ -1549,8 +1549,8 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				Vector3 current_v = skeleton->get_bone_global_pose(current_bone_idx).origin;
 				Vector3 parent_v = skeleton->get_bone_global_pose(child_bone_idx).origin;
 				real_t scalar_dist = v0.distance_to(v1);
-				sphere_mesh->set_radius(scalar_dist / 4.0f);
-				sphere_mesh->set_height(scalar_dist / 2.0f);
+				sphere_mesh->set_radius(scalar_dist / 8.0f);
+				sphere_mesh->set_height(scalar_dist / 4.0f);
 			}
 			PackedFloat32Array kusudama_limit_cones;
 			constexpr int32_t KUSUDAMA_MAX_CONES = 30;
