@@ -1008,7 +1008,25 @@ bool EWBIKSkeleton3DEditorPlugin::handles(Object *p_object) const {
 	if (!p_object->is_class("Skeleton3D")) {
 		return false;
 	}
-	return true;
+	Skeleton3D *skeleton = cast_to<Skeleton3D>(p_object);
+	Ref<SkeletonModificationStack3D> stack = skeleton->get_modification_stack();
+	if (stack.is_null()) {
+		return false;
+	}
+	if (!stack->get_modification_count()) {
+		return false;
+	}
+	for (int32_t count_i = 0; count_i < stack->get_modification_count(); count_i++) {
+		Ref<SkeletonModification3D> mod = stack->get_modification(count_i);
+		if (mod.is_null()) {
+			continue;
+		}
+		if (!mod->is_class("SkeletonModification3DEWBIK")) {
+			return false;
+		}
+		return true;
+	}
+	return false;
 }
 
 void EWBIKSkeleton3DEditor::_bone_enabled_changed(const int p_bone_id) {
@@ -1017,25 +1035,9 @@ void EWBIKSkeleton3DEditor::_bone_enabled_changed(const int p_bone_id) {
 
 void EWBIKSkeleton3DEditor::_update_gizmo_visible() {
 	_subgizmo_selection_change();
-	if (edit_mode) {
-		if (selected_bone == -1) {
 #ifdef TOOLS_ENABLED
-			skeleton->set_transform_gizmo_visible(false);
+	skeleton->set_transform_gizmo_visible(false);
 #endif
-		} else {
-#ifdef TOOLS_ENABLED
-			if (skeleton->is_bone_enabled(selected_bone) && !skeleton->is_show_rest_only()) {
-				skeleton->set_transform_gizmo_visible(true);
-			} else {
-				skeleton->set_transform_gizmo_visible(false);
-			}
-#endif
-		}
-	} else {
-#ifdef TOOLS_ENABLED
-		skeleton->set_transform_gizmo_visible(true);
-#endif
-	}
 	_draw_gizmo();
 }
 
@@ -1254,25 +1256,7 @@ bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
 	if (!Object::cast_to<Skeleton3D>(p_spatial)) {
 		return false;
 	}
-	Skeleton3D *skeleton = cast_to<Skeleton3D>(p_spatial);
-	Ref<SkeletonModificationStack3D> stack = skeleton->get_modification_stack();
-	if (stack.is_null()) {
-		return false;
-	}
-	if (!stack->get_modification_count()) {
-		return false;
-	}
-	for (int32_t count_i = 0; count_i < stack->get_modification_count(); count_i++) {
-		Ref<SkeletonModification3D> mod = stack->get_modification(count_i);
-		if (mod.is_null()) {
-			continue;
-		}
-		if (!mod->is_class("SkeletonModification3DEWBIK")) {
-			return false;
-		}
-		return true;
-	}
-	return false;
+	return true;
 }
 
 String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
@@ -1623,6 +1607,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		}
 	}
 
-	Ref<ArrayMesh> m = surface_tool->commit();
-	p_gizmo->add_mesh(m, Ref<Material>(), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+	// Ref<ArrayMesh> m = surface_tool->commit();
+	// p_gizmo->add_mesh(m, Ref<Material>(), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 }
