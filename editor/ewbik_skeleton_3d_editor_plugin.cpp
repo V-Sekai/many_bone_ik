@@ -763,7 +763,7 @@ EWBIKSkeleton3DEditor::EWBIKSkeleton3DEditor(EWBIKEditorInspectorPluginSkeleton 
 // Skeleton 3D gizmo handle shader.
 
 shader_type spatial;
-render_mode unshaded, shadows_disabled, depth_draw_always;
+render_mode unshaded, depth_test_disabled, cull_back;
 uniform sampler2D texture_albedo : hint_albedo;
 uniform float point_size : hint_range(0,128) = 32;
 void vertex() {
@@ -1265,19 +1265,21 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					closest = j;
 				}
 			}
-
 			Ref<SphereMesh> sphere_mesh;
 			sphere_mesh.instantiate();
-			sphere_mesh->set_radius(dist / 4.0f);
-			sphere_mesh->set_height(dist / 2.0f);
-
+			Vector3 current_v = skeleton->get_bone_global_pose(current_bone_idx).origin;
+			Vector3 parent_v = skeleton->get_bone_global_pose(child_bone_idx).origin;
+			Vector3 distance = (parent_v - current_v).normalized();
+			real_t scalar_dist = v0.distance_to(v1);
+			sphere_mesh->set_radius(scalar_dist / 4.0f);
+			sphere_mesh->set_height(scalar_dist / 2.0f);
 			// Move to class variable to optimize.
 			Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
 			Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
 			kusudama_shader->set_code(R"(
-// Skeleton 3D gizmo handle shader.
+// Skeleton 3D gizmo kusudama constraint shader.
 shader_type spatial;
-render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
+render_mode depth_draw_always, depth_prepass_alpha;
 
 uniform vec4 kusudamaColor : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
 const int CONE_COUNT_MAX = 30;
@@ -1471,8 +1473,7 @@ void fragment() {
 			kusudama_limit_cones.write[23] = 0.0f;
 			kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
 			kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
-
-			p_gizmo->add_mesh(sphere_mesh, kusudama_material, skeleton->get_bone_global_rest(current_bone_idx), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+			p_gizmo->add_mesh(sphere_mesh, kusudama_material, skeleton->get_bone_global_pose(current_bone_idx), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 
 			// Draw bone.
 			switch (bone_shape) {
