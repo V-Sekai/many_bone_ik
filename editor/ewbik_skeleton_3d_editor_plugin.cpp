@@ -594,7 +594,7 @@ void EWBIKSkeleton3DEditor::create_editors() {
 
 	Node3DEditor *ne = Node3DEditor::get_singleton();
 	AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
-	
+
 	separator = memnew(VSeparator);
 	ne->add_control_to_menu_panel(separator);
 
@@ -696,7 +696,7 @@ void EWBIKSkeleton3DEditor::create_editors() {
 void EWBIKSkeleton3DEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			edit_mode_button->set_icon(get_theme_icon(SNAME("ToolBoneSelect"), SNAME("EditorIcons")));
+			edit_mode_button->set_icon(get_theme_icon(SNAME("ToolRotate"), SNAME("EditorIcons")));
 			key_loc_button->set_icon(get_theme_icon(SNAME("KeyPosition"), SNAME("EditorIcons")));
 			key_rot_button->set_icon(get_theme_icon(SNAME("KeyRotation"), SNAME("EditorIcons")));
 			key_scale_button->set_icon(get_theme_icon(SNAME("KeyScale"), SNAME("EditorIcons")));
