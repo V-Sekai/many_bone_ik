@@ -951,6 +951,11 @@ EWBIKSkeleton3DEditor::~EWBIKSkeleton3DEditor() {
 		memdelete(animation_hb);
 	}
 
+	if (separator) {
+		ne->remove_control_from_menu_panel(separator);
+		memdelete(separator);
+	}
+	
 	if (edit_mode_button) {
 		ne->remove_control_from_menu_panel(edit_mode_button);
 		memdelete(edit_mode_button);
@@ -1326,39 +1331,39 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				} break;
 			}
 
-			// Axis as root of the bone.
-			for (int j = 0; j < 3; j++) {
-				bones[0] = current_bone_idx;
-				surface_tool->set_color(axis_colors[j]);
-				surface_tool->set_bones(bones);
-				surface_tool->set_weights(weights);
-				surface_tool->add_vertex(v0);
-				surface_tool->set_bones(bones);
-				surface_tool->set_weights(weights);
-				surface_tool->add_vertex(v0 + (skeleton->get_bone_global_rest(current_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
+			// // Axis as root of the bone.
+			// for (int j = 0; j < 3; j++) {
+			// 	bones[0] = current_bone_idx;
+			// 	surface_tool->set_color(axis_colors[j]);
+			// 	surface_tool->set_bones(bones);
+			// 	surface_tool->set_weights(weights);
+			// 	surface_tool->add_vertex(v0);
+			// 	surface_tool->set_bones(bones);
+			// 	surface_tool->set_weights(weights);
+			// 	surface_tool->add_vertex(v0 + (skeleton->get_bone_global_rest(current_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
 
-				if (j == closest) {
-					continue;
-				}
-			}
+			// 	if (j == closest) {
+			// 		continue;
+			// 	}
+			// }
 
-			// Axis at the end of the bone children.
-			if (i == child_bones_size - 1) {
-				for (int j = 0; j < 3; j++) {
-					bones[0] = child_bone_idx;
-					surface_tool->set_color(axis_colors[j]);
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1);
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1 + (skeleton->get_bone_global_rest(child_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
+			// // Axis at the end of the bone children.
+			// if (i == child_bones_size - 1) {
+			// 	for (int j = 0; j < 3; j++) {
+			// 		bones[0] = child_bone_idx;
+			// 		surface_tool->set_color(axis_colors[j]);
+			// 		surface_tool->set_bones(bones);
+			// 		surface_tool->set_weights(weights);
+			// 		surface_tool->add_vertex(v1);
+			// 		surface_tool->set_bones(bones);
+			// 		surface_tool->set_weights(weights);
+			// 		surface_tool->add_vertex(v1 + (skeleton->get_bone_global_rest(child_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
 
-					if (j == closest) {
-						continue;
-					}
-				}
-			}
+			// 		if (j == closest) {
+			// 			continue;
+			// 		}
+			// 	}
+			// }
 
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
