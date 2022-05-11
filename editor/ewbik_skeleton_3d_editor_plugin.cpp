@@ -1008,23 +1008,7 @@ bool EWBIKSkeleton3DEditorPlugin::handles(Object *p_object) const {
 	if (!p_object->is_class("Skeleton3D")) {
 		return false;
 	}
-	Skeleton3D *skeleton = cast_to<Skeleton3D>(p_object);
-	Ref<SkeletonModificationStack3D> stack = skeleton->get_modification_stack();
-	if (stack.is_null()) {
-		return false;
-	}
-	if (!stack->get_modification_count()) {
-		return false;
-	}
-	for (int32_t count_i = 0; count_i < stack->get_modification_count(); count_i++) {
-		Ref<SkeletonModification3D> mod = stack->get_modification(count_i);
-		if (mod.is_null()) {
-			continue;
-		}
-		mod->is_class("SkeletonModification3DEWBIK");
-		return true;
-	}
-	return false;
+	return true;
 }
 
 void EWBIKSkeleton3DEditor::_bone_enabled_changed(const int p_bone_id) {
@@ -1267,7 +1251,28 @@ void fragment() {
 }
 
 bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return Object::cast_to<Skeleton3D>(p_spatial) != nullptr;
+	if (!Object::cast_to<Skeleton3D>(p_spatial)) {
+		return false;
+	}
+	Skeleton3D *skeleton = cast_to<Skeleton3D>(p_spatial);
+	Ref<SkeletonModificationStack3D> stack = skeleton->get_modification_stack();
+	if (stack.is_null()) {
+		return false;
+	}
+	if (!stack->get_modification_count()) {
+		return false;
+	}
+	for (int32_t count_i = 0; count_i < stack->get_modification_count(); count_i++) {
+		Ref<SkeletonModification3D> mod = stack->get_modification(count_i);
+		if (mod.is_null()) {
+			continue;
+		}
+		if (!mod->is_class("SkeletonModification3DEWBIK")) {
+			return false;
+		}
+		return true;
+	}
+	return false;
 }
 
 String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
