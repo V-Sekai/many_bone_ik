@@ -73,8 +73,8 @@ void SkeletonModification3DEWBIK::set_root_bone_index(BoneId p_index) {
 
 void SkeletonModification3DEWBIK::set_pin_count(int32_t p_value) {
 	pins.resize(p_value);
-	for (int32_t i = pin_count; i < p_value; i++) {
-		pins.write[i].instantiate();
+	for (int32_t pin_i = pin_count; pin_i < p_value; pin_i++) {
+		pins.write[pin_i].instantiate();
 	}
 	pin_count = p_value;
 	notify_property_list_changed();
@@ -313,10 +313,10 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "1,60,1,or_greater", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_INTERNAL));
 	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Pins,pins/"));
-	for (int i = 0; i < pin_count; i++) {
+	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING;
-		effector_name.name = "pins/" + itos(i) + "/name";
+		effector_name.name = "pins/" + itos(pin_i) + "/name";
 		if (skeleton) {
 			Set<String> existing_pins;
 			for (Ref<IKEffectorTemplate> pin : pins) {
@@ -327,8 +327,8 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				existing_pins.insert(name);
 			}
 			String names;
-			for (int i = 0; i < skeleton->get_bone_count(); i++) {
-				String name = skeleton->get_bone_name(i);
+			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
+				String name = skeleton->get_bone_name(bone_i);
 				if (existing_pins.has(name)) {
 					continue;
 				}
@@ -343,21 +343,21 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		}
 		p_list->push_back(effector_name);
 		p_list->push_back(
-				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D"));
+				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D"));
 
-		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(i) + "/use_node_rotation"));
+		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/use_node_rotation"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/depth_falloff"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/depth_falloff"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/priority"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/priority"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/weight_translation"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_translation"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/weight_x_direction"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_x_direction"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/weight_y_direction"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_y_direction"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(i) + "/weight_z_direction"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_z_direction"));
 	}
 	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
