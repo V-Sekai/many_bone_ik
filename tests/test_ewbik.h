@@ -67,9 +67,9 @@ void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, 
 	// q0 is the scalar of quaternion
 	// QCP uses the other quaternion convention!!!
 	int32_t iterations = 0;
-	rot = qcp->weightedSuperpose(p_localizedTipHeadings, r_localizedTargetHeadings,
+	rot = qcp->weighted_superpose(p_localizedTipHeadings, r_localizedTargetHeadings,
 			weights, true);
-	CHECK_MESSAGE(qcp->getTranslation().is_equal_approx(Vector3()), vformat("%s is not zero.", qcp->getTranslation()).utf8().ptr());
+	CHECK_MESSAGE(qcp->get_translation().is_equal_approx(Vector3()), vformat("%s is not zero.", qcp->get_translation()).utf8().ptr());
 	memdelete(qcp);
 	for (int32_t i = 0; i < p_localizedTipHeadings.size(); i++) {
 		Vector3 result = rot.xform(p_localizedTipHeadings[i]);

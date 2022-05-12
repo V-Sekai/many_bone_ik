@@ -134,7 +134,6 @@ class QCP {
 	bool rmsd_calculated = false;
 	bool transformation_calculated = false;
 	bool inner_product_calculated = false;
-	int length = 0;
 
 	/**
 	 * Calculates the RMSD value for superposition of y onto x. This requires the

@@ -31,8 +31,8 @@
 #include "qcp.h"
 
 QCP::QCP(double p_evec_prec, double p_eval_prec) {
-	this->evec_prec = evec_prec;
-	this->eval_prec = eval_prec;
+	this->evec_prec = p_eval_prec;
+	this->eval_prec = p_evec_prec;
 }
 
 void QCP::set(PackedVector3Array &p_target, PackedVector3Array &p_moved) {
