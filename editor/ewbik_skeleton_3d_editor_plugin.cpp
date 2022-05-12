@@ -154,7 +154,7 @@ void EWBIKBoneTransformEditor::_property_keyed(const String &p_path, bool p_adva
 		return;
 	}
 	PackedStringArray split = p_path.split("/");
-	if (split.size() == 3 && split[0] == "bones") {
+	if (split.size() == 3 && split[0] == "pins") {
 		int bone_idx = split[1].to_int();
 		if (split[2] == "position") {
 			te->insert_transform_key(skeleton, skeleton->get_bone_name(bone_idx), Animation::TYPE_POSITION_3D, skeleton->get(p_path));
@@ -177,7 +177,7 @@ void EWBIKBoneTransformEditor::_update_properties() {
 	skeleton->get_property_list(&props);
 	for (const PropertyInfo &E : props) {
 		PackedStringArray split = E.name.split("/");
-		if (split.size() == 3 && split[0] == "bones") {
+		if (split.size() == 3 && split[0] == "pins") {
 			if (split[1].to_int() == selected) {
 				if (split[2] == "enabled") {
 					enabled_checkbox->set_read_only(E.usage & PROPERTY_USAGE_READ_ONLY);
@@ -666,7 +666,7 @@ void EWBIKSkeleton3DEditor::create_editors() {
 	const Color section_color = get_theme_color(SNAME("prop_subsection"), SNAME("Editor"));
 
 	EditorInspectorSection *bones_section = memnew(EditorInspectorSection);
-	bones_section->setup("bones", "Bones", skeleton, section_color, true);
+	bones_section->setup("pins", "Pins", skeleton, section_color, true);
 	add_child(bones_section);
 	bones_section->unfold();
 
@@ -911,7 +911,7 @@ void EWBIKSkeleton3DEditor::_subgizmo_selection_change() {
 
 void EWBIKSkeleton3DEditor::select_bone(int p_idx) {
 	if (p_idx >= 0) {
-		TreeItem *ti = _find(joint_tree->get_root(), "bones/" + itos(p_idx));
+		TreeItem *ti = _find(joint_tree->get_root(), "pins/" + itos(p_idx));
 		if (ti) {
 			// Make visible when it's collapsed.
 			TreeItem *node = ti->get_parent();
