@@ -65,8 +65,7 @@ void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, 
 	QCP *qcp = memnew(QCP(1E-6, 1E-11));
 	// Axis angle has an opposite theta
 	// q0 is the scalar of quaternion
-	// QCP uses the other quaternion convention!!!
-	int32_t iterations = 0;
+	// QCP uses the other quaternion convention!
 	rot = qcp->weighted_superpose(p_localizedTipHeadings, r_localizedTargetHeadings,
 			weights, true);
 	CHECK_MESSAGE(qcp->get_translation().is_equal_approx(Vector3()), vformat("%s is not zero.", qcp->get_translation()).utf8().ptr());
