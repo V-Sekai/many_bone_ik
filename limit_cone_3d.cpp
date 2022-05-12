@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  register_types.cpp                                                   */
+/*  ik_effector_template.h   s                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,34 +28,6 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "register_types.h"
-
-#include "ik_effector_3d.h"
 #include "limit_cone_3d.h"
-#include "skeleton_modification_3d_ewbik.h"
 
-#ifdef TOOLS_ENABLED
-#include "editor/ewbik_skeleton_3d_editor_plugin.h"
-#endif
-
-void initialize_ewbik_module(ModuleInitializationLevel p_level) {
-	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
-		ClassDB::register_class<IKEffectorTemplate>();
-		ClassDB::register_class<SkeletonModification3DEWBIK>();
-		ClassDB::register_class<IKBone3D>();
-		ClassDB::register_class<IKEffector3D>();
-		ClassDB::register_class<IKBoneChain>();
-		ClassDB::register_class<IKLimitCone3D>();
-	}
-#ifdef TOOLS_ENABLED
-	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
-		EditorPlugins::add_by_type<EWBIKSkeleton3DEditorPlugin>();
-	}
-#endif
-}
-
-void uninitialize_ewbik_module(ModuleInitializationLevel p_level) {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
-	}
-}
+#include "core/io/resource.h"
