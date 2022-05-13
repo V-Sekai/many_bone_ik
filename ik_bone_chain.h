@@ -76,6 +76,29 @@ protected:
 	static void _bind_methods();
 
 public:
+	_FORCE_INLINE_ static real_t cos(real_t p_angle) {
+		// https://stackoverflow.com/questions/18662261/fastest-implementation-of-sine-cosine-and-square-root-in-c-doesnt-need-to-b/28050328#28050328
+		real_t x = real_t(0.5) * p_angle;
+		constexpr real_t tp = 1. / (2. * Math_PI);
+		x *= tp;
+		x -= real_t(.25) + Math::floor(x + real_t(.25));
+		x *= real_t(16.) * (Math::abs(x) - real_t(.5));
+#if EXTRA_PRECISION
+		x += real_t(.225) * x * (std::abs(x) - real_t(1.));
+#endif
+		return x;
+	}
+	// Untested sine code.
+	// 		real_t sine(float x)
+	// 		constexpr real_t B = 4. / Math_PI;
+	// 		constexpr real_t C = -4. / (Math_PI * Math_PI);
+	// 		real_t y = B * x + C * x * Math::abs(x);
+	// #ifdef EXTRA_PRECISION
+	// 		const real_t Q = 0.775;
+	// 		const real_t P = 0.225;
+	// 		y = P * (y * Math::abs(y) - y) + y; // Q * y + P * y * Math::abs(y)
+	// #endif
+
 	Ref<IKBoneChain> get_parent_segment();
 	void segment_solver(real_t p_damp);
 	Ref<IKBone3D> get_root() const;

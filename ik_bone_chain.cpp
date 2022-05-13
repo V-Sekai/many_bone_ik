@@ -183,30 +183,7 @@ Quaternion IKBoneChain::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half
 }
 
 Quaternion IKBoneChain::clamp_to_angle(Quaternion p_quat, real_t p_angle) const {
-	// https://stackoverflow.com/questions/18662261/fastest-implementation-of-sine-cosine-and-square-root-in-c-doesnt-need-to-b/28050328#28050328
-	real_t x = real_t(0.5) * p_angle;
-	// This is a cosine(x) implementation.
-	{
-		constexpr real_t tp = 1. / (2. * Math_PI);
-		x *= tp;
-		x -= real_t(.25) + Math::floor(x + real_t(.25));
-		x *= real_t(16.) * (Math::abs(x) - real_t(.5));
-#if EXTRA_PRECISION
-		x += real_t(.225) * x * (std::abs(x) - real_t(1.));
-#endif
-	}
-// 	if (false) {
-// 		// real_t sine(float x)
-// 		constexpr real_t B = 4. / Math_PI;
-// 		constexpr real_t C = -4. / (Math_PI * Math_PI);
-// 		real_t y = B * x + C * x * Math::abs(x);
-// #ifdef EXTRA_PRECISION
-// 		//  const real_t Q = 0.775;
-// 		const real_t P = 0.225;
-
-// 		y = P * (y * Math::abs(y) - y) + y; // Q * y + P * y * Math::abs(y)
-// #endif
-// 	}
+	real_t x = cos(p_angle);
 	real_t cos_half_angle = x;
 	return clamp_to_quadrance_angle(p_quat, cos_half_angle);
 }
