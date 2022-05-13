@@ -35,9 +35,6 @@
 #include <string>
 #include <vector>
 
-using CanLoad = data::agnosticsavior::CanLoad;
-using JSONObject = ewbik::asj::data::JSONObject;
-
 class Ray3D : public CanLoad {
 public:
 	static constexpr int X = 0;
@@ -45,9 +42,7 @@ public:
 	static constexpr int Z = 2;
 
 protected:
-	// JAVA TO C++ CONVERTER NOTE: Fields cannot have the same name as methods of the current type:
 	Vector3 p1_Conflict;
-	// JAVA TO C++ CONVERTER NOTE: Fields cannot have the same name as methods of the current type:
 	Vector3 p2_Conflict;
 	Vector3 workingVector;
 
@@ -86,21 +81,6 @@ public:
 	Ray3D(Vector3 origin);
 
 	Ray3D(Vector3 p1, Vector3 p2);
-
-	/**
-	 * Given two planes specified by a1,a2,a3 and b1,b2,b3 returns a
-	 * ray representing the line along which the two planes intersect
-	 *
-	 * @param a1 the first vertex of a triangle on the first plane
-	 * @param a2 the second vertex of a triangle on the first plane
-	 * @param a3 the third vertex od a triangle on the first plane
-	 * @param b1 the first vertex of a triangle on the second plane
-	 * @param b2 the second vertex of a triangle on the second plane
-	 * @param b3 the third vertex od a triangle on the second plane
-	 * @return a sgRay along the line of intersection of these two planes, or null
-	 *         if inputs are coplanar
-	 */
-	static ewbik::math::Ray3D *planePlaneIntersect(Vector3 a1, Vector3 a2, Vector3 a3, Vector3 b1, Vector3 b2, Vector3 b3);
 
 	static float triArea2D(float x1, float y1, float x2, float y2, float x3, float y3);
 

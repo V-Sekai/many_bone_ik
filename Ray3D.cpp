@@ -590,7 +590,6 @@ Vector3 Ray3D::planeIntersectTest(Vector3 ta, Vector3 tb, Vector3 tc, std::vecto
 	I->set(0, 0, 0);
 	I->set(dir);
 	I->multiply(r);
-	// float[] barycentric = new float[3];
 	barycentric(ta, tb, tc, I, uvw);
 
 	return static_cast<Vector3 >(I->copy());
