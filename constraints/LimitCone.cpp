@@ -77,7 +77,7 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		double boundaryPlusTangentRadiusB = radB + tRadius;
 
 		// the axis of this cone, scaled to minimize its distance to the tangent  contact points.
-		Vector3 scaledAxisA = Vector3::mult(A, std::cos(boundaryPlusTangentRadiusA));
+		Vector3 scaledAxisA = A * std::cos(boundaryPlusTangentRadiusA);
 		// a point on the plane running through the tangent contact points
 		Basis tempVar(arcNormal, boundaryPlusTangentRadiusA);
 		Vector3 planeDir1A = tempVar.xform(A);
@@ -120,7 +120,7 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		this->cushionTangentCircleCenterNext1 = getOrthogonal(controlPoint).normalized();
 	}
 	if (tangentCircleCenterNext2 == Vector3(NAN, NAN, NAN)) {
-		tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1).normalize();
+		tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1).normalized();
 		cushionTangentCircleCenterNext2 = (cushionTangentCircleCenterNext2 * -1).normalized();
 	}
 	if (next.is_valid()) {
@@ -180,13 +180,13 @@ double LimitCone::_getRadiusCosine(int mode) {
 }
 
 void LimitCone::computeTriangles(Ref<LimitCone> next) {
-	firstTriangleNext[1] = this->tangentCircleCenterNext1.normalize();
-	firstTriangleNext[0] = this->getControlPoint().normalize();
-	firstTriangleNext[2] = next->getControlPoint().normalize();
+	firstTriangleNext.write[1] = this->tangentCircleCenterNext1.normalized();
+	firstTriangleNext.write[0] = this->getControlPoint().normalized();
+	firstTriangleNext.write[2] = next->getControlPoint().normalized();
 
-	secondTriangleNext[1] = this->tangentCircleCenterNext2.normalize();
-	secondTriangleNext[0] = this->getControlPoint().normalize();
-	secondTriangleNext[2] = next->getControlPoint().normalize();
+	secondTriangleNext.write[1] = this->tangentCircleCenterNext2.normalized();
+	secondTriangleNext.write[0] = this->getControlPoint().normalized();
+	secondTriangleNext.write[2] = next->getControlPoint().normalized();
 }
 
 Vector3 LimitCone::getControlPoint() const {

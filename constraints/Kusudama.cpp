@@ -55,7 +55,10 @@ void IKKusudama::optimizeLimitingAxes() {
 			Vector3 thisC = getLimitCones()[i]->getControlPoint();
 			Vector3 nextC = getLimitCones()[i + 1]->getControlPoint();
 			Basis thisToNext = Basis(thisC, nextC);
-			Basis halfThisToNext(thisToNext.get_axis(), thisToNext.get_angle() / 2.0f);
+			Vector3 axis;
+			real_t angle;
+			thisToNext.get_axis_angle(axis, angle);
+			Basis halfThisToNext(axis, angle / 2.0f);
 
 			Vector3 halfAngle = halfThisToNext.xform(thisC);
 			halfAngle.normalize();
@@ -214,8 +217,8 @@ double IKKusudama::snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limiti
 	if (!axiallyConstrained) {
 		return 0;
 	}
-	Rot *invRot = limitingAxes->getGlobalMBasis().getInverseRotation();
-	Rot *alignRot = invRot->applyTo(toSet->getGlobalMBasis().rotation);
+	Basis invRot = limitingAxes->get_global_transform().basis.inverse();
+	Basis alignRot = invRot * toSet->get_global_transform().basis;
 	Vector3 tempVar(0, 1, 0);
 	Vector<Rot *> decomposition = alignRot->getSwingTwist(&tempVar);
 	double angleDelta2 = decomposition[1]->getAngle() * decomposition[1]->getAxis().y * -1;
@@ -231,7 +234,7 @@ double IKKusudama::snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limiti
 			turnDiff = turnDiff * (fromMinToAngleDelta);
 			toSet->rotateAboutY(turnDiff, true);
 		} else {
-			turnDiff = turnDiff * (range - (TAU - fromMinToAngleDelta));
+			turnDiff = turnDiff * (range - (Math_TAU - fromMinToAngleDelta));
 			toSet->rotateAboutY(turnDiff, true);
 		}
 		return turnDiff < 0 ? turnDiff * -1 : turnDiff;
@@ -244,13 +247,13 @@ double IKKusudama::angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *limit
 		return 0;
 	}
 
-	Rot *alignRot = limitingAxes->getGlobalMBasis().getInverseRotation().applyTo(toSet->getGlobalMBasis().rotation);
+	Quaternion alignRot = limitingAxes->get_global_transform().basis.inverse() * toSet->get_global_transform().basis;
 	Vector3 tempVar(0, 1, 0);
 	Vector<Rot *> decomposition = alignRot->getSwingTwist(&tempVar);
-	double angleDelta2 = decomposition[1]->getAngle() * decomposition[1]->getAxis().y * -1;
+	double angleDelta2 = decomposition[1]->getAngle() * Basis(decomposition[1])[Vector3::AXIS_Y] * -1;
 	angleDelta2 = toTau(angleDelta2);
 
-	double distToMid = signedAngleDifference(angleDelta2, TAU - (this->minAxialAngle() + (range / 2)));
+	double distToMid = signedAngleDifference(angleDelta2, Math_TAU - (this->minAxialAngle() + (range / 2)));
 	return distToMid;
 }
 
@@ -278,7 +281,7 @@ bool IKKusudama::inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingA
 }
 
 double IKKusudama::signedAngleDifference(double minAngle, double p_super) {
-	double d = Math::abs(minAngle - p_super) % Math_TAU;
+	double d = Math::fmod(Math::abs(minAngle - p_super), Math_TAU);
 	double r = d > Math_PI ? Math_TAU - d : d;
 
 	double sign = (minAngle - p_super >= 0 && minAngle - p_super <= Math_PI) || (minAngle - p_super <= -Math_PI && minAngle - p_super >= -Math_TAU) ? 1.0f : -1.0f;
@@ -426,7 +429,7 @@ void IKKusudama::attachTo(Ref<IKBone3D> forBone) {
 }
 
 void IKKusudama::setStrength(double newStrength) {
-	this->strength = std::max(0, std::min(1, newStrength));
+	this->strength = MAX(0, MIN(1, newStrength));
 }
 
 double IKKusudama::getStrength() const {
