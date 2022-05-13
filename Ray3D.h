@@ -111,9 +111,9 @@ public:
 
 	virtual Vector3 origin();
 
-	virtual real_t mag();
+	virtual real_t mag(); // TODO: fire 2022-05-13 rename to length()
 
-	virtual void mag(real_t newMag);
+	virtual void mag(real_t newMag); // TODO: fire 2022-05-13 rename to length(real_t length)
 
 	/**
 	 * Returns the scalar projection of the input vector on this

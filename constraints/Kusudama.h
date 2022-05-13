@@ -32,6 +32,7 @@
 #pragma once
 
 #define _USE_MATH_DEFINES
+#include "../Ray3D.h"
 #include "../math/ik_transform.h"
 #include "LimitCone.h"
 #include "core/io/resource.h"
@@ -39,8 +40,9 @@
 #include <type_traits>
 #include <vector>
 
+
 class IKKusudama : public Resource {
-	GDCLASS(Constraint, Resource);
+	GDCLASS(IKKusudama, Resource);
 
 public:
 	static const double TAU;
@@ -55,7 +57,7 @@ protected:
 	 * with the expectation that any limitCone in the array is connected to the cone at the previous element in the array,
 	 * and the cone at the next element in the array.
 	 */
-	Vector<AbstractLimitCone *> limitCones = Vector<AbstractLimitCone *>();
+	Vector<Ref<LimitCone>> limitCones = Vector<Ref<LimitCone>>();
 
 	/**
 	 * Defined as some Angle in radians about the limitingAxes Y axis, 0 being equivalent to the
@@ -104,8 +106,8 @@ public:
 
 	virtual void updateTangentRadii();
 
-	sgRayd *boneRay = new sgRayd(new SGVec_3d(), new SGVec_3d());
-	sgRayd *constrainedRay = new sgRayd(new SGVec_3d(), new SGVec_3d());
+	Ref<Ray3D> boneRay = memnew(Ray3D(Vector3(), Vector3()));
+	Ref<Ray3D> constrainedRay = memnew(Ray3D(Vector3(), Vector3()));
 
 	/**
 	 * Snaps the bone this Kusudama is constraining to be within the Kusudama's orientational and axial limits.
@@ -147,7 +149,7 @@ public:
 
 	bool isInLimits_(Vector3 globalPoint) {
 		Vector<double> inBounds = { 1 };
-		Vector3 *inLimits = this->pointInLimits(globalPoint, inBounds, AbstractLimitCone::BOUNDARY);
+		Vector3 *inLimits = this->pointInLimits(globalPoint, inBounds, LimitCone::BOUNDARY);
 		return inBounds[0] > 0;
 	}
 
@@ -203,7 +205,7 @@ public:
 	 *
 	 * @param toSet
 	 * @param limitingAxes
-	 * @return radians of twist required to snap bone into twist limits (0 if bone is already in twist limits)
+	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
 	virtual double snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limitingAxes);
 
@@ -229,52 +231,52 @@ public:
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
 	Vector3 *pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode) {
-				Vector3 *point = inPoint->copy();
-				point->normalize();
+		Vector3 *point = inPoint->copy();
+		point->normalize();
 
-				inBounds[0] = -1;
-				Vector3 *closestCollisionPoint = nullptr;
-				double closestCos = -2;
-				Vector<bool> boundHint = { false };
+		inBounds[0] = -1;
+		Vector3 *closestCollisionPoint = nullptr;
+		double closestCos = -2;
+		Vector<bool> boundHint = { false };
 
-				for (int i = 0; i < limitCones.size(); i++) {
-					AbstractLimitCone *cone = limitCones[i];
-					Vector3 *collisionPoint = inPoint->copy();
-					collisionPoint->set(0, 0, 0);
-					collisionPoint = cone->closestToCone(point, boundHint);
-					if (collisionPoint == nullptr) {
+		for (int i = 0; i < limitCones.size(); i++) {
+			Ref<LimitCone> cone = limitCones[i];
+			Vector3 *collisionPoint = inPoint->copy();
+			collisionPoint->set(0, 0, 0);
+			collisionPoint = cone->closestToCone(point, boundHint);
+			if (collisionPoint == nullptr) {
+				inBounds[0] = 1;
+				return point;
+			} else {
+				double thisCos = collisionPoint->dot(point);
+				if (closestCollisionPoint == nullptr || thisCos > closestCos) {
+					closestCollisionPoint = collisionPoint;
+					closestCos = thisCos;
+				}
+			}
+		}
+		if (inBounds[0] == -1) {
+			for (int i = 0; i < limitCones.size() - 1; i++) {
+				Ref<LimitCone> currCone = limitCones[i];
+				Ref<LimitCone> nextCone = limitCones[i + 1];
+				Vector3 *collisionPoint = inPoint->copy();
+				collisionPoint->set(0, 0, 0);
+				collisionPoint = currCone->getOnGreatTangentTriangle(nextCone, point);
+				if (collisionPoint != nullptr) {
+					double thisCos = collisionPoint->dot(point);
+					if (thisCos == 1) {
 						inBounds[0] = 1;
+						closestCollisionPoint = point;
 						return point;
-					} else {
-						double thisCos = collisionPoint->dot(point);
-						if (closestCollisionPoint == nullptr || thisCos > closestCos) {
-							closestCollisionPoint = collisionPoint;
-							closestCos = thisCos;
-						}
+					} else if (thisCos > closestCos) {
+						closestCollisionPoint = collisionPoint;
+						closestCos = thisCos;
 					}
 				}
-				if (inBounds[0] == -1) {
-					for (int i = 0; i < limitCones.size() - 1; i++) {
-						AbstractLimitCone *currCone = limitCones[i];
-						AbstractLimitCone *nextCone = limitCones[i + 1];
-						Vector3 *collisionPoint = inPoint->copy();
-						collisionPoint->set(0, 0, 0);
-						collisionPoint = currCone->getOnGreatTangentTriangle(nextCone, point);
-						if (collisionPoint != nullptr) {
-							double thisCos = collisionPoint->dot(point);
-							if (thisCos == 1) {
-								inBounds[0] = 1;
-								closestCollisionPoint = point;
-								return point;
-							} else if (thisCos > closestCos) {
-								closestCollisionPoint = collisionPoint;
-								closestCos = thisCos;
-							}
-						}
-					}
-				}
+			}
+		}
 
-				return closestCollisionPoint;
+		return closestCollisionPoint;
 	}
 
 	Vector3 *pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes) {
@@ -287,7 +289,7 @@ public:
 			result->set(limitCones[0]->controlPoint);
 		} else {
 			for (int i = 0; i < limitCones.size() - 1; i++) {
-				AbstractLimitCone *nextCone = limitCones[i + 1];
+				Ref<LimitCone> nextCone = limitCones[i + 1];
 				Vector3 *closestPathPoint = limitCones[i]->getClosestPathPoint(nextCone, point);
 				double closeDot = closestPathPoint->dot(point);
 				if (closeDot > closestPointDot) {
@@ -311,12 +313,13 @@ public:
 	 * @param previous the LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 * @param next the other LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 */
-	virtual void addLimitCone(SGVec_3d *newPoint, double radius, AbstractLimitCone *previous, AbstractLimitCone *next);
+	virtual void addLimitCone(SGVec_3d *newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next);
 
-	virtual void removeLimitCone(AbstractLimitCone *limitCone);
+	virtual void removeLimitCone(Ref<LimitCone> limitCone);
 
-	template <typename T1>
-	AbstractLimitCone *createLimitConeForIndex(int insertAt, Vector3<T1> *newPoint, double radius) = 0;
+	Ref<LimitCone> createLimitConeForIndex(int insertAt, Vector3 newPoint, double radius) {
+		limitCones.insert(insertAt, Ref<LimitCone>(memnew(LimitCone(newPoint, radius))));
+	}
 
 	/**
 	 * Adds a LimitCone to the Kusudama. LimitCones are reach cones which can be arranged sequentially. The Kusudama will infer
@@ -426,25 +429,25 @@ public:
 	 per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.**/
 	virtual double getStrength();
 
-	virtual Vector < ? extends AbstractLimitCone > getLimitCones();
+	virtual Vector<Ref<LimitCone>> getLimitCones();
 };
 
-IKTransform3D::IKKusudama() {
+IKKusudama::IKKusudama() {
 }
 
-IKTransform3D::IKKusudama(AbstractBone *forBone) {
+IKKusudama::IKKusudama(AbstractBone *forBone) {
 	this->attachedTo_Conflict = forBone;
 	this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
 	this->attachedTo_Conflict->addConstraint(this);
 	this->enable();
 }
 
-void IKTransform3D::constraintUpdateNotification() {
+void IKKusudama::constraintUpdateNotification() {
 	this->updateTangentRadii();
 	this->updateRotationalFreedom();
 }
 
-void IKTransform3D::optimizeLimitingAxes() {
+void IKKusudama::optimizeLimitingAxes() {
 	IKTransform3D *originalLimitingAxes = limitingAxes_Conflict->getGlobalCopy();
 	Vector<Vector3> directions;
 	if (getLimitCones().size() == 1) {
@@ -493,14 +496,14 @@ void IKTransform3D::optimizeLimitingAxes() {
 	this->updateTangentRadii();
 }
 
-void IKTransform3D::updateTangentRadii() {
+void IKKusudama::updateTangentRadii() {
 	for (int i = 0; i < limitCones.size(); i++) {
-		AbstractLimitCone *next = i < limitCones.size() - 1 ? limitCones[i + 1] : nullptr;
+		Ref<LimitCone> next = i < limitCones.size() - 1 ? limitCones[i + 1] : nullptr;
 		limitCones[i]->updateTangentHandles(next);
 	}
 }
 
-void IKTransform3D::snapToLimits() {
+void IKKusudama::snapToLimits() {
 	// System.out.println("snapping to limits");
 	if (orientationallyConstrained) {
 		setAxesToOrientationSnap(attachedTo()->localAxes(), limitingAxes_Conflict, 0);
@@ -510,7 +513,7 @@ void IKTransform3D::snapToLimits() {
 	}
 }
 
-void IKTransform3D::setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
+void IKKusudama::setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
 	if (limitingAxes != nullptr) {
 		if (orientationallyConstrained) {
 			setAxesToOrientationSnap(toSet, limitingAxes, cosHalfAngleDampen);
@@ -521,7 +524,7 @@ void IKTransform3D::setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limiti
 	}
 }
 
-void IKTransform3D::setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfReturnfullness, double angleReturnfullness) {
+void IKKusudama::setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfReturnfullness, double angleReturnfullness) {
 	if (limitingAxes != nullptr && painfullness > 0) {
 		if (orientationallyConstrained) {
 			Vector3 *origin = toSet->origin_();
@@ -541,7 +544,7 @@ void IKTransform3D::setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *l
 	}
 }
 
-void IKTransform3D::setPainfullness(double amt) {
+void IKKusudama::setPainfullness(double amt) {
 	painfullness = amt;
 	if (attachedTo() != nullptr && attachedTo()->parentArmature != nullptr) {
 		SegmentedArmature *s = attachedTo()->parentArmature.boneSegmentMap->get(this->attachedTo());
@@ -554,11 +557,11 @@ void IKTransform3D::setPainfullness(double amt) {
 	}
 }
 
-double IKTransform3D::getPainfullness() {
+double IKKusudama::getPainfullness() {
 	return painfullness;
 }
 
-void IKTransform3D::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
+void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
 	Vector<double> inBounds = { 1 };
 	/**
 	 * Basic idea:
@@ -581,7 +584,7 @@ void IKTransform3D::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransfo
 	boneRay->p1().set(limitingAxes->origin_());
 	boneRay->p2().set(toSet->y_().p2());
 	Vector3 *bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
-	Vector3 *inCushionLimits = this->pointInLimits(bonetip, inBounds, AbstractLimitCone::CUSHION);
+	Vector3 *inCushionLimits = this->pointInLimits(bonetip, inBounds, LimitCone::CUSHION);
 
 	if (inBounds[0] == -1 && inCushionLimits != nullptr) {
 		constrainedRay->p1().set(boneRay->p1());
@@ -592,7 +595,7 @@ void IKTransform3D::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransfo
 	}
 }
 
-bool IKTransform3D::isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes) {
+bool IKKusudama::isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes) {
 	Vector<double> inBounds = { 1 };
 	Vector3 *localizedPoint = limitingAxes->getLocalOf(globalAxes->y_().p2()).copy().normalize();
 	if (limitCones.size() == 1) {
@@ -606,13 +609,13 @@ bool IKTransform3D::isInOrientationLimits(IKTransform3D *globalAxes, IKTransform
 	return false;
 }
 
-void IKTransform3D::setAxialLimits(double minAngle, double inRange) {
+void IKKusudama::setAxialLimits(double minAngle, double inRange) {
 	minAxialAngle_Conflict = minAngle;
 	range = toTau(inRange);
 	constraintUpdateNotification();
 }
 
-double IKTransform3D::snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
+double IKKusudama::snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
 	if (!axiallyConstrained) {
 		return 0;
 	}
@@ -641,7 +644,7 @@ double IKTransform3D::snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *lim
 	return 0;
 }
 
-double IKTransform3D::angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
+double IKKusudama::angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
 	if (!axiallyConstrained) {
 		return 0;
 	}
@@ -656,7 +659,7 @@ double IKTransform3D::angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *li
 	return distToMid;
 }
 
-bool IKTransform3D::inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingAxes) {
+bool IKKusudama::inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingAxes) {
 	Rot *invRot = limitingAxes->getGlobalMBasis().getInverseRotation();
 	Rot *alignRot = invRot->applyTo(boneAxes->getGlobalMBasis().rotation);
 	SGVec_3d tempVar(0, 1, 0);
@@ -679,7 +682,7 @@ bool IKTransform3D::inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limiti
 	return true;
 }
 
-double IKTransform3D::signedAngleDifference(double minAngle, double __super) {
+double IKKusudama::signedAngleDifference(double minAngle, double __super) {
 	double d = std::abs(minAngle - __super) % TAU;
 	double r = d > PI ? TAU - d : d;
 
@@ -688,11 +691,11 @@ double IKTransform3D::signedAngleDifference(double minAngle, double __super) {
 	return r;
 }
 
-AbstractBone *IKTransform3D::attachedTo() {
+AbstractBone *IKKusudama::attachedTo() {
 	return this->attachedTo_Conflict;
 }
 
-void IKTransform3D::addLimitCone(SGVec_3d *newPoint, double radius, AbstractLimitCone *previous, AbstractLimitCone *next) {
+void IKKusudama::addLimitCone(SGVec_3d *newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next) {
 	int insertAt = 0;
 
 	if (next == nullptr || limitCones.empty()) {
@@ -705,14 +708,14 @@ void IKTransform3D::addLimitCone(SGVec_3d *newPoint, double radius, AbstractLimi
 	addLimitConeAtIndex(insertAt, newPoint, radius);
 }
 
-void IKTransform3D::removeLimitCone(AbstractLimitCone *limitCone) {
+void IKKusudama::removeLimitCone(Ref<LimitCone> limitCone) {
 	this->limitCones.remove(limitCone);
 	this->updateTangentRadii();
 	this->updateRotationalFreedom();
 }
 
-void IKTransform3D::addLimitConeAtIndex(int insertAt, SGVec_3d *newPoint, double radius) {
-	AbstractLimitCone *newCone = createLimitConeForIndex(insertAt, newPoint, radius);
+void IKKusudama::addLimitConeAtIndex(int insertAt, SGVec_3d *newPoint, double radius) {
+	Ref<LimitCone> newCone = createLimitConeForIndex(insertAt, newPoint, radius);
 	if (insertAt == -1) {
 		limitCones.push_back(newCone);
 	} else {
@@ -722,7 +725,7 @@ void IKTransform3D::addLimitConeAtIndex(int insertAt, SGVec_3d *newPoint, double
 	this->updateRotationalFreedom();
 }
 
-double IKTransform3D::toTau(double angle) {
+double IKKusudama::toTau(double angle) {
 	double result = angle;
 	if (angle < 0) {
 		result = (2 * M_PI) + angle;
@@ -731,7 +734,7 @@ double IKTransform3D::toTau(double angle) {
 	return result;
 }
 
-double IKTransform3D::mod(double x, double y) {
+double IKKusudama::mod(double x, double y) {
 	if (y != 0 && x != 0) {
 		double result = x % y;
 		if (result < 0) {
@@ -742,27 +745,27 @@ double IKTransform3D::mod(double x, double y) {
 	return 0;
 }
 
-double IKTransform3D::minAxialAngle() {
+double IKKusudama::minAxialAngle() {
 	return minAxialAngle_Conflict;
 }
 
-double IKTransform3D::maxAxialAngle() {
+double IKKusudama::maxAxialAngle() {
 	return range;
 }
 
-double IKTransform3D::absoluteMaxAxialAngle() {
+double IKKusudama::absoluteMaxAxialAngle() {
 	return signedAngleDifference(range + minAxialAngle_Conflict, M_PI * 2);
 }
 
-bool IKTransform3D::isAxiallyConstrained() {
+bool IKKusudama::isAxiallyConstrained() {
 	return axiallyConstrained;
 }
 
-bool IKTransform3D::isOrientationallyConstrained() {
+bool IKKusudama::isOrientationallyConstrained() {
 	return orientationallyConstrained;
 }
 
-void IKTransform3D::disableOrientationalLimits() {
+void IKKusudama::disableOrientationalLimits() {
 	this->orientationallyConstrained = false;
 }
 
@@ -770,44 +773,44 @@ void IKTransform3D::enableOrientationalLimits() {
 	this->orientationallyConstrained = true;
 }
 
-void IKTransform3D::toggleOrientationalLimits() {
+void IKKusudama::toggleOrientationalLimits() {
 	this->orientationallyConstrained = !this->orientationallyConstrained;
 }
 
-void IKTransform3D::disableAxialLimits() {
+void IKKusudama::disableAxialLimits() {
 	this->axiallyConstrained = false;
 }
 
-void IKTransform3D::enableAxialLimits() {
+void IKKusudama::enableAxialLimits() {
 	this->axiallyConstrained = true;
 }
 
-void IKTransform3D::toggleAxialLimits() {
+void IKKusudama::toggleAxialLimits() {
 	axiallyConstrained = !axiallyConstrained;
 }
 
-bool IKTransform3D::isEnabled() {
+bool IKKusudama::isEnabled() {
 	return axiallyConstrained || orientationallyConstrained;
 }
 
-void IKTransform3D::disable() {
+void IKKusudama::disable() {
 	this->axiallyConstrained = false;
 	this->orientationallyConstrained = false;
 }
 
-void IKTransform3D::enable() {
+void IKKusudama::enable() {
 	this->axiallyConstrained = true;
 	this->orientationallyConstrained = true;
 }
 
-double IKTransform3D::getRotationalFreedom() {
+double IKKusudama::getRotationalFreedom() {
 	// computation cached from updateRotationalFreedom
 	// feel free to override that method if you want your own more correct result.
 	// please contribute back a better solution if you write one.
 	return rotationalFreedom;
 }
 
-void IKTransform3D::updateRotationalFreedom() {
+void IKKusudama::updateRotationalFreedom() {
 	double axialConstrainedHyperArea = isAxiallyConstrained() ? (range / TAU) : 1;
 	// quick and dirty solution (should revisit);
 	double totalLimitConeSurfaceAreaRatio = 0;
@@ -817,7 +820,7 @@ void IKTransform3D::updateRotationalFreedom() {
 	rotationalFreedom = axialConstrainedHyperArea * (isOrientationallyConstrained() ? std::min(totalLimitConeSurfaceAreaRatio, 1) : 1);
 }
 
-void IKTransform3D::attachTo(AbstractBone *forBone) {
+void IKKusudama::attachTo(AbstractBone *forBone) {
 	this->attachedTo_Conflict = forBone;
 	if (this->limitingAxes_Conflict == nullptr) {
 		this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
@@ -827,14 +830,14 @@ void IKTransform3D::attachTo(AbstractBone *forBone) {
 	}
 }
 
-void IKTransform3D::setStrength(double newStrength) {
+void IKKusudama::setStrength(double newStrength) {
 	this->strength = std::max(0, std::min(1, newStrength));
 }
 
-double IKTransform3D::getStrength() {
+double IKKusudama::getStrength() {
 	return this->strength;
 }
 
-Vector<LimitCone> IKTransform3D::getLimitCones() {
+Vector<LimitCone> IKKusudama::getLimitCones() {
 	return this->limitCones;
 }
