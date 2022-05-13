@@ -40,6 +40,7 @@
 #include <type_traits>
 #include <vector>
 
+class IKKusudama;
 class LimitCone : public Resource {
 	GDCLASS(LimitCone, Resource);
 
@@ -70,8 +71,8 @@ public:
 	double cushionTangentCircleRadiusNext = 0;
 	double cushionTangentCircleRadiusNextCos = 0;
 
-	static int BOUNDARY;
-	static int CUSHION;
+	static const int BOUNDARY = 0;
+	static const int CUSHION = 1;
 
 	// softness of 0 means completely hard.
 	// any softness higher than 0f means that
@@ -105,7 +106,7 @@ public:
 	LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attachedTo) {
 		setControlPoint(direction);
 		tangentCircleCenterNext1 = direction.getOrthogonal();
-		tangentCircleCenterNext2 = SGVec_3d::mult(tangentCircleCenterNext1, -1);
+		tangentCircleCenterNext2 = Vector3::mult(tangentCircleCenterNext1, -1);
 
 		this->radius = std::max(DBL_TRUE_MIN, rad);
 		this->radiusCosine = std::cos(radius);
@@ -127,7 +128,7 @@ public:
 	LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attachedTo) {
 		setControlPoint(direction);
 		tangentCircleCenterNext1 = direction->getOrthogonal();
-		tangentCircleCenterNext2 = SGVec_3d::mult(tangentCircleCenterNext1, -1);
+		tangentCircleCenterNext2 = Vector3::mult(tangentCircleCenterNext1, -1);
 
 		this->radius = std::max(DBL_TRUE_MIN, rad);
 		this->radiusCosine = std::cos(radius);
@@ -144,23 +145,22 @@ public:
 	 * @param collisionPoint will be set to the rectified (if necessary) position of the input after accounting for collisions
 	 * @return
 	 */
-	template <typename T1, typename T2>
-	bool inBoundsFromThisToNext(Ref<LimitCone>next, Vector3 input, Vector3<T2> *collisionPoint) {
-		bool isInBounds = false; // determineIfInBounds(next, input);
+	bool inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vector3 collisionPoint) {
+		bool isInBounds = false;
 		Vector3 closestCollision = getClosestCollision(next, input);
-		if (closestCollision == nullptr) {
+		if (closestCollision.is_null()) {
 			/**
 			 * getClosestCollision returns null if the point is already in bounds,
 			 * so we set isInBounds to true.
 			 */
 			isInBounds = true;
-			collisionPoint->x = input->x;
-			collisionPoint->y = input->y;
-			collisionPoint->z = input->z;
+			collisionPoint.x = input.x;
+			collisionPoint.y = input.y;
+			collisionPoint.z = input.z;
 		} else {
-			collisionPoint->x = closestCollision->x;
-			collisionPoint->y = closestCollision->y;
-			collisionPoint->z = closestCollision->z;
+			collisionPoint.x = closestCollision.x;
+			collisionPoint.y = closestCollision.y;
+			collisionPoint.z = closestCollision.z;
 		}
 		return isInBounds;
 	}
@@ -173,22 +173,22 @@ public:
 	 * if the point was out of bounds.
 	 */
 	template <typename V>
-	Vector3 getClosestCollision(Ref<LimitCone>next, V input) {
-				Vector3 result = getOnGreatTangentTriangle(next, input);
-				if (result == nullptr) {
-					Vector<bool> inBounds = { false };
-					result = closestPointOnClosestCone(next, input, inBounds);
-				}
-				return result;
+	Vector3 getClosestCollision(Ref<LimitCone> next, V input) {
+		Vector3 result = getOnGreatTangentTriangle(next, input);
+		if (result == Vector3(NAN, NAN, NAN)) {
+			Vector<bool> inBounds = { false };
+			result = closestPointOnClosestCone(next, input, inBounds);
+		}
+		return result;
 	}
 
 	template <typename V>
-	Vector3 getClosestPathPoint(Ref<LimitCone>next, V input) {
-				Vector3 result = getOnPathSequence(next, input);
-				if (result == nullptr) {
-					result = closestCone(next, input);
-				}
-				return result;
+	Vector3 getClosestPathPoint(Ref<LimitCone> next, V input) {
+		Vector3 result = getOnPathSequence(next, input);
+		if (result == Vector3(NAN, NAN, NAN)) {
+			result = closestCone(next, input);
+		}
+		return result;
 	}
 
 	/**
@@ -201,8 +201,7 @@ public:
 	 * @param input
 	 * @return
 	 */
-	template <typename T1>
-	bool determineIfInBounds(Ref<LimitCone>next, Vector3 input) {
+	bool determineIfInBounds(Ref<LimitCone> next, Vector3 input) {
 		/**
 		 * Procedure : Check if input is contained in this cone, or the next cone
 		 * 	if it is, then we're finished and in bounds. otherwise,
@@ -212,19 +211,19 @@ public:
 		 * if it is, then we're finished and in bounds. otherwise, we're out of bounds.
 		 */
 
-		if (controlPoint->dot(input) >= radiusCosine) {
+		if (controlPoint.dot(input) >= radiusCosine) {
 			return true;
-		} else if (next != nullptr && next->controlPoint->dot(input) >= next->radiusCosine) {
+		} else if (next != nullptr && next->controlPoint.dot(input) >= next->radiusCosine) {
 			return true;
 		} else {
 			if (next == nullptr) {
 				return false;
 			}
-			bool inTan1Rad = tangentCircleCenterNext1->dot(input) > tangentCircleRadiusNextCos;
+			bool inTan1Rad = tangentCircleCenterNext1.dot(input) > tangentCircleRadiusNextCos;
 			if (inTan1Rad) {
 				return false;
 			}
-			bool inTan2Rad = tangentCircleCenterNext2->dot(input) > tangentCircleRadiusNextCos;
+			bool inTan2Rad = tangentCircleCenterNext2.dot(input) > tangentCircleRadiusNextCos;
 			if (inTan2Rad) {
 				return false;
 			}
@@ -241,54 +240,53 @@ public:
 			 *	as it didn't allow for early termination. .
 			 */
 
-			Vector3 c1xc2 = controlPoint->crossCopy(next->controlPoint);
-			double c1c2dir = input->dot(c1xc2);
+			Vector3 c1xc2 = controlPoint.cross(next->controlPoint);
+			double c1c2dir = input.dot(c1xc2);
 
 			if (c1c2dir < 0.0) {
-				Vector3 c1xt1 = controlPoint->crossCopy(tangentCircleCenterNext1);
-				Vector3 t1xc2 = tangentCircleCenterNext1->crossCopy(next->controlPoint);
-				return input->dot(c1xt1) > 0 && input->dot(t1xc2) > 0;
+				Vector3 c1xt1 = controlPoint.cross(tangentCircleCenterNext1);
+				Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->controlPoint);
+				return input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0;
 			} else {
-				Vector3 t2xc1 = tangentCircleCenterNext2->crossCopy(controlPoint);
-				Vector3 c2xt2 = next->controlPoint->crossCopy(tangentCircleCenterNext2);
-				return input->dot(t2xc1) > 0 && input->dot(c2xt2) > 0;
+				Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
+				Vector3 c2xt2 = next->controlPoint.cross(tangentCircleCenterNext2);
+				return input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0;
 			}
 		}
 	}
 
-	template <typename V>
-	Vector3 getOnPathSequence(Ref<LimitCone>next, V input) {
-				Vector3 c1xc2 = controlPoint->crossCopy(next->controlPoint);
-				double c1c2dir = input->dot(c1xc2);
-				if (c1c2dir < 0.0) {
-					Vector3 c1xt1 = controlPoint->crossCopy(tangentCircleCenterNext1);
-					Vector3 t1xc2 = tangentCircleCenterNext1->crossCopy(next->controlPoint);
-					if (input->dot(c1xt1) > 0 && input->dot(t1xc2) > 0) {
-						sgRayd *tan1ToInput = new sgRayd(tangentCircleCenterNext1, input);
-						Vector3 result = new SGVec_3d();
-						SGVec_3d tempVar(0, 0, 0);
-						tan1ToInput->intersectsPlane(&tempVar, controlPoint, next->controlPoint, result);
+	Vector3 getOnPathSequence(Ref<LimitCone> next, Vector3 input) {
+		Vector3 c1xc2 = controlPoint.cross(next->controlPoint);
+		double c1c2dir = input.dot(c1xc2);
+		if (c1c2dir < 0.0) {
+			Vector3 c1xt1 = controlPoint.cross(tangentCircleCenterNext1);
+			Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->controlPoint);
+			if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
+				sgRayd *tan1ToInput = new sgRayd(tangentCircleCenterNext1, input);
+				Vector3 result = new Vector3();
+				Vector3 tempVar(0, 0, 0);
+				tan1ToInput->intersectsPlane(&tempVar, controlPoint, next->controlPoint, result);
 
-						delete tan1ToInput;
-						return result->normalize();
-					} else {
-						return nullptr;
-					}
-				} else {
-					Vector3 t2xc1 = tangentCircleCenterNext2->crossCopy(controlPoint);
-					Vector3 c2xt2 = next->controlPoint->crossCopy(tangentCircleCenterNext2);
-					if (input->dot(t2xc1) > 0 && input->dot(c2xt2) > 0) {
-						sgRayd *tan2ToInput = new sgRayd(tangentCircleCenterNext2, input);
-						Vector3 result = new SGVec_3d();
-						SGVec_3d tempVar2(0, 0, 0);
-						tan2ToInput->intersectsPlane(&tempVar2, controlPoint, next->controlPoint, result);
+				delete tan1ToInput;
+				return result->normalize();
+			} else {
+				return nullptr;
+			}
+		} else {
+			Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
+			Vector3 c2xt2 = next->controlPoint.cross(tangentCircleCenterNext2);
+			if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
+				sgRayd *tan2ToInput = new sgRayd(tangentCircleCenterNext2, input);
+				Vector3 result = new Vector3();
+				Vector3 tempVar2(0, 0, 0);
+				tan2ToInput->intersectsPlane(&tempVar2, controlPoint, next->controlPoint, result);
 
-						delete tan2ToInput;
-						return result->normalize();
-					} else {
-						return nullptr;
-					}
-				}
+				delete tan2ToInput;
+				return result->normalize();
+			} else {
+				return nullptr;
+			}
+		}
 	}
 
 	/**
@@ -298,53 +296,52 @@ public:
 	 * @return null if inapplicable for rectification. the original point if in bounds, or the point rectified to the closest boundary on the path sequence
 	 * between two cones if the point is out of bounds and applicable for rectification.
 	 */
-	template <typename V>
-	Vector3 getOnGreatTangentTriangle(Ref<LimitCone>next, V input) {
-				Vector3 c1xc2 = controlPoint->crossCopy(next->controlPoint);
-				double c1c2dir = input->dot(c1xc2);
-				if (c1c2dir < 0.0) {
-					Vector3 c1xt1 = controlPoint->crossCopy(tangentCircleCenterNext1);
-					Vector3 t1xc2 = tangentCircleCenterNext1->crossCopy(next->controlPoint);
-					if (input->dot(c1xt1) > 0 && input->dot(t1xc2) > 0) {
-						double toNextCos = input->dot(tangentCircleCenterNext1);
-						if (toNextCos > tangentCircleRadiusNextCos) {
-							Vector3 planeNormal = tangentCircleCenterNext1->crossCopy(input);
-							Rot *rotateAboutBy = new Rot(planeNormal, tangentCircleRadiusNext);
+	Vector3 getOnGreatTangentTriangle(Ref<LimitCone> next, Vector3 input) {
+		Vector3 c1xc2 = controlPoint.cross(next->controlPoint);
+		double c1c2dir = input.dot(c1xc2);
+		if (c1c2dir < 0.0) {
+			Vector3 c1xt1 = controlPoint.cross(tangentCircleCenterNext1);
+			Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->controlPoint);
+			if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
+				double toNextCos = input.dot(tangentCircleCenterNext1);
+				if (toNextCos > tangentCircleRadiusNextCos) {
+					Vector3 planeNormal = tangentCircleCenterNext1.cross(input);
+					Rot *rotateAboutBy = new Rot(planeNormal, tangentCircleRadiusNext);
 
-							delete rotateAboutBy;
-							return rotateAboutBy->applyToCopy(tangentCircleCenterNext1);
-						} else {
-							return input;
-						}
-					} else {
-						return nullptr;
-					}
+					delete rotateAboutBy;
+					return rotateAboutBy->applyToCopy(tangentCircleCenterNext1);
 				} else {
-					Vector3 t2xc1 = tangentCircleCenterNext2->crossCopy(controlPoint);
-					Vector3 c2xt2 = next->controlPoint->crossCopy(tangentCircleCenterNext2);
-					if (input->dot(t2xc1) > 0 && input->dot(c2xt2) > 0) {
-						if (input->dot(tangentCircleCenterNext2) > tangentCircleRadiusNextCos) {
-							Vector3 planeNormal = tangentCircleCenterNext2->crossCopy(input);
-							Rot *rotateAboutBy = new Rot(planeNormal, tangentCircleRadiusNext);
-
-							delete rotateAboutBy;
-							return rotateAboutBy->applyToCopy(tangentCircleCenterNext2);
-						} else {
-							return input;
-						}
-					} else {
-						return nullptr;
-					}
+					return input;
 				}
+			} else {
+				return Vector3(NAN, NAN, NAN);
+			}
+		} else {
+			Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
+			Vector3 c2xt2 = next->controlPoint.cross(tangentCircleCenterNext2);
+			if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
+				if (input.dot(tangentCircleCenterNext2) > tangentCircleRadiusNextCos) {
+					Vector3 planeNormal = tangentCircleCenterNext2.cross(input);
+					Rot *rotateAboutBy = new Rot(planeNormal, tangentCircleRadiusNext);
+
+					delete rotateAboutBy;
+					return rotateAboutBy->applyToCopy(tangentCircleCenterNext2);
+				} else {
+					return input;
+				}
+			} else {
+				return Vector3(NAN, NAN, NAN);
+			}
+		}
 	}
 
 	template <typename V>
-	Vector3 closestCone(Ref<LimitCone>next, V input) {
-				if (input->dot(controlPoint) > input->dot(next->controlPoint)) {
-					return this->controlPoint->copy();
-				} else {
-					return next->controlPoint->copy();
-				}
+	Vector3 closestCone(Ref<LimitCone> next, V input) {
+		if (input.dot(controlPoint) > input.dot(next->controlPoint)) {
+			return this->controlPoint->copy();
+		} else {
+			return next->controlPoint->copy();
+		}
 	}
 
 	/**
@@ -355,24 +352,24 @@ public:
 	 * @return
 	 */
 	template <typename V>
-	Vector3 closestPointOnClosestCone(Ref<LimitCone>next, V input, Vector<bool> &inBounds) {
-				Vector3 closestToFirst = this->closestToCone(input, inBounds);
-				if (inBounds[0]) {
-					return closestToFirst;
-				}
-				Vector3 closestToSecond = next->closestToCone(input, inBounds);
-				if (inBounds[0]) {
-					return closestToSecond;
-				}
+	Vector3 closestPointOnClosestCone(Ref<LimitCone> next, V input, Vector<bool> &inBounds) {
+		Vector3 closestToFirst = this->closestToCone(input, inBounds);
+		if (inBounds[0]) {
+			return closestToFirst;
+		}
+		Vector3 closestToSecond = next->closestToCone(input, inBounds);
+		if (inBounds[0]) {
+			return closestToSecond;
+		}
 
-				double cosToFirst = input->dot(closestToFirst);
-				double cosToSecond = input->dot(closestToSecond);
+		double cosToFirst = input.dot(closestToFirst);
+		double cosToSecond = input.dot(closestToSecond);
 
-				if (cosToFirst > cosToSecond) {
-					return closestToFirst;
-				} else {
-					return closestToSecond;
-				}
+		if (cosToFirst > cosToSecond) {
+			return closestToFirst;
+		} else {
+			return closestToSecond;
+		}
 	}
 
 	/**
@@ -382,25 +379,25 @@ public:
 	 * @return
 	 */
 	Vector3 closestToCone(Vector3 input, Vector<bool> &inBounds) {
-				if (input->dot(this->getControlPoint()) > this->getRadiusCosine()) {
-					inBounds[0] = true;
-					return nullptr;
-				} else {
-					Vector3 axis = this->getControlPoint()->crossCopy(input);
-					Rot *rotTo = new Rot(axis, this->getRadius());
-					s
-							Vector3 result = rotTo->applyToCopy(this->getControlPoint());
-					inBounds[0] = false;
+		if (input.dot(this->getControlPoint()) > this->getRadiusCosine()) {
+			inBounds[0] = true;
+			return nullptr;
+		} else {
+			Vector3 axis = this->getControlPoint().cross(input);
+			Rot *rotTo = new Rot(axis, this->getRadius());
+			s
+					Vector3 result = rotTo->applyToCopy(this->getControlPoint());
+			inBounds[0] = false;
 
-					delete rotTo;
-					return result;
-				}
+			delete rotTo;
+			return result;
+		}
 	}
 
-	virtual void updateTangentHandles(Ref<LimitCone>next);
+	virtual void updateTangentHandles(Ref<LimitCone> next);
 
 private:
-	void updateTangentAndCushionHandles(Ref<LimitCone>next, int mode);
+	void updateTangentAndCushionHandles(Ref<LimitCone> next, int mode);
 
 	void setTangentCircleCenterNext1(Vector3 point, int mode) {
 		if (mode == CUSHION) {
@@ -444,16 +441,14 @@ protected:
 	virtual double _getRadiusCosine(int mode);
 
 private:
-	void computeTriangles(Ref<LimitCone>next);
+	void computeTriangles(Ref<LimitCone> next);
 
 public:
 	virtual Vector3 getControlPoint();
-
-	template <typename T1>
 	void setControlPoint(Vector3 controlPoint) {
-		this->controlPoint = controlPoint->copy();
+		this->controlPoint = controlPoint;
 		this->controlPoint->normalize();
-		if (this->parentKusudama != nullptr) {
+		if (this->parentKusudama.is_valid()) {
 			this->parentKusudama->constraintUpdateNotification();
 		}
 	}
@@ -476,205 +471,4 @@ public:
 	virtual void setCushionBoundary(double cushion);
 
 	virtual Ref<IKKusudama> getParentKusudama();
-
-private:
-	int BOUNDARY = 0;
-	int CUSHION = 1;
 };
-
-LimitCone::LimitCone() {
-}
-
-void LimitCone::updateTangentHandles(Ref<LimitCone>next) {
-	this->controlPoint->normalize();
-	updateTangentAndCushionHandles(next, BOUNDARY);
-	updateTangentAndCushionHandles(next, CUSHION);
-}
-
-void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone>next, int mode) {
-	if (next != nullptr) {
-		double radA = this->_getRadius(mode);
-		double radB = next->_getRadius(mode);
-
-		Vector3 A = this->getControlPoint()->copy();
-		Vector3 B = next->getControlPoint()->copy();
-
-		Vector3 arcNormal = A->crossCopy(B);
-
-		/**
-		 * There are an infinite number of circles co-tangent with A and B, every other
-		 * one of which has a unique radius.
-		 *
-		 * However, we want the radius of our tangent circles to obey the following properties:
-		 *   1) When the radius of A + B == 0, our tangent circle's radius should = 90.
-		 *   	In other words, the tangent circle should span a hemisphere.
-		 *   2) When the radius of A + B == 180, our tangent circle's radius should = 0.
-		 *   	In other words, when A + B combined are capable of spanning the entire sphere,
-		 *   	our tangentCircle should be nothing.
-		 *
-		 * Another way to think of this is -- whatever the maximum distance can be between the
-		 * borders of A and B (presuming their centers are free to move about the circle
-		 * but their radii remain constant), we want our tangentCircle's diameter to be precisely that distance,
-		 * and so, our tangent circles radius should be precisely half of that distance.
-		 */
-		double tRadius = (static_cast<M_PI *>(-(radA + radB))) / 2;
-
-		/**
-		 * Once we have the desired radius for our tangent circle, we may find the solution for its
-		 * centers (usually, there are two).
-		 */
-		double boundaryPlusTangentRadiusA = radA + tRadius;
-		double boundaryPlusTangentRadiusB = radB + tRadius;
-
-		// the axis of this cone, scaled to minimize its distance to the tangent  contact points.
-		Vector3 scaledAxisA = SGVec_3d::mult(A, std::cos(boundaryPlusTangentRadiusA));
-		// a point on the plane running through the tangent contact points
-		Rot tempVar(arcNormal, boundaryPlusTangentRadiusA);
-		Vector3 planeDir1A = (&tempVar)->applyToCopy(A);
-		// another point on the same plane
-		Rot tempVar2(A, M_PI / 2);
-		Vector3 planeDir2A = (&tempVar2)->applyToCopy(planeDir1A);
-
-		Vector3 scaledAxisB = Vector3::mult(B, std::cos(boundaryPlusTangentRadiusB));
-		// a point on the plane running through the tangent contact points
-		Rot tempVar3(arcNormal, boundaryPlusTangentRadiusB);
-		Vector3 planeDir1B = (&tempVar3)->applyToCopy(B);
-		// another point on the same plane
-		Rot tempVar4(B, M_PI / 2);
-		Vector3 planeDir2B = (&tempVar4)->applyToCopy(planeDir1B);
-
-		// ray from scaled center of next cone to half way point between the circumference of this cone and the next cone.
-		sgRayd *r1B = new sgRayd(planeDir1B, scaledAxisB);
-		sgRayd *r2B = new sgRayd(planeDir1B, planeDir2B);
-
-		r1B->elongate(99);
-		r2B->elongate(99);
-
-		Vector3 intersection1 = r1B->intersectsPlane(scaledAxisA, planeDir1A, planeDir2A);
-		Vector3 intersection2 = r2B->intersectsPlane(scaledAxisA, planeDir1A, planeDir2A);
-
-		sgRayd *intersectionRay = new sgRayd(intersection1, intersection2);
-		intersectionRay->elongate(99);
-
-		Vector3 sphereIntersect1 = new SGVec_3d();
-		Vector3 sphereIntersect2 = new SGVec_3d();
-		Vector3 sphereCenter = new SGVec_3d();
-		intersectionRay->intersectsSphere(sphereCenter, 1.0f, sphereIntersect1, sphereIntersect2);
-
-		this->setTangentCircleCenterNext1(sphereIntersect1, mode);
-		this->setTangentCircleCenterNext2(sphereIntersect2, mode);
-		this->setTangentCircleRadiusNext(tRadius, mode);
-
-		delete intersectionRay;
-		delete r2B;
-		delete r1B;
-	}
-	if (this->tangentCircleCenterNext1 == nullptr) {
-		this->tangentCircleCenterNext1 = controlPoint->getOrthogonal().normalize();
-		this->cushionTangentCircleCenterNext1 = controlPoint->getOrthogonal().normalize();
-	}
-	if (tangentCircleCenterNext2 == nullptr) {
-		tangentCircleCenterNext2 = SGVec_3d::mult(tangentCircleCenterNext1, -1).normalize();
-		cushionTangentCircleCenterNext2 = SGVec_3d::mult(cushionTangentCircleCenterNext2, -1).normalize();
-	}
-	if (next != nullptr) {
-		computeTriangles(next);
-	}
-}
-
-void LimitCone::setTangentCircleRadiusNext(double rad, int mode) {
-	if (mode == CUSHION) {
-		this->cushionTangentCircleRadiusNext = rad;
-		this->cushionTangentCircleRadiusNext = std::cos(cushionTangentCircleRadiusNextCos);
-	}
-	this->tangentCircleRadiusNext = rad;
-	this->tangentCircleRadiusNextCos = std::cos(tangentCircleRadiusNext);
-}
-
-Vector3 LimitCone::getTangentCircleCenterNext1(int mode) {
-	if (mode == CUSHION) {
-		return cushionTangentCircleCenterNext1;
-	}
-	return tangentCircleCenterNext1;
-}
-
-double LimitCone::getTangentCircleRadiusNext(int mode) {
-	if (mode == CUSHION) {
-		return cushionTangentCircleRadiusNext;
-	}
-	return tangentCircleRadiusNext;
-}
-
-double LimitCone::getTangentCircleRadiusNextCos(int mode) {
-	if (mode == CUSHION) {
-		return cushionTangentCircleRadiusNextCos;
-	}
-	return tangentCircleRadiusNextCos;
-}
-
-Vector3 LimitCone::getTangentCircleCenterNext2(int mode) {
-	if (mode == CUSHION) {
-		return cushionTangentCircleCenterNext2;
-	}
-	return tangentCircleCenterNext2;
-}
-
-double LimitCone::_getRadius(int mode) {
-	if (mode == CUSHION) {
-		return cushionRadius;
-	}
-	return radius;
-}
-
-double LimitCone::_getRadiusCosine(int mode) {
-	if (mode == CUSHION) {
-		return cushionCosine;
-	}
-	return radiusCosine;
-}
-
-void LimitCone::computeTriangles(Ref<LimitCone>next) {
-	firstTriangleNext[1] = this->tangentCircleCenterNext1->normalize();
-	firstTriangleNext[0] = this->getControlPoint()->normalize();
-	firstTriangleNext[2] = next->getControlPoint()->normalize();
-
-	secondTriangleNext[1] = this->tangentCircleCenterNext2->normalize();
-	secondTriangleNext[0] = this->getControlPoint()->normalize();
-	secondTriangleNext[2] = next->getControlPoint()->normalize();
-}
-
-Vector<Vector3> *LimitCone::getControlPoint() {
-	return controlPoint;
-}
-
-double LimitCone::getRadius() {
-	return this->radius;
-}
-
-double LimitCone::getRadiusCosine() {
-	return this->radiusCosine;
-}
-
-void LimitCone::setRadius(double radius) {
-	this->radius = radius;
-	this->radiusCosine = std::cos(radius);
-	this->parentKusudama->constraintUpdateNotification();
-}
-
-double LimitCone::getCushionRadius() {
-	return this->cushionRadius;
-}
-
-double LimitCone::getCushionCosine() {
-	return this->cushionCosine;
-}
-
-void LimitCone::setCushionBoundary(double cushion) {
-	double adjustedCushion = MIN(1, std::max(0.001, cushion));
-	this->cushionRadius = this->radius * adjustedCushion;
-	this->cushionCosine = std::cos(cushionRadius);
-}
-
-Ref<IKKusudama> LimitCone::getParentKusudama() {
-	return parentKusudama;
-}

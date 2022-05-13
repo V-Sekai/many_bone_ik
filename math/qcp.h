@@ -38,12 +38,12 @@
  * <p>
  * Usage:
  * <p>
- * The input consists of 2 SGVec_3d arrays of equal length. The input
+ * The input consists of 2 Vector3 arrays of equal length. The input
  * coordinates are not changed.
  *
  * <pre>
- *    SGVec_3d[] x = ...
- *    SGVec_3d[] y = ...
+ *    Vector3[] x = ...
+ *    Vector3[] y = ...
  *    SuperPositionQCP qcp = new SuperPositionQCP();
  *    qcp.set(x, y);
  * </pre>
@@ -72,7 +72,7 @@
  * C. Get transformated points (y superposed onto the reference x)
  *
  * <pre>
- * SGVec_3d[] ySuperposed = qcp.getTransformedCoordinates();
+ * Vector3[] ySuperposed = qcp.getTransformedCoordinates();
  * </pre>
  * <p>
  * Citations:
@@ -149,7 +149,7 @@ class QCP {
 	/**
 	 * Calculates the inner product between two coordinate sets x and y (optionally
 	 * weighted, if weights set through
-	 * {@link #set(SGVec_3d[], SGVec_3d[], double[])}). It also calculates an upper
+	 * {@link #set(Vector3[], Vector3[], double[])}). It also calculates an upper
 	 * bound of the most positive root of the key matrix.
 	 * http://theobald.brandeis.edu/qcp/qcpQuaternion.c
 	 *
