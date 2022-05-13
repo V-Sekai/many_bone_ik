@@ -36,6 +36,7 @@
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
 #include "ik_effector_template.h"
+#include "constraints/Kusudama.h"
 
 #define IK_DEFAULT_DAMPENING 0.20944f
 
@@ -61,6 +62,12 @@ protected:
 	static void _bind_methods();
 
 public:
+	void addConstraint(Ref<IKKusudama> p_constraint) {
+		// TODO: fire 2022-05-13
+	}
+	void updateCosDampening() {
+		// TODO: fire 2022-05-13
+	}
 	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);

@@ -199,7 +199,7 @@ public:
 		return result;
 	}
 
-	Vector3 getClosestPathPoint(Ref<LimitCone> next, Vector3 input) const {
+	Vector3 getClosestPathPoint(const Ref<LimitCone> next, Vector3 input) {
 		Vector3 result = getOnPathSequence(next, input);
 		if (result == Vector3(NAN, NAN, NAN)) {
 			result = closestCone(next, input);
@@ -386,13 +386,13 @@ public:
 	 */
 	Vector3 closestToCone(Vector3 input, Vector<bool> &inBounds) {
 		if (input.dot(this->getControlPoint()) > this->getRadiusCosine()) {
-			inBounds[0] = true;
+			inBounds.write[0] = true;
 			return Vector3(NAN, NAN, NAN);
 		}
 		Vector3 axis = this->getControlPoint().cross(input);
 		Quaternion rotTo = Quaternion(axis, this->getRadius());
 		Vector3 result = Basis(rotTo).xform(this->getControlPoint());
-		inBounds[0] = false;
+		inBounds.write[0] = false;
 		return result;
 	}
 
@@ -450,9 +450,6 @@ public:
 	void setControlPoint(Vector3 controlPoint) {
 		this->controlPoint = controlPoint;
 		this->controlPoint.normalize();
-		if (this->parentKusudama.is_valid()) {
-			this->parentKusudama->constraintUpdateNotification();
-		}
 	}
 
 	virtual double getRadius();

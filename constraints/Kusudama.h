@@ -77,6 +77,9 @@ protected:
 	Ref<IKBone3D> attachedTo_Conflict;
 
 public:
+	static const int BOUNDARY = 0;
+	static const int CUSHION = 1;
+
 	virtual ~IKKusudama() {
 	}
 
@@ -217,11 +220,11 @@ public:
 	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = LimitCone::CUSHION) {
+	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = CUSHION) {
 		Vector3 point = inPoint;
 		point.normalize();
 
-		inBounds[0] = -1;
+		inBounds.write[0] = -1;
 		Vector3 closestCollisionPoint = Vector3(NAN, NAN, NAN);
 		double closestCos = -2;
 		Vector<bool> boundHint = { false };
@@ -269,7 +272,7 @@ public:
 		Vector3 result = point;
 
 		if (limitCones.size() == 1) {
-			result = limitCones[0]->controlPoint;
+			result = limitCones[0]->getControlPoint();
 		} else {
 			for (int i = 0; i < limitCones.size() - 1; i++) {
 				Ref<LimitCone> nextCone = limitCones[i + 1];
@@ -323,7 +326,7 @@ public:
 	/**
 	 * @return the limitingAxes of this Kusudama (these are just its parentBone's majorRotationAxes)
 	 */
-	IKTransform3D *limitingAxes() {
+	IKTransform3D &limitingAxes() {
 		// if(inverted) return inverseLimitingAxes;
 		return limitingAxes_Conflict;
 	}
@@ -364,8 +367,8 @@ public:
 
 	void enable();
 
-	double unitHyperArea = 2 * std::pow(M_PI, 2);
-	double unitArea = 4 * M_PI;
+	double unitHyperArea = 2 * Math::pow(Math_PI, 2);
+	double unitArea = 4 * Math_PI;
 
 	/**
 	 * TODO: // this functionality is not yet fully implemented It always returns an overly simplistic representation

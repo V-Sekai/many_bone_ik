@@ -55,7 +55,7 @@ void IKKusudama::optimizeLimitingAxes() {
 			Vector3 thisC = getLimitCones()[i]->getControlPoint();
 			Vector3 nextC = getLimitCones()[i + 1]->getControlPoint();
 			Basis thisToNext = Basis(thisC, nextC);
-			Basis halfThisToNext = Basis(thisToNext->get_axis(), thisToNext->get_angle() / 2.0f);
+			Basis halfThisToNext(thisToNext.get_axis(), thisToNext.get_angle() / 2.0f);
 
 			Vector3 halfAngle = halfThisToNext.xform(thisC);
 			halfAngle.normalize();
@@ -77,7 +77,7 @@ void IKKusudama::optimizeLimitingAxes() {
 	}
 
 	Vector3 tempVar(0.f, 0.f, 0.f);
-	Ref<Ray3D> newYRay = memnew(Ray3D(&tempVar, newY));
+	Ref<Ray3D> newYRay = memnew(Ray3D(tempVar, newY));
 
 	// TODO: fire 2022-05-13 FIX ME!!
 	// Quaternion oldYtoNewY = Quaternion(limitingAxes_Conflict.get_transform().basis;, originalLimitingAxes->get_global_transform().xform(newYRay->heading()));
@@ -95,7 +95,7 @@ void IKKusudama::optimizeLimitingAxes() {
 void IKKusudama::updateTangentRadii() {
 	for (int i = 0; i < limitCones.size(); i++) {
 		Ref<LimitCone> next = i < limitCones.size() - 1 ? limitCones[i + 1] : nullptr;
-		limitCones[i]->updateTangentHandles(next);
+		limitCones.write[i]->updateTangentHandles(next);
 	}
 }
 
@@ -177,9 +177,9 @@ void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3
 	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
 	 */
 	boneRay->p1(limitingAxes->get_transform().origin);
-	boneRay->p2(toSet->get_transform().basis[[Vector3::AXIS_Y]);
+	boneRay->p2(toSet->get_transform().basis[Vector3::AXIS_Y]);
 	Vector3 bonetip = limitingAxes->get_transform().xform(toSet->get_transform().basis[Vector3::AXIS_Y]);
-	Vector3 inCushionLimits = this->pointInLimits(bonetip, inBounds, LimitCone::CUSHION);
+	Vector3 inCushionLimits = this->pointInLimits(bonetip, inBounds, CUSHION);
 
 	if (inBounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
 		constrainedRay->p1(boneRay->p1());
@@ -261,11 +261,11 @@ bool IKKusudama::inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingA
 	Vector<Rot *> decomposition = alignRot->getSwingTwist(&tempVar);
 	double angleDelta2 = decomposition[1]->getAngle() * decomposition[1]->getAxis().y * -1;
 	angleDelta2 = toTau(angleDelta2);
-	double fromMinToAngleDelta = toTau(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
+	double fromMinToAngleDelta = toTau(signedAngleDifference(angleDelta2, Math_TAU - this->minAxialAngle()));
 
 	if (fromMinToAngleDelta < TAU - range) {
-		double distToMin = std::abs(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
-		double distToMax = std::abs(signedAngleDifference(angleDelta2, TAU - (this->minAxialAngle() + range)));
+		double distToMin = std::abs(signedAngleDifference(angleDelta2, Math_TAU - this->minAxialAngle()));
+		double distToMax = std::abs(signedAngleDifference(angleDelta2, Math_TAU - (this->minAxialAngle() + range)));
 		double turnDiff = 1;
 		turnDiff *= limitingAxes->getGlobalChirality();
 		if (distToMin < distToMax) {
@@ -278,10 +278,10 @@ bool IKKusudama::inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingA
 }
 
 double IKKusudama::signedAngleDifference(double minAngle, double p_super) {
-	double d = std::abs(minAngle - p_super) % TAU;
-	double r = d > PI ? TAU - d : d;
+	double d = Math::abs(minAngle - p_super) % Math_TAU;
+	double r = d > Math_PI ? Math_TAU - d : d;
 
-	double sign = (minAngle - p_super >= 0 && minAngle - p_super <= PI) || (minAngle - p_super <= -PI && minAngle - p_super >= -TAU) ? 1.0f : -1.0f;
+	double sign = (minAngle - p_super >= 0 && minAngle - p_super <= Math_PI) || (minAngle - p_super <= -Math_PI && minAngle - p_super >= -Math_TAU) ? 1.0f : -1.0f;
 	r *= sign;
 	return r;
 }

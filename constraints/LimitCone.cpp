@@ -67,7 +67,7 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		 * but their radii remain constant), we want our tangentCircle's diameter to be precisely that distance,
 		 * and so, our tangent circles radius should be precisely half of that distance.
 		 */
-		double tRadius = (static_cast<M_PI *>(-(radA + radB))) / 2;
+		double tRadius = -(radA + radB) / 2;
 
 		/**
 		 * Once we have the desired radius for our tangent circle, we may find the solution for its
@@ -80,18 +80,18 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		Vector3 scaledAxisA = Vector3::mult(A, std::cos(boundaryPlusTangentRadiusA));
 		// a point on the plane running through the tangent contact points
 		Basis tempVar(arcNormal, boundaryPlusTangentRadiusA);
-		Vector3 planeDir1A = (&tempVar)->applyToCopy(A);
+		Vector3 planeDir1A = tempVar.xform(A);
 		// another point on the same plane
 		Basis tempVar2(A, M_PI / 2);
-		Vector3 planeDir2A = (&tempVar2)->applyToCopy(planeDir1A);
+		Vector3 planeDir2A = tempVar2.xform(planeDir1A);
 
 		Vector3 scaledAxisB = B * std::cos(boundaryPlusTangentRadiusB);
 		// a point on the plane running through the tangent contact points
 		Basis tempVar3(arcNormal, boundaryPlusTangentRadiusB);
 		Vector3 planeDir1B = tempVar3.xform(B);
 		// another point on the same plane
-		Quaternion tempVar4(B, M_PI / 2);
-		Vector3 planeDir2B = (&tempVar4)->applyToCopy(planeDir1B);
+		Basis tempVar4(B, M_PI / 2);
+		Vector3 planeDir2B = tempVar4.xform(planeDir1B);
 
 		// ray from scaled center of next cone to half way point between the circumference of this cone and the next cone.
 		Ref<Ray3D> r1B = memnew(Ray3D(planeDir1B, scaledAxisB));
@@ -116,12 +116,12 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		this->setTangentCircleRadiusNext(tRadius, mode);
 	}
 	if (this->tangentCircleCenterNext1 == Vector3(NAN, NAN, NAN)) {
-		this->tangentCircleCenterNext1 = getOrthogonal(controlPoint).normalize();
-		this->cushionTangentCircleCenterNext1 = getOrthogonal(controlPoint).normalize();
+		this->tangentCircleCenterNext1 = getOrthogonal(controlPoint).normalized();
+		this->cushionTangentCircleCenterNext1 = getOrthogonal(controlPoint).normalized();
 	}
 	if (tangentCircleCenterNext2 == Vector3(NAN, NAN, NAN)) {
 		tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1).normalize();
-		cushionTangentCircleCenterNext2 = (cushionTangentCircleCenterNext2 * -1).normalize();
+		cushionTangentCircleCenterNext2 = (cushionTangentCircleCenterNext2 * -1).normalized();
 	}
 	if (next.is_valid()) {
 		computeTriangles(next);
