@@ -477,7 +477,8 @@ private:
 			lc->controlPoint->normalize();
 		}
 
-		this->updateTangentRadii();}
+		this->updateTangentRadii();
+	}
 
 	void updateTangentRadii() {
 		for (int i = 0; i < limitCones.size(); i++) {
@@ -518,7 +519,7 @@ private:
 				Rot *toClamp = new Rot(inPoint, pathPoint);
 				toClamp->rotation.clampToQuadranceAngle(cosHalfReturnfullness);
 				toSet->rotateBy(toClamp);
-				}
+			}
 			if (axiallyConstrained) {
 				double angleToTwistMid = angleToTwistCenter(toSet, limitingAxes);
 				double clampedAngle = MathUtils::clamp(angleToTwistMid, -angleReturnfullness, angleReturnfullness);
@@ -575,7 +576,7 @@ private:
 			Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
 			toSet->rotateBy(rectifiedRot);
 			toSet->updateGlobal();
-				}
+		}
 	}
 
 	void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
@@ -592,7 +593,7 @@ private:
 			Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
 			toSet->rotateBy(rectifiedRot);
 			toSet->updateGlobal();
-			}
+		}
 	}
 
 	bool isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes) {
