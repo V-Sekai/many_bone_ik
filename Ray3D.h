@@ -35,7 +35,10 @@
 #include <string>
 #include <vector>
 
-class Ray3D : public CanLoad {
+#include "core/math/vector3.h"
+#include "core/object/ref_counted.h"
+
+class Ray3D : public RefCounted {
 public:
 	static constexpr int X = 0;
 	static constexpr int Y = 1;
@@ -47,68 +50,19 @@ protected:
 	Vector3 workingVector;
 
 public:
-	Vector3 tta, *ttb, *ttc;
-	Vector3 I, *u, *v, *n, *dir, *w0;
+	Vector3 tta, ttb, ttc;
+	Vector3 I, u, v, n, dir, w0;
 	bool inUse = false;
-	Vector3 m, *at, *bt, *ct, *pt;
-	Vector3 bc, *ca, *ac;
+	Vector3 m, at, bt, ct, pt;
+	Vector3 bc, ca, ac;
 
-	virtual ~Ray3D() {
-		delete p1_Conflict;
-		delete p2_Conflict;
-		delete workingVector;
-		delete tta;
-		delete ttb;
-		delete ttc;
-		delete I;
-		delete u;
-		delete v;
-		delete n;
-		delete dir;
-		delete w0;
-		delete m;
-		delete at;
-		delete bt;
-		delete ct;
-		delete pt;
-		delete bc;
-		delete ca;
-		delete ac;
-	}
+	virtual ~Ray3D() {}
 
 	Ray3D();
 
 	Ray3D(Vector3 origin);
 
 	Ray3D(Vector3 p1, Vector3 p2);
-
-	static float triArea2D(float x1, float y1, float x2, float y2, float x3, float y3);
-
-	virtual float distTo(Vector3 point);
-
-	/**
-	 * returns the distance between the input point and the point on this ray
-	 * (treated as a lineSegment) to which the input is closest.
-	 *
-	 * @param point
-	 * @return
-	 */
-	virtual float distToStrict(Vector3 point);
-
-	/**
-	 * returns the distance between this ray treated as a line and the input ray
-	 * treated as a line.
-	 *
-	 * @param r
-	 * @return
-	 */
-	virtual float distTo(ewbik::math::Ray3D *r);
-
-	/**
-	 * returns the distance between this ray as a line segment, and the input ray
-	 * treated as a line segment
-	 */
-	virtual float distToStrict(ewbik::math::Ray3D *r);
 
 	/**
 	 * returns the point on this sgRay which is closest to the input point
@@ -130,9 +84,7 @@ public:
 	 *
 	 * @param target
 	 */
-	virtual void alignTo(ewbik::math::Ray3D *target);
-
-	virtual void heading(std::vector<float> &newHead);
+	virtual void alignTo(Ref<Ray3D> target);
 
 	virtual void heading(Vector3 newHead);
 
@@ -146,7 +98,7 @@ public:
 	/**
 	 * @return a copy of this ray with its z-component set to 0;
 	 */
-	virtual ewbik::math::Ray3D *get2DCopy();
+	virtual Ref<Ray3D> get2DCopy();
 
 	/**
 	 * gets a copy of this ray, with the component specified by
@@ -155,13 +107,13 @@ public:
 	 * @param collapseOnAxis the axis on which to collapse the ray.
 	 * @return
 	 */
-	virtual ewbik::math::Ray3D *get2DCopy(int collapseOnAxis);
+	virtual Ref<Ray3D> get2DCopy(int collapseOnAxis);
 
 	virtual Vector3 origin();
 
-	virtual float mag();
+	virtual real_t mag();
 
-	virtual void mag(float newMag);
+	virtual void mag(real_t newMag);
 
 	/**
 	 * Returns the scalar projection of the input vector on this
@@ -187,7 +139,7 @@ public:
 	 *
 	 * @param input a vector to project onto this ray
 	 */
-	virtual float scaledProjection(Vector3 input);
+	virtual real_t scaledProjection(Vector3 input);
 
 	/**
 	 * divides the ray by the amount specified by divisor, such that the
@@ -196,7 +148,7 @@ public:
 	 *
 	 * @param divisor
 	 */
-	virtual void div(float divisor);
+	virtual void div(real_t divisor);
 
 	/**
 	 * multiples the ray by the amount specified by scalar, such that the
@@ -205,7 +157,7 @@ public:
 	 *
 	 * @param divisor
 	 */
-	virtual void multiply(float scalar);
+	virtual void multiply(real_t scalar);
 
 	/**
 	 * Returns a Vector3 representing where the tip
@@ -215,7 +167,7 @@ public:
 	 * @param scalar
 	 * @return
 	 */
-	virtual Vector3 getMultipledBy(float scalar);
+	virtual Vector3 getMultipledBy(real_t scalar);
 
 	/**
 	 * Returns a Vector3 representing where the tip
@@ -225,7 +177,7 @@ public:
 	 * @param scalar
 	 * @return
 	 */
-	virtual Vector3 getDivideddBy(float divisor);
+	virtual Vector3 getDivideddBy(real_t divisor);
 
 	/**
 	 * Returns a Vector3 representing where the tip
@@ -235,31 +187,31 @@ public:
 	 * @param scalar
 	 * @return
 	 */
-	virtual Vector3 getScaledTo(float scale);
+	virtual Vector3 getScaledTo(real_t scale);
 
 	/**
 	 * adds the specified length to the ray in both directions.
 	 */
-	virtual void elongate(float amt);
+	virtual void elongate(real_t amt);
 
-	virtual ewbik::math::Ray3D *copy();
+	virtual Ref<Ray3D> copy();
 
 	virtual void reverse();
 
-	virtual ewbik::math::Ray3D *getReversed();
+	virtual Ref<Ray3D> getReversed();
 
-	virtual ewbik::math::Ray3D *getRayScaledTo(float scalar);
+	virtual Ref<Ray3D> getRayScaledTo(real_t scalar);
 
 	/*
 	 * reverses this ray's direction so that it
 	 * has a positive dot product with the heading of r
 	 * if dot product is already positive, does nothing.
 	 */
-	virtual void pointWith(ewbik::math::Ray3D *r);
+	virtual void pointWith(Ref<Ray3D> r);
 
 	virtual void pointWith(Vector3 heading);
 
-	virtual ewbik::math::Ray3D *getRayScaledBy(float scalar);
+	virtual Ref<Ray3D> getRayScaledBy(real_t scalar);
 
 	/**
 	 * sets the values of the given vector to where the
@@ -276,7 +228,7 @@ public:
 	 * }
 	 */
 
-	virtual void contractTo(float percent);
+	virtual void contractTo(real_t percent);
 
 	virtual void translateTo(Vector3 newLocation);
 
@@ -286,7 +238,7 @@ public:
 
 	virtual void normalize();
 
-	virtual Vector3 intercepts2D(ewbik::math::Ray3D *r);
+	virtual Vector3 intercepts2D(Ref<Ray3D> r);
 
 	/**
 	 * If the closest point to this sgRay on the input sgRay lies
@@ -296,7 +248,7 @@ public:
 	 * @param r
 	 * @return
 	 */
-	virtual Vector3 closestPointToSegment3D(ewbik::math::Ray3D *r);
+	virtual Vector3 closestPointToSegment3D(Ref<Ray3D> r);
 
 	/**
 	 * returns the point on this ray which is closest to the input ray
@@ -305,24 +257,12 @@ public:
 	 * @return
 	 */
 
-	virtual Vector3 closestPointToRay3D(ewbik::math::Ray3D *r);
+	virtual Vector3 closestPointToRay3D(Ref<Ray3D> r);
 
-	virtual Vector3 closestPointToRay3DStrict(ewbik::math::Ray3D *r);
-
-	/**
-	 * returns the point on this ray which is closest to
-	 * the input sgRay. If that point lies outside of the bounds
-	 * of this ray, returns null.
-	 *
-	 * @param r
-	 * @return
-	 */
-	virtual Vector3 closestPointToRay3DBounded(ewbik::math::Ray3D *r);
+	virtual Vector3 closestPointToRay3DStrict(Ref<Ray3D> r);
 
 	// returns a ray perpendicular to this ray on the XY plane;
-	virtual ewbik::math::Ray3D *getPerpendicular2D();
-
-	virtual Vector3 intercepts2DStrict(ewbik::math::Ray3D *r);
+	virtual Ref<Ray3D> getPerpendicular2D();
 
 	/**
 	 * @param ta the first vertex of a triangle on the plane
@@ -333,30 +273,7 @@ public:
 	 */
 	virtual Vector3 intersectsPlane(Vector3 ta, Vector3 tb, Vector3 tc);
 
-	virtual Vector3 intersectsPlane(Vector3 ta, Vector3 tb, Vector3 tc, std::vector<float> &uvw);
-
-	/**
-	 * @param ta     the first vertex of a triangle on the plane
-	 * @param tb     the second vertex of a triangle on the plane
-	 * @param tc     the third vertex of a triangle on the plane
-	 * @param result the variable in which to hold the result
-	 */
-	virtual void intersectsPlane(Vector3 ta, Vector3 tb, Vector3 tc, Vector3 result);
-
-	/**
-	 * Similar to intersectsPlane, but returns false if intersection does not occur
-	 * on the triangle strictly defined by ta, tb, and tc
-	 *
-	 * @param ta     the first vertex of a triangle on the plane
-	 * @param tb     the second vertex of a triangle on the plane
-	 * @param tc     the third vertex of a triangle on the plane
-	 * @param result the variable in which to hold the result
-	 */
-	virtual bool intersectsTriangle(Vector3 ta, Vector3 tb, Vector3 tc, Vector3 result);
-
 private:
-	Vector3 planeIntersectTest(Vector3 ta, Vector3 tb, Vector3 tc, std::vector<float> &uvw);
-
 	/*
 	 * Find where this ray intersects a sphere
 	 *
@@ -373,40 +290,80 @@ private:
 	 * @return number of intersections found;
 	 */
 public:
-	virtual int intersectsSphere(Vector3 sphereCenter, float radius, Vector3 S1, Vector3 S2);
-
-	/*
-	 * Find where this ray intersects a sphere
-	 *
-	 * @param radius radius of the sphere
-	 *
-	 * @param S1 reference to variable in which the first intersection will be
-	 * placed
-	 *
-	 * @param S2 reference to variable in which the second intersection will be
-	 * placed
-	 *
-	 * @return number of intersections found;
-	 */
-	virtual int intersectsSphere(Vector3 rp1, Vector3 rp2, float radius, Vector3 S1, Vector3 S2);
-
-	virtual void barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, std::vector<float> &uvw);
-
-	virtual std::wstring toString();
+	virtual int intersectsSphere(Vector3 sphereCenter, real_t radius, Vector3 S1, Vector3 S2);
 
 	virtual void p1(Vector3 in);
 
 	virtual void p2(Vector3 in);
 
-	virtual float lerp(float a, float b, float t);
-
 	virtual Vector3 p2();
-
-	virtual void set(Ray3D *r);
 
 	virtual void setP2(Vector3 p2);
 
 	virtual Vector3 p1();
 
 	virtual void setP1(Vector3 p1);
+
+	virtual int intersectsSphere(Vector3 rp1, Vector3 rp2, float radius, Vector3 S1, Vector3 S2);
+	
+	float triArea2D(float x1, float y1, float x2, float y2, float x3, float y3) {
+		return (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2);
+	}
+	void barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 &uvw) {
+		bc = b;
+		ca = a;
+		at = a;
+		bt = b;
+		ct = c;
+		pt = p;
+
+		m = Vector3(bc - ct).cross(ca - at);
+
+		float nu;
+		float nv;
+		float ood;
+
+		float x = Math::abs(m.x);
+		float y = Math::abs(m.y);
+		float z = Math::abs(m.z);
+
+		if (x >= y && x >= z) {
+			nu = triArea2D(pt.y, pt.z, bt.y, bt.z, ct.y, ct.z);
+			nv = triArea2D(pt.y, pt.z, ct.y, ct.z, at.y, at.z);
+			ood = 1.0f / m.x;
+		} else if (y >= x && y >= z) {
+			nu = triArea2D(pt.x, pt.z, bt.x, bt.z, ct.x, ct.z);
+			nv = triArea2D(pt.x, pt.z, ct.x, ct.z, at.x, at.z);
+			ood = 1.0f / -m.y;
+		} else {
+			nu = triArea2D(pt.x, pt.y, bt.x, bt.y, ct.x, ct.y);
+			nv = triArea2D(pt.x, pt.y, ct.x, ct.y, at.x, at.y);
+			ood = 1.0f / m.z;
+		}
+		uvw[0] = nu * ood;
+		uvw[1] = nv * ood;
+		uvw[2] = 1.0f - uvw[0] - uvw[1];
+	}
+
+	virtual Vector3 planeIntersectTest(Vector3 ta, Vector3 tb, Vector3 tc, Vector3 &uvw) {
+		u = tb;
+		v = tc;
+		n = Vector3(0, 0, 0);
+		dir = this->heading();
+		w0 = Vector3(0, 0, 0);
+		float r, a, b;
+		u -= ta;
+		v -= ta;
+
+		n = u.cross(v);
+
+		w0 -= ta;
+		a = -(n.dot(w0));
+		b = n.dot(dir);
+		r = a / b;
+		I = dir;
+		I *= r;
+		barycentric(ta, tb, tc, I, uvw);
+		return I;
+	}
 };
