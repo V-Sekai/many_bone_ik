@@ -80,7 +80,7 @@ void IKKusudama::optimizeLimitingAxes() {
 	Vector3 tempVar(0, 0, 0);
 	Ref<Ray3D> newYRay = memnew(Ray3D(&tempVar, newY));
 
-	Rot *oldYtoNewY = memnew(Rot(limitingAxes_Conflict->y_().heading(), originalLimitingAxes->getGlobalOf(newYRay).heading()));
+	Rot *oldYtoNewY = memnew(Rot(limitingAxes_Conflict->get_transform().basis[Vector3::AXIS_Y], originalLimitingAxes->get_global_transform().xform(newYRay->heading()));
 	limitingAxes_Conflict->rotateBy(oldYtoNewY);
 
 	for (auto lc : getLimitCones()) {
@@ -177,14 +177,14 @@ void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3
 	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
 	 */
 	boneRay->p1(limitingAxes->origin_());
-	boneRay->p2(toSet->y_().p2());
-	Vector3 bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
+	boneRay->p2(toSet->get_transform().basis[[Vector3::AXIS_Y]);
+	Vector3 bonetip = limitingAxes->get_transform().xform(toSet->get_transform().basis[[Vector3::AXIS_Y]);
 	Vector3 inCushionLimits = this->pointInLimits(bonetip, inBounds, LimitCone::CUSHION);
 
 	if (inBounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
 		constrainedRay->p1(boneRay->p1());
 		constrainedRay->p2(limitingAxes->getGlobalOf(inCushionLimits));
-		Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
+		Quaternion rectifiedRot = Quaternion(boneRay->heading(), constrainedRay->heading());
 		toSet->rotateBy(rectifiedRot);
 		toSet->updateGlobal();
 	}
@@ -192,7 +192,7 @@ void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3
 
 bool IKKusudama::isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes) {
 	Vector<double> inBounds = { 1 };
-	Vector3 *localizedPoint = limitingAxes->getLocalOf(globalAxes->y_().p2()).copy().normalize();
+	Vector3 *localizedPoint = limitingAxes->get_transform().xform(globalAxes->y_().p2()).copy().normalize();
 	if (limitCones.size() == 1) {
 		return limitCones[0]->determineIfInBounds(nullptr, localizedPoint);
 	}

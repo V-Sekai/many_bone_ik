@@ -159,14 +159,14 @@ public:
 	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
 		Vector<double> inBounds = { 1 };
 		boneRay->p1(limitingAxes->get_transform().origin);
-		boneRay->p2(toSet->y_().p2());
-		Vector3 bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
+		boneRay->p2(toSet->get_transform().basis[Vector3::AXIS_Y]);
+		Vector3 bonetip = limitingAxes->get_transform().xform(toSet->get_transform().basis[Vector3::AXIS_Y]);
 		Vector3 inLimits = this->pointInLimits(bonetip, inBounds);
 
 		if (inBounds[0] == -1 && inLimits != Vector3(NAN, NAN, NAN)) {
 			constrainedRay->p1(boneRay->p1());
 			constrainedRay->p2(limitingAxes->getGlobalOf(inLimits));
-			Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
+			Quaternion rectifiedRot = Quaternion(boneRay->heading(), constrainedRay->heading());
 			toSet->rotateBy(rectifiedRot);
 			toSet->updateGlobal();
 		}
@@ -265,7 +265,7 @@ public:
 
 	Vector3 pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes) {
 		double closestPointDot = 0;
-		Vector3 point = limitingAxes->getLocalOf(inPoint);
+		Vector3 point = limitingAxes->get_transform().xform(inPoint);
 		point.normalize();
 		Vector3 result = point;
 
@@ -274,16 +274,16 @@ public:
 		} else {
 			for (int i = 0; i < limitCones.size() - 1; i++) {
 				Ref<LimitCone> nextCone = limitCones[i + 1];
-				Vector3 *closestPathPoint = limitCones[i]->getClosestPathPoint(nextCone, point);
+				Vector3 closestPathPoint = limitCones[i]->getClosestPathPoint(nextCone, point);
 				double closeDot = closestPathPoint.dot(point);
 				if (closeDot > closestPointDot) {
-					result =  losestPathPoint;
+					result = closestPathPoint;
 					closestPointDot = closeDot;
 				}
 			}
 		}
 
-		return limitingAxes->getGlobalOf(result);
+		return limitingAxes->get_global_transform().xform(result);
 	}
 
 	// public double softLimit
