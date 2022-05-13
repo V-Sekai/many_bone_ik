@@ -33,6 +33,7 @@
 
 #define _USE_MATH_DEFINES
 #include "../Ray3D.h"
+#include "../ik_bone_3d.h"
 #include "../math/ik_transform.h"
 #include "LimitCone.h"
 #include "core/io/resource.h"
@@ -43,10 +44,6 @@
 class LimitCone;
 class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
-
-public:
-	static const double TAU;
-	static const double PI;
 
 protected:
 	IKTransform3D *limitingAxes_Conflict;
@@ -63,12 +60,12 @@ protected:
 	 * Defined as some Angle in radians about the limitingAxes Y axis, 0 being equivalent to the
 	 * limitingAxes Z axis.
 	 */
-	double minAxialAngle_Conflict = M_PI;
+	double minAxialAngle_Conflict = Math_PI;
 	/**
 	 * Defined as some Angle in radians about the limitingAxes Y axis, 0 being equivalent to the
 	 * minAxialAngle
 	 */
-	double range = M_PI * 3;
+	double range = Math_PI * 3;
 
 	bool orientationallyConstrained = false;
 	bool axiallyConstrained = false;
@@ -77,19 +74,15 @@ protected:
 	// per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.
 	real_t strength = 1;
 
-	AbstractBone *attachedTo_Conflict;
+	Ref<IKBone3D> attachedTo_Conflict;
 
 public:
 	virtual ~IKKusudama() {
-		delete limitingAxes_Conflict;
-		delete attachedTo_Conflict;
-		delete boneRay;
-		delete constrainedRay;
 	}
 
 	IKKusudama();
 
-	IKKusudama(AbstractBone *forBone);
+	IKKusudama(Ref<IKBone3D> forBone);
 
 	virtual void constraintUpdateNotification();
 
@@ -149,7 +142,7 @@ public:
 
 	bool isInLimits_(Vector3 globalPoint) {
 		Vector<double> inBounds = { 1 };
-		Vector3 *inLimits = this->pointInLimits(globalPoint, inBounds, LimitCone::BOUNDARY);
+		Vector3 inLimits = this->pointInLimits(globalPoint, inBounds, LimitCone::BOUNDARY);
 		return inBounds[0] > 0;
 	}
 
@@ -170,14 +163,14 @@ public:
 	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
 		Vector<double> inBounds = { 1 };
 		limitingAxes->updateGlobal();
-		boneRay->p1().set(limitingAxes->origin_());
-		boneRay->p2().set(toSet->y_().p2());
-		Vector3 *bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
-		Vector3 *inLimits = this->pointInLimits(bonetip, inBounds);
+		boneRay->p1(limitingAxes->origin_());
+		boneRay->p2(toSet->y_().p2());
+		Vector3 bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
+		Vector3 inLimits = this->pointInLimits(bonetip, inBounds);
 
-		if (inBounds[0] == -1 && inLimits != nullptr) {
-			constrainedRay->p1().set(boneRay->p1());
-			constrainedRay->p2().set(limitingAxes->getGlobalOf(inLimits));
+		if (inBounds[0] == -1) {
+			constrainedRay->p1(boneRay->p1());
+			constrainedRay->p2(limitingAxes->getGlobalOf(inLimits));
 			Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
 			toSet->rotateBy(rectifiedRot);
 			toSet->updateGlobal();
@@ -192,7 +185,7 @@ public:
 	 * the bone is rotated about its own final direction. Where limit cones allow you to constrain the "Swing"
 	 * component, this method lets you constrain the "twist" component.
 	 *
-	 * @param minAnlge some angle in radians about the major rotation frame's y-axis to serve as the first angle within the range that the bone is allowed to twist.
+	 * @param minAngle some angle in radians about the major rotation frame's y-axis to serve as the first angle within the range that the bone is allowed to twist.
 	 * @param inRange some angle in radians added to the minAngle. if the bone's local Z goes maxAngle radians beyond the minAngle, it is considered past the limit.
 	 * This value is always interpreted as being in the positive direction. For example, if this value is -PI/2, the entire range from minAngle to minAngle + 3PI/4 is
 	 * considered valid.
@@ -232,7 +225,7 @@ public:
 	 */
 	Vector3 *pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode) {
 		Vector3 *point = inPoint->copy();
-		point->normalize();
+		point.normalize();
 
 		inBounds[0] = -1;
 		Vector3 *closestCollisionPoint = nullptr;
@@ -282,7 +275,7 @@ public:
 	Vector3 *pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes) {
 		double closestPointDot = 0;
 		Vector3 *point = limitingAxes->getLocalOf(inPoint);
-		point->normalize();
+		point.normalize();
 		Vector3 *result = static_cast<Vector3 *>(point->copy());
 
 		if (limitCones.size() == 1) {
@@ -304,7 +297,7 @@ public:
 
 	// public double softLimit
 
-	virtual AbstractBone *attachedTo();
+	virtual Ref<IKBone3D> attachedTo();
 
 	/**
 	 * Add a LimitCone to the Kusudama.
@@ -340,10 +333,9 @@ public:
 	/**
 	 * @return the limitingAxes of this Kusudama (these are just its parentBone's majorRotationAxes)
 	 */
-	template <typename A>
-	A limitingAxes() {
+	IKTransform3D *limitingAxes() {
 		// if(inverted) return inverseLimitingAxes;
-		return static_cast<A>(limitingAxes_Conflict);
+		return limitingAxes_Conflict;
 	}
 
 	/**
@@ -417,7 +409,7 @@ protected:
 	 * @param forBone the bone to which to attach this Kusudama.
 	 */
 public:
-	virtual void attachTo(AbstractBone *forBone);
+	virtual void attachTo(Ref<IKBone3D> forBone);
 
 	/**for IK solvers. Defines the weight ratio between the unconstrained IK solved orientation and the constrained orientation for this bone
 	 per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.

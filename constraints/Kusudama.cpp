@@ -34,7 +34,7 @@
 IKKusudama::IKKusudama() {
 }
 
-IKKusudama::IKKusudama(AbstractBone *forBone) {
+IKKusudama::IKKusudama(Ref<IKBone3D> forBone) {
 	this->attachedTo_Conflict = forBone;
 	this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
 	this->attachedTo_Conflict->addConstraint(this);
@@ -47,7 +47,7 @@ void IKKusudama::constraintUpdateNotification() {
 }
 
 void IKKusudama::optimizeLimitingAxes() {
-	IKTransform3D *originalLimitingAxes = limitingAxes_Conflict->getGlobalCopy();
+	IKTransform3D originalLimitingAxes = *limitingAxes_Conflict;
 	Vector<Vector3> directions;
 	if (getLimitCones().size() == 1) {
 		directions.push_back((limitCones[0]->getControlPoint())->copy());
@@ -58,13 +58,10 @@ void IKKusudama::optimizeLimitingAxes() {
 			Rot *thisToNext = new Rot(thisC, nextC);
 			Rot *halfThisToNext = new Rot(thisToNext->getAxis(), thisToNext->getAngle() / 2);
 
-			Vector3 *halfAngle = halfThisToNext->applyToCopy(thisC);
-			halfAngle->normalize();
-			halfAngle->mult(thisToNext->getAngle());
+			Vector3 halfAngle = halfThisToNext->applyToCopy(thisC);
+			halfAngle.normalize();
+			halfAngle *= thisToNext->getAngle();
 			directions.push_back(halfAngle);
-
-			delete halfThisToNext;
-			delete thisToNext;
 		}
 	}
 
@@ -75,21 +72,21 @@ void IKKusudama::optimizeLimitingAxes() {
 
 	newY /= directions.size();
 	if (newY->mag() != 0 && !std::isnan(newY->y)) {
-		newY->normalize();
+		newY.normalize();
 	} else {
 		newY = Vector3(0, 1, 0);
 	}
 
 	Vector3 tempVar(0, 0, 0);
-	sgRayd *newYRay = new sgRayd(&tempVar, newY);
+	Ref<Ray3D> newYRay = memnew(Ray3D(&tempVar, newY));
 
-	Rot *oldYtoNewY = new Rot(limitingAxes_Conflict->y_().heading(), originalLimitingAxes->getGlobalOf(newYRay).heading());
+	Rot *oldYtoNewY = memnew(Rot(limitingAxes_Conflict->y_().heading(), originalLimitingAxes->getGlobalOf(newYRay).heading()));
 	limitingAxes_Conflict->rotateBy(oldYtoNewY);
 
 	for (auto lc : getLimitCones()) {
 		originalLimitingAxes->setToGlobalOf(lc->controlPoint, lc->controlPoint);
 		limitingAxes_Conflict->setToLocalOf(lc->controlPoint, lc->controlPoint);
-		lc->controlPoint->normalize();
+		lc->controlPoint.normalize();
 	}
 
 	this->updateTangentRadii();
@@ -180,14 +177,14 @@ void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3
 	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
 	 */
 	limitingAxes->updateGlobal();
-	boneRay->p1().set(limitingAxes->origin_());
-	boneRay->p2().set(toSet->y_().p2());
+	boneRay->p1(limitingAxes->origin_());
+	boneRay->p2(toSet->y_().p2());
 	Vector3 *bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
 	Vector3 *inCushionLimits = this->pointInLimits(bonetip, inBounds, LimitCone::CUSHION);
 
 	if (inBounds[0] == -1 && inCushionLimits != nullptr) {
-		constrainedRay->p1().set(boneRay->p1());
-		constrainedRay->p2().set(limitingAxes->getGlobalOf(inCushionLimits));
+		constrainedRay->p1(boneRay->p1());
+		constrainedRay->p2(limitingAxes->getGlobalOf(inCushionLimits));
 		Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
 		toSet->rotateBy(rectifiedRot);
 		toSet->updateGlobal();
@@ -290,7 +287,7 @@ double IKKusudama::signedAngleDifference(double minAngle, double __super) {
 	return r;
 }
 
-AbstractBone *IKKusudama::attachedTo() {
+Ref<IKBone3D> IKKusudama::attachedTo() {
 	return this->attachedTo_Conflict;
 }
 
@@ -419,7 +416,7 @@ void IKKusudama::updateRotationalFreedom() {
 	rotationalFreedom = axialConstrainedHyperArea * (isOrientationallyConstrained() ? std::min(totalLimitConeSurfaceAreaRatio, 1) : 1);
 }
 
-void IKKusudama::attachTo(AbstractBone *forBone) {
+void IKKusudama::attachTo(Ref<IKBone3D> forBone) {
 	this->attachedTo_Conflict = forBone;
 	if (this->limitingAxes_Conflict == nullptr) {
 		this->limitingAxes_Conflict = forBone->getMajorRotationAxes();

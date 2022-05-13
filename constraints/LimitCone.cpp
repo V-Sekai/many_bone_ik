@@ -36,7 +36,7 @@ LimitCone::LimitCone() {
 }
 
 void LimitCone::updateTangentHandles(Ref<LimitCone> next) {
-	this->controlPoint->normalize();
+	this->controlPoint.normalize();
 	updateTangentAndCushionHandles(next, BOUNDARY);
 	updateTangentAndCushionHandles(next, CUSHION);
 }
@@ -94,8 +94,8 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		Vector3 planeDir2B = (&tempVar4)->applyToCopy(planeDir1B);
 
 		// ray from scaled center of next cone to half way point between the circumference of this cone and the next cone.
-		sgRayd *r1B = new sgRayd(planeDir1B, scaledAxisB);
-		sgRayd *r2B = new sgRayd(planeDir1B, planeDir2B);
+		sgRayd *r1B = new Ray3D(planeDir1B, scaledAxisB);
+		sgRayd *r2B = new Ray3D(planeDir1B, planeDir2B);
 
 		r1B->elongate(99);
 		r2B->elongate(99);
@@ -103,7 +103,7 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		Vector3 intersection1 = r1B->intersectsPlane(scaledAxisA, planeDir1A, planeDir2A);
 		Vector3 intersection2 = r2B->intersectsPlane(scaledAxisA, planeDir1A, planeDir2A);
 
-		sgRayd *intersectionRay = new sgRayd(intersection1, intersection2);
+		sgRayd *intersectionRay = new Ray3D(intersection1, intersection2);
 		intersectionRay->elongate(99);
 
 		Vector3 sphereIntersect1 = new Vector3();
@@ -184,13 +184,13 @@ double LimitCone::_getRadiusCosine(int mode) {
 }
 
 void LimitCone::computeTriangles(Ref<LimitCone> next) {
-	firstTriangleNext[1] = this->tangentCircleCenterNext1->normalize();
-	firstTriangleNext[0] = this->getControlPoint()->normalize();
-	firstTriangleNext[2] = next->getControlPoint()->normalize();
+	firstTriangleNext[1] = this->tangentCircleCenterNext1.normalize();
+	firstTriangleNext[0] = this->getControlPoint().normalize();
+	firstTriangleNext[2] = next->getControlPoint().normalize();
 
-	secondTriangleNext[1] = this->tangentCircleCenterNext2->normalize();
-	secondTriangleNext[0] = this->getControlPoint()->normalize();
-	secondTriangleNext[2] = next->getControlPoint()->normalize();
+	secondTriangleNext[1] = this->tangentCircleCenterNext2.normalize();
+	secondTriangleNext[0] = this->getControlPoint().normalize();
+	secondTriangleNext[2] = next->getControlPoint().normalize();
 }
 
 Vector<Vector3> *LimitCone::getControlPoint() {

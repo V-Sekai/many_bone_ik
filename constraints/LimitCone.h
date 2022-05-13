@@ -108,7 +108,7 @@ public:
 		tangentCircleCenterNext1 = direction.getOrthogonal();
 		tangentCircleCenterNext2 = Vector3::mult(tangentCircleCenterNext1, -1);
 
-		this->radius = std::max(DBL_TRUE_MIN, rad);
+		this->radius = MAX(DBL_TRUE_MIN, rad);
 		this->radiusCosine = std::cos(radius);
 		this->cushionRadius = this->radius;
 		this->cushionCosine = this->radiusCosine;
@@ -130,11 +130,11 @@ public:
 		tangentCircleCenterNext1 = direction->getOrthogonal();
 		tangentCircleCenterNext2 = Vector3::mult(tangentCircleCenterNext1, -1);
 
-		this->radius = std::max(DBL_TRUE_MIN, rad);
-		this->radiusCosine = std::cos(radius);
-		double adjustedCushion = std::min(1, std::max(0.001, cushion));
+		this->radius = MAX(DBL_TRUE_MIN, rad);
+		this->radiusCosine = IKBoneChain::cos(radius);
+		double adjustedCushion = MIN(1, MAX(0.001, cushion));
 		this->cushionRadius = this->radius * adjustedCushion;
-		this->cushionCosine = std::cos(cushionRadius);
+		this->cushionCosine = IKBoneChain::cos(cushionRadius);
 		parentKusudama = attachedTo;
 	}
 
@@ -262,29 +262,29 @@ public:
 			Vector3 c1xt1 = controlPoint.cross(tangentCircleCenterNext1);
 			Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->controlPoint);
 			if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
-				sgRayd *tan1ToInput = new sgRayd(tangentCircleCenterNext1, input);
+				sgRayd *tan1ToInput = new Ray3D(tangentCircleCenterNext1, input);
 				Vector3 result = new Vector3();
 				Vector3 tempVar(0, 0, 0);
 				tan1ToInput->intersectsPlane(&tempVar, controlPoint, next->controlPoint, result);
 
 				delete tan1ToInput;
-				return result->normalize();
+				return result.normalize();
 			} else {
-				return nullptr;
+				return Vector3(NAN, NAN, NAN);
 			}
 		} else {
 			Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
 			Vector3 c2xt2 = next->controlPoint.cross(tangentCircleCenterNext2);
 			if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
-				sgRayd *tan2ToInput = new sgRayd(tangentCircleCenterNext2, input);
+				sgRayd *tan2ToInput = new Ray3D(tangentCircleCenterNext2, input);
 				Vector3 result = new Vector3();
 				Vector3 tempVar2(0, 0, 0);
 				tan2ToInput->intersectsPlane(&tempVar2, controlPoint, next->controlPoint, result);
 
 				delete tan2ToInput;
-				return result->normalize();
+				return result.normalize();
 			} else {
-				return nullptr;
+				return Vector3(NAN, NAN, NAN);
 			}
 		}
 	}
@@ -447,7 +447,7 @@ public:
 	virtual Vector3 getControlPoint();
 	void setControlPoint(Vector3 controlPoint) {
 		this->controlPoint = controlPoint;
-		this->controlPoint->normalize();
+		this->controlPoint.normalize();
 		if (this->parentKusudama.is_valid()) {
 			this->parentKusudama->constraintUpdateNotification();
 		}
