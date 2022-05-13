@@ -36,7 +36,7 @@ IKKusudama::IKKusudama() {
 
 IKKusudama::IKKusudama(Ref<IKBone3D> forBone) {
 	this->attachedTo_Conflict = forBone;
-	this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
+	this->limitingAxes_Conflict = forBone->get_global_pose();
 	this->attachedTo_Conflict->addConstraint(this);
 	this->enable();
 }
@@ -47,20 +47,20 @@ void IKKusudama::constraintUpdateNotification() {
 }
 
 void IKKusudama::optimizeLimitingAxes() {
-	IKTransform3D originalLimitingAxes = *limitingAxes_Conflict;
+	IKTransform3D originalLimitingAxes = limitingAxes_Conflict;
 	Vector<Vector3> directions;
 	if (getLimitCones().size() == 1) {
-		directions.push_back((limitCones[0]->getControlPoint())->copy());
+		directions.push_back(limitCones[0]->getControlPoint());
 	} else {
 		for (int i = 0; i < getLimitCones().size() - 1; i++) {
-			Vector3 *thisC = getLimitCones()[i]->getControlPoint().copy();
-			Vector3 *nextC = getLimitCones()[i + 1]->getControlPoint().copy();
-			Rot *thisToNext = new Rot(thisC, nextC);
-			Rot *halfThisToNext = new Rot(thisToNext->getAxis(), thisToNext->getAngle() / 2);
+			Vector3 thisC = getLimitCones()[i]->getControlPoint();
+			Vector3 nextC = getLimitCones()[i + 1]->getControlPoint();
+			Basis thisToNext = Basis(thisC, nextC);
+			Basis halfThisToNext = Basis(thisToNext->get_axis(), thisToNext->get_angle() / 2.0f);
 
-			Vector3 halfAngle = halfThisToNext->applyToCopy(thisC);
+			Vector3 halfAngle = halfThisToNext.xform(thisC);
 			halfAngle.normalize();
-			halfAngle *= thisToNext->getAngle();
+			halfAngle *= thisToNext.get_euler();
 			directions.push_back(halfAngle);
 		}
 	}
@@ -71,21 +71,22 @@ void IKKusudama::optimizeLimitingAxes() {
 	}
 
 	newY /= directions.size();
-	if (newY->mag() != 0 && !std::isnan(newY->y)) {
+	if (newY->length() != 0.f && !Math::is_nan(newY->y)) {
 		newY.normalize();
 	} else {
-		newY = Vector3(0, 1, 0);
+		newY = Vector3(0.f, 1.f, 0.f);
 	}
 
-	Vector3 tempVar(0, 0, 0);
+	Vector3 tempVar(0.f, 0.f, 0.f);
 	Ref<Ray3D> newYRay = memnew(Ray3D(&tempVar, newY));
 
-	Rot *oldYtoNewY = memnew(Rot(limitingAxes_Conflict->get_transform().basis[Vector3::AXIS_Y], originalLimitingAxes->get_global_transform().xform(newYRay->heading()));
-	limitingAxes_Conflict->rotateBy(oldYtoNewY);
+	// TODO: fire 2022-05-13 FIX ME!!
+	//Quaternion oldYtoNewY = Quaternion(limitingAxes_Conflict.get_transform().basis;, originalLimitingAxes->get_global_transform().xform(newYRay->heading()));
+	//limitingAxes_Conflict.rotateBy(oldYtoNewY);
 
 	for (auto lc : getLimitCones()) {
 		originalLimitingAxes->setToGlobalOf(lc->controlPoint, lc->controlPoint);
-		limitingAxes_Conflict->setToLocalOf(lc->controlPoint, lc->controlPoint);
+		limitingAxes_Conflict.setToLocalOf(lc->controlPoint, lc->controlPoint);
 		lc->controlPoint.normalize();
 	}
 
@@ -124,17 +125,17 @@ void IKKusudama::setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limi
 	if (limitingAxes != nullptr && painfullness > 0) {
 		if (orientationallyConstrained) {
 			Vector3 *origin = toSet->origin_();
-			Vector3 *inPoint = toSet->y_().p2().copy();
+			Vector3 *inPoint = toSet->y_().p2;
 			Vector3 *pathPoint = pointOnPathSequence(inPoint, limitingAxes);
-			inPoint->sub(origin);
-			pathPoint->sub(origin);
-			Rot *toClamp = new Rot(inPoint, pathPoint);
-			toClamp->rotation.clampToQuadranceAngle(cosHalfReturnfullness);
+			inPoint -= origin;
+			pathPoint -= origin;
+			Quaternion toClamp = Quaternion(inPoint, pathPoint);
+			toClamp.rotation.clampToQuadranceAngle(cosHalfReturnfullness);
 			toSet->rotateBy(toClamp);
 		}
 		if (axiallyConstrained) {
 			double angleToTwistMid = angleToTwistCenter(toSet, limitingAxes);
-			double clampedAngle = MathUtils::clamp(angleToTwistMid, -angleReturnfullness, angleReturnfullness);
+			double clampedAngle = CLAMP(angleToTwistMid, -angleReturnfullness, angleReturnfullness);
 			toSet->rotateAboutY(clampedAngle, false);
 		}
 	}
@@ -142,11 +143,11 @@ void IKKusudama::setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limi
 
 void IKKusudama::setPainfullness(double amt) {
 	painfullness = amt;
-	if (attachedTo() != nullptr && attachedTo()->parentArmature != nullptr) {
-		SegmentedArmature *s = attachedTo()->parentArmature.boneSegmentMap->get(this->attachedTo());
-		if (s != nullptr) {
-			WorkingBone *wb = s->simulatedBones->get(this->attachedTo());
-			if (wb != nullptr) {
+	if (attachedTo().is_valid() && attachedTo()->parentArmature != nullptr) {
+		Ref<IKBoneChain> s = attachedTo()->parentArmature.boneSegmentMap->get(this->attachedTo());
+		if (s.is_valid()) {
+			Ref<IKBone3D> wb = s->simulatedBones->get(this->attachedTo());
+			if (wb.is_valid()) {
 				wb->updateCosDampening();
 			}
 		}
@@ -277,11 +278,11 @@ bool IKKusudama::inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingA
 	return true;
 }
 
-double IKKusudama::signedAngleDifference(double minAngle, double __super) {
-	double d = std::abs(minAngle - __super) % TAU;
+double IKKusudama::signedAngleDifference(double minAngle, double p_super) {
+	double d = std::abs(minAngle - p_super) % TAU;
 	double r = d > PI ? TAU - d : d;
 
-	double sign = (minAngle - __super >= 0 && minAngle - __super <= PI) || (minAngle - __super <= -PI && minAngle - __super >= -TAU) ? 1.0f : -1.0f;
+	double sign = (minAngle - p_super >= 0 && minAngle - p_super <= PI) || (minAngle - p_super <= -PI && minAngle - p_super >= -TAU) ? 1.0f : -1.0f;
 	r *= sign;
 	return r;
 }
@@ -417,7 +418,7 @@ void IKKusudama::updateRotationalFreedom() {
 
 void IKKusudama::attachTo(Ref<IKBone3D> forBone) {
 	this->attachedTo_Conflict = forBone;
-	if (this->limitingAxes_Conflict == nullptr) {
+	if (this->limitingAxes_Conflict.is_null()) {
 		this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
 	} else {
 		forBone->setFrameofRotation(this->limitingAxes_Conflict);
@@ -429,11 +430,11 @@ void IKKusudama::setStrength(double newStrength) {
 	this->strength = std::max(0, std::min(1, newStrength));
 }
 
-double IKKusudama::getStrength() {
+double IKKusudama::getStrength() const {
 	return this->strength;
 }
 
-Vector<LimitCone> IKKusudama::getLimitCones() {
+Vector<LimitCone> IKKusudama::getLimitCones() const {
 	return this->limitCones;
 }
 

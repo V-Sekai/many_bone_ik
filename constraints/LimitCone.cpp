@@ -85,10 +85,10 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		Rot tempVar2(A, M_PI / 2);
 		Vector3 planeDir2A = (&tempVar2)->applyToCopy(planeDir1A);
 
-		Vector3 scaledAxisB = Vector3::mult(B, std::cos(boundaryPlusTangentRadiusB));
+		Vector3 scaledAxisB = B * std::cos(boundaryPlusTangentRadiusB);
 		// a point on the plane running through the tangent contact points
-		Rot tempVar3(arcNormal, boundaryPlusTangentRadiusB);
-		Vector3 planeDir1B = (&tempVar3)->applyToCopy(B);
+		Basis tempVar3(arcNormal, boundaryPlusTangentRadiusB);
+		Vector3 planeDir1B = tempVar3.xform(B);
 		// another point on the same plane
 		Rot tempVar4(B, M_PI / 2);
 		Vector3 planeDir2B = (&tempVar4)->applyToCopy(planeDir1B);
@@ -120,12 +120,12 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		delete r1B;
 	}
 	if (this->tangentCircleCenterNext1 == nullptr) {
-		this->tangentCircleCenterNext1 = controlPoint->getOrthogonal().normalize();
-		this->cushionTangentCircleCenterNext1 = controlPoint->getOrthogonal().normalize();
+		this->tangentCircleCenterNext1 = getOrthogonal(controlPoint).normalize();
+		this->cushionTangentCircleCenterNext1 = getOrthogonal(controlPoint).normalize();
 	}
 	if (tangentCircleCenterNext2 == nullptr) {
-		tangentCircleCenterNext2 = Vector3::mult(tangentCircleCenterNext1, -1).normalize();
-		cushionTangentCircleCenterNext2 = Vector3::mult(cushionTangentCircleCenterNext2, -1).normalize();
+		tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1).normalize();
+		cushionTangentCircleCenterNext2 = (cushionTangentCircleCenterNext2 * -1).normalize();
 	}
 	if (next.is_valid()) {
 		computeTriangles(next);
@@ -193,7 +193,7 @@ void LimitCone::computeTriangles(Ref<LimitCone> next) {
 	secondTriangleNext[2] = next->getControlPoint().normalize();
 }
 
-Vector<Vector3> *LimitCone::getControlPoint() {
+Vector3 LimitCone::getControlPoint() const {
 	return controlPoint;
 }
 

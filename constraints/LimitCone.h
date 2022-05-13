@@ -32,6 +32,7 @@
 
 #define _USE_MATH_DEFINES
 #include "../math/ik_transform.h"
+#include "../ik_bone_chain.h"
 #include "Kusudama.h"
 #include "core/io/resource.h"
 #include <cmath>
@@ -105,8 +106,8 @@ public:
 
 	LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attachedTo) {
 		setControlPoint(direction);
-		tangentCircleCenterNext1 = direction.getOrthogonal();
-		tangentCircleCenterNext2 = Vector3::mult(tangentCircleCenterNext1, -1);
+		tangentCircleCenterNext1 = direction.normalized();
+		tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1);
 
 		this->radius = MAX(DBL_TRUE_MIN, rad);
 		this->radiusCosine = std::cos(radius);
@@ -126,8 +127,8 @@ public:
 	 */
 	LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attachedTo) {
 		setControlPoint(direction);
-		tangentCircleCenterNext1 = direction->getOrthogonal();
-		tangentCircleCenterNext2 = Vector3::mult(tangentCircleCenterNext1, -1);
+		tangentCircleCenterNext1 = LimitCone::getOrthogonal(direction);
+		tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1);
 
 		this->radius = MAX(DBL_TRUE_MIN, rad);
 		this->radiusCosine = IKBoneChain::cos(radius);
@@ -135,6 +136,24 @@ public:
 		this->cushionRadius = this->radius * adjustedCushion;
 		this->cushionCosine = IKBoneChain::cos(cushionRadius);
 		parentKusudama = attachedTo;
+	}
+
+	static Vector3 getOrthogonal(Vector3 p_in) {
+		Vector3 result;
+		float threshold = p_in.length() * 0.6f;
+		if (threshold > 0.f) {
+			if (Math::abs(p_in.x) <= threshold) {
+				float inverse = 1.f / Math::sqrt(p_in.y * p_in.y + p_in.z * p_in.z);
+				return result = Vector3(0.f, inverse * p_in.z, -inverse * p_in.y);
+			} else if (Math::abs(p_in.y) <= threshold) {
+				float inverse = 1.f / Math::sqrt(p_in.x * p_in.x + p_in.z * p_in.z);
+				return result = Vector3(-inverse * p_in.z, 0.f, inverse * p_in.x);
+			}
+			float inverse = 1.f / Math::sqrt(p_in.x * p_in.x + p_in.y * p_in.y);
+			return result = Vector3(inverse * p_in.y, -inverse * p_in.x, 0.f);
+		}
+
+		return result;
 	}
 
 	/**
@@ -180,7 +199,7 @@ public:
 		return result;
 	}
 
-	Vector3 getClosestPathPoint(Ref<LimitCone> next, Vector3 input) {
+	Vector3 getClosestPathPoint(Ref<LimitCone> next, Vector3 input) const {
 		Vector3 result = getOnPathSequence(next, input);
 		if (result == Vector3(NAN, NAN, NAN)) {
 			result = closestCone(next, input);
@@ -262,7 +281,7 @@ public:
 				Ref<Ray3D> tan1ToInput = new Ray3D(tangentCircleCenterNext1, input);
 				Vector3 result;
 				Vector3 tempVar;
-				tan1ToInput->intersectsPlane(tempVar, controlPoint, next->controlPoint, result);
+				result = tan1ToInput->intersectsPlane(tempVar, controlPoint, next->controlPoint);
 				return result.normalized();
 			} else {
 				return Vector3(NAN, NAN, NAN);
@@ -274,7 +293,7 @@ public:
 				Ref<Ray3D> tan2ToInput = memnew(Ray3D(tangentCircleCenterNext2, input));
 				Vector3 result;
 				Vector3 tempVar2;
-				tan2ToInput->intersectsPlane(tempVar2, controlPoint, next->controlPoint, result);
+				result = tan2ToInput->intersectsPlane(tempVar2, controlPoint, next->controlPoint);
 				return result.normalized();
 			} else {
 				return Vector3(NAN, NAN, NAN);
@@ -368,14 +387,13 @@ public:
 	Vector3 closestToCone(Vector3 input, Vector<bool> &inBounds) {
 		if (input.dot(this->getControlPoint()) > this->getRadiusCosine()) {
 			inBounds[0] = true;
-			return nullptr;
-		} else {
-			Vector3 axis = this->getControlPoint().cross(input);
-			Quaternion rotTo = Quaternion(axis, this->getRadius());
-			Vector3 result = Basis(rotTo).xform(this->getControlPoint());
-			inBounds[0] = false;
-			return result;
+			return Vector3(NAN, NAN, NAN);
 		}
+		Vector3 axis = this->getControlPoint().cross(input);
+		Quaternion rotTo = Quaternion(axis, this->getRadius());
+		Vector3 result = Basis(rotTo).xform(this->getControlPoint());
+		inBounds[0] = false;
+		return result;
 	}
 
 	virtual void updateTangentHandles(Ref<LimitCone> next);
@@ -406,7 +424,7 @@ private:
 	 * @return
 	 */
 protected:
-	virtual Vector3getTangentCircleCenterNext1(int mode);
+	virtual Vector3 getTangentCircleCenterNext1(int mode);
 
 	virtual double getTangentCircleRadiusNext(int mode);
 
@@ -418,7 +436,7 @@ protected:
 	 * @param mode
 	 * @return
 	 */
-	virtual Vector3getTangentCircleCenterNext2(int mode);
+	virtual Vector3 getTangentCircleCenterNext2(int mode);
 
 	virtual double _getRadius(int mode);
 
@@ -428,7 +446,7 @@ private:
 	void computeTriangles(Ref<LimitCone> next);
 
 public:
-	virtual Vector3 getControlPoint();
+	virtual Vector3 getControlPoint() const;
 	void setControlPoint(Vector3 controlPoint) {
 		this->controlPoint = controlPoint;
 		this->controlPoint.normalize();

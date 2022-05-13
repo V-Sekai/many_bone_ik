@@ -31,22 +31,21 @@
 
 #pragma once
 
-#define _USE_MATH_DEFINES
 #include "../Ray3D.h"
 #include "../ik_bone_3d.h"
 #include "../math/ik_transform.h"
 #include "LimitCone.h"
 #include "core/io/resource.h"
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <type_traits>
 #include <vector>
 
-class LimitCone;
 class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
 protected:
-	IKTransform3D *limitingAxes_Conflict;
+	IKTransform3D limitingAxes_Conflict;
 	double painfullness = 0;
 
 	/**
@@ -54,7 +53,7 @@ protected:
 	 * with the expectation that any limitCone in the array is connected to the cone at the previous element in the array,
 	 * and the cone at the next element in the array.
 	 */
-	Vector<Ref<LimitCone>> limitCones = Vector<Ref<LimitCone>>();
+	Vector<Ref<LimitCone>> limitCones;
 
 	/**
 	 * Defined as some Angle in radians about the limitingAxes Y axis, 0 being equivalent to the
@@ -165,10 +164,9 @@ public:
 
 		if (inBounds[0] == -1 && inLimits != Vector3(NAN, NAN, NAN)) {
 			constrainedRay->p1(boneRay->p1());
-			constrainedRay->p2(limitingAxes->getGlobalOf(inLimits));
+			constrainedRay->p2(limitingAxes->get_global_transform().xform(inLimits));
 			Quaternion rectifiedRot = Quaternion(boneRay->heading(), constrainedRay->heading());
 			toSet->rotateBy(rectifiedRot);
-			toSet->updateGlobal();
 		}
 	}
 
@@ -201,7 +199,7 @@ public:
 
 	virtual bool inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingAxes);
 
-	virtual double signedAngleDifference(double minAngle, double __super);
+	virtual double signedAngleDifference(double minAngle, double p_super);
 
 	/**
 	 * Given a point (in global coordinates), checks to see if a ray can be extended from the Kusudama's
@@ -218,7 +216,7 @@ public:
 	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode) {
+	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = LimitCone::CUSHION) {
 		Vector3 point = inPoint;
 		point.normalize();
 
@@ -231,7 +229,7 @@ public:
 			Ref<LimitCone> cone = limitCones[i];
 			Vector3 collisionPoint = cone->closestToCone(point, boundHint);
 			if (collisionPoint == Vector3(NAN, NAN, NAN)) {
-				inBounds[0] = 1;
+				inBounds.write[0] = 1;
 				return point;
 			} else {
 				double thisCos = collisionPoint.dot(point);
@@ -249,7 +247,7 @@ public:
 				if (collisionPoint != Vector3(NAN, NAN, NAN)) {
 					double thisCos = collisionPoint.dot(point);
 					if (thisCos == 1) {
-						inBounds[0] = 1;
+						inBounds.write[0] = 1;
 						closestCollisionPoint = point;
 						return point;
 					} else if (thisCos > closestCos) {
@@ -302,7 +300,7 @@ public:
 	virtual void removeLimitCone(Ref<LimitCone> limitCone);
 
 	Ref<LimitCone> createLimitConeForIndex(int insertAt, Vector3 newPoint, double radius) {
-		limitCones.insert(insertAt, Ref<LimitCone>(memnew(LimitCone(newPoint, radius))));
+		limitCones.insert(insertAt, memnew(LimitCone(newPoint, radius)));
 	}
 
 	/**
@@ -410,7 +408,7 @@ public:
 
 	/**for IK solvers. Defines the weight ratio between the unconstrained IK solved orientation and the constrained orientation for this bone
 	 per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.**/
-	virtual double getStrength();
+	virtual double getStrength() const;
 
-	virtual Vector<Ref<LimitCone>> getLimitCones();
+	virtual Vector<Ref<LimitCone>> getLimitCones() const;
 };
