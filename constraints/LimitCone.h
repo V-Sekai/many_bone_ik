@@ -367,7 +367,6 @@ public:
 		if (inBounds[0]) {
 			return closestToSecond;
 		}
-
 		double cosToFirst = input.dot(closestToFirst);
 		double cosToSecond = input.dot(closestToSecond);
 

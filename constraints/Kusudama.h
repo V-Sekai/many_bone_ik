@@ -304,7 +304,7 @@ public:
 	virtual void removeLimitCone(Ref<LimitCone> limitCone);
 
 	Ref<LimitCone> createLimitConeForIndex(int insertAt, Vector3 newPoint, double radius) {
-		limitCones.insert(insertAt, memnew(LimitCone(newPoint, radius)));
+		limitCones.insert(insertAt, memnew(LimitCone(newPoint, radius, Ref<IKKusudama>(this))));
 	}
 
 	/**
