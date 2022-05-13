@@ -32,14 +32,15 @@
 #pragma once
 
 #define _USE_MATH_DEFINES
-#include "Constraint.h"
+#include "../math/ik_transform.h"
 #include "LimitCone.h"
+#include "core/io/resource.h"
 #include <cmath>
 #include <type_traits>
 #include <vector>
 
-class IKKusudama : public Constraint {
-	GDCLASS(Constraint, Constraint);
+class IKKusudama : public Resource {
+	GDCLASS(Constraint, Resource);
 
 public:
 	static const double TAU;
@@ -164,7 +165,22 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
+		Vector<double> inBounds = { 1 };
+		limitingAxes->updateGlobal();
+		boneRay->p1().set(limitingAxes->origin_());
+		boneRay->p2().set(toSet->y_().p2());
+		Vector3 *bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
+		Vector3 *inLimits = this->pointInLimits(bonetip, inBounds);
+
+		if (inBounds[0] == -1 && inLimits != nullptr) {
+			constrainedRay->p1().set(boneRay->p1());
+			constrainedRay->p2().set(limitingAxes->getGlobalOf(inLimits));
+			Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
+			toSet->rotateBy(rectifiedRot);
+			toSet->updateGlobal();
+		}
+	}
 
 	virtual bool isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes);
 
@@ -213,7 +229,6 @@ public:
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
 	Vector3 *pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode) {
-				static_assert(std::is_base_of<math.doubleV.Vector3<?>, V>::value, L"V must inherit from math.doubleV.Vector3<?>");
 				Vector3 *point = inPoint->copy();
 				point->normalize();
 
@@ -324,8 +339,6 @@ public:
 	 */
 	template <typename A>
 	A limitingAxes() {
-		static_assert(std::is_base_of<math.doubleV.IKTransform3D, A>::value, L"A must inherit from math.doubleV.IKTransform3D");
-
 		// if(inverted) return inverseLimitingAxes;
 		return static_cast<A>(limitingAxes_Conflict);
 	}
@@ -414,432 +427,414 @@ public:
 	virtual double getStrength();
 
 	virtual Vector < ? extends AbstractLimitCone > getLimitCones();
+};
 
-private:
-	IKKusudama() {
-	}
+IKTransform3D::IKKusudama() {
+}
 
-	IKKusudama(AbstractBone *forBone) {
-		this->attachedTo_Conflict = forBone;
-		this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
-		this->attachedTo_Conflict->addConstraint(this);
-		this->enable();
-	}
+IKTransform3D::IKKusudama(AbstractBone *forBone) {
+	this->attachedTo_Conflict = forBone;
+	this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
+	this->attachedTo_Conflict->addConstraint(this);
+	this->enable();
+}
 
-	void constraintUpdateNotification() {
-		this->updateTangentRadii();
-		this->updateRotationalFreedom();
-	}
+void IKTransform3D::constraintUpdateNotification() {
+	this->updateTangentRadii();
+	this->updateRotationalFreedom();
+}
 
-	void optimizeLimitingAxes() {
-		IKTransform3D *originalLimitingAxes = limitingAxes_Conflict->getGlobalCopy();
-		Vector<Vector3> directions;
-		if (getLimitCones().size() == 1) {
-			directions.push_back((limitCones[0]->getControlPoint())->copy());
-		} else {
-			for (int i = 0; i < getLimitCones().size() - 1; i++) {
-				Vector3 *thisC = getLimitCones()[i]->getControlPoint().copy();
-				Vector3 *nextC = getLimitCones()[i + 1]->getControlPoint().copy();
-				Rot *thisToNext = new Rot(thisC, nextC);
-				Rot *halfThisToNext = new Rot(thisToNext->getAxis(), thisToNext->getAngle() / 2);
+void IKTransform3D::optimizeLimitingAxes() {
+	IKTransform3D *originalLimitingAxes = limitingAxes_Conflict->getGlobalCopy();
+	Vector<Vector3> directions;
+	if (getLimitCones().size() == 1) {
+		directions.push_back((limitCones[0]->getControlPoint())->copy());
+	} else {
+		for (int i = 0; i < getLimitCones().size() - 1; i++) {
+			Vector3 *thisC = getLimitCones()[i]->getControlPoint().copy();
+			Vector3 *nextC = getLimitCones()[i + 1]->getControlPoint().copy();
+			Rot *thisToNext = new Rot(thisC, nextC);
+			Rot *halfThisToNext = new Rot(thisToNext->getAxis(), thisToNext->getAngle() / 2);
 
-				Vector3 *halfAngle = halfThisToNext->applyToCopy(thisC);
-				halfAngle->normalize();
-				halfAngle->mult(thisToNext->getAngle());
-				directions.push_back(halfAngle);
+			Vector3 *halfAngle = halfThisToNext->applyToCopy(thisC);
+			halfAngle->normalize();
+			halfAngle->mult(thisToNext->getAngle());
+			directions.push_back(halfAngle);
 
-				delete halfThisToNext;
-				delete thisToNext;
-			}
-		}
-
-		Vector3 *newY = new SGVec_3d();
-		for (auto dv : directions) {
-			newY->add(dv);
-		}
-
-		newY->div(directions.size());
-		if (newY->mag() != 0 && !std::isnan(newY->y)) {
-			newY->normalize();
-		} else {
-			newY = new SGVec_3d(0, 1, 0);
-		}
-
-		SGVec_3d tempVar(0, 0, 0);
-		sgRayd *newYRay = new sgRayd(&tempVar, newY);
-
-		Rot *oldYtoNewY = new Rot(limitingAxes_Conflict->y_().heading(), originalLimitingAxes->getGlobalOf(newYRay).heading());
-		limitingAxes_Conflict->rotateBy(oldYtoNewY);
-
-		for (auto lc : getLimitCones()) {
-			originalLimitingAxes->setToGlobalOf(lc->controlPoint, lc->controlPoint);
-			limitingAxes_Conflict->setToLocalOf(lc->controlPoint, lc->controlPoint);
-			lc->controlPoint->normalize();
-		}
-
-		this->updateTangentRadii();
-	}
-
-	void updateTangentRadii() {
-		for (int i = 0; i < limitCones.size(); i++) {
-			AbstractLimitCone *next = i < limitCones.size() - 1 ? limitCones[i + 1] : nullptr;
-			limitCones[i]->updateTangentHandles(next);
+			delete halfThisToNext;
+			delete thisToNext;
 		}
 	}
 
-	void snapToLimits() {
-		// System.out.println("snapping to limits");
+	Vector3 *newY = new SGVec_3d();
+	for (auto dv : directions) {
+		newY->add(dv);
+	}
+
+	newY->div(directions.size());
+	if (newY->mag() != 0 && !std::isnan(newY->y)) {
+		newY->normalize();
+	} else {
+		newY = new SGVec_3d(0, 1, 0);
+	}
+
+	SGVec_3d tempVar(0, 0, 0);
+	sgRayd *newYRay = new sgRayd(&tempVar, newY);
+
+	Rot *oldYtoNewY = new Rot(limitingAxes_Conflict->y_().heading(), originalLimitingAxes->getGlobalOf(newYRay).heading());
+	limitingAxes_Conflict->rotateBy(oldYtoNewY);
+
+	for (auto lc : getLimitCones()) {
+		originalLimitingAxes->setToGlobalOf(lc->controlPoint, lc->controlPoint);
+		limitingAxes_Conflict->setToLocalOf(lc->controlPoint, lc->controlPoint);
+		lc->controlPoint->normalize();
+	}
+
+	this->updateTangentRadii();
+}
+
+void IKTransform3D::updateTangentRadii() {
+	for (int i = 0; i < limitCones.size(); i++) {
+		AbstractLimitCone *next = i < limitCones.size() - 1 ? limitCones[i + 1] : nullptr;
+		limitCones[i]->updateTangentHandles(next);
+	}
+}
+
+void IKTransform3D::snapToLimits() {
+	// System.out.println("snapping to limits");
+	if (orientationallyConstrained) {
+		setAxesToOrientationSnap(attachedTo()->localAxes(), limitingAxes_Conflict, 0);
+	}
+	if (axiallyConstrained) {
+		snapToTwistLimits(attachedTo()->localAxes(), limitingAxes_Conflict);
+	}
+}
+
+void IKTransform3D::setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
+	if (limitingAxes != nullptr) {
 		if (orientationallyConstrained) {
-			setAxesToOrientationSnap(attachedTo()->localAxes(), limitingAxes_Conflict, 0);
+			setAxesToOrientationSnap(toSet, limitingAxes, cosHalfAngleDampen);
 		}
 		if (axiallyConstrained) {
-			snapToTwistLimits(attachedTo()->localAxes(), limitingAxes_Conflict);
+			snapToTwistLimits(toSet, limitingAxes);
 		}
 	}
+}
 
-	void setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
-		if (limitingAxes != nullptr) {
-			if (orientationallyConstrained) {
-				setAxesToOrientationSnap(toSet, limitingAxes, cosHalfAngleDampen);
-			}
-			if (axiallyConstrained) {
-				snapToTwistLimits(toSet, limitingAxes);
-			}
+void IKTransform3D::setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfReturnfullness, double angleReturnfullness) {
+	if (limitingAxes != nullptr && painfullness > 0) {
+		if (orientationallyConstrained) {
+			Vector3 *origin = toSet->origin_();
+			Vector3 *inPoint = toSet->y_().p2().copy();
+			Vector3 *pathPoint = pointOnPathSequence(inPoint, limitingAxes);
+			inPoint->sub(origin);
+			pathPoint->sub(origin);
+			Rot *toClamp = new Rot(inPoint, pathPoint);
+			toClamp->rotation.clampToQuadranceAngle(cosHalfReturnfullness);
+			toSet->rotateBy(toClamp);
+		}
+		if (axiallyConstrained) {
+			double angleToTwistMid = angleToTwistCenter(toSet, limitingAxes);
+			double clampedAngle = MathUtils::clamp(angleToTwistMid, -angleReturnfullness, angleReturnfullness);
+			toSet->rotateAboutY(clampedAngle, false);
 		}
 	}
+}
 
-	void setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfReturnfullness, double angleReturnfullness) {
-		if (limitingAxes != nullptr && painfullness > 0) {
-			if (orientationallyConstrained) {
-				Vector3 *origin = toSet->origin_();
-				Vector3 *inPoint = toSet->y_().p2().copy();
-				Vector3 *pathPoint = pointOnPathSequence(inPoint, limitingAxes);
-				inPoint->sub(origin);
-				pathPoint->sub(origin);
-				Rot *toClamp = new Rot(inPoint, pathPoint);
-				toClamp->rotation.clampToQuadranceAngle(cosHalfReturnfullness);
-				toSet->rotateBy(toClamp);
-			}
-			if (axiallyConstrained) {
-				double angleToTwistMid = angleToTwistCenter(toSet, limitingAxes);
-				double clampedAngle = MathUtils::clamp(angleToTwistMid, -angleReturnfullness, angleReturnfullness);
-				toSet->rotateAboutY(clampedAngle, false);
-			}
-		}
-	}
-
-	void setPainfullness(double amt) {
-		painfullness = amt;
-		if (attachedTo() != nullptr && attachedTo()->parentArmature != nullptr) {
-			SegmentedArmature *s = attachedTo()->parentArmature.boneSegmentMap->get(this->attachedTo());
-			if (s != nullptr) {
-				WorkingBone *wb = s->simulatedBones->get(this->attachedTo());
-				if (wb != nullptr) {
-					wb->updateCosDampening();
-				}
+void IKTransform3D::setPainfullness(double amt) {
+	painfullness = amt;
+	if (attachedTo() != nullptr && attachedTo()->parentArmature != nullptr) {
+		SegmentedArmature *s = attachedTo()->parentArmature.boneSegmentMap->get(this->attachedTo());
+		if (s != nullptr) {
+			WorkingBone *wb = s->simulatedBones->get(this->attachedTo());
+			if (wb != nullptr) {
+				wb->updateCosDampening();
 			}
 		}
 	}
+}
 
-	double getPainfullness() {
-		return painfullness;
+double IKTransform3D::getPainfullness() {
+	return painfullness;
+}
+
+void IKTransform3D::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
+	Vector<double> inBounds = { 1 };
+	/**
+	 * Basic idea:
+	 * We treat our hard and soft boundaries as if they were two seperate kusudamas.
+	 * First we check if we have exceeded our soft boundaries, if so,
+	 * we find the closest point on the soft boundary and the closest point on the same segment
+	 * of the hard boundary.
+	 * let d be our orientation between these two points, represented as a ratio with 0 being right on the soft boundary
+	 * and 1 being right on the hard boundary.
+	 *
+	 * On every kusudama call, we store the previous value of d.
+	 * If the new d is  greater than the old d, our result is the weighted average of these
+	 * (with the weight determining the resistance of the boundary). This result is stored for reference by future calls.
+	 * If the new d is less than the old d, we return the input orientation, and set the new d to this lower value for reference by future calls.
+	 *
+	 *
+	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
+	 */
+	limitingAxes->updateGlobal();
+	boneRay->p1().set(limitingAxes->origin_());
+	boneRay->p2().set(toSet->y_().p2());
+	Vector3 *bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
+	Vector3 *inCushionLimits = this->pointInLimits(bonetip, inBounds, AbstractLimitCone::CUSHION);
+
+	if (inBounds[0] == -1 && inCushionLimits != nullptr) {
+		constrainedRay->p1().set(boneRay->p1());
+		constrainedRay->p2().set(limitingAxes->getGlobalOf(inCushionLimits));
+		Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
+		toSet->rotateBy(rectifiedRot);
+		toSet->updateGlobal();
 	}
+}
 
-	void setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
-		Vector<double> inBounds = { 1 };
-		/**
-		 * Basic idea:
-		 * We treat our hard and soft boundaries as if they were two seperate kusudamas.
-		 * First we check if we have exceeded our soft boundaries, if so,
-		 * we find the closest point on the soft boundary and the closest point on the same segment
-		 * of the hard boundary.
-		 * let d be our orientation between these two points, represented as a ratio with 0 being right on the soft boundary
-		 * and 1 being right on the hard boundary.
-		 *
-		 * On every kusudama call, we store the previous value of d.
-		 * If the new d is  greater than the old d, our result is the weighted average of these
-		 * (with the weight determining the resistance of the boundary). This result is stored for reference by future calls.
-		 * If the new d is less than the old d, we return the input orientation, and set the new d to this lower value for reference by future calls.
-		 *
-		 *
-		 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
-		 */
-		limitingAxes->updateGlobal();
-		boneRay->p1().set(limitingAxes->origin_());
-		boneRay->p2().set(toSet->y_().p2());
-		Vector3 *bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
-		Vector3 *inCushionLimits = this->pointInLimits(bonetip, inBounds, AbstractLimitCone::CUSHION);
-
-		if (inBounds[0] == -1 && inCushionLimits != nullptr) {
-			constrainedRay->p1().set(boneRay->p1());
-			constrainedRay->p2().set(limitingAxes->getGlobalOf(inCushionLimits));
-			Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
-			toSet->rotateBy(rectifiedRot);
-			toSet->updateGlobal();
-		}
+bool IKTransform3D::isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes) {
+	Vector<double> inBounds = { 1 };
+	Vector3 *localizedPoint = limitingAxes->getLocalOf(globalAxes->y_().p2()).copy().normalize();
+	if (limitCones.size() == 1) {
+		return limitCones[0]->determineIfInBounds(nullptr, localizedPoint);
 	}
-
-	void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
-		Vector<double> inBounds = { 1 };
-		limitingAxes->updateGlobal();
-		boneRay->p1().set(limitingAxes->origin_());
-		boneRay->p2().set(toSet->y_().p2());
-		Vector3 *bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
-		Vector3 *inLimits = this->pointInLimits(bonetip, inBounds);
-
-		if (inBounds[0] == -1 && inLimits != nullptr) {
-			constrainedRay->p1().set(boneRay->p1());
-			constrainedRay->p2().set(limitingAxes->getGlobalOf(inLimits));
-			Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
-			toSet->rotateBy(rectifiedRot);
-			toSet->updateGlobal();
+	for (int i = 0; i < limitCones.size() - 1; i++) {
+		if (limitCones[i]->determineIfInBounds(limitCones[i + 1], localizedPoint)) {
+			return true;
 		}
 	}
+	return false;
+}
 
-	bool isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes) {
-		Vector<double> inBounds = { 1 };
-		Vector3 *localizedPoint = limitingAxes->getLocalOf(globalAxes->y_().p2()).copy().normalize();
-		if (limitCones.size() == 1) {
-			return limitCones[0]->determineIfInBounds(nullptr, localizedPoint);
-		}
-		for (int i = 0; i < limitCones.size() - 1; i++) {
-			if (limitCones[i]->determineIfInBounds(limitCones[i + 1], localizedPoint)) {
-				return true;
-			}
-		}
-		return false;
+void IKTransform3D::setAxialLimits(double minAngle, double inRange) {
+	minAxialAngle_Conflict = minAngle;
+	range = toTau(inRange);
+	constraintUpdateNotification();
+}
+
+double IKTransform3D::snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
+	if (!axiallyConstrained) {
+		return 0;
 	}
+	Rot *invRot = limitingAxes->getGlobalMBasis().getInverseRotation();
+	Rot *alignRot = invRot->applyTo(toSet->getGlobalMBasis().rotation);
+	SGVec_3d tempVar(0, 1, 0);
+	Vector<Rot *> decomposition = alignRot->getSwingTwist(&tempVar);
+	double angleDelta2 = decomposition[1]->getAngle() * decomposition[1]->getAxis().y * -1;
+	angleDelta2 = toTau(angleDelta2);
+	double fromMinToAngleDelta = toTau(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
 
-	void setAxialLimits(double minAngle, double inRange) {
-		minAxialAngle_Conflict = minAngle;
-		range = toTau(inRange);
-		constraintUpdateNotification();
+	if (fromMinToAngleDelta < TAU - range) {
+		double distToMin = std::abs(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
+		double distToMax = std::abs(signedAngleDifference(angleDelta2, TAU - (this->minAxialAngle() + range)));
+		double turnDiff = 1;
+		turnDiff *= limitingAxes->getGlobalChirality();
+		if (distToMin < distToMax) {
+			turnDiff = turnDiff * (fromMinToAngleDelta);
+			toSet->rotateAboutY(turnDiff, true);
+		} else {
+			turnDiff = turnDiff * (range - (TAU - fromMinToAngleDelta));
+			toSet->rotateAboutY(turnDiff, true);
+		}
+		return turnDiff < 0 ? turnDiff * -1 : turnDiff;
 	}
+	return 0;
+}
 
-	double snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
-		if (!axiallyConstrained) {
-			return 0;
-		}
-		Rot *invRot = limitingAxes->getGlobalMBasis().getInverseRotation();
-		Rot *alignRot = invRot->applyTo(toSet->getGlobalMBasis().rotation);
-		SGVec_3d tempVar(0, 1, 0);
-		Vector<Rot *> decomposition = alignRot->getSwingTwist(&tempVar);
-		double angleDelta2 = decomposition[1]->getAngle() * decomposition[1]->getAxis().y * -1;
-		angleDelta2 = toTau(angleDelta2);
-		double fromMinToAngleDelta = toTau(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
-
-		if (fromMinToAngleDelta < TAU - range) {
-			double distToMin = std::abs(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
-			double distToMax = std::abs(signedAngleDifference(angleDelta2, TAU - (this->minAxialAngle() + range)));
-			double turnDiff = 1;
-			turnDiff *= limitingAxes->getGlobalChirality();
-			if (distToMin < distToMax) {
-				turnDiff = turnDiff * (fromMinToAngleDelta);
-				toSet->rotateAboutY(turnDiff, true);
-			} else {
-				turnDiff = turnDiff * (range - (TAU - fromMinToAngleDelta));
-				toSet->rotateAboutY(turnDiff, true);
-			}
-			return turnDiff < 0 ? turnDiff * -1 : turnDiff;
-		}
+double IKTransform3D::angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
+	if (!axiallyConstrained) {
 		return 0;
 	}
 
-	double angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
-		if (!axiallyConstrained) {
-			return 0;
-		}
+	Rot *alignRot = limitingAxes->getGlobalMBasis().getInverseRotation().applyTo(toSet->getGlobalMBasis().rotation);
+	SGVec_3d tempVar(0, 1, 0);
+	Vector<Rot *> decomposition = alignRot->getSwingTwist(&tempVar);
+	double angleDelta2 = decomposition[1]->getAngle() * decomposition[1]->getAxis().y * -1;
+	angleDelta2 = toTau(angleDelta2);
 
-		Rot *alignRot = limitingAxes->getGlobalMBasis().getInverseRotation().applyTo(toSet->getGlobalMBasis().rotation);
-		SGVec_3d tempVar(0, 1, 0);
-		Vector<Rot *> decomposition = alignRot->getSwingTwist(&tempVar);
-		double angleDelta2 = decomposition[1]->getAngle() * decomposition[1]->getAxis().y * -1;
-		angleDelta2 = toTau(angleDelta2);
+	double distToMid = signedAngleDifference(angleDelta2, TAU - (this->minAxialAngle() + (range / 2)));
+	return distToMid;
+}
 
-		double distToMid = signedAngleDifference(angleDelta2, TAU - (this->minAxialAngle() + (range / 2)));
-		return distToMid;
-	}
+bool IKTransform3D::inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingAxes) {
+	Rot *invRot = limitingAxes->getGlobalMBasis().getInverseRotation();
+	Rot *alignRot = invRot->applyTo(boneAxes->getGlobalMBasis().rotation);
+	SGVec_3d tempVar(0, 1, 0);
+	Vector<Rot *> decomposition = alignRot->getSwingTwist(&tempVar);
+	double angleDelta2 = decomposition[1]->getAngle() * decomposition[1]->getAxis().y * -1;
+	angleDelta2 = toTau(angleDelta2);
+	double fromMinToAngleDelta = toTau(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
 
-	bool inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingAxes) {
-		Rot *invRot = limitingAxes->getGlobalMBasis().getInverseRotation();
-		Rot *alignRot = invRot->applyTo(boneAxes->getGlobalMBasis().rotation);
-		SGVec_3d tempVar(0, 1, 0);
-		Vector<Rot *> decomposition = alignRot->getSwingTwist(&tempVar);
-		double angleDelta2 = decomposition[1]->getAngle() * decomposition[1]->getAxis().y * -1;
-		angleDelta2 = toTau(angleDelta2);
-		double fromMinToAngleDelta = toTau(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
-
-		if (fromMinToAngleDelta < TAU - range) {
-			double distToMin = std::abs(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
-			double distToMax = std::abs(signedAngleDifference(angleDelta2, TAU - (this->minAxialAngle() + range)));
-			double turnDiff = 1;
-			turnDiff *= limitingAxes->getGlobalChirality();
-			if (distToMin < distToMax) {
-				return false;
-			} else {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	double signedAngleDifference(double minAngle, double __super) {
-		double d = std::abs(minAngle - __super) % TAU;
-		double r = d > PI ? TAU - d : d;
-
-		double sign = (minAngle - __super >= 0 && minAngle - __super <= PI) || (minAngle - __super <= -PI && minAngle - __super >= -TAU) ? 1.0f : -1.0f;
-		r *= sign;
-		return r;
-	}
-
-	AbstractBone *attachedTo() {
-		return this->attachedTo_Conflict;
-	}
-
-	void addLimitCone(SGVec_3d *newPoint, double radius, AbstractLimitCone *previous, AbstractLimitCone *next) {
-		int insertAt = 0;
-
-		if (next == nullptr || limitCones.empty()) {
-			addLimitConeAtIndex(-1, newPoint, radius);
-		} else if (previous != nullptr) {
-			insertAt = VectorHelper::indexOf(limitCones, previous) + 1;
+	if (fromMinToAngleDelta < TAU - range) {
+		double distToMin = std::abs(signedAngleDifference(angleDelta2, TAU - this->minAxialAngle()));
+		double distToMax = std::abs(signedAngleDifference(angleDelta2, TAU - (this->minAxialAngle() + range)));
+		double turnDiff = 1;
+		turnDiff *= limitingAxes->getGlobalChirality();
+		if (distToMin < distToMax) {
+			return false;
 		} else {
-			insertAt = static_cast<int>(MathUtils::max(0, VectorHelper::indexOf(limitCones, next)));
+			return false;
 		}
-		addLimitConeAtIndex(insertAt, newPoint, radius);
 	}
+	return true;
+}
 
-	void removeLimitCone(AbstractLimitCone *limitCone) {
-		this->limitCones.remove(limitCone);
-		this->updateTangentRadii();
-		this->updateRotationalFreedom();
+double IKTransform3D::signedAngleDifference(double minAngle, double __super) {
+	double d = std::abs(minAngle - __super) % TAU;
+	double r = d > PI ? TAU - d : d;
+
+	double sign = (minAngle - __super >= 0 && minAngle - __super <= PI) || (minAngle - __super <= -PI && minAngle - __super >= -TAU) ? 1.0f : -1.0f;
+	r *= sign;
+	return r;
+}
+
+AbstractBone *IKTransform3D::attachedTo() {
+	return this->attachedTo_Conflict;
+}
+
+void IKTransform3D::addLimitCone(SGVec_3d *newPoint, double radius, AbstractLimitCone *previous, AbstractLimitCone *next) {
+	int insertAt = 0;
+
+	if (next == nullptr || limitCones.empty()) {
+		addLimitConeAtIndex(-1, newPoint, radius);
+	} else if (previous != nullptr) {
+		insertAt = VectorHelper::indexOf(limitCones, previous) + 1;
+	} else {
+		insertAt = static_cast<int>(MathUtils::max(0, VectorHelper::indexOf(limitCones, next)));
 	}
+	addLimitConeAtIndex(insertAt, newPoint, radius);
+}
 
-	void addLimitConeAtIndex(int insertAt, SGVec_3d *newPoint, double radius) {
-		AbstractLimitCone *newCone = createLimitConeForIndex(insertAt, newPoint, radius);
-		if (insertAt == -1) {
-			limitCones.push_back(newCone);
-		} else {
-			limitCones.push_back(insertAt, newCone);
+void IKTransform3D::removeLimitCone(AbstractLimitCone *limitCone) {
+	this->limitCones.remove(limitCone);
+	this->updateTangentRadii();
+	this->updateRotationalFreedom();
+}
+
+void IKTransform3D::addLimitConeAtIndex(int insertAt, SGVec_3d *newPoint, double radius) {
+	AbstractLimitCone *newCone = createLimitConeForIndex(insertAt, newPoint, radius);
+	if (insertAt == -1) {
+		limitCones.push_back(newCone);
+	} else {
+		limitCones.push_back(insertAt, newCone);
+	}
+	this->updateTangentRadii();
+	this->updateRotationalFreedom();
+}
+
+double IKTransform3D::toTau(double angle) {
+	double result = angle;
+	if (angle < 0) {
+		result = (2 * M_PI) + angle;
+	}
+	result = result % (M_PI * 2);
+	return result;
+}
+
+double IKTransform3D::mod(double x, double y) {
+	if (y != 0 && x != 0) {
+		double result = x % y;
+		if (result < 0) {
+			result += y;
 		}
-		this->updateTangentRadii();
-		this->updateRotationalFreedom();
-	}
-
-	double toTau(double angle) {
-		double result = angle;
-		if (angle < 0) {
-			result = (2 * M_PI) + angle;
-		}
-		result = result % (M_PI * 2);
 		return result;
 	}
+	return 0;
+}
 
-	double mod(double x, double y) {
-		if (y != 0 && x != 0) {
-			double result = x % y;
-			if (result < 0) {
-				result += y;
-			}
-			return result;
-		}
-		return 0;
-	}
+double IKTransform3D::minAxialAngle() {
+	return minAxialAngle_Conflict;
+}
 
-	double minAxialAngle() {
-		return minAxialAngle_Conflict;
-	}
+double IKTransform3D::maxAxialAngle() {
+	return range;
+}
 
-	double maxAxialAngle() {
-		return range;
-	}
+double IKTransform3D::absoluteMaxAxialAngle() {
+	return signedAngleDifference(range + minAxialAngle_Conflict, M_PI * 2);
+}
 
-	double absoluteMaxAxialAngle() {
-		return signedAngleDifference(range + minAxialAngle_Conflict, M_PI * 2);
-	}
+bool IKTransform3D::isAxiallyConstrained() {
+	return axiallyConstrained;
+}
 
-	bool isAxiallyConstrained() {
-		return axiallyConstrained;
-	}
+bool IKTransform3D::isOrientationallyConstrained() {
+	return orientationallyConstrained;
+}
 
-	bool isOrientationallyConstrained() {
-		return orientationallyConstrained;
-	}
+void IKTransform3D::disableOrientationalLimits() {
+	this->orientationallyConstrained = false;
+}
 
-	void disableOrientationalLimits() {
-		this->orientationallyConstrained = false;
-	}
+void IKTransform3D::enableOrientationalLimits() {
+	this->orientationallyConstrained = true;
+}
 
-	void enableOrientationalLimits() {
-		this->orientationallyConstrained = true;
-	}
+void IKTransform3D::toggleOrientationalLimits() {
+	this->orientationallyConstrained = !this->orientationallyConstrained;
+}
 
-	void toggleOrientationalLimits() {
-		this->orientationallyConstrained = !this->orientationallyConstrained;
-	}
+void IKTransform3D::disableAxialLimits() {
+	this->axiallyConstrained = false;
+}
 
-	void disableAxialLimits() {
-		this->axiallyConstrained = false;
-	}
+void IKTransform3D::enableAxialLimits() {
+	this->axiallyConstrained = true;
+}
 
-	void enableAxialLimits() {
-		this->axiallyConstrained = true;
-	}
+void IKTransform3D::toggleAxialLimits() {
+	axiallyConstrained = !axiallyConstrained;
+}
 
-	void toggleAxialLimits() {
-		axiallyConstrained = !axiallyConstrained;
-	}
+bool IKTransform3D::isEnabled() {
+	return axiallyConstrained || orientationallyConstrained;
+}
 
-	bool isEnabled() {
-		return axiallyConstrained || orientationallyConstrained;
-	}
+void IKTransform3D::disable() {
+	this->axiallyConstrained = false;
+	this->orientationallyConstrained = false;
+}
 
-	void disable() {
-		this->axiallyConstrained = false;
-		this->orientationallyConstrained = false;
-	}
+void IKTransform3D::enable() {
+	this->axiallyConstrained = true;
+	this->orientationallyConstrained = true;
+}
 
-	void enable() {
-		this->axiallyConstrained = true;
-		this->orientationallyConstrained = true;
-	}
+double IKTransform3D::getRotationalFreedom() {
+	// computation cached from updateRotationalFreedom
+	// feel free to override that method if you want your own more correct result.
+	// please contribute back a better solution if you write one.
+	return rotationalFreedom;
+}
 
-	double getRotationalFreedom() {
-		// computation cached from updateRotationalFreedom
-		// feel free to override that method if you want your own more correct result.
-		// please contribute back a better solution if you write one.
-		return rotationalFreedom;
+void IKTransform3D::updateRotationalFreedom() {
+	double axialConstrainedHyperArea = isAxiallyConstrained() ? (range / TAU) : 1;
+	// quick and dirty solution (should revisit);
+	double totalLimitConeSurfaceAreaRatio = 0;
+	for (auto l : limitCones) {
+		totalLimitConeSurfaceAreaRatio += (l->getRadius() * 2) / TAU;
 	}
+	rotationalFreedom = axialConstrainedHyperArea * (isOrientationallyConstrained() ? std::min(totalLimitConeSurfaceAreaRatio, 1) : 1);
+}
 
-	void updateRotationalFreedom() {
-		double axialConstrainedHyperArea = isAxiallyConstrained() ? (range / TAU) : 1;
-		// quick and dirty solution (should revisit);
-		double totalLimitConeSurfaceAreaRatio = 0;
-		for (auto l : limitCones) {
-			totalLimitConeSurfaceAreaRatio += (l->getRadius() * 2) / TAU;
-		}
-		rotationalFreedom = axialConstrainedHyperArea * (isOrientationallyConstrained() ? std::min(totalLimitConeSurfaceAreaRatio, 1) : 1);
+void IKTransform3D::attachTo(AbstractBone *forBone) {
+	this->attachedTo_Conflict = forBone;
+	if (this->limitingAxes_Conflict == nullptr) {
+		this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
+	} else {
+		forBone->setFrameofRotation(this->limitingAxes_Conflict);
+		this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
 	}
+}
 
-	void attachTo(AbstractBone *forBone) {
-		this->attachedTo_Conflict = forBone;
-		if (this->limitingAxes_Conflict == nullptr) {
-			this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
-		} else {
-			forBone->setFrameofRotation(this->limitingAxes_Conflict);
-			this->limitingAxes_Conflict = forBone->getMajorRotationAxes();
-		}
-	}
+void IKTransform3D::setStrength(double newStrength) {
+	this->strength = std::max(0, std::min(1, newStrength));
+}
 
-	void setStrength(double newStrength) {
-		this->strength = std::max(0, std::min(1, newStrength));
-	}
+double IKTransform3D::getStrength() {
+	return this->strength;
+}
 
-	double getStrength() {
-		return this->strength;
-	}
-
-	Vector < ? extends AbstractLimitCone > getLimitCones() {
-		return this->limitCones;
-	}
-};
+Vector<LimitCone> IKTransform3D::getLimitCones() {
+	return this->limitCones;
+}

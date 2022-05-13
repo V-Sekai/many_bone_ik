@@ -4,6 +4,7 @@ Import("env")
 Import("env_modules")
 
 env_ewbik = env_modules.Clone()
+env_ewbik.add_source_files(env.modules_sources, "constraints/*.cpp")
 env_ewbik.add_source_files(env.modules_sources, "math/*.cpp")
 env_ewbik.add_source_files(env.modules_sources, "*.cpp")
 
