@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  ik_effector_template.h   s                                            */
+/*  test_ewbik.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,6 +28,31 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "limit_cone_3d.h"
+#pragma once
 
 #include "core/io/resource.h"
+
+class Constraint : public Resource {
+	GDCLASS(Constraint, Resource);
+
+public:
+	virtual void snapToLimits() = 0;
+	virtual void disable() = 0;
+	virtual void enable() = 0;
+	virtual bool isEnabled() = 0;
+
+	// The constraint returns true if the ray from the constraint origin to the globalPoint is within the constraint's limits
+	// and false otherwise.
+	virtual bool isInLimits_(Vector3 globalPoint) = 0;
+	virtual Transform3D limitingAxes() = 0;
+
+	/**
+	 * @return a measure of the rotational freedom afforded by this constraint.
+	 * with 0 meaning no rotational freedom (the bone is essentially stationary in relation to its parent)
+	 * and 1 meaning full rotational freedom (the bone is completely unconstrained).
+	 *
+	 * This should be computed as ratio between orientations a bone can be in and orientations that
+	 * a bone cannot be in as defined by its representation as a point on the surface of a hypersphere.
+	 */
+	virtual double getRotationalFreedom() = 0;
+};
