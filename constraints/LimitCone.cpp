@@ -79,10 +79,10 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		// the axis of this cone, scaled to minimize its distance to the tangent  contact points.
 		Vector3 scaledAxisA = Vector3::mult(A, std::cos(boundaryPlusTangentRadiusA));
 		// a point on the plane running through the tangent contact points
-		Rot tempVar(arcNormal, boundaryPlusTangentRadiusA);
+		Basis tempVar(arcNormal, boundaryPlusTangentRadiusA);
 		Vector3 planeDir1A = (&tempVar)->applyToCopy(A);
 		// another point on the same plane
-		Rot tempVar2(A, M_PI / 2);
+		Basis tempVar2(A, M_PI / 2);
 		Vector3 planeDir2A = (&tempVar2)->applyToCopy(planeDir1A);
 
 		Vector3 scaledAxisB = B * std::cos(boundaryPlusTangentRadiusB);
@@ -90,12 +90,12 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		Basis tempVar3(arcNormal, boundaryPlusTangentRadiusB);
 		Vector3 planeDir1B = tempVar3.xform(B);
 		// another point on the same plane
-		Rot tempVar4(B, M_PI / 2);
+		Quaternion tempVar4(B, M_PI / 2);
 		Vector3 planeDir2B = (&tempVar4)->applyToCopy(planeDir1B);
 
 		// ray from scaled center of next cone to half way point between the circumference of this cone and the next cone.
-		sgRayd *r1B = new Ray3D(planeDir1B, scaledAxisB);
-		sgRayd *r2B = new Ray3D(planeDir1B, planeDir2B);
+		Ref<Ray3D> r1B = memnew(Ray3D(planeDir1B, scaledAxisB));
+		Ref<Ray3D> r2B = memnew(Ray3D(planeDir1B, planeDir2B));
 
 		r1B->elongate(99);
 		r2B->elongate(99);
@@ -103,27 +103,23 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		Vector3 intersection1 = r1B->intersectsPlane(scaledAxisA, planeDir1A, planeDir2A);
 		Vector3 intersection2 = r2B->intersectsPlane(scaledAxisA, planeDir1A, planeDir2A);
 
-		sgRayd *intersectionRay = new Ray3D(intersection1, intersection2);
+		Ref<Ray3D> intersectionRay = memnew(Ray3D(intersection1, intersection2));
 		intersectionRay->elongate(99);
 
-		Vector3 sphereIntersect1 = new Vector3();
-		Vector3 sphereIntersect2 = new Vector3();
-		Vector3 sphereCenter = new Vector3();
+		Vector3 sphereIntersect1;
+		Vector3 sphereIntersect2;
+		Vector3 sphereCenter;
 		intersectionRay->intersectsSphere(sphereCenter, 1.0f, sphereIntersect1, sphereIntersect2);
 
 		this->setTangentCircleCenterNext1(sphereIntersect1, mode);
 		this->setTangentCircleCenterNext2(sphereIntersect2, mode);
 		this->setTangentCircleRadiusNext(tRadius, mode);
-
-		delete intersectionRay;
-		delete r2B;
-		delete r1B;
 	}
-	if (this->tangentCircleCenterNext1 == nullptr) {
+	if (this->tangentCircleCenterNext1 == Vector3(NAN, NAN, NAN)) {
 		this->tangentCircleCenterNext1 = getOrthogonal(controlPoint).normalize();
 		this->cushionTangentCircleCenterNext1 = getOrthogonal(controlPoint).normalize();
 	}
-	if (tangentCircleCenterNext2 == nullptr) {
+	if (tangentCircleCenterNext2 == Vector3(NAN, NAN, NAN)) {
 		tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1).normalize();
 		cushionTangentCircleCenterNext2 = (cushionTangentCircleCenterNext2 * -1).normalize();
 	}

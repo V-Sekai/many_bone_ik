@@ -75,6 +75,9 @@ public:
 	void set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength);
 	void create_pin();
 	bool is_pinned() const;
+	IKTransform3D& get_ik_transform() {
+		return xform;
+	}
 	IKBone3D() {}
 	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	~IKBone3D() {}

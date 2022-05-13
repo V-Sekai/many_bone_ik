@@ -1,4 +1,3 @@
-
 /*************************************************************************/
 /*  test_ewbik.h                                                         */
 /*************************************************************************/
@@ -71,7 +70,7 @@ void IKKusudama::optimizeLimitingAxes() {
 	}
 
 	newY /= directions.size();
-	if (newY->length() != 0.f && !Math::is_nan(newY->y)) {
+	if (newY.length() != 0.f && !Math::is_nan(newY.y)) {
 		newY.normalize();
 	} else {
 		newY = Vector3(0.f, 1.f, 0.f);
@@ -81,8 +80,8 @@ void IKKusudama::optimizeLimitingAxes() {
 	Ref<Ray3D> newYRay = memnew(Ray3D(&tempVar, newY));
 
 	// TODO: fire 2022-05-13 FIX ME!!
-	//Quaternion oldYtoNewY = Quaternion(limitingAxes_Conflict.get_transform().basis;, originalLimitingAxes->get_global_transform().xform(newYRay->heading()));
-	//limitingAxes_Conflict.rotateBy(oldYtoNewY);
+	// Quaternion oldYtoNewY = Quaternion(limitingAxes_Conflict.get_transform().basis;, originalLimitingAxes->get_global_transform().xform(newYRay->heading()));
+	// limitingAxes_Conflict.rotateBy(oldYtoNewY);
 
 	for (auto lc : getLimitCones()) {
 		originalLimitingAxes->setToGlobalOf(lc->controlPoint, lc->controlPoint);
@@ -103,10 +102,10 @@ void IKKusudama::updateTangentRadii() {
 void IKKusudama::snapToLimits() {
 	// System.out.println("snapping to limits");
 	if (orientationallyConstrained) {
-		setAxesToOrientationSnap(attachedTo()->localAxes(), limitingAxes_Conflict, 0);
+		setAxesToOrientationSnap(attachedTo()->get_ik_transform(), limitingAxes_Conflict, 0);
 	}
 	if (axiallyConstrained) {
-		snapToTwistLimits(attachedTo()->localAxes(), limitingAxes_Conflict);
+		snapToTwistLimits(attachedTo()->get_ik_transform(), limitingAxes_Conflict);
 	}
 }
 
@@ -124,9 +123,10 @@ void IKKusudama::setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingA
 void IKKusudama::setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfReturnfullness, double angleReturnfullness) {
 	if (limitingAxes != nullptr && painfullness > 0) {
 		if (orientationallyConstrained) {
-			Vector3 *origin = toSet->origin_();
-			Vector3 *inPoint = toSet->y_().p2;
-			Vector3 *pathPoint = pointOnPathSequence(inPoint, limitingAxes);
+			Vector3 origin = toSet->get_transform().origin;
+			// TODO: fire 2022-05-13 Questions!
+			Vector3 inPoint = toSet->get_transform().basis[Vector3::AXIS_Y];
+			Vector3 pathPoint = pointOnPathSequence(inPoint, limitingAxes);
 			inPoint -= origin;
 			pathPoint -= origin;
 			Quaternion toClamp = Quaternion(inPoint, pathPoint);
@@ -143,15 +143,14 @@ void IKKusudama::setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limi
 
 void IKKusudama::setPainfullness(double amt) {
 	painfullness = amt;
-	if (attachedTo().is_valid() && attachedTo()->parentArmature != nullptr) {
-		Ref<IKBoneChain> s = attachedTo()->parentArmature.boneSegmentMap->get(this->attachedTo());
-		if (s.is_valid()) {
-			Ref<IKBone3D> wb = s->simulatedBones->get(this->attachedTo());
-			if (wb.is_valid()) {
-				wb->updateCosDampening();
-			}
-		}
+	if (!(attachedTo().is_valid() && attachedTo()->parentArmature.is_valid())) {
+		return;
 	}
+	Ref<IKBone3D> wb = this->attachedTo();
+	if (wb.is_null()) {
+		return;
+	}
+	wb->updateCosDampening();
 }
 
 double IKKusudama::getPainfullness() {
@@ -177,9 +176,9 @@ void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3
 	 *
 	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
 	 */
-	boneRay->p1(limitingAxes->origin_());
+	boneRay->p1(limitingAxes->get_transform().origin);
 	boneRay->p2(toSet->get_transform().basis[[Vector3::AXIS_Y]);
-	Vector3 bonetip = limitingAxes->get_transform().xform(toSet->get_transform().basis[[Vector3::AXIS_Y]);
+	Vector3 bonetip = limitingAxes->get_transform().xform(toSet->get_transform().basis[Vector3::AXIS_Y]);
 	Vector3 inCushionLimits = this->pointInLimits(bonetip, inBounds, LimitCone::CUSHION);
 
 	if (inBounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {

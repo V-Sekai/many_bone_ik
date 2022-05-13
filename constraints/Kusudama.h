@@ -41,6 +41,7 @@
 #include <type_traits>
 #include <vector>
 
+class LimitCone;
 class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
