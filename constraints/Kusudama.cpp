@@ -176,7 +176,6 @@ void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3
 	 *
 	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
 	 */
-	limitingAxes->updateGlobal();
 	boneRay->p1(limitingAxes->origin_());
 	boneRay->p2(toSet->y_().p2());
 	Vector3 bonetip = limitingAxes->getLocalOf(toSet->y_().p2());

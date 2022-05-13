@@ -305,7 +305,7 @@ public:
 	virtual void setP1(Vector3 p1);
 
 	virtual int intersectsSphere(Vector3 rp1, Vector3 rp2, float radius, Vector3 S1, Vector3 S2);
-	
+
 	float triArea2D(float x1, float y1, float x2, float y2, float x3, float y3) {
 		return (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2);
 	}
@@ -365,5 +365,9 @@ public:
 		I *= r;
 		barycentric(ta, tb, tc, I, uvw);
 		return I;
+	}
+
+	operator String() const {
+		return String(L"(") + this->p1_Conflict.x + L" ->  " + this->p2_Conflict.x + L") \n " + L"(" + this->p1_Conflict.y + L" ->  " + this->p2_Conflict.y + L") \n " + L"(" + this->p1_Conflict.z + L" ->  " + this->p2_Conflict.z + L") \n ";
 	}
 };

@@ -299,10 +299,8 @@ public:
 				double toNextCos = input.dot(tangentCircleCenterNext1);
 				if (toNextCos > tangentCircleRadiusNextCos) {
 					Vector3 planeNormal = tangentCircleCenterNext1.cross(input);
-					Rot *rotateAboutBy = new Rot(planeNormal, tangentCircleRadiusNext);
-
-					delete rotateAboutBy;
-					return rotateAboutBy->applyToCopy(tangentCircleCenterNext1);
+					Quaternion rotateAboutBy = Quaternion(planeNormal, tangentCircleRadiusNext);
+					return Basis(rotateAboutBy).xform(tangentCircleCenterNext1);
 				} else {
 					return input;
 				}
@@ -315,10 +313,8 @@ public:
 			if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
 				if (input.dot(tangentCircleCenterNext2) > tangentCircleRadiusNextCos) {
 					Vector3 planeNormal = tangentCircleCenterNext2.cross(input);
-					Rot *rotateAboutBy = new Rot(planeNormal, tangentCircleRadiusNext);
-
-					delete rotateAboutBy;
-					return rotateAboutBy->applyToCopy(tangentCircleCenterNext2);
+					Quaternion rotateAboutBy = Quaternion(planeNormal, tangentCircleRadiusNext);
+					return Basis(rotateAboutBy).xform(tangentCircleCenterNext2);
 				} else {
 					return input;
 				}
@@ -375,12 +371,9 @@ public:
 			return nullptr;
 		} else {
 			Vector3 axis = this->getControlPoint().cross(input);
-			Rot *rotTo = new Rot(axis, this->getRadius());
-			s
-					Vector3 result = rotTo->applyToCopy(this->getControlPoint());
+			Quaternion rotTo = Quaternion(axis, this->getRadius());
+			Vector3 result = Basis(rotTo).xform(this->getControlPoint());
 			inBounds[0] = false;
-
-			delete rotTo;
 			return result;
 		}
 	}

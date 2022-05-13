@@ -158,8 +158,7 @@ public:
 	 */
 	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
 		Vector<double> inBounds = { 1 };
-		limitingAxes->updateGlobal();
-		boneRay->p1(limitingAxes->get_transform().origin)
+		boneRay->p1(limitingAxes->get_transform().origin);
 		boneRay->p2(toSet->y_().p2());
 		Vector3 bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
 		Vector3 inLimits = this->pointInLimits(bonetip, inBounds);
@@ -271,14 +270,14 @@ public:
 		Vector3 result = point;
 
 		if (limitCones.size() == 1) {
-			result->set(limitCones[0]->controlPoint);
+			result = limitCones[0]->controlPoint;
 		} else {
 			for (int i = 0; i < limitCones.size() - 1; i++) {
 				Ref<LimitCone> nextCone = limitCones[i + 1];
 				Vector3 *closestPathPoint = limitCones[i]->getClosestPathPoint(nextCone, point);
 				double closeDot = closestPathPoint.dot(point);
 				if (closeDot > closestPointDot) {
-					result->set(closestPathPoint);
+					result =  losestPathPoint;
 					closestPointDot = closeDot;
 				}
 			}
