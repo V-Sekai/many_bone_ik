@@ -696,27 +696,27 @@ void Ray3D::p2(Vector3 in) {
 	this->p2_Conflict = in->copy();
 }
 
-float Ray3D::lerp(float a, float b, float t) {
-	return (1 - t) * a + t * b;
+float Ray3D::lerp(float p_a, float p_b, float p_t) {
+	return (1 - p_t) * p_a + t * p_b;
 }
 
 Vector3 Ray3D::p2() {
 	return p2_Conflict;
 }
 
-void Ray3D::set(Ray3D *r) {
-	this->p1_Conflict->set(r->p1_Conflict);
-	this->p2_Conflict->set(r->p2_Conflict);
+void Ray3D::set(Ray3D *r_r) {
+	this->p1_Conflict->set(r_r->p1_Conflict);
+	this->p2_Conflict->set(r_r->p2_Conflict);
 }
 
-void Ray3D::setP2(Vector3 p2) {
-	this->p2_Conflict = p2;
+void Ray3D::setP2(Vector3 p_p2) {
+	this->p2_Conflict = p_p2;
 }
 
 Vector3 Ray3D::p1() {
 	return p1_Conflict;
 }
 
-void Ray3D::setP1(Vector3 p1) {
-	this->p1_Conflict = p1;
+void Ray3D::setP1(Vector3 p_p1) {
+	this->p1_Conflict = p_p1;
 }
