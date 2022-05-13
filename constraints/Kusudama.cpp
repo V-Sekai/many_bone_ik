@@ -179,10 +179,10 @@ void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3
 	limitingAxes->updateGlobal();
 	boneRay->p1(limitingAxes->origin_());
 	boneRay->p2(toSet->y_().p2());
-	Vector3 *bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
-	Vector3 *inCushionLimits = this->pointInLimits(bonetip, inBounds, LimitCone::CUSHION);
+	Vector3 bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
+	Vector3 inCushionLimits = this->pointInLimits(bonetip, inBounds, LimitCone::CUSHION);
 
-	if (inBounds[0] == -1 && inCushionLimits != nullptr) {
+	if (inBounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
 		constrainedRay->p1(boneRay->p1());
 		constrainedRay->p2(limitingAxes->getGlobalOf(inCushionLimits));
 		Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
@@ -291,7 +291,7 @@ Ref<IKBone3D> IKKusudama::attachedTo() {
 	return this->attachedTo_Conflict;
 }
 
-void IKKusudama::addLimitCone(Vector3 *newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next) {
+void IKKusudama::addLimitCone(Vector3 newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next) {
 	int insertAt = 0;
 
 	if (next == nullptr || limitCones.empty()) {
@@ -310,7 +310,7 @@ void IKKusudama::removeLimitCone(Ref<LimitCone> limitCone) {
 	this->updateRotationalFreedom();
 }
 
-void IKKusudama::addLimitConeAtIndex(int insertAt, Vector3 *newPoint, double radius) {
+void IKKusudama::addLimitConeAtIndex(int insertAt, Vector3 newPoint, double radius) {
 	Ref<LimitCone> newCone = createLimitConeForIndex(insertAt, newPoint, radius);
 	if (insertAt == -1) {
 		limitCones.push_back(newCone);
@@ -436,4 +436,10 @@ double IKKusudama::getStrength() {
 
 Vector<LimitCone> IKKusudama::getLimitCones() {
 	return this->limitCones;
+}
+
+bool IKKusudama::isInLimits_(Vector3 globalPoint) {
+	Vector<double> inBounds = { 1 };
+	this->pointInLimits(globalPoint, inBounds, LimitCone::BOUNDARY);
+	return inBounds[0] > 0;
 }

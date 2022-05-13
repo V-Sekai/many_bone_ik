@@ -140,11 +140,7 @@ public:
 	 */
 	virtual double getPainfullness();
 
-	bool isInLimits_(Vector3 globalPoint) {
-		Vector<double> inBounds = { 1 };
-		Vector3 inLimits = this->pointInLimits(globalPoint, inBounds, LimitCone::BOUNDARY);
-		return inBounds[0] > 0;
-	}
+	bool isInLimits_(Vector3 globalPoint);
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -163,12 +159,12 @@ public:
 	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
 		Vector<double> inBounds = { 1 };
 		limitingAxes->updateGlobal();
-		boneRay->p1(limitingAxes->origin_());
+		boneRay->p1(limitingAxes->get_transform().origin)
 		boneRay->p2(toSet->y_().p2());
 		Vector3 bonetip = limitingAxes->getLocalOf(toSet->y_().p2());
 		Vector3 inLimits = this->pointInLimits(bonetip, inBounds);
 
-		if (inBounds[0] == -1) {
+		if (inBounds[0] == -1 && inLimits != Vector3(NAN, NAN, NAN)) {
 			constrainedRay->p1(boneRay->p1());
 			constrainedRay->p2(limitingAxes->getGlobalOf(inLimits));
 			Rot *rectifiedRot = new Rot(boneRay->heading(), constrainedRay->heading());
@@ -223,26 +219,24 @@ public:
 	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	Vector3 *pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode) {
-		Vector3 *point = inPoint->copy();
+	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode) {
+		Vector3 point = inPoint;
 		point.normalize();
 
 		inBounds[0] = -1;
-		Vector3 *closestCollisionPoint = nullptr;
+		Vector3 closestCollisionPoint = Vector3(NAN, NAN, NAN);
 		double closestCos = -2;
 		Vector<bool> boundHint = { false };
 
 		for (int i = 0; i < limitCones.size(); i++) {
 			Ref<LimitCone> cone = limitCones[i];
-			Vector3 *collisionPoint = inPoint->copy();
-			collisionPoint->set(0, 0, 0);
-			collisionPoint = cone->closestToCone(point, boundHint);
-			if (collisionPoint == nullptr) {
+			Vector3 collisionPoint = cone->closestToCone(point, boundHint);
+			if (collisionPoint == Vector3(NAN, NAN, NAN)) {
 				inBounds[0] = 1;
 				return point;
 			} else {
-				double thisCos = collisionPoint->dot(point);
-				if (closestCollisionPoint == nullptr || thisCos > closestCos) {
+				double thisCos = collisionPoint.dot(point);
+				if (closestCollisionPoint == Vector3(NAN, NAN, NAN) || thisCos > closestCos) {
 					closestCollisionPoint = collisionPoint;
 					closestCos = thisCos;
 				}
@@ -252,11 +246,9 @@ public:
 			for (int i = 0; i < limitCones.size() - 1; i++) {
 				Ref<LimitCone> currCone = limitCones[i];
 				Ref<LimitCone> nextCone = limitCones[i + 1];
-				Vector3 *collisionPoint = inPoint->copy();
-				collisionPoint->set(0, 0, 0);
-				collisionPoint = currCone->getOnGreatTangentTriangle(nextCone, point);
-				if (collisionPoint != nullptr) {
-					double thisCos = collisionPoint->dot(point);
+				Vector3 collisionPoint = currCone->getOnGreatTangentTriangle(nextCone, point);
+				if (collisionPoint != Vector3(NAN, NAN, NAN)) {
+					double thisCos = collisionPoint.dot(point);
 					if (thisCos == 1) {
 						inBounds[0] = 1;
 						closestCollisionPoint = point;
@@ -272,11 +264,11 @@ public:
 		return closestCollisionPoint;
 	}
 
-	Vector3 *pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes) {
+	Vector3 pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes) {
 		double closestPointDot = 0;
-		Vector3 *point = limitingAxes->getLocalOf(inPoint);
+		Vector3 point = limitingAxes->getLocalOf(inPoint);
 		point.normalize();
-		Vector3 *result = static_cast<Vector3 *>(point->copy());
+		Vector3 result = point;
 
 		if (limitCones.size() == 1) {
 			result->set(limitCones[0]->controlPoint);
@@ -284,7 +276,7 @@ public:
 			for (int i = 0; i < limitCones.size() - 1; i++) {
 				Ref<LimitCone> nextCone = limitCones[i + 1];
 				Vector3 *closestPathPoint = limitCones[i]->getClosestPathPoint(nextCone, point);
-				double closeDot = closestPathPoint->dot(point);
+				double closeDot = closestPathPoint.dot(point);
 				if (closeDot > closestPointDot) {
 					result->set(closestPathPoint);
 					closestPointDot = closeDot;
@@ -306,7 +298,7 @@ public:
 	 * @param previous the LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 * @param next the other LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 */
-	virtual void addLimitCone(Vector3 *newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next);
+	virtual void addLimitCone(Vector3 newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next);
 
 	virtual void removeLimitCone(Ref<LimitCone> limitCone);
 
@@ -324,7 +316,7 @@ public:
 	 * @param newPoint where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
 	 * @param radius the radius of the limitCone
 	 */
-	virtual void addLimitConeAtIndex(int insertAt, Vector3 *newPoint, double radius);
+	virtual void addLimitConeAtIndex(int insertAt, Vector3 newPoint, double radius);
 
 	virtual double toTau(double angle);
 

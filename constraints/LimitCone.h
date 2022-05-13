@@ -124,7 +124,6 @@ public:
 	 * is to the boundary, the more any further rotation in the direction of that boundary will be avoided.
 	 * @param attachedTo
 	 */
-	template <typename T1>
 	LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attachedTo) {
 		setControlPoint(direction);
 		tangentCircleCenterNext1 = direction->getOrthogonal();
@@ -148,7 +147,7 @@ public:
 	bool inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vector3 collisionPoint) {
 		bool isInBounds = false;
 		Vector3 closestCollision = getClosestCollision(next, input);
-		if (closestCollision.is_null()) {
+		if (closestCollision != Vector3(NAN, NAN, NAN)) {
 			/**
 			 * getClosestCollision returns null if the point is already in bounds,
 			 * so we set isInBounds to true.
@@ -172,8 +171,7 @@ public:
 	 * @return null if the input point is already in bounds, or the point's rectified position
 	 * if the point was out of bounds.
 	 */
-	template <typename V>
-	Vector3 getClosestCollision(Ref<LimitCone> next, V input) {
+	Vector3 getClosestCollision(Ref<LimitCone> next, Vector3 input) {
 		Vector3 result = getOnGreatTangentTriangle(next, input);
 		if (result == Vector3(NAN, NAN, NAN)) {
 			Vector<bool> inBounds = { false };
@@ -182,8 +180,7 @@ public:
 		return result;
 	}
 
-	template <typename V>
-	Vector3 getClosestPathPoint(Ref<LimitCone> next, V input) {
+	Vector3 getClosestPathPoint(Ref<LimitCone> next, Vector3 input) {
 		Vector3 result = getOnPathSequence(next, input);
 		if (result == Vector3(NAN, NAN, NAN)) {
 			result = closestCone(next, input);
@@ -262,13 +259,11 @@ public:
 			Vector3 c1xt1 = controlPoint.cross(tangentCircleCenterNext1);
 			Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->controlPoint);
 			if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
-				sgRayd *tan1ToInput = new Ray3D(tangentCircleCenterNext1, input);
-				Vector3 result = new Vector3();
-				Vector3 tempVar(0, 0, 0);
-				tan1ToInput->intersectsPlane(&tempVar, controlPoint, next->controlPoint, result);
-
-				delete tan1ToInput;
-				return result.normalize();
+				Ref<Ray3D> tan1ToInput = new Ray3D(tangentCircleCenterNext1, input);
+				Vector3 result;
+				Vector3 tempVar;
+				tan1ToInput->intersectsPlane(tempVar, controlPoint, next->controlPoint, result);
+				return result.normalized();
 			} else {
 				return Vector3(NAN, NAN, NAN);
 			}
@@ -276,13 +271,11 @@ public:
 			Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
 			Vector3 c2xt2 = next->controlPoint.cross(tangentCircleCenterNext2);
 			if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
-				sgRayd *tan2ToInput = new Ray3D(tangentCircleCenterNext2, input);
-				Vector3 result = new Vector3();
-				Vector3 tempVar2(0, 0, 0);
-				tan2ToInput->intersectsPlane(&tempVar2, controlPoint, next->controlPoint, result);
-
-				delete tan2ToInput;
-				return result.normalize();
+				Ref<Ray3D> tan2ToInput = memnew(Ray3D(tangentCircleCenterNext2, input));
+				Vector3 result;
+				Vector3 tempVar2;
+				tan2ToInput->intersectsPlane(tempVar2, controlPoint, next->controlPoint, result);
+				return result.normalized();
 			} else {
 				return Vector3(NAN, NAN, NAN);
 			}
@@ -335,12 +328,11 @@ public:
 		}
 	}
 
-	template <typename V>
-	Vector3 closestCone(Ref<LimitCone> next, V input) {
+	Vector3 closestCone(Ref<LimitCone> next, Vector3 input) {
 		if (input.dot(controlPoint) > input.dot(next->controlPoint)) {
-			return this->controlPoint->copy();
+			return this->controlPoint;
 		} else {
-			return next->controlPoint->copy();
+			return next->controlPoint;
 		}
 	}
 
@@ -351,8 +343,7 @@ public:
 	 * @param inBounds
 	 * @return
 	 */
-	template <typename V>
-	Vector3 closestPointOnClosestCone(Ref<LimitCone> next, V input, Vector<bool> &inBounds) {
+	Vector3 closestPointOnClosestCone(Ref<LimitCone> next, Vector3 input, Vector<bool> &inBounds) {
 		Vector3 closestToFirst = this->closestToCone(input, inBounds);
 		if (inBounds[0]) {
 			return closestToFirst;
