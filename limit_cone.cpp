@@ -450,3 +450,30 @@ void LimitCone::setTangentCircleCenterNext2(Vector3 point, int mode) {
 		this->tangentCircleCenterNext2 = point;
 	}
 }
+
+Vector3 LimitCone::getOnPathSequence(Ref<LimitCone> next, Vector3 input) const {
+	Vector3 c1xc2 = getControlPoint().cross(next->controlPoint);
+	double c1c2dir = input.dot(c1xc2);
+	if (c1c2dir < 0.0) {
+		Vector3 c1xt1 = getControlPoint().cross(tangentCircleCenterNext1);
+		Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->getControlPoint());
+		if (input.dot(c1xt1) > 0.0f && input.dot(t1xc2) > 0.0f) {
+			Ref<Ray3D> tan1ToInput = memnew(Ray3D(tangentCircleCenterNext1, input));
+			Vector3 result = tan1ToInput->intersectsPlane(Vector3(0.0f, 0.0f, 0.0f), getControlPoint(), next->getControlPoint());
+			return result.normalized();
+		} else {
+			return Vector3(NAN, NAN, NAN);
+		}
+	} else {
+		Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
+		Vector3 c2xt2 = next->getControlPoint().cross(tangentCircleCenterNext2);
+		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
+			Ref<Ray3D> tan2ToInput = memnew(Ray3D(tangentCircleCenterNext2, input));
+			Vector3 result = tan2ToInput->intersectsPlane(Vector3(0.0f, 0.0f, 0.0f), getControlPoint(), next->getControlPoint());
+			return result.normalized();
+		} else {
+			return Vector3(NAN, NAN, NAN);
+		}
+	}
+	return Vector3(NAN, NAN, NAN);
+}
