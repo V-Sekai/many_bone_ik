@@ -185,9 +185,9 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	}
 }
 
-bool IKKusudama::is_in_orientation_limits(Ref<IKTransform3D> globalAxes, Ref<IKTransform3D> limiting_axes) {
+bool IKKusudama::is_in_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes) {
 	Vector<double> in_bounds = { 1 };
-	Vector3 localizedPoint = limiting_axes->to_local(globalAxes->get_global_transform().basis[Vector3::AXIS_Y]).normalized();
+	Vector3 localizedPoint = limiting_axes->to_local(global_axes->get_global_transform().basis[Vector3::AXIS_Y]).normalized();
 	if (limit_cones.size() == 1) {
 		return limit_cones[0]->determineIfInBounds(nullptr, localizedPoint);
 	}
@@ -199,9 +199,9 @@ bool IKKusudama::is_in_orientation_limits(Ref<IKTransform3D> globalAxes, Ref<IKT
 	return false;
 }
 
-void IKKusudama::set_axial_limits(double minAngle, double inRange) {
-	_min_axial_angle_conflict = minAngle;
-	range = to_tau(inRange);
+void IKKusudama::set_axial_limits(double min_angle, double in_range) {
+	_min_axial_angle_conflict = min_angle;
+	range = to_tau(in_range);
 	_update_constraint();
 }
 
@@ -253,9 +253,9 @@ double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransf
 	return distToMid;
 }
 
-bool IKKusudama::in_twist_limits(Ref<IKTransform3D> boneAxes, Ref<IKTransform3D> limiting_axes) {
+bool IKKusudama::in_twist_limits(Ref<IKTransform3D> bone_axes, Ref<IKTransform3D> limiting_axes) {
 	Basis invRot = limiting_axes->get_global_transform().basis.inverse();
-	Basis alignRot = invRot * boneAxes->get_global_transform().basis;
+	Basis alignRot = invRot * bone_axes->get_global_transform().basis;
 	Vector3 tempVar(0, 1, 0);
 	Vector<Quaternion> decomposition = get_swing_twist(alignRot, tempVar);
 	double angleDelta2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
@@ -274,11 +274,11 @@ bool IKKusudama::in_twist_limits(Ref<IKTransform3D> boneAxes, Ref<IKTransform3D>
 	return true;
 }
 
-double IKKusudama::signed_angle_difference(double minAngle, double p_super) {
-	double d = Math::fmod(Math::abs(minAngle - p_super), Math_TAU);
+double IKKusudama::signed_angle_difference(double min_angle, double p_super) {
+	double d = Math::fmod(Math::abs(min_angle - p_super), Math_TAU);
 	double r = d > Math_PI ? Math_TAU - d : d;
 
-	double sign = (minAngle - p_super >= 0 && minAngle - p_super <= Math_PI) || (minAngle - p_super <= -Math_PI && minAngle - p_super >= -Math_TAU) ? 1.0f : -1.0f;
+	double sign = (min_angle - p_super >= 0 && min_angle - p_super <= Math_PI) || (min_angle - p_super <= -Math_PI && min_angle - p_super >= -Math_TAU) ? 1.0f : -1.0f;
 	r *= sign;
 	return r;
 }
@@ -287,17 +287,17 @@ Ref<IKBone3D> IKKusudama::attached_to() {
 	return this->_attached_to;
 }
 
-void IKKusudama::add_limit_cone(Vector3 newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next) {
-	int insertAt = 0;
+void IKKusudama::add_limit_cone(Vector3 new_point, double radius, Ref<LimitCone> previous, Ref<LimitCone> next) {
+	int insert_at = 0;
 
 	if (next.is_null() || limit_cones.is_empty()) {
-		add_limit_cone_at_index(0, newPoint, radius);
+		add_limit_cone_at_index(0, new_point, radius);
 	} else if (previous.is_valid()) {
-		insertAt = limit_cones.find(previous) + 1;
+		insert_at = limit_cones.find(previous) + 1;
 	} else {
-		insertAt = MAX(0, limit_cones.find(next));
+		insert_at = MAX(0, limit_cones.find(next));
 	}
-	add_limit_cone_at_index(insertAt, newPoint, radius);
+	add_limit_cone_at_index(insert_at, new_point, radius);
 }
 
 void IKKusudama::remove_limit_cone(Ref<LimitCone> limitCone) {
@@ -306,9 +306,9 @@ void IKKusudama::remove_limit_cone(Ref<LimitCone> limitCone) {
 	this->update_rotational_freedom();
 }
 
-void IKKusudama::add_limit_cone_at_index(int insertAt, Vector3 newPoint, double radius) {
-	Ref<LimitCone> newCone = memnew(LimitCone(newPoint, radius, Ref<IKKusudama>(this)));
-	limit_cones.insert(insertAt, newCone);
+void IKKusudama::add_limit_cone_at_index(int insert_at, Vector3 new_point, double radius) {
+	Ref<LimitCone> newCone = memnew(LimitCone(new_point, radius, Ref<IKKusudama>(this)));
+	limit_cones.insert(insert_at, newCone);
 	this->updateTangentRadii();
 	this->update_rotational_freedom();
 }

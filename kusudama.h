@@ -164,7 +164,7 @@ private:
 	virtual void set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 public:
 
-	virtual bool is_in_orientation_limits(Ref<IKTransform3D> globalAxes, Ref<IKTransform3D> limiting_axes);
+	virtual bool is_in_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
@@ -172,12 +172,12 @@ public:
 	 * the bone is rotated about its own final direction. Where limit cones allow you to constrain the "Swing"
 	 * component, this method lets you constrain the "twist" component.
 	 *
-	 * @param minAngle some angle in radians about the major rotation frame's y-axis to serve as the first angle within the range that the bone is allowed to twist.
-	 * @param inRange some angle in radians added to the minAngle. if the bone's local Z goes maxAngle radians beyond the minAngle, it is considered past the limit.
-	 * This value is always interpreted as being in the positive direction. For example, if this value is -PI/2, the entire range from minAngle to minAngle + 3PI/4 is
+	 * @param min_angle some angle in radians about the major rotation frame's y-axis to serve as the first angle within the range that the bone is allowed to twist.
+	 * @param in_range some angle in radians added to the min_angle. if the bone's local Z goes maxAngle radians beyond the min_angle, it is considered past the limit.
+	 * This value is always interpreted as being in the positive direction. For example, if this value is -PI/2, the entire range from min_angle to min_angle + 3PI/4 is
 	 * considered valid.
 	 */
-	virtual void set_axial_limits(double minAngle, double inRange);
+	virtual void set_axial_limits(double min_angle, double in_range);
 
 	// protected CartesianAxes limitLocalAxes;
 
@@ -191,9 +191,9 @@ public:
 
 	virtual double angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
-	virtual bool in_twist_limits(Ref<IKTransform3D> boneAxes, Ref<IKTransform3D> limiting_axes);
+	virtual bool in_twist_limits(Ref<IKTransform3D> bone_axes, Ref<IKTransform3D> limiting_axes);
 
-	virtual double signed_angle_difference(double minAngle, double p_super);
+	virtual double signed_angle_difference(double min_angle, double p_super);
 
 	/**
 	 * Given a point (in global coordinates), checks to see if a ray can be extended from the Kusudama's
@@ -220,12 +220,12 @@ public:
 
 	/**
 	 * Add a LimitCone to the Kusudama.
-	 * @param newPoint where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
+	 * @param new_point where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
 	 * @param radius the radius of the limitCone
 	 * @param previous the LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 * @param next the other LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 */
-	virtual void add_limit_cone(Vector3 newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next);
+	virtual void add_limit_cone(Vector3 new_point, double radius, Ref<LimitCone> previous, Ref<LimitCone> next);
 
 	virtual void remove_limit_cone(Ref<LimitCone> limitCone);
 
@@ -235,11 +235,11 @@ public:
 	 *
 	 * Using a single LimitCone is functionally equivalent to a classic reachCone constraint.
 	 *
-	 * @param insertAt the intended index for this LimitCone in the sequence of LimitCones from which the Kusudama will infer a path. @see IK.IKKusudama.limit_cones limit_cones array.
-	 * @param newPoint where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
+	 * @param insert_at the intended index for this LimitCone in the sequence of LimitCones from which the Kusudama will infer a path. @see IK.IKKusudama.limit_cones limit_cones array.
+	 * @param new_point where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
 	 * @param radius the radius of the limitCone
 	 */
-	void add_limit_cone_at_index(int insertAt, Vector3 newPoint, double radius);
+	void add_limit_cone_at_index(int insert_at, Vector3 new_point, double radius);
 
 	virtual double to_tau(double angle);
 
@@ -289,8 +289,8 @@ public:
 
 	void enable();
 
-	double unitHyperArea = 2 * Math::pow(Math_PI, 2);
-	double unitArea = 4 * Math_PI;
+	double unit_hyper_area = 2 * Math::pow(Math_PI, 2);
+	double unit_area = 4 * Math_PI;
 
 	/**
 	 * TODO: // this functionality is not yet fully implemented It always returns an overly simplistic representation
