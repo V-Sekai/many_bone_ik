@@ -149,7 +149,10 @@ public:
 	 */
 	bool determineIfInBounds(Ref<LimitCone> next, Vector3 input) const;
 
-	Vector3 getOnPathSequence(Ref<LimitCone> next, Vector3 input) const;
+	// TODO
+	Vector3 getOnPathSequence(Ref<LimitCone> next, Vector3 input) const {
+		return Vector3();
+	}
 
 	/**
 	 *

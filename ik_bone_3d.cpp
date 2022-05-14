@@ -135,7 +135,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 	}
 	bone_direction_transform.set_parent(&xform);
 	constraint.instantiate();
-	constraint->addLimitConeAtIndex(0, Vector3(0.f, 1.f, 0.0f), Math_PI / 4.0f);
+	constraint->addLimitConeAtIndex(-1, Vector3(0.f, 1.f, 0.0f), Math_PI / 4.0f);
 }
 
 float IKBone3D::get_cos_half_dampen() const {

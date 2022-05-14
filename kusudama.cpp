@@ -147,11 +147,11 @@ void IKKusudama::setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingA
 // 	wb->updateCosDampening();
 // }
 
-double IKKusudama::getPainfullness() {
-	return painfullness;
-}
+// double IKKusudama::getPainfullness() {
+// 	return painfullness;
+// }
 
-void IKKusudama::(IKTransform3D *toSet, IKTransform3D *boneDirection, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
+IKKusudama::IKKusudama(Ref<IKTransform3D> toSet, Ref<IKTransform3D> boneDirection, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen) {
 	Vector<double> inBounds = { 1 };
 	/**
 	 * Basic idea:
@@ -170,12 +170,16 @@ void IKKusudama::(IKTransform3D *toSet, IKTransform3D *boneDirection, IKTransfor
 	 *
 	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
 	 */
+	Ref<Ray3D> boneRay;
+	boneRay.instantiate();
 	boneRay->p1(limitingAxes->get_global_transform().origin);
 	boneRay->p2(boneDirection->get_global_transform().basis[Vector3::AXIS_Y]);
 	Vector3 bonetip = limitingAxes->to_local(boneRay->p2());
-	Vector3 inCushionLimits = this->pointInLimits(bonetip, inBounds, CUSHION);
+	Vector3 inCushionLimits = pointInLimits(bonetip, inBounds, IKKusudama::CUSHION);
 
 	if (inBounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
+		Ref<Ray3D> constrainedRay;
+		boneRay.instantiate();
 		constrainedRay->p1(boneRay->p1());
 		constrainedRay->p2(limitingAxes->to_global(inCushionLimits));
 		Quaternion rectifiedRot = build_rotation_from_headings(boneRay->heading(), constrainedRay->heading());
@@ -305,12 +309,8 @@ void IKKusudama::removeLimitCone(Ref<LimitCone> limitCone) {
 }
 
 void IKKusudama::addLimitConeAtIndex(int insertAt, Vector3 newPoint, double radius) {
-	Ref<LimitCone> newCone = createLimitConeForIndex(insertAt, newPoint, radius);
-	if (insertAt == -1) {
-		limitCones.push_back(newCone);
-	} else {
-		limitCones.write[insertAt] = newCone;
-	}
+	Ref<LimitCone> newCone = memnew(LimitCone(newPoint, radius, Ref<IKKusudama>(this)));
+	limitCones.insert(insertAt, newCone);
 	this->updateTangentRadii();
 	this->updateRotationalFreedom();
 }
@@ -477,10 +477,6 @@ Vector<Quaternion> IKKusudama::getSwingTwist(Quaternion p_quaternion, Vector3 p_
 	return result;
 }
 
-Ref<LimitCone> IKKusudama::createLimitConeForIndex(int insertAt, Vector3 newPoint, double radius) {
-	limitCones.insert(insertAt, memnew(LimitCone(newPoint, radius, Ref<IKKusudama>(this))));
-}
-
 Vector3 IKKusudama::pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes) {
 	double closestPointDot = 0;
 	Vector3 point = limitingAxes->get_transform().xform(inPoint);
@@ -563,4 +559,5 @@ void IKKusudama::setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *l
 		toSet->rotateBy(rectifiedRot);
 	}
 }
-setAxesToSoftOrientationSnap
+void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *boneDirection, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
+}

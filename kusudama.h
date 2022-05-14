@@ -91,6 +91,8 @@ public:
 
 	IKKusudama(Ref<IKBone3D> forBone);
 
+	IKKusudama(Ref<IKTransform3D> toSet, Ref<IKTransform3D> boneDirection, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen);
+
 	virtual void constraintUpdateNotification();
 
 	/**
@@ -134,13 +136,13 @@ public:
 	//  */
 	// virtual void setPainfullness(double amt);
 
-	/**
-	 * @return A value between (ideally between 0 and 1) dictating
-	 * how much the bone to which this kusudama belongs
-	 * prefers to be away from the edges of the kusudama
-	 * if it can.
-	 */
-	virtual double getPainfullness();
+	// /**
+	//  * @return A value between (ideally between 0 and 1) dictating
+	//  * how much the bone to which this kusudama belongs
+	//  * prefers to be away from the edges of the kusudama
+	//  * if it can.
+	//  */
+	// virtual double getPainfullness();
 
 	bool isInLimits_(Vector3 globalPoint);
 
@@ -206,7 +208,7 @@ public:
 	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = CUSHION);
+	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = IKKusudama::CUSHION);
 
 	Vector3 pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes);
 
@@ -225,8 +227,6 @@ public:
 
 	virtual void removeLimitCone(Ref<LimitCone> limitCone);
 
-	Ref<LimitCone> createLimitConeForIndex(int insertAt, Vector3 newPoint, double radius);
-
 	/**
 	 * Adds a LimitCone to the Kusudama. LimitCones are reach cones which can be arranged sequentially. The Kusudama will infer
 	 * a smooth path leading from one LimitCone to the next.
@@ -237,7 +237,7 @@ public:
 	 * @param newPoint where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
 	 * @param radius the radius of the limitCone
 	 */
-	virtual void addLimitConeAtIndex(int insertAt, Vector3 newPoint, double radius);
+	void addLimitConeAtIndex(int insertAt, Vector3 newPoint, double radius);
 
 	virtual double toTau(double angle);
 
