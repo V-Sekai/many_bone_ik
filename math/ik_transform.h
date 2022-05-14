@@ -50,8 +50,8 @@ class IKTransform3D {
 
 	mutable int dirty = DIRTY_NONE;
 
-	IKTransform3D *parent = nullptr;
-	List<IKTransform3D *> children;
+	IKTransform3D * parent = nullptr;
+	List<IKTransform3D * > children;
 
 	bool disable_scale = false;
 
@@ -67,8 +67,8 @@ public:
 	void set_disable_scale(bool p_enabled);
 	bool is_scale_disabled() const;
 
-	void set_parent(IKTransform3D *p_parent);
-	IKTransform3D *get_parent() const;
+	void set_parent(IKTransform3D * p_parent);
+	IKTransform3D * get_parent() const;
 
 	Vector3 to_local(const Vector3 &p_global) const;
 	Vector3 to_global(const Vector3 &p_local) const;

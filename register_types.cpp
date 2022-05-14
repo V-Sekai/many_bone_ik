@@ -34,6 +34,7 @@
 #include "ik_bone_3d.h"
 #include "ik_effector_template.h"
 #include "skeleton_modification_3d_ewbik.h"
+#include "kusudama.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/ewbik_skeleton_3d_editor_plugin.h"
@@ -46,6 +47,7 @@ void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(IKBone3D);
 		GDREGISTER_CLASS(IKEffector3D);
 		GDREGISTER_CLASS(IKBoneChain);
+		GDREGISTER_CLASS(IKKusudama);
 	}
 #ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {

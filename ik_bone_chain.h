@@ -31,14 +31,17 @@
 #ifndef ik_bone_chain_H
 #define ik_bone_chain_H
 
-#include "core/object/ref_counted.h"
-#include "core/io/resource.h"
 #include "math/qcp.h"
 #include "scene/3d/skeleton_3d.h"
 #include "ik_effector_template.h"
 #include "ik_bone_3d.h"
 
+#include "core/object/ref_counted.h"
+#include "core/io/resource.h"
+
 class IKEffector3D;
+class IKBone3D;
+class LimitCone;
 
 class IKBoneChain : public Resource {
 	GDCLASS(IKBoneChain, Resource);

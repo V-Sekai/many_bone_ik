@@ -29,16 +29,23 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#pragma once
+#ifndef KUSUDAMA_H
+#define KUSUDAMA_H
 
 #include "core/io/resource.h"
+#include "core/object/ref_counted.h"
 #include "core/math/quaternion.h"
+#include "core/math/vector3.h"
+
 #include "ik_bone_3d.h"
 #include "ik_bone_chain.h"
 #include "kusudama.h"
 #include "limit_cone.h"
+#include "ray_3d.h"
 #include "math/ik_transform.h"
 
+class IKBone3D;
+class LimitCone;
 class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
@@ -108,9 +115,9 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToSnapped(IKTransform3D * toSet, IKTransform3D * limitingAxes, double cosHalfAngleDampen);
 
-	// virtual void setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfReturnfullness, double angleReturnfullness);
+	// virtual void setAxesToReturnfulled(IKTransform3D * toSet, IKTransform3D * limitingAxes, double cosHalfReturnfullness, double angleReturnfullness);
 
 	// /**
 	//  * A value between (ideally between 0 and 1) dictating
@@ -143,7 +150,7 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *boneDirection, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToSoftOrientationSnap(IKTransform3D * toSet, IKTransform3D * boneDirection, IKTransform3D * limitingAxes, double cosHalfAngleDampen);
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -151,22 +158,9 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
-		Vector<double> inBounds = { 1 };
-		boneRay->p1(limitingAxes->get_global_transform().origin);
-		boneRay->p2(toSet->get_global_transform().basis[Vector3::AXIS_Y]);
-		Vector3 bonetip = limitingAxes->get_global_transform().xform_inv(boneRay->p2());
-		Vector3 inLimits = this->pointInLimits(bonetip, inBounds);
+	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
 
-		if (inBounds[0] == -1 && inLimits != Vector3(NAN, NAN, NAN)) {
-			constrainedRay->p1(boneRay->p1());
-			constrainedRay->p2(limitingAxes->get_global_transform().xform(inLimits));
-			Quaternion rectifiedRot = build_rotation_from_headings(boneRay->heading(), constrainedRay->heading());
-			toSet->rotateBy(rectifiedRot);
-		}
-	}
-
-	virtual bool isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes);
+	virtual bool isInOrientationLimits(IKTransform3D * globalAxes, IKTransform3D * limitingAxes);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
@@ -189,11 +183,11 @@ public:
 	 * @param limitingAxes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual double snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limitingAxes);
+	virtual double snapToTwistLimits(IKTransform3D * toSet, IKTransform3D * limitingAxes);
 
-	virtual double angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *limitingAxes);
+	virtual double angleToTwistCenter(IKTransform3D * toSet, IKTransform3D * limitingAxes);
 
-	virtual bool inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingAxes);
+	virtual bool inTwistLimits(IKTransform3D * boneAxes, IKTransform3D * limitingAxes);
 
 	virtual double signedAngleDifference(double minAngle, double p_super);
 
@@ -212,73 +206,9 @@ public:
 	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = CUSHION) {
-		Vector3 point = inPoint;
-		point.normalize();
+	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = CUSHION);
 
-		inBounds.write[0] = -1;
-		Vector3 closestCollisionPoint = Vector3(NAN, NAN, NAN);
-		double closestCos = -2;
-		Vector<bool> boundHint = { false };
-
-		for (int i = 0; i < limitCones.size(); i++) {
-			Ref<LimitCone> cone = limitCones[i];
-			Vector3 collisionPoint = cone->closestToCone(point, boundHint);
-			if (collisionPoint == Vector3(NAN, NAN, NAN)) {
-				inBounds.write[0] = 1;
-				return point;
-			} else {
-				double thisCos = collisionPoint.dot(point);
-				if (closestCollisionPoint == Vector3(NAN, NAN, NAN) || thisCos > closestCos) {
-					closestCollisionPoint = collisionPoint;
-					closestCos = thisCos;
-				}
-			}
-		}
-		if (inBounds[0] == -1) {
-			for (int i = 0; i < limitCones.size() - 1; i++) {
-				Ref<LimitCone> currCone = limitCones[i];
-				Ref<LimitCone> nextCone = limitCones[i + 1];
-				Vector3 collisionPoint = currCone->getOnGreatTangentTriangle(nextCone, point);
-				if (collisionPoint != Vector3(NAN, NAN, NAN)) {
-					double thisCos = collisionPoint.dot(point);
-					if (thisCos == 1) {
-						inBounds.write[0] = 1;
-						closestCollisionPoint = point;
-						return point;
-					} else if (thisCos > closestCos) {
-						closestCollisionPoint = collisionPoint;
-						closestCos = thisCos;
-					}
-				}
-			}
-		}
-
-		return closestCollisionPoint;
-	}
-
-	Vector3 pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes) {
-		double closestPointDot = 0;
-		Vector3 point = limitingAxes->get_transform().xform(inPoint);
-		point.normalize();
-		Vector3 result = point;
-
-		if (limitCones.size() == 1) {
-			result = limitCones[0]->getControlPoint();
-		} else {
-			for (int i = 0; i < limitCones.size() - 1; i++) {
-				Ref<LimitCone> nextCone = limitCones[i + 1];
-				Vector3 closestPathPoint = limitCones[i]->getClosestPathPoint(nextCone, point);
-				double closeDot = closestPathPoint.dot(point);
-				if (closeDot > closestPointDot) {
-					result = closestPathPoint;
-					closestPointDot = closeDot;
-				}
-			}
-		}
-
-		return limitingAxes->get_global_transform().xform(result);
-	}
+	Vector3 pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes);
 
 	// public double softLimit
 
@@ -295,9 +225,7 @@ public:
 
 	virtual void removeLimitCone(Ref<LimitCone> limitCone);
 
-	Ref<LimitCone> createLimitConeForIndex(int insertAt, Vector3 newPoint, double radius) {
-		limitCones.insert(insertAt, memnew(LimitCone(newPoint, radius, Ref<IKKusudama>(this))));
-	}
+	Ref<LimitCone> createLimitConeForIndex(int insertAt, Vector3 newPoint, double radius);
 
 	/**
 	 * Adds a LimitCone to the Kusudama. LimitCones are reach cones which can be arranged sequentially. The Kusudama will infer
@@ -428,25 +356,7 @@ public:
 	 *      "http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
 	 */
 public:
-	static Vector<Quaternion> getSwingTwist(Quaternion p_quaternion, Vector3 p_axis) {
-		Quaternion twistRot = p_quaternion;
-		const float d = twistRot.get_axis().dot(p_axis);
-		twistRot = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, twistRot.w).normalized();
-		if (d < 0) {
-			twistRot *= -1.0f;
-		}
-		Quaternion swing = twistRot;
-		swing.x = -swing.x;
-		swing.y = -swing.y;
-		swing.z = -swing.z;
-		swing = twistRot * swing;
-
-		Vector<Quaternion> result;
-		result.resize(2);
-		result.write[0] = swing;
-		result.write[1] = twistRot;
-		return result;
-	}
+	static Vector<Quaternion> getSwingTwist(Quaternion p_quaternion, Vector3 p_axis);
 
 	/**
 	 * Build one of the rotations that transform one vector into another one.
@@ -465,31 +375,6 @@ public:
 	 *                                           is zero
 	 */
 public:
-	static Quaternion build_rotation_from_headings(Vector3 u, Vector3 v) {
-		float normProduct = u.length() * v.length();
-		Quaternion ret;
-		if (Math::is_zero_approx(normProduct)) {
-			return ret;
-		}
-		float dot = u.dot(v);
-		if (dot < ((2.0e-15 - 1.0f) * normProduct)) {
-			// The special case u = -v: we select a PI angle rotation around
-			// an arbitrary vector orthogonal to u.
-			Vector3 w = LimitCone::getOrthogonal(u);
-			ret.w = 0.0f;
-			ret.x = -w.x;
-			ret.y = -w.y;
-			ret.z = -w.z;
-		} else {
-			// The general case: (u, v) defines a plane, we select
-			// the shortest possible rotation: axis orthogonal to this plane.
-			ret.w = Math::sqrt(0.5f * (1.0f + dot / normProduct));
-			float coeff = 1.0f / (2.0f * ret.w * normProduct);
-			Vector3 q = v.cross(u);
-			ret.x = coeff * q.x;
-			ret.y = coeff * q.y;
-			ret.z = coeff * q.z;
-		}
-		return ret;
-	}
+	static Quaternion build_rotation_from_headings(Vector3 u, Vector3 v);
 };
+#endif

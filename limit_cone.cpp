@@ -30,6 +30,9 @@
 
 #include "limit_cone.h"
 
+#include "core/io/resource.h"
+#include "core/object/ref_counted.h"
+
 #include "kusudama.h"
 
 LimitCone::LimitCone() {
@@ -224,35 +227,7 @@ void LimitCone::setCushionBoundary(double cushion) {
 Ref<IKKusudama> LimitCone::getParentKusudama() {
 	return parentKusudama;
 }
-Vector3 LimitCone::getOnPathSequence(Ref<LimitCone> next, Vector3 input) const {
-	Vector3 c1xc2 = controlPoint.cross(next->controlPoint);
-	double c1c2dir = input.dot(c1xc2);
-	if (c1c2dir < 0.0) {
-		Vector3 c1xt1 = controlPoint.cross(tangentCircleCenterNext1);
-		Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->controlPoint);
-		if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
-			Ref<Ray3D> tan1ToInput = new Ray3D(tangentCircleCenterNext1, input);
-			Vector3 result;
-			Vector3 tempVar;
-			result = tan1ToInput->intersectsPlane(tempVar, controlPoint, next->controlPoint);
-			return result.normalized();
-		} else {
-			return Vector3(NAN, NAN, NAN);
-		}
-	} else {
-		Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
-		Vector3 c2xt2 = next->controlPoint.cross(tangentCircleCenterNext2);
-		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
-			Ref<Ray3D> tan2ToInput = memnew(Ray3D(tangentCircleCenterNext2, input));
-			Vector3 result;
-			Vector3 tempVar2;
-			result = tan2ToInput->intersectsPlane(tempVar2, controlPoint, next->controlPoint);
-			return result.normalized();
-		} else {
-			return Vector3(NAN, NAN, NAN);
-		}
-	}
-}
+
 bool LimitCone::determineIfInBounds(Ref<LimitCone> next, Vector3 input) const {
 	/**
 	 * Procedure : Check if input is contained in this cone, or the next cone
@@ -306,6 +281,7 @@ bool LimitCone::determineIfInBounds(Ref<LimitCone> next, Vector3 input) const {
 		}
 	}
 }
+
 Vector3 LimitCone::getClosestPathPoint(Ref<LimitCone> next, Vector3 input) const {
 	Vector3 result = getOnPathSequence(next, input);
 	if (result == Vector3(NAN, NAN, NAN)) {
@@ -313,6 +289,7 @@ Vector3 LimitCone::getClosestPathPoint(Ref<LimitCone> next, Vector3 input) const
 	}
 	return result;
 }
+
 Vector3 LimitCone::getClosestCollision(Ref<LimitCone> next, Vector3 input) {
 	Vector3 result = getOnGreatTangentTriangle(next, input);
 	if (result == Vector3(NAN, NAN, NAN)) {
@@ -321,6 +298,7 @@ Vector3 LimitCone::getClosestCollision(Ref<LimitCone> next, Vector3 input) {
 	}
 	return result;
 }
+
 bool LimitCone::inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vector3 collisionPoint) {
 	bool isInBounds = false;
 	Vector3 closestCollision = getClosestCollision(next, input);
@@ -340,6 +318,7 @@ bool LimitCone::inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vecto
 	}
 	return isInBounds;
 }
+
 Vector3 LimitCone::getOrthogonal(Vector3 p_in) {
 	Vector3 result;
 	float threshold = p_in.length() * 0.6f;
@@ -357,6 +336,7 @@ Vector3 LimitCone::getOrthogonal(Vector3 p_in) {
 
 	return result;
 }
+
 LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attachedTo) {
 	setControlPoint(direction);
 	tangentCircleCenterNext1 = LimitCone::getOrthogonal(direction);
@@ -368,4 +348,105 @@ LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusuda
 	this->cushionRadius = this->radius * adjustedCushion;
 	this->cushionCosine = IKBoneChain::cos(cushionRadius);
 	parentKusudama = attachedTo;
+}
+LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attachedTo) {
+	setControlPoint(direction);
+	tangentCircleCenterNext1 = direction.normalized();
+	tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1);
+
+	this->radius = MAX(DBL_TRUE_MIN, rad);
+	this->radiusCosine = cos(radius);
+	this->cushionRadius = this->radius;
+	this->cushionCosine = this->radiusCosine;
+	parentKusudama = attachedTo;
+}
+
+Vector3 LimitCone::getOnGreatTangentTriangle(Ref<LimitCone> next, Vector3 input) {
+	Vector3 c1xc2 = controlPoint.cross(next->controlPoint);
+	double c1c2dir = input.dot(c1xc2);
+	if (c1c2dir < 0.0) {
+		Vector3 c1xt1 = controlPoint.cross(tangentCircleCenterNext1);
+		Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->controlPoint);
+		if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
+			double toNextCos = input.dot(tangentCircleCenterNext1);
+			if (toNextCos > tangentCircleRadiusNextCos) {
+				Vector3 planeNormal = tangentCircleCenterNext1.cross(input);
+				Quaternion rotateAboutBy = Quaternion(planeNormal, tangentCircleRadiusNext);
+				return Basis(rotateAboutBy).xform(tangentCircleCenterNext1);
+			} else {
+				return input;
+			}
+		} else {
+			return Vector3(NAN, NAN, NAN);
+		}
+	} else {
+		Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
+		Vector3 c2xt2 = next->controlPoint.cross(tangentCircleCenterNext2);
+		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
+			if (input.dot(tangentCircleCenterNext2) > tangentCircleRadiusNextCos) {
+				Vector3 planeNormal = tangentCircleCenterNext2.cross(input);
+				Quaternion rotateAboutBy = Quaternion(planeNormal, tangentCircleRadiusNext);
+				return Basis(rotateAboutBy).xform(tangentCircleCenterNext2);
+			} else {
+				return input;
+			}
+		} else {
+			return Vector3(NAN, NAN, NAN);
+		}
+	}
+}
+
+Vector3 LimitCone::closestCone(Ref<LimitCone> next, Vector3 input) const {
+	if (input.dot(controlPoint) > input.dot(next->controlPoint)) {
+		return this->controlPoint;
+	} else {
+		return next->controlPoint;
+	}
+}
+
+Vector3 LimitCone::closestPointOnClosestCone(Ref<LimitCone> next, Vector3 input, Vector<bool> &inBounds) {
+	Vector3 closestToFirst = this->closestToCone(input, inBounds);
+	if (inBounds[0]) {
+		return closestToFirst;
+	}
+	Vector3 closestToSecond = next->closestToCone(input, inBounds);
+	if (inBounds[0]) {
+		return closestToSecond;
+	}
+	double cosToFirst = input.dot(closestToFirst);
+	double cosToSecond = input.dot(closestToSecond);
+
+	if (cosToFirst > cosToSecond) {
+		return closestToFirst;
+	} else {
+		return closestToSecond;
+	}
+}
+
+Vector3 LimitCone::closestToCone(Vector3 input, Vector<bool> &inBounds) {
+	if (input.dot(this->getControlPoint()) > this->getRadiusCosine()) {
+		inBounds.write[0] = true;
+		return Vector3(NAN, NAN, NAN);
+	}
+	Vector3 axis = this->getControlPoint().cross(input);
+	Quaternion rotTo = Quaternion(axis, this->getRadius());
+	Vector3 result = Basis(rotTo).xform(this->getControlPoint());
+	inBounds.write[0] = false;
+	return result;
+}
+
+void LimitCone::setTangentCircleCenterNext1(Vector3 point, int mode) {
+	if (mode == CUSHION) {
+		this->cushionTangentCircleCenterNext1 = point;
+	} else {
+		this->tangentCircleCenterNext1 = point;
+	}
+}
+
+void LimitCone::setTangentCircleCenterNext2(Vector3 point, int mode) {
+	if (mode == CUSHION) {
+		this->cushionTangentCircleCenterNext2 = point;
+	} else {
+		this->tangentCircleCenterNext2 = point;
+	}
 }

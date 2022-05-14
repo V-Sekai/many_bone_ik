@@ -182,9 +182,9 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		update_skeleton();
 	}
 	if (bone_list.size()) {
-		IKTransform3D *bone_ik_transform = bone_list.write[0]->get_ik_transform();
+		IKTransform3D * bone_ik_transform = bone_list.write[0]->get_ik_transform();
 		ERR_FAIL_NULL(bone_ik_transform);
-		IKTransform3D *root_ik_transform = bone_ik_transform->get_parent();
+		IKTransform3D * root_ik_transform = bone_ik_transform->get_parent();
 		ERR_FAIL_NULL(root_ik_transform);
 		root_ik_transform->set_global_transform(skeleton->get_global_transform());
 	}
