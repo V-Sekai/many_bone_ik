@@ -527,7 +527,7 @@ Vector3 IKKusudama::point_in_limits(Vector3 in_point, Vector<double> &in_bounds,
 			Vector3 collision_point = curr_cone->get_on_great_tangent_triangle(next_cone, point);
 			if (!(Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z))) {
 				double this_cos = collision_point.dot(point);
-				if (this_cos == 1) {
+				if (Math::is_equal_approx(this_cos, 1.0f)) {
 					in_bounds.write[0] = 1;
 					closest_collision_point = point;
 					return point;
@@ -558,5 +558,5 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 }
 
 void IKKusudama::set_axes_to_soft_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
-	set_axes_to_orientation_snap(to_set, bone_direction, cos_half_angle_dampen);
+	set_axes_to_orientation_snap(to_set, limiting_axes, cos_half_angle_dampen);
 }
