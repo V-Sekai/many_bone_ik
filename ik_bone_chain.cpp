@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "ik_bone_chain.h"
+#include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
 
 Ref<IKBone3D> IKBoneChain::get_root() const {
@@ -239,9 +240,9 @@ void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 	if (p_for_bone->get_parent().is_valid()) {
 		parent_global_pose_basis = p_for_bone->get_parent()->get_global_pose().basis;
 	}
+	// FIXME: fire 2022-05-14
+	// p_for_bone->getConstraint()->set_axes_to_soft_orientation_snap(p_for_bone->get_ik_transform(), memnew(IKTransform3D()), memnew(IKTransform3D()), p_for_bone->get_cos_half_dampen());	
 	p_for_bone->get_ik_transform()->rotate_by(rot);
-	// TODO: fire 2022-05-14 add constraints.
-	// p_for_bone->getConstraint()->set_axes_to_soft_orientation_snap(p_for_bone->get_ik_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_cos_half_dampen());
 	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 	p_for_bone->set_global_pose(result);
 }

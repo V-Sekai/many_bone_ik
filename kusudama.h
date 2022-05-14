@@ -152,7 +152,7 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void set_axes_to_soft_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> slimitingAxes, double cos_half_angle_dampen);
+	virtual void set_axes_to_soft_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
 private:
 	/**

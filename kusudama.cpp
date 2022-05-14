@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "kusudama.h"
+#include "math/ik_transform.h"
 
 IKKusudama::IKKusudama() {
 }
