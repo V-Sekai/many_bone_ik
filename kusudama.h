@@ -376,7 +376,5 @@ public:
 	 * @throws MathUtils.MathArithmeticException if the norm of one of the vectors
 	 *                                           is zero
 	 */
-public:
-	static Quaternion build_rotation_from_headings(Vector3 u, Vector3 v);
 };
 #endif

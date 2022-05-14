@@ -85,7 +85,7 @@ void IKKusudama::optimize_limiting_axes() {
 	Vector3 temp_var(0.f, 0.f, 0.f);
 	Ref<Ray3D> newYRay = memnew(Ray3D(temp_var, newY));
 
-	Quaternion oldYtoNewY = build_rotation_from_headings(_limiting_axes->get_global_transform().basis[Vector3::AXIS_Y], originalLimitingAxes->to_global(newYRay->heading()));
+	Quaternion oldYtoNewY = Quaternion(_limiting_axes->get_global_transform().basis[Vector3::AXIS_Y].normalized(), originalLimitingAxes->to_global(newYRay->heading()).normalized());
 	_limiting_axes->rotate_by(oldYtoNewY);
 
 	for (Ref<LimitCone> lc : get_limit_cones()) {
@@ -183,7 +183,7 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	if (in_bounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(inCushionLimits));
-		Quaternion rectified_rotation = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
+		Quaternion rectified_rotation = Quaternion(bone_ray->heading().normalized(), constrained_ray->heading().normalized());
 		to_set->rotate_by(rectified_rotation);
 	}
 }
@@ -432,34 +432,6 @@ bool IKKusudama::_is_in_limits(Vector3 global_point) {
 	return in_bounds[0] > 0;
 }
 
-Quaternion IKKusudama::build_rotation_from_headings(Vector3 u, Vector3 v) {
-	float norm_product = u.length() * v.length();
-	Quaternion ret;
-	if (Math::is_zero_approx(norm_product)) {
-		return ret;
-	}
-	float dot = u.dot(v);
-	if (dot < ((2.0e-15 - 1.0f) * norm_product)) {
-		// The special case u = -v: we select a PI angle rotation around
-		// an arbitrary vector orthogonal to u.
-		Vector3 w = LimitCone::get_orthogonal(u);
-		ret.w = 0.0f;
-		ret.x = -w.x;
-		ret.y = -w.y;
-		ret.z = -w.z;
-	} else {
-		// The general case: (u, v) defines a plane, we select
-		// the shortest possible rotation: axis orthogonal to this plane.
-		ret.w = Math::sqrt(0.5f * (1.0f + dot / norm_product));
-		float coeff = 1.0f / (2.0f * ret.w * norm_product);
-		Vector3 q = v.cross(u);
-		ret.x = coeff * q.x;
-		ret.y = coeff * q.y;
-		ret.z = coeff * q.z;
-	}
-	return ret.normalized();
-}
-
 Vector<Quaternion> IKKusudama::get_swing_twist(Quaternion p_quaternion, Vector3 p_axis) {
 	Quaternion twist_rotation = p_quaternion;
 	const float d = twist_rotation.get_axis().dot(p_axis);
@@ -558,7 +530,7 @@ Quaternion IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, R
 	if (in_bounds[0] == -1 && !(Math::is_nan(in_limits.x) || Math::is_nan(in_limits.y) || Math::is_nan(in_limits.z))) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->get_global_transform().xform(in_limits));
-		rectified_rotation = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
+		rectified_rotation = Quaternion(bone_ray->heading().normalized(), constrained_ray->heading().normalized());
 	}
 	return rectified_rotation;
 }
