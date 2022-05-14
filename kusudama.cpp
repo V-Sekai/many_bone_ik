@@ -120,7 +120,6 @@ void IKKusudama::set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3
 // 	if (limiting_axes != nullptr && painfullness > 0) {
 // 		if (orientationally_constrained) {
 // 			Vector3 origin = to_set->get_transform().origin;
-// 			// TODO: fire 2022-05-13 Questions!
 // 			Vector3 in_point = to_set->get_transform().basis[Vector3::AXIS_Y];
 // 			Vector3 pathPoint = point_on_path_sequence(in_point, limiting_axes);
 // 			in_point -= origin;

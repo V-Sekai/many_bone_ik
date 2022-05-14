@@ -108,9 +108,9 @@ public:
 
 	virtual Vector3 origin();
 
-	virtual real_t mag(); // TODO: fire 2022-05-13 rename to length()
+	virtual real_t length();
 
-	virtual void mag(real_t newMag); // TODO: fire 2022-05-13 rename to length(real_t length)
+	virtual void mag(real_t new_length);
 
 	/**
 	 * Returns the scalar projection of the input vector on this
@@ -127,16 +127,16 @@ public:
 	 * the intended properties
 	 * are listed for reference here (despite their being easily inferred).
 	 * <p>
-	 * 1. calling scaledProjection(someVector) should return the same value as
+	 * 1. calling scaled_projection(someVector) should return the same value as
 	 * calling
-	 * scaledProjection(closestPointTo(someVector).
-	 * 2. calling getMultipliedBy(scaledProjection(someVector)) should return the
+	 * scaled_projection(closestPointTo(someVector).
+	 * 2. calling getMultipliedBy(scaled_projection(someVector)) should return the
 	 * same
 	 * vector as calling closestPointTo(someVector)
 	 *
 	 * @param input a vector to project onto this ray
 	 */
-	virtual real_t scaledProjection(Vector3 input);
+	virtual real_t scaled_projection(Vector3 input);
 
 	/**
 	 * divides the ray by the amount specified by divisor, such that the

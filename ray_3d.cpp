@@ -119,7 +119,7 @@ Vector3 Ray3D::origin() {
 	return p1_Conflict;
 }
 
-real_t Ray3D::mag() {
+real_t Ray3D::length() {
 	workingVector = p2_Conflict;
 	return (workingVector - p1_Conflict).length();
 }
@@ -131,7 +131,7 @@ void Ray3D::mag(real_t newMag) {
 	this->heading(dir);
 }
 
-real_t Ray3D::scaledProjection(Vector3 input) {
+real_t Ray3D::scaled_projection(Vector3 input) {
 	workingVector = input;
 	workingVector = workingVector - this->p1_Conflict;
 	Vector3 heading = this->heading();

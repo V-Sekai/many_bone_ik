@@ -75,7 +75,6 @@ void IKEffector3D::update_target_global_pose(Skeleton3D *p_skeleton) {
 	if (!current_target_node || !current_target_node->is_inside_tree()) {
 		return;
 	}
-	// TODO fire 2022-05-04 cache.
 	target_global_pose = current_target_node->get_global_transform();
 	target_global_pose = p_skeleton->world_transform_to_global_pose(target_global_pose);
 }
