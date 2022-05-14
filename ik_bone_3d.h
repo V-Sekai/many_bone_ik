@@ -31,12 +31,13 @@
 #ifndef EWBIK_SHADOW_BONE_3D_H
 #define EWBIK_SHADOW_BONE_3D_H
 
-#include "kusudama.h"
 #include "core/object/ref_counted.h"
 #include "ik_effector_3d.h"
+#include "ik_effector_template.h"
+#include "kusudama.h"
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
-#include "ik_effector_template.h"
+
 
 #define IK_DEFAULT_DAMPENING 0.20944f
 
@@ -50,15 +51,15 @@ class IKBone3D : public Resource {
 	Ref<IKBone3D> parent = nullptr;
 	Vector<Ref<IKBone3D>> children;
 	Ref<IKEffector3D> pin = nullptr;
-	
+
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
 	Ref<IKKusudama> constraint;
 	IKTransform3D constraint_transform; // In the space of the local parent bone transform // Origin is the origin of the bone direction transform // Can be independent and should be calculated
 	// to keep -y to be the opposite of its bone forward orientation // To avoid singularity that is ambigous. // constraint_transform
-	IKTransform3D xform; //bone's actual transform
-	IKTransform3D bone_direction_transform; // Physical direction of the bone. Calculate Y is the bone up. 
+	IKTransform3D xform; // bone's actual transform
+	IKTransform3D bone_direction_transform; // Physical direction of the bone. Calculate Y is the bone up.
 protected:
 	static void _bind_methods();
 

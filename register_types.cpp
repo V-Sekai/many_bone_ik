@@ -31,6 +31,8 @@
 #include "register_types.h"
 
 #include "ik_effector_3d.h"
+#include "ik_bone_3d.h"
+#include "ik_effector_template.h"
 #include "skeleton_modification_3d_ewbik.h"
 
 #ifdef TOOLS_ENABLED
@@ -39,11 +41,11 @@
 
 void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
-		ClassDB::register_class<IKEffectorTemplate>();
-		ClassDB::register_class<SkeletonModification3DEWBIK>();
-		ClassDB::register_class<IKBone3D>();
-		ClassDB::register_class<IKEffector3D>();
-		ClassDB::register_class<IKBoneChain>();
+		GDREGISTER_CLASS(IKEffectorTemplate);
+		GDREGISTER_CLASS(SkeletonModification3DEWBIK);
+		GDREGISTER_CLASS(IKBone3D);
+		GDREGISTER_CLASS(IKEffector3D);
+		GDREGISTER_CLASS(IKBoneChain);
 	}
 #ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {

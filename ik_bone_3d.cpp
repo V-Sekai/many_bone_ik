@@ -48,7 +48,7 @@ void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 	if (parent.is_valid()) {
 		parent->children.push_back(this);
 		xform.set_parent(&parent->xform);
-		constraint_transform.set_parent(xform->get_parent());
+		constraint_transform.set_parent(xform.get_parent());
 	}
 }
 
@@ -133,7 +133,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			break;
 		}
 	}
-	bone_direction_transform.set_parent(xform);
+	bone_direction_transform.set_parent(&xform);
 	constraint.instantiate();
 	constraint->addLimitConeAtIndex(0, Vector3(0.f, 1.f, 0.0f), Math_PI / 4.0f);
 }
@@ -149,9 +149,9 @@ void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
 Ref<IKKusudama> IKBone3D::getConstraint() const {
 	return constraint;
 }
+
 void IKBone3D::updateCosDampening() {
+}
 	
 void IKBone3D::addConstraint(Ref<IKKusudama> p_constraint) {
-	constraint = p_constraint;
-}// TODO: fire 2022-05-13
 }

@@ -30,11 +30,12 @@
 #ifndef ray_3d_h
 #define ray_3d_h
 
-#include "core/math/vector3.h"
 #include "core/io/resource.h"
+#include "core/math/vector3.h"
 
 class Ray3D : public RefCounted {
 	GDCLASS(Ray3D, RefCounted);
+
 public:
 	static constexpr int X = 0;
 	static constexpr int Y = 1;

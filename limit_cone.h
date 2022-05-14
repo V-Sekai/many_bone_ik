@@ -30,9 +30,11 @@
 
 #pragma once
 
+#include "core/io/resource.h"
+
 #include "ik_bone_chain.h"
 #include "kusudama.h"
-#include "core/io/resource.h"
+#include "ray_3d.h"
 
 class IKKusudama;
 class LimitCone : public Resource {
@@ -103,7 +105,7 @@ public:
 		tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1);
 
 		this->radius = MAX(DBL_TRUE_MIN, rad);
-		this->radiusCosine = std::cos(radius);
+		this->radiusCosine = cos(radius);
 		this->cushionRadius = this->radius;
 		this->cushionCosine = this->radiusCosine;
 		parentKusudama = attachedTo;
@@ -118,36 +120,9 @@ public:
 	 * is to the boundary, the more any further rotation in the direction of that boundary will be avoided.
 	 * @param attachedTo
 	 */
-	LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attachedTo) {
-		setControlPoint(direction);
-		tangentCircleCenterNext1 = LimitCone::getOrthogonal(direction);
-		tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1);
+	LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attachedTo);
 
-		this->radius = MAX(DBL_TRUE_MIN, rad);
-		this->radiusCosine = IKBoneChain::cos(radius);
-		double adjustedCushion = MIN(1, MAX(0.001, cushion));
-		this->cushionRadius = this->radius * adjustedCushion;
-		this->cushionCosine = IKBoneChain::cos(cushionRadius);
-		parentKusudama = attachedTo;
-	}
-
-	static Vector3 getOrthogonal(Vector3 p_in) {
-		Vector3 result;
-		float threshold = p_in.length() * 0.6f;
-		if (threshold > 0.f) {
-			if (Math::abs(p_in.x) <= threshold) {
-				float inverse = 1.f / Math::sqrt(p_in.y * p_in.y + p_in.z * p_in.z);
-				return result = Vector3(0.f, inverse * p_in.z, -inverse * p_in.y);
-			} else if (Math::abs(p_in.y) <= threshold) {
-				float inverse = 1.f / Math::sqrt(p_in.x * p_in.x + p_in.z * p_in.z);
-				return result = Vector3(-inverse * p_in.z, 0.f, inverse * p_in.x);
-			}
-			float inverse = 1.f / Math::sqrt(p_in.x * p_in.x + p_in.y * p_in.y);
-			return result = Vector3(inverse * p_in.y, -inverse * p_in.x, 0.f);
-		}
-
-		return result;
-	}
+	static Vector3 getOrthogonal(Vector3 p_in);
 
 	/**
 	 *
@@ -156,25 +131,7 @@ public:
 	 * @param collisionPoint will be set to the rectified (if necessary) position of the input after accounting for collisions
 	 * @return
 	 */
-	bool inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vector3 collisionPoint) {
-		bool isInBounds = false;
-		Vector3 closestCollision = getClosestCollision(next, input);
-		if (closestCollision != Vector3(NAN, NAN, NAN)) {
-			/**
-			 * getClosestCollision returns null if the point is already in bounds,
-			 * so we set isInBounds to true.
-			 */
-			isInBounds = true;
-			collisionPoint.x = input.x;
-			collisionPoint.y = input.y;
-			collisionPoint.z = input.z;
-		} else {
-			collisionPoint.x = closestCollision.x;
-			collisionPoint.y = closestCollision.y;
-			collisionPoint.z = closestCollision.z;
-		}
-		return isInBounds;
-	}
+	bool inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vector3 collisionPoint);
 
 	/**
 	 *
@@ -183,22 +140,9 @@ public:
 	 * @return null if the input point is already in bounds, or the point's rectified position
 	 * if the point was out of bounds.
 	 */
-	Vector3 getClosestCollision(Ref<LimitCone> next, Vector3 input) {
-		Vector3 result = getOnGreatTangentTriangle(next, input);
-		if (result == Vector3(NAN, NAN, NAN)) {
-			Vector<bool> inBounds = { false };
-			result = closestPointOnClosestCone(next, input, inBounds);
-		}
-		return result;
-	}
+	Vector3 getClosestCollision(Ref<LimitCone> next, Vector3 input);
 
-	Vector3 getClosestPathPoint(Ref<LimitCone> next, Vector3 input) const {
-		Vector3 result = getOnPathSequence(next, input);
-		if (result == Vector3(NAN, NAN, NAN)) {
-			result = closestCone(next, input);
-		}
-		return result;
-	}
+	Vector3 getClosestPathPoint(Ref<LimitCone> next, Vector3 input) const;
 
 	/**
 	 * Determines if a ray emanating from the origin to given point in local space
@@ -210,89 +154,9 @@ public:
 	 * @param input
 	 * @return
 	 */
-	bool determineIfInBounds(Ref<LimitCone> next, Vector3 input) const {
-		/**
-		 * Procedure : Check if input is contained in this cone, or the next cone
-		 * 	if it is, then we're finished and in bounds. otherwise,
-		 * check if the point  is contained within the tangent radii,
-		 * 	if it is, then we're out of bounds and finished, otherwise
-		 * in the tangent triangles while still remaining outside of the tangent radii
-		 * if it is, then we're finished and in bounds. otherwise, we're out of bounds.
-		 */
+	bool determineIfInBounds(Ref<LimitCone> next, Vector3 input) const;
 
-		if (controlPoint.dot(input) >= radiusCosine) {
-			return true;
-		} else if (next != nullptr && next->controlPoint.dot(input) >= next->radiusCosine) {
-			return true;
-		} else {
-			if (next == nullptr) {
-				return false;
-			}
-			bool inTan1Rad = tangentCircleCenterNext1.dot(input) > tangentCircleRadiusNextCos;
-			if (inTan1Rad) {
-				return false;
-			}
-			bool inTan2Rad = tangentCircleCenterNext2.dot(input) > tangentCircleRadiusNextCos;
-			if (inTan2Rad) {
-				return false;
-			}
-
-			/*if we reach this point in the code, we are either on the path between two limitCones, or on the path extending out from between them
-			 * but outside of their radii.
-			 * 	To determine which , we take the cross product of each control point with each tangent center.
-			 * 		The direction of each of the resultant vectors will represent the normal of a plane.
-			 * 		Each of these four planes define part of a boundary which determines if our point is in bounds.
-			 * 		If the dot product of our point with the normal of any of these planes is negative, we must be out
-			 * 		of bounds.
-			 *
-			 *	Older version of this code relied on a triangle intersection algorithm here, which I think is slightly less efficient on average
-			 *	as it didn't allow for early termination. .
-			 */
-
-			Vector3 c1xc2 = controlPoint.cross(next->controlPoint);
-			double c1c2dir = input.dot(c1xc2);
-
-			if (c1c2dir < 0.0) {
-				Vector3 c1xt1 = controlPoint.cross(tangentCircleCenterNext1);
-				Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->controlPoint);
-				return input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0;
-			} else {
-				Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
-				Vector3 c2xt2 = next->controlPoint.cross(tangentCircleCenterNext2);
-				return input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0;
-			}
-		}
-	}
-
-	Vector3 getOnPathSequence(Ref<LimitCone> next, Vector3 input) const {
-		Vector3 c1xc2 = controlPoint.cross(next->controlPoint);
-		double c1c2dir = input.dot(c1xc2);
-		if (c1c2dir < 0.0) {
-			Vector3 c1xt1 = controlPoint.cross(tangentCircleCenterNext1);
-			Vector3 t1xc2 = tangentCircleCenterNext1.cross(next->controlPoint);
-			if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
-				Ref<Ray3D> tan1ToInput = new Ray3D(tangentCircleCenterNext1, input);
-				Vector3 result;
-				Vector3 tempVar;
-				result = tan1ToInput->intersectsPlane(tempVar, controlPoint, next->controlPoint);
-				return result.normalized();
-			} else {
-				return Vector3(NAN, NAN, NAN);
-			}
-		} else {
-			Vector3 t2xc1 = tangentCircleCenterNext2.cross(controlPoint);
-			Vector3 c2xt2 = next->controlPoint.cross(tangentCircleCenterNext2);
-			if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
-				Ref<Ray3D> tan2ToInput = memnew(Ray3D(tangentCircleCenterNext2, input));
-				Vector3 result;
-				Vector3 tempVar2;
-				result = tan2ToInput->intersectsPlane(tempVar2, controlPoint, next->controlPoint);
-				return result.normalized();
-			} else {
-				return Vector3(NAN, NAN, NAN);
-			}
-		}
-	}
+	Vector3 getOnPathSequence(Ref<LimitCone> next, Vector3 input) const;
 
 	/**
 	 *

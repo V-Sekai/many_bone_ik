@@ -31,17 +31,14 @@
 
 #pragma once
 
-#include "limit_cone.h"
 #include "core/io/resource.h"
 #include "core/math/quaternion.h"
+#include "ik_bone_3d.h"
+#include "ik_bone_chain.h"
+#include "kusudama.h"
+#include "limit_cone.h"
+#include "math/ik_transform.h"
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <type_traits>
-#include <vector>
-
-class IKBone3D;
-class IKTransform3D;
 class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
@@ -102,8 +99,8 @@ public:
 
 	virtual void updateTangentRadii();
 
-	Ref<Ray3D> boneRay = memnew(Ray3D(Vector3(), Vector3()));
-	Ref<Ray3D> constrainedRay = memnew(Ray3D(Vector3(), Vector3()));
+	Ref<Ray3D> boneRay;
+	Ref<Ray3D> constrainedRay;
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -397,7 +394,6 @@ protected:
 	 * @param forBone the bone to which to attach this Kusudama.
 	 */
 public:
-
 	/**for IK solvers. Defines the weight ratio between the unconstrained IK solved orientation and the constrained orientation for this bone
 	 per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.
 	 @param strength a value between 0 and 1. Any other value will be clamped to this range.
