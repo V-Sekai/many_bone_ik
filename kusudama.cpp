@@ -556,5 +556,7 @@ void IKKusudama::setAxesToOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransf
 		toSet->rotateBy(rectifiedRot);
 	}
 }
+
 void IKKusudama::setAxesToSoftOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransform3D> boneDirection, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen) {
+	setAxesToOrientationSnap(toSet, boneDirection, cosHalfAngleDampen);
 }

@@ -154,6 +154,7 @@ public:
 	 */
 	virtual void setAxesToSoftOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransform3D> boneDirection, Ref<IKTransform3D> slimitingAxes, double cosHalfAngleDampen);
 
+private:
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
@@ -161,6 +162,7 @@ public:
 	 * @param toSet
 	 */
 	virtual void setAxesToOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen);
+public:
 
 	virtual bool isInOrientationLimits(Ref<IKTransform3D> globalAxes, Ref<IKTransform3D> limitingAxes);
 
