@@ -255,7 +255,7 @@ bool LimitCone::determineIfInBounds(Ref<LimitCone> next, Vector3 input) const {
 			return false;
 		}
 
-		/*if we reach this point in the code, we are either on the path between two limitCones, or on the path extending out from between them
+		/*if we reach this point in the code, we are either on the path between two limit_cones, or on the path extending out from between them
 		 * but outside of their radii.
 		 * 	To determine which , we take the cross product of each control point with each tangent center.
 		 * 		The direction of each of the resultant vectors will represent the normal of a plane.
@@ -293,13 +293,13 @@ Vector3 LimitCone::getClosestPathPoint(Ref<LimitCone> next, Vector3 input) const
 Vector3 LimitCone::getClosestCollision(Ref<LimitCone> next, Vector3 input) {
 	Vector3 result = getOnGreatTangentTriangle(next, input);
 	if (result == Vector3(NAN, NAN, NAN)) {
-		Vector<bool> inBounds = { false };
-		result = closestPointOnClosestCone(next, input, inBounds);
+		Vector<bool> in_bounds = { false };
+		result = closestPointOnClosestCone(next, input, in_bounds);
 	}
 	return result;
 }
 
-bool LimitCone::inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vector3 collisionPoint) {
+bool LimitCone::inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vector3 collision_point) {
 	bool isInBounds = false;
 	Vector3 closestCollision = getClosestCollision(next, input);
 	if (closestCollision != Vector3(NAN, NAN, NAN)) {
@@ -308,13 +308,13 @@ bool LimitCone::inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vecto
 		 * so we set isInBounds to true.
 		 */
 		isInBounds = true;
-		collisionPoint.x = input.x;
-		collisionPoint.y = input.y;
-		collisionPoint.z = input.z;
+		collision_point.x = input.x;
+		collision_point.y = input.y;
+		collision_point.z = input.z;
 	} else {
-		collisionPoint.x = closestCollision.x;
-		collisionPoint.y = closestCollision.y;
-		collisionPoint.z = closestCollision.z;
+		collision_point.x = closestCollision.x;
+		collision_point.y = closestCollision.y;
+		collision_point.z = closestCollision.z;
 	}
 	return isInBounds;
 }
@@ -404,13 +404,13 @@ Vector3 LimitCone::closestCone(Ref<LimitCone> next, Vector3 input) const {
 	}
 }
 
-Vector3 LimitCone::closestPointOnClosestCone(Ref<LimitCone> next, Vector3 input, Vector<bool> &inBounds) {
-	Vector3 closestToFirst = this->closestToCone(input, inBounds);
-	if (inBounds[0]) {
+Vector3 LimitCone::closestPointOnClosestCone(Ref<LimitCone> next, Vector3 input, Vector<bool> &in_bounds) {
+	Vector3 closestToFirst = this->closest_to_cone(input, in_bounds);
+	if (in_bounds[0]) {
 		return closestToFirst;
 	}
-	Vector3 closestToSecond = next->closestToCone(input, inBounds);
-	if (inBounds[0]) {
+	Vector3 closestToSecond = next->closest_to_cone(input, in_bounds);
+	if (in_bounds[0]) {
 		return closestToSecond;
 	}
 	double cosToFirst = input.dot(closestToFirst);
@@ -423,9 +423,9 @@ Vector3 LimitCone::closestPointOnClosestCone(Ref<LimitCone> next, Vector3 input,
 	}
 }
 
-Vector3 LimitCone::closestToCone(Vector3 input, Vector<bool> &inBounds) {
+Vector3 LimitCone::closest_to_cone(Vector3 input, Vector<bool> &in_bounds) {
 	if (input.dot(this->getControlPoint()) > this->getRadiusCosine()) {
-		inBounds.write[0] = true;
+		in_bounds.write[0] = true;
 		return Vector3(NAN, NAN, NAN);
 	}
 	if (Math::is_nan(input.x) || Math::is_nan(input.y) || Math::is_nan(input.z)) {
@@ -435,7 +435,7 @@ Vector3 LimitCone::closestToCone(Vector3 input, Vector<bool> &inBounds) {
 	Quaternion rotTo = Quaternion(axis, this->getRadius());
 	Vector3 axis_control_point = this->getControlPoint();
 	Vector3 result = rotTo.xform(axis_control_point);
-	inBounds.write[0] = false;
+	in_bounds.write[0] = false;
 	return result;
 }
 

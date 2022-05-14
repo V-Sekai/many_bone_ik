@@ -33,10 +33,10 @@
 IKKusudama::IKKusudama() {
 }
 
-IKKusudama::IKKusudama(Ref<IKBone3D> forBone) {
-	this->attachedTo_Conflict = forBone;
-	this->limitingAxes_Conflict->set_global_transform(forBone->get_global_pose());
-	this->attachedTo_Conflict->addConstraint(this);
+IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
+	this->_attached_to = for_bone;
+	this->_limiting_axes->set_global_transform(for_bone->get_global_pose());
+	this->_attached_to->addConstraint(this);
 	this->enable();
 }
 
@@ -48,10 +48,10 @@ void IKKusudama::constraintUpdateNotification() {
 void IKKusudama::optimizeLimitingAxes() {
 	Ref<IKTransform3D> originalLimitingAxes;
 	originalLimitingAxes.instantiate();
-	originalLimitingAxes->set_global_transform(limitingAxes_Conflict->get_global_transform());
+	originalLimitingAxes->set_global_transform(_limiting_axes->get_global_transform());
 	Vector<Vector3> directions;
 	if (getLimitCones().size() == 1) {
-		directions.push_back(limitCones[0]->getControlPoint());
+		directions.push_back(limit_cones[0]->getControlPoint());
 	} else {
 		for (int i = 0; i < getLimitCones().size() - 1; i++) {
 			Vector3 thisC = getLimitCones()[i]->getControlPoint();
@@ -84,12 +84,12 @@ void IKKusudama::optimizeLimitingAxes() {
 	Vector3 tempVar(0.f, 0.f, 0.f);
 	Ref<Ray3D> newYRay = memnew(Ray3D(tempVar, newY));
 
-	Quaternion oldYtoNewY = build_rotation_from_headings(limitingAxes_Conflict->get_global_transform().basis[Vector3::AXIS_Y], originalLimitingAxes->to_global(newYRay->heading()));
-	limitingAxes_Conflict->rotateBy(oldYtoNewY);
+	Quaternion oldYtoNewY = build_rotation_from_headings(_limiting_axes->get_global_transform().basis[Vector3::AXIS_Y], originalLimitingAxes->to_global(newYRay->heading()));
+	_limiting_axes->rotateBy(oldYtoNewY);
 
 	for (Ref<LimitCone> lc : getLimitCones()) {
 		lc->controlPoint = originalLimitingAxes->to_global(lc->controlPoint);
-		lc->controlPoint = limitingAxes_Conflict->to_local(lc->controlPoint);
+		lc->controlPoint = _limiting_axes->to_local(lc->controlPoint);
 		lc->controlPoint.normalize();
 	}
 
@@ -97,18 +97,18 @@ void IKKusudama::optimizeLimitingAxes() {
 }
 
 void IKKusudama::updateTangentRadii() {
-	for (int i = 0; i < limitCones.size(); i++) {
-		Ref<LimitCone> next = i < limitCones.size() - 1 ? limitCones[i + 1] : nullptr;
-		limitCones.write[i]->updateTangentHandles(next);
+	for (int i = 0; i < limit_cones.size(); i++) {
+		Ref<LimitCone> next = i < limit_cones.size() - 1 ? limit_cones[i + 1] : nullptr;
+		limit_cones.write[i]->updateTangentHandles(next);
 	}
 }
 
 void IKKusudama::setAxesToSnapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
 	if (limiting_axes != nullptr) {
-		if (orientationallyConstrained) {
+		if (orientationally_constrained) {
 			setAxesToOrientationSnap(to_set, limiting_axes, cos_half_angle_dampen);
 		}
-		if (axiallyConstrained) {
+		if (axially_constrained) {
 			snapToTwistLimits(to_set, limiting_axes);
 		}
 	}
@@ -118,18 +118,18 @@ void IKKusudama::setAxesToSnapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> 
 // Re-enable and debug if we want bouncy constraint.
 // void IKKusudama::setAxesToReturnfulled(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cosHalfReturnfullness, double angleReturnfullness) {
 // 	if (limiting_axes != nullptr && painfullness > 0) {
-// 		if (orientationallyConstrained) {
+// 		if (orientationally_constrained) {
 // 			Vector3 origin = to_set->get_transform().origin;
 // 			// TODO: fire 2022-05-13 Questions!
-// 			Vector3 inPoint = to_set->get_transform().basis[Vector3::AXIS_Y];
-// 			Vector3 pathPoint = pointOnPathSequence(inPoint, limiting_axes);
-// 			inPoint -= origin;
+// 			Vector3 in_point = to_set->get_transform().basis[Vector3::AXIS_Y];
+// 			Vector3 pathPoint = pointOnPathSequence(in_point, limiting_axes);
+// 			in_point -= origin;
 // 			pathPoint -= origin;
-// 			Quaternion toClamp = Quaternion(inPoint, pathPoint);
+// 			Quaternion toClamp = Quaternion(in_point, pathPoint);
 // 			toClamp.rotation.clampToQuadranceAngle(cosHalfReturnfullness);
 // 			to_set->rotateBy(toClamp);
 // 		}
-// 		if (axiallyConstrained) {
+// 		if (axially_constrained) {
 // 			double angleToTwistMid = angleToTwistCenter(to_set, limiting_axes);
 // 			double clampedAngle = CLAMP(angleToTwistMid, -angleReturnfullness, angleReturnfullness);
 // 			to_set->rotateAboutY(clampedAngle, false);
@@ -154,7 +154,7 @@ void IKKusudama::setAxesToSnapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> 
 // }
 
 IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
-	Vector<double> inBounds = { 1 };
+	Vector<double> in_bounds = { 1 };
 	/**
 	 * Basic idea:
 	 * We treat our hard and soft boundaries as if they were two seperate kusudamas.
@@ -172,27 +172,27 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	 *
 	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
 	 */
-	boneRay->p1(limiting_axes->get_global_transform().origin);
-	boneRay->p2(bone_direction->get_global_transform().basis[Vector3::AXIS_Y]);
-	Vector3 bonetip = limiting_axes->to_local(boneRay->p2());
-	Vector3 inCushionLimits = pointInLimits(bonetip, inBounds, IKKusudama::CUSHION);
+	bone_ray->p1(limiting_axes->get_global_transform().origin);
+	bone_ray->p2(bone_direction->get_global_transform().basis[Vector3::AXIS_Y]);
+	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
+	Vector3 inCushionLimits = pointInLimits(bone_tip, in_bounds, IKKusudama::CUSHION);
 
-	if (inBounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
-		constrainedRay->p1(boneRay->p1());
-		constrainedRay->p2(limiting_axes->to_global(inCushionLimits));
-		Quaternion rectifiedRot = build_rotation_from_headings(boneRay->heading(), constrainedRay->heading());
+	if (in_bounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
+		constrained_ray->p1(bone_ray->p1());
+		constrained_ray->p2(limiting_axes->to_global(inCushionLimits));
+		Quaternion rectifiedRot = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
 		to_set->rotateBy(rectifiedRot);
 	}
 }
 
 bool IKKusudama::isInOrientationLimits(Ref<IKTransform3D> globalAxes, Ref<IKTransform3D> limiting_axes) {
-	Vector<double> inBounds = { 1 };
+	Vector<double> in_bounds = { 1 };
 	Vector3 localizedPoint = limiting_axes->to_local(globalAxes->get_global_transform().basis[Vector3::AXIS_Y]).normalized();
-	if (limitCones.size() == 1) {
-		return limitCones[0]->determineIfInBounds(nullptr, localizedPoint);
+	if (limit_cones.size() == 1) {
+		return limit_cones[0]->determineIfInBounds(nullptr, localizedPoint);
 	}
-	for (int i = 0; i < limitCones.size() - 1; i++) {
-		if (limitCones[i]->determineIfInBounds(limitCones[i + 1], localizedPoint)) {
+	for (int i = 0; i < limit_cones.size() - 1; i++) {
+		if (limit_cones[i]->determineIfInBounds(limit_cones[i + 1], localizedPoint)) {
 			return true;
 		}
 	}
@@ -200,13 +200,13 @@ bool IKKusudama::isInOrientationLimits(Ref<IKTransform3D> globalAxes, Ref<IKTran
 }
 
 void IKKusudama::setAxialLimits(double minAngle, double inRange) {
-	minAxialAngle_Conflict = minAngle;
+	_min_axial_angle_conflict = minAngle;
 	range = toTau(inRange);
 	constraintUpdateNotification();
 }
 
 double IKKusudama::snapToTwistLimits(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
-	if (!axiallyConstrained) {
+	if (!axially_constrained) {
 		return 0;
 	}
 	Basis invRot = limiting_axes->get_global_transform().basis.inverse();
@@ -239,7 +239,7 @@ double IKKusudama::snapToTwistLimits(Ref<IKTransform3D> to_set, Ref<IKTransform3
 }
 
 double IKKusudama::angleToTwistCenter(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
-	if (!axiallyConstrained) {
+	if (!axially_constrained) {
 		return 0;
 	}
 
@@ -284,31 +284,31 @@ double IKKusudama::signedAngleDifference(double minAngle, double p_super) {
 }
 
 Ref<IKBone3D> IKKusudama::attachedTo() {
-	return this->attachedTo_Conflict;
+	return this->_attached_to;
 }
 
 void IKKusudama::addLimitCone(Vector3 newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next) {
 	int insertAt = 0;
 
-	if (next.is_null() || limitCones.is_empty()) {
+	if (next.is_null() || limit_cones.is_empty()) {
 		addLimitConeAtIndex(0, newPoint, radius);
 	} else if (previous.is_valid()) {
-		insertAt = limitCones.find(previous) + 1;
+		insertAt = limit_cones.find(previous) + 1;
 	} else {
-		insertAt = MAX(0, limitCones.find(next));
+		insertAt = MAX(0, limit_cones.find(next));
 	}
 	addLimitConeAtIndex(insertAt, newPoint, radius);
 }
 
 void IKKusudama::removeLimitCone(Ref<LimitCone> limitCone) {
-	this->limitCones.erase(limitCone);
+	this->limit_cones.erase(limitCone);
 	this->updateTangentRadii();
 	this->updateRotationalFreedom();
 }
 
 void IKKusudama::addLimitConeAtIndex(int insertAt, Vector3 newPoint, double radius) {
 	Ref<LimitCone> newCone = memnew(LimitCone(newPoint, radius, Ref<IKKusudama>(this)));
-	limitCones.insert(insertAt, newCone);
+	limit_cones.insert(insertAt, newCone);
 	this->updateTangentRadii();
 	this->updateRotationalFreedom();
 }
@@ -334,7 +334,7 @@ double IKKusudama::mod(double x, double y) {
 }
 
 double IKKusudama::minAxialAngle() {
-	return minAxialAngle_Conflict;
+	return _min_axial_angle_conflict;
 }
 
 double IKKusudama::maxAxialAngle() {
@@ -342,53 +342,53 @@ double IKKusudama::maxAxialAngle() {
 }
 
 double IKKusudama::absoluteMaxAxialAngle() {
-	return signedAngleDifference(range + minAxialAngle_Conflict, Math_PI * 2);
+	return signedAngleDifference(range + _min_axial_angle_conflict, Math_PI * 2);
 }
 
 bool IKKusudama::isAxiallyConstrained() {
-	return axiallyConstrained;
+	return axially_constrained;
 }
 
 bool IKKusudama::isOrientationallyConstrained() {
-	return orientationallyConstrained;
+	return orientationally_constrained;
 }
 
 void IKKusudama::disableOrientationalLimits() {
-	this->orientationallyConstrained = false;
+	this->orientationally_constrained = false;
 }
 
 void IKKusudama::enableOrientationalLimits() {
-	this->orientationallyConstrained = true;
+	this->orientationally_constrained = true;
 }
 
 void IKKusudama::toggleOrientationalLimits() {
-	this->orientationallyConstrained = !this->orientationallyConstrained;
+	this->orientationally_constrained = !this->orientationally_constrained;
 }
 
 void IKKusudama::disableAxialLimits() {
-	this->axiallyConstrained = false;
+	this->axially_constrained = false;
 }
 
 void IKKusudama::enableAxialLimits() {
-	this->axiallyConstrained = true;
+	this->axially_constrained = true;
 }
 
 void IKKusudama::toggleAxialLimits() {
-	axiallyConstrained = !axiallyConstrained;
+	axially_constrained = !axially_constrained;
 }
 
 bool IKKusudama::isEnabled() {
-	return axiallyConstrained || orientationallyConstrained;
+	return axially_constrained || orientationally_constrained;
 }
 
 void IKKusudama::disable() {
-	this->axiallyConstrained = false;
-	this->orientationallyConstrained = false;
+	this->axially_constrained = false;
+	this->orientationally_constrained = false;
 }
 
 void IKKusudama::enable() {
-	this->axiallyConstrained = true;
-	this->orientationallyConstrained = true;
+	this->axially_constrained = true;
+	this->orientationally_constrained = true;
 }
 
 double IKKusudama::getRotationalFreedom() {
@@ -402,7 +402,7 @@ void IKKusudama::updateRotationalFreedom() {
 	double axialConstrainedHyperArea = isAxiallyConstrained() ? (range / Math_TAU) : 1;
 	// quick and dirty solution (should revisit);
 	double totalLimitConeSurfaceAreaRatio = 0;
-	for (auto l : limitCones) {
+	for (auto l : limit_cones) {
 		totalLimitConeSurfaceAreaRatio += (l->getRadius() * 2) / Math_TAU;
 	}
 	rotationalFreedom = axialConstrainedHyperArea * (isOrientationallyConstrained() ? MIN(totalLimitConeSurfaceAreaRatio, 1) : 1);
@@ -417,13 +417,13 @@ double IKKusudama::getStrength() const {
 }
 
 Vector<Ref<LimitCone>> IKKusudama::getLimitCones() {
-	return limitCones;
+	return limit_cones;
 }
 
 bool IKKusudama::isInLimits_(Vector3 globalPoint) {
-	Vector<double> inBounds = { 1 };
-	_ALLOW_DISCARD_ this->pointInLimits(globalPoint, inBounds, LimitCone::BOUNDARY);
-	return inBounds[0] > 0;
+	Vector<double> in_bounds = { 1 };
+	_ALLOW_DISCARD_ this->pointInLimits(globalPoint, in_bounds, LimitCone::BOUNDARY);
+	return in_bounds[0] > 0;
 }
 
 Quaternion IKKusudama::build_rotation_from_headings(Vector3 u, Vector3 v) {
@@ -474,18 +474,18 @@ Vector<Quaternion> IKKusudama::getSwingTwist(Quaternion p_quaternion, Vector3 p_
 	return result;
 }
 
-Vector3 IKKusudama::pointOnPathSequence(Vector3 inPoint, Ref<IKTransform3D> limiting_axes) {
+Vector3 IKKusudama::pointOnPathSequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes) {
 	double closestPointDot = 0;
-	Vector3 point = limiting_axes->get_transform().xform(inPoint);
+	Vector3 point = limiting_axes->get_transform().xform(in_point);
 	point.normalize();
 	Vector3 result = point;
 
-	if (limitCones.size() == 1) {
-		result = limitCones[0]->getControlPoint();
+	if (limit_cones.size() == 1) {
+		result = limit_cones[0]->getControlPoint();
 	} else {
-		for (int i = 0; i < limitCones.size() - 1; i++) {
-			Ref<LimitCone> nextCone = limitCones[i + 1];
-			Vector3 closestPathPoint = limitCones[i]->getClosestPathPoint(nextCone, point);
+		for (int i = 0; i < limit_cones.size() - 1; i++) {
+			Ref<LimitCone> nextCone = limit_cones[i + 1];
+			Vector3 closestPathPoint = limit_cones[i]->getClosestPathPoint(nextCone, point);
 			double closeDot = closestPathPoint.dot(point);
 			if (closeDot > closestPointDot) {
 				result = closestPathPoint;
@@ -497,62 +497,62 @@ Vector3 IKKusudama::pointOnPathSequence(Vector3 inPoint, Ref<IKTransform3D> limi
 	return limiting_axes->get_global_transform().xform(result);
 }
 
-Vector3 IKKusudama::pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode) {
-	Vector3 point = inPoint;
+Vector3 IKKusudama::pointInLimits(Vector3 in_point, Vector<double> &in_bounds, int mode) {
+	Vector3 point = in_point;
 	point.normalize();
 
-	inBounds.write[0] = -1;
-	Vector3 closestCollisionPoint = Vector3(NAN, NAN, NAN);
-	double closestCos = -2;
-	Vector<bool> boundHint = { false };
+	in_bounds.write[0] = -1;
+	Vector3 closest_collision_point = Vector3(NAN, NAN, NAN);
+	double closest_cos = -2;
+	Vector<bool> bound_hint = { false };
 
-	for (int i = 0; i < limitCones.size(); i++) {
-		Ref<LimitCone> cone = limitCones[i];
-		Vector3 collisionPoint = cone->closestToCone(point, boundHint);
-		if (Math::is_nan(collisionPoint.x) || Math::is_nan(collisionPoint.y) || Math::is_nan(collisionPoint.z)) {
-			inBounds.write[0] = 1;
+	for (int i = 0; i < limit_cones.size(); i++) {
+		Ref<LimitCone> cone = limit_cones[i];
+		Vector3 collision_point = cone->closest_to_cone(point, bound_hint);
+		if (Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z)) {
+			in_bounds.write[0] = 1;
 			return point;
 		} else {
-			double thisCos = collisionPoint.dot(point);
-			if (Math::is_nan(collisionPoint.x) || Math::is_nan(collisionPoint.y) || Math::is_nan(collisionPoint.z) || thisCos > closestCos) {
-				closestCollisionPoint = collisionPoint;
-				closestCos = thisCos;
+			double thisCos = collision_point.dot(point);
+			if (Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z) || thisCos > closest_cos) {
+				closest_collision_point = collision_point;
+				closest_cos = thisCos;
 			}
 		}
 	}
-	if (inBounds[0] == -1) {
-		for (int i = 0; i < limitCones.size() - 1; i++) {
-			Ref<LimitCone> currCone = limitCones[i];
-			Ref<LimitCone> nextCone = limitCones[i + 1];
-			Vector3 collisionPoint = currCone->getOnGreatTangentTriangle(nextCone, point);
-			if (!(Math::is_nan(collisionPoint.x) || Math::is_nan(collisionPoint.y) || Math::is_nan(collisionPoint.z))) {
-				double thisCos = collisionPoint.dot(point);
+	if (in_bounds[0] == -1) {
+		for (int i = 0; i < limit_cones.size() - 1; i++) {
+			Ref<LimitCone> currCone = limit_cones[i];
+			Ref<LimitCone> nextCone = limit_cones[i + 1];
+			Vector3 collision_point = currCone->getOnGreatTangentTriangle(nextCone, point);
+			if (!(Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z))) {
+				double thisCos = collision_point.dot(point);
 				if (thisCos == 1) {
-					inBounds.write[0] = 1;
-					closestCollisionPoint = point;
+					in_bounds.write[0] = 1;
+					closest_collision_point = point;
 					return point;
-				} else if (thisCos > closestCos) {
-					closestCollisionPoint = collisionPoint;
-					closestCos = thisCos;
+				} else if (thisCos > closest_cos) {
+					closest_collision_point = collision_point;
+					closest_cos = thisCos;
 				}
 			}
 		}
 	}
 
-	return closestCollisionPoint;
+	return closest_collision_point;
 }
 
 void IKKusudama::setAxesToOrientationSnap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
-	Vector<double> inBounds = { 1 };
-	boneRay->p1(limiting_axes->get_global_transform().origin);
-	boneRay->p2(to_set->get_global_transform().basis[Vector3::AXIS_Y]);
-	Vector3 bonetip = limiting_axes->get_global_transform().xform_inv(boneRay->p2());
-	Vector3 inLimits = this->pointInLimits(bonetip, inBounds);
+	Vector<double> in_bounds = { 1 };
+	bone_ray->p1(limiting_axes->get_global_transform().origin);
+	bone_ray->p2(to_set->get_global_transform().basis[Vector3::AXIS_Y]);
+	Vector3 bone_tip = limiting_axes->get_global_transform().xform_inv(bone_ray->p2());
+	Vector3 in_limits = this->pointInLimits(bone_tip, in_bounds);
 
-	if (inBounds[0] == -1 && !(Math::is_nan(inLimits.x) || Math::is_nan(inLimits.y) || Math::is_nan(inLimits.z))) {
-		constrainedRay->p1(boneRay->p1());
-		constrainedRay->p2(limiting_axes->get_global_transform().xform(inLimits));
-		Quaternion rectifiedRot = build_rotation_from_headings(boneRay->heading(), constrainedRay->heading());
+	if (in_bounds[0] == -1 && !(Math::is_nan(in_limits.x) || Math::is_nan(in_limits.y) || Math::is_nan(in_limits.z))) {
+		constrained_ray->p1(bone_ray->p1());
+		constrained_ray->p2(limiting_axes->get_global_transform().xform(in_limits));
+		Quaternion rectifiedRot = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
 		to_set->rotateBy(rectifiedRot);
 	}
 }

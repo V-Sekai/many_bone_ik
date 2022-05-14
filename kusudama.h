@@ -50,35 +50,35 @@ class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
 protected:
-	Ref<IKTransform3D> limitingAxes_Conflict = Ref<IKTransform3D>(memnew(IKTransform3D()));
+	Ref<IKTransform3D> _limiting_axes = Ref<IKTransform3D>(memnew(IKTransform3D()));
 	double painfullness = 0;
 
 	/**
-	 * An array containing all of the Kusudama's limitCones. The kusudama is built up
+	 * An array containing all of the Kusudama's limit_cones. The kusudama is built up
 	 * with the expectation that any limitCone in the array is connected to the cone at the previous element in the array,
 	 * and the cone at the next element in the array.
 	 */
-	Vector<Ref<LimitCone>> limitCones;
+	Vector<Ref<LimitCone>> limit_cones;
 
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
 	 * limiting_axes Z axis.
 	 */
-	double minAxialAngle_Conflict = Math_PI;
+	double _min_axial_angle_conflict = Math_PI;
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
 	 * minAxialAngle
 	 */
 	double range = Math_PI * 3;
 
-	bool orientationallyConstrained = false;
-	bool axiallyConstrained = false;
+	bool orientationally_constrained = false;
+	bool axially_constrained = false;
 
 	// for IK solvers. Defines the weight ratio between the unconstrained IK solved orientation and the constrained orientation for this bone
 	// per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.
 	real_t strength = 1;
 
-	Ref<IKBone3D> attachedTo_Conflict;
+	Ref<IKBone3D> _attached_to;
 
 public:
 	static const int BOUNDARY = 0;
@@ -89,7 +89,7 @@ public:
 
 	IKKusudama();
 
-	IKKusudama(Ref<IKBone3D> forBone);
+	IKKusudama(Ref<IKBone3D> for_bone);
 
 	IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
@@ -108,8 +108,8 @@ public:
 
 	virtual void updateTangentRadii();
 
-	Ref<Ray3D> boneRay = Ref<Ray3D>(memnew(Ray3D()));
-	Ref<Ray3D> constrainedRay = Ref<Ray3D>(memnew(Ray3D()));
+	Ref<Ray3D> bone_ray = Ref<Ray3D>(memnew(Ray3D()));
+	Ref<Ray3D> constrained_ray = Ref<Ray3D>(memnew(Ray3D()));
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -202,17 +202,17 @@ public:
 	 * If such a ray exists, the original point is returned (the point is within the limits).
 	 * If it cannot exist, the tip of the ray within the kusudama's limits that would require the least rotation
 	 * to arrive at the input point is returned.
-	 * @param inPoint the point to test.
-	 * @param inBounds should be an array with at least 2 elements. The first element will be set to  a number from -1 to 1 representing the point's distance from the boundary, 0 means the point is right on
+	 * @param in_point the point to test.
+	 * @param in_bounds should be an array with at least 2 elements. The first element will be set to  a number from -1 to 1 representing the point's distance from the boundary, 0 means the point is right on
 	 * the boundary, 1 means the point is within the boundary and on the path furthest from the boundary. any negative number means
 	 * the point is outside of the boundary, but does not signify anything about how far from the boundary the point is.
 	 * The second element will be given a value corresponding to the limit cone whose bounds were exceeded. If the bounds were exceeded on a segment between two limit cones,
 	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = IKKusudama::CUSHION);
+	Vector3 pointInLimits(Vector3 in_point, Vector<double> &in_bounds, int mode = IKKusudama::CUSHION);
 
-	Vector3 pointOnPathSequence(Vector3 inPoint, Ref<IKTransform3D> limiting_axes);
+	Vector3 pointOnPathSequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes);
 
 	// public double softLimit
 
@@ -235,7 +235,7 @@ public:
 	 *
 	 * Using a single LimitCone is functionally equivalent to a classic reachCone constraint.
 	 *
-	 * @param insertAt the intended index for this LimitCone in the sequence of LimitCones from which the Kusudama will infer a path. @see IK.IKKusudama.limitCones limitCones array.
+	 * @param insertAt the intended index for this LimitCone in the sequence of LimitCones from which the Kusudama will infer a path. @see IK.IKKusudama.limit_cones limit_cones array.
 	 * @param newPoint where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
 	 * @param radius the radius of the limitCone
 	 */
@@ -250,7 +250,7 @@ public:
 	 */
 	Ref<IKTransform3D> limiting_axes() {
 		// if(inverted) return inverseLimitingAxes;
-		return limitingAxes_Conflict;
+		return _limiting_axes;
 	}
 
 	/**
@@ -321,7 +321,7 @@ protected:
 	 * otherwise, this function will set the kusudama's
 	 * limiting axes to the major rotation axes specified by the bone.
 	 *
-	 * @param forBone the bone to which to attach this Kusudama.
+	 * @param for_bone the bone to which to attach this Kusudama.
 	 */
 public:
 	/**for IK solvers. Defines the weight ratio between the unconstrained IK solved orientation and the constrained orientation for this bone

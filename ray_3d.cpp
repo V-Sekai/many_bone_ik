@@ -60,10 +60,10 @@ Vector3 Ray3D::closestPointTo(Vector3 point) {
 }
 
 Vector3 Ray3D::closestPointToStrict(Vector3 point) {
-	Vector3 inPoint = point;
-	inPoint = inPoint - this->p1_Conflict;
+	Vector3 in_point = point;
+	in_point = in_point - this->p1_Conflict;
 	Vector3 heading = this->heading();
-	real_t scale = (inPoint.dot(heading) / (heading.length() * inPoint.length())) * (inPoint.length() / heading.length());
+	real_t scale = (in_point.dot(heading) / (heading.length() * in_point.length())) * (in_point.length() / heading.length());
 
 	if (scale <= 0) {
 		return this->p1_Conflict;

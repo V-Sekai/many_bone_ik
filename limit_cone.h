@@ -121,10 +121,10 @@ public:
 	 *
 	 * @param next
 	 * @param input
-	 * @param collisionPoint will be set to the rectified (if necessary) position of the input after accounting for collisions
+	 * @param collision_point will be set to the rectified (if necessary) position of the input after accounting for collisions
 	 * @return
 	 */
-	bool inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vector3 collisionPoint);
+	bool inBoundsFromThisToNext(Ref<LimitCone> next, Vector3 input, Vector3 collision_point);
 
 	/**
 	 *
@@ -166,18 +166,18 @@ public:
 	 * returns null if no rectification is required.
 	 * @param next
 	 * @param input
-	 * @param inBounds
+	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closestPointOnClosestCone(Ref<LimitCone> next, Vector3 input, Vector<bool> &inBounds);
+	Vector3 closestPointOnClosestCone(Ref<LimitCone> next, Vector3 input, Vector<bool> &in_bounds);
 
 	/**
 	 * returns null if no rectification is required.
 	 * @param input
-	 * @param inBounds
+	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closestToCone(Vector3 input, Vector<bool> &inBounds);
+	Vector3 closest_to_cone(Vector3 input, Vector<bool> &in_bounds);
 
 	virtual void updateTangentHandles(Ref<LimitCone> next);
 
