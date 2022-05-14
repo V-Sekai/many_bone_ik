@@ -524,12 +524,12 @@ Quaternion IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, R
 	Vector<double> in_bounds = { 1 };
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
 	bone_ray->p2(to_set->get_global_transform().basis[Vector3::AXIS_Y]);
-	Vector3 bone_tip = limiting_axes->get_global_transform().xform_inv(bone_ray->p2());
+	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
 	Vector3 in_limits = this->point_in_limits(bone_tip, in_bounds);
 	Quaternion rectified_rotation;
 	if (in_bounds[0] == -1 && !(Math::is_nan(in_limits.x) || Math::is_nan(in_limits.y) || Math::is_nan(in_limits.z))) {
 		constrained_ray->p1(bone_ray->p1());
-		constrained_ray->p2(limiting_axes->get_global_transform().xform(in_limits));
+		constrained_ray->p2(limiting_axes->to_global(in_limits));
 		rectified_rotation = Quaternion(constrained_ray->heading().normalized(), bone_ray->heading().normalized());
 	}
 	return rectified_rotation;

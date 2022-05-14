@@ -65,6 +65,7 @@ protected:
 	static void _bind_methods();
 
 public:
+	Ref<IKTransform3D> get_constraint_transform();
 	void addConstraint(Ref<IKKusudama> p_constraint);
 	Ref<IKKusudama> getConstraint() const;
 	void updateCosDampening();

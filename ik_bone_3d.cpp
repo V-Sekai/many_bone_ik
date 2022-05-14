@@ -160,3 +160,6 @@ void IKBone3D::addConstraint(Ref<IKKusudama> p_constraint) {
 Ref<IKTransform3D> IKBone3D::get_ik_transform() {
 	return xform;
 }
+Ref<IKTransform3D> IKBone3D::get_constraint_transform() {
+	return constraint_transform;
+}

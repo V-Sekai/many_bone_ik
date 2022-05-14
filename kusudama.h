@@ -154,7 +154,7 @@ public:
 	 */
 	virtual Quaternion set_axes_to_soft_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
-private:
+public:
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
@@ -163,7 +163,6 @@ private:
 	 */
 	virtual Quaternion set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
-public:
 	virtual bool is_in_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes);
 
 	/**
