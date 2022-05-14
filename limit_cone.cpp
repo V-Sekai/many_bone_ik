@@ -80,20 +80,20 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 		double boundaryPlusTangentRadiusB = radB + tRadius;
 
 		// the axis of this cone, scaled to minimize its distance to the tangent  contact points.
-		Vector3 scaledAxisA = A * std::cos(boundaryPlusTangentRadiusA);
+		Vector3 scaledAxisA = A * cos(boundaryPlusTangentRadiusA);
 		// a point on the plane running through the tangent contact points
 		Basis tempVar(arcNormal, boundaryPlusTangentRadiusA);
 		Vector3 planeDir1A = tempVar.xform(A);
 		// another point on the same plane
-		Basis tempVar2(A, M_PI / 2);
+		Basis tempVar2(A, Math_PI / 2);
 		Vector3 planeDir2A = tempVar2.xform(planeDir1A);
 
-		Vector3 scaledAxisB = B * std::cos(boundaryPlusTangentRadiusB);
+		Vector3 scaledAxisB = B * cos(boundaryPlusTangentRadiusB);
 		// a point on the plane running through the tangent contact points
 		Basis tempVar3(arcNormal, boundaryPlusTangentRadiusB);
 		Vector3 planeDir1B = tempVar3.xform(B);
 		// another point on the same plane
-		Basis tempVar4(B, M_PI / 2);
+		Basis tempVar4(B, Math_PI / 2);
 		Vector3 planeDir2B = tempVar4.xform(planeDir1B);
 
 		// ray from scaled center of next cone to half way point between the circumference of this cone and the next cone.
@@ -134,10 +134,10 @@ void LimitCone::updateTangentAndCushionHandles(Ref<LimitCone> next, int mode) {
 void LimitCone::setTangentCircleRadiusNext(double rad, int mode) {
 	if (mode == CUSHION) {
 		this->cushionTangentCircleRadiusNext = rad;
-		this->cushionTangentCircleRadiusNext = std::cos(cushionTangentCircleRadiusNextCos);
+		this->cushionTangentCircleRadiusNext = cos(cushionTangentCircleRadiusNextCos);
 	}
 	this->tangentCircleRadiusNext = rad;
-	this->tangentCircleRadiusNextCos = std::cos(tangentCircleRadiusNext);
+	this->tangentCircleRadiusNextCos = cos(tangentCircleRadiusNext);
 }
 
 Vector3 LimitCone::getTangentCircleCenterNext1(int mode) {
@@ -206,7 +206,7 @@ double LimitCone::getRadiusCosine() {
 
 void LimitCone::setRadius(double radius) {
 	this->radius = radius;
-	this->radiusCosine = std::cos(radius);
+	this->radiusCosine = cos(radius);
 	this->parentKusudama->constraintUpdateNotification();
 }
 
@@ -221,7 +221,7 @@ double LimitCone::getCushionCosine() {
 void LimitCone::setCushionBoundary(double cushion) {
 	double adjustedCushion = MIN(1, std::max(0.001, cushion));
 	this->cushionRadius = this->radius * adjustedCushion;
-	this->cushionCosine = std::cos(cushionRadius);
+	this->cushionCosine = cos(cushionRadius);
 }
 
 Ref<IKKusudama> LimitCone::getParentKusudama() {
