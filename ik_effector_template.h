@@ -30,9 +30,10 @@
 
 #pragma once
 
-#include "core/object/ref_counted.h"
 #include "core/io/resource.h"
+#include "core/object/ref_counted.h"
 #include "core/string/node_path.h"
+
 
 class IKEffectorTemplate : public Resource {
 	GDCLASS(IKEffectorTemplate, Resource);

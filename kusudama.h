@@ -117,9 +117,9 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToSnapped(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen);
 
-	// virtual void setAxesToReturnfulled(IKTransform3D * toSet, IKTransform3D * limitingAxes, double cosHalfReturnfullness, double angleReturnfullness);
+	// virtual void setAxesToReturnfulled(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes, double cosHalfReturnfullness, double angleReturnfullness);
 
 	// /**
 	//  * A value between (ideally between 0 and 1) dictating
@@ -160,9 +160,9 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen);
 
-	virtual bool isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes);
+	virtual bool isInOrientationLimits(Ref<IKTransform3D> globalAxes, Ref<IKTransform3D> limitingAxes);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
@@ -185,11 +185,11 @@ public:
 	 * @param limitingAxes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual double snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limitingAxes);
+	virtual double snapToTwistLimits(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes);
 
-	virtual double angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *limitingAxes);
+	virtual double angleToTwistCenter(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes);
 
-	virtual bool inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingAxes);
+	virtual bool inTwistLimits(Ref<IKTransform3D> boneAxes, Ref<IKTransform3D> limitingAxes);
 
 	virtual double signedAngleDifference(double minAngle, double p_super);
 
@@ -210,7 +210,7 @@ public:
 	 */
 	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = IKKusudama::CUSHION);
 
-	Vector3 pointOnPathSequence(Vector3 inPoint, IKTransform3D *limitingAxes);
+	Vector3 pointOnPathSequence(Vector3 inPoint, Ref<IKTransform3D> limitingAxes);
 
 	// public double softLimit
 
