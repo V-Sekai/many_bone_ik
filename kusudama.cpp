@@ -51,11 +51,11 @@ void IKKusudama::optimizeLimitingAxes() {
 	originalLimitingAxes->set_global_transform(_limiting_axes->get_global_transform());
 	Vector<Vector3> directions;
 	if (get_limit_cones().size() == 1) {
-		directions.push_back(limit_cones[0]->getControlPoint());
+		directions.push_back(limit_cones[0]->get_control_point());
 	} else {
 		for (int i = 0; i < get_limit_cones().size() - 1; i++) {
-			Vector3 thisC = get_limit_cones()[i]->getControlPoint();
-			Vector3 nextC = get_limit_cones()[i + 1]->getControlPoint();
+			Vector3 thisC = get_limit_cones()[i]->get_control_point();
+			Vector3 nextC = get_limit_cones()[i + 1]->get_control_point();
 			Basis thisToNext = Basis(thisC, nextC);
 			Vector3 axis;
 			real_t angle;
@@ -88,9 +88,9 @@ void IKKusudama::optimizeLimitingAxes() {
 	_limiting_axes->rotateBy(oldYtoNewY);
 
 	for (Ref<LimitCone> lc : get_limit_cones()) {
-		lc->controlPoint = originalLimitingAxes->to_global(lc->controlPoint);
-		lc->controlPoint = _limiting_axes->to_local(lc->controlPoint);
-		lc->controlPoint.normalize();
+		lc->control_point = originalLimitingAxes->to_global(lc->control_point);
+		lc->control_point = _limiting_axes->to_local(lc->control_point);
+		lc->control_point.normalize();
 	}
 
 	this->updateTangentRadii();
@@ -99,7 +99,7 @@ void IKKusudama::optimizeLimitingAxes() {
 void IKKusudama::updateTangentRadii() {
 	for (int i = 0; i < limit_cones.size(); i++) {
 		Ref<LimitCone> next = i < limit_cones.size() - 1 ? limit_cones[i + 1] : nullptr;
-		limit_cones.write[i]->updateTangentHandles(next);
+		limit_cones.write[i]->update_tangent_handles(next);
 	}
 }
 
@@ -189,10 +189,10 @@ bool IKKusudama::is_in_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IK
 	Vector<double> in_bounds = { 1 };
 	Vector3 localizedPoint = limiting_axes->to_local(global_axes->get_global_transform().basis[Vector3::AXIS_Y]).normalized();
 	if (limit_cones.size() == 1) {
-		return limit_cones[0]->determineIfInBounds(nullptr, localizedPoint);
+		return limit_cones[0]->determine_if_in_bounds(nullptr, localizedPoint);
 	}
 	for (int i = 0; i < limit_cones.size() - 1; i++) {
-		if (limit_cones[i]->determineIfInBounds(limit_cones[i + 1], localizedPoint)) {
+		if (limit_cones[i]->determine_if_in_bounds(limit_cones[i + 1], localizedPoint)) {
 			return true;
 		}
 	}
@@ -403,7 +403,7 @@ void IKKusudama::update_rotational_freedom() {
 	// quick and dirty solution (should revisit);
 	double totalLimitConeSurfaceAreaRatio = 0;
 	for (auto l : limit_cones) {
-		totalLimitConeSurfaceAreaRatio += (l->getRadius() * 2) / Math_TAU;
+		totalLimitConeSurfaceAreaRatio += (l->get_radius() * 2) / Math_TAU;
 	}
 	rotationalFreedom = axialConstrainedHyperArea * (is_orientationally_constrained() ? MIN(totalLimitConeSurfaceAreaRatio, 1) : 1);
 }
@@ -436,7 +436,7 @@ Quaternion IKKusudama::build_rotation_from_headings(Vector3 u, Vector3 v) {
 	if (dot < ((2.0e-15 - 1.0f) * normProduct)) {
 		// The special case u = -v: we select a PI angle rotation around
 		// an arbitrary vector orthogonal to u.
-		Vector3 w = LimitCone::getOrthogonal(u);
+		Vector3 w = LimitCone::get_orthogonal(u);
 		ret.w = 0.0f;
 		ret.x = -w.x;
 		ret.y = -w.y;
@@ -481,11 +481,11 @@ Vector3 IKKusudama::point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> 
 	Vector3 result = point;
 
 	if (limit_cones.size() == 1) {
-		result = limit_cones[0]->getControlPoint();
+		result = limit_cones[0]->get_control_point();
 	} else {
 		for (int i = 0; i < limit_cones.size() - 1; i++) {
 			Ref<LimitCone> nextCone = limit_cones[i + 1];
-			Vector3 closestPathPoint = limit_cones[i]->getClosestPathPoint(nextCone, point);
+			Vector3 closestPathPoint = limit_cones[i]->get_closest_path_point(nextCone, point);
 			double closeDot = closestPathPoint.dot(point);
 			if (closeDot > closestPointDot) {
 				result = closestPathPoint;
@@ -524,7 +524,7 @@ Vector3 IKKusudama::point_in_limits(Vector3 in_point, Vector<double> &in_bounds,
 		for (int i = 0; i < limit_cones.size() - 1; i++) {
 			Ref<LimitCone> currCone = limit_cones[i];
 			Ref<LimitCone> nextCone = limit_cones[i + 1];
-			Vector3 collision_point = currCone->getOnGreatTangentTriangle(nextCone, point);
+			Vector3 collision_point = currCone->get_on_great_tangent_triangle(nextCone, point);
 			if (!(Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z))) {
 				double thisCos = collision_point.dot(point);
 				if (thisCos == 1) {
