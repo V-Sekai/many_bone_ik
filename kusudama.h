@@ -50,7 +50,7 @@ class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
 protected:
-	IKTransform3D limitingAxes_Conflict;
+	Ref<IKTransform3D> limitingAxes_Conflict = Ref<IKTransform3D>(memnew(IKTransform3D()));
 	double painfullness = 0;
 
 	/**
@@ -108,8 +108,8 @@ public:
 
 	virtual void updateTangentRadii();
 
-	Ref<Ray3D> boneRay;
-	Ref<Ray3D> constrainedRay;
+	Ref<Ray3D> boneRay = Ref<Ray3D>(memnew(Ray3D()));
+	Ref<Ray3D> constrainedRay = Ref<Ray3D>(memnew(Ray3D()));
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -152,7 +152,7 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *boneDirection, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToSoftOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransform3D> boneDirection, Ref<IKTransform3D> slimitingAxes, double cosHalfAngleDampen);
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -244,9 +244,9 @@ public:
 	virtual double mod(double x, double y);
 
 	/**
-	 * @return the limitingAxes of this Kusudama (these are just its parentBone's majorRotationAxes)
+	 * @return the limitingAxes of this Kusudama (these are it's parentBone's majorRotationAxes)
 	 */
-	IKTransform3D &limitingAxes() {
+	Ref<IKTransform3D> limitingAxes() {
 		// if(inverted) return inverseLimitingAxes;
 		return limitingAxes_Conflict;
 	}

@@ -49,18 +49,18 @@ class IKBone3D : public Resource {
 	GDCLASS(IKBone3D, Resource);
 
 	BoneId bone_id = -1;
-	Ref<IKBone3D> parent = nullptr;
+	Ref<IKBone3D> parent;
 	Vector<Ref<IKBone3D>> children;
-	Ref<IKEffector3D> pin = nullptr;
+	Ref<IKEffector3D> pin;
 
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
 	Ref<IKKusudama> constraint;
-	IKTransform3D constraint_transform; // In the space of the local parent bone transform // Origin is the origin of the bone direction transform // Can be independent and should be calculated
+	Ref<IKTransform3D> constraint_transform = memnew(IKTransform3D()); // In the space of the local parent bone transform // Origin is the origin of the bone direction transform // Can be independent and should be calculated
 	// to keep -y to be the opposite of its bone forward orientation // To avoid singularity that is ambigous. // constraint_transform
-	IKTransform3D xform; // bone's actual transform
-	IKTransform3D bone_direction_transform; // Physical direction of the bone. Calculate Y is the bone up.
+	Ref<IKTransform3D> xform = memnew(IKTransform3D()); // bone's actual transform
+	Ref<IKTransform3D> bone_direction_transform = memnew(IKTransform3D()); // Physical direction of the bone. Calculate Y is the bone up.
 protected:
 	static void _bind_methods();
 
@@ -82,9 +82,7 @@ public:
 	void set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength);
 	void create_pin();
 	bool is_pinned() const;
-	IKTransform3D *get_ik_transform() {
-		return &xform;
-	}
+	Ref<IKTransform3D> get_ik_transform();
 	IKBone3D() {}
 	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening = IK_DEFAULT_DAMPENING);
 	~IKBone3D() {}

@@ -31,8 +31,8 @@
 #include "ik_transform.h"
 
 void IKTransform3D::_propagate_transform_changed() {
-	for (List<IKTransform3D *>::Element *E = children.front(); E; E = E->next()) {
-		E->get()->_propagate_transform_changed();
+	for (Ref<IKTransform3D> transform : children) {
+		transform->_propagate_transform_changed();
 	}
 
 	dirty |= DIRTY_GLOBAL;
@@ -66,7 +66,7 @@ void IKTransform3D::set_transform(const Transform3D &p_transform) {
 
 void IKTransform3D::set_global_transform(const Transform3D &p_transform) {
 	Transform3D xform = p_transform;
-	if (parent) {
+	if (parent.is_valid()) {
 		xform = parent->get_global_transform().affine_inverse() * p_transform;
 	}
 	local_transform = xform;
@@ -88,7 +88,7 @@ Transform3D IKTransform3D::get_global_transform() const {
 			_update_local_transform();
 		}
 
-		if (parent) {
+		if (parent.is_valid()) {
 			global_transform = parent->get_global_transform() * local_transform;
 		} else {
 			global_transform = local_transform;
@@ -112,13 +112,13 @@ bool IKTransform3D::is_scale_disabled() const {
 	return disable_scale;
 }
 
-void IKTransform3D::set_parent(IKTransform3D *p_parent) {
+void IKTransform3D::set_parent(Ref<IKTransform3D> p_parent) {
 	parent = p_parent;
 	parent->children.push_back(this);
 	_propagate_transform_changed();
 }
 
-IKTransform3D *IKTransform3D::get_parent() const {
+Ref<IKTransform3D> IKTransform3D::get_parent() const {
 	return parent;
 }
 

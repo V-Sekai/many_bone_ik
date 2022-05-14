@@ -35,7 +35,7 @@ IKKusudama::IKKusudama() {
 
 IKKusudama::IKKusudama(Ref<IKBone3D> forBone) {
 	this->attachedTo_Conflict = forBone;
-	this->limitingAxes_Conflict.set_global_transform(forBone->get_global_pose());
+	this->limitingAxes_Conflict->set_global_transform(forBone->get_global_pose());
 	this->attachedTo_Conflict->addConstraint(this);
 	this->enable();
 }
@@ -46,7 +46,9 @@ void IKKusudama::constraintUpdateNotification() {
 }
 
 void IKKusudama::optimizeLimitingAxes() {
-	IKTransform3D originalLimitingAxes = limitingAxes_Conflict;
+	Ref<IKTransform3D> originalLimitingAxes;
+	originalLimitingAxes.instantiate();
+	originalLimitingAxes->set_global_transform(limitingAxes_Conflict->get_global_transform());
 	Vector<Vector3> directions;
 	if (getLimitCones().size() == 1) {
 		directions.push_back(limitCones[0]->getControlPoint());
@@ -82,12 +84,12 @@ void IKKusudama::optimizeLimitingAxes() {
 	Vector3 tempVar(0.f, 0.f, 0.f);
 	Ref<Ray3D> newYRay = memnew(Ray3D(tempVar, newY));
 
-	Quaternion oldYtoNewY = build_rotation_from_headings(limitingAxes_Conflict.get_global_transform().basis[Vector3::AXIS_Y], originalLimitingAxes.to_global(newYRay->heading()));
-	limitingAxes_Conflict.rotateBy(oldYtoNewY);
+	Quaternion oldYtoNewY = build_rotation_from_headings(limitingAxes_Conflict->get_global_transform().basis[Vector3::AXIS_Y], originalLimitingAxes->to_global(newYRay->heading()));
+	limitingAxes_Conflict->rotateBy(oldYtoNewY);
 
-	for (auto lc : getLimitCones()) {
-		lc->controlPoint = originalLimitingAxes.to_global(lc->controlPoint);
-		lc->controlPoint = limitingAxes_Conflict.to_local(lc->controlPoint);
+	for (Ref<LimitCone> lc : getLimitCones()) {
+		lc->controlPoint = originalLimitingAxes->to_global(lc->controlPoint);
+		lc->controlPoint = limitingAxes_Conflict->to_local(lc->controlPoint);
 		lc->controlPoint.normalize();
 	}
 
@@ -170,16 +172,12 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> toSet, Ref<IKTransform3D> boneDirectio
 	 *
 	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
 	 */
-	Ref<Ray3D> boneRay;
-	boneRay.instantiate();
 	boneRay->p1(limitingAxes->get_global_transform().origin);
 	boneRay->p2(boneDirection->get_global_transform().basis[Vector3::AXIS_Y]);
 	Vector3 bonetip = limitingAxes->to_local(boneRay->p2());
 	Vector3 inCushionLimits = pointInLimits(bonetip, inBounds, IKKusudama::CUSHION);
 
 	if (inBounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
-		Ref<Ray3D> constrainedRay;
-		boneRay.instantiate();
 		constrainedRay->p1(boneRay->p1());
 		constrainedRay->p2(limitingAxes->to_global(inCushionLimits));
 		Quaternion rectifiedRot = build_rotation_from_headings(boneRay->heading(), constrainedRay->heading());
@@ -558,5 +556,5 @@ void IKKusudama::setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *l
 		toSet->rotateBy(rectifiedRot);
 	}
 }
-void IKKusudama::setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *boneDirection, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
+void IKKusudama::setAxesToSoftOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransform3D> boneDirection, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen) {
 }

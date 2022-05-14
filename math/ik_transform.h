@@ -34,8 +34,10 @@
 #include "core/templates/list.h"
 
 #include "core/math/transform_3d.h"
+#include "core/object/ref_counted.h"
 
-class IKTransform3D {
+class IKTransform3D : public RefCounted {
+	GDCLASS(IKTransform3D, RefCounted);
 	enum TransformDirty {
 		DIRTY_NONE = 0,
 		DIRTY_VECTORS = 1,
@@ -50,8 +52,8 @@ class IKTransform3D {
 
 	mutable int dirty = DIRTY_NONE;
 
-	IKTransform3D *parent = nullptr;
-	List<IKTransform3D *> children;
+	Ref<IKTransform3D> parent;
+	List<Ref<IKTransform3D>> children;
 
 	bool disable_scale = false;
 
@@ -67,8 +69,8 @@ public:
 	void set_disable_scale(bool p_enabled);
 	bool is_scale_disabled() const;
 
-	void set_parent(IKTransform3D *p_parent);
-	IKTransform3D *get_parent() const;
+	void set_parent(Ref<IKTransform3D> p_parent);
+	Ref<IKTransform3D> get_parent() const;
 
 	Vector3 to_local(const Vector3 &p_global) const;
 	Vector3 to_global(const Vector3 &p_local) const;
