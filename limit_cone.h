@@ -73,17 +73,16 @@ public:
 	static const int BOUNDARY = 0;
 	static const int CUSHION = 1;
 
-	// softness of 0 means completely hard.
-	// any softness higher than 0f means that
-	// as the softness value is increased
-	// the is more penalized for moving
-	// further from the center of the channel
+	// Any softness of 0.0f means completely hard.
+	// any softness higher than 0.0f means that
+	// as the softness value is increased the more penalty for moving
+	// further from the center of the channel.
 	double softness = 0;
 
 	/**
-	 * a triangle where the [1] is th tangentCircleNext_n, and [0] and [2]
-	 * are the points at which the tangent circle intersects this limitCone and the
-	 * next limitCone
+	 * A triangle where the [1] is the tangent_circle_next_n, and [0] and [2]
+	 * are the points at which the tangent circle intersects this LimitCone and the
+	 * next LimitCone.
 	 */
 	Vector<Vector3> first_triangle_next = { Vector3(), Vector3(), Vector3() };
 	Vector<Vector3> second_triangle_next = { Vector3(), Vector3(), Vector3() };
