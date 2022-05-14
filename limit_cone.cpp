@@ -28,9 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "LimitCone.h"
+#include "limit_cone.h"
 
-#include "Kusudama.h"
+#include "kusudama.h"
 
 LimitCone::LimitCone() {
 }

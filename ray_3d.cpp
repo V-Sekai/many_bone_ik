@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "Ray3D.h"
+#include "ray_3d.h"
 
 #include "core/math/vector3.h"
 

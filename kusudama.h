@@ -31,17 +31,17 @@
 
 #pragma once
 
-#include "../Ray3D.h"
-#include "../ik_bone_3d.h"
-#include "../math/ik_transform.h"
-#include "LimitCone.h"
+#include "limit_cone.h"
 #include "core/io/resource.h"
+#include "core/math/quaternion.h"
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <type_traits>
 #include <vector>
 
-class LimitCone;
+class IKBone3D;
+class IKTransform3D;
 class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
@@ -106,11 +106,6 @@ public:
 	Ref<Ray3D> constrainedRay = memnew(Ray3D(Vector3(), Vector3()));
 
 	/**
-	 * Snaps the bone this Kusudama is constraining to be within the Kusudama's orientational and axial limits.
-	 */
-	void snapToLimits();
-
-	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
 	 *
@@ -118,22 +113,22 @@ public:
 	 */
 	virtual void setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
 
-	virtual void setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfReturnfullness, double angleReturnfullness);
+	// virtual void setAxesToReturnfulled(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfReturnfullness, double angleReturnfullness);
 
-	/**
-	 * A value between (ideally between 0 and 1) dictating
-	 * how much the bone to which this kusudama belongs
-	 * prefers to be away from the edges of the kusudama
-	 * if it can. This is useful for avoiding unnatural poses,
-	 * as the kusudama will push bones back into their more
-	 * "comfortable" regions. Leave this value at its default of
-	 * 0 unless you empircal observations show you need it.
-	 * Setting this value to anything higher than 0.4 is probably overkill
-	 * in most situations.
-	 *
-	 * @param amt
-	 */
-	virtual void setPainfullness(double amt);
+	// /**
+	//  * A value between (ideally between 0 and 1) dictating
+	//  * how much the bone to which this kusudama belongs
+	//  * prefers to be away from the edges of the kusudama
+	//  * if it can. This is useful for avoiding unnatural poses,
+	//  * as the kusudama will push bones back into their more
+	//  * "comfortable" regions. Leave this value at its default of
+	//  * 0 unless you empircal observations show you need it.
+	//  * Setting this value to anything higher than 0.4 is probably overkill
+	//  * in most situations.
+	//  *
+	//  * @param amt
+	//  */
+	// virtual void setPainfullness(double amt);
 
 	/**
 	 * @return A value between (ideally between 0 and 1) dictating
@@ -151,7 +146,7 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *boneDirection, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -161,15 +156,15 @@ public:
 	 */
 	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
 		Vector<double> inBounds = { 1 };
-		boneRay->p1(limitingAxes->get_transform().origin);
-		boneRay->p2(toSet->get_transform().basis[Vector3::AXIS_Y]);
-		Vector3 bonetip = limitingAxes->get_transform().xform(toSet->get_transform().basis[Vector3::AXIS_Y]);
+		boneRay->p1(limitingAxes->get_global_transform().origin);
+		boneRay->p2(toSet->get_global_transform().basis[Vector3::AXIS_Y]);
+		Vector3 bonetip = limitingAxes->get_global_transform().xform_inv(boneRay->p2());
 		Vector3 inLimits = this->pointInLimits(bonetip, inBounds);
 
 		if (inBounds[0] == -1 && inLimits != Vector3(NAN, NAN, NAN)) {
 			constrainedRay->p1(boneRay->p1());
 			constrainedRay->p2(limitingAxes->get_global_transform().xform(inLimits));
-			Quaternion rectifiedRot = Quaternion(boneRay->heading(), constrainedRay->heading());
+			Quaternion rectifiedRot = build_rotation_from_headings(boneRay->heading(), constrainedRay->heading());
 			toSet->rotateBy(rectifiedRot);
 		}
 	}
@@ -402,7 +397,6 @@ protected:
 	 * @param forBone the bone to which to attach this Kusudama.
 	 */
 public:
-	virtual void attachTo(Ref<IKBone3D> forBone);
 
 	/**for IK solvers. Defines the weight ratio between the unconstrained IK solved orientation and the constrained orientation for this bone
 	 per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.
@@ -414,5 +408,92 @@ public:
 	 per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.**/
 	virtual double getStrength() const;
 
-	virtual Vector<Ref<LimitCone>> getLimitCones() const;
+	virtual Vector<Ref<LimitCone>> getLimitCones();
+
+	/**
+	 * Get the swing rotation and twist rotation for the specified axis. The twist
+	 * rotation represents the rotation around the
+	 * specified axis. The swing rotation represents the rotation of the specified
+	 * axis itself, which is the rotation around an
+	 * axis perpendicular to the specified axis. The swing and twist rotation can be
+	 * used to reconstruct the original
+	 * quaternion: this = swing * twist
+	 *
+	 * @param axisX the X component of the normalized axis for which to get the
+	 *              swing and twist rotation
+	 * @param axisY the Y component of the normalized axis for which to get the
+	 *              swing and twist rotation
+	 * @param axisZ the Z component of the normalized axis for which to get the
+	 *              swing and twist rotation
+	 * @return an Array of Quaternion objects. With the first element representing
+	 *         the
+	 *         swing, and the second representing the twist
+	 * @see <a href=
+	 *      "http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
+	 */
+public:
+	static Vector<Quaternion> getSwingTwist(Quaternion p_quaternion, Vector3 p_axis) {
+		Quaternion twistRot = p_quaternion;
+		const float d = twistRot.get_axis().dot(p_axis);
+		twistRot = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, twistRot.w).normalized();
+		if (d < 0) {
+			twistRot *= -1.0f;
+		}
+		Quaternion swing = twistRot;
+		swing.x = -swing.x;
+		swing.y = -swing.y;
+		swing.z = -swing.z;
+		swing = twistRot * swing;
+
+		Vector<Quaternion> result;
+		result.resize(2);
+		result.write[0] = swing;
+		result.write[1] = twistRot;
+		return result;
+	}
+
+	/**
+	 * Build one of the rotations that transform one vector into another one.
+	 * <p>
+	 * Except for a possible scale factor, if the instance were
+	 * applied to the vector u it will produce the vector v. There is an
+	 * infinite number of such rotations, this constructor choose the
+	 * one with the smallest associated angle (i.e. the one whose axis
+	 * is orthogonal to the (u, v) plane). If u and v are colinear, an
+	 * arbitrary rotation axis is chosen.
+	 * </p>
+	 *
+	 * @param u origin vector
+	 * @param v desired image of u by the rotation
+	 * @throws MathUtils.MathArithmeticException if the norm of one of the vectors
+	 *                                           is zero
+	 */
+public:
+	static Quaternion build_rotation_from_headings(Vector3 u, Vector3 v) {
+		float normProduct = u.length() * v.length();
+		Quaternion ret;
+		if (Math::is_zero_approx(normProduct)) {
+			return ret;
+		}
+		float dot = u.dot(v);
+		if (dot < ((2.0e-15 - 1.0f) * normProduct)) {
+			// The special case u = -v: we select a PI angle rotation around
+			// an arbitrary vector orthogonal to u.
+			Vector3 w = LimitCone::getOrthogonal(u);
+			ret.w = 0.0f;
+			ret.x = -w.x;
+			ret.y = -w.y;
+			ret.z = -w.z;
+		} else {
+			// The general case: (u, v) defines a plane, we select
+			// the shortest possible rotation: axis orthogonal to this plane.
+			ret.w = Math::sqrt(0.5f * (1.0f + dot / normProduct));
+			float coeff = 1.0f / (2.0f * ret.w * normProduct);
+			Vector3 q = v.cross(u);
+			ret.x = coeff * q.x;
+			ret.y = coeff * q.y;
+			ret.z = coeff * q.z;
+		}
+		return ret;
+	}
 };

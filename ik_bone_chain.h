@@ -32,6 +32,7 @@
 #define ik_bone_chain_H
 
 #include "core/object/ref_counted.h"
+#include "core/io/resource.h"
 
 #include "math/qcp.h"
 #include "scene/3d/skeleton_3d.h"

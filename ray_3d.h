@@ -27,18 +27,14 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-
-#pragma once
-
-#include <cmath>
-#include <cstdint>
-#include <string>
-#include <vector>
+#ifndef ray_3d_h
+#define ray_3d_h
 
 #include "core/math/vector3.h"
-#include "core/object/ref_counted.h"
+#include "core/io/resource.h"
 
 class Ray3D : public RefCounted {
+	GDCLASS(Ray3D, RefCounted);
 public:
 	static constexpr int X = 0;
 	static constexpr int Y = 1;
@@ -371,3 +367,5 @@ public:
 		return String(L"(") + this->p1_Conflict.x + L" ->  " + this->p2_Conflict.x + L") \n " + L"(" + this->p1_Conflict.y + L" ->  " + this->p2_Conflict.y + L") \n " + L"(" + this->p1_Conflict.z + L" ->  " + this->p2_Conflict.z + L") \n ";
 	}
 };
+
+#endif

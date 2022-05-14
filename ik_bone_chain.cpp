@@ -234,6 +234,7 @@ void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 	} else {
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
+
 	Basis parent_global_pose_basis = p_for_bone->get_pose().basis;
 	if (p_for_bone->get_parent().is_valid()) {
 		parent_global_pose_basis = p_for_bone->get_parent()->get_global_pose().basis;
@@ -244,6 +245,7 @@ void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 	Transform3D result = Transform3D((new_rotation * p_for_bone->get_pose().basis), p_for_bone->get_pose().origin);
 	p_for_bone->set_pose(result);*/
 	p_for_bone->get_ik_transform()->rotateBy(rot);
+	p_for_bone->get_constraint().setAxesToSoftOrientationSnap(p_for_bone->get_ik_transform(), p_for_bone->get_ik_transform(), p_for_bone->co)
 	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 	p_for_bone->set_global_pose(result);
 }

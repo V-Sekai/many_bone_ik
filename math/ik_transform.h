@@ -31,8 +31,9 @@
 #ifndef IK_TRANSFORM_H
 #define IK_TRANSFORM_H
 
-#include "core/math/transform_3d.h"
 #include "core/templates/list.h"
+
+#include "core/math/transform_3d.h"
 
 class IKTransform3D {
 	enum TransformDirty {

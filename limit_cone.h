@@ -30,16 +30,9 @@
 
 #pragma once
 
-#define _USE_MATH_DEFINES
-#include "../math/ik_transform.h"
-#include "../ik_bone_chain.h"
-#include "Kusudama.h"
+#include "ik_bone_chain.h"
+#include "kusudama.h"
 #include "core/io/resource.h"
-#include <cmath>
-#include <cstdint>
-#include <stdexcept>
-#include <type_traits>
-#include <vector>
 
 class IKKusudama;
 class LimitCone : public Resource {
@@ -199,7 +192,7 @@ public:
 		return result;
 	}
 
-	Vector3 getClosestPathPoint(const Ref<LimitCone> next, Vector3 input) {
+	Vector3 getClosestPathPoint(Ref<LimitCone> next, Vector3 input) const {
 		Vector3 result = getOnPathSequence(next, input);
 		if (result == Vector3(NAN, NAN, NAN)) {
 			result = closestCone(next, input);
@@ -217,7 +210,7 @@ public:
 	 * @param input
 	 * @return
 	 */
-	bool determineIfInBounds(Ref<LimitCone> next, Vector3 input) {
+	bool determineIfInBounds(Ref<LimitCone> next, Vector3 input) const {
 		/**
 		 * Procedure : Check if input is contained in this cone, or the next cone
 		 * 	if it is, then we're finished and in bounds. otherwise,
@@ -271,7 +264,7 @@ public:
 		}
 	}
 
-	Vector3 getOnPathSequence(Ref<LimitCone> next, Vector3 input) {
+	Vector3 getOnPathSequence(Ref<LimitCone> next, Vector3 input) const {
 		Vector3 c1xc2 = controlPoint.cross(next->controlPoint);
 		double c1c2dir = input.dot(c1xc2);
 		if (c1c2dir < 0.0) {
@@ -343,7 +336,7 @@ public:
 		}
 	}
 
-	Vector3 closestCone(Ref<LimitCone> next, Vector3 input) {
+	Vector3 closestCone(Ref<LimitCone> next, Vector3 input) const {
 		if (input.dot(controlPoint) > input.dot(next->controlPoint)) {
 			return this->controlPoint;
 		} else {
