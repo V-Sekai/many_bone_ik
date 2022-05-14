@@ -451,7 +451,7 @@ Quaternion IKKusudama::build_rotation_from_headings(Vector3 u, Vector3 v) {
 		ret.y = coeff * q.y;
 		ret.z = coeff * q.z;
 	}
-	return ret;
+	return ret.normalized();
 }
 
 Vector<Quaternion> IKKusudama::get_swing_twist(Quaternion p_quaternion, Vector3 p_axis) {
@@ -527,7 +527,7 @@ Vector3 IKKusudama::point_in_limits(Vector3 in_point, Vector<double> &in_bounds,
 			Vector3 collision_point = curr_cone->get_on_great_tangent_triangle(next_cone, point);
 			if (!(Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z))) {
 				double this_cos = collision_point.dot(point);
-				if (Math::is_equal_approx(this_cos, 1.0f)) {
+				if (Math::is_equal_approx(this_cos, 1.0)) {
 					in_bounds.write[0] = 1;
 					closest_collision_point = point;
 					return point;
