@@ -102,7 +102,7 @@ public:
 
 	LimitCone();
 
-	LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attachedTo);
+	LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to);
 
 	/**
 	 *
@@ -111,9 +111,9 @@ public:
 	 * @param cushion range 0-1, how far toward the boundary to begin slowing down the rotation if soft constraints are enabled.
 	 * Value of 1 creates a hard boundary. Value of 0 means it will always be the case that the closer a joint in the allowable region
 	 * is to the boundary, the more any further rotation in the direction of that boundary will be avoided.
-	 * @param attachedTo
+	 * @param attached_to
 	 */
-	LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attachedTo);
+	LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attached_to);
 
 	static Vector3 getOrthogonal(Vector3 p_in);
 

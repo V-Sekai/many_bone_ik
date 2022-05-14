@@ -207,7 +207,7 @@ double LimitCone::getRadiusCosine() {
 void LimitCone::setRadius(double radius) {
 	this->radius = radius;
 	this->radiusCosine = cos(radius);
-	this->parentKusudama->constraintUpdateNotification();
+	this->parentKusudama->_update_constraint();
 }
 
 double LimitCone::getCushionRadius() {
@@ -337,7 +337,7 @@ Vector3 LimitCone::getOrthogonal(Vector3 p_in) {
 	return result;
 }
 
-LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attachedTo) {
+LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attached_to) {
 	setControlPoint(direction);
 	tangentCircleCenterNext1 = LimitCone::getOrthogonal(direction);
 	tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1);
@@ -347,9 +347,9 @@ LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusuda
 	double adjustedCushion = MIN(1, MAX(0.001, cushion));
 	this->cushionRadius = this->radius * adjustedCushion;
 	this->cushionCosine = IKBoneChain::cos(cushionRadius);
-	parentKusudama = attachedTo;
+	parentKusudama = attached_to;
 }
-LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attachedTo) {
+LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to) {
 	setControlPoint(direction);
 	tangentCircleCenterNext1 = direction.normalized();
 	tangentCircleCenterNext2 = (tangentCircleCenterNext1 * -1);
@@ -358,7 +358,7 @@ LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attachedTo)
 	this->radiusCosine = cos(radius);
 	this->cushionRadius = this->radius;
 	this->cushionCosine = this->radiusCosine;
-	parentKusudama = attachedTo;
+	parentKusudama = attached_to;
 }
 
 Vector3 LimitCone::getOnGreatTangentTriangle(Ref<LimitCone> next, Vector3 input) {

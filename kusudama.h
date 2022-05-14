@@ -67,7 +67,7 @@ protected:
 	double _min_axial_angle_conflict = Math_PI;
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
-	 * minAxialAngle
+	 * min_axial_angle
 	 */
 	double range = Math_PI * 3;
 
@@ -93,7 +93,7 @@ public:
 
 	IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
-	virtual void constraintUpdateNotification();
+	virtual void _update_constraint();
 
 	/**
 	 * This function should be called after you've set all of the Limiting Cones
@@ -117,7 +117,7 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void setAxesToSnapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
+	virtual void set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
 	// virtual void setAxesToReturnfulled(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cosHalfReturnfullness, double angleReturnfullness);
 
@@ -134,7 +134,7 @@ public:
 	//  *
 	//  * @param amt
 	//  */
-	// virtual void setPainfullness(double amt);
+	// virtual void set_painfullness(double amt);
 
 	// /**
 	//  * @return A value between (ideally between 0 and 1) dictating
@@ -144,7 +144,7 @@ public:
 	//  */
 	// virtual double getPainfullness();
 
-	bool isInLimits_(Vector3 globalPoint);
+	bool _is_in_limits(Vector3 global_point);
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -152,7 +152,7 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void setAxesToSoftOrientationSnap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> slimitingAxes, double cos_half_angle_dampen);
+	virtual void set_axes_to_soft_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> slimitingAxes, double cos_half_angle_dampen);
 
 private:
 	/**
@@ -161,10 +161,10 @@ private:
 	 *
 	 * @param to_set
 	 */
-	virtual void setAxesToOrientationSnap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
+	virtual void set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 public:
 
-	virtual bool isInOrientationLimits(Ref<IKTransform3D> globalAxes, Ref<IKTransform3D> limiting_axes);
+	virtual bool is_in_orientation_limits(Ref<IKTransform3D> globalAxes, Ref<IKTransform3D> limiting_axes);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
@@ -177,7 +177,7 @@ public:
 	 * This value is always interpreted as being in the positive direction. For example, if this value is -PI/2, the entire range from minAngle to minAngle + 3PI/4 is
 	 * considered valid.
 	 */
-	virtual void setAxialLimits(double minAngle, double inRange);
+	virtual void set_axial_limits(double minAngle, double inRange);
 
 	// protected CartesianAxes limitLocalAxes;
 
@@ -187,13 +187,13 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual double snapToTwistLimits(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
+	virtual double snap_to_twist_limits(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
-	virtual double angleToTwistCenter(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
+	virtual double angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
-	virtual bool inTwistLimits(Ref<IKTransform3D> boneAxes, Ref<IKTransform3D> limiting_axes);
+	virtual bool in_twist_limits(Ref<IKTransform3D> boneAxes, Ref<IKTransform3D> limiting_axes);
 
-	virtual double signedAngleDifference(double minAngle, double p_super);
+	virtual double signed_angle_difference(double minAngle, double p_super);
 
 	/**
 	 * Given a point (in global coordinates), checks to see if a ray can be extended from the Kusudama's
@@ -210,13 +210,13 @@ public:
 	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	Vector3 pointInLimits(Vector3 in_point, Vector<double> &in_bounds, int mode = IKKusudama::CUSHION);
+	Vector3 point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode = IKKusudama::CUSHION);
 
-	Vector3 pointOnPathSequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes);
+	Vector3 point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes);
 
 	// public double softLimit
 
-	virtual Ref<IKBone3D> attachedTo();
+	virtual Ref<IKBone3D> attached_to();
 
 	/**
 	 * Add a LimitCone to the Kusudama.
@@ -225,9 +225,9 @@ public:
 	 * @param previous the LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 * @param next the other LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 */
-	virtual void addLimitCone(Vector3 newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next);
+	virtual void add_limit_cone(Vector3 newPoint, double radius, Ref<LimitCone> previous, Ref<LimitCone> next);
 
-	virtual void removeLimitCone(Ref<LimitCone> limitCone);
+	virtual void remove_limit_cone(Ref<LimitCone> limitCone);
 
 	/**
 	 * Adds a LimitCone to the Kusudama. LimitCones are reach cones which can be arranged sequentially. The Kusudama will infer
@@ -239,9 +239,9 @@ public:
 	 * @param newPoint where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
 	 * @param radius the radius of the limitCone
 	 */
-	void addLimitConeAtIndex(int insertAt, Vector3 newPoint, double radius);
+	void add_limit_cone_at_index(int insertAt, Vector3 newPoint, double radius);
 
-	virtual double toTau(double angle);
+	virtual double to_tau(double angle);
 
 	virtual double mod(double x, double y);
 
@@ -257,33 +257,33 @@ public:
 	 *
 	 * @return the lower bound on the axial constraint
 	 */
-	virtual double minAxialAngle();
+	virtual double min_axial_angle();
 
-	virtual double maxAxialAngle();
+	virtual double max_axial_angle();
 
 	/**
 	 * the upper bound on the axial constraint in absolute terms
 	 * @return
 	 */
-	virtual double absoluteMaxAxialAngle();
+	virtual double absolute_max_axial_angle();
 
-	virtual bool isAxiallyConstrained();
+	virtual bool is_axially_constrained();
 
-	virtual bool isOrientationallyConstrained();
+	virtual bool is_orientationally_constrained();
 
-	virtual void disableOrientationalLimits();
+	virtual void disable_orientational_limits();
 
-	virtual void enableOrientationalLimits();
+	virtual void enable_orientational_limits();
 
-	virtual void toggleOrientationalLimits();
+	virtual void toggle_orientational_limits();
 
-	virtual void disableAxialLimits();
+	virtual void disable_axial_limits();
 
-	virtual void enableAxialLimits();
+	virtual void enable_axial_limits();
 
-	virtual void toggleAxialLimits();
+	virtual void toggle_axial_limits();
 
-	bool isEnabled();
+	bool is_enabled();
 
 	void disable();
 
@@ -305,12 +305,12 @@ public:
 	 * the orientations a bone can be in between two limit cones in a sequence if those limit
 	 * cones intersect with a previous sequence.
 	 */
-	double getRotationalFreedom();
+	double get_rotational_freedom();
 
 	double rotationalFreedom = 1;
 
 protected:
-	virtual void updateRotationalFreedom();
+	virtual void update_rotational_freedom();
 
 	/**
 	 * attaches the Kusudama to the BoneExample. If the
@@ -328,13 +328,13 @@ public:
 	 per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.
 	 @param strength a value between 0 and 1. Any other value will be clamped to this range.
 	 **/
-	virtual void setStrength(double newStrength);
+	virtual void set_strength(double newStrength);
 
 	/**for IK solvers. Defines the weight ratio between the unconstrained IK solved orientation and the constrained orientation for this bone
 	 per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.**/
-	virtual double getStrength() const;
+	virtual double get_strength() const;
 
-	virtual Vector<Ref<LimitCone>> getLimitCones();
+	virtual Vector<Ref<LimitCone>> get_limit_cones();
 
 	/**
 	 * Get the swing rotation and twist rotation for the specified axis. The twist
@@ -358,7 +358,7 @@ public:
 	 *      "http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
 	 */
 public:
-	static Vector<Quaternion> getSwingTwist(Quaternion p_quaternion, Vector3 p_axis);
+	static Vector<Quaternion> get_swing_twist(Quaternion p_quaternion, Vector3 p_axis);
 
 	/**
 	 * Build one of the rotations that transform one vector into another one.
