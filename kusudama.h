@@ -61,12 +61,12 @@ protected:
 	Vector<Ref<LimitCone>> limitCones;
 
 	/**
-	 * Defined as some Angle in radians about the limitingAxes Y axis, 0 being equivalent to the
-	 * limitingAxes Z axis.
+	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
+	 * limiting_axes Z axis.
 	 */
 	double minAxialAngle_Conflict = Math_PI;
 	/**
-	 * Defined as some Angle in radians about the limitingAxes Y axis, 0 being equivalent to the
+	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
 	 * minAxialAngle
 	 */
 	double range = Math_PI * 3;
@@ -91,7 +91,7 @@ public:
 
 	IKKusudama(Ref<IKBone3D> forBone);
 
-	IKKusudama(Ref<IKTransform3D> toSet, Ref<IKTransform3D> boneDirection, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen);
+	IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
 	virtual void constraintUpdateNotification();
 
@@ -115,11 +115,11 @@ public:
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
 	 *
-	 * @param toSet
+	 * @param to_set
 	 */
-	virtual void setAxesToSnapped(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToSnapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
-	// virtual void setAxesToReturnfulled(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes, double cosHalfReturnfullness, double angleReturnfullness);
+	// virtual void setAxesToReturnfulled(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cosHalfReturnfullness, double angleReturnfullness);
 
 	// /**
 	//  * A value between (ideally between 0 and 1) dictating
@@ -150,21 +150,21 @@ public:
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
 	 *
-	 * @param toSet
+	 * @param to_set
 	 */
-	virtual void setAxesToSoftOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransform3D> boneDirection, Ref<IKTransform3D> slimitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToSoftOrientationSnap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> slimitingAxes, double cos_half_angle_dampen);
 
 private:
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
 	 *
-	 * @param toSet
+	 * @param to_set
 	 */
-	virtual void setAxesToOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToOrientationSnap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 public:
 
-	virtual bool isInOrientationLimits(Ref<IKTransform3D> globalAxes, Ref<IKTransform3D> limitingAxes);
+	virtual bool isInOrientationLimits(Ref<IKTransform3D> globalAxes, Ref<IKTransform3D> limiting_axes);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
@@ -183,15 +183,15 @@ public:
 
 	/**
 	 *
-	 * @param toSet
-	 * @param limitingAxes
+	 * @param to_set
+	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual double snapToTwistLimits(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes);
+	virtual double snapToTwistLimits(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
-	virtual double angleToTwistCenter(Ref<IKTransform3D> toSet, Ref<IKTransform3D> limitingAxes);
+	virtual double angleToTwistCenter(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
-	virtual bool inTwistLimits(Ref<IKTransform3D> boneAxes, Ref<IKTransform3D> limitingAxes);
+	virtual bool inTwistLimits(Ref<IKTransform3D> boneAxes, Ref<IKTransform3D> limiting_axes);
 
 	virtual double signedAngleDifference(double minAngle, double p_super);
 
@@ -212,7 +212,7 @@ public:
 	 */
 	Vector3 pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int mode = IKKusudama::CUSHION);
 
-	Vector3 pointOnPathSequence(Vector3 inPoint, Ref<IKTransform3D> limitingAxes);
+	Vector3 pointOnPathSequence(Vector3 inPoint, Ref<IKTransform3D> limiting_axes);
 
 	// public double softLimit
 
@@ -246,9 +246,9 @@ public:
 	virtual double mod(double x, double y);
 
 	/**
-	 * @return the limitingAxes of this Kusudama (these are it's parentBone's majorRotationAxes)
+	 * @return the limiting_axes of this Kusudama (these are it's parentBone's majorRotationAxes)
 	 */
-	Ref<IKTransform3D> limitingAxes() {
+	Ref<IKTransform3D> limiting_axes() {
 		// if(inverted) return inverseLimitingAxes;
 		return limitingAxes_Conflict;
 	}
