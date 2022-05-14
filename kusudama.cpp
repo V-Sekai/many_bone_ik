@@ -509,12 +509,12 @@ Vector3 IKKusudama::pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int
 	for (int i = 0; i < limitCones.size(); i++) {
 		Ref<LimitCone> cone = limitCones[i];
 		Vector3 collisionPoint = cone->closestToCone(point, boundHint);
-		if (collisionPoint == Vector3(NAN, NAN, NAN)) {
+		if (Math::is_nan(collisionPoint.x) || Math::is_nan(collisionPoint.y) || Math::is_nan(collisionPoint.z)) {
 			inBounds.write[0] = 1;
 			return point;
 		} else {
 			double thisCos = collisionPoint.dot(point);
-			if (closestCollisionPoint == Vector3(NAN, NAN, NAN) || thisCos > closestCos) {
+			if (Math::is_nan(collisionPoint.x) || Math::is_nan(collisionPoint.y) || Math::is_nan(collisionPoint.z) || thisCos > closestCos) {
 				closestCollisionPoint = collisionPoint;
 				closestCos = thisCos;
 			}
@@ -525,7 +525,7 @@ Vector3 IKKusudama::pointInLimits(Vector3 inPoint, Vector<double> &inBounds, int
 			Ref<LimitCone> currCone = limitCones[i];
 			Ref<LimitCone> nextCone = limitCones[i + 1];
 			Vector3 collisionPoint = currCone->getOnGreatTangentTriangle(nextCone, point);
-			if (collisionPoint != Vector3(NAN, NAN, NAN)) {
+			if (!(Math::is_nan(collisionPoint.x) || Math::is_nan(collisionPoint.y) || Math::is_nan(collisionPoint.z))) {
 				double thisCos = collisionPoint.dot(point);
 				if (thisCos == 1) {
 					inBounds.write[0] = 1;
@@ -549,7 +549,7 @@ void IKKusudama::setAxesToOrientationSnap(Ref<IKTransform3D> toSet, Ref<IKTransf
 	Vector3 bonetip = limitingAxes->get_global_transform().xform_inv(boneRay->p2());
 	Vector3 inLimits = this->pointInLimits(bonetip, inBounds);
 
-	if (inBounds[0] == -1 && inLimits != Vector3(NAN, NAN, NAN)) {
+	if (inBounds[0] == -1 && !(Math::is_nan(inLimits.x) || Math::is_nan(inLimits.y) || Math::is_nan(inLimits.z))) {
 		constrainedRay->p1(boneRay->p1());
 		constrainedRay->p2(limitingAxes->get_global_transform().xform(inLimits));
 		Quaternion rectifiedRot = build_rotation_from_headings(boneRay->heading(), constrainedRay->heading());

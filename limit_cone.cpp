@@ -428,9 +428,13 @@ Vector3 LimitCone::closestToCone(Vector3 input, Vector<bool> &inBounds) {
 		inBounds.write[0] = true;
 		return Vector3(NAN, NAN, NAN);
 	}
-	Vector3 axis = this->getControlPoint().cross(input);
+	if (Math::is_nan(input.x) || Math::is_nan(input.y) || Math::is_nan(input.z)) {
+		return Vector3(NAN, NAN, NAN);
+	}
+	Vector3 axis = this->getControlPoint().cross(input).normalized();
 	Quaternion rotTo = Quaternion(axis, this->getRadius());
-	Vector3 result = Basis(rotTo).xform(this->getControlPoint());
+	Vector3 axis_control_point = this->getControlPoint();
+	Vector3 result = rotTo.xform(axis_control_point);
 	inBounds.write[0] = false;
 	return result;
 }
