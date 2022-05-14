@@ -41,11 +41,11 @@ IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
 }
 
 void IKKusudama::_update_constraint() {
-	this->updateTangentRadii();
+	this->update_tangent_radii();
 	this->update_rotational_freedom();
 }
 
-void IKKusudama::optimizeLimitingAxes() {
+void IKKusudama::optimize_limiting_axes() {
 	Ref<IKTransform3D> originalLimitingAxes;
 	originalLimitingAxes.instantiate();
 	originalLimitingAxes->set_global_transform(_limiting_axes->get_global_transform());
@@ -93,10 +93,10 @@ void IKKusudama::optimizeLimitingAxes() {
 		lc->control_point.normalize();
 	}
 
-	this->updateTangentRadii();
+	this->update_tangent_radii();
 }
 
-void IKKusudama::updateTangentRadii() {
+void IKKusudama::update_tangent_radii() {
 	for (int i = 0; i < limit_cones.size(); i++) {
 		Ref<LimitCone> next = i < limit_cones.size() - 1 ? limit_cones[i + 1] : nullptr;
 		limit_cones.write[i]->update_tangent_handles(next);
@@ -301,14 +301,14 @@ void IKKusudama::add_limit_cone(Vector3 new_point, double radius, Ref<LimitCone>
 
 void IKKusudama::remove_limit_cone(Ref<LimitCone> limitCone) {
 	this->limit_cones.erase(limitCone);
-	this->updateTangentRadii();
+	this->update_tangent_radii();
 	this->update_rotational_freedom();
 }
 
 void IKKusudama::add_limit_cone_at_index(int insert_at, Vector3 new_point, double radius) {
 	Ref<LimitCone> newCone = memnew(LimitCone(new_point, radius, Ref<IKKusudama>(this)));
 	limit_cones.insert(insert_at, newCone);
-	this->updateTangentRadii();
+	this->update_tangent_radii();
 	this->update_rotational_freedom();
 }
 

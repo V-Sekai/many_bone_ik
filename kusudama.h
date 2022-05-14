@@ -104,9 +104,9 @@ public:
 	 * axes in the direction that places it within an oreintation allowed by the constraint,
 	 * and roughly as far as possible from any orientations not allowed by the constraint.
 	 */
-	virtual void optimizeLimitingAxes();
+	virtual void optimize_limiting_axes();
 
-	virtual void updateTangentRadii();
+	virtual void update_tangent_radii();
 
 	Ref<Ray3D> bone_ray = Ref<Ray3D>(memnew(Ray3D()));
 	Ref<Ray3D> constrained_ray = Ref<Ray3D>(memnew(Ray3D()));
