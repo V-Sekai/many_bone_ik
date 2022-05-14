@@ -82,8 +82,8 @@ void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> next, int mode
 		// the axis of this cone, scaled to minimize its distance to the tangent  contact points.
 		Vector3 scaledAxisA = A * cos(boundaryPlusTangentRadiusA);
 		// a point on the plane running through the tangent contact points
-		Basis tempVar(arcNormal, boundaryPlusTangentRadiusA);
-		Vector3 planeDir1A = tempVar.xform(A);
+		Basis temp_var(arcNormal, boundaryPlusTangentRadiusA);
+		Vector3 planeDir1A = temp_var.xform(A);
 		// another point on the same plane
 		Basis tempVar2(A, Math_PI / 2);
 		Vector3 planeDir2A = tempVar2.xform(planeDir1A);

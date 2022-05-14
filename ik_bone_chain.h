@@ -87,7 +87,7 @@ public:
 		x -= real_t(.25) + Math::floor(x + real_t(.25));
 		x *= real_t(16.) * (Math::abs(x) - real_t(.5));
 #if EXTRA_PRECISION
-		x += real_t(.225) * x * (std::abs(x) - real_t(1.));
+		x += real_t(.225) * x * (Math::abs(x) - real_t(1.));
 #endif
 		return x;
 	}

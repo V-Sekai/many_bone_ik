@@ -73,12 +73,12 @@ Quaternion QCP::calculate_rotation() {
 	if (moved.size() == 1) {
 		Vector3 u = moved[0];
 		Vector3 v = target[0];
-		double normProduct = u.length() * v.length();
-		if (normProduct == 0.0) {
+		double norm_product = u.length() * v.length();
+		if (norm_product == 0.0) {
 			return Quaternion();
 		}
 		double dot = u.dot(v);
-		if (dot < ((2.0e-15 - 1.0) * normProduct)) {
+		if (dot < ((2.0e-15 - 1.0) * norm_product)) {
 			// The special case: u = -v,
 			// We select a PI angle rotation around
 			// an arbitrary vector orthogonal to u.
@@ -87,8 +87,8 @@ Quaternion QCP::calculate_rotation() {
 		}
 		// The general case: (u, v) defines a plane, we select
 		// the shortest possible rotation: axis orthogonal to this plane.
-		double q0 = Math::sqrt(0.5 * (1.0 + dot / normProduct));
-		double coeff = 1.0 / (2.0 * q0 * normProduct);
+		double q0 = Math::sqrt(0.5 * (1.0 + dot / norm_product));
+		double coeff = 1.0 / (2.0 * q0 * norm_product);
 		Vector3 q = v.cross(u);
 		double q1 = coeff * q.x;
 		double q2 = coeff * q.y;

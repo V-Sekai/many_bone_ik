@@ -81,8 +81,8 @@ void IKKusudama::optimizeLimitingAxes() {
 		newY = Vector3(0.f, 1.f, 0.f);
 	}
 
-	Vector3 tempVar(0.f, 0.f, 0.f);
-	Ref<Ray3D> newYRay = memnew(Ray3D(tempVar, newY));
+	Vector3 temp_var(0.f, 0.f, 0.f);
+	Ref<Ray3D> newYRay = memnew(Ray3D(temp_var, newY));
 
 	Quaternion oldYtoNewY = build_rotation_from_headings(_limiting_axes->get_global_transform().basis[Vector3::AXIS_Y], originalLimitingAxes->to_global(newYRay->heading()));
 	_limiting_axes->rotateBy(oldYtoNewY);
@@ -180,8 +180,8 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	if (in_bounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(inCushionLimits));
-		Quaternion rectifiedRot = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
-		to_set->rotateBy(rectifiedRot);
+		Quaternion rectified_rotation = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
+		to_set->rotateBy(rectified_rotation);
 	}
 }
 
@@ -209,27 +209,27 @@ double IKKusudama::snap_to_twist_limits(Ref<IKTransform3D> to_set, Ref<IKTransfo
 	if (!axially_constrained) {
 		return 0;
 	}
-	Basis invRot = limiting_axes->get_global_transform().basis.inverse();
-	Basis alignRot = invRot * to_set->get_global_transform().basis;
-	Vector3 tempVar(0, 1, 0);
-	Vector<Quaternion> decomposition = get_swing_twist(alignRot, tempVar);
-	double angleDelta2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
-	angleDelta2 = to_tau(angleDelta2);
-	double fromMinToAngleDelta = to_tau(signed_angle_difference(angleDelta2, Math_TAU - this->min_axial_angle()));
+	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
+	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
+	Vector3 temp_var(0, 1, 0);
+	Vector<Quaternion> decomposition = get_swing_twist(align_rot, temp_var);
+	double angle_delta_2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
+	angle_delta_2 = to_tau(angle_delta_2);
+	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 
-	if (fromMinToAngleDelta < Math_TAU - range) {
-		double distToMin = std::abs(signed_angle_difference(angleDelta2, Math_TAU - this->min_axial_angle()));
-		double distToMax = std::abs(signed_angle_difference(angleDelta2, Math_TAU - (this->min_axial_angle() + range)));
+	if (from_min_to_angle_delta < Math_TAU - range) {
+		double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
+		double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + range)));
 		double turnDiff = 1;
 		// TODO: fire 2022-05-13 restore chirality
 		// turnDiff *= limiting_axes->getGlobalChirality();
 		Vector3 axis = to_set->get_global_transform().basis[Vector3::AXIS_Y];
-		if (distToMin < distToMax) {
-			turnDiff = turnDiff * (fromMinToAngleDelta);
+		if (dist_to_min < dist_to_max) {
+			turnDiff = turnDiff * (from_min_to_angle_delta);
 			Quaternion quaternion = Quaternion(axis, turnDiff);
 			to_set->rotateBy(quaternion);
 		} else {
-			turnDiff = turnDiff * (range - (Math_TAU - fromMinToAngleDelta));
+			turnDiff = turnDiff * (range - (Math_TAU - from_min_to_angle_delta));
 			Quaternion quaternion = Quaternion(axis, turnDiff);
 			to_set->rotateBy(quaternion);
 		}
@@ -243,29 +243,29 @@ double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransf
 		return 0;
 	}
 
-	Quaternion alignRot = limiting_axes->get_global_transform().basis.inverse() * to_set->get_global_transform().basis;
-	Vector3 tempVar(0, 1, 0);
-	Vector<Quaternion> decomposition = get_swing_twist(alignRot, tempVar);
-	double angleDelta2 = decomposition[1].get_angle() * Basis(decomposition[1]).get_euler().y * -1;
-	angleDelta2 = to_tau(angleDelta2);
+	Quaternion align_rot = limiting_axes->get_global_transform().basis.inverse() * to_set->get_global_transform().basis;
+	Vector3 temp_var(0, 1, 0);
+	Vector<Quaternion> decomposition = get_swing_twist(align_rot, temp_var);
+	double angle_delta_2 = decomposition[1].get_angle() * Basis(decomposition[1]).get_euler().y * -1;
+	angle_delta_2 = to_tau(angle_delta_2);
 
-	double distToMid = signed_angle_difference(angleDelta2, Math_TAU - (this->min_axial_angle() + (range / 2)));
+	double distToMid = signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + (range / 2)));
 	return distToMid;
 }
 
 bool IKKusudama::in_twist_limits(Ref<IKTransform3D> bone_axes, Ref<IKTransform3D> limiting_axes) {
-	Basis invRot = limiting_axes->get_global_transform().basis.inverse();
-	Basis alignRot = invRot * bone_axes->get_global_transform().basis;
-	Vector3 tempVar(0, 1, 0);
-	Vector<Quaternion> decomposition = get_swing_twist(alignRot, tempVar);
-	double angleDelta2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
-	angleDelta2 = to_tau(angleDelta2);
-	double fromMinToAngleDelta = to_tau(signed_angle_difference(angleDelta2, Math_TAU - this->min_axial_angle()));
+	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
+	Basis align_rot = inv_rot * bone_axes->get_global_transform().basis;
+	Vector3 temp_var(0, 1, 0);
+	Vector<Quaternion> decomposition = get_swing_twist(align_rot, temp_var);
+	double angle_delta_2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
+	angle_delta_2 = to_tau(angle_delta_2);
+	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 
-	if (fromMinToAngleDelta < Math_TAU - range) {
-		double distToMin = std::abs(signed_angle_difference(angleDelta2, Math_TAU - this->min_axial_angle()));
-		double distToMax = std::abs(signed_angle_difference(angleDelta2, Math_TAU - (this->min_axial_angle() + range)));
-		if (distToMin < distToMax) {
+	if (from_min_to_angle_delta < Math_TAU - range) {
+		double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
+		double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + range)));
+		if (dist_to_min < dist_to_max) {
 			return false;
 		} else {
 			return false;
@@ -395,17 +395,17 @@ double IKKusudama::get_rotational_freedom() {
 	// computation cached from update_rotational_freedom
 	// feel free to override that method if you want your own more correct result.
 	// please contribute back a better solution if you write one.
-	return rotationalFreedom;
+	return rotational_freedom;
 }
 
 void IKKusudama::update_rotational_freedom() {
-	double axialConstrainedHyperArea = is_axially_constrained() ? (range / Math_TAU) : 1;
+	double axial_constrained_hyper_area = is_axially_constrained() ? (range / Math_TAU) : 1;
 	// quick and dirty solution (should revisit);
-	double totalLimitConeSurfaceAreaRatio = 0;
+	double total_limit_cone_surface_area_ratio = 0;
 	for (auto l : limit_cones) {
-		totalLimitConeSurfaceAreaRatio += (l->get_radius() * 2) / Math_TAU;
+		total_limit_cone_surface_area_ratio += (l->get_radius() * 2) / Math_TAU;
 	}
-	rotationalFreedom = axialConstrainedHyperArea * (is_orientationally_constrained() ? MIN(totalLimitConeSurfaceAreaRatio, 1) : 1);
+	rotational_freedom = axial_constrained_hyper_area * (is_orientationally_constrained() ? MIN(total_limit_cone_surface_area_ratio, 1) : 1);
 }
 
 void IKKusudama::set_strength(double newStrength) {
@@ -427,13 +427,13 @@ bool IKKusudama::_is_in_limits(Vector3 global_point) {
 }
 
 Quaternion IKKusudama::build_rotation_from_headings(Vector3 u, Vector3 v) {
-	float normProduct = u.length() * v.length();
+	float norm_product = u.length() * v.length();
 	Quaternion ret;
-	if (Math::is_zero_approx(normProduct)) {
+	if (Math::is_zero_approx(norm_product)) {
 		return ret;
 	}
 	float dot = u.dot(v);
-	if (dot < ((2.0e-15 - 1.0f) * normProduct)) {
+	if (dot < ((2.0e-15 - 1.0f) * norm_product)) {
 		// The special case u = -v: we select a PI angle rotation around
 		// an arbitrary vector orthogonal to u.
 		Vector3 w = LimitCone::get_orthogonal(u);
@@ -444,8 +444,8 @@ Quaternion IKKusudama::build_rotation_from_headings(Vector3 u, Vector3 v) {
 	} else {
 		// The general case: (u, v) defines a plane, we select
 		// the shortest possible rotation: axis orthogonal to this plane.
-		ret.w = Math::sqrt(0.5f * (1.0f + dot / normProduct));
-		float coeff = 1.0f / (2.0f * ret.w * normProduct);
+		ret.w = Math::sqrt(0.5f * (1.0f + dot / norm_product));
+		float coeff = 1.0f / (2.0f * ret.w * norm_product);
 		Vector3 q = v.cross(u);
 		ret.x = coeff * q.x;
 		ret.y = coeff * q.y;
@@ -455,27 +455,27 @@ Quaternion IKKusudama::build_rotation_from_headings(Vector3 u, Vector3 v) {
 }
 
 Vector<Quaternion> IKKusudama::get_swing_twist(Quaternion p_quaternion, Vector3 p_axis) {
-	Quaternion twistRot = p_quaternion;
-	const float d = twistRot.get_axis().dot(p_axis);
-	twistRot = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, twistRot.w).normalized();
+	Quaternion twist_rotation = p_quaternion;
+	const float d = twist_rotation.get_axis().dot(p_axis);
+	twist_rotation = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, twist_rotation.w).normalized();
 	if (d < 0) {
-		twistRot *= -1.0f;
+		twist_rotation *= -1.0f;
 	}
-	Quaternion swing = twistRot;
+	Quaternion swing = twist_rotation;
 	swing.x = -swing.x;
 	swing.y = -swing.y;
 	swing.z = -swing.z;
-	swing = twistRot * swing;
+	swing = twist_rotation * swing;
 
 	Vector<Quaternion> result;
 	result.resize(2);
 	result.write[0] = swing;
-	result.write[1] = twistRot;
+	result.write[1] = twist_rotation;
 	return result;
 }
 
 Vector3 IKKusudama::point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes) {
-	double closestPointDot = 0;
+	double closest_point_dot = 0;
 	Vector3 point = limiting_axes->get_transform().xform(in_point);
 	point.normalize();
 	Vector3 result = point;
@@ -484,12 +484,12 @@ Vector3 IKKusudama::point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> 
 		result = limit_cones[0]->get_control_point();
 	} else {
 		for (int i = 0; i < limit_cones.size() - 1; i++) {
-			Ref<LimitCone> nextCone = limit_cones[i + 1];
-			Vector3 closestPathPoint = limit_cones[i]->get_closest_path_point(nextCone, point);
+			Ref<LimitCone> next_cone = limit_cones[i + 1];
+			Vector3 closestPathPoint = limit_cones[i]->get_closest_path_point(next_cone, point);
 			double closeDot = closestPathPoint.dot(point);
-			if (closeDot > closestPointDot) {
+			if (closeDot > closest_point_dot) {
 				result = closestPathPoint;
-				closestPointDot = closeDot;
+				closest_point_dot = closeDot;
 			}
 		}
 	}
@@ -513,27 +513,27 @@ Vector3 IKKusudama::point_in_limits(Vector3 in_point, Vector<double> &in_bounds,
 			in_bounds.write[0] = 1;
 			return point;
 		} else {
-			double thisCos = collision_point.dot(point);
-			if (Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z) || thisCos > closest_cos) {
+			double this_cos = collision_point.dot(point);
+			if (Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z) || this_cos > closest_cos) {
 				closest_collision_point = collision_point;
-				closest_cos = thisCos;
+				closest_cos = this_cos;
 			}
 		}
 	}
 	if (in_bounds[0] == -1) {
 		for (int i = 0; i < limit_cones.size() - 1; i++) {
-			Ref<LimitCone> currCone = limit_cones[i];
-			Ref<LimitCone> nextCone = limit_cones[i + 1];
-			Vector3 collision_point = currCone->get_on_great_tangent_triangle(nextCone, point);
+			Ref<LimitCone> curr_cone = limit_cones[i];
+			Ref<LimitCone> next_cone = limit_cones[i + 1];
+			Vector3 collision_point = curr_cone->get_on_great_tangent_triangle(next_cone, point);
 			if (!(Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z))) {
-				double thisCos = collision_point.dot(point);
-				if (thisCos == 1) {
+				double this_cos = collision_point.dot(point);
+				if (this_cos == 1) {
 					in_bounds.write[0] = 1;
 					closest_collision_point = point;
 					return point;
-				} else if (thisCos > closest_cos) {
+				} else if (this_cos > closest_cos) {
 					closest_collision_point = collision_point;
-					closest_cos = thisCos;
+					closest_cos = this_cos;
 				}
 			}
 		}
@@ -552,8 +552,8 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 	if (in_bounds[0] == -1 && !(Math::is_nan(in_limits.x) || Math::is_nan(in_limits.y) || Math::is_nan(in_limits.z))) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->get_global_transform().xform(in_limits));
-		Quaternion rectifiedRot = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
-		to_set->rotateBy(rectifiedRot);
+		Quaternion rectified_rotation = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
+		to_set->rotateBy(rectified_rotation);
 	}
 }
 

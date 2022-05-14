@@ -307,7 +307,7 @@ public:
 	 */
 	double get_rotational_freedom();
 
-	double rotationalFreedom = 1;
+	double rotational_freedom = 1;
 
 protected:
 	virtual void update_rotational_freedom();
