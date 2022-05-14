@@ -33,16 +33,16 @@
 #define KUSUDAMA_H
 
 #include "core/io/resource.h"
-#include "core/object/ref_counted.h"
 #include "core/math/quaternion.h"
 #include "core/math/vector3.h"
+#include "core/object/ref_counted.h"
 
 #include "ik_bone_3d.h"
 #include "ik_bone_chain.h"
 #include "kusudama.h"
 #include "limit_cone.h"
-#include "ray_3d.h"
 #include "math/ik_transform.h"
+#include "ray_3d.h"
 
 class IKBone3D;
 class LimitCone;
@@ -115,7 +115,7 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToSnapped(IKTransform3D * toSet, IKTransform3D * limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
 
 	// virtual void setAxesToReturnfulled(IKTransform3D * toSet, IKTransform3D * limitingAxes, double cosHalfReturnfullness, double angleReturnfullness);
 
@@ -150,7 +150,7 @@ public:
 	 *
 	 * @param toSet
 	 */
-	virtual void setAxesToSoftOrientationSnap(IKTransform3D * toSet, IKTransform3D * boneDirection, IKTransform3D * limitingAxes, double cosHalfAngleDampen);
+	virtual void setAxesToSoftOrientationSnap(IKTransform3D *toSet, IKTransform3D *boneDirection, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -160,7 +160,7 @@ public:
 	 */
 	virtual void setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen);
 
-	virtual bool isInOrientationLimits(IKTransform3D * globalAxes, IKTransform3D * limitingAxes);
+	virtual bool isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
@@ -183,11 +183,11 @@ public:
 	 * @param limitingAxes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual double snapToTwistLimits(IKTransform3D * toSet, IKTransform3D * limitingAxes);
+	virtual double snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limitingAxes);
 
-	virtual double angleToTwistCenter(IKTransform3D * toSet, IKTransform3D * limitingAxes);
+	virtual double angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *limitingAxes);
 
-	virtual bool inTwistLimits(IKTransform3D * boneAxes, IKTransform3D * limitingAxes);
+	virtual bool inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingAxes);
 
 	virtual double signedAngleDifference(double minAngle, double p_super);
 

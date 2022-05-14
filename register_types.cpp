@@ -30,11 +30,11 @@
 
 #include "register_types.h"
 
-#include "ik_effector_3d.h"
 #include "ik_bone_3d.h"
+#include "ik_effector_3d.h"
 #include "ik_effector_template.h"
-#include "skeleton_modification_3d_ewbik.h"
 #include "kusudama.h"
+#include "skeleton_modification_3d_ewbik.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/ewbik_skeleton_3d_editor_plugin.h"

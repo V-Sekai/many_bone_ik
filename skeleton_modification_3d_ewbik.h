@@ -37,7 +37,6 @@
 #include "ik_effector_template.h"
 #include "scene/resources/skeleton_modification_3d.h"
 
-
 class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 
@@ -60,7 +59,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	int32_t ik_iterations = 10;
 	int32_t max_ik_iterations = 30;
 	float default_damp = Math::deg2rad(5.0f);
-	IKTransform3D * root_transform = memnew(IKTransform3D);
+	IKTransform3D *root_transform = memnew(IKTransform3D);
 
 	void update_shadow_bones_transform();
 	void check_shadow_bones_transform();

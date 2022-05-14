@@ -101,7 +101,7 @@ void IKKusudama::updateTangentRadii() {
 	}
 }
 
-void IKKusudama::setAxesToSnapped(IKTransform3D * toSet, IKTransform3D * limitingAxes, double cosHalfAngleDampen) {
+void IKKusudama::setAxesToSnapped(IKTransform3D *toSet, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
 	if (limitingAxes != nullptr) {
 		if (orientationallyConstrained) {
 			setAxesToOrientationSnap(toSet, limitingAxes, cosHalfAngleDampen);
@@ -151,7 +151,7 @@ double IKKusudama::getPainfullness() {
 	return painfullness;
 }
 
-void IKKusudama::(IKTransform3D * toSet, IKTransform3D * boneDirection, IKTransform3D * limitingAxes, double cosHalfAngleDampen) {
+void IKKusudama::(IKTransform3D *toSet, IKTransform3D *boneDirection, IKTransform3D *limitingAxes, double cosHalfAngleDampen) {
 	Vector<double> inBounds = { 1 };
 	/**
 	 * Basic idea:
@@ -183,7 +183,7 @@ void IKKusudama::(IKTransform3D * toSet, IKTransform3D * boneDirection, IKTransf
 	}
 }
 
-bool IKKusudama::isInOrientationLimits(IKTransform3D * globalAxes, IKTransform3D * limitingAxes) {
+bool IKKusudama::isInOrientationLimits(IKTransform3D *globalAxes, IKTransform3D *limitingAxes) {
 	Vector<double> inBounds = { 1 };
 	Vector3 localizedPoint = limitingAxes->to_local(globalAxes->get_global_transform().basis[Vector3::AXIS_Y]).normalized();
 	if (limitCones.size() == 1) {
@@ -203,7 +203,7 @@ void IKKusudama::setAxialLimits(double minAngle, double inRange) {
 	constraintUpdateNotification();
 }
 
-double IKKusudama::snapToTwistLimits(IKTransform3D * toSet, IKTransform3D * limitingAxes) {
+double IKKusudama::snapToTwistLimits(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
 	if (!axiallyConstrained) {
 		return 0;
 	}
@@ -236,7 +236,7 @@ double IKKusudama::snapToTwistLimits(IKTransform3D * toSet, IKTransform3D * limi
 	return 0;
 }
 
-double IKKusudama::angleToTwistCenter(IKTransform3D * toSet, IKTransform3D * limitingAxes) {
+double IKKusudama::angleToTwistCenter(IKTransform3D *toSet, IKTransform3D *limitingAxes) {
 	if (!axiallyConstrained) {
 		return 0;
 	}
@@ -251,7 +251,7 @@ double IKKusudama::angleToTwistCenter(IKTransform3D * toSet, IKTransform3D * lim
 	return distToMid;
 }
 
-bool IKKusudama::inTwistLimits(IKTransform3D * boneAxes, IKTransform3D * limitingAxes) {
+bool IKKusudama::inTwistLimits(IKTransform3D *boneAxes, IKTransform3D *limitingAxes) {
 	Basis invRot = limitingAxes->get_global_transform().basis.inverse();
 	Basis alignRot = invRot * boneAxes->get_global_transform().basis;
 	Vector3 tempVar(0, 1, 0);
@@ -562,4 +562,5 @@ void IKKusudama::setAxesToOrientationSnap(IKTransform3D *toSet, IKTransform3D *l
 		Quaternion rectifiedRot = build_rotation_from_headings(boneRay->heading(), constrainedRay->heading());
 		toSet->rotateBy(rectifiedRot);
 	}
-}setAxesToSoftOrientationSnap
+}
+setAxesToSoftOrientationSnap

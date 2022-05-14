@@ -31,7 +31,7 @@
 #include "ik_transform.h"
 
 void IKTransform3D::_propagate_transform_changed() {
-	for (List<IKTransform3D * >::Element *E = children.front(); E; E = E->next()) {
+	for (List<IKTransform3D *>::Element *E = children.front(); E; E = E->next()) {
 		E->get()->_propagate_transform_changed();
 	}
 
@@ -54,7 +54,6 @@ void IKTransform3D::rotateBy(Quaternion p_q) {
 	dirty &= ~DIRTY_LOCAL;
 	_propagate_transform_changed();
 }
-
 
 void IKTransform3D::set_transform(const Transform3D &p_transform) {
 	if (local_transform == p_transform) {
@@ -113,13 +112,13 @@ bool IKTransform3D::is_scale_disabled() const {
 	return disable_scale;
 }
 
-void IKTransform3D::set_parent(IKTransform3D * p_parent) {
+void IKTransform3D::set_parent(IKTransform3D *p_parent) {
 	parent = p_parent;
 	parent->children.push_back(this);
 	_propagate_transform_changed();
 }
 
-IKTransform3D * IKTransform3D::get_parent() const {
+IKTransform3D *IKTransform3D::get_parent() const {
 	return parent;
 }
 

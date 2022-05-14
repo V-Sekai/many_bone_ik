@@ -31,13 +31,13 @@
 #ifndef EWBIK_SHADOW_BONE_3D_H
 #define EWBIK_SHADOW_BONE_3D_H
 
-#include "kusudama.h"
-#include "math/ik_transform.h"
 #include "ik_effector_3d.h"
 #include "ik_effector_template.h"
+#include "kusudama.h"
+#include "math/ik_transform.h"
 
-#include "core/object/ref_counted.h"
 #include "core/io/resource.h"
+#include "core/object/ref_counted.h"
 #include "scene/3d/skeleton_3d.h"
 
 #define IK_DEFAULT_DAMPENING 0.20944f

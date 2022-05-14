@@ -358,9 +358,9 @@ Ref<Ray3D> Ray3D::getPerpendicular2D() {
 
 Vector3 Ray3D::intersectsPlane(Vector3 ta, Vector3 tb, Vector3 tc) {
 	Vector3 uvw;
-    tta = ta;
-    ttb = tb;
-    ttc = tc;
+	tta = ta;
+	ttb = tb;
+	ttc = tc;
 	tta -= p1_Conflict;
 	ttb -= p1_Conflict;
 	ttc -= p1_Conflict;
