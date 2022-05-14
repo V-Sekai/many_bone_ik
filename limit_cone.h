@@ -89,15 +89,6 @@ public:
 	Vector<Vector3> second_triangle_next = { Vector3(), Vector3(), Vector3() };
 
 	virtual ~LimitCone() {
-		// delete control_point;
-		// delete radial_point;
-		// delete parent_kusudama;
-		// delete tangent_circle_center_next_1;
-		// delete tangent_circle_center_next_2;
-		// delete cushion_tangent_circle_center_next_1;
-		// delete cushion_tangent_circle_center_next_2;
-		// delete cushion_tangent_circle_center_previous_1;
-		// delete cushion_tangent_circle_center_previous_2;
 	}
 
 	LimitCone();
