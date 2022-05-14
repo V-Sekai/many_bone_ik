@@ -68,7 +68,7 @@ class IKBoneChain : public Resource {
 	void qcp_solver(real_t p_damp, bool p_translate);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);
 
-	// Orientation cos(angle/2) representation
+	// This orientation angle is a cos(angle/2) representation.
 	Quaternion set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
 	Quaternion clamp_to_angle(Quaternion p_quat, real_t p_angle) const;
 	Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
@@ -91,17 +91,18 @@ public:
 #endif
 		return x;
 	}
-	// Untested sine code.
-	// 		real_t sine(float x)
-	// 		constexpr real_t B = 4. / Math_PI;
-	// 		constexpr real_t C = -4. / (Math_PI * Math_PI);
-	// 		real_t y = B * x + C * x * Math::abs(x);
-	// #ifdef EXTRA_PRECISION
-	// 		const real_t Q = 0.775;
-	// 		const real_t P = 0.225;
-	// 		y = P * (y * Math::abs(y) - y) + y; // Q * y + P * y * Math::abs(y)
-	// #endif
-
+	// Untested fast sine.
+	_FORCE_INLINE_ static real_t sine(float x) {
+		// https://stackoverflow.com/questions/18662261/fastest-implementation-of-sine-cosine-and-square-root-in-c-doesnt-need-to-b
+		constexpr real_t B = 4. / Math_PI;
+		constexpr real_t C = -4. / (Math_PI * Math_PI);
+		real_t y = B * x + C * x * Math::abs(x);
+#ifdef EXTRA_PRECISION
+		const real_t Q = 0.775;
+		const real_t P = 0.225;
+		y = P * (y * Math::abs(y) - y) + y; // Q * y + P * y * Math::abs(y)
+#endif
+	}
 	Ref<IKBoneChain> get_parent_segment();
 	void segment_solver(real_t p_damp);
 	Ref<IKBone3D> get_root() const;
