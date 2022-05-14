@@ -102,6 +102,7 @@ public:
 		const real_t P = 0.225;
 		y = P * (y * Math::abs(y) - y) + y; // Q * y + P * y * Math::abs(y)
 #endif
+		return y;
 	}
 	Ref<IKBoneChain> get_parent_segment();
 	void segment_solver(real_t p_damp);

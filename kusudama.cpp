@@ -422,7 +422,7 @@ Vector<Ref<LimitCone>> IKKusudama::getLimitCones() {
 
 bool IKKusudama::isInLimits_(Vector3 globalPoint) {
 	Vector<double> inBounds = { 1 };
-	this->pointInLimits(globalPoint, inBounds, LimitCone::BOUNDARY);
+	_ALLOW_DISCARD_ this->pointInLimits(globalPoint, inBounds, LimitCone::BOUNDARY);
 	return inBounds[0] > 0;
 }
 
