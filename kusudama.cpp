@@ -85,7 +85,7 @@ void IKKusudama::optimize_limiting_axes() {
 	Ref<Ray3D> newYRay = memnew(Ray3D(temp_var, newY));
 
 	Quaternion oldYtoNewY = build_rotation_from_headings(_limiting_axes->get_global_transform().basis[Vector3::AXIS_Y], originalLimitingAxes->to_global(newYRay->heading()));
-	_limiting_axes->rotateBy(oldYtoNewY);
+	_limiting_axes->rotate_by(oldYtoNewY);
 
 	for (Ref<LimitCone> lc : get_limit_cones()) {
 		lc->control_point = originalLimitingAxes->to_global(lc->control_point);
@@ -126,7 +126,7 @@ void IKKusudama::set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3
 // 			pathPoint -= origin;
 // 			Quaternion toClamp = Quaternion(in_point, pathPoint);
 // 			toClamp.rotation.clampToQuadranceAngle(cosHalfReturnfullness);
-// 			to_set->rotateBy(toClamp);
+// 			to_set->rotate_by(toClamp);
 // 		}
 // 		if (axially_constrained) {
 // 			double angleToTwistMid = angle_to_twist_center(to_set, limiting_axes);
@@ -180,7 +180,7 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(inCushionLimits));
 		Quaternion rectified_rotation = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
-		to_set->rotateBy(rectified_rotation);
+		to_set->rotate_by(rectified_rotation);
 	}
 }
 
@@ -226,11 +226,11 @@ double IKKusudama::snap_to_twist_limits(Ref<IKTransform3D> to_set, Ref<IKTransfo
 		if (dist_to_min < dist_to_max) {
 			turnDiff = turnDiff * (from_min_to_angle_delta);
 			Quaternion quaternion = Quaternion(axis, turnDiff);
-			to_set->rotateBy(quaternion);
+			to_set->rotate_by(quaternion);
 		} else {
 			turnDiff = turnDiff * (range - (Math_TAU - from_min_to_angle_delta));
 			Quaternion quaternion = Quaternion(axis, turnDiff);
-			to_set->rotateBy(quaternion);
+			to_set->rotate_by(quaternion);
 		}
 		return turnDiff < 0 ? turnDiff * -1 : turnDiff;
 	}
@@ -552,7 +552,7 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->get_global_transform().xform(in_limits));
 		Quaternion rectified_rotation = build_rotation_from_headings(bone_ray->heading(), constrained_ray->heading());
-		to_set->rotateBy(rectified_rotation);
+		to_set->rotate_by(rectified_rotation);
 	}
 }
 

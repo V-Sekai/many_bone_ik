@@ -239,7 +239,7 @@ void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 	if (p_for_bone->get_parent().is_valid()) {
 		parent_global_pose_basis = p_for_bone->get_parent()->get_global_pose().basis;
 	}
-	p_for_bone->get_ik_transform()->rotateBy(rot);
+	p_for_bone->get_ik_transform()->rotate_by(rot);
 	// TODO: fire 2022-05-14 add constraints.
 	// p_for_bone->getConstraint()->set_axes_to_soft_orientation_snap(p_for_bone->get_ik_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_cos_half_dampen());
 	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
