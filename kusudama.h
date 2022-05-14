@@ -336,6 +336,7 @@ public:
 
 	virtual Vector<Ref<LimitCone>> get_limit_cones();
 
+public:
 	/**
 	 * Get the swing rotation and twist rotation for the specified axis. The twist
 	 * rotation represents the rotation around the
@@ -357,24 +358,6 @@ public:
 	 * @see <a href=
 	 *      "http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
 	 */
-public:
 	static Vector<Quaternion> get_swing_twist(Quaternion p_quaternion, Vector3 p_axis);
-
-	/**
-	 * Build one of the rotations that transform one vector into another one.
-	 * <p>
-	 * Except for a possible scale factor, if the instance were
-	 * applied to the vector u it will produce the vector v. There is an
-	 * infinite number of such rotations, this constructor choose the
-	 * one with the smallest associated angle (i.e. the one whose axis
-	 * is orthogonal to the (u, v) plane). If u and v are colinear, an
-	 * arbitrary rotation axis is chosen.
-	 * </p>
-	 *
-	 * @param u origin vector
-	 * @param v desired image of u by the rotation
-	 * @throws MathUtils.MathArithmeticException if the norm of one of the vectors
-	 *                                           is zero
-	 */
 };
 #endif
