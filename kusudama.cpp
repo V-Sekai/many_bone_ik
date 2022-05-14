@@ -293,7 +293,7 @@ void IKKusudama::addLimitCone(Vector3 newPoint, double radius, Ref<LimitCone> pr
 	int insertAt = 0;
 
 	if (next.is_null() || limitCones.is_empty()) {
-		addLimitConeAtIndex(-1, newPoint, radius);
+		addLimitConeAtIndex(0, newPoint, radius);
 	} else if (previous.is_valid()) {
 		insertAt = limitCones.find(previous) + 1;
 	} else {
