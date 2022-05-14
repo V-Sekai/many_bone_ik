@@ -238,12 +238,13 @@ void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 	if (p_for_bone->get_parent().is_valid()) {
 		parent_global_pose_basis = p_for_bone->get_parent()->get_global_pose().basis;
 	}
-	Quaternion new_rotation = parent_global_pose_basis.get_rotation_quaternion();
+	/*Quaternion new_rotation = parent_global_pose_basis.get_rotation_quaternion();
 	new_rotation = new_rotation.inverse() * rot * new_rotation;
 	new_rotation.normalize();
 	Transform3D result = Transform3D((new_rotation * p_for_bone->get_pose().basis), p_for_bone->get_pose().origin);
-	p_for_bone->set_pose(result);
-	result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
+	p_for_bone->set_pose(result);*/
+	p_for_bone->get_ik_transform()->rotateBy(rot);
+	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 	p_for_bone->set_global_pose(result);
 }
 

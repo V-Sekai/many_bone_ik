@@ -71,6 +71,8 @@ public:
 
 	Vector3 to_local(const Vector3 &p_global) const;
 	Vector3 to_global(const Vector3 &p_local) const;
+	void rotateBy(Quaternion p_q);
+
 
 	void orthonormalize();
 	void set_identity();

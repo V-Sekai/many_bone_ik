@@ -181,6 +181,13 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	if (is_dirty || segmented_skeleton.is_null()) {
 		update_skeleton();
 	}
+	if (bone_list.size()) {
+		IKTransform3D *bone_ik_transform = bone_list.write[0]->get_ik_transform();
+		ERR_FAIL_NULL(bone_ik_transform);
+		IKTransform3D *root_ik_transform = bone_ik_transform->get_parent();
+		ERR_FAIL_NULL(root_ik_transform);
+		root_ik_transform->set_global_transform(skeleton->get_global_transform());
+	}
 	update_shadow_bones_transform();
 	double time_ms = OS::get_singleton()->get_ticks_msec() + get_time_budget_millisecond();
 	ik_iterations = 0;
@@ -229,6 +236,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	InspectorDock::get_inspector_singleton()->connect("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty));
 #endif
 	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
+	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
 	segmented_skeleton->generate_default_segments_from_root(pins);
 	bone_list.clear();
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
@@ -578,6 +586,7 @@ SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
 }
 
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
+	memdelete(root_transform);
 }
 
 bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
