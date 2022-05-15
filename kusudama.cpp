@@ -191,7 +191,8 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 
 bool IKKusudama::is_in_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes) {
 	Vector<double> in_bounds = { 1 };
-	_ALLOW_DISCARD_ point_in_limits(limiting_axes->to_local(global_axes->get_global_transform().basis[Vector3::AXIS_Y]),
+	Vector3 local_point = _limiting_axes->to_local(global_axes->get_global_transform().basis[Vector3::AXIS_Y]);
+	_ALLOW_DISCARD_ point_in_limits(local_point.normalized(),
 			in_bounds);
 	if (in_bounds[0] == -1) {
 		return false;
@@ -509,7 +510,6 @@ Vector3 IKKusudama::point_in_limits(Vector3 in_point, Vector<double> &in_bounds,
 			return in_point;
 		}
 		Vector3 axis = limit_cones[0]->get_control_point().cross(point);
-		axis.normalize();
 		Quaternion to_limit = Quaternion(axis, limit_cones[0]->get_radius());
 		Vector3 new_point = to_limit.xform(limit_cones[0]->get_control_point());
 		return new_point;
