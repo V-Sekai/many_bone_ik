@@ -499,7 +499,7 @@ void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 		return;
 	}
 	constrained_ray->p1(bone_ray->p1());
-	constrained_ray->p2(limiting_axes->to_global(closest_collision_point));
+	constrained_ray->p2(closest_collision_point);
 	Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
 	to_set->rotate_local_with_global(rectified_rotation);
 }
