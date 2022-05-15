@@ -152,15 +152,15 @@ public:
 
 	virtual void update_tangent_handles(Ref<LimitCone> next);
 
+private:
 	/**
 	 * returns null if no rectification is required.
 	 * @param input
 	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closest_to_cone(Vector3 input, Vector<double> &in_bounds) const;
+	Vector3 _closest_to_cone(Vector3 input, Vector<double> &in_bounds) const;
 
-private:
 	/**
 	 *
 	 * @param next

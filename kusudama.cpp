@@ -474,7 +474,7 @@ void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 	Vector<double> in_bounds = { 1 };
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
 	bone_ray->p2(to_set->get_global_transform().basis[Vector3::AXIS_Y]);
-	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
+	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2()).normalized();
 	_ALLOW_DISCARD_ _local_point_in_limits(bone_tip, in_bounds);
 	if (in_bounds[0] > 0.0) {
 		return;
@@ -488,7 +488,7 @@ void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 		if (i - 1 > -1) {
 			cone_next = limit_cones[i - 1];
 		}
-		Vector3 collision_point = cone->closest_point_on_closest_cone(cone_next, bone_tip, in_bounds);
+		Vector3 collision_point = cone->get_closest_collision(cone_next, bone_tip);
 		double this_cos = collision_point.dot(bone_tip);
 		if (this_cos > closest_cos) {
 			closest_cos = this_cos;
@@ -499,7 +499,7 @@ void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 		return;
 	}
 	constrained_ray->p1(bone_ray->p1());
-	constrained_ray->p2(limiting_axes->to_global(closest_collision_point.normalized()));
+	constrained_ray->p2(limiting_axes->to_global(closest_collision_point));
 	Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
 	to_set->rotate_local_with_global(rectified_rotation);
 }

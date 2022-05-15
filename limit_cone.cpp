@@ -409,11 +409,11 @@ Vector3 LimitCone::closest_cone(Ref<LimitCone> next, Vector3 input) const {
 }
 
 Vector3 LimitCone::closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 input, Vector<double> &in_bounds) const {
-	Vector3 closestToFirst = this->closest_to_cone(input, in_bounds);
+	Vector3 closestToFirst = this->_closest_to_cone(input, in_bounds);
 	if (in_bounds[0] > 0.0) {
 		return closestToFirst;
 	}
-	Vector3 closestToSecond = next->closest_to_cone(input, in_bounds);
+	Vector3 closestToSecond = next->_closest_to_cone(input, in_bounds);
 	if (in_bounds[0] > 0.0) {
 		return closestToSecond;
 	}
@@ -427,7 +427,7 @@ Vector3 LimitCone::closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 in
 	}
 }
 
-Vector3 LimitCone::closest_to_cone(Vector3 input, Vector<double> &in_bounds) const {
+Vector3 LimitCone::_closest_to_cone(Vector3 input, Vector<double> &in_bounds) const {
 	if (input.dot(this->get_control_point()) > this->get_radius_cosine()) {
 		in_bounds.write[0] = 1.0;
 		return input;
