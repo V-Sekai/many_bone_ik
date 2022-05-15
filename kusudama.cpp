@@ -112,7 +112,7 @@ void IKKusudama::set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3
 		}
 		if (axially_constrained) {
 			double twist_diff = 0.0;
-			get_snap_to_twist_limit(to_set, limiting_axes, twist_diff);
+			set_snap_to_twist_limit(to_set, limiting_axes, twist_diff);
 		}
 	}
 }
@@ -208,10 +208,10 @@ void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 	_update_constraint();
 }
 
-Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff) {
+void IKKusudama::set_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff) {
 	if (!axially_constrained) {
 		r_turn_diff = 0;
-		return Quaternion();
+		return;
 	}
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
 	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
@@ -235,13 +235,11 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 		} else {
 			turnDiff = turnDiff * (range - (Math_TAU - from_min_to_angle_delta));
 			quaternion = Quaternion(axis, turnDiff);
-			to_set->rotate_local_with_global(quaternion);
 		}
 		r_turn_diff = turnDiff < 0 ? turnDiff * -1 : turnDiff;
-		return quaternion;
 	}
 	r_turn_diff = 0;
-	return quaternion;
+	to_set->rotate_local_with_global(quaternion);
 }
 
 double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
@@ -496,12 +494,11 @@ void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 	bone_ray->p2(to_set->get_global_transform().basis[Vector3::AXIS_Y]);
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
 	Vector3 in_limits = this->local_point_in_limits(bone_tip, in_bounds);
-	Quaternion rectified_rotation;
 	bool is_rotation = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
 	if (in_bounds[0] < 0.0 && is_rotation) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
-		rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
+		Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
 		to_set->rotate_local_with_global(rectified_rotation);
 	}
 }
