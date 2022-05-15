@@ -85,7 +85,7 @@ void IKKusudama::optimize_limiting_axes() {
 	Vector3 temp_var(0.f, 0.f, 0.f);
 	Ref<Ray3D> newYRay = memnew(Ray3D(temp_var, newY));
 
-	Quaternion oldYtoNewY = Quaternion(originalLimitingAxes->to_global(newYRay->heading()).normalized(), _limiting_axes->get_global_transform().basis[Vector3::AXIS_Y].normalized());
+	Quaternion oldYtoNewY = Quaternion(_limiting_axes->get_global_transform().basis[Vector3::AXIS_Y].normalized(), originalLimitingAxes->to_global(newYRay->heading()).normalized());
 	_limiting_axes->rotate_by(oldYtoNewY);
 
 	for (Ref<LimitCone> lc : get_limit_cones()) {
@@ -183,7 +183,7 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	if (in_bounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(inCushionLimits));
-		Quaternion rectified_rotation = Quaternion(constrained_ray->heading().normalized(), bone_ray->heading().normalized());
+		Quaternion rectified_rotation = Quaternion(bone_ray->heading().normalized(), constrained_ray->heading().normalized());
 		to_set->rotate_by(rectified_rotation);
 	}
 }
@@ -530,7 +530,7 @@ Quaternion IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, R
 	if (in_bounds[0] == -1 && !(Math::is_nan(in_limits.x) || Math::is_nan(in_limits.y) || Math::is_nan(in_limits.z))) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
-		rectified_rotation = Quaternion(constrained_ray->heading().normalized(), bone_ray->heading().normalized());
+		rectified_rotation = Quaternion(bone_ray->heading().normalized(), constrained_ray->heading().normalized());
 	}
 	return rectified_rotation;
 }

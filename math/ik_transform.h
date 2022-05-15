@@ -38,6 +38,8 @@
 
 class IKTransform3D : public RefCounted {
 	GDCLASS(IKTransform3D, RefCounted);
+	friend class IKBone3D;
+
 	enum TransformDirty {
 		DIRTY_NONE = 0,
 		DIRTY_VECTORS = 1,

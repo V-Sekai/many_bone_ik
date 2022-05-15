@@ -4,8 +4,10 @@
 
 [sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_3rh2l"]
 execution_mode = 1
+max_ik_iterations = 1.0
+budget_millisecond = 8.0
 root_bone = "Bone_01"
-default_damp = 0.0872665
+default_damp = 0.872665
 pin_count = 2
 pins/0/name = "Bone_03"
 pins/0/target_node = NodePath("../../../BoneAttachment3D")
@@ -17,9 +19,9 @@ pins/0/weight_x_direction = null
 pins/0/weight_y_direction = null
 pins/0/weight_z_direction = null
 pins/1/name = "Bone_01"
-pins/1/target_node = NodePath("../../../Node3D")
+pins/1/target_node = NodePath("")
 pins/1/use_node_rotation = true
-pins/1/depth_falloff = 1.0
+pins/1/depth_falloff = 0.0
 pins/1/priority = null
 pins/1/weight_translation = null
 pins/1/weight_x_direction = null
@@ -39,33 +41,33 @@ size = Vector3(0.25, 0.25, 0.125)
 [node name="ewbik_test_rig_2_bone" parent="." instance=ExtResource( "1_7vofn" )]
 
 [node name="Skeleton3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature" index="0"]
-bones/0/position = Vector3(0.00204433, -0.0903628, -7.21716e-08)
-bones/0/rotation = Quaternion(-2.53567e-08, 6.02511e-11, -0.00064484, 1)
-bones/1/position = Vector3(8.19797e-07, 0.600494, -3.39994e-08)
-bones/1/rotation = Quaternion(4.38905e-07, -2.03994e-07, 0.0119556, 0.999929)
-bones/2/position = Vector3(1.47894e-06, 0.600063, 1.27723e-07)
-bones/2/rotation = Quaternion(-2.3862e-07, 2.30407e-07, -0.0113108, 0.999936)
+bones/1/position = Vector3(8.47033e-22, 0.6, 0)
+bones/1/rotation = Quaternion(0.0323099, 7.02886e-06, 6.88458e-05, 0.999478)
+bones/1/scale = Vector3(1, 1, 1)
+bones/2/position = Vector3(-1.36788e-09, 0.600031, 5.06639e-07)
+bones/2/rotation = Quaternion(-0.0528132, -7.02014e-06, -0.000112544, 0.998604)
+bones/2/scale = Vector3(1, 1, 1)
 modification_stack = SubResource( "SkeletonModificationStack3D_xr835" )
 
 [node name="Simple_Test_Rig" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D" index="0"]
 visible = false
 
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D" index="1"]
-transform = Transform3D(1, 7.45077e-09, 5.69385e-08, -7.4502e-09, 1, -3.48977e-07, -5.69385e-08, 3.48977e-07, 1, -0.0107525, 1.11004, 4.84455e-07)
+transform = Transform3D(1, 8.71608e-05, 1.8515e-06, -8.71633e-05, 0.999158, 0.0410326, 1.7265e-06, -0.0410326, 0.999158, -8.23026e-05, 1.19878, 0.0387545)
 bone_name = "Bone_03"
 bone_idx = 2
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D/BoneAttachment3D"]
 mesh = SubResource( "BoxMesh_cy8x8" )
 
+[node name="Node3D" type="Node3D" parent="."]
+
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="."]
-transform = Transform3D(1, 7.96616e-16, 5.67414e-08, 1.79443e-14, 1, -3.30287e-07, -5.67414e-08, 3.30287e-07, 1, -0.00870816, 1.01968, 3.96345e-07)
+transform = Transform3D(1, 7.96616e-16, 5.67414e-08, 1.79443e-14, 1, -3.30287e-07, -5.67414e-08, 3.30287e-07, 1, 9.5594e-16, 1.2, 3.96345e-07)
 bone_name = "Bone_03"
 bone_idx = 2
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="BoneAttachment3D"]
 mesh = SubResource( "BoxMesh_cy8x8" )
-
-[node name="Node3D" type="Node3D" parent="."]
 
 [editable path="ewbik_test_rig_2_bone"]
