@@ -1501,10 +1501,9 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			kusudama_limit_cones.write[0] = origin.x;
 			kusudama_limit_cones.write[1] = origin.y;
 			kusudama_limit_cones.write[2] = origin.z;
-			kusudama_limit_cones.write[3] = Math_PI / 4.0f;
+			kusudama_limit_cones.write[3] = (3* Math_PI) / 4.0f;
 			kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
 			kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
-
 			Ref<SurfaceTool> kusudama_surface_tool;
 			kusudama_surface_tool.instantiate();
 			kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
@@ -1538,6 +1537,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				int32_t index = index_array[index_i];
 				kusudama_surface_tool->add_index(index);
 			}
+			
 			p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 
 			// Add the bone's children to the list of bones to be processed.

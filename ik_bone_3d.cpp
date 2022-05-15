@@ -75,6 +75,9 @@ Transform3D IKBone3D::get_pose() const {
 
 void IKBone3D::set_global_pose(const Transform3D &p_transform) {
 	xform->set_global_transform(p_transform);
+	constraint_transform->local_transform.origin = xform->local_transform.origin;
+	constraint_transform->_propagate_transform_changed();
+	//constraint_transform->set_local_transform(constraint_transform->get_local_transform().basis, xform->get_global_transform().origin)
 }
 
 Transform3D IKBone3D::get_global_pose() const {
@@ -136,7 +139,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 	}
 	bone_direction_transform->set_parent(xform);
 	constraint.instantiate();
-	constraint->add_limit_cone_at_index(0, Vector3(0.f, 1.f, 0.0f), Math_PI / 4.0f);
+	constraint->add_limit_cone_at_index(0, Vector3(0.f, 1.f, 0.0f), (3* Math_PI) / 4.0f);
 }
 
 float IKBone3D::get_cos_half_dampen() const {
