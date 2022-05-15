@@ -87,7 +87,7 @@ void IKKusudama::optimize_limiting_axes() {
 
 	Quaternion oldYtoNewY = quaternion_unnormalized(
 			originalLimitingAxes->to_global(newYRay->heading()), _limiting_axes->get_global_transform().basis[Vector3::AXIS_Y]);
-	_limiting_axes->local_rotate_by(oldYtoNewY);
+	_limiting_axes->rotate_local_with_global(oldYtoNewY);
 
 	for (Ref<LimitCone> lc : get_limit_cones()) {
 		lc->control_point = originalLimitingAxes->to_global(lc->control_point);
@@ -108,11 +108,11 @@ void IKKusudama::update_tangent_radii() {
 void IKKusudama::set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
 	if (limiting_axes.is_valid()) {
 		if (orientationally_constrained) {
-			to_set->local_rotate_by(get_axes_to_orientation_snap(to_set, limiting_axes, cos_half_angle_dampen));
+			to_set->rotate_local_with_global(get_axes_to_orientation_snap(to_set, limiting_axes, cos_half_angle_dampen));
 		}
 		if (axially_constrained) {
 			double twist_diff = 0.0;
-			to_set->local_rotate_by(get_snap_to_twist_limit(to_set, limiting_axes, twist_diff));
+			to_set->rotate_local_with_global(get_snap_to_twist_limit(to_set, limiting_axes, twist_diff));
 		}
 	}
 }
@@ -129,7 +129,7 @@ void IKKusudama::set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3
 // 			pathPoint -= origin;
 // 			Quaternion toClamp = Quaternion(in_point, pathPoint);
 // 			toClamp.rotation.clampToQuadranceAngle(cosHalfReturnfullness);
-// 			to_set->local_rotate_by(toClamp);
+// 			to_set->rotate_local_with_global(toClamp);
 // 		}
 // 		if (axially_constrained) {
 // 			double angleToTwistMid = angle_to_twist_center(to_set, limiting_axes);
@@ -182,7 +182,7 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(being_cushion_limits));
 		Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
-		to_set->local_rotate_by(rectified_rotation);
+		to_set->rotate_local_with_global(rectified_rotation);
 	}
 }
 
@@ -194,7 +194,7 @@ bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> global_
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
 		Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
-		global_axes->local_rotate_by(rectified_rotation);
+		global_axes->rotate_local_with_global(rectified_rotation);
 		return false;
 	}
 	return true;
@@ -233,7 +233,7 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 		} else {
 			turnDiff = turnDiff * (range - (Math_TAU - from_min_to_angle_delta));
 			quaternion = Quaternion(axis, turnDiff);
-			to_set->local_rotate_by(quaternion);
+			to_set->rotate_local_with_global(quaternion);
 		}
 		r_turn_diff = turnDiff < 0 ? turnDiff * -1 : turnDiff;
 		return quaternion;
