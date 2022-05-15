@@ -428,14 +428,15 @@ Vector<Ref<LimitCone>> IKKusudama::get_limit_cones() {
 
 bool IKKusudama::_is_in_limits(Vector3 global_point) {
 	Vector<double> in_bounds = { 1 };
-	_ALLOW_DISCARD_ this->point_in_limits(global_point, in_bounds, LimitCone::BOUNDARY);
+	Vector3 local_point = _limiting_axes->to_local(global_point);
+	_ALLOW_DISCARD_ this->point_in_limits(local_point.normalized(), in_bounds, LimitCone::BOUNDARY);
 	return in_bounds[0] > 0;
 }
 
 Vector<Quaternion> IKKusudama::get_swing_twist(Quaternion p_quaternion, Vector3 p_axis) {
 	Quaternion twist_rotation = p_quaternion;
 	const float d = twist_rotation.get_axis().dot(p_axis);
-	twist_rotation = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, twist_rotation.w).normalized();
+	twist_rotation = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, twist_rotation.w);
 	if (d < 0) {
 		twist_rotation *= -1.0f;
 	}
@@ -530,7 +531,7 @@ Quaternion IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, R
 	if (in_bounds[0] == -1 && !(Math::is_nan(in_limits.x) || Math::is_nan(in_limits.y) || Math::is_nan(in_limits.z))) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
-		rectified_rotation = Quaternion(bone_ray->heading().normalized(), constrained_ray->heading().normalized());
+		rectified_rotation = Quaternion(bone_ray->heading(), constrained_ray->heading());
 	}
 	return rectified_rotation;
 }
