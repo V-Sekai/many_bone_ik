@@ -449,7 +449,6 @@ Vector3 IKKusudama::local_point_on_path_sequence(Vector3 in_point, Ref<IKTransfo
 
 Vector3 IKKusudama::local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode) {
 	Vector3 point = in_point;
-	point.normalize();
 	// This is an exact check for being inside the bounds.
 	for (int i = 0; i < limit_cones.size(); i++) {
 		Ref<LimitCone> cone = limit_cones[i];
@@ -480,7 +479,7 @@ Vector3 IKKusudama::local_point_in_limits(Vector3 in_point, Vector<double> &in_b
 			closest_collision_point = collision_point;
 		}
 	}
-	return closest_collision_point.normalized();
+	return closest_collision_point;
 }
 
 void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
