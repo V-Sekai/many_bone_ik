@@ -78,7 +78,7 @@ public:
 	Vector3 to_global(const Vector3 &p_local) const;
 	void rotate_local_with_global(Quaternion p_q);
 	double getGlobalChirality() {
-		return -1.0;
+		return 1.0;
 	}
 	void orthonormalize();
 	void set_identity();
