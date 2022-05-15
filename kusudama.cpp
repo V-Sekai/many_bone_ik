@@ -109,11 +109,11 @@ Quaternion IKKusudama::set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTran
 	Quaternion rot;
 	if (limiting_axes != nullptr) {
 		if (orientationally_constrained) {
-			rot = set_axes_to_orientation_snap(to_set, limiting_axes, cos_half_angle_dampen);
+			rot = rot * set_axes_to_orientation_snap(to_set, limiting_axes, cos_half_angle_dampen);
 		}
 		if (axially_constrained) {
 			double twist_diff = 0.0;
-			rot = snap_to_twist_limits(to_set, limiting_axes, twist_diff);
+			rot = rot * snap_to_twist_limits(to_set, limiting_axes, twist_diff);
 		}
 	}
 	return rot;
