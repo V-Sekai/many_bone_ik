@@ -137,6 +137,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 		}
 	}
 	bone_direction_transform->set_parent(xform);
+	constraint_transform->set_transform(Transform3D(Basis(), bone_direction_transform->get_transform().origin));
 	constraint.instantiate();
 	constraint->enable_orientational_limits();
 	constraint->enable_axial_limits();
