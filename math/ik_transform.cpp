@@ -51,8 +51,7 @@ void IKTransform3D::rotate_local_with_global(Quaternion p_q) {
 	new_rot = new_rot * local_transform.basis.get_rotation_quaternion();
 	local_transform = Transform3D(new_rot.normalized(), local_transform.origin);
 
-	dirty &= ~DIRTY_LOCAL;
-	_propagate_transform_changed();
+	dirty |= DIRTY_GLOBAL;
 }
 
 void IKTransform3D::set_transform(const Transform3D &p_transform) {

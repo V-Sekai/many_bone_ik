@@ -150,8 +150,6 @@ public:
 	 */
 	Vector3 get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const;
 
-	Vector3 closest_cone(Ref<LimitCone> next, Vector3 input) const;
-
 	/**
 	 * returns null if no rectification is required.
 	 * @param next
@@ -159,7 +157,12 @@ public:
 	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 input, Vector<bool> &in_bounds) const;
+	Vector3 closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 input, Vector<double> &in_bounds) const;
+
+	virtual void update_tangent_handles(Ref<LimitCone> next);
+
+private:
+	Vector3 closest_cone(Ref<LimitCone> next, Vector3 input) const;
 
 	/**
 	 * returns null if no rectification is required.
@@ -167,23 +170,14 @@ public:
 	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closest_to_cone(Vector3 input, Vector<bool> &in_bounds) const;
+	Vector3 closest_to_cone(Vector3 input, Vector<double> &in_bounds) const;
 
-	virtual void update_tangent_handles(Ref<LimitCone> next);
-
-private:
 	void update_tangent_and_cushion_handles(Ref<LimitCone> next, int mode);
 
 	void set_tangent_circle_center_next_1(Vector3 point, int mode);
 	void set_tangent_circle_center_next_2(Vector3 point, int mode);
 
 	void set_tangent_circle_radius_next(double rad, int mode);
-	/**
-	 * for internal and rendering use only. Avoid modifying any values in the resulting object,
-	 * which is returned by reference.
-	 * @param mode
-	 * @return
-	 */
 protected:
 	virtual Vector3 get_tangent_circle_center_next_1(int mode);
 
@@ -191,12 +185,6 @@ protected:
 
 	virtual double get_tangent_circle_radius_next_cos(int mode);
 
-	/**
-	 * for internal and rendering use only. Avoid modifying any values in the resulting object,
-	 * which is returned by reference.
-	 * @param mode
-	 * @return
-	 */
 	virtual Vector3 get_tangent_circle_center_next_2(int mode);
 
 	virtual double _get_radius(int mode);

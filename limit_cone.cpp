@@ -293,7 +293,7 @@ Vector3 LimitCone::get_closest_path_point(Ref<LimitCone> next, Vector3 input) co
 Vector3 LimitCone::get_closest_collision(Ref<LimitCone> next, Vector3 input) const {
 	Vector3 result = get_on_great_tangent_triangle(next, input);
 	if (result == Vector3(NAN, NAN, NAN)) {
-		Vector<bool> in_bounds = { false };
+		Vector<double> in_bounds = { 0.0 };
 		result = closest_point_on_closest_cone(next, input, in_bounds);
 	}
 	return result;
@@ -404,13 +404,13 @@ Vector3 LimitCone::closest_cone(Ref<LimitCone> next, Vector3 input) const {
 	}
 }
 
-Vector3 LimitCone::closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 input, Vector<bool> &in_bounds) const {
+Vector3 LimitCone::closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 input, Vector<double> &in_bounds) const {
 	Vector3 closestToFirst = this->closest_to_cone(input, in_bounds);
-	if (in_bounds[0]) {
+	if (in_bounds[0] > 0.0) {
 		return closestToFirst;
 	}
 	Vector3 closestToSecond = next->closest_to_cone(input, in_bounds);
-	if (in_bounds[0]) {
+	if (in_bounds[0] > 0.0) {
 		return closestToSecond;
 	}
 	double cosToFirst = input.dot(closestToFirst);
@@ -423,10 +423,10 @@ Vector3 LimitCone::closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 in
 	}
 }
 
-Vector3 LimitCone::closest_to_cone(Vector3 input, Vector<bool> &in_bounds) const {
+Vector3 LimitCone::closest_to_cone(Vector3 input, Vector<double> &in_bounds) const {
 	if (input.dot(this->get_control_point()) > this->get_radius_cosine()) {
-		in_bounds.write[0] = true;
-		return Vector3(NAN, NAN, NAN);
+		in_bounds.write[0] = 1.0;
+		return input;
 	}
 	if (Math::is_nan(input.x) || Math::is_nan(input.y) || Math::is_nan(input.z)) {
 		return Vector3(NAN, NAN, NAN);
@@ -435,7 +435,7 @@ Vector3 LimitCone::closest_to_cone(Vector3 input, Vector<bool> &in_bounds) const
 	Quaternion rotTo = Quaternion(axis, this->get_radius());
 	Vector3 axis_control_point = this->get_control_point();
 	Vector3 result = rotTo.xform(axis_control_point);
-	in_bounds.write[0] = false;
+	in_bounds.write[0] = -1.0;
 	return result;
 }
 
