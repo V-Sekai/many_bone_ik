@@ -480,42 +480,43 @@ Vector3 IKKusudama::point_in_limits(Vector3 in_point, Vector<double> &in_bounds,
 
 	in_bounds.write[0] = -1;
 	Vector3 closest_collision_point = Vector3(NAN, NAN, NAN);
+	double closest_cos = -2;
 	Vector<bool> bound_hint = { false };
-	double closest_cos = -2.0;
-	if (limit_cones.size() > 1 && orientationally_constrained) {
+
+	for (int i = 0; i < limit_cones.size(); i++) {
+		Ref<LimitCone> cone = limit_cones[i];
+		Vector3 collision_point = cone->closest_to_cone(point, bound_hint);
+		if (Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z)) {
+			in_bounds.write[0] = 1;
+			return point;
+		} else {
+			double this_cos = collision_point.dot(point);
+			if (Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z) || this_cos > closest_cos) {
+				closest_collision_point = collision_point;
+				closest_cos = this_cos;
+			}
+		}
+	}
+	if (in_bounds[0] == -1) {
 		for (int i = 0; i < limit_cones.size() - 1; i++) {
-			Vector3 collision_point;
+			Ref<LimitCone> curr_cone = limit_cones[i];
 			Ref<LimitCone> next_cone = limit_cones[i + 1];
-			bool in_segment_bounds = limit_cones[i]->in_bounds_from_this_to_next(next_cone, point, collision_point);
-			if (in_segment_bounds == true) {
-				in_bounds.write[0] = 1;
-			} else {
-				float this_cos = collision_point.dot(point);
-				if (closest_collision_point == Vector3(NAN, NAN, NAN) || this_cos > closest_cos) {
+			Vector3 collision_point = curr_cone->get_on_great_tangent_triangle(next_cone, point);
+			if (!(Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z))) {
+				double this_cos = collision_point.dot(point);
+				if (Math::is_equal_approx(this_cos, 1.0)) {
+					in_bounds.write[0] = 1;
+					closest_collision_point = point;
+					return point;
+				} else if (this_cos > closest_cos) {
 					closest_collision_point = collision_point;
 					closest_cos = this_cos;
 				}
 			}
 		}
-		if (in_bounds[0] == -1) {
-			return closest_collision_point;
-		}
-		return point;
 	}
-	if (orientationally_constrained) {
-		float point_dot = point.dot(limit_cones[0]->get_control_point());
-		float radius_cos = limit_cones[0]->get_radius_cosine();
-		if (point_dot > radius_cos) {
-			in_bounds.write[0] = 1;
-			return in_point;
-		}
-		Vector3 axis = limit_cones[0]->get_control_point().cross(point);
-		Quaternion to_limit = Quaternion(axis, limit_cones[0]->get_radius());
-		Vector3 new_point = to_limit.xform(limit_cones[0]->get_control_point());
-		return new_point;
-	}
-	in_bounds.write[0] = 1;
-	return in_point;
+
+	return closest_collision_point;
 }
 
 Quaternion IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
