@@ -306,15 +306,11 @@ void IKKusudama::add_limit_cone(Vector3 new_cone_local_point, double radius, Ref
 
 void IKKusudama::remove_limit_cone(Ref<LimitCone> limitCone) {
 	this->limit_cones.erase(limitCone);
-	this->update_tangent_radii();
-	this->update_rotational_freedom();
 }
 
 void IKKusudama::add_limit_cone_at_index(int insert_at, Vector3 new_cone_local_point, double radius) {
 	Ref<LimitCone> newCone = memnew(LimitCone(new_cone_local_point, radius, Ref<IKKusudama>(this)));
 	limit_cones.insert(insert_at, newCone);
-	this->update_tangent_radii();
-	this->update_rotational_freedom();
 }
 
 double IKKusudama::to_tau(double angle) {

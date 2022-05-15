@@ -308,8 +308,8 @@ public:
 
 	Quaternion quaternion_unnormalized(Vector3 u, Vector3 v);
 
-protected:
 	virtual void update_rotational_freedom();
+protected:
 
 	/**
 	 * attaches the Kusudama to the BoneExample. If the
