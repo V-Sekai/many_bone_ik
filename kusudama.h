@@ -308,6 +308,8 @@ public:
 
 	double rotational_freedom = 1;
 
+	Quaternion quaternion_unnormalized(Vector3 u, Vector3 v);
+
 protected:
 	virtual void update_rotational_freedom();
 
