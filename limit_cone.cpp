@@ -284,15 +284,18 @@ bool LimitCone::determine_if_in_bounds(Ref<LimitCone> next, Vector3 input) const
 
 Vector3 LimitCone::get_closest_path_point(Ref<LimitCone> next, Vector3 input) const {
 	Vector3 result = get_on_path_sequence(next, input);
-	if (result == Vector3(NAN, NAN, NAN)) {
+	bool is_number = !(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z));
+	if (!is_number) {
 		result = closest_cone(next, input);
 	}
 	return result;
 }
 
 Vector3 LimitCone::get_closest_collision(Ref<LimitCone> next, Vector3 input) const {
-	Vector3 result = get_on_great_tangent_triangle(next, input);
-	if (result == Vector3(NAN, NAN, NAN)) {
+	Vector3 result = _get_on_great_tangent_triangle(next, input);
+
+	bool is_number = !(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z));
+	if (!is_number) {
 		Vector<double> in_bounds = { 0.0 };
 		result = closest_point_on_closest_cone(next, input, in_bounds);
 	}
@@ -302,7 +305,8 @@ Vector3 LimitCone::get_closest_collision(Ref<LimitCone> next, Vector3 input) con
 bool LimitCone::in_bounds_from_this_to_next(Ref<LimitCone> next, Vector3 input, Vector3 collision_point) const {
 	bool isInBounds = false;
 	Vector3 closestCollision = get_closest_collision(next, input);
-	if (closestCollision != Vector3(NAN, NAN, NAN)) {
+	bool is_number = !(Math::is_nan(closestCollision.x) && Math::is_nan(closestCollision.y) && Math::is_nan(closestCollision.z));
+	if (!is_number) {
 		/**
 		 * get_closest_collision returns null if the point is already in bounds,
 		 * so we set isInBounds to true.
@@ -361,7 +365,7 @@ LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to
 	parent_kusudama = attached_to;
 }
 
-Vector3 LimitCone::get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const {
+Vector3 LimitCone::_get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const {
 	Vector3 c1xc2 = control_point.cross(next->control_point);
 	double c1c2dir = input.dot(c1xc2);
 	if (c1c2dir < 0.0) {
@@ -372,7 +376,7 @@ Vector3 LimitCone::get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 in
 			if (toNextCos > tangent_circle_radius_next_cos) {
 				Vector3 planeNormal = tangent_circle_center_next_1.cross(input);
 				Quaternion rotateAboutBy = Quaternion(planeNormal, tangent_circle_radius_next);
-				return Basis(rotateAboutBy).xform(tangent_circle_center_next_1);
+				return rotateAboutBy.xform(tangent_circle_center_next_1);
 			} else {
 				return input;
 			}
@@ -386,7 +390,7 @@ Vector3 LimitCone::get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 in
 			if (input.dot(tangent_circle_center_next_2) > tangent_circle_radius_next_cos) {
 				Vector3 planeNormal = tangent_circle_center_next_2.cross(input);
 				Quaternion rotateAboutBy = Quaternion(planeNormal, tangent_circle_radius_next);
-				return Basis(rotateAboutBy).xform(tangent_circle_center_next_2);
+				return rotateAboutBy.xform(tangent_circle_center_next_2);
 			} else {
 				return input;
 			}

@@ -142,15 +142,6 @@ public:
 	Vector3 get_on_path_sequence(Ref<LimitCone> next, Vector3 input) const;
 
 	/**
-	 *
-	 * @param next
-	 * @param input
-	 * @return null if inapplicable for rectification. the original point if in bounds, or the point rectified to the closest boundary on the path sequence
-	 * between two cones if the point is out of bounds and applicable for rectification.
-	 */
-	Vector3 get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const;
-
-	/**
 	 * returns null if no rectification is required.
 	 * @param next
 	 * @param input
@@ -161,9 +152,6 @@ public:
 
 	virtual void update_tangent_handles(Ref<LimitCone> next);
 
-private:
-	Vector3 closest_cone(Ref<LimitCone> next, Vector3 input) const;
-
 	/**
 	 * returns null if no rectification is required.
 	 * @param input
@@ -171,6 +159,18 @@ private:
 	 * @return
 	 */
 	Vector3 closest_to_cone(Vector3 input, Vector<double> &in_bounds) const;
+
+private:
+	/**
+	 *
+	 * @param next
+	 * @param input
+	 * @return null if inapplicable for rectification. the original point if in bounds, or the point rectified to the closest boundary on the path sequence
+	 * between two cones if the point is out of bounds and applicable for rectification.
+	 */
+	Vector3 _get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const;
+
+	Vector3 closest_cone(Ref<LimitCone> next, Vector3 input) const;
 
 	void update_tangent_and_cushion_handles(Ref<LimitCone> next, int mode);
 

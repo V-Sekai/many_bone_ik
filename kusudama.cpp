@@ -448,26 +448,39 @@ Vector3 IKKusudama::local_point_on_path_sequence(Vector3 in_point, Ref<IKTransfo
 }
 
 Vector3 IKKusudama::local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode) {
-	ERR_FAIL_COND_V(limit_cones.size() < 2, in_point);
 	Vector3 point = in_point;
 	point.normalize();
+	// This is an exact check for being inside the bounds.
+	for (int i = 0; i < limit_cones.size(); i++) {
+		Ref<LimitCone> cone = limit_cones[i];
+		Ref<LimitCone> cone_next = limit_cones[i];
+		if (i - 1 > -1) {
+			cone_next = limit_cones[i - 1];
+		}
+		bool is_in_bounds = cone->determine_if_in_bounds(cone_next, point);
+		if (is_in_bounds) {
+			in_bounds.write[0] = 1;
+			return point;
+		}
+	}
 	in_bounds.write[0] = -1;
 	double closest_cos = -2;
 	Vector3 closest_collision_point = Vector3(NAN, NAN, NAN);
-	for (int i = 0; i < limit_cones.size() - 1; i++) {
+	// This returns a point on the constraint sphere.
+	for (int i = 0; i < limit_cones.size(); i++) {
 		Ref<LimitCone> cone = limit_cones[i];
-		Ref<LimitCone> cone_next = limit_cones[i + 1];
-		Vector3 collision_point = cone->closest_point_on_closest_cone(cone_next, point, in_bounds);
-		if (in_bounds.write[0] > 0.0) {
-			return point;
+		Ref<LimitCone> cone_next = limit_cones[i];
+		if (i - 1 > -1) {
+			cone_next = limit_cones[i - 1];
 		}
+		Vector3 collision_point = cone->get_closest_collision(cone_next, point);
 		double this_cos = collision_point.dot(point);
 		if (this_cos > closest_cos) {
 			closest_cos = this_cos;
 			closest_collision_point = collision_point;
 		}
 	}
-	return closest_collision_point;
+	return closest_collision_point.normalized();
 }
 
 void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
@@ -476,8 +489,8 @@ void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 	bone_ray->p2(to_set->get_global_transform().basis[Vector3::AXIS_Y]);
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
 	Vector3 in_limits = this->local_point_in_limits(bone_tip, in_bounds);
-	bool is_rotation = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
-	if (in_bounds[0] < 0.0 && is_rotation) {
+	bool is_number = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
+	if (in_bounds[0] < 0.0 && is_number) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
 		Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
