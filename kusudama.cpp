@@ -171,32 +171,16 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	 * (with the weight determining the resistance of the boundary). This result is stored for reference by future calls.
 	 * If the new d is less than the old d, we return the input orientation, and set the new d to this lower value for reference by future calls.
 	 *
-	 *
 	 * Because we can expect rotations to be fairly small, we use nlerp instead of slerp for efficiency when averaging.
 	 */
-	bone_ray->p1(limiting_axes->get_global_transform().origin);
-	bone_ray->p2(bone_direction->get_global_transform().basis[Vector3::AXIS_Y]);
-	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
-	Vector3 being_cushion_limits = local_point_in_limits(bone_tip, in_bounds, IKKusudama::CUSHION);
-	bool needs_rotational_restore = !(Math::is_nan(being_cushion_limits.x) && Math::is_nan(being_cushion_limits.y) && Math::is_nan(being_cushion_limits.z));
-	if (in_bounds[0] == -1 && needs_rotational_restore) {
-		constrained_ray->p1(bone_ray->p1());
-		constrained_ray->p2(limiting_axes->to_global(being_cushion_limits));
-		Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
-		to_set->rotate_local_with_global(rectified_rotation);
-	}
 }
 
 bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes) {
 	Vector<double> in_bounds = { 1 };
 	Vector3 local_point = _limiting_axes->to_local(global_axes->get_global_transform().basis[Vector3::AXIS_Y]);
 	Vector3 in_limits = local_point_in_limits(local_point, in_bounds, IKKusudama::CUSHION);
-	bool needs_rotational_restore = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
-	if (in_bounds[0] == -1 && needs_rotational_restore) {
-		constrained_ray->p1(bone_ray->p1());
-		constrained_ray->p2(limiting_axes->to_global(in_limits));
-		Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
-		global_axes->rotate_local_with_global(rectified_rotation);
+	bool is_rotation = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
+	if (in_bounds[0] < 0.0 || !is_rotation) {
 		return false;
 	}
 	return true;
@@ -465,7 +449,8 @@ Vector3 IKKusudama::local_point_on_path_sequence(Vector3 in_point, Ref<IKTransfo
 
 Vector3 IKKusudama::local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode) {
 	ERR_FAIL_COND_V(limit_cones.size() < 2, in_point);
-	Vector3 point = in_point.normalized();
+	Vector3 point = in_point;
+	point.normalize();
 	in_bounds.write[0] = -1;
 	double closest_cos = -2;
 	Vector3 closest_collision_point = Vector3(NAN, NAN, NAN);
@@ -473,11 +458,9 @@ Vector3 IKKusudama::local_point_in_limits(Vector3 in_point, Vector<double> &in_b
 	for (int i = 0; i < limit_cones.size() - 1; i++) {
 		Ref<LimitCone> cone = limit_cones[i];
 		Ref<LimitCone> cone_next = limit_cones[i + 1];
-		bound_hint = { -1 };
 		Vector3 collision_point = cone->closest_point_on_closest_cone(cone_next, point, bound_hint);
 		double this_cos = collision_point.dot(point);
 		if (bound_hint.write[0] > 0.0) {
-			in_bounds.write[0] = 1.0;
 			return point;
 		}
 		if (this_cos > closest_cos) {
