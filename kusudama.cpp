@@ -512,6 +512,7 @@ Vector3 IKKusudama::point_in_limits(Vector3 in_point, Vector<double> &in_bounds,
 			return in_point;
 		}
 		Vector3 axis = limit_cones[0]->get_control_point().cross(point);
+		axis.normalize();
 		Quaternion to_limit = Quaternion(axis, limit_cones[0]->get_radius());
 		Vector3 new_point = to_limit.xform(limit_cones[0]->get_control_point());
 		return new_point;
@@ -527,7 +528,7 @@ Quaternion IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, R
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
 	Vector3 in_limits = this->point_in_limits(bone_tip, in_bounds);
 	Quaternion rectified_rotation;
-	if (in_bounds[0] == -1 && !(Math::is_nan(in_limits.x) || Math::is_nan(in_limits.y) || Math::is_nan(in_limits.z))) {
+	if (in_bounds[0] == -1 && in_limits != Vector3(NAN, NAN, NAN)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
 		rectified_rotation = Quaternion(bone_ray->heading(), constrained_ray->heading());
