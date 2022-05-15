@@ -144,8 +144,6 @@ public:
 	//  */
 	// virtual double getPainfullness();
 
-	bool _global_point_is_in_limits(Vector3 global_point);
-
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.

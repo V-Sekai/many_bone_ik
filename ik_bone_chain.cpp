@@ -235,7 +235,7 @@ void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 	} else {
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
-	p_for_bone->get_ik_transform()->rotate_by(rot);
+	p_for_bone->get_ik_transform()->local_rotate_by(rot);
 	if (p_for_bone->getConstraint().is_valid()) {
 		p_for_bone->getConstraint()->set_axes_to_snapped(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), p_for_bone->get_cos_half_dampen());
 	}
