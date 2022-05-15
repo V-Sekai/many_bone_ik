@@ -454,15 +454,14 @@ Vector3 IKKusudama::local_point_in_limits(Vector3 in_point, Vector<double> &in_b
 	in_bounds.write[0] = -1;
 	double closest_cos = -2;
 	Vector3 closest_collision_point = Vector3(NAN, NAN, NAN);
-	Vector<double> bound_hint = { -1 };
 	for (int i = 0; i < limit_cones.size() - 1; i++) {
 		Ref<LimitCone> cone = limit_cones[i];
 		Ref<LimitCone> cone_next = limit_cones[i + 1];
-		Vector3 collision_point = cone->closest_point_on_closest_cone(cone_next, point, bound_hint);
-		double this_cos = collision_point.dot(point);
-		if (bound_hint.write[0] > 0.0) {
+		Vector3 collision_point = cone->closest_point_on_closest_cone(cone_next, point, in_bounds);
+		if (in_bounds.write[0] > 0.0) {
 			return point;
 		}
+		double this_cos = collision_point.dot(point);
 		if (this_cos > closest_cos) {
 			closest_cos = this_cos;
 			closest_collision_point = collision_point;

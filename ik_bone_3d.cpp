@@ -142,7 +142,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 	constraint->enable_axial_limits();
 	constraint->set_axial_limits(0.0f, Math_PI);
 	constraint->add_limit_cone_at_index(0, Vector3(0.f, 1.f, 0.0f), (3.0 * Math_PI) / 4.0f);
-	constraint->add_limit_cone_at_index(1, Vector3(0.f, 1.f, 0.0f).normalized(), 0.0);
+	constraint->add_limit_cone_at_index(1, Vector3(0.f, 1.f, 0.0f), (3.0 * Math_PI) / 4.0f);
 	constraint->update_tangent_radii();
 	constraint->update_rotational_freedom();
 }
