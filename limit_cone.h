@@ -114,7 +114,7 @@ public:
 	 * @param collision_point will be set to the rectified (if necessary) position of the input after accounting for collisions
 	 * @return
 	 */
-	bool in_bounds_from_this_to_next(Ref<LimitCone> next, Vector3 input, Vector3 collision_point);
+	bool in_bounds_from_this_to_next(Ref<LimitCone> next, Vector3 input, Vector3 collision_point) const;
 
 	/**
 	 *
@@ -123,13 +123,13 @@ public:
 	 * @return null if the input point is already in bounds, or the point's rectified position
 	 * if the point was out of bounds.
 	 */
-	Vector3 get_closest_collision(Ref<LimitCone> next, Vector3 input);
+	Vector3 get_closest_collision(Ref<LimitCone> next, Vector3 input) const;
 
 	Vector3 get_closest_path_point(Ref<LimitCone> next, Vector3 input) const;
 
 	/**
 	 * Determines if a ray emanating from the origin to given point in local space
-	 * lies withing the path from this cone to the next cone. This function relies on
+	 * lies within the path from this cone to the next cone. This function relies on
 	 * an optimization trick for a performance boost, but the trick ruins everything
 	 * if the input isn't normalized. So it is ABSOLUTELY VITAL
 	 * that @param input have unit length in order for this function to work correctly.
@@ -148,7 +148,7 @@ public:
 	 * @return null if inapplicable for rectification. the original point if in bounds, or the point rectified to the closest boundary on the path sequence
 	 * between two cones if the point is out of bounds and applicable for rectification.
 	 */
-	Vector3 get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input);
+	Vector3 get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const;
 
 	Vector3 closest_cone(Ref<LimitCone> next, Vector3 input) const;
 
@@ -159,7 +159,7 @@ public:
 	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 input, Vector<bool> &in_bounds);
+	Vector3 closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 input, Vector<bool> &in_bounds) const;
 
 	/**
 	 * returns null if no rectification is required.
@@ -167,7 +167,7 @@ public:
 	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closest_to_cone(Vector3 input, Vector<bool> &in_bounds);
+	Vector3 closest_to_cone(Vector3 input, Vector<bool> &in_bounds) const;
 
 	virtual void update_tangent_handles(Ref<LimitCone> next);
 
@@ -213,9 +213,9 @@ public:
 		this->control_point.normalize();
 	}
 
-	virtual double get_radius();
+	virtual double get_radius() const;
 
-	virtual double get_radius_cosine();
+	virtual double get_radius_cosine() const;
 
 	virtual void set_radius(double radius);
 
