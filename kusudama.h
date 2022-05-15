@@ -117,7 +117,7 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual Quaternion set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
+	virtual void set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
 	// virtual void setAxesToReturnfulled(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cosHalfReturnfullness, double angleReturnfullness);
 
@@ -144,7 +144,7 @@ public:
 	//  */
 	// virtual double getPainfullness();
 
-	bool _is_in_limits(Vector3 global_point);
+	bool _global_point_is_in_limits(Vector3 global_point);
 
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -161,9 +161,9 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual Quaternion set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
+	virtual Quaternion get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
-	virtual bool is_in_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes);
+	virtual bool is_in_global_pose_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
@@ -186,7 +186,7 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual Quaternion snap_to_twist_limits(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff);
+	virtual Quaternion get_snap_to_twist_limits(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff);
 
 	virtual double angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
@@ -195,7 +195,7 @@ public:
 	virtual double signed_angle_difference(double min_angle, double p_super);
 
 	/**
-	 * Given a point (in global coordinates), checks to see if a ray can be extended from the Kusudama's
+	 * Given a point (in local coordinates), checks to see if a ray can be extended from the Kusudama's
 	 * origin to that point, such that the ray in the Kusudama's reference frame is within the range allowed by the Kusudama's
 	 * coneLimits.
 	 * If such a ray exists, the original point is returned (the point is within the limits).
@@ -209,9 +209,9 @@ public:
 	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	Vector3 point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode = IKKusudama::CUSHION);
+	Vector3 local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode = IKKusudama::CUSHION);
 
-	Vector3 point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes);
+	Vector3 local_point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes);
 
 	// public double softLimit
 

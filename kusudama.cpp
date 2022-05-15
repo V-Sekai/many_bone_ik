@@ -85,8 +85,8 @@ void IKKusudama::optimize_limiting_axes() {
 	Vector3 temp_var(0.f, 0.f, 0.f);
 	Ref<Ray3D> newYRay = memnew(Ray3D(temp_var, newY));
 
-	Quaternion oldYtoNewY = quaternion_unnormalized(_limiting_axes->get_global_transform().basis[Vector3::AXIS_Y], 
-		originalLimitingAxes->to_global(newYRay->heading()));
+	Quaternion oldYtoNewY = quaternion_unnormalized(_limiting_axes->get_global_transform().basis[Vector3::AXIS_Y],
+			originalLimitingAxes->to_global(newYRay->heading()));
 	_limiting_axes->rotate_by(oldYtoNewY);
 
 	for (Ref<LimitCone> lc : get_limit_cones()) {
@@ -126,7 +126,7 @@ Quaternion IKKusudama::set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTran
 // 		if (orientationally_constrained) {
 // 			Vector3 origin = to_set->get_transform().origin;
 // 			Vector3 in_point = to_set->get_transform().basis[Vector3::AXIS_Y];
-// 			Vector3 pathPoint = point_on_path_sequence(in_point, limiting_axes);
+// 			Vector3 pathPoint = local_point_on_path_sequence(in_point, limiting_axes);
 // 			in_point -= origin;
 // 			pathPoint -= origin;
 // 			Quaternion toClamp = Quaternion(in_point, pathPoint);
@@ -179,7 +179,7 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
 	bone_ray->p2(bone_direction->get_global_transform().basis[Vector3::AXIS_Y]);
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
-	Vector3 inCushionLimits = point_in_limits(bone_tip, in_bounds, IKKusudama::CUSHION);
+	Vector3 inCushionLimits = local_point_in_limits(bone_tip, in_bounds, IKKusudama::CUSHION);
 
 	if (in_bounds[0] == -1 && inCushionLimits != Vector3(NAN, NAN, NAN)) {
 		constrained_ray->p1(bone_ray->p1());
@@ -189,10 +189,10 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	}
 }
 
-bool IKKusudama::is_in_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes) {
+bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes) {
 	Vector<double> in_bounds = { 1 };
 	Vector3 local_point = _limiting_axes->to_local(global_axes->get_global_transform().basis[Vector3::AXIS_Y]);
-	_ALLOW_DISCARD_ point_in_limits(local_point.normalized(),
+	_ALLOW_DISCARD_ local_point_in_limits(local_point.normalized(),
 			in_bounds);
 	if (in_bounds[0] == -1) {
 		return false;
@@ -291,11 +291,11 @@ Ref<IKBone3D> IKKusudama::attached_to() {
 	return this->_attached_to;
 }
 
-void IKKusudama::add_limit_cone(Vector3 new_point, double radius, Ref<LimitCone> previous, Ref<LimitCone> next) {
+void IKKusudama::add_limit_cone(Vector3 new_cone_local_point, double radius, Ref<LimitCone> previous, Ref<LimitCone> next) {
 	int insert_at = 0;
 
 	if (next.is_null() || limit_cones.is_empty()) {
-		add_limit_cone_at_index(0, new_point, radius);
+		add_limit_cone_at_index(0, new_cone_local_point, radius);
 	} else if (previous.is_valid()) {
 		insert_at = limit_cones.find(previous) + 1;
 	} else {
@@ -310,8 +310,8 @@ void IKKusudama::remove_limit_cone(Ref<LimitCone> limitCone) {
 	this->update_rotational_freedom();
 }
 
-void IKKusudama::add_limit_cone_at_index(int insert_at, Vector3 new_point, double radius) {
-	Ref<LimitCone> newCone = memnew(LimitCone(new_point, radius, Ref<IKKusudama>(this)));
+void IKKusudama::add_limit_cone_at_index(int insert_at, Vector3 new_cone_local_point, double radius) {
+	Ref<LimitCone> newCone = memnew(LimitCone(new_cone_local_point, radius, Ref<IKKusudama>(this)));
 	limit_cones.insert(insert_at, newCone);
 	this->update_tangent_radii();
 	this->update_rotational_freedom();
@@ -424,10 +424,10 @@ Vector<Ref<LimitCone>> IKKusudama::get_limit_cones() {
 	return limit_cones;
 }
 
-bool IKKusudama::_is_in_limits(Vector3 global_point) {
+bool IKKusudama::_global_point_is_in_limits(Vector3 global_point) {
 	Vector<double> in_bounds = { 1 };
 	Vector3 local_point = _limiting_axes->to_local(global_point);
-	_ALLOW_DISCARD_ this->point_in_limits(local_point.normalized(), in_bounds, LimitCone::BOUNDARY);
+	_ALLOW_DISCARD_ this->local_point_in_limits(local_point.normalized(), in_bounds, LimitCone::BOUNDARY);
 	return in_bounds[0] > 0;
 }
 
@@ -451,7 +451,7 @@ Vector<Quaternion> IKKusudama::get_swing_twist(Quaternion p_quaternion, Vector3 
 	return result;
 }
 
-Vector3 IKKusudama::point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes) {
+Vector3 IKKusudama::local_point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes) {
 	double closest_point_dot = 0;
 	Vector3 point = limiting_axes->get_transform().xform(in_point);
 	point.normalize();
@@ -474,7 +474,7 @@ Vector3 IKKusudama::point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> 
 	return limiting_axes->get_global_transform().xform(result);
 }
 
-Vector3 IKKusudama::point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode) {
+Vector3 IKKusudama::local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode) {
 	Vector3 point = in_point;
 	point.normalize();
 
@@ -524,7 +524,7 @@ Quaternion IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, R
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
 	bone_ray->p2(to_set->get_global_transform().basis[Vector3::AXIS_Y]);
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
-	Vector3 in_limits = this->point_in_limits(bone_tip, in_bounds);
+	Vector3 in_limits = this->local_point_in_limits(bone_tip, in_bounds);
 	Quaternion rectified_rotation;
 	if (in_bounds[0] == -1 && in_limits != Vector3(NAN, NAN, NAN)) {
 		constrained_ray->p1(bone_ray->p1());
