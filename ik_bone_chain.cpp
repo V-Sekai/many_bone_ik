@@ -237,8 +237,7 @@ void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 	}
 	p_for_bone->get_ik_transform()->rotate_by(rot);
 	if (p_for_bone->getConstraint().is_valid()) {
-		Quaternion snap_rotation = p_for_bone->getConstraint()->set_axes_to_snapped(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), p_for_bone->get_cos_half_dampen());
-		p_for_bone->get_ik_transform()->rotate_by(snap_rotation);
+		p_for_bone->getConstraint()->set_axes_to_snapped(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), p_for_bone->get_cos_half_dampen());
 	}
 	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 	p_for_bone->set_global_pose(result);

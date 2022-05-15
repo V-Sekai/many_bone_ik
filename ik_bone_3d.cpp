@@ -141,8 +141,8 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 	constraint.instantiate();
 	constraint->add_limit_cone_at_index(0, Vector3(0.f, 1.f, 0.0f), (3 * Math_PI) / 4.0f);
 	constraint->set_axial_limits(0.0f, Math_PI);
-	// constraint->enable_orientational_limits();
-	// constraint->enable_axial_limits();
+	constraint->enable_orientational_limits();
+	constraint->enable_axial_limits();
 }
 
 float IKBone3D::get_cos_half_dampen() const {
