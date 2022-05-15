@@ -105,18 +105,6 @@ void IKKusudama::update_tangent_radii() {
 	}
 }
 
-void IKKusudama::set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
-	if (limiting_axes.is_valid()) {
-		if (orientationally_constrained) {
-			get_axes_to_orientation_snap(to_set, limiting_axes, cos_half_angle_dampen);
-		}
-		if (axially_constrained) {
-			double twist_diff = 0.0;
-			set_snap_to_twist_limit(to_set, limiting_axes, twist_diff);
-		}
-	}
-}
-
 // Todo: fire 2022-05-13 Haven't been using this code path the last week. This is planned to be replaced by cushions.
 // Re-enable and debug if we want bouncy constraint.
 // void IKKusudama::setAxesToReturnfulled(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cosHalfReturnfullness, double angleReturnfullness) {
@@ -192,10 +180,10 @@ void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 	_update_constraint();
 }
 
-void IKKusudama::set_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff) {
+Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff) {
 	if (!axially_constrained) {
 		r_turn_diff = 0;
-		return;
+		return Quaternion();
 	}
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
 	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
@@ -223,7 +211,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransf
 		r_turn_diff = turnDiff < 0 ? turnDiff * -1 : turnDiff;
 	}
 	r_turn_diff = 0;
-	to_set->rotate_local_with_global(quaternion);
+	return quaternion;
 }
 
 double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
@@ -466,10 +454,10 @@ Vector3 IKKusudama::_local_point_in_limits(Vector3 in_point, Vector<double> &in_
 	return point;
 }
 
-void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
+Quaternion IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
 	bool is_bound = is_in_global_pose_orientation_limits(to_set, limiting_axes);
 	if (is_bound) {
-		return;
+		return Quaternion();
 	}
 	Vector<double> in_bounds = { 1 };
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
@@ -477,7 +465,7 @@ void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2()).normalized();
 	_ALLOW_DISCARD_ _local_point_in_limits(bone_tip, in_bounds);
 	if (in_bounds[0] > 0.0) {
-		return;
+		return Quaternion();
 	}
 	double closest_cos = -2;
 	Vector3 closest_collision_point = Vector3(NAN, NAN, NAN);
@@ -496,12 +484,12 @@ void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 		}
 	}
 	if (in_bounds[0] > 0.0) {
-		return;
+		return Quaternion();
 	}
 	constrained_ray->p1(bone_ray->p1());
 	constrained_ray->p2(closest_collision_point);
 	Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
-	to_set->rotate_local_with_global(rectified_rotation);
+	return rectified_rotation;
 }
 
 void IKKusudama::set_axes_to_soft_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {

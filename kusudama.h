@@ -111,14 +111,6 @@ public:
 	Ref<Ray3D> bone_ray = Ref<Ray3D>(memnew(Ray3D()));
 	Ref<Ray3D> constrained_ray = Ref<Ray3D>(memnew(Ray3D()));
 
-	/**
-	 * Presumes the input axes are the bone's localAxes, and rotates
-	 * them to satisfy the snap limits.
-	 *
-	 * @param to_set
-	 */
-	virtual void set_axes_to_snapped(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
-
 	// virtual void setAxesToReturnfulled(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cosHalfReturnfullness, double angleReturnfullness);
 
 	// /**
@@ -159,7 +151,7 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
+	virtual Quaternion get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
 
 	virtual bool is_in_global_pose_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes);
 
@@ -184,7 +176,7 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual void set_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff);
+	virtual Quaternion get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff);
 
 	virtual double angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
