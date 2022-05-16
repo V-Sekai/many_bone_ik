@@ -35,6 +35,7 @@
 #include "editor/editor_properties.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "scene/3d/camera_3d.h"
+#include "scene/3d/label_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/immediate_mesh.h"
@@ -152,6 +153,7 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 
 	// Handle.
 	MeshInstance3D *handles_mesh_instance = nullptr;
+	Label3D *label_mesh_origin = nullptr;
 	Ref<ImmediateMesh> handles_mesh;
 	Ref<ShaderMaterial> handle_material;
 	Ref<Shader> handle_shader;

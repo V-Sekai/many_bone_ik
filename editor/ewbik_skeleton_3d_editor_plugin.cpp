@@ -30,6 +30,7 @@
 
 #include "ewbik_skeleton_3d_editor_plugin.h"
 
+#include "../kusudama.h"
 #include "core/io/resource_saver.h"
 #include "editor/editor_file_dialog.h"
 #include "editor/editor_node.h"
@@ -39,6 +40,7 @@
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
+#include "scene/3d/label_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/resources/capsule_shape_3d.h"
@@ -615,6 +617,7 @@ void EWBIKSkeleton3DEditor::create_editors() {
 	if (skeleton) {
 		skeleton->add_child(handles_mesh_instance);
 		handles_mesh_instance->set_skeleton_path(NodePath(""));
+		skeleton->add_child(label_mesh_origin);
 	}
 
 	// Keying buttons.
@@ -793,6 +796,9 @@ void fragment() {
 	handles_mesh_instance->set_cast_shadows_setting(GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
 	handles_mesh.instantiate();
 	handles_mesh_instance->set_mesh(handles_mesh);
+
+	label_mesh_origin = memnew(Label3D);
+	label_mesh_origin->set_cast_shadows_setting(GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
 }
 
 void EWBIKSkeleton3DEditor::update_bone_original() {
@@ -826,6 +832,88 @@ void EWBIKSkeleton3DEditor::_draw_gizmo() {
 		_draw_handles();
 	} else {
 		_hide_handles();
+	}
+	{
+		int current_bone_index = 0;
+		Vector<int> bones_to_process = skeleton->get_parentless_bones();
+		Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
+		Color selected_bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/selected_bone");
+		for (int32_t child_i = 0; child_i < label_mesh_origin->get_child_count(); child_i++) {
+			Label3D *label = cast_to<Label3D>(label_mesh_origin->get_child(child_i));
+			if (label) {
+				label->queue_delete();
+			}
+		}
+		Vector3 current_bone;
+		while (bones_to_process.size() > current_bone_index) {
+			int current_bone_idx = bones_to_process[current_bone_index];
+			current_bone_index++;
+			Color current_bone_color = (current_bone_idx == selected_bone) ? selected_bone_color : bone_color;
+			Vector<int> child_bones_vector;
+			child_bones_vector = skeleton->get_bone_children(current_bone_idx);
+			int child_bones_size = child_bones_vector.size();
+			int child_bone_idx = -1;
+			for (int i = 0; i < child_bones_size; i++) {
+				if (child_bones_vector[i] < 0) {
+					// Something wrong.
+					continue;
+				}
+				child_bone_idx = child_bones_vector[i];
+				if (child_bone_idx == selected_bone) {
+					Label3D *label_mesh = memnew(Label3D);
+					float snap = 0.1;
+					float x_angle = 0.0f;
+					{
+						Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_X];
+						Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_X];
+						Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
+						Vector3 x_axis = Vector3(1.0, 0.0, 0.0);
+						Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, x_axis);
+						float x_anglex_angle = decomposed[1].get_angle() * -1;
+						x_angle = IKKusudama::to_tau(x_angle);
+						x_angle = Math::rad2deg(x_angle) + snap * 0.5; // else it won't reach +180
+						x_angle -= Math::fmod(x_angle, snap);
+					}
+					float z_angle = 0.0f;
+					{
+						Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_Z];
+						Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_Z];
+						Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
+						Vector3 z_axis = Vector3(0.0, 0.0, 1.0);
+						Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, z_axis);
+						z_angle = decomposed[1].get_angle() * -1;
+						z_angle = IKKusudama::to_tau(z_angle);
+						z_angle = Math::rad2deg(z_angle) + snap * 0.5; // else it won't reach +180
+						z_angle -= Math::fmod(z_angle, snap);
+					}
+					float y_angle = 0.0f;
+					{
+						Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_Y];
+						Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_Y];
+						Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
+						Vector3 y_axis = Vector3(0.0, 0.0, 1.0);
+						Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, y_axis);
+						y_angle = decomposed[1].get_angle() * -1;
+						y_angle = IKKusudama::to_tau(y_angle);
+						y_angle = Math::rad2deg(y_angle) + snap * 0.5; // else it won't reach +180
+						y_angle -= Math::fmod(y_angle, snap);
+					}
+					label_mesh->set_text(
+							vformat(String("Rotating %s\nX %s degrees\nZ %s degrees\nTwist %s degrees"),
+									skeleton->get_bone_name(current_bone_idx),
+									String::num(x_angle, Math::range_step_decimals(snap)),
+									String::num(z_angle, Math::range_step_decimals(snap)),
+									String::num(y_angle, Math::range_step_decimals(snap))));
+					label_mesh->set_font_size(8);
+					label_mesh_origin->add_child(label_mesh);
+					Transform3D xform = skeleton->get_bone_global_pose(current_bone_idx);
+					xform.basis = Basis();
+					label_mesh_origin->set_transform(xform);
+				}
+				// Add the bone's children to the list of bones to be processed.
+				bones_to_process.push_back(child_bones_vector[i]);
+			}
+		}
 	}
 }
 
@@ -940,10 +1028,12 @@ EWBIKSkeleton3DEditor::~EWBIKSkeleton3DEditor() {
 		skeleton->set_transform_gizmo_visible(true);
 #endif
 		handles_mesh_instance->get_parent()->remove_child(handles_mesh_instance);
+		label_mesh_origin->get_parent()->remove_child(label_mesh_origin);
 	}
 	edit_mode_toggled(false);
 
 	handles_mesh_instance->queue_delete();
+	label_mesh_origin->queue_delete();
 
 	Node3DEditor *ne = Node3DEditor::get_singleton();
 
@@ -1421,7 +1511,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		Vector<int> child_bones_vector;
 		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
 		int child_bones_size = child_bones_vector.size();
-
 		for (int i = 0; i < child_bones_size; i++) {
 			// Something wrong.
 			if (child_bones_vector[i] < 0) {
@@ -1488,53 +1577,53 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					}
 				}
 			}
+			{
+				Ref<SphereMesh> sphere_mesh;
+				sphere_mesh.instantiate();
+				sphere_mesh->set_radius(dist / 8.0f);
+				sphere_mesh->set_height(dist / 4.0f);
+				PackedFloat32Array kusudama_limit_cones;
+				constexpr int32_t KUSUDAMA_MAX_CONES = 30;
+				kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
+				kusudama_limit_cones.fill(0.0f);
+				kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
+				kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
+				Ref<SurfaceTool> kusudama_surface_tool;
+				kusudama_surface_tool.instantiate();
+				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+				kusudama_surface_tool->create_from(sphere_mesh, 0);
+				Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
+				kusudama_surface_tool->clear();
+				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+				Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
+				PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
+				PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
+				PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
+				PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
+				for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
+					Vector3 sphere_vertex = vertex_array[vertex_i];
+					kusudama_surface_tool->set_color(current_bone_color);
+					kusudama_surface_tool->set_bones(bones);
+					kusudama_surface_tool->set_weights(weights);
+					Vector2 uv_vertex = uv_array[vertex_i];
+					kusudama_surface_tool->set_uv(uv_vertex);
+					Vector3 normal_vertex = normal_array[vertex_i];
+					kusudama_surface_tool->set_normal(normal_vertex);
+					Plane tangent_vertex;
+					tangent_vertex.normal.x = tangent_array[vertex_i + 0];
+					tangent_vertex.normal.y = tangent_array[vertex_i + 1];
+					tangent_vertex.normal.z = tangent_array[vertex_i + 2];
+					tangent_vertex.d = tangent_array[vertex_i + 3];
+					kusudama_surface_tool->set_tangent(tangent_vertex);
+					kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).xform(sphere_vertex));
+				}
+				for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
+					int32_t index = index_array[index_i];
+					kusudama_surface_tool->add_index(index);
+				}
 
-			Ref<SphereMesh> sphere_mesh;
-			sphere_mesh.instantiate();
-			sphere_mesh->set_radius(dist / 8.0f);
-			sphere_mesh->set_height(dist / 4.0f);
-			PackedFloat32Array kusudama_limit_cones;
-			constexpr int32_t KUSUDAMA_MAX_CONES = 30;
-			kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
-			kusudama_limit_cones.fill(0.0f);
-			kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
-			kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
-			Ref<SurfaceTool> kusudama_surface_tool;
-			kusudama_surface_tool.instantiate();
-			kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-			kusudama_surface_tool->create_from(sphere_mesh, 0);
-			Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
-			kusudama_surface_tool->clear();
-			kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-			Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
-			PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
-			PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
-			PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
-			PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
-			for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
-				Vector3 sphere_vertex = vertex_array[vertex_i];
-				kusudama_surface_tool->set_color(current_bone_color);
-				kusudama_surface_tool->set_bones(bones);
-				kusudama_surface_tool->set_weights(weights);
-				Vector2 uv_vertex = uv_array[vertex_i];
-				kusudama_surface_tool->set_uv(uv_vertex);
-				Vector3 normal_vertex = normal_array[vertex_i];
-				kusudama_surface_tool->set_normal(normal_vertex);
-				Plane tangent_vertex;
-				tangent_vertex.normal.x = tangent_array[vertex_i + 0];
-				tangent_vertex.normal.y = tangent_array[vertex_i + 1];
-				tangent_vertex.normal.z = tangent_array[vertex_i + 2];
-				tangent_vertex.d = tangent_array[vertex_i + 3];
-				kusudama_surface_tool->set_tangent(tangent_vertex);
-				kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).xform(sphere_vertex));
+				p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 			}
-			for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
-				int32_t index = index_array[index_i];
-				kusudama_surface_tool->add_index(index);
-			}
-
-			p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
-
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
 		}

@@ -230,7 +230,7 @@ public:
 	 */
 	void add_limit_cone_at_index(int insert_at, Vector3 new_point, double radius);
 
-	virtual double to_tau(double angle);
+	static double to_tau(double angle);
 
 	virtual double mod(double x, double y);
 
@@ -298,7 +298,7 @@ public:
 
 	double rotational_freedom = 1;
 
-	Quaternion quaternion_unnormalized(Vector3 u, Vector3 v);
+	static Quaternion quaternion_unnormalized(Vector3 u, Vector3 v);
 
 	virtual void update_rotational_freedom();
 protected:
