@@ -291,7 +291,7 @@ void EWBIKSkeleton3DEditor::edit_mode_toggled(const bool pressed) {
 	_update_gizmo_visible();
 }
 
-EWBIKSkeleton3DEditor::EWBIKSkeleton3DEditor(EWBIKEditorInspectorPluginSkeleton *e_plugin, Skeleton3D *p_skeleton) :
+EWBIKSkeleton3DEditor::EWBIKSkeleton3DEditor(Skeleton3D *p_skeleton) :
 		skeleton(p_skeleton) {
 	singleton = this;
 
@@ -469,18 +469,6 @@ EWBIKSkeleton3DEditor::~EWBIKSkeleton3DEditor() {
 		ne->remove_control_from_menu_panel(edit_mode_button);
 		memdelete(edit_mode_button);
 	}
-}
-
-bool EWBIKEditorInspectorPluginSkeleton::can_handle(Object *p_object) {
-	return Object::cast_to<Skeleton3D>(p_object) != nullptr;
-}
-
-void EWBIKEditorInspectorPluginSkeleton::parse_begin(Object *p_object) {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_object);
-	ERR_FAIL_COND(!skeleton);
-
-	skel_editor = memnew(EWBIKSkeleton3DEditor(this, skeleton));
-	add_custom_control(skel_editor);
 }
 
 EWBIKSkeleton3DEditorPlugin::EWBIKSkeleton3DEditorPlugin() {

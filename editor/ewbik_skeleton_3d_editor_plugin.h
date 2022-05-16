@@ -40,7 +40,6 @@
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/immediate_mesh.h"
 
-class EWBIKEditorInspectorPluginSkeleton;
 class Joint;
 class PhysicalBone3D;
 class EWBIKSkeleton3DEditorPlugin;
@@ -129,26 +128,12 @@ public:
 	Quaternion get_bone_original_rotation() const { return bone_original_rotation; };
 	Vector3 get_bone_original_scale() const { return bone_original_scale; };
 
-	EWBIKSkeleton3DEditor(EWBIKEditorInspectorPluginSkeleton *e_plugin, Skeleton3D *skeleton);
+	EWBIKSkeleton3DEditor(Skeleton3D *skeleton);
 	~EWBIKSkeleton3DEditor();
-};
-
-class EWBIKEditorInspectorPluginSkeleton : public EditorInspectorPlugin {
-	GDCLASS(EWBIKEditorInspectorPluginSkeleton, EditorInspectorPlugin);
-
-	friend class EWBIKSkeleton3DEditorPlugin;
-
-	EWBIKSkeleton3DEditor *skel_editor = nullptr;
-
-public:
-	virtual bool can_handle(Object *p_object) override;
-	virtual void parse_begin(Object *p_object) override;
 };
 
 class EWBIKSkeleton3DEditorPlugin : public EditorPlugin {
 	GDCLASS(EWBIKSkeleton3DEditorPlugin, EditorPlugin);
-
-	EWBIKEditorInspectorPluginSkeleton *skeleton_plugin = nullptr;
 
 public:
 	virtual EditorPlugin::AfterGUIInput forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) override;
