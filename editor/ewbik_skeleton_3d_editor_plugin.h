@@ -81,7 +81,6 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 	EditorFileDialog *file_export_lib = nullptr;
 
 	void create_editors();
-	void update_editors();
 
 	void init_pose(const bool p_all_bones);
 	void pose_to_rest(const bool p_all_bones);

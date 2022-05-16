@@ -266,7 +266,6 @@ void EWBIKSkeleton3DEditor::_notification(int p_what) {
 		}
 		case NOTIFICATION_ENTER_TREE: {
 			create_editors();
-			update_editors();
 #ifdef TOOLS_ENABLED
 			skeleton->connect("pose_updated", callable_mp(this, &EWBIKSkeleton3DEditor::_draw_gizmo));
 			skeleton->connect("bone_enabled_changed", callable_mp(this, &EWBIKSkeleton3DEditor::_bone_enabled_changed));
@@ -348,81 +347,6 @@ void EWBIKSkeleton3DEditor::update_bone_original() {
 	bone_original_position = skeleton->get_bone_pose_position(selected_bone);
 	bone_original_rotation = skeleton->get_bone_pose_rotation(selected_bone);
 	bone_original_scale = skeleton->get_bone_pose_scale(selected_bone);
-}
-
-void EWBIKSkeleton3DEditor::update_editors() {
-	int current_bone_index = 0;
-	Vector<int> bones_to_process = skeleton->get_parentless_bones();
-	for (int32_t child_i = 0; child_i < label_mesh_origin->get_child_count(); child_i++) {
-		Label3D *label = cast_to<Label3D>(label_mesh_origin->get_child(child_i));
-		if (label) {
-			label->queue_delete();
-		}
-	}
-	Vector3 current_bone;
-	while (bones_to_process.size() > current_bone_index) {
-		int current_bone_idx = bones_to_process[current_bone_index];
-		current_bone_index++;
-		Vector<int> child_bones_vector;
-		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
-		int child_bones_size = child_bones_vector.size();
-		int child_bone_idx = -1;
-		for (int i = 0; i < child_bones_size; i++) {
-			if (child_bones_vector[i] < 0) {
-				// Something wrong.
-				continue;
-			}
-			child_bone_idx = child_bones_vector[i];
-			Label3D *label_mesh = memnew(Label3D);
-			float snap = 0.1;
-			float x_angle = 0.0f;
-			{
-				Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_X];
-				Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_X];
-				Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
-				Vector3 x_axis = Vector3(1.0, 0.0, 0.0);
-				Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, x_axis);
-				x_angle = decomposed[1].get_angle();
-				x_angle = Math::rad2deg(x_angle) + snap * 0.5; // else it won't reach +180
-				x_angle -= Math::fmod(x_angle, snap);
-			}
-			float z_angle = 0.0f;
-			{
-				Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_Z];
-				Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_Z];
-				Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
-				Vector3 z_axis = Vector3(0.0, 0.0, 1.0);
-				Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, z_axis);
-				z_angle = decomposed[1].get_angle();
-				z_angle = Math::rad2deg(z_angle) + snap * 0.5; // else it won't reach +180
-				z_angle -= Math::fmod(z_angle, snap);
-			}
-			float y_angle = 0.0f;
-			{
-				Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_Y];
-				Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_Y];
-				Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
-				Vector3 y_axis = Vector3(0.0, 1.0, 0.0);
-				Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, y_axis);
-				y_angle = decomposed[1].get_angle();
-				y_angle = Math::rad2deg(y_angle) + snap * 0.5; // else it won't reach +180
-				y_angle -= Math::fmod(y_angle, snap);
-			}
-			label_mesh->set_text(
-					vformat(String("Rotating %s\nX %s degrees\nY %s degrees\nTwist %s degrees"),
-							skeleton->get_bone_name(current_bone_idx),
-							String::num(x_angle, Math::range_step_decimals(snap)),
-							String::num(y_angle, Math::range_step_decimals(snap)),
-							String::num(z_angle, Math::range_step_decimals(snap))));
-			label_mesh->set_font_size(8);
-			label_mesh_origin->add_child(label_mesh);
-			Transform3D xform = skeleton->get_bone_global_pose(current_bone_idx);
-			xform.basis = Basis();
-			label_mesh_origin->set_transform(xform);
-			// Add the bone's children to the list of bones to be processed.
-			bones_to_process.push_back(child_bones_vector[i]);
-		}
-	}
 }
 
 void EWBIKSkeleton3DEditor::_draw_gizmo() {
