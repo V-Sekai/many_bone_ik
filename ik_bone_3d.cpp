@@ -89,6 +89,7 @@ void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 		return;
 	}
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
+	xform = p_skeleton->get_global_transform() * xform;
 	set_global_pose(xform);
 }
 

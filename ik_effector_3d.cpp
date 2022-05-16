@@ -75,7 +75,9 @@ void IKEffector3D::update_target_global_pose(Skeleton3D *p_skeleton) {
 	if (!current_target_node || !current_target_node->is_inside_tree()) {
 		return;
 	}
-	target_global_pose = current_target_node->get_global_transform();
+	Transform3D node_to_root = current_target_node->get_relative_transform(current_target_node->get_owner());
+	Transform3D skeleton_to_root = p_skeleton->get_relative_transform(current_target_node->get_owner());
+	target_global_pose = skeleton_to_root.affine_inverse() * node_to_root;
 }
 
 Transform3D IKEffector3D::get_target_global_pose() const {
