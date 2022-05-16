@@ -36,7 +36,7 @@ IKKusudama::IKKusudama() {
 
 IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
 	this->_attached_to = for_bone;
-	this->_limiting_axes->set_global_transform(for_bone->get_global_transform());
+	this->_limiting_axes->set_global_transform(for_bone->get_global_pose());
 	this->_attached_to->addConstraint(this);
 	this->enable();
 }
@@ -163,7 +163,7 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	 */
 }
 
-bool IKKusudama::is_in_global_transform_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes) {
+bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes) {
 	Vector<double> in_bounds = { 1 };
 	Vector3 local_point = _limiting_axes->to_local(global_axes->get_global_transform().basis[Vector3::AXIS_Y]);
 	Vector3 in_limits = _local_point_in_limits(local_point, in_bounds, IKKusudama::CUSHION);
@@ -455,7 +455,7 @@ Vector3 IKKusudama::_local_point_in_limits(Vector3 in_point, Vector<double> &in_
 }
 
 Quaternion IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
-	bool is_bound = is_in_global_transform_orientation_limits(to_set, limiting_axes);
+	bool is_bound = is_in_global_pose_orientation_limits(to_set, limiting_axes);
 	if (is_bound) {
 		return Quaternion();
 	}
