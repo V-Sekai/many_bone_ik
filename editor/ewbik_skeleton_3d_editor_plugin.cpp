@@ -870,7 +870,6 @@ void EWBIKSkeleton3DEditor::_draw_gizmo() {
 						Vector3 x_axis = Vector3(1.0, 0.0, 0.0);
 						Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, x_axis);
 						x_angle = decomposed[1].get_angle();
-						x_angle = IKKusudama::to_tau(x_angle);
 						x_angle = Math::rad2deg(x_angle) + snap * 0.5; // else it won't reach +180
 						x_angle -= Math::fmod(x_angle, snap);
 					}
@@ -882,7 +881,6 @@ void EWBIKSkeleton3DEditor::_draw_gizmo() {
 						Vector3 z_axis = Vector3(0.0, 0.0, 1.0);
 						Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, z_axis);
 						z_angle = decomposed[1].get_angle();
-						z_angle = IKKusudama::to_tau(z_angle);
 						z_angle = Math::rad2deg(z_angle) + snap * 0.5; // else it won't reach +180
 						z_angle -= Math::fmod(z_angle, snap);
 					}
@@ -894,7 +892,6 @@ void EWBIKSkeleton3DEditor::_draw_gizmo() {
 						Vector3 y_axis = Vector3(0.0, 1.0, 0.0);
 						Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, y_axis);
 						y_angle = decomposed[1].get_angle();
-						y_angle = IKKusudama::to_tau(y_angle);
 						y_angle = Math::rad2deg(y_angle) + snap * 0.5; // else it won't reach +180
 						y_angle -= Math::fmod(y_angle, snap);
 					}
