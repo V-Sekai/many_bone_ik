@@ -257,8 +257,8 @@ void IKBoneChain::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Ar
 			p_for_bone->get_ik_transform()->rotate_local_with_global(twist_snap);
 		}
 	}
-	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
-	p_for_bone->set_global_pose(result);
+	Transform3D result = Transform3D(p_for_bone->get_global_transform().basis, p_for_bone->get_global_transform().origin + translation);
+	p_for_bone->set_global_transform(result);
 }
 
 void IKBoneChain::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_target_headings) {

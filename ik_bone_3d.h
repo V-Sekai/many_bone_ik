@@ -81,8 +81,8 @@ public:
 	Ref<IKEffector3D> get_pin() const;
 	void set_pose(const Transform3D &p_transform);
 	Transform3D get_pose() const;
-	void set_global_pose(const Transform3D &p_transform);
-	Transform3D get_global_pose() const;
+	void set_global_transform(const Transform3D &p_transform);
+	Transform3D get_global_transform() const;
 	void set_initial_pose(Skeleton3D *p_skeleton);
 	void set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength);
 	void create_pin();

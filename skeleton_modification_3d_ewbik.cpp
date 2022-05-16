@@ -282,7 +282,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 		}
 		bone->set_initial_pose(skeleton);
 		if (bone->is_pinned()) {
-			bone->get_pin()->update_target_global_pose(skeleton);
+			bone->get_pin()->update_target_global_transform(skeleton);
 		}
 	}
 }
@@ -718,7 +718,7 @@ void SkeletonModification3DEWBIK::check_shadow_bones_transform() {
 		}
 		bone->set_initial_pose(skeleton);
 		if (bone->is_pinned()) {
-			bone->get_pin()->update_target_global_pose(skeleton);
+			bone->get_pin()->update_target_global_transform(skeleton);
 		}
 	}
 }

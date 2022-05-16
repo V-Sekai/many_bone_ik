@@ -73,13 +73,13 @@ Transform3D IKBone3D::get_pose() const {
 	return xform->get_transform();
 }
 
-void IKBone3D::set_global_pose(const Transform3D &p_transform) {
+void IKBone3D::set_global_transform(const Transform3D &p_transform) {
 	xform->set_global_transform(p_transform);
 	constraint_transform->local_transform.origin = xform->local_transform.origin;
 	constraint_transform->_propagate_transform_changed();
 }
 
-Transform3D IKBone3D::get_global_pose() const {
+Transform3D IKBone3D::get_global_transform() const {
 	return xform->get_global_transform();
 }
 
@@ -90,7 +90,7 @@ void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	}
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
 	xform = p_skeleton->get_global_transform() * xform;
-	set_global_pose(xform);
+	set_global_transform(xform);
 }
 
 void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {

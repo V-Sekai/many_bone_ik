@@ -49,7 +49,7 @@ class IKEffector3D : public Resource {
 	ObjectID target_node_cache;
 	Node *target_node_reference = nullptr;
 
-	Transform3D target_global_pose;
+	Transform3D target_global_transform;
 	int32_t num_headings = 7;
 	real_t depth_falloff = 0.0;
 	real_t weight = 1.0;
@@ -64,13 +64,13 @@ protected:
 
 public:
 	void update_cache_target(Skeleton3D *p_skeleton);
-	void update_target_global_pose(Skeleton3D *p_skeleton);
+	void update_target_global_transform(Skeleton3D *p_skeleton);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
 	void set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
-	Transform3D get_target_global_pose() const;
+	Transform3D get_target_global_transform() const;
 	void set_target_node_rotation(bool p_use);
 	bool get_target_node_rotation() const;
 	Ref<IKBone3D> get_shadow_bone() const;
