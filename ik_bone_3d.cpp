@@ -88,8 +88,8 @@ void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	if (bone_id == -1) {
 		return;
 	}
-	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
-	set_global_pose(xform);
+	Transform3D xform = p_skeleton->get_bone_pose(bone_id);
+	set_pose(xform);
 }
 
 void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {

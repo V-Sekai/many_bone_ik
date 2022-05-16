@@ -76,7 +76,6 @@ void IKEffector3D::update_target_global_pose(Skeleton3D *p_skeleton) {
 		return;
 	}
 	target_global_pose = current_target_node->get_global_transform();
-	target_global_pose = p_skeleton->world_transform_to_global_pose(target_global_pose);
 }
 
 Transform3D IKEffector3D::get_target_global_pose() const {
