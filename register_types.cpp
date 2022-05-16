@@ -46,7 +46,7 @@ void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(SkeletonModification3DEWBIK);
 		GDREGISTER_CLASS(IKBone3D);
 		GDREGISTER_CLASS(IKEffector3D);
-		GDREGISTER_CLASS(IKBoneChain);
+		GDREGISTER_CLASS(IKBoneSegment);
 		GDREGISTER_CLASS(IKKusudama);
 	}
 #ifdef TOOLS_ENABLED

@@ -234,7 +234,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	}
 	InspectorDock::get_inspector_singleton()->connect("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty));
 #endif
-	segmented_skeleton = Ref<IKBoneChain>(memnew(IKBoneChain(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
+	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
 	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
 	segmented_skeleton->generate_default_segments_from_root(pins);
 	bone_list.clear();

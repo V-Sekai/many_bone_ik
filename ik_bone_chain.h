@@ -43,14 +43,14 @@ class IKEffector3D;
 class IKBone3D;
 class LimitCone;
 
-class IKBoneChain : public Resource {
-	GDCLASS(IKBoneChain, Resource);
+class IKBoneSegment : public Resource {
+	GDCLASS(IKBoneSegment, Resource);
 
 	Ref<IKBone3D> root;
 	Ref<IKBone3D> tip;
 	Vector<Ref<IKBone3D>> bones;
-	Vector<Ref<IKBoneChain>> child_segments; // Contains only direct child chains that end with effectors or have child that end with effectors
-	Ref<IKBoneChain> parent_segment;
+	Vector<Ref<IKBoneSegment>> child_segments; // Contains only direct child chains that end with effectors or have child that end with effectors
+	Ref<IKBoneSegment> parent_segment;
 	Vector<Ref<IKEffector3D>> effector_list;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
@@ -104,18 +104,18 @@ public:
 #endif
 		return y;
 	}
-	Ref<IKBoneChain> get_parent_segment();
+	Ref<IKBoneSegment> get_parent_segment();
 	void segment_solver(real_t p_damp);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_pinned() const;
-	Vector<Ref<IKBoneChain>> get_child_segments() const;
+	Vector<Ref<IKBoneSegment>> get_child_segments() const;
 	void set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins);
 	void update_pinned_list();
-	IKBoneChain() {}
-	IKBoneChain(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneChain> &p_parent = nullptr);
-	~IKBoneChain() {}
+	IKBoneSegment() {}
+	IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent = nullptr);
+	~IKBoneSegment() {}
 };
 
 #endif // ik_bone_chain_H

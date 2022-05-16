@@ -347,10 +347,10 @@ LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusuda
 	tangent_circle_center_next_2 = (tangent_circle_center_next_1 * -1);
 
 	this->radius = MAX(DBL_TRUE_MIN, rad);
-	this->radius_cosine = IKBoneChain::cos(radius);
+	this->radius_cosine = IKBoneSegment::cos(radius);
 	double adjustedCushion = MIN(1, MAX(0.001, cushion));
 	this->cushion_radius = this->radius * adjustedCushion;
-	this->cushion_cosine = IKBoneChain::cos(cushion_radius);
+	this->cushion_cosine = IKBoneSegment::cos(cushion_radius);
 	parent_kusudama = attached_to;
 }
 LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to) {

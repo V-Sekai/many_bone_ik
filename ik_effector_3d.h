@@ -41,7 +41,7 @@ class IKBone3D;
 class IKEffector3D : public Resource {
 	GDCLASS(IKEffector3D, Resource);
 	friend class IKBone3D;
-	friend class IKBoneChain;
+	friend class IKBoneSegment;
 
 	Ref<IKBone3D> for_bone;
 	bool use_target_node_rotation = true;
