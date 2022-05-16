@@ -698,40 +698,6 @@ String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
 int EWBIKSkeleton3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const {
 	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
 	ERR_FAIL_COND_V(!skeleton, -1);
-
-	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
-
-	if (!se->is_edit_mode()) {
-		return -1;
-	}
-
-	if (Node3DEditor::get_singleton()->get_tool_mode() != Node3DEditor::TOOL_MODE_SELECT) {
-		return -1;
-	}
-
-	// Select bone.
-	real_t grab_threshold = 4 * EDSCALE;
-	Vector3 ray_from = p_camera->get_global_transform().origin;
-	Transform3D gt = skeleton->get_global_transform();
-	int closest_idx = -1;
-	real_t closest_dist = 1e10;
-	const int bone_len = skeleton->get_bone_count();
-	for (int i = 0; i < bone_len; i++) {
-		Vector3 joint_pos_3d = gt.xform(skeleton->get_bone_global_pose(i).origin);
-		Vector2 joint_pos_2d = p_camera->unproject_position(joint_pos_3d);
-		real_t dist_3d = ray_from.distance_to(joint_pos_3d);
-		real_t dist_2d = p_point.distance_to(joint_pos_2d);
-		if (dist_2d < grab_threshold && dist_3d < closest_dist) {
-			closest_dist = dist_3d;
-			closest_idx = i;
-		}
-	}
-
-	if (closest_idx >= 0) {
-		WARN_PRINT("ray:");
-		WARN_PRINT(itos(closest_idx));
-		return closest_idx;
-	}
 	return -1;
 }
 
