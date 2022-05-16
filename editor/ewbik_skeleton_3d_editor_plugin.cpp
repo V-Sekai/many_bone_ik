@@ -48,169 +48,6 @@
 #include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/surface_tool.h"
 
-void EWBIKBoneTransformEditor::create_editors() {
-	const Color section_color = get_theme_color(SNAME("prop_subsection"), SNAME("Editor"));
-
-	section = memnew(EditorInspectorSection);
-	section->setup("trf_properties", label, this, section_color, true);
-	section->unfold();
-	add_child(section);
-
-	enabled_checkbox = memnew(EditorPropertyCheck());
-	enabled_checkbox->set_label("Pose Enabled");
-	enabled_checkbox->set_selectable(false);
-	enabled_checkbox->connect("property_changed", callable_mp(this, &EWBIKBoneTransformEditor::_value_changed));
-	section->get_vbox()->add_child(enabled_checkbox);
-
-	// Position property.
-	position_property = memnew(EditorPropertyVector3());
-	position_property->setup(-10000, 10000, 0.001f, true);
-	position_property->set_label("Position");
-	position_property->set_selectable(false);
-	position_property->connect("property_changed", callable_mp(this, &EWBIKBoneTransformEditor::_value_changed));
-	position_property->connect("property_keyed", callable_mp(this, &EWBIKBoneTransformEditor::_property_keyed));
-	section->get_vbox()->add_child(position_property);
-
-	// Rotation property.
-	rotation_property = memnew(EditorPropertyQuaternion());
-	rotation_property->setup(-10000, 10000, 0.001f, true);
-	rotation_property->set_label("Rotation");
-	rotation_property->set_selectable(false);
-	rotation_property->connect("property_changed", callable_mp(this, &EWBIKBoneTransformEditor::_value_changed));
-	rotation_property->connect("property_keyed", callable_mp(this, &EWBIKBoneTransformEditor::_property_keyed));
-	section->get_vbox()->add_child(rotation_property);
-
-	// Scale property.
-	scale_property = memnew(EditorPropertyVector3());
-	scale_property->setup(-10000, 10000, 0.001f, true);
-	scale_property->set_label("Scale");
-	scale_property->set_selectable(false);
-	scale_property->connect("property_changed", callable_mp(this, &EWBIKBoneTransformEditor::_value_changed));
-	scale_property->connect("property_keyed", callable_mp(this, &EWBIKBoneTransformEditor::_property_keyed));
-	section->get_vbox()->add_child(scale_property);
-
-	// Transform/Matrix section.
-	rest_section = memnew(EditorInspectorSection);
-	rest_section->setup("trf_properties_transform", "Rest", this, section_color, true);
-	section->get_vbox()->add_child(rest_section);
-
-	// Transform/Matrix property.
-	rest_matrix = memnew(EditorPropertyTransform3D());
-	rest_matrix->setup(-10000, 10000, 0.001f, true);
-	rest_matrix->set_label("Transform");
-	rest_matrix->set_selectable(false);
-	rest_section->get_vbox()->add_child(rest_matrix);
-}
-
-void EWBIKBoneTransformEditor::_notification(int p_what) {
-	switch (p_what) {
-		case NOTIFICATION_ENTER_TREE: {
-			create_editors();
-		} break;
-	}
-}
-
-void EWBIKBoneTransformEditor::_value_changed(const String &p_property, Variant p_value, const String &p_name, bool p_changing) {
-	if (updating) {
-		return;
-	}
-	if (skeleton) {
-		undo_redo->create_action(TTR("Set Bone Transform"), UndoRedo::MERGE_ENDS);
-		undo_redo->add_undo_property(skeleton, p_property, skeleton->get(p_property));
-		undo_redo->add_do_property(skeleton, p_property, p_value);
-		undo_redo->commit_action();
-	}
-}
-
-EWBIKBoneTransformEditor::EWBIKBoneTransformEditor(Skeleton3D *p_skeleton) :
-		skeleton(p_skeleton) {
-	undo_redo = EditorNode::get_undo_redo();
-}
-
-void EWBIKBoneTransformEditor::set_keyable(const bool p_keyable) {
-	position_property->set_keying(p_keyable);
-	rotation_property->set_keying(p_keyable);
-	scale_property->set_keying(p_keyable);
-}
-
-void EWBIKBoneTransformEditor::set_target(const String &p_prop) {
-	enabled_checkbox->set_object_and_property(skeleton, p_prop + "enabled");
-	enabled_checkbox->update_property();
-
-	position_property->set_object_and_property(skeleton, p_prop + "position");
-	position_property->update_property();
-
-	rotation_property->set_object_and_property(skeleton, p_prop + "rotation");
-	rotation_property->update_property();
-
-	scale_property->set_object_and_property(skeleton, p_prop + "scale");
-	scale_property->update_property();
-
-	rest_matrix->set_object_and_property(skeleton, p_prop + "rest");
-	rest_matrix->update_property();
-}
-
-void EWBIKBoneTransformEditor::_property_keyed(const String &p_path, bool p_advance) {
-	AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
-	if (!te->has_keying()) {
-		return;
-	}
-	PackedStringArray split = p_path.split("/");
-	if (split.size() == 3 && split[0] == "pins") {
-		int bone_idx = split[1].to_int();
-		if (split[2] == "position") {
-			te->insert_transform_key(skeleton, skeleton->get_bone_name(bone_idx), Animation::TYPE_POSITION_3D, skeleton->get(p_path));
-		}
-		if (split[2] == "rotation") {
-			te->insert_transform_key(skeleton, skeleton->get_bone_name(bone_idx), Animation::TYPE_ROTATION_3D, skeleton->get(p_path));
-		}
-		if (split[2] == "scale") {
-			te->insert_transform_key(skeleton, skeleton->get_bone_name(bone_idx), Animation::TYPE_SCALE_3D, skeleton->get(p_path));
-		}
-	}
-}
-
-void EWBIKBoneTransformEditor::_update_properties() {
-	if (!skeleton) {
-		return;
-	}
-	int selected = EWBIKSkeleton3DEditor::get_singleton()->get_selected_bone();
-	List<PropertyInfo> props;
-	skeleton->get_property_list(&props);
-	for (const PropertyInfo &E : props) {
-		PackedStringArray split = E.name.split("/");
-		if (split.size() == 3 && split[0] == "pins") {
-			if (split[1].to_int() == selected) {
-				if (split[2] == "enabled") {
-					enabled_checkbox->set_read_only(E.usage & PROPERTY_USAGE_READ_ONLY);
-					enabled_checkbox->update_property();
-					enabled_checkbox->update();
-				}
-				if (split[2] == "position") {
-					position_property->set_read_only(E.usage & PROPERTY_USAGE_READ_ONLY);
-					position_property->update_property();
-					position_property->update();
-				}
-				if (split[2] == "rotation") {
-					rotation_property->set_read_only(E.usage & PROPERTY_USAGE_READ_ONLY);
-					rotation_property->update_property();
-					rotation_property->update();
-				}
-				if (split[2] == "scale") {
-					scale_property->set_read_only(E.usage & PROPERTY_USAGE_READ_ONLY);
-					scale_property->update_property();
-					scale_property->update();
-				}
-				if (split[2] == "rest") {
-					rest_matrix->set_read_only(E.usage & PROPERTY_USAGE_READ_ONLY);
-					rest_matrix->update_property();
-					rest_matrix->update();
-				}
-			}
-		}
-	}
-}
-
 EWBIKSkeleton3DEditor *EWBIKSkeleton3DEditor::singleton = nullptr;
 
 void EWBIKSkeleton3DEditor::set_keyable(const bool p_keyable) {
@@ -420,170 +257,8 @@ PhysicalBone3D *EWBIKSkeleton3DEditor::create_physical_bone(int bone_id, int bon
 	return physical_bone;
 }
 
-Variant EWBIKSkeleton3DEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
-	TreeItem *selected = joint_tree->get_selected();
-
-	if (!selected) {
-		return Variant();
-	}
-
-	Ref<Texture> icon = selected->get_icon(0);
-
-	VBoxContainer *vb = memnew(VBoxContainer);
-	HBoxContainer *hb = memnew(HBoxContainer);
-	TextureRect *tf = memnew(TextureRect);
-	tf->set_texture(icon);
-	tf->set_stretch_mode(TextureRect::STRETCH_KEEP_CENTERED);
-	hb->add_child(tf);
-	Label *label = memnew(Label(selected->get_text(0)));
-	hb->add_child(label);
-	vb->add_child(hb);
-	hb->set_modulate(Color(1, 1, 1, 1));
-
-	set_drag_preview(vb);
-	Dictionary drag_data;
-	drag_data["type"] = "nodes";
-	drag_data["node"] = selected;
-
-	return drag_data;
-}
-
-bool EWBIKSkeleton3DEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
-	TreeItem *target = joint_tree->get_item_at_position(p_point);
-	if (!target) {
-		return false;
-	}
-
-	const String path = target->get_metadata(0);
-	if (!path.begins_with("bones/")) {
-		return false;
-	}
-
-	TreeItem *selected = Object::cast_to<TreeItem>(Dictionary(p_data)["node"]);
-	if (target == selected) {
-		return false;
-	}
-
-	const String path2 = target->get_metadata(0);
-	if (!path2.begins_with("bones/")) {
-		return false;
-	}
-
-	return true;
-}
-
-void EWBIKSkeleton3DEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
-	if (!can_drop_data_fw(p_point, p_data, p_from)) {
-		return;
-	}
-
-	TreeItem *target = joint_tree->get_item_at_position(p_point);
-	TreeItem *selected = Object::cast_to<TreeItem>(Dictionary(p_data)["node"]);
-
-	const BoneId target_boneidx = String(target->get_metadata(0)).get_slicec('/', 1).to_int();
-	const BoneId selected_boneidx = String(selected->get_metadata(0)).get_slicec('/', 1).to_int();
-
-	move_skeleton_bone(skeleton->get_path(), selected_boneidx, target_boneidx);
-}
-
-void EWBIKSkeleton3DEditor::move_skeleton_bone(NodePath p_skeleton_path, int32_t p_selected_boneidx, int32_t p_target_boneidx) {
-	Node *node = get_node_or_null(p_skeleton_path);
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(node);
-	ERR_FAIL_NULL(skeleton);
-	UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-	ur->create_action(TTR("Set Bone Parentage"));
-	// If the target is a child of ourselves, we move only *us* and not our children.
-	if (skeleton->is_bone_parent_of(p_target_boneidx, p_selected_boneidx)) {
-		const BoneId parent_idx = skeleton->get_bone_parent(p_selected_boneidx);
-		const int bone_count = skeleton->get_bone_count();
-		for (BoneId i = 0; i < bone_count; ++i) {
-			if (skeleton->get_bone_parent(i) == p_selected_boneidx) {
-				ur->add_undo_method(skeleton, "set_bone_parent", i, skeleton->get_bone_parent(i));
-				ur->add_do_method(skeleton, "set_bone_parent", i, parent_idx);
-				skeleton->set_bone_parent(i, parent_idx);
-			}
-		}
-	}
-	ur->add_undo_method(skeleton, "set_bone_parent", p_selected_boneidx, skeleton->get_bone_parent(p_selected_boneidx));
-	ur->add_do_method(skeleton, "set_bone_parent", p_selected_boneidx, p_target_boneidx);
-	skeleton->set_bone_parent(p_selected_boneidx, p_target_boneidx);
-
-	update_joint_tree();
-	ur->commit_action();
-}
-
-void EWBIKSkeleton3DEditor::_joint_tree_selection_changed() {
-	TreeItem *selected = joint_tree->get_selected();
-	if (selected) {
-		const String path = selected->get_metadata(0);
-		if (!path.begins_with("bones/")) {
-			return;
-		}
-		const int b_idx = path.get_slicec('/', 1).to_int();
-		selected_bone = b_idx;
-		if (pose_editor) {
-			const String bone_path = "bones/" + itos(b_idx) + "/";
-			pose_editor->set_target(bone_path);
-			pose_editor->set_keyable(keyable);
-		}
-	}
-
-	if (pose_editor && pose_editor->is_inside_tree()) {
-		pose_editor->set_visible(selected);
-	}
-	_update_properties();
-	_update_gizmo_visible();
-}
-
-// May be not used with single select mode.
-void EWBIKSkeleton3DEditor::_joint_tree_rmb_select(const Vector2 &p_pos) {
-}
-
 void EWBIKSkeleton3DEditor::_update_properties() {
-	if (pose_editor) {
-		pose_editor->_update_properties();
-	}
 	Node3DEditor::get_singleton()->update_transform_gizmo();
-}
-
-void EWBIKSkeleton3DEditor::update_joint_tree() {
-	joint_tree->clear();
-
-	if (!skeleton) {
-		return;
-	}
-
-	TreeItem *root = joint_tree->create_item();
-
-	Map<int, TreeItem *> items;
-
-	items.insert(-1, root);
-
-	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
-
-	Vector<int> bones_to_process = skeleton->get_parentless_bones();
-	while (bones_to_process.size() > 0) {
-		int current_bone_idx = bones_to_process[0];
-		bones_to_process.erase(current_bone_idx);
-
-		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
-		TreeItem *parent_item = items.find(parent_idx)->get();
-
-		TreeItem *joint_item = joint_tree->create_item(parent_item);
-		items.insert(current_bone_idx, joint_item);
-
-		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
-		joint_item->set_icon(0, bone_icon);
-		joint_item->set_selectable(0, true);
-		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
-
-		// Add the bone's children to the list of bones to be processed.
-		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
-		int child_bone_size = current_bone_child_bones.size();
-		for (int i = 0; i < child_bone_size; i++) {
-			bones_to_process.push_back(current_bone_child_bones[i]);
-		}
-	}
 }
 
 void EWBIKSkeleton3DEditor::update_editors() {
@@ -678,22 +353,6 @@ void EWBIKSkeleton3DEditor::create_editors() {
 	s_con->set_custom_minimum_size(Size2(1, 350) * EDSCALE);
 	bones_section->get_vbox()->add_child(s_con);
 
-	joint_tree = memnew(Tree);
-	joint_tree->set_columns(1);
-	joint_tree->set_focus_mode(Control::FOCUS_NONE);
-	joint_tree->set_select_mode(Tree::SELECT_SINGLE);
-	joint_tree->set_hide_root(true);
-	joint_tree->set_v_size_flags(SIZE_EXPAND_FILL);
-	joint_tree->set_h_size_flags(SIZE_EXPAND_FILL);
-	joint_tree->set_allow_rmb_select(true);
-	joint_tree->set_drag_forwarding(this);
-	s_con->add_child(joint_tree);
-
-	pose_editor = memnew(EWBIKBoneTransformEditor(skeleton));
-	pose_editor->set_label(TTR("Bone Transform"));
-	pose_editor->set_visible(false);
-	add_child(pose_editor);
-
 	set_keyable(te->has_keying());
 }
 
@@ -711,10 +370,7 @@ void EWBIKSkeleton3DEditor::_notification(int p_what) {
 		}
 		case NOTIFICATION_ENTER_TREE: {
 			create_editors();
-			update_joint_tree();
 			update_editors();
-			joint_tree->connect("item_selected", callable_mp(this, &EWBIKSkeleton3DEditor::_joint_tree_selection_changed));
-			joint_tree->connect("item_rmb_selected", callable_mp(this, &EWBIKSkeleton3DEditor::_joint_tree_rmb_select));
 #ifdef TOOLS_ENABLED
 			skeleton->connect("pose_updated", callable_mp(this, &EWBIKSkeleton3DEditor::_draw_gizmo));
 			skeleton->connect("pose_updated", callable_mp(this, &EWBIKSkeleton3DEditor::_update_properties));
@@ -736,15 +392,7 @@ void EWBIKSkeleton3DEditor::_node_removed(Node *p_node) {
 
 void EWBIKSkeleton3DEditor::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_node_removed"), &EWBIKSkeleton3DEditor::_node_removed);
-	ClassDB::bind_method(D_METHOD("_joint_tree_selection_changed"), &EWBIKSkeleton3DEditor::_joint_tree_selection_changed);
-	ClassDB::bind_method(D_METHOD("_joint_tree_rmb_select"), &EWBIKSkeleton3DEditor::_joint_tree_rmb_select);
 	ClassDB::bind_method(D_METHOD("_update_properties"), &EWBIKSkeleton3DEditor::_update_properties);
-
-	ClassDB::bind_method(D_METHOD("get_drag_data_fw"), &EWBIKSkeleton3DEditor::get_drag_data_fw);
-	ClassDB::bind_method(D_METHOD("can_drop_data_fw"), &EWBIKSkeleton3DEditor::can_drop_data_fw);
-	ClassDB::bind_method(D_METHOD("drop_data_fw"), &EWBIKSkeleton3DEditor::drop_data_fw);
-
-	ClassDB::bind_method(D_METHOD("move_skeleton_bone"), &EWBIKSkeleton3DEditor::move_skeleton_bone);
 
 	ClassDB::bind_method(D_METHOD("_draw_gizmo"), &EWBIKSkeleton3DEditor::_draw_gizmo);
 }
@@ -755,7 +403,6 @@ void EWBIKSkeleton3DEditor::edit_mode_toggled(const bool pressed) {
 }
 
 EWBIKSkeleton3DEditor::EWBIKSkeleton3DEditor(EWBIKEditorInspectorPluginSkeleton *e_plugin, Skeleton3D *p_skeleton) :
-		editor_plugin(e_plugin),
 		skeleton(p_skeleton) {
 	singleton = this;
 
@@ -836,8 +483,6 @@ void EWBIKSkeleton3DEditor::_draw_gizmo() {
 	{
 		int current_bone_index = 0;
 		Vector<int> bones_to_process = skeleton->get_parentless_bones();
-		Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
-		Color selected_bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/selected_bone");
 		for (int32_t child_i = 0; child_i < label_mesh_origin->get_child_count(); child_i++) {
 			Label3D *label = cast_to<Label3D>(label_mesh_origin->get_child(child_i));
 			if (label) {
@@ -848,7 +493,6 @@ void EWBIKSkeleton3DEditor::_draw_gizmo() {
 		while (bones_to_process.size() > current_bone_index) {
 			int current_bone_idx = bones_to_process[current_bone_index];
 			current_bone_index++;
-			Color current_bone_color = (current_bone_idx == selected_bone) ? selected_bone_color : bone_color;
 			Vector<int> child_bones_vector;
 			child_bones_vector = skeleton->get_bone_children(current_bone_idx);
 			int child_bones_size = child_bones_vector.size();
@@ -994,36 +638,8 @@ void EWBIKSkeleton3DEditor::_subgizmo_selection_change() {
 	}
 }
 
-void EWBIKSkeleton3DEditor::select_bone(int p_idx) {
-	if (p_idx >= 0) {
-		TreeItem *ti = _find(joint_tree->get_root(), "pins/" + itos(p_idx));
-		if (ti) {
-			// Make visible when it's collapsed.
-			TreeItem *node = ti->get_parent();
-			while (node && node != joint_tree->get_root()) {
-				node->set_collapsed(false);
-				node = node->get_parent();
-			}
-			ti->select(0);
-			joint_tree->scroll_to_item(ti);
-		}
-	} else {
-		selected_bone = -1;
-		joint_tree->deselect_all();
-		_joint_tree_selection_changed();
-	}
-}
-
 EWBIKSkeleton3DEditor::~EWBIKSkeleton3DEditor() {
 	if (skeleton) {
-		select_bone(-1);
-#ifdef TOOLS_ENABLED
-		skeleton->disconnect("show_rest_only_changed", callable_mp(this, &EWBIKSkeleton3DEditor::_update_gizmo_visible));
-		skeleton->disconnect("bone_enabled_changed", callable_mp(this, &EWBIKSkeleton3DEditor::_bone_enabled_changed));
-		skeleton->disconnect("pose_updated", callable_mp(this, &EWBIKSkeleton3DEditor::_draw_gizmo));
-		skeleton->disconnect("pose_updated", callable_mp(this, &EWBIKSkeleton3DEditor::_update_properties));
-		skeleton->set_transform_gizmo_visible(true);
-#endif
 		handles_mesh_instance->get_parent()->remove_child(handles_mesh_instance);
 		label_mesh_origin->get_parent()->remove_child(label_mesh_origin);
 	}
@@ -1063,31 +679,11 @@ void EWBIKEditorInspectorPluginSkeleton::parse_begin(Object *p_object) {
 }
 
 EWBIKSkeleton3DEditorPlugin::EWBIKSkeleton3DEditorPlugin() {
-	// TODO: fire 2022-05-16 restore skeleton inspector.
-	// skeleton_plugin = memnew(EWBIKEditorInspectorPluginSkeleton);
-	// EditorInspector::add_inspector_plugin(skeleton_plugin);
-
 	Ref<EWBIKSkeleton3DGizmoPlugin> gizmo_plugin = Ref<EWBIKSkeleton3DGizmoPlugin>(memnew(EWBIKSkeleton3DGizmoPlugin));
 	Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
 }
 
 EditorPlugin::AfterGUIInput EWBIKSkeleton3DEditorPlugin::forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
-	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
-	Node3DEditor *ne = Node3DEditor::get_singleton();
-	if (se->is_edit_mode()) {
-		const Ref<InputEventMouseButton> mb = p_event;
-		if (mb.is_valid() && mb->get_button_index() == MouseButton::LEFT) {
-			if (ne->get_tool_mode() != Node3DEditor::TOOL_MODE_SELECT) {
-				if (!ne->is_gizmo_visible()) {
-					return EditorPlugin::AFTER_GUI_INPUT_STOP;
-				}
-			}
-			if (mb->is_pressed()) {
-				se->update_bone_original();
-			}
-		}
-		return EditorPlugin::AFTER_GUI_INPUT_DESELECT;
-	}
 	return EditorPlugin::AFTER_GUI_INPUT_PASS;
 }
 
@@ -1385,11 +981,8 @@ int EWBIKSkeleton3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo 
 	if (closest_idx >= 0) {
 		WARN_PRINT("ray:");
 		WARN_PRINT(itos(closest_idx));
-		se->select_bone(closest_idx);
 		return closest_idx;
 	}
-
-	se->select_bone(-1);
 	return -1;
 }
 

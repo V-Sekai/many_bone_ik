@@ -46,51 +46,6 @@ class PhysicalBone3D;
 class EWBIKSkeleton3DEditorPlugin;
 class Button;
 
-class EWBIKBoneTransformEditor : public VBoxContainer {
-	GDCLASS(EWBIKBoneTransformEditor, VBoxContainer);
-
-	EditorInspectorSection *section = nullptr;
-
-	EditorPropertyCheck *enabled_checkbox = nullptr;
-	EditorPropertyVector3 *position_property = nullptr;
-	EditorPropertyQuaternion *rotation_property = nullptr;
-	EditorPropertyVector3 *scale_property = nullptr;
-
-	EditorInspectorSection *rest_section = nullptr;
-	EditorPropertyTransform3D *rest_matrix = nullptr;
-
-	Rect2 background_rects[5];
-
-	Skeleton3D *skeleton = nullptr;
-	// String property;
-
-	UndoRedo *undo_redo = nullptr;
-
-	bool toggle_enabled = false;
-	bool updating = false;
-
-	String label;
-
-	void create_editors();
-
-	void _value_changed(const String &p_property, Variant p_value, const String &p_name, bool p_changing);
-
-	void _property_keyed(const String &p_path, bool p_advance);
-
-protected:
-	void _notification(int p_what);
-
-public:
-	EWBIKBoneTransformEditor(Skeleton3D *p_skeleton);
-
-	// Which transform target to modify.
-	void set_target(const String &p_prop);
-	void set_label(const String &p_label) { label = p_label; }
-	void set_keyable(const bool p_keyable);
-
-	void _update_properties();
-};
-
 class EWBIKSkeleton3DEditor : public VBoxContainer {
 	GDCLASS(EWBIKSkeleton3DEditor, VBoxContainer);
 
@@ -100,14 +55,7 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 		PhysicalBone3D *physical_bone = nullptr;
 		Transform3D relative_rest; // Relative to skeleton node.
 	};
-
-	EWBIKEditorInspectorPluginSkeleton *editor_plugin = nullptr;
-
 	Skeleton3D *skeleton = nullptr;
-
-	Tree *joint_tree = nullptr;
-	EWBIKBoneTransformEditor *rest_editor = nullptr;
-	EWBIKBoneTransformEditor *pose_editor = nullptr;
 
 	VSeparator *separator = nullptr;
 	Button *edit_mode_button = nullptr;
@@ -132,7 +80,6 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 
 	EditorFileDialog *file_export_lib = nullptr;
 
-	void update_joint_tree();
 	void update_editors();
 
 	void create_editors();
@@ -144,10 +91,6 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 
 	void create_physical_skeleton();
 	PhysicalBone3D *create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos);
-
-	Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
-	bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
-	void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
 	void set_keyable(const bool p_keyable);
 
@@ -170,8 +113,6 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 	void _draw_gizmo();
 	void _draw_handles();
 
-	void _joint_tree_selection_changed();
-	void _joint_tree_rmb_select(const Vector2 &p_pos);
 	void _update_properties();
 
 	void _subgizmo_selection_change();
@@ -186,11 +127,7 @@ protected:
 public:
 	static EWBIKSkeleton3DEditor *get_singleton() { return singleton; }
 
-	void select_bone(int p_idx);
-
 	int get_selected_bone() const;
-
-	void move_skeleton_bone(NodePath p_skeleton_path, int32_t p_selected_boneidx, int32_t p_target_boneidx);
 
 	Skeleton3D *get_skeleton() const { return skeleton; };
 
