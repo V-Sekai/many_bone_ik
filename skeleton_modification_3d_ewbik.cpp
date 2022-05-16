@@ -29,7 +29,6 @@
 /*************************************************************************/
 
 #include "skeleton_modification_3d_ewbik.h"
-#include "core/templates/map.h"
 #include "ik_bone_3d.h"
 
 #ifdef TOOLS_ENABLED
