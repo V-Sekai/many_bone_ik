@@ -80,17 +80,13 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 
 	EditorFileDialog *file_export_lib = nullptr;
 
-	void update_editors();
-
 	void create_editors();
+	void update_editors();
 
 	void init_pose(const bool p_all_bones);
 	void pose_to_rest(const bool p_all_bones);
 
 	void insert_keys(const bool p_all_bones);
-
-	void create_physical_skeleton();
-	PhysicalBone3D *create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos);
 
 	void set_keyable(const bool p_keyable);
 
@@ -108,12 +104,8 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 	void _update_gizmo_visible();
 	void _bone_enabled_changed(const int p_bone_id);
 
-	void _hide_handles();
-
 	void _draw_gizmo();
 	void _draw_handles();
-
-	void _update_properties();
 
 	void _subgizmo_selection_change();
 

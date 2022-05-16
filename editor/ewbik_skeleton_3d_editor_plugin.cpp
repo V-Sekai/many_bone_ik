@@ -160,110 +160,6 @@ void EWBIKSkeleton3DEditor::pose_to_rest(const bool p_all_bones) {
 	ur->commit_action();
 }
 
-void EWBIKSkeleton3DEditor::create_physical_skeleton() {
-	UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-	ERR_FAIL_COND(!get_tree());
-	Node *owner = get_tree()->get_edited_scene_root();
-
-	const int bc = skeleton->get_bone_count();
-
-	if (!bc) {
-		return;
-	}
-
-	Vector<BoneInfo> bones_infos;
-	bones_infos.resize(bc);
-
-	if (bc > 0) {
-		ur->create_action(TTR("Create physical bones"), UndoRedo::MERGE_ALL);
-		for (int bone_id = 0; bc > bone_id; ++bone_id) {
-			const int parent = skeleton->get_bone_parent(bone_id);
-
-			if (parent < 0) {
-				bones_infos.write[bone_id].relative_rest = skeleton->get_bone_rest(bone_id);
-			} else {
-				const int parent_parent = skeleton->get_bone_parent(parent);
-
-				bones_infos.write[bone_id].relative_rest = bones_infos[parent].relative_rest * skeleton->get_bone_rest(bone_id);
-
-				// Create physical bone on parent.
-				if (!bones_infos[parent].physical_bone) {
-					PhysicalBone3D *physical_bone = create_physical_bone(parent, bone_id, bones_infos);
-					if (physical_bone && physical_bone->get_child(0)) {
-						CollisionShape3D *collision_shape = Object::cast_to<CollisionShape3D>(physical_bone->get_child(0));
-						if (collision_shape) {
-							bones_infos.write[parent].physical_bone = physical_bone;
-
-							ur->add_do_method(skeleton, "add_child", physical_bone);
-							ur->add_do_method(physical_bone, "set_owner", owner);
-							ur->add_do_method(collision_shape, "set_owner", owner);
-							ur->add_do_property(physical_bone, "bone_name", skeleton->get_bone_name(parent));
-
-							// Create joint between parent of parent.
-							if (parent_parent != -1) {
-								ur->add_do_method(physical_bone, "set_joint_type", PhysicalBone3D::JOINT_TYPE_PIN);
-							}
-
-							ur->add_do_method(Node3DEditor::get_singleton(), "_request_gizmo", physical_bone);
-							ur->add_do_method(Node3DEditor::get_singleton(), "_request_gizmo", collision_shape);
-
-							ur->add_do_reference(physical_bone);
-							ur->add_undo_method(skeleton, "remove_child", physical_bone);
-						}
-					}
-				}
-			}
-		}
-		ur->commit_action();
-	}
-}
-
-PhysicalBone3D *EWBIKSkeleton3DEditor::create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos) {
-	const Transform3D child_rest = skeleton->get_bone_rest(bone_child_id);
-
-	const real_t half_height(child_rest.origin.length() * 0.5);
-	const real_t radius(half_height * 0.2);
-
-	CapsuleShape3D *bone_shape_capsule = memnew(CapsuleShape3D);
-	bone_shape_capsule->set_height(half_height * 2);
-	bone_shape_capsule->set_radius(radius);
-
-	CollisionShape3D *bone_shape = memnew(CollisionShape3D);
-	bone_shape->set_shape(bone_shape_capsule);
-	bone_shape->set_name("CollisionShape3D");
-
-	Transform3D capsule_transform;
-	capsule_transform.basis = Basis(Vector3(1, 0, 0), Vector3(0, 0, 1), Vector3(0, -1, 0));
-	bone_shape->set_transform(capsule_transform);
-
-	/// Get an up vector not collinear with child rest origin
-	Vector3 up = Vector3(0, 1, 0);
-	if (up.cross(child_rest.origin).is_equal_approx(Vector3())) {
-		up = Vector3(0, 0, 1);
-	}
-
-	Transform3D body_transform;
-	body_transform.basis = Basis::looking_at(child_rest.origin, up);
-	body_transform.origin = body_transform.basis.xform(Vector3(0, 0, -half_height));
-
-	Transform3D joint_transform;
-	joint_transform.origin = Vector3(0, 0, half_height);
-
-	PhysicalBone3D *physical_bone = memnew(PhysicalBone3D);
-	physical_bone->add_child(bone_shape);
-	physical_bone->set_name("Physical Bone " + skeleton->get_bone_name(bone_id));
-	physical_bone->set_body_offset(body_transform);
-	physical_bone->set_joint_offset(joint_transform);
-	return physical_bone;
-}
-
-void EWBIKSkeleton3DEditor::_update_properties() {
-	Node3DEditor::get_singleton()->update_transform_gizmo();
-}
-
-void EWBIKSkeleton3DEditor::update_editors() {
-}
-
 void EWBIKSkeleton3DEditor::create_editors() {
 	set_h_size_flags(SIZE_EXPAND_FILL);
 	add_theme_constant_override("separation", 0);
@@ -287,7 +183,7 @@ void EWBIKSkeleton3DEditor::create_editors() {
 	edit_mode_button->set_tooltip(TTR("Constraint Edit Mode\nShow buttons on joint constraints."));
 	edit_mode_button->connect("toggled", callable_mp(this, &EWBIKSkeleton3DEditor::edit_mode_toggled));
 
-	edit_mode = false;
+	edit_mode = true;
 
 	if (skeleton) {
 		skeleton->add_child(handles_mesh_instance);
@@ -373,7 +269,6 @@ void EWBIKSkeleton3DEditor::_notification(int p_what) {
 			update_editors();
 #ifdef TOOLS_ENABLED
 			skeleton->connect("pose_updated", callable_mp(this, &EWBIKSkeleton3DEditor::_draw_gizmo));
-			skeleton->connect("pose_updated", callable_mp(this, &EWBIKSkeleton3DEditor::_update_properties));
 			skeleton->connect("bone_enabled_changed", callable_mp(this, &EWBIKSkeleton3DEditor::_bone_enabled_changed));
 			skeleton->connect("show_rest_only_changed", callable_mp(this, &EWBIKSkeleton3DEditor::_update_gizmo_visible));
 #endif
@@ -386,19 +281,14 @@ void EWBIKSkeleton3DEditor::_node_removed(Node *p_node) {
 	if (skeleton && p_node == skeleton) {
 		skeleton = nullptr;
 	}
-
-	_update_properties();
 }
 
 void EWBIKSkeleton3DEditor::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_node_removed"), &EWBIKSkeleton3DEditor::_node_removed);
-	ClassDB::bind_method(D_METHOD("_update_properties"), &EWBIKSkeleton3DEditor::_update_properties);
-
 	ClassDB::bind_method(D_METHOD("_draw_gizmo"), &EWBIKSkeleton3DEditor::_draw_gizmo);
 }
 
 void EWBIKSkeleton3DEditor::edit_mode_toggled(const bool pressed) {
-	edit_mode = pressed;
 	_update_gizmo_visible();
 }
 
@@ -460,8 +350,79 @@ void EWBIKSkeleton3DEditor::update_bone_original() {
 	bone_original_scale = skeleton->get_bone_pose_scale(selected_bone);
 }
 
-void EWBIKSkeleton3DEditor::_hide_handles() {
-	handles_mesh_instance->hide();
+void EWBIKSkeleton3DEditor::update_editors() {
+	int current_bone_index = 0;
+	Vector<int> bones_to_process = skeleton->get_parentless_bones();
+	for (int32_t child_i = 0; child_i < label_mesh_origin->get_child_count(); child_i++) {
+		Label3D *label = cast_to<Label3D>(label_mesh_origin->get_child(child_i));
+		if (label) {
+			label->queue_delete();
+		}
+	}
+	Vector3 current_bone;
+	while (bones_to_process.size() > current_bone_index) {
+		int current_bone_idx = bones_to_process[current_bone_index];
+		current_bone_index++;
+		Vector<int> child_bones_vector;
+		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
+		int child_bones_size = child_bones_vector.size();
+		int child_bone_idx = -1;
+		for (int i = 0; i < child_bones_size; i++) {
+			if (child_bones_vector[i] < 0) {
+				// Something wrong.
+				continue;
+			}
+			child_bone_idx = child_bones_vector[i];
+			Label3D *label_mesh = memnew(Label3D);
+			float snap = 0.1;
+			float x_angle = 0.0f;
+			{
+				Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_X];
+				Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_X];
+				Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
+				Vector3 x_axis = Vector3(1.0, 0.0, 0.0);
+				Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, x_axis);
+				x_angle = decomposed[1].get_angle();
+				x_angle = Math::rad2deg(x_angle) + snap * 0.5; // else it won't reach +180
+				x_angle -= Math::fmod(x_angle, snap);
+			}
+			float z_angle = 0.0f;
+			{
+				Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_Z];
+				Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_Z];
+				Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
+				Vector3 z_axis = Vector3(0.0, 0.0, 1.0);
+				Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, z_axis);
+				z_angle = decomposed[1].get_angle();
+				z_angle = Math::rad2deg(z_angle) + snap * 0.5; // else it won't reach +180
+				z_angle -= Math::fmod(z_angle, snap);
+			}
+			float y_angle = 0.0f;
+			{
+				Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_Y];
+				Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_Y];
+				Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
+				Vector3 y_axis = Vector3(0.0, 1.0, 0.0);
+				Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, y_axis);
+				y_angle = decomposed[1].get_angle();
+				y_angle = Math::rad2deg(y_angle) + snap * 0.5; // else it won't reach +180
+				y_angle -= Math::fmod(y_angle, snap);
+			}
+			label_mesh->set_text(
+					vformat(String("Rotating %s\nX %s degrees\nY %s degrees\nTwist %s degrees"),
+							skeleton->get_bone_name(current_bone_idx),
+							String::num(x_angle, Math::range_step_decimals(snap)),
+							String::num(y_angle, Math::range_step_decimals(snap)),
+							String::num(z_angle, Math::range_step_decimals(snap))));
+			label_mesh->set_font_size(8);
+			label_mesh_origin->add_child(label_mesh);
+			Transform3D xform = skeleton->get_bone_global_pose(current_bone_idx);
+			xform.basis = Basis();
+			label_mesh_origin->set_transform(xform);
+			// Add the bone's children to the list of bones to be processed.
+			bones_to_process.push_back(child_bones_vector[i]);
+		}
+	}
 }
 
 void EWBIKSkeleton3DEditor::_draw_gizmo() {
@@ -475,87 +436,7 @@ void EWBIKSkeleton3DEditor::_draw_gizmo() {
 	skeleton->force_update_all_dirty_bones();
 
 	// Handles.
-	if (edit_mode) {
-		_draw_handles();
-	} else {
-		_hide_handles();
-	}
-	{
-		int current_bone_index = 0;
-		Vector<int> bones_to_process = skeleton->get_parentless_bones();
-		for (int32_t child_i = 0; child_i < label_mesh_origin->get_child_count(); child_i++) {
-			Label3D *label = cast_to<Label3D>(label_mesh_origin->get_child(child_i));
-			if (label) {
-				label->queue_delete();
-			}
-		}
-		Vector3 current_bone;
-		while (bones_to_process.size() > current_bone_index) {
-			int current_bone_idx = bones_to_process[current_bone_index];
-			current_bone_index++;
-			Vector<int> child_bones_vector;
-			child_bones_vector = skeleton->get_bone_children(current_bone_idx);
-			int child_bones_size = child_bones_vector.size();
-			int child_bone_idx = -1;
-			for (int i = 0; i < child_bones_size; i++) {
-				if (child_bones_vector[i] < 0) {
-					// Something wrong.
-					continue;
-				}
-				child_bone_idx = child_bones_vector[i];
-				if (child_bone_idx == selected_bone) {
-					Label3D *label_mesh = memnew(Label3D);
-					float snap = 0.1;
-					float x_angle = 0.0f;
-					{
-						Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_X];
-						Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_X];
-						Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
-						Vector3 x_axis = Vector3(1.0, 0.0, 0.0);
-						Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, x_axis);
-						x_angle = decomposed[1].get_angle();
-						x_angle = Math::rad2deg(x_angle) + snap * 0.5; // else it won't reach +180
-						x_angle -= Math::fmod(x_angle, snap);
-					}
-					float z_angle = 0.0f;
-					{
-						Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_Z];
-						Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_Z];
-						Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
-						Vector3 z_axis = Vector3(0.0, 0.0, 1.0);
-						Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, z_axis);
-						z_angle = decomposed[1].get_angle();
-						z_angle = Math::rad2deg(z_angle) + snap * 0.5; // else it won't reach +180
-						z_angle -= Math::fmod(z_angle, snap);
-					}
-					float y_angle = 0.0f;
-					{
-						Vector3 current_bone = skeleton->get_bone_global_pose(current_bone_idx).basis[Vector3::AXIS_Y];
-						Vector3 child_bone = skeleton->get_bone_global_pose(child_bone_idx).basis[Vector3::AXIS_Y];
-						Quaternion rot = IKKusudama::quaternion_unnormalized(child_bone, current_bone);
-						Vector3 y_axis = Vector3(0.0, 1.0, 0.0);
-						Vector<Quaternion> decomposed = IKKusudama::get_swing_twist(rot, y_axis);
-						y_angle = decomposed[1].get_angle();
-						y_angle = Math::rad2deg(y_angle) + snap * 0.5; // else it won't reach +180
-						y_angle -= Math::fmod(y_angle, snap);
-					}
-					label_mesh->set_text(
-							vformat(String("Rotating %s\nX %s degrees\nY %s degrees\nTwist %s degrees"),
-									skeleton->get_bone_name(current_bone_idx),
-									String::num(x_angle, Math::range_step_decimals(snap)),
-									String::num(y_angle, Math::range_step_decimals(snap)),
-									String::num(z_angle, Math::range_step_decimals(snap))));
-					label_mesh->set_font_size(8);
-					label_mesh_origin->add_child(label_mesh);
-					Transform3D xform = skeleton->get_bone_global_pose(current_bone_idx);
-					xform.basis = Basis();
-					label_mesh_origin->set_transform(xform);
-				}
-				// Add the bone's children to the list of bones to be processed.
-				bones_to_process.push_back(child_bones_vector[i]);
-			}
-		}
-	}
+	_draw_handles();
 }
 
 void EWBIKSkeleton3DEditor::_draw_handles() {
@@ -688,11 +569,11 @@ EditorPlugin::AfterGUIInput EWBIKSkeleton3DEditorPlugin::forward_spatial_gui_inp
 }
 
 bool EWBIKSkeleton3DEditorPlugin::handles(Object *p_object) const {
-	if (!p_object->is_class("Skeleton3D")) {
-		return false;
-	}
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(p_object);
-	Ref<SkeletonModificationStack3D> stack = skeleton->get_modification_stack();
+	Ref<SkeletonModificationStack3D> stack;
+	if (skeleton) {
+		stack = skeleton->get_modification_stack();
+	}
 	if (stack.is_null()) {
 		return false;
 	}
