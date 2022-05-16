@@ -181,6 +181,13 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	if (is_dirty || segmented_skeleton.is_null()) {
 		update_skeleton();
 	}
+	if (bone_list.size()) {
+		Ref<IKTransform3D> bone_ik_transform = bone_list.write[0]->get_ik_transform();
+		ERR_FAIL_NULL(bone_ik_transform);
+		Ref<IKTransform3D> root_ik_transform = bone_ik_transform->get_parent();
+		ERR_FAIL_NULL(root_ik_transform);
+		root_ik_transform->set_global_transform(skeleton->get_global_transform());
+	}
 	update_shadow_bones_transform();
 	double time_ms = OS::get_singleton()->get_ticks_msec() + get_time_budget_millisecond();
 	ik_iterations = 0;
@@ -275,7 +282,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 		}
 		bone->set_initial_pose(skeleton);
 		if (bone->is_pinned()) {
-			bone->get_pin()->update_target_global_pose(skeleton);
+			bone->get_pin()->update_target_global_transform(skeleton);
 		}
 	}
 }
@@ -711,7 +718,7 @@ void SkeletonModification3DEWBIK::check_shadow_bones_transform() {
 		}
 		bone->set_initial_pose(skeleton);
 		if (bone->is_pinned()) {
-			bone->get_pin()->update_target_global_pose(skeleton);
+			bone->get_pin()->update_target_global_transform(skeleton);
 		}
 	}
 }
