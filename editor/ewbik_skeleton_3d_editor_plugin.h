@@ -128,7 +128,6 @@ public:
 	Quaternion get_bone_original_rotation() const { return bone_original_rotation; };
 	Vector3 get_bone_original_scale() const { return bone_original_scale; };
 
-	EWBIKSkeleton3DEditor(Skeleton3D *skeleton);
 	~EWBIKSkeleton3DEditor();
 };
 
