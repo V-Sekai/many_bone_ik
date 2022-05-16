@@ -699,17 +699,19 @@ bool EWBIKSkeleton3DEditorPlugin::handles(Object *p_object) const {
 	if (!stack->get_modification_count()) {
 		return false;
 	}
+	bool found = false;
 	for (int32_t count_i = 0; count_i < stack->get_modification_count(); count_i++) {
 		Ref<SkeletonModification3D> mod = stack->get_modification(count_i);
 		if (mod.is_null()) {
 			continue;
 		}
 		if (!mod->is_class("SkeletonModification3DEWBIK")) {
-			return false;
+			continue;
 		}
-		return true;
+		found = true;
+		break;
 	}
-	return false;
+	return found;
 }
 
 void EWBIKSkeleton3DEditor::_bone_enabled_changed(const int p_bone_id) {
