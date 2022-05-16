@@ -493,7 +493,6 @@ Quaternion IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, R
 }
 
 void IKKusudama::set_axes_to_soft_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
-	get_axes_to_orientation_snap(to_set, limiting_axes, cos_half_angle_dampen);
 }
 
 Quaternion IKKusudama::quaternion_unnormalized(Vector3 u, Vector3 v) {
