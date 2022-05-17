@@ -273,10 +273,262 @@ EWBIKSkeleton3DGizmoPlugin::EWBIKSkeleton3DGizmoPlugin() {
 	unselected_mat->set_flag(StandardMaterial3D::FLAG_SRGB_VERTEX_COLOR, true);
 
 	selected_mat = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+}
 
-	kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
-	Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
-	kusudama_shader->set_code(R"(
+bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
+	if (!Object::cast_to<Skeleton3D>(p_spatial)) {
+		return false;
+	}
+	return true;
+}
+
+String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
+	return "Skeleton3D";
+}
+
+int EWBIKSkeleton3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const {
+	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
+	ERR_FAIL_COND_V(!skeleton, -1);
+	return -1;
+}
+
+Transform3D EWBIKSkeleton3DGizmoPlugin::get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const {
+	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
+	ERR_FAIL_COND_V(!skeleton, Transform3D());
+
+	return skeleton->get_bone_global_pose(p_id);
+}
+
+void EWBIKSkeleton3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) {
+	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
+	ERR_FAIL_COND(!skeleton);
+
+	// Prepare for global to local.
+	Transform3D original_to_local = Transform3D();
+	int parent_idx = skeleton->get_bone_parent(p_id);
+	if (parent_idx >= 0) {
+		original_to_local = original_to_local * skeleton->get_bone_global_pose(parent_idx);
+	}
+	Basis to_local = original_to_local.get_basis().inverse();
+
+	// Prepare transform.
+	Transform3D t = Transform3D();
+
+	// Basis.
+	t.basis = to_local * p_transform.get_basis();
+
+	// Origin.
+	Vector3 orig = skeleton->get_bone_pose(p_id).origin;
+	Vector3 sub = p_transform.origin - skeleton->get_bone_global_pose(p_id).origin;
+	t.origin = orig + to_local.xform(sub);
+
+	// Apply transform.
+	skeleton->set_bone_pose_position(p_id, t.origin);
+	skeleton->set_bone_pose_rotation(p_id, t.basis.get_rotation_quaternion());
+	skeleton->set_bone_pose_scale(p_id, t.basis.get_scale());
+}
+
+void EWBIKSkeleton3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) {
+	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
+	ERR_FAIL_COND(!skeleton);
+
+	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
+	Node3DEditor *ne = Node3DEditor::get_singleton();
+
+	UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
+	ur->create_action(TTR("Set Bone Transform"));
+	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_MOVE) {
+		for (int i = 0; i < p_ids.size(); i++) {
+			ur->add_do_method(skeleton, "set_bone_pose_position", p_ids[i], skeleton->get_bone_pose_position(p_ids[i]));
+			ur->add_undo_method(skeleton, "set_bone_pose_position", p_ids[i], se->get_bone_original_position());
+		}
+	}
+	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE) {
+		for (int i = 0; i < p_ids.size(); i++) {
+			ur->add_do_method(skeleton, "set_bone_pose_rotation", p_ids[i], skeleton->get_bone_pose_rotation(p_ids[i]));
+			ur->add_undo_method(skeleton, "set_bone_pose_rotation", p_ids[i], se->get_bone_original_rotation());
+		}
+	}
+	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SCALE) {
+		for (int i = 0; i < p_ids.size(); i++) {
+			// If the axis is swapped by scaling, the rotation can be changed.
+			ur->add_do_method(skeleton, "set_bone_pose_rotation", p_ids[i], skeleton->get_bone_pose_rotation(p_ids[i]));
+			ur->add_undo_method(skeleton, "set_bone_pose_rotation", p_ids[i], se->get_bone_original_rotation());
+			ur->add_do_method(skeleton, "set_bone_pose_scale", p_ids[i], skeleton->get_bone_pose_scale(p_ids[i]));
+			ur->add_undo_method(skeleton, "set_bone_pose_scale", p_ids[i], se->get_bone_original_scale());
+		}
+	}
+	ur->commit_action();
+}
+
+void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
+	HashMap<int32_t, HashMap<int32_t, Vector<float>>> modification_kusudama_constraint;
+	Ref<SkeletonModificationStack3D> stack;
+	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
+	if (skeleton) {
+		stack = skeleton->get_modification_stack();
+	}
+	if (stack.is_valid()) {
+		for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
+			Ref<SkeletonModification3D> modification = stack->get_modification(modification_i);
+			if (modification.is_null()) {
+				continue;
+			}
+			Ref<SkeletonModification3DEWBIK> ewbik_modification = modification;
+			if (ewbik_modification.is_null()) {
+				continue;
+			}
+			int32_t constraint_count = ewbik_modification->get_constraint_count();
+			HashMap<int32_t, Vector<float>> kusudama_constraint;
+			for (int32_t constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
+				Vector<float> cone_constraint;
+				for (int32_t cone_i = 0; cone_i < ewbik_modification->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+					Vector3 center = ewbik_modification->get_kusudama_limit_cone_center(constraint_i, cone_i);
+					Vector<float> cone;
+					cone.resize(4);
+					cone.write[0] = center.x;
+					cone.write[1] = center.y;
+					cone.write[2] = center.z;
+					float radius = ewbik_modification->get_kusudama_limit_cone_radius(constraint_i, cone_i);
+					cone.write[3] = radius;
+					cone_constraint.append_array(cone);
+				}
+				kusudama_constraint[constraint_i] = cone_constraint;
+			}
+			modification_kusudama_constraint[modification_i] = kusudama_constraint;
+			break;
+		}
+	}
+	p_gizmo->clear();
+
+	int selected = -1;
+	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
+	if (se) {
+		selected = se->get_selected_bone();
+	}
+
+	Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
+	Color selected_bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/selected_bone");
+	int bone_shape = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_settings/bone_shape");
+
+	Ref<SurfaceTool> surface_tool(memnew(SurfaceTool));
+	surface_tool->begin(Mesh::PRIMITIVE_LINES);
+
+	if (p_gizmo->is_selected()) {
+		surface_tool->set_material(selected_mat);
+	} else {
+		unselected_mat->set_albedo(bone_color);
+		surface_tool->set_material(unselected_mat);
+	}
+
+	LocalVector<int> bones;
+	LocalVector<float> weights;
+	bones.resize(4);
+	weights.resize(4);
+	for (int i = 0; i < 4; i++) {
+		bones[i] = 0;
+		weights[i] = 0;
+	}
+	weights[0] = 1;
+
+	int current_bone_index = 0;
+	Vector<int> bones_to_process = skeleton->get_parentless_bones();
+
+	while (bones_to_process.size() > current_bone_index) {
+		int current_bone_idx = bones_to_process[current_bone_index];
+		current_bone_index++;
+
+		Color current_bone_color = (current_bone_idx == selected) ? selected_bone_color : bone_color;
+
+		Vector<int> child_bones_vector;
+		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
+		int child_bones_size = child_bones_vector.size();
+		for (int i = 0; i < child_bones_size; i++) {
+			// Something wrong.
+			if (child_bones_vector[i] < 0) {
+				continue;
+			}
+			int child_bone_idx = child_bones_vector[i];
+			Vector3 v0 = skeleton->get_bone_global_rest(current_bone_idx).origin;
+			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
+			Vector3 d = (v1 - v0).normalized();
+			real_t dist = v0.distance_to(v1);
+
+			// Find closest axis.
+			int closest = -1;
+			real_t closest_d = 0.0;
+			for (int j = 0; j < 3; j++) {
+				real_t dp = Math::abs(skeleton->get_bone_global_rest(current_bone_idx).basis[j].normalized().dot(d));
+				if (j == 0 || dp > closest_d) {
+					closest = j;
+				}
+			}
+			// Draw bone.
+			switch (bone_shape) {
+				case 0: { // Wire shape.
+					bones[0] = current_bone_idx;
+					bones[0] = child_bone_idx;
+				} break;
+
+				case 1: { // Octahedron shape.
+					Vector3 first;
+					for (int j = 0; j < 3; j++) {
+						Vector3 axis;
+						if (first == Vector3()) {
+							axis = d.cross(d.cross(skeleton->get_bone_global_rest(current_bone_idx).basis[j])).normalized();
+							first = axis;
+						} else {
+							axis = d.cross(first).normalized();
+						}
+						for (int k = 0; k < 2; k++) {
+							if (k == 1) {
+								axis = -axis;
+							}
+							bones[0] = current_bone_idx;
+							bones[0] = child_bone_idx;
+						}
+					}
+					bones[0] = current_bone_idx;
+				} break;
+			}
+
+			// Axis as root of the bone.
+			for (int j = 0; j < 3; j++) {
+				bones[0] = current_bone_idx;
+				if (j == closest) {
+					continue;
+				}
+			}
+
+			// Axis at the end of the bone children.
+			if (i == child_bones_size - 1) {
+				for (int j = 0; j < 3; j++) {
+					bones[0] = child_bone_idx;
+					if (j == closest) {
+						continue;
+					}
+				}
+			}
+			// Todo: Try some other modification;
+			HashMap<int32_t, Vector<float>> current_kusudama_constraint = modification_kusudama_constraint[0];
+			Ref<SkeletonModification3DEWBIK> modification = stack->get_modification(0);
+			String bone_name = skeleton->get_bone_name(current_bone_idx);
+			BoneId constraint_id = modification->find_effector_id(bone_name);
+			if (modification.is_valid() && current_kusudama_constraint.has(constraint_id)) {
+				Ref<SphereMesh> sphere_mesh;
+				sphere_mesh.instantiate();
+				sphere_mesh->set_radius(dist / 8.0f);
+				sphere_mesh->set_height(dist / 4.0f);
+				PackedFloat32Array kusudama_limit_cones;
+				kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
+				kusudama_limit_cones.fill(0.0f);
+				Vector<float> limit_cones = current_kusudama_constraint[constraint_id];
+				for (int32_t value_i = 0; value_i < limit_cones.size(); value_i++) {
+					kusudama_limit_cones.write[value_i] = limit_cones[value_i];
+				}
+				Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+				Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
+				kusudama_shader->set_code(R"(
 // Skeleton 3D gizmo kusudama constraint shader.
 shader_type spatial;
 render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
@@ -449,313 +701,44 @@ void fragment() {
 	ALPHA = resultColorAllowed.a;
 }
 )");
-	kusudama_material->set_shader(kusudama_shader);
-}
-
-bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	if (!Object::cast_to<Skeleton3D>(p_spatial)) {
-		return false;
-	}
-	return true;
-}
-
-String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
-	return "Skeleton3D";
-}
-
-int EWBIKSkeleton3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
-	ERR_FAIL_COND_V(!skeleton, -1);
-	return -1;
-}
-
-Transform3D EWBIKSkeleton3DGizmoPlugin::get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
-	ERR_FAIL_COND_V(!skeleton, Transform3D());
-
-	return skeleton->get_bone_global_pose(p_id);
-}
-
-void EWBIKSkeleton3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
-	ERR_FAIL_COND(!skeleton);
-
-	// Prepare for global to local.
-	Transform3D original_to_local = Transform3D();
-	int parent_idx = skeleton->get_bone_parent(p_id);
-	if (parent_idx >= 0) {
-		original_to_local = original_to_local * skeleton->get_bone_global_pose(parent_idx);
-	}
-	Basis to_local = original_to_local.get_basis().inverse();
-
-	// Prepare transform.
-	Transform3D t = Transform3D();
-
-	// Basis.
-	t.basis = to_local * p_transform.get_basis();
-
-	// Origin.
-	Vector3 orig = skeleton->get_bone_pose(p_id).origin;
-	Vector3 sub = p_transform.origin - skeleton->get_bone_global_pose(p_id).origin;
-	t.origin = orig + to_local.xform(sub);
-
-	// Apply transform.
-	skeleton->set_bone_pose_position(p_id, t.origin);
-	skeleton->set_bone_pose_rotation(p_id, t.basis.get_rotation_quaternion());
-	skeleton->set_bone_pose_scale(p_id, t.basis.get_scale());
-}
-
-void EWBIKSkeleton3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
-	ERR_FAIL_COND(!skeleton);
-
-	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
-	Node3DEditor *ne = Node3DEditor::get_singleton();
-
-	UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-	ur->create_action(TTR("Set Bone Transform"));
-	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_MOVE) {
-		for (int i = 0; i < p_ids.size(); i++) {
-			ur->add_do_method(skeleton, "set_bone_pose_position", p_ids[i], skeleton->get_bone_pose_position(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_position", p_ids[i], se->get_bone_original_position());
-		}
-	}
-	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE) {
-		for (int i = 0; i < p_ids.size(); i++) {
-			ur->add_do_method(skeleton, "set_bone_pose_rotation", p_ids[i], skeleton->get_bone_pose_rotation(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_rotation", p_ids[i], se->get_bone_original_rotation());
-		}
-	}
-	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SCALE) {
-		for (int i = 0; i < p_ids.size(); i++) {
-			// If the axis is swapped by scaling, the rotation can be changed.
-			ur->add_do_method(skeleton, "set_bone_pose_rotation", p_ids[i], skeleton->get_bone_pose_rotation(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_rotation", p_ids[i], se->get_bone_original_rotation());
-			ur->add_do_method(skeleton, "set_bone_pose_scale", p_ids[i], skeleton->get_bone_pose_scale(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_scale", p_ids[i], se->get_bone_original_scale());
-		}
-	}
-	ur->commit_action();
-}
-
-void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
-	HashMap<int32_t, Vector<Vector<float>>> modification_kusudama_constraint;
-	Ref<SkeletonModificationStack3D> stack;
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
-	if (skeleton) {
-		stack = skeleton->get_modification_stack();
-	}
-	if (stack.is_valid()) {
-		for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
-			Ref<SkeletonModification3D> modification = stack->get_modification(modification_i);
-			if (modification.is_null()) {
-				continue;
-			}
-			Ref<SkeletonModification3DEWBIK> ewbik_modification = modification;
-			if (ewbik_modification.is_null()) {
-				continue;
-			}
-			int32_t pin_count = ewbik_modification->get_pin_count();
-			Vector<Vector<float>> kusudama_constraint;
-			kusudama_constraint.resize(KUSUDAMA_MAX_CONES);
-			for (int32_t pin_i = 0; pin_i < pin_count; pin_i++) {
-				String bone_name = ewbik_modification->get_pin_bone_name(pin_i);
-				BoneId bone = skeleton->find_bone(bone_name);
-				int32_t limit_cone_count = 0;
-				if (bone != -1) {
-					limit_cone_count = ewbik_modification->get_kusudama_limit_cone_count(bone);
+				kusudama_material->set_shader(kusudama_shader);
+				kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
+				kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
+				Ref<SurfaceTool> kusudama_surface_tool;
+				kusudama_surface_tool.instantiate();
+				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+				kusudama_surface_tool->create_from(sphere_mesh, 0);
+				Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
+				kusudama_surface_tool->clear();
+				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+				Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
+				PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
+				PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
+				PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
+				PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
+				for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
+					Vector3 sphere_vertex = vertex_array[vertex_i];
+					kusudama_surface_tool->set_color(current_bone_color);
+					kusudama_surface_tool->set_bones(bones);
+					kusudama_surface_tool->set_weights(weights);
+					Vector2 uv_vertex = uv_array[vertex_i];
+					kusudama_surface_tool->set_uv(uv_vertex);
+					Vector3 normal_vertex = normal_array[vertex_i];
+					kusudama_surface_tool->set_normal(normal_vertex);
+					Plane tangent_vertex;
+					tangent_vertex.normal.x = tangent_array[vertex_i + 0];
+					tangent_vertex.normal.y = tangent_array[vertex_i + 1];
+					tangent_vertex.normal.z = tangent_array[vertex_i + 2];
+					tangent_vertex.d = tangent_array[vertex_i + 3];
+					kusudama_surface_tool->set_tangent(tangent_vertex);
+					kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).xform(sphere_vertex));
 				}
-				if (!limit_cone_count) {
-					continue;
+				for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
+					int32_t index = index_array[index_i];
+					kusudama_surface_tool->add_index(index);
 				}
-				Vector<float> cone_constraint;
-				cone_constraint.resize(limit_cone_count);
-				for (int32_t cone_i = 0; cone_i < limit_cone_count; cone_i++) {
-					Vector<float> cone;
-					cone.resize(4);
-					Vector3 center = ewbik_modification->get_kusudama_limit_cone_center(bone, cone_i);
-					cone.write[0] = center.x;
-					cone.write[1] = center.y;
-					cone.write[2] = center.z;
-					float radius = ewbik_modification->get_kusudama_limit_cone_radius(bone, cone_i);
-					cone.write[3] = radius;
-					kusudama_constraint.write[cone_i] = cone;
-				}
+				p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material->duplicate(true), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 			}
-			modification_kusudama_constraint[modification_i] = kusudama_constraint;
-		}
-	}
-	p_gizmo->clear();
-
-	int selected = -1;
-	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
-	if (se) {
-		selected = se->get_selected_bone();
-	}
-
-	Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
-	Color selected_bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/selected_bone");
-	int bone_shape = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_settings/bone_shape");
-
-	Ref<SurfaceTool> surface_tool(memnew(SurfaceTool));
-	surface_tool->begin(Mesh::PRIMITIVE_LINES);
-
-	if (p_gizmo->is_selected()) {
-		surface_tool->set_material(selected_mat);
-	} else {
-		unselected_mat->set_albedo(bone_color);
-		surface_tool->set_material(unselected_mat);
-	}
-
-	LocalVector<int> bones;
-	LocalVector<float> weights;
-	bones.resize(4);
-	weights.resize(4);
-	for (int i = 0; i < 4; i++) {
-		bones[i] = 0;
-		weights[i] = 0;
-	}
-	weights[0] = 1;
-
-	int current_bone_index = 0;
-	Vector<int> bones_to_process = skeleton->get_parentless_bones();
-
-	while (bones_to_process.size() > current_bone_index) {
-		int current_bone_idx = bones_to_process[current_bone_index];
-		current_bone_index++;
-
-		Color current_bone_color = (current_bone_idx == selected) ? selected_bone_color : bone_color;
-
-		Vector<int> child_bones_vector;
-		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
-		int child_bones_size = child_bones_vector.size();
-		for (int i = 0; i < child_bones_size; i++) {
-			// Something wrong.
-			if (child_bones_vector[i] < 0) {
-				continue;
-			}
-			int child_bone_idx = child_bones_vector[i];
-			Vector3 v0 = skeleton->get_bone_global_rest(current_bone_idx).origin;
-			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
-			Vector3 d = (v1 - v0).normalized();
-			real_t dist = v0.distance_to(v1);
-
-			// Find closest axis.
-			int closest = -1;
-			real_t closest_d = 0.0;
-			for (int j = 0; j < 3; j++) {
-				real_t dp = Math::abs(skeleton->get_bone_global_rest(current_bone_idx).basis[j].normalized().dot(d));
-				if (j == 0 || dp > closest_d) {
-					closest = j;
-				}
-			}
-			// Draw bone.
-			switch (bone_shape) {
-				case 0: { // Wire shape.
-					bones[0] = current_bone_idx;
-					bones[0] = child_bone_idx;
-				} break;
-
-				case 1: { // Octahedron shape.
-					Vector3 first;
-					for (int j = 0; j < 3; j++) {
-						Vector3 axis;
-						if (first == Vector3()) {
-							axis = d.cross(d.cross(skeleton->get_bone_global_rest(current_bone_idx).basis[j])).normalized();
-							first = axis;
-						} else {
-							axis = d.cross(first).normalized();
-						}
-						for (int k = 0; k < 2; k++) {
-							if (k == 1) {
-								axis = -axis;
-							}
-							bones[0] = current_bone_idx;
-							bones[0] = child_bone_idx;
-						}
-					}
-					bones[0] = current_bone_idx;
-				} break;
-			}
-
-			// Axis as root of the bone.
-			for (int j = 0; j < 3; j++) {
-				bones[0] = current_bone_idx;
-				if (j == closest) {
-					continue;
-				}
-			}
-
-			// Axis at the end of the bone children.
-			if (i == child_bones_size - 1) {
-				for (int j = 0; j < 3; j++) {
-					bones[0] = child_bone_idx;
-					if (j == closest) {
-						continue;
-					}
-				}
-			}
-			Ref<SphereMesh> sphere_mesh;
-			sphere_mesh.instantiate();
-			sphere_mesh->set_radius(dist / 8.0f);
-			sphere_mesh->set_height(dist / 4.0f);
-			PackedFloat32Array kusudama_limit_cones;
-			kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
-			kusudama_limit_cones.fill(0.0f);
-			if (stack.is_valid()) {
-				for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
-					Vector<Vector<float>> kusudama = modification_kusudama_constraint[modification_i];
-					for (int32_t kusudama_i = 0; kusudama_i < kusudama.size(); kusudama_i++) {
-						Vector<float> cone = kusudama[kusudama_i];
-						for (int32_t cone_i = 0; cone_i < cone.size(); cone_i++) {
-							if (cone.size() != 4) {
-								continue;
-							}
-							float parameter = cone[cone_i];
-							kusudama_limit_cones.write[cone_i * kusudama_i + cone_i] = parameter;
-						}
-					}
-					break;
-				}
-			}
-			kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
-			kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
-			Ref<SurfaceTool> kusudama_surface_tool;
-			kusudama_surface_tool.instantiate();
-			kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-			kusudama_surface_tool->create_from(sphere_mesh, 0);
-			Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
-			kusudama_surface_tool->clear();
-			kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-			Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
-			PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
-			PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
-			PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
-			PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
-			for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
-				Vector3 sphere_vertex = vertex_array[vertex_i];
-				kusudama_surface_tool->set_color(current_bone_color);
-				kusudama_surface_tool->set_bones(bones);
-				kusudama_surface_tool->set_weights(weights);
-				Vector2 uv_vertex = uv_array[vertex_i];
-				kusudama_surface_tool->set_uv(uv_vertex);
-				Vector3 normal_vertex = normal_array[vertex_i];
-				kusudama_surface_tool->set_normal(normal_vertex);
-				Plane tangent_vertex;
-				tangent_vertex.normal.x = tangent_array[vertex_i + 0];
-				tangent_vertex.normal.y = tangent_array[vertex_i + 1];
-				tangent_vertex.normal.z = tangent_array[vertex_i + 2];
-				tangent_vertex.d = tangent_array[vertex_i + 3];
-				kusudama_surface_tool->set_tangent(tangent_vertex);
-				kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).xform(sphere_vertex));
-			}
-			for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
-				int32_t index = index_array[index_i];
-				kusudama_surface_tool->add_index(index);
-			}
-
-			p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material->duplicate(), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
-
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
 		}

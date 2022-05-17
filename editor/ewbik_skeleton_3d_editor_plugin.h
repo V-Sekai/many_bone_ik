@@ -114,7 +114,6 @@ class EWBIKSkeleton3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 
 	Ref<StandardMaterial3D> unselected_mat;
 	Ref<ShaderMaterial> selected_mat;
-	Ref<ShaderMaterial> kusudama_material;
 
 public:
 	const int32_t KUSUDAMA_MAX_CONES = 30;

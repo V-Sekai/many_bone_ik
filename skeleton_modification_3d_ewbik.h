@@ -45,15 +45,15 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	BoneId root_bone_index = -1;
 	Ref<IKBoneSegment> segmented_skeleton;
 	int32_t constraint_count = 0;
-	PackedStringArray constraint_names;
+	Vector<StringName> constraint_names;
 	int32_t pin_count = 0;
 	Vector<Ref<IKEffectorTemplate>> pins;
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool debug_skeleton = false;
-	PackedInt32Array kusudama_limit_cone_count;
-	PackedFloat32Array kusudana_twist;
-	Vector<PackedColorArray> kusudama_limit_cones;
+	HashMap<int32_t, int32_t> kusudama_limit_cone_count;
+	HashMap<int32_t, float> kusudana_twist;
+	HashMap<int32_t, PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float time_budget_millisecond = 0.1f;
 	int32_t ik_iterations = 10;
@@ -93,7 +93,7 @@ public:
 	}
 	virtual void _execute(real_t p_delta) override;
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
-	void add_pin(const String &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
+	void add_pin(const StringName &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
 	void remove_pin(int32_t p_index);
 	// Expose properties bound by script
 	bool get_debug_skeleton() const;
@@ -108,6 +108,14 @@ public:
 	int32_t get_pin_count() const;
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
 	String get_pin_bone_name(int32_t p_effector_index) const;
+	int32_t find_effector_id(StringName p_bone_name) {
+		for (int32_t constraint_i = 0; constraint_i < constraint_names.size(); constraint_i++) {
+			if (constraint_names[constraint_i] == p_bone_name) {
+				return constraint_i;
+			}
+		}
+		return -1;
+	}
 	void set_pin_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
 	NodePath get_pin_target_nodepath(int32_t p_pin_index);
 	void set_pin_depth_falloff(int32_t p_effector_index, const float p_depth_falloff);
@@ -122,12 +130,12 @@ public:
 	float get_kusudama_twist(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
-	Vector3 get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const;
-	float get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const;
-	void set_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index, Vector3 p_center);
-	void set_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index, float p_radius);
-	int32_t get_kusudama_limit_cone_count(int32_t p_bone) const;
-	void set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count);
+	Vector3 get_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index) const;
+	float get_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index) const;
+	void set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center);
+	void set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius);
+	int32_t get_kusudama_limit_cone_count(int32_t p_effector_index) const;
+	void set_kusudama_limit_cone_count(int32_t p_effector_index, int32_t p_count);
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
 };
