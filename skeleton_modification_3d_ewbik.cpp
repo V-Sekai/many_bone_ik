@@ -286,8 +286,10 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			Ref<IKKusudama> constraint;
 			constraint.instantiate();
 			// TODO: fire 2022-05-17
-			constraint->enable_axial_limits();
-			constraint->set_axial_limits(0.0f, Math_TAU);
+			if (false) {
+				constraint->enable_axial_limits();
+				constraint->set_axial_limits(0.0f, Math_TAU);
+			}
 			if (get_kusudama_limit_cone_count(constraint_i)) {
 				constraint->enable_orientational_limits();
 			}
