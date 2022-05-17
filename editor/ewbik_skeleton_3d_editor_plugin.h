@@ -55,31 +55,12 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 		Transform3D relative_rest; // Relative to skeleton node.
 	};
 	Skeleton3D *skeleton = nullptr;
-
-	VSeparator *separator = nullptr;
-	Button *edit_mode_button = nullptr;
-	bool edit_mode = false;
-
-	HBoxContainer *animation_hb = nullptr;
-	Button *key_loc_button = nullptr;
-	Button *key_rot_button = nullptr;
-	Button *key_scale_button = nullptr;
-	Button *key_insert_button = nullptr;
-	Button *key_insert_all_button = nullptr;
-
-	EditorFileDialog *file_dialog = nullptr;
-
-	bool keyable = false;
-
 	static EWBIKSkeleton3DEditor *singleton;
 
 	void _file_selected(const String &p_file);
 	TreeItem *_find(TreeItem *p_node, const NodePath &p_path);
-	void edit_mode_toggled(const bool pressed);
 
 	EditorFileDialog *file_export_lib = nullptr;
-
-	void create_editors();
 
 	void init_pose(const bool p_all_bones);
 	void pose_to_rest(const bool p_all_bones);
@@ -88,22 +69,9 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 
 	void set_keyable(const bool p_keyable);
 
-	// Handle.
-	MeshInstance3D *handles_mesh_instance = nullptr;
-	Label3D *label_mesh_origin = nullptr;
-	Ref<ImmediateMesh> handles_mesh;
-	Ref<ShaderMaterial> handle_material;
-	Ref<Shader> handle_shader;
-
 	Vector3 bone_original_position;
 	Quaternion bone_original_rotation;
 	Vector3 bone_original_scale;
-
-	void _update_gizmo_visible();
-	void _bone_enabled_changed(const int p_bone_id);
-
-	void _draw_gizmo();
-	void _draw_handles();
 
 	void _subgizmo_selection_change();
 
@@ -120,9 +88,6 @@ public:
 	int get_selected_bone() const;
 
 	Skeleton3D *get_skeleton() const { return skeleton; };
-
-	bool is_edit_mode() const { return edit_mode; }
-
 	void update_bone_original();
 	Vector3 get_bone_original_position() const { return bone_original_position; };
 	Quaternion get_bone_original_rotation() const { return bone_original_rotation; };
@@ -149,7 +114,6 @@ class EWBIKSkeleton3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 
 	Ref<StandardMaterial3D> unselected_mat;
 	Ref<ShaderMaterial> selected_mat;
-	Ref<Shader> selected_sh;
 	Ref<ShaderMaterial> kusudama_material;
 
 public:

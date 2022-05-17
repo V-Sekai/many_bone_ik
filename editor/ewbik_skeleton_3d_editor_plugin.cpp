@@ -50,15 +50,6 @@
 
 EWBIKSkeleton3DEditor *EWBIKSkeleton3DEditor::singleton = nullptr;
 
-void EWBIKSkeleton3DEditor::set_keyable(const bool p_keyable) {
-	keyable = p_keyable;
-	if (p_keyable) {
-		animation_hb->show();
-	} else {
-		animation_hb->hide();
-	}
-};
-
 void EWBIKSkeleton3DEditor::init_pose(const bool p_all_bones) {
 	if (!skeleton) {
 		return;
@@ -102,10 +93,6 @@ void EWBIKSkeleton3DEditor::insert_keys(const bool p_all_bones) {
 		return;
 	}
 
-	bool pos_enabled = key_loc_button->is_pressed();
-	bool rot_enabled = key_rot_button->is_pressed();
-	bool scl_enabled = key_scale_button->is_pressed();
-
 	int bone_len = skeleton->get_bone_count();
 	Node *root = EditorNode::get_singleton()->get_tree()->get_root();
 	String path = root->get_path_to(skeleton);
@@ -117,16 +104,6 @@ void EWBIKSkeleton3DEditor::insert_keys(const bool p_all_bones) {
 
 		if (name.is_empty()) {
 			continue;
-		}
-
-		if (pos_enabled && (p_all_bones || te->has_track(skeleton, name, Animation::TYPE_POSITION_3D))) {
-			te->insert_transform_key(skeleton, name, Animation::TYPE_POSITION_3D, skeleton->get_bone_pose_position(i));
-		}
-		if (rot_enabled && (p_all_bones || te->has_track(skeleton, name, Animation::TYPE_ROTATION_3D))) {
-			te->insert_transform_key(skeleton, name, Animation::TYPE_ROTATION_3D, skeleton->get_bone_pose_rotation(i));
-		}
-		if (scl_enabled && (p_all_bones || te->has_track(skeleton, name, Animation::TYPE_SCALE_3D))) {
-			te->insert_transform_key(skeleton, name, Animation::TYPE_SCALE_3D, skeleton->get_bone_pose_scale(i));
 		}
 	}
 	te->commit_insert_queue();
@@ -160,117 +137,10 @@ void EWBIKSkeleton3DEditor::pose_to_rest(const bool p_all_bones) {
 	ur->commit_action();
 }
 
-void EWBIKSkeleton3DEditor::create_editors() {
-	set_h_size_flags(SIZE_EXPAND_FILL);
-	add_theme_constant_override("separation", 0);
-
-	set_focus_mode(FOCUS_ALL);
-
-	Node3DEditor *ne = Node3DEditor::get_singleton();
-	AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
-
-	separator = memnew(VSeparator);
-	ne->add_control_to_menu_panel(separator);
-
-	Vector<Variant> button_binds;
-	button_binds.resize(1);
-
-	edit_mode_button = memnew(Button);
-	ne->add_control_to_menu_panel(edit_mode_button);
-	edit_mode_button->set_flat(true);
-	edit_mode_button->set_toggle_mode(true);
-	edit_mode_button->set_focus_mode(FOCUS_NONE);
-	edit_mode_button->set_tooltip(TTR("Constraint Edit Mode\nShow buttons on joint constraints."));
-	edit_mode_button->connect("toggled", callable_mp(this, &EWBIKSkeleton3DEditor::edit_mode_toggled));
-
-	edit_mode = true;
-
-	if (skeleton) {
-		skeleton->add_child(handles_mesh_instance);
-		handles_mesh_instance->set_skeleton_path(NodePath(""));
-		skeleton->add_child(label_mesh_origin);
-	}
-
-	// Keying buttons.
-	animation_hb = memnew(HBoxContainer);
-	ne->add_control_to_menu_panel(animation_hb);
-	animation_hb->hide();
-
-	key_loc_button = memnew(Button);
-	key_loc_button->set_flat(true);
-	key_loc_button->set_toggle_mode(true);
-	key_loc_button->set_pressed(false);
-	key_loc_button->set_focus_mode(FOCUS_NONE);
-	key_loc_button->set_tooltip(TTR("Translation mask for inserting keys."));
-	animation_hb->add_child(key_loc_button);
-
-	key_rot_button = memnew(Button);
-	key_rot_button->set_flat(true);
-	key_rot_button->set_toggle_mode(true);
-	key_rot_button->set_pressed(true);
-	key_rot_button->set_focus_mode(FOCUS_NONE);
-	key_rot_button->set_tooltip(TTR("Rotation mask for inserting keys."));
-	animation_hb->add_child(key_rot_button);
-
-	key_scale_button = memnew(Button);
-	key_scale_button->set_flat(true);
-	key_scale_button->set_toggle_mode(true);
-	key_scale_button->set_pressed(false);
-	key_scale_button->set_focus_mode(FOCUS_NONE);
-	key_scale_button->set_tooltip(TTR("Scale mask for inserting keys."));
-	animation_hb->add_child(key_scale_button);
-
-	key_insert_button = memnew(Button);
-	key_insert_button->set_flat(true);
-	key_insert_button->set_focus_mode(FOCUS_NONE);
-	key_insert_button->connect("pressed", callable_mp(this, &EWBIKSkeleton3DEditor::insert_keys), varray(false));
-	key_insert_button->set_tooltip(TTR("Insert key of bone poses already exist track."));
-	key_insert_button->set_shortcut(ED_SHORTCUT("skeleton_3d_editor/insert_key_to_existing_tracks", TTR("Insert Key (Existing Tracks)"), Key::INSERT));
-	animation_hb->add_child(key_insert_button);
-
-	key_insert_all_button = memnew(Button);
-	key_insert_all_button->set_flat(true);
-	key_insert_all_button->set_focus_mode(FOCUS_NONE);
-	key_insert_all_button->connect("pressed", callable_mp(this, &EWBIKSkeleton3DEditor::insert_keys), varray(true));
-	key_insert_all_button->set_tooltip(TTR("Insert key of all bone poses."));
-	key_insert_all_button->set_shortcut(ED_SHORTCUT("skeleton_3d_editor/insert_key_of_all_bones", TTR("Insert Key (All Bones)"), KeyModifierMask::CMD + Key::INSERT));
-	animation_hb->add_child(key_insert_all_button);
-
-	// Bone tree.
-	const Color section_color = get_theme_color(SNAME("prop_subsection"), SNAME("Editor"));
-
-	EditorInspectorSection *bones_section = memnew(EditorInspectorSection);
-	bones_section->setup("pins", "Pins", skeleton, section_color, true);
-	add_child(bones_section);
-	bones_section->unfold();
-
-	ScrollContainer *s_con = memnew(ScrollContainer);
-	s_con->set_h_size_flags(SIZE_EXPAND_FILL);
-	s_con->set_custom_minimum_size(Size2(1, 350) * EDSCALE);
-	bones_section->get_vbox()->add_child(s_con);
-
-	set_keyable(te->has_keying());
-}
-
 void EWBIKSkeleton3DEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			edit_mode_button->set_icon(get_theme_icon(SNAME("ToolRotate"), SNAME("EditorIcons")));
-			key_loc_button->set_icon(get_theme_icon(SNAME("KeyPosition"), SNAME("EditorIcons")));
-			key_rot_button->set_icon(get_theme_icon(SNAME("KeyRotation"), SNAME("EditorIcons")));
-			key_scale_button->set_icon(get_theme_icon(SNAME("KeyScale"), SNAME("EditorIcons")));
-			key_insert_button->set_icon(get_theme_icon(SNAME("Key"), SNAME("EditorIcons")));
-			key_insert_all_button->set_icon(get_theme_icon(SNAME("NewKey"), SNAME("EditorIcons")));
 			get_tree()->connect("node_removed", callable_mp(this, &EWBIKSkeleton3DEditor::_node_removed), Vector<Variant>(), Object::CONNECT_ONESHOT);
-			break;
-		}
-		case NOTIFICATION_ENTER_TREE: {
-			create_editors();
-#ifdef TOOLS_ENABLED
-			skeleton->connect("pose_updated", callable_mp(this, &EWBIKSkeleton3DEditor::_draw_gizmo));
-			skeleton->connect("bone_enabled_changed", callable_mp(this, &EWBIKSkeleton3DEditor::_bone_enabled_changed));
-			skeleton->connect("show_rest_only_changed", callable_mp(this, &EWBIKSkeleton3DEditor::_update_gizmo_visible));
-#endif
 			break;
 		}
 	}
@@ -284,11 +154,6 @@ void EWBIKSkeleton3DEditor::_node_removed(Node *p_node) {
 
 void EWBIKSkeleton3DEditor::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_node_removed"), &EWBIKSkeleton3DEditor::_node_removed);
-	ClassDB::bind_method(D_METHOD("_draw_gizmo"), &EWBIKSkeleton3DEditor::_draw_gizmo);
-}
-
-void EWBIKSkeleton3DEditor::edit_mode_toggled(const bool pressed) {
-	_update_gizmo_visible();
 }
 
 void EWBIKSkeleton3DEditor::update_bone_original() {
@@ -301,42 +166,6 @@ void EWBIKSkeleton3DEditor::update_bone_original() {
 	bone_original_position = skeleton->get_bone_pose_position(selected_bone);
 	bone_original_rotation = skeleton->get_bone_pose_rotation(selected_bone);
 	bone_original_scale = skeleton->get_bone_pose_scale(selected_bone);
-}
-
-void EWBIKSkeleton3DEditor::_draw_gizmo() {
-	if (!skeleton) {
-		return;
-	}
-
-	// If you call get_bone_global_pose() while drawing the surface, such as toggle rest mode,
-	// the skeleton update will be done first and
-	// the drawing surface will be interrupted once and an error will occur.
-	skeleton->force_update_all_dirty_bones();
-
-	// Handles.
-	_draw_handles();
-}
-
-void EWBIKSkeleton3DEditor::_draw_handles() {
-	handles_mesh_instance->show();
-
-	const int bone_len = skeleton->get_bone_count();
-	handles_mesh->clear_surfaces();
-	handles_mesh->surface_begin(Mesh::PRIMITIVE_POINTS);
-
-	for (int i = 0; i < bone_len; i++) {
-		Color c;
-		if (i == selected_bone) {
-			c = Color(1, 1, 0);
-		} else {
-			c = Color(0.1, 0.25, 0.8);
-		}
-		Vector3 point = skeleton->get_bone_global_pose(i).origin;
-		handles_mesh->surface_set_color(c);
-		handles_mesh->surface_add_vertex(point);
-	}
-	handles_mesh->surface_end();
-	handles_mesh->surface_set_material(0, handle_material);
 }
 
 TreeItem *EWBIKSkeleton3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
@@ -366,12 +195,6 @@ void EWBIKSkeleton3DEditor::_subgizmo_selection_change() {
 		return;
 	}
 
-	// Once validated by subgizmos_intersect_ray, but required if through inspector's bones tree.
-	if (!edit_mode) {
-		skeleton->clear_subgizmo_selection();
-		return;
-	}
-
 	int selected = -1;
 	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
 	if (se) {
@@ -398,31 +221,6 @@ void EWBIKSkeleton3DEditor::_subgizmo_selection_change() {
 }
 
 EWBIKSkeleton3DEditor::~EWBIKSkeleton3DEditor() {
-	if (skeleton) {
-		handles_mesh_instance->get_parent()->remove_child(handles_mesh_instance);
-		label_mesh_origin->get_parent()->remove_child(label_mesh_origin);
-	}
-	edit_mode_toggled(false);
-
-	handles_mesh_instance->queue_delete();
-	label_mesh_origin->queue_delete();
-
-	Node3DEditor *ne = Node3DEditor::get_singleton();
-
-	if (animation_hb) {
-		ne->remove_control_from_menu_panel(animation_hb);
-		memdelete(animation_hb);
-	}
-
-	if (separator) {
-		ne->remove_control_from_menu_panel(separator);
-		memdelete(separator);
-	}
-
-	if (edit_mode_button) {
-		ne->remove_control_from_menu_panel(edit_mode_button);
-		memdelete(edit_mode_button);
-	}
 }
 
 EWBIKSkeleton3DEditorPlugin::EWBIKSkeleton3DEditorPlugin() {
@@ -461,18 +259,6 @@ bool EWBIKSkeleton3DEditorPlugin::handles(Object *p_object) const {
 	return found;
 }
 
-void EWBIKSkeleton3DEditor::_bone_enabled_changed(const int p_bone_id) {
-	_update_gizmo_visible();
-}
-
-void EWBIKSkeleton3DEditor::_update_gizmo_visible() {
-	_subgizmo_selection_change();
-#ifdef TOOLS_ENABLED
-	skeleton->set_transform_gizmo_visible(false);
-#endif
-	_draw_gizmo();
-}
-
 int EWBIKSkeleton3DEditor::get_selected_bone() const {
 	return selected_bone;
 }
@@ -485,26 +271,6 @@ EWBIKSkeleton3DGizmoPlugin::EWBIKSkeleton3DGizmoPlugin() {
 	unselected_mat->set_flag(StandardMaterial3D::FLAG_SRGB_VERTEX_COLOR, true);
 
 	selected_mat = Ref<ShaderMaterial>(memnew(ShaderMaterial));
-	selected_sh = Ref<Shader>(memnew(Shader));
-	selected_sh->set_code(R"(
-// Skeleton 3D gizmo bones shader.
-
-shader_type spatial;
-render_mode unshaded, shadows_disabled;
-void vertex() {
-	if (!OUTPUT_IS_SRGB) {
-		COLOR.rgb = mix( pow((COLOR.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)), vec3(2.4)), COLOR.rgb* (1.0 / 12.92), lessThan(COLOR.rgb,vec3(0.04045)) );
-	}
-	VERTEX = VERTEX;
-	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * MODEL_MATRIX * vec4(VERTEX.xyz, 1.0);
-	POSITION.z = mix(POSITION.z, 0, 0.998);
-}
-void fragment() {
-	ALBEDO = COLOR.rgb;
-	ALPHA = COLOR.a;
-}
-)");
-	selected_mat->set_shader(selected_sh);
 
 	kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
 	Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
