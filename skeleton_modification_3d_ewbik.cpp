@@ -322,7 +322,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
-		effector_name.type = Variant::STRING;
+		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/name";
 		if (skeleton) {
 			RBSet<String> existing_pins;
@@ -369,16 +369,13 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
-		bone_name.type = Variant::STRING;
+		bone_name.type = Variant::STRING_NAME;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
 		if (skeleton) {
-			String names = "";
+			String names;
 			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-				if (skeleton->get_bone_parent(bone_i) == -1) {
-					continue;
-				}
 				String name = skeleton->get_bone_name(bone_i);
-				name = ",";
+				name += ",";
 				names += name;
 			}
 			bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
