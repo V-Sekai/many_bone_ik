@@ -214,7 +214,7 @@ public:
 	 * @param previous the LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 * @param next the other LimitCone adjacent to this one (may be null if LimitCone is not supposed to be between two existing LimitCones)
 	 */
-	virtual void add_limit_cone(Vector3 new_point, double radius, Ref<LimitCone> previous, Ref<LimitCone> next);
+	virtual void add_limit_cone(Vector3 new_point, double radius, Ref<LimitCone> previous = Ref<LimitCone>(), Ref<LimitCone> next = Ref<LimitCone>());
 
 	virtual void remove_limit_cone(Ref<LimitCone> limitCone);
 
@@ -301,8 +301,8 @@ public:
 	static Quaternion quaternion_unnormalized(Vector3 u, Vector3 v);
 
 	virtual void update_rotational_freedom();
-protected:
 
+protected:
 	/**
 	 * attaches the Kusudama to the BoneExample. If the
 	 * kusudama has its own limiting axes specified,

@@ -69,6 +69,15 @@ protected:
 	static void _bind_methods();
 
 public:
+	Ref<IKTransform3D> get_bone_direction_transform() {
+		return bone_direction_transform;
+	}
+	void set_bone_direction_transform(Ref<IKTransform3D> p_bone_direction) {
+		bone_direction_transform = p_bone_direction;
+	}
+	void set_constraint_transform(Ref<IKTransform3D> p_transform) {
+		constraint_transform = p_transform;
+	}
 	Ref<IKTransform3D> get_constraint_transform();
 	void addConstraint(Ref<IKKusudama> p_constraint);
 	Ref<IKKusudama> getConstraint() const;

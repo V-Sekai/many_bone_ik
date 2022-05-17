@@ -37,7 +37,7 @@ IKKusudama::IKKusudama() {
 IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
 	this->_attached_to = for_bone;
 	this->_limiting_axes->set_global_transform(for_bone->get_global_pose());
-	this->_attached_to->addConstraint(this);
+	this->_attached_to->addConstraint(Ref<IKKusudama>(this));
 	this->enable();
 }
 
@@ -265,10 +265,11 @@ Ref<IKBone3D> IKKusudama::attached_to() {
 
 void IKKusudama::add_limit_cone(Vector3 new_cone_local_point, double radius, Ref<LimitCone> previous, Ref<LimitCone> next) {
 	int insert_at = 0;
-
 	if (next.is_null() || limit_cones.is_empty()) {
-		add_limit_cone_at_index(0, new_cone_local_point, radius);
-	} else if (previous.is_valid()) {
+		add_limit_cone_at_index(insert_at, new_cone_local_point, radius);
+		return;
+	} 
+	if (previous.is_valid()) {
 		insert_at = limit_cones.find(previous) + 1;
 	} else {
 		insert_at = MAX(0, limit_cones.find(next));
@@ -283,7 +284,6 @@ void IKKusudama::remove_limit_cone(Ref<LimitCone> limitCone) {
 void IKKusudama::add_limit_cone_at_index(int insert_at, Vector3 new_cone_local_point, double radius) {
 	Ref<LimitCone> newCone = memnew(LimitCone(new_cone_local_point, radius, Ref<IKKusudama>(this)));
 	limit_cones.insert(insert_at, newCone);
-	_update_constraint();
 }
 
 double IKKusudama::to_tau(double angle) {

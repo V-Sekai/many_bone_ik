@@ -239,6 +239,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton->generate_default_segments_from_root(pins);
 	bone_list.clear();
 	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
+
 	segmented_skeleton->update_pinned_list();
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
@@ -268,6 +269,35 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			node->connect(SNAME("tree_exited"), callable, varray(effector_i, data->get_target_node()));
 			node->connect(SNAME("tree_entered"), callable, varray(effector_i, data->get_target_node()));
 			node->connect(SNAME("renamed"), callable, varray(effector_i, data->get_target_node()));
+		}
+	}
+
+	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
+		String bone = constraint_names[constraint_i];
+		BoneId bone_id = skeleton->find_bone(bone);
+		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+			if (ik_bone_3d->get_bone_id() != bone_id) {
+				continue;
+			}
+			Ref<IKTransform3D> bone_direction_transform;
+			bone_direction_transform.instantiate();
+			bone_direction_transform->set_parent(ik_bone_3d->get_ik_transform());
+			bone_direction_transform->set_transform(Transform3D(Basis(), ik_bone_3d->get_bone_direction_transform()->get_transform().origin));
+			Ref<IKKusudama> constraint;
+			constraint.instantiate();
+			// TODO: fire 2022-05-17
+			constraint->enable_axial_limits();
+			constraint->set_axial_limits(0.0f, Math_TAU);
+			if (get_kusudama_limit_cone_count(constraint_i)) {
+				constraint->enable_orientational_limits();
+			}
+			for (int32_t cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+				constraint->add_limit_cone(get_kusudama_limit_cone_center(constraint_i, cone_i), get_kusudama_limit_cone_radius(constraint_i, cone_i));
+			}
+			constraint->update_tangent_radii();
+			constraint->update_rotational_freedom();
+			ik_bone_3d->addConstraint(constraint);
+			break;
 		}
 	}
 	is_dirty = false;
@@ -629,6 +659,7 @@ void SkeletonModification3DEWBIK::set_kusudama_twist(int32_t p_index, float p_tw
 }
 
 float SkeletonModification3DEWBIK::get_kusudama_twist(int32_t p_index) const {
+	ERR_FAIL_COND_V(!kusudana_twist.has(p_index), 0.0f);
 	return kusudana_twist[p_index];
 }
 
@@ -669,7 +700,6 @@ int32_t SkeletonModification3DEWBIK::get_kusudama_limit_cone_count(int32_t p_eff
 }
 
 void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_effector, int32_t p_count) {
-	int32_t old_count = get_kusudama_limit_cone_count(p_effector);
 	kusudama_limit_cone_count[p_effector] = p_count;
 	kusudama_limit_cones[p_effector].resize(p_count);
 	notify_property_list_changed();
