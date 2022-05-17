@@ -629,7 +629,6 @@ void SkeletonModification3DEWBIK::set_kusudama_twist(int32_t p_index, float p_tw
 }
 
 float SkeletonModification3DEWBIK::get_kusudama_twist(int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_index, kusudana_twist.size(), 0.0f);
 	return kusudana_twist[p_index];
 }
 
