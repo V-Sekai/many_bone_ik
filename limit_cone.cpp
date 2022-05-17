@@ -353,6 +353,7 @@ LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusuda
 	this->cushion_cosine = IKBoneSegment::cos(cushion_radius);
 	parent_kusudama = attached_to;
 }
+
 LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to) {
 	set_control_point(direction);
 	tangent_circle_center_next_1 = direction.normalized();

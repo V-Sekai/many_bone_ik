@@ -536,12 +536,12 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		} else if (name.begins_with(begins)) {
 			int cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
-			ERR_FAIL_INDEX_V(cone_index, kusudama_limit_cone_count.size(), false);
+			ERR_FAIL_INDEX_V(index, kusudama_limit_cone_count.size(), false);
 			if (cone_what == "center") {
-				set_kusudama_limit_cone(index, cone_index, p_value, get_kusudama_limit_cone_radius(index, cone_index));
+				set_kusudama_limit_cone_center(index, cone_index, p_value);
 				return true;
 			} else if (cone_what == "radius") {
-				set_kusudama_limit_cone(index, cone_index, get_kusudama_limit_cone_center(index, cone_index), p_value);
+				set_kusudama_limit_cone_radius(index, cone_index, p_value);
 				return true;
 			}
 		}
@@ -678,8 +678,8 @@ float SkeletonModification3DEWBIK::get_kusudama_limit_cone_radius(int32_t p_bone
 }
 
 int32_t SkeletonModification3DEWBIK::get_kusudama_limit_cone_count(int32_t p_bone) const {
-	ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cones.size(), 0);
-	return kusudama_limit_cones[p_bone].size();
+	ERR_FAIL_INDEX_V(p_bone, kusudama_limit_cone_count.size(), 0);
+	return kusudama_limit_cone_count[p_bone];
 }
 
 void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count) {
@@ -688,9 +688,6 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_bone, 
 	int32_t old_count = get_kusudama_limit_cone_count(p_bone);
 	kusudama_limit_cone_count.write[p_bone] = p_count;
 	kusudama_limit_cones.write[p_bone].resize(p_count);
-	for (int32_t cone_i = p_count; cone_i-- > old_count;) {
-		set_kusudama_limit_cone(p_bone, cone_i, Vector3(0.f, 0.f, 1.0f), 1.0f);
-	}
 	notify_property_list_changed();
 	is_dirty = true;
 }
@@ -720,4 +717,28 @@ void SkeletonModification3DEWBIK::check_shadow_bones_transform() {
 			bone->get_pin()->update_target_global_transform(skeleton);
 		}
 	}
+}
+
+void SkeletonModification3DEWBIK::set_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index, float p_radius) {
+	ERR_FAIL_INDEX(p_bone, kusudama_limit_cones.size());
+	ERR_FAIL_INDEX(p_index, kusudama_limit_cones.write[p_bone].size());
+	Color &cone = kusudama_limit_cones.write[p_bone].write[p_index];
+	cone.a = p_radius;
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
+	is_dirty = true;
+}
+
+void SkeletonModification3DEWBIK::set_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index, Vector3 p_center) {
+	ERR_FAIL_INDEX(p_bone, kusudama_limit_cones.size());
+	ERR_FAIL_INDEX(p_index, kusudama_limit_cones.write[p_bone].size());
+	Color &cone = kusudama_limit_cones.write[p_bone].write[p_index];
+	cone.r = p_center.x;
+	cone.g = p_center.y;
+	cone.b = p_center.z;
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
+	is_dirty = true;
 }

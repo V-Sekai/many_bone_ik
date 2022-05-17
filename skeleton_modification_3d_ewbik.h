@@ -124,6 +124,8 @@ public:
 			Vector3 p_center, float p_radius);
 	Vector3 get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const;
 	float get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const;
+	void set_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index, Vector3 p_center);
+	void set_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index, float p_radius);
 	int32_t get_kusudama_limit_cone_count(int32_t p_bone) const;
 	void set_kusudama_limit_cone_count(int32_t p_bone, int32_t p_count);
 	SkeletonModification3DEWBIK();

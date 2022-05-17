@@ -38,6 +38,7 @@
 #include "editor/editor_scale.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
+#include "ewbik/skeleton_modification_3d_ewbik.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
 #include "scene/3d/label_3d.h"
@@ -45,6 +46,7 @@
 #include "scene/3d/physics_body_3d.h"
 #include "scene/resources/capsule_shape_3d.h"
 #include "scene/resources/primitive_meshes.h"
+#include "scene/resources/skeleton_modification_3d.h"
 #include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/surface_tool.h"
 
@@ -537,7 +539,52 @@ void EWBIKSkeleton3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_giz
 }
 
 void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
+	HashMap<int32_t, Vector<Vector<float>>> modification_kusudama_constraint;
+	Ref<SkeletonModificationStack3D> stack;
 	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
+	if (skeleton) {
+		stack = skeleton->get_modification_stack();
+	}
+	if (stack.is_valid()) {
+		for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
+			Ref<SkeletonModification3D> modification = stack->get_modification(modification_i);
+			if (modification.is_null()) {
+				continue;
+			}
+			Ref<SkeletonModification3DEWBIK> ewbik_modification = modification;
+			if (ewbik_modification.is_null()) {
+				continue;
+			}
+			int32_t pin_count = ewbik_modification->get_pin_count();
+			Vector<Vector<float>> kusudama_constraint;
+			kusudama_constraint.resize(KUSUDAMA_MAX_CONES);
+			for (int32_t pin_i = 0; pin_i < pin_count; pin_i++) {
+				String bone_name = ewbik_modification->get_pin_bone_name(pin_i);
+				BoneId bone = skeleton->find_bone(bone_name);
+				int32_t limit_cone_count = 0;
+				if (bone != -1) {
+					limit_cone_count = ewbik_modification->get_kusudama_limit_cone_count(bone);
+				}
+				if (!limit_cone_count) {
+					continue;
+				}
+				Vector<float> cone_constraint;
+				cone_constraint.resize(limit_cone_count);
+				for (int32_t cone_i = 0; cone_i < limit_cone_count; cone_i++) {
+					Vector<float> cone;
+					cone.resize(4);
+					Vector3 center = ewbik_modification->get_kusudama_limit_cone_center(bone, cone_i);
+					cone.write[0] = center.x;
+					cone.write[1] = center.y;
+					cone.write[2] = center.z;
+					float radius = ewbik_modification->get_kusudama_limit_cone_radius(bone, cone_i);
+					cone.write[3] = radius;
+					kusudama_constraint.write[cone_i] = cone;
+				}
+			}
+			modification_kusudama_constraint[modification_i] = kusudama_constraint;
+		}
+	}
 	p_gizmo->clear();
 
 	int selected = -1;
@@ -653,9 +700,24 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			sphere_mesh->set_radius(dist / 8.0f);
 			sphere_mesh->set_height(dist / 4.0f);
 			PackedFloat32Array kusudama_limit_cones;
-			constexpr int32_t KUSUDAMA_MAX_CONES = 30;
 			kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 			kusudama_limit_cones.fill(0.0f);
+			if (stack.is_valid()) {
+				for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
+					Vector<Vector<float>> kusudama = modification_kusudama_constraint[modification_i];
+					for (int32_t kusudama_i = 0; kusudama_i < kusudama.size(); kusudama_i++) {
+						Vector<float> cone = kusudama[kusudama_i];
+						for (int32_t cone_i = 0; cone_i < cone.size(); cone_i++) {
+							if (cone.size() != 4) {
+								continue;
+							}
+							float parameter = cone[cone_i];
+							kusudama_limit_cones.write[cone_i * kusudama_i + cone_i] = parameter;
+						}
+					}
+					break;
+				}
+			}
 			kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
 			kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
 			Ref<SurfaceTool> kusudama_surface_tool;

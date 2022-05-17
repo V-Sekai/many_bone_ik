@@ -117,6 +117,7 @@ class EWBIKSkeleton3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	Ref<ShaderMaterial> kusudama_material;
 
 public:
+	const int32_t KUSUDAMA_MAX_CONES = 30;
 	bool has_gizmo(Node3D *p_spatial) override;
 	String get_gizmo_name() const override;
 
