@@ -325,7 +325,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		effector_name.type = Variant::STRING;
 		effector_name.name = "pins/" + itos(pin_i) + "/name";
 		if (skeleton) {
-			Set<String> existing_pins;
+			RBSet<String> existing_pins;
 			for (Ref<IKEffectorTemplate> pin : pins) {
 				if (pin.is_null()) {
 					continue;
