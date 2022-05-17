@@ -754,7 +754,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				kusudama_surface_tool->add_index(index);
 			}
 
-			p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+			p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material->duplicate(), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
