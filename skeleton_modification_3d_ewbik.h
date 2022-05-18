@@ -130,8 +130,8 @@ public:
 		ERR_FAIL_INDEX_V(p_effector_index, constraint_names.size(), StringName());
 		return constraint_names[p_effector_index];
 	}
-	void set_kusudama_twist(int32_t p_index, Vector2 p_twist);
-	Vector2 get_kusudama_twist(int32_t p_index) const;
+	void set_kusudama_twist_degrees(int32_t p_index, Vector2 p_twist);
+	Vector2 get_kusudama_twist_degrees(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
 	Vector3 get_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index) const;

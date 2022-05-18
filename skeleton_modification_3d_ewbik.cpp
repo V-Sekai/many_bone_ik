@@ -313,11 +313,9 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			bone_direction_transform->set_transform(Transform3D(Basis(), ik_bone_3d->get_bone_direction_transform()->get_transform().origin));
 			Ref<IKKusudama> constraint;
 			constraint.instantiate();
-			if (get_kusudama_twist(constraint_i) != Vector2()) {
-				constraint->enable_axial_limits();
-				Vector2 axial_limit = get_kusudama_twist(constraint_i);
-				constraint->set_axial_limits(axial_limit.x, axial_limit.y);
-			}
+			constraint->enable_axial_limits();
+			Vector2 axial_limit = get_kusudama_twist_degrees(constraint_i);
+			constraint->set_axial_limits(Math::deg2rad(axial_limit.x), Math::deg2rad(axial_limit.y));
 			if (get_kusudama_limit_cone_count(constraint_i)) {
 				constraint->enable_orientational_limits();
 			}
@@ -455,7 +453,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
-				PropertyInfo(Variant::VECTOR2, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_RANGE, "0,359.999999,0.1,degrees"));
+				PropertyInfo(Variant::VECTOR2, "constraints/" + itos(constraint_i) + "/kusudama_twist_degrees", PROPERTY_HINT_RANGE, "0,359.99,0.1,degrees,exp"));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
@@ -518,8 +516,8 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			ERR_FAIL_INDEX_V(index, constraint_names.size(), false);
 			r_ret = constraint_names[index];
 			return true;
-		} else if (what == "kusudama_twist") {
-			r_ret = get_kusudama_twist(index);
+		} else if (what == "kusudama_twist_degrees") {
+			r_ret = get_kusudama_twist_degrees(index);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			r_ret = get_kusudama_limit_cone_count(index);
@@ -595,8 +593,8 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			}
 			constraint_names.write[index] = p_value;
 			return true;
-		} else if (what == "kusudama_twist") {
-			set_kusudama_twist(index, p_value);
+		} else if (what == "kusudama_twist_degrees") {
+			set_kusudama_twist_degrees(index, p_value);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
@@ -645,7 +643,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "budget_millisecond", PROPERTY_HINT_RANGE, "0.01,2.0,0.01,or_greater"), "set_time_budget_millisecond", "get_time_budget_millisecond");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_root_bone", "get_root_bone");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
@@ -684,8 +682,13 @@ void SkeletonModification3DEWBIK::set_pin_depth_falloff(int32_t p_effector_index
 }
 
 void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
+	int32_t old_count = constraint_names.size();
 	constraint_count = p_count;
 	constraint_names.resize(p_count);
+	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
+		constraint_names.write[constraint_i] = String();
+		kusudana_twist[constraint_i] = Vector2(0.0f, Math_TAU);
+	}
 	if (skeleton) {
 		skeleton->notify_property_list_changed();
 	}
@@ -696,17 +699,17 @@ int32_t SkeletonModification3DEWBIK::get_constraint_count() const {
 	return constraint_count;
 }
 
-void SkeletonModification3DEWBIK::set_kusudama_twist(int32_t p_index, Vector2 p_twist) {
-	kusudana_twist[p_index] = p_twist;
+void SkeletonModification3DEWBIK::set_kusudama_twist_degrees(int32_t p_index, Vector2 p_twist) {
+	kusudana_twist[p_index] = Vector2(Math::deg2rad(p_twist.x), Math::deg2rad(p_twist.y));
 	if (skeleton) {
 		skeleton->notify_property_list_changed();
 	}
 	is_dirty = true;
 }
 
-Vector2 SkeletonModification3DEWBIK::get_kusudama_twist(int32_t p_index) const {
-	ERR_FAIL_COND_V(!kusudana_twist.has(p_index), Vector2());
-	return kusudana_twist[p_index];
+Vector2 SkeletonModification3DEWBIK::get_kusudama_twist_degrees(int32_t p_index) const {
+	ERR_FAIL_COND_V(!kusudana_twist.has(p_index), Vector2(0, 360.0f));
+	return Vector2(Math::rad2deg(kusudana_twist[p_index].x), Math::rad2deg(kusudana_twist[p_index].y));
 }
 
 void SkeletonModification3DEWBIK::set_kusudama_limit_cone(int32_t p_constraint, int32_t p_index,
