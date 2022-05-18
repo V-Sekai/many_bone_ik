@@ -463,7 +463,7 @@ Quaternion IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, R
 	Vector<double> in_bounds = { 1 };
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
 	bone_ray->p2(to_set->get_global_transform().basis[Vector3::AXIS_Y]);
-	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2()).normalized();
+	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
 	_ALLOW_DISCARD_ _local_point_in_limits(bone_tip, in_bounds);
 	if (in_bounds[0] > 0.0) {
 		return Quaternion();
