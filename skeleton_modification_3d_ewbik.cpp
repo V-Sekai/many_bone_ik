@@ -285,10 +285,10 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			bone_direction_transform->set_transform(Transform3D(Basis(), ik_bone_3d->get_bone_direction_transform()->get_transform().origin));
 			Ref<IKKusudama> constraint;
 			constraint.instantiate();
-			// TODO: fire 2022-05-17
-			if (false) {
+			if (get_kusudama_twist(constraint_i) != Vector2()) {
 				constraint->enable_axial_limits();
-				constraint->set_axial_limits(0.0f, Math_TAU);
+				Vector2 axial_limit = get_kusudama_twist(constraint_i);
+				constraint->set_axial_limits(axial_limit.x, axial_limit.y);
 			}
 			if (get_kusudama_limit_cone_count(constraint_i)) {
 				constraint->enable_orientational_limits();
