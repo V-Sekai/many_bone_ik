@@ -200,7 +200,7 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 		double turnDiff = 1;
 		// TODO: fire 2022-05-13 restore chirality
 		turnDiff *= limiting_axes->getGlobalChirality();
-		Vector3 axis = to_set->get_global_transform().basis[Vector3::AXIS_Y].normalized();
+		Vector3 axis = to_set->get_global_transform().basis[Vector3::AXIS_Y];
 		if (dist_to_min < dist_to_max) {
 			turnDiff = turnDiff * (from_min_to_angle_delta);
 			quaternion = Quaternion(axis, turnDiff);
