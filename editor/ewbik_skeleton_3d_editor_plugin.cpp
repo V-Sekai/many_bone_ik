@@ -213,7 +213,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	p_gizmo->clear();
 
 	Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
-	int bone_shape = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_settings/bone_shape");
 
 	Ref<SurfaceTool> surface_tool(memnew(SurfaceTool));
 	surface_tool->begin(Mesh::PRIMITIVE_LINES);
@@ -250,62 +249,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
 			Vector3 d = (v1 - v0).normalized();
 			real_t dist = v0.distance_to(v1);
-
-			// Find closest axis.
-			int closest = -1;
-			real_t closest_d = 0.0;
-			for (int j = 0; j < 3; j++) {
-				real_t dp = Math::abs(skeleton->get_bone_global_rest(current_bone_idx).basis[j].normalized().dot(d));
-				if (j == 0 || dp > closest_d) {
-					closest = j;
-				}
-			}
-			// Draw bone.
-			switch (bone_shape) {
-				case 0: { // Wire shape.
-					bones[0] = current_bone_idx;
-					bones[0] = child_bone_idx;
-				} break;
-
-				case 1: { // Octahedron shape.
-					Vector3 first;
-					for (int j = 0; j < 3; j++) {
-						Vector3 axis;
-						if (first == Vector3()) {
-							axis = d.cross(d.cross(skeleton->get_bone_global_rest(current_bone_idx).basis[j])).normalized();
-							first = axis;
-						} else {
-							axis = d.cross(first).normalized();
-						}
-						for (int k = 0; k < 2; k++) {
-							if (k == 1) {
-								axis = -axis;
-							}
-							bones[0] = current_bone_idx;
-							bones[0] = child_bone_idx;
-						}
-					}
-					bones[0] = current_bone_idx;
-				} break;
-			}
-
-			// Axis as root of the bone.
-			for (int j = 0; j < 3; j++) {
-				bones[0] = current_bone_idx;
-				if (j == closest) {
-					continue;
-				}
-			}
-
-			// Axis at the end of the bone children.
-			if (i == child_bones_size - 1) {
-				for (int j = 0; j < 3; j++) {
-					bones[0] = child_bone_idx;
-					if (j == closest) {
-						continue;
-					}
-				}
-			}
+			bones[0] = current_bone_idx;
 
 			if (stack.is_valid()) {
 				for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
@@ -515,6 +459,7 @@ void fragment() {
 						PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
 						PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
 						PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
+						Transform3D transform = skeleton->get_bone_global_rest(current_bone_idx);
 						for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
 							Vector3 sphere_vertex = vertex_array[vertex_i];
 							kusudama_surface_tool->set_color(current_bone_color);
@@ -530,7 +475,7 @@ void fragment() {
 							tangent_vertex.normal.z = tangent_array[vertex_i + 2];
 							tangent_vertex.d = tangent_array[vertex_i + 3];
 							kusudama_surface_tool->set_tangent(tangent_vertex);
-							kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).xform(sphere_vertex));
+							kusudama_surface_tool->add_vertex(transform.xform(sphere_vertex));
 						}
 						for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
 							int32_t index = index_array[index_i];
