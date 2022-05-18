@@ -71,11 +71,28 @@ void SkeletonModification3DEWBIK::set_root_bone_index(BoneId p_index) {
 }
 
 void SkeletonModification3DEWBIK::set_pin_count(int32_t p_value) {
-	pins.resize(p_value);
-	for (int32_t pin_i = pin_count; pin_i < p_value; pin_i++) {
-		pins.write[pin_i].instantiate();
+	List<StringName> existing_pins;
+	for (int32_t pin_i = 0; pin_i < pins.size(); pin_i++) {
+		if (pins[pin_i].is_null()) {
+			continue;
+		}
+		const StringName name = pins[pin_i]->get_name();
+		existing_pins.push_back(name);
 	}
+	int32_t old_count = pins.size();
 	pin_count = p_value;
+	pins.resize(p_value);
+	for (int32_t pin_i = p_value; pin_i-- > old_count;) {
+		pins.write[pin_i].instantiate();
+		pins.write[pin_i]->set_name("");
+		for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
+			StringName name = bone_list[bone_i]->get_name();
+			if (existing_pins.find(name)) {
+				continue;
+			}
+			pins.write[pin_i]->set_name(name);
+		}
+	}
 	notify_property_list_changed();
 	is_dirty = true;
 }
@@ -103,6 +120,10 @@ void SkeletonModification3DEWBIK::add_pin(const StringName &p_name, const NodePa
 void SkeletonModification3DEWBIK::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
 	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
+	if (data.is_null()) {
+		data.instantiate();
+		pins.write[p_pin_index] = data;
+	}
 	data->set_name(p_bone);
 	notify_property_list_changed();
 	is_dirty = true;
@@ -111,7 +132,10 @@ void SkeletonModification3DEWBIK::set_pin_bone(int32_t p_pin_index, const String
 void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_target_node) {
 	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate> data = pins[p_pin_index];
-	ERR_FAIL_NULL(data);
+	if (data.is_null()) {
+		data.instantiate();
+		pins.write[p_pin_index] = data;
+	}
 	data->set_target_node(p_target_node);
 	notify_property_list_changed();
 	is_dirty = true;
@@ -243,6 +267,9 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton->update_pinned_list();
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
 		Ref<IKEffectorTemplate> data = pins.write[effector_i];
+		if (data.is_null()) {
+			continue;
+		}
 		String bone = data->get_name();
 		BoneId bone_id = skeleton->find_bone(bone);
 		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
@@ -404,9 +431,18 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		bone_name.type = Variant::STRING_NAME;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
 		if (skeleton) {
+			RBSet<String> existing_constraints;
+			for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+				const String name = get_constraint_name(constraint_i);
+				existing_constraints.insert(name);
+			}
+
 			String names;
 			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 				String name = skeleton->get_bone_name(bone_i);
+				if (existing_constraints.has(name)) {
+					continue;
+				}
 				name += ",";
 				names += name;
 			}
@@ -616,7 +652,6 @@ SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
 }
 
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
-	// memdelete(root_transform);
 }
 
 bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
@@ -644,8 +679,24 @@ void SkeletonModification3DEWBIK::set_pin_depth_falloff(int32_t p_effector_index
 }
 
 void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
+	int32_t old_count = constraint_names.size();
 	constraint_count = p_count;
 	constraint_names.resize(p_count);
+	List<StringName> existing_constraints;
+	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+		const StringName name = get_constraint_name(constraint_i);
+		existing_constraints.push_back(name);
+	}
+	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
+		constraint_names.write[constraint_i] = "";
+		for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
+			StringName name = bone_list[bone_i]->get_name();
+			if (existing_constraints.find(name)) {
+				continue;
+			}
+			constraint_names.write[constraint_i] = name;
+		}
+	}
 	notify_property_list_changed();
 	is_dirty = true;
 }
@@ -711,7 +762,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_effect
 		cone.r = 0.0f;
 		cone.g = 1.0f;
 		cone.b = 0.0f;
-		cone.a = 0.0f;
+		cone.a = Math_TAU;
 	}
 	notify_property_list_changed();
 	is_dirty = true;

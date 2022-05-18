@@ -126,6 +126,10 @@ public:
 	void set_default_damp(float p_default_damp);
 	void set_constraint_count(int32_t p_count);
 	int32_t get_constraint_count() const;
+	StringName get_constraint_name(int32_t p_effector_index) const {
+		ERR_FAIL_INDEX_V(p_effector_index, constraint_names.size(), StringName());
+		return constraint_names[p_effector_index];
+	}
 	void set_kusudama_twist(int32_t p_index, Vector2 p_twist);
 	Vector2 get_kusudama_twist(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,

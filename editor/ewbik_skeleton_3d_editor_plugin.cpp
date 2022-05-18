@@ -247,7 +247,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			int child_bone_idx = child_bones_vector[i];
 			Vector3 v0 = skeleton->get_bone_global_rest(current_bone_idx).origin;
 			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
-			Vector3 d = (v1 - v0).normalized();
 			real_t dist = v0.distance_to(v1);
 			bones[0] = current_bone_idx;
 
