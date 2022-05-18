@@ -707,7 +707,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_effect
 	PackedColorArray &cones = kusudama_limit_cones[p_effector];
 	cones.resize(p_count);
 	for (int32_t cone_i = p_count; cone_i-- > old_count;) {
-		Color &cone = cones.write[p_index];
+		Color &cone = cones.write[cone_i];
 		cone.r = 0.0f;
 		cone.g = 1.0f;
 		cone.b = 0.0f;
