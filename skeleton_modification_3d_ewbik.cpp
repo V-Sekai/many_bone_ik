@@ -585,7 +585,9 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 	} else if (name.begins_with("constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, constraint_count, false);
+		if (index >= constraint_count) {
+			return false;
+		}
 		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
 		if (what == "name") {
 			if (index >= constraint_names.size()) {
@@ -602,7 +604,9 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		} else if (name.begins_with(begins)) {
 			int cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
-			ERR_FAIL_INDEX_V(index, kusudama_limit_cone_count.size(), false);
+			if (cone_index >= kusudama_limit_cone_count[index]) {
+				return false;
+			}
 			if (cone_what == "center") {
 				set_kusudama_limit_cone_center(index, cone_index, p_value);
 				return true;
