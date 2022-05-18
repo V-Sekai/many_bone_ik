@@ -74,6 +74,9 @@ void SkeletonModification3DEWBIK::set_pin_count(int32_t p_value) {
 	int32_t old_count = pins.size();
 	pin_count = p_value;
 	pins.resize(p_value);
+	for (int32_t pin_i = p_value; pin_i-- > old_count;) {
+		pins.write[pin_i].instantiate();
+	}
 	notify_property_list_changed();
 	is_dirty = true;
 }
