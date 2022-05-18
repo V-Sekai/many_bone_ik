@@ -52,93 +52,6 @@
 
 EWBIKSkeleton3DEditor *EWBIKSkeleton3DEditor::singleton = nullptr;
 
-void EWBIKSkeleton3DEditor::init_pose(const bool p_all_bones) {
-	if (!skeleton) {
-		return;
-	}
-	const int bone_len = skeleton->get_bone_count();
-	if (!bone_len) {
-		return;
-	}
-
-	UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-	ur->create_action(TTR("Set Bone Transform"), UndoRedo::MERGE_ENDS);
-	if (p_all_bones) {
-		for (int i = 0; i < bone_len; i++) {
-			Transform3D rest = skeleton->get_bone_rest(i);
-			ur->add_do_method(skeleton, "set_bone_pose_position", i, rest.origin);
-			ur->add_do_method(skeleton, "set_bone_pose_rotation", i, rest.basis.get_rotation_quaternion());
-			ur->add_do_method(skeleton, "set_bone_pose_scale", i, rest.basis.get_scale());
-			ur->add_undo_method(skeleton, "set_bone_pose_position", i, skeleton->get_bone_pose_position(i));
-			ur->add_undo_method(skeleton, "set_bone_pose_rotation", i, skeleton->get_bone_pose_rotation(i));
-			ur->add_undo_method(skeleton, "set_bone_pose_scale", i, skeleton->get_bone_pose_scale(i));
-		}
-	} else {
-		// Todo: Do method with multiple bone selection.
-		if (selected_bone == -1) {
-			ur->commit_action();
-			return;
-		}
-		Transform3D rest = skeleton->get_bone_rest(selected_bone);
-		ur->add_do_method(skeleton, "set_bone_pose_position", selected_bone, rest.origin);
-		ur->add_do_method(skeleton, "set_bone_pose_rotation", selected_bone, rest.basis.get_rotation_quaternion());
-		ur->add_do_method(skeleton, "set_bone_pose_scale", selected_bone, rest.basis.get_scale());
-		ur->add_undo_method(skeleton, "set_bone_pose_position", selected_bone, skeleton->get_bone_pose_position(selected_bone));
-		ur->add_undo_method(skeleton, "set_bone_pose_rotation", selected_bone, skeleton->get_bone_pose_rotation(selected_bone));
-		ur->add_undo_method(skeleton, "set_bone_pose_scale", selected_bone, skeleton->get_bone_pose_scale(selected_bone));
-	}
-	ur->commit_action();
-}
-
-void EWBIKSkeleton3DEditor::insert_keys(const bool p_all_bones) {
-	if (!skeleton) {
-		return;
-	}
-
-	int bone_len = skeleton->get_bone_count();
-	Node *root = EditorNode::get_singleton()->get_tree()->get_root();
-	String path = root->get_path_to(skeleton);
-
-	AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
-	te->make_insert_queue();
-	for (int i = 0; i < bone_len; i++) {
-		const String name = skeleton->get_bone_name(i);
-
-		if (name.is_empty()) {
-			continue;
-		}
-	}
-	te->commit_insert_queue();
-}
-
-void EWBIKSkeleton3DEditor::pose_to_rest(const bool p_all_bones) {
-	if (!skeleton) {
-		return;
-	}
-	const int bone_len = skeleton->get_bone_count();
-	if (!bone_len) {
-		return;
-	}
-
-	UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-	ur->create_action(TTR("Set Bone Rest"), UndoRedo::MERGE_ENDS);
-	if (p_all_bones) {
-		for (int i = 0; i < bone_len; i++) {
-			ur->add_do_method(skeleton, "set_bone_rest", i, skeleton->get_bone_pose(i));
-			ur->add_undo_method(skeleton, "set_bone_rest", i, skeleton->get_bone_rest(i));
-		}
-	} else {
-		// Todo: Do method with multiple bone selection.
-		if (selected_bone == -1) {
-			ur->commit_action();
-			return;
-		}
-		ur->add_do_method(skeleton, "set_bone_rest", selected_bone, skeleton->get_bone_pose(selected_bone));
-		ur->add_undo_method(skeleton, "set_bone_rest", selected_bone, skeleton->get_bone_rest(selected_bone));
-	}
-	ur->commit_action();
-}
-
 void EWBIKSkeleton3DEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
@@ -158,68 +71,11 @@ void EWBIKSkeleton3DEditor::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_node_removed"), &EWBIKSkeleton3DEditor::_node_removed);
 }
 
-void EWBIKSkeleton3DEditor::update_bone_original() {
-	if (!skeleton) {
-		return;
-	}
-	if (skeleton->get_bone_count() == 0 || selected_bone == -1) {
-		return;
-	}
-	bone_original_position = skeleton->get_bone_pose_position(selected_bone);
-	bone_original_rotation = skeleton->get_bone_pose_rotation(selected_bone);
-	bone_original_scale = skeleton->get_bone_pose_scale(selected_bone);
-}
-
-TreeItem *EWBIKSkeleton3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
-	if (!p_node) {
-		return nullptr;
-	}
-
-	NodePath np = p_node->get_metadata(0);
-	if (np == p_path) {
-		return p_node;
-	}
-
-	TreeItem *children = p_node->get_first_child();
-	while (children) {
-		TreeItem *n = _find(children, p_path);
-		if (n) {
-			return n;
-		}
-		children = children->get_next();
-	}
-
-	return nullptr;
-}
-
 void EWBIKSkeleton3DEditor::_subgizmo_selection_change() {
 	if (!skeleton) {
 		return;
 	}
-
-	int selected = -1;
-	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
-	if (se) {
-		selected = se->get_selected_bone();
-	}
-
-	if (selected >= 0) {
-		Vector<Ref<Node3DGizmo>> gizmos = skeleton->get_gizmos();
-		for (int i = 0; i < gizmos.size(); i++) {
-			Ref<EditorNode3DGizmo> gizmo = gizmos[i];
-			if (!gizmo.is_valid()) {
-				continue;
-			}
-			Ref<EWBIKSkeleton3DGizmoPlugin> plugin = gizmo->get_plugin();
-			if (!plugin.is_valid()) {
-				continue;
-			}
-			skeleton->set_subgizmo_selection(gizmo, selected, skeleton->get_bone_global_pose(selected));
-			break;
-		}
-	} else {
-		skeleton->clear_subgizmo_selection();
-	}
+	skeleton->clear_subgizmo_selection();
 }
 
 EWBIKSkeleton3DEditor::~EWBIKSkeleton3DEditor() {
@@ -261,18 +117,7 @@ bool EWBIKSkeleton3DEditorPlugin::handles(Object *p_object) const {
 	return found;
 }
 
-int EWBIKSkeleton3DEditor::get_selected_bone() const {
-	return selected_bone;
-}
-
 EWBIKSkeleton3DGizmoPlugin::EWBIKSkeleton3DGizmoPlugin() {
-	unselected_mat = Ref<StandardMaterial3D>(memnew(StandardMaterial3D));
-	unselected_mat->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
-	unselected_mat->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA);
-	unselected_mat->set_flag(StandardMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
-	unselected_mat->set_flag(StandardMaterial3D::FLAG_SRGB_VERTEX_COLOR, true);
-
-	selected_mat = Ref<ShaderMaterial>(memnew(ShaderMaterial));
 }
 
 bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
@@ -328,39 +173,6 @@ void EWBIKSkeleton3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo 
 	skeleton->set_bone_pose_scale(p_id, t.basis.get_scale());
 }
 
-void EWBIKSkeleton3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
-	ERR_FAIL_COND(!skeleton);
-
-	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
-	Node3DEditor *ne = Node3DEditor::get_singleton();
-
-	UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-	ur->create_action(TTR("Set Bone Transform"));
-	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_MOVE) {
-		for (int i = 0; i < p_ids.size(); i++) {
-			ur->add_do_method(skeleton, "set_bone_pose_position", p_ids[i], skeleton->get_bone_pose_position(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_position", p_ids[i], se->get_bone_original_position());
-		}
-	}
-	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE) {
-		for (int i = 0; i < p_ids.size(); i++) {
-			ur->add_do_method(skeleton, "set_bone_pose_rotation", p_ids[i], skeleton->get_bone_pose_rotation(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_rotation", p_ids[i], se->get_bone_original_rotation());
-		}
-	}
-	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SCALE) {
-		for (int i = 0; i < p_ids.size(); i++) {
-			// If the axis is swapped by scaling, the rotation can be changed.
-			ur->add_do_method(skeleton, "set_bone_pose_rotation", p_ids[i], skeleton->get_bone_pose_rotation(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_rotation", p_ids[i], se->get_bone_original_rotation());
-			ur->add_do_method(skeleton, "set_bone_pose_scale", p_ids[i], skeleton->get_bone_pose_scale(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_scale", p_ids[i], se->get_bone_original_scale());
-		}
-	}
-	ur->commit_action();
-}
-
 void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	HashMap<int32_t, HashMap<int32_t, Vector<float>>> modification_kusudama_constraint;
 	Ref<SkeletonModificationStack3D> stack;
@@ -401,25 +213,11 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	}
 	p_gizmo->clear();
 
-	int selected = -1;
-	EWBIKSkeleton3DEditor *se = EWBIKSkeleton3DEditor::get_singleton();
-	if (se) {
-		selected = se->get_selected_bone();
-	}
-
 	Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
-	Color selected_bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/selected_bone");
 	int bone_shape = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_settings/bone_shape");
 
 	Ref<SurfaceTool> surface_tool(memnew(SurfaceTool));
 	surface_tool->begin(Mesh::PRIMITIVE_LINES);
-
-	if (p_gizmo->is_selected()) {
-		surface_tool->set_material(selected_mat);
-	} else {
-		unselected_mat->set_albedo(bone_color);
-		surface_tool->set_material(unselected_mat);
-	}
 
 	LocalVector<int> bones;
 	LocalVector<float> weights;
@@ -438,7 +236,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		int current_bone_idx = bones_to_process[current_bone_index];
 		current_bone_index++;
 
-		Color current_bone_color = (current_bone_idx == selected) ? selected_bone_color : bone_color;
+		Color current_bone_color = bone_color;
 
 		Vector<int> child_bones_vector;
 		child_bones_vector = skeleton->get_bone_children(current_bone_idx);

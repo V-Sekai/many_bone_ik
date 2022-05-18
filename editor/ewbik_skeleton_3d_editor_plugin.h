@@ -58,24 +58,14 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 	static EWBIKSkeleton3DEditor *singleton;
 
 	void _file_selected(const String &p_file);
-	TreeItem *_find(TreeItem *p_node, const NodePath &p_path);
 
 	EditorFileDialog *file_export_lib = nullptr;
-
-	void init_pose(const bool p_all_bones);
-	void pose_to_rest(const bool p_all_bones);
-
-	void insert_keys(const bool p_all_bones);
-
-	void set_keyable(const bool p_keyable);
 
 	Vector3 bone_original_position;
 	Quaternion bone_original_rotation;
 	Vector3 bone_original_scale;
 
 	void _subgizmo_selection_change();
-
-	int selected_bone = -1;
 
 protected:
 	void _notification(int p_what);
@@ -84,14 +74,7 @@ protected:
 
 public:
 	static EWBIKSkeleton3DEditor *get_singleton() { return singleton; }
-
-	int get_selected_bone() const;
-
 	Skeleton3D *get_skeleton() const { return skeleton; };
-	void update_bone_original();
-	Vector3 get_bone_original_position() const { return bone_original_position; };
-	Quaternion get_bone_original_rotation() const { return bone_original_rotation; };
-	Vector3 get_bone_original_scale() const { return bone_original_scale; };
 
 	~EWBIKSkeleton3DEditor();
 };
@@ -112,9 +95,6 @@ public:
 class EWBIKSkeleton3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(EWBIKSkeleton3DGizmoPlugin, EditorNode3DGizmoPlugin);
 
-	Ref<StandardMaterial3D> unselected_mat;
-	Ref<ShaderMaterial> selected_mat;
-
 public:
 	const int32_t KUSUDAMA_MAX_CONES = 30;
 	bool has_gizmo(Node3D *p_spatial) override;
@@ -123,7 +103,6 @@ public:
 	int subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const override;
 	Transform3D get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const override;
 	void set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) override;
-	void commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) override;
 
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 
