@@ -731,13 +731,14 @@ void fragment() {
 					tangent_vertex.normal.z = tangent_array[vertex_i + 2];
 					tangent_vertex.d = tangent_array[vertex_i + 3];
 					kusudama_surface_tool->set_tangent(tangent_vertex);
-					kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(current_bone_idx).xform(sphere_vertex));
+					kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).xform(sphere_vertex));
 				}
 				for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
 					int32_t index = index_array[index_i];
 					kusudama_surface_tool->add_index(index);
 				}
-				p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material->duplicate(true), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+
+				p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 			}
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
