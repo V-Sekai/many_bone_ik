@@ -702,8 +702,12 @@ int32_t SkeletonModification3DEWBIK::get_kusudama_limit_cone_count(int32_t p_eff
 }
 
 void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_effector, int32_t p_count) {
-	kusudama_limit_cone_count[p_effector] = p_count;
-	kusudama_limit_cones[p_effector].resize(p_count);
+	int32_t old_count = get_kusudama_limit_cone_count(p_effector);
+	kusudama_limit_cone_count.write[p_effector] = p_count;
+	kusudama_limit_cones.write[p_effector].resize(p_count);
+	for (int32_t cone_i = p_count; cone_i-- > old_count;) {
+		set_kusudama_limit_cone(p_effector, cone_i, Vector3(0.f, 1.f, 0.0f), 0.0f);
+	}
 	notify_property_list_changed();
 	is_dirty = true;
 }
