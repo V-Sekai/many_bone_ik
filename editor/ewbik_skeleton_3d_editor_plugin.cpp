@@ -208,7 +208,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				kusudama_constraint[constraint_i] = cone_constraint;
 			}
 			modification_kusudama_constraint[modification_i] = kusudama_constraint;
-			break;
 		}
 	}
 	p_gizmo->clear();
@@ -307,26 +306,28 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					}
 				}
 			}
-			// Todo: Try some other modification;
-			HashMap<int32_t, Vector<float>> current_kusudama_constraint = modification_kusudama_constraint[0];
-			Ref<SkeletonModification3DEWBIK> modification = stack->get_modification(0);
-			String bone_name = skeleton->get_bone_name(current_bone_idx);
-			BoneId constraint_id = modification->find_effector_id(bone_name);
-			if (modification.is_valid() && current_kusudama_constraint.has(constraint_id)) {
-				Ref<SphereMesh> sphere_mesh;
-				sphere_mesh.instantiate();
-				sphere_mesh->set_radius(dist / 8.0f);
-				sphere_mesh->set_height(dist / 4.0f);
-				PackedFloat32Array kusudama_limit_cones;
-				kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
-				kusudama_limit_cones.fill(0.0f);
-				Vector<float> limit_cones = current_kusudama_constraint[constraint_id];
-				for (int32_t value_i = 0; value_i < limit_cones.size(); value_i++) {
-					kusudama_limit_cones.write[value_i] = limit_cones[value_i];
-				}
-				Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
-				Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
-				kusudama_shader->set_code(R"(
+
+			if (stack.is_valid()) {
+				for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
+					HashMap<int32_t, Vector<float>> current_kusudama_constraint = modification_kusudama_constraint[modification_i];
+					Ref<SkeletonModification3DEWBIK> modification = stack->get_modification(0);
+					String bone_name = skeleton->get_bone_name(current_bone_idx);
+					BoneId constraint_id = modification->find_effector_id(bone_name);
+					if (modification.is_valid() && current_kusudama_constraint.has(constraint_id)) {
+						Ref<SphereMesh> sphere_mesh;
+						sphere_mesh.instantiate();
+						sphere_mesh->set_radius(dist / 8.0f);
+						sphere_mesh->set_height(dist / 4.0f);
+						PackedFloat32Array kusudama_limit_cones;
+						kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
+						kusudama_limit_cones.fill(0.0f);
+						Vector<float> limit_cones = current_kusudama_constraint[constraint_id];
+						for (int32_t value_i = 0; value_i < limit_cones.size(); value_i++) {
+							kusudama_limit_cones.write[value_i] = limit_cones[value_i];
+						}
+						Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+						Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
+						kusudama_shader->set_code(R"(
 // Skeleton 3D gizmo kusudama constraint shader.
 shader_type spatial;
 render_mode depth_draw_always, depth_prepass_alpha, cull_disabled;
@@ -499,44 +500,46 @@ void fragment() {
 	ALPHA = resultColorAllowed.a;
 }
 )");
-				kusudama_material->set_shader(kusudama_shader);
-				kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
-				kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
-				Ref<SurfaceTool> kusudama_surface_tool;
-				kusudama_surface_tool.instantiate();
-				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-				kusudama_surface_tool->create_from(sphere_mesh, 0);
-				Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
-				kusudama_surface_tool->clear();
-				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-				Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
-				PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
-				PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
-				PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
-				PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
-				for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
-					Vector3 sphere_vertex = vertex_array[vertex_i];
-					kusudama_surface_tool->set_color(current_bone_color);
-					kusudama_surface_tool->set_bones(bones);
-					kusudama_surface_tool->set_weights(weights);
-					Vector2 uv_vertex = uv_array[vertex_i];
-					kusudama_surface_tool->set_uv(uv_vertex);
-					Vector3 normal_vertex = normal_array[vertex_i];
-					kusudama_surface_tool->set_normal(normal_vertex);
-					Plane tangent_vertex;
-					tangent_vertex.normal.x = tangent_array[vertex_i + 0];
-					tangent_vertex.normal.y = tangent_array[vertex_i + 1];
-					tangent_vertex.normal.z = tangent_array[vertex_i + 2];
-					tangent_vertex.d = tangent_array[vertex_i + 3];
-					kusudama_surface_tool->set_tangent(tangent_vertex);
-					kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).xform(sphere_vertex));
-				}
-				for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
-					int32_t index = index_array[index_i];
-					kusudama_surface_tool->add_index(index);
-				}
+						kusudama_material->set_shader(kusudama_shader);
+						kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
+						kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
+						Ref<SurfaceTool> kusudama_surface_tool;
+						kusudama_surface_tool.instantiate();
+						kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+						kusudama_surface_tool->create_from(sphere_mesh, 0);
+						Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
+						kusudama_surface_tool->clear();
+						kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+						Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
+						PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
+						PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
+						PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
+						PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
+						for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
+							Vector3 sphere_vertex = vertex_array[vertex_i];
+							kusudama_surface_tool->set_color(current_bone_color);
+							kusudama_surface_tool->set_bones(bones);
+							kusudama_surface_tool->set_weights(weights);
+							Vector2 uv_vertex = uv_array[vertex_i];
+							kusudama_surface_tool->set_uv(uv_vertex);
+							Vector3 normal_vertex = normal_array[vertex_i];
+							kusudama_surface_tool->set_normal(normal_vertex);
+							Plane tangent_vertex;
+							tangent_vertex.normal.x = tangent_array[vertex_i + 0];
+							tangent_vertex.normal.y = tangent_array[vertex_i + 1];
+							tangent_vertex.normal.z = tangent_array[vertex_i + 2];
+							tangent_vertex.d = tangent_array[vertex_i + 3];
+							kusudama_surface_tool->set_tangent(tangent_vertex);
+							kusudama_surface_tool->add_vertex(skeleton->get_bone_global_rest(child_bone_idx).xform(sphere_vertex));
+						}
+						for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
+							int32_t index = index_array[index_i];
+							kusudama_surface_tool->add_index(index);
+						}
 
-				p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+						p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+					}
+				}
 			}
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
