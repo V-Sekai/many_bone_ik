@@ -71,28 +71,9 @@ void SkeletonModification3DEWBIK::set_root_bone_index(BoneId p_index) {
 }
 
 void SkeletonModification3DEWBIK::set_pin_count(int32_t p_value) {
-	List<StringName> existing_pins;
-	for (int32_t pin_i = 0; pin_i < pins.size(); pin_i++) {
-		if (pins[pin_i].is_null()) {
-			continue;
-		}
-		const StringName name = pins[pin_i]->get_name();
-		existing_pins.push_back(name);
-	}
 	int32_t old_count = pins.size();
 	pin_count = p_value;
 	pins.resize(p_value);
-	for (int32_t pin_i = p_value; pin_i-- > old_count;) {
-		pins.write[pin_i].instantiate();
-		pins.write[pin_i]->set_name("");
-		for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
-			StringName name = bone_list[bone_i]->get_name();
-			if (existing_pins.find(name)) {
-				continue;
-			}
-			pins.write[pin_i]->set_name(name);
-		}
-	}
 	notify_property_list_changed();
 	is_dirty = true;
 }
@@ -679,24 +660,8 @@ void SkeletonModification3DEWBIK::set_pin_depth_falloff(int32_t p_effector_index
 }
 
 void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
-	int32_t old_count = constraint_names.size();
 	constraint_count = p_count;
 	constraint_names.resize(p_count);
-	List<StringName> existing_constraints;
-	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
-		const StringName name = get_constraint_name(constraint_i);
-		existing_constraints.push_back(name);
-	}
-	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
-		constraint_names.write[constraint_i] = "";
-		for (int32_t bone_i = 0; bone_i < bone_list.size(); bone_i++) {
-			StringName name = bone_list[bone_i]->get_name();
-			if (existing_constraints.find(name)) {
-				continue;
-			}
-			constraint_names.write[constraint_i] = name;
-		}
-	}
 	notify_property_list_changed();
 	is_dirty = true;
 }
