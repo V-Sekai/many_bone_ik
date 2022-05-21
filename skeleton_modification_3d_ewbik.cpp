@@ -425,17 +425,16 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_z_direction"));
 	}
 	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
+	RBSet<String> existing_constraints;
+	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+		const String name = get_constraint_name(constraint_i);
+		existing_constraints.insert(name);
+	}
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
 		if (skeleton) {
-			RBSet<String> existing_constraints;
-			for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
-				const String name = get_constraint_name(constraint_i);
-				existing_constraints.insert(name);
-			}
-
 			String names;
 			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 				String name = skeleton->get_bone_name(bone_i);
@@ -444,6 +443,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				}
 				name += ",";
 				names += name;
+				existing_constraints.insert(name);
 			}
 			bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			bone_name.hint_string = names;
