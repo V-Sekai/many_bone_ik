@@ -38,7 +38,7 @@
 #include "editor/editor_scale.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
-#include "ewbik/skeleton_modification_3d_ewbik.h"
+#include "../skeleton_modification_3d_ewbik.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
 #include "scene/3d/label_3d.h"
