@@ -175,7 +175,7 @@ bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> global_
 }
 
 void IKKusudama::set_axial_limits(double min_angle, double in_range) {
-	_min_axial_angle_conflict = min_angle;
+	_min_axial_angle = min_angle;
 	range = to_tau(in_range);
 	_update_constraint();
 }
@@ -308,7 +308,7 @@ double IKKusudama::mod(double x, double y) {
 }
 
 double IKKusudama::min_axial_angle() {
-	return _min_axial_angle_conflict;
+	return _min_axial_angle;
 }
 
 double IKKusudama::max_axial_angle() {
@@ -316,7 +316,7 @@ double IKKusudama::max_axial_angle() {
 }
 
 double IKKusudama::absolute_max_axial_angle() {
-	return signed_angle_difference(range + _min_axial_angle_conflict, Math_PI * 2);
+	return signed_angle_difference(range + _min_axial_angle, Math_PI * 2);
 }
 
 bool IKKusudama::is_axially_constrained() {
