@@ -145,9 +145,10 @@ void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 	_update_constraint();
 }
 
-double IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
+Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
+
 	if (!axially_constrained) {
-		return 0;
+		return Quaternion();
 	}
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
 	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
@@ -157,14 +158,16 @@ double IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTran
 	angle_delta_2 = to_tau(angle_delta_2);
 	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 	if (!(from_min_to_angle_delta < Math_TAU - range)) {
-		return 0;
+		return Quaternion();
 	}
+	Vector3 axis = to_set->get_transform().basis[Vector3::AXIS_Y];
+	axis = to_set->to_global(axis).normalized();
 	double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 	double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + range)));
 	if (dist_to_min < dist_to_max) {
-		return limiting_axes->getGlobalChirality() * (from_min_to_angle_delta);
+		return Quaternion(axis, limiting_axes->getGlobalChirality() * (from_min_to_angle_delta));
 	}
-	return limiting_axes->getGlobalChirality() * (range - (Math_TAU - from_min_to_angle_delta));
+	return Quaternion(axis, limiting_axes->getGlobalChirality() * (range - (Math_TAU - from_min_to_angle_delta)));
 }
 
 double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
