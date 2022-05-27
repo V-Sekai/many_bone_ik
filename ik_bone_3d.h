@@ -63,7 +63,7 @@ class IKBone3D : public Resource {
 	// to keep -y to be the opposite of its bone forward orientation 
 	// To avoid singularity that is ambigous. 
 	Ref<IKTransform3D> constraint_transform = memnew(IKTransform3D()); 
-	Ref<IKTransform3D> xform = memnew(IKTransform3D()); // bone's actual transform
+	Ref<IKTransform3D> transform = memnew(IKTransform3D()); // bone's actual transform
 	Ref<IKTransform3D> bone_direction_transform = memnew(IKTransform3D()); // Physical direction of the bone. Calculate Y is the bone up.
 protected:
 	static void _bind_methods();

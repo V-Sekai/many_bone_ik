@@ -47,8 +47,8 @@ void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 	parent = p_parent;
 	if (parent.is_valid()) {
 		parent->children.push_back(this);
-		xform->set_parent(parent->xform);
-		constraint_transform->set_parent(xform->get_parent());
+		transform->set_parent(parent->transform);
+		constraint_transform->set_parent(transform->get_parent());
 	}
 }
 
@@ -66,21 +66,21 @@ Ref<IKEffector3D> IKBone3D::get_pin() const {
 }
 
 void IKBone3D::set_pose(const Transform3D &p_transform) {
-	xform->set_transform(p_transform);
+	transform->set_transform(p_transform);
 }
 
 Transform3D IKBone3D::get_pose() const {
-	return xform->get_transform();
+	return transform->get_transform();
 }
 
 void IKBone3D::set_global_pose(const Transform3D &p_transform) {
-	xform->set_global_transform(p_transform);
-	constraint_transform->local_transform.origin = xform->local_transform.origin;
+	transform->set_global_transform(p_transform);
+	constraint_transform->local_transform.origin = transform->local_transform.origin;
 	constraint_transform->_propagate_transform_changed();
 }
 
 Transform3D IKBone3D::get_global_pose() const {
-	return xform->get_global_transform();
+	return transform->get_global_transform();
 }
 
 void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
@@ -137,7 +137,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			break;
 		}
 	}
-	bone_direction_transform->set_parent(xform);
+	bone_direction_transform->set_parent(transform);
 }
 
 float IKBone3D::get_cos_half_dampen() const {
@@ -160,7 +160,7 @@ void IKBone3D::addConstraint(Ref<IKKusudama> p_constraint) {
 }
 
 Ref<IKTransform3D> IKBone3D::get_ik_transform() {
-	return xform;
+	return transform;
 }
 
 Ref<IKTransform3D> IKBone3D::get_constraint_transform() {
