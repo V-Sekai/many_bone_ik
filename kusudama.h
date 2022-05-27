@@ -300,7 +300,7 @@ public:
 	 per iteration. This should help stabilize solutions somewhat by allowing for soft constraint violations.**/
 	virtual double get_strength() const;
 
-	virtual Vector<Ref<LimitCone>> get_limit_cones();
+	virtual Vector<Ref<LimitCone>> &get_limit_cones();
 
 public:
 	/**
