@@ -239,15 +239,36 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	if (p_for_bone->getConstraint().is_valid() && p_for_bone->get_constraint_transform().is_valid()) {
 		if (p_for_bone->getConstraint()->is_orientationally_constrained()) {
 			Quaternion orientation_snap = p_for_bone->getConstraint()->get_axes_to_orientation_snap(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), p_for_bone->get_cos_half_dampen());
+			if (!Math::is_equal_approx(p_dampening, -1.0f)) {
+				orientation_snap = clamp_to_angle(orientation_snap, p_dampening);
+			} else {
+				orientation_snap = clamp_to_quadrance_angle(orientation_snap, bone_damp);
+			}
 			p_for_bone->get_ik_transform()->rotate_local_with_global(orientation_snap);
 		}
 		if (p_for_bone->getConstraint()->is_axially_constrained()) {
 			double twist_diff = p_for_bone->getConstraint()->get_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform());
 			twist_diff *= p_for_bone->get_ik_transform()->getGlobalChirality();
 			Vector3 axis = p_for_bone->get_ik_transform()->get_transform().basis[Vector3::AXIS_Y];
-			twist_diff *= p_for_bone->get_constraint_transform()->getGlobalChirality();
-			axis = p_for_bone->get_ik_transform()->to_global(axis).normalized();
-			Quaternion twist_snap = Quaternion(axis, twist_diff);
+			axis = p_for_bone->get_ik_transform()->to_global(axis);
+			Quaternion twist_snap;
+			{ // Use an unnormalized quaternion.
+				real_t d = axis.length();
+				if (Math::is_zero_approx(d)) {
+					twist_snap.x = 0;
+					twist_snap.y = 0;
+					twist_snap.z = 0;
+					twist_snap.w = 0;
+				} else {
+					real_t sin_angle = Math::sin(twist_diff * 0.5f);
+					real_t cos_angle = Math::cos(twist_diff * 0.5f);
+					real_t s = sin_angle / d;
+					twist_snap.x = axis.x * s;
+					twist_snap.y = axis.y * s;
+					twist_snap.z = axis.z * s;
+					twist_snap.w = cos_angle;
+				}
+			}
 			p_for_bone->get_ik_transform()->rotate_local_with_global(twist_snap);
 		}
 	}

@@ -108,14 +108,7 @@ public:
 	int32_t get_pin_count() const;
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
 	String get_pin_bone_name(int32_t p_effector_index) const;
-	int32_t find_effector_id(StringName p_bone_name) {
-		for (int32_t constraint_i = 0; constraint_i < constraint_names.size(); constraint_i++) {
-			if (constraint_names[constraint_i] == p_bone_name) {
-				return constraint_i;
-			}
-		}
-		return -1;
-	}
+	int32_t find_effector_id(StringName p_bone_name);
 	void set_pin_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
 	NodePath get_pin_target_nodepath(int32_t p_pin_index);
 	void set_pin_depth_falloff(int32_t p_effector_index, const float p_depth_falloff);
@@ -126,10 +119,7 @@ public:
 	void set_default_damp(float p_default_damp);
 	void set_constraint_count(int32_t p_count);
 	int32_t get_constraint_count() const;
-	StringName get_constraint_name(int32_t p_effector_index) const {
-		ERR_FAIL_INDEX_V(p_effector_index, constraint_names.size(), StringName());
-		return constraint_names[p_effector_index];
-	}
+	StringName get_constraint_name(int32_t p_effector_index) const;
 	void set_kusudama_twist_degrees(int32_t p_index, Vector2 p_twist);
 	Vector2 get_kusudama_twist_degrees(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
