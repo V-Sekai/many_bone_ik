@@ -338,7 +338,7 @@ int get_allowability_condition(in int current_condition, in int set_to) {
 // returns 0 if normal_dir is within (cone.a + boundary_width) radians from the cone.rgb
 // return -1 if normal_dir is less than (cone.a) radians from the cone.rgb
 int is_in_cone(in vec3 normal_dir, in vec4 cone, in float boundary_width) {
-	float arc_dist_to_cone = acos(dot(normal_dir, cone.rgb));s
+	float arc_dist_to_cone = acos(dot(normal_dir, cone.rgb));
 	if (arc_dist_to_cone > (cone.a+(boundary_width/2.))) {
 		return 1; 
 	}
