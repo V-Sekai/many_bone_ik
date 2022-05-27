@@ -145,38 +145,29 @@ void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 	_update_constraint();
 }
 
-Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff) {
+double IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
+	double turn_diff = 0.0;
 	if (!axially_constrained) {
-		r_turn_diff = 0;
-		return Quaternion();
+		return turn_diff;
 	}
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
-	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
+	Basis align_rot = inv_rot * to_set->get_global_transform().basis * limiting_axes->get_global_transform().basis;
 	Vector3 up(0, 1, 0);	
 	Vector<Quaternion> decomposition = get_swing_twist(align_rot, up);
 	double angle_delta_2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
 	angle_delta_2 = to_tau(angle_delta_2);
 	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
-
-	Quaternion quaternion;
-	Vector3 axis = to_set->get_transform().basis[Vector3::AXIS_Y];
 	if (from_min_to_angle_delta < Math_TAU - range) {
 		double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 		double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + range)));
-		double turnDiff = 1;
-		turnDiff *= limiting_axes->getGlobalChirality();
-		axis = to_set->to_global(axis).normalized();
 		if (dist_to_min < dist_to_max) {
-			turnDiff = turnDiff * (from_min_to_angle_delta);
-			quaternion = Quaternion(axis, turnDiff);
+			turn_diff = limiting_axes->getGlobalChirality() * (from_min_to_angle_delta);
 		} else {
-			turnDiff = turnDiff * (range - (Math_TAU - from_min_to_angle_delta));
-			quaternion = Quaternion(axis, turnDiff);
+			turn_diff = limiting_axes->getGlobalChirality() * (range - (Math_TAU - from_min_to_angle_delta));
 		}
-		r_turn_diff = turnDiff < 0 ? turnDiff * -1 : turnDiff;
+		return turn_diff < 0 ? turn_diff * -1 : turn_diff;
 	}
-	r_turn_diff = 0;
-	return Quaternion(axis, r_turn_diff);
+	return turn_diff;
 }
 
 double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {

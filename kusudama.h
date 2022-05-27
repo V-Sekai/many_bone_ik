@@ -151,7 +151,7 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual Quaternion get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double &r_turn_diff);
+	virtual double get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
 	virtual double angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
