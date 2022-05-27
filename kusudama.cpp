@@ -55,14 +55,13 @@ void IKKusudama::optimize_limiting_axes() {
 		directions.push_back(limit_cones[0]->get_control_point());
 	} else {
 		for (int i = 0; i < get_limit_cones().size() - 1; i++) {
-			Vector3 thisC = get_limit_cones()[i]->get_control_point();
-			Vector3 nextC = get_limit_cones()[i + 1]->get_control_point();
-			Basis thisToNext = Basis(thisC, nextC);
+			Vector3 &thisC = get_limit_cones()[i]->get_control_point();
+			Vector3 &nextC = get_limit_cones()[i + 1]->get_control_point();
+			Quaternion thisToNext = quaternion_unnormalized(thisC, nextC);
 			Vector3 axis;
 			real_t angle;
 			thisToNext.get_axis_angle(axis, angle);
-			Basis halfThisToNext(axis, angle / 2.0f);
-
+			Quaternion halfThisToNext(axis, angle / 2.0f);
 			Vector3 halfAngle = halfThisToNext.xform(thisC);
 			halfAngle.normalize();
 			halfAngle *= thisToNext.get_euler();
@@ -160,10 +159,9 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 		double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 		double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + range)));
 		double turnDiff = 1;
-		// TODO: fire 2022-05-13 restore chirality
 		turnDiff *= limiting_axes->getGlobalChirality();
 		Vector3 axis = to_set->get_transform().basis[Vector3::AXIS_Y];
-		axis = to_set->to_global(axis);
+		axis = to_set->to_global(axis).normalized();
 		if (dist_to_min < dist_to_max) {
 			turnDiff = turnDiff * (from_min_to_angle_delta);
 			quaternion = Quaternion(axis, turnDiff);
