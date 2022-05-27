@@ -152,8 +152,8 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 	}
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
 	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
-	Vector3 temp_var(0, 1, 0);
-	Vector<Quaternion> decomposition = get_swing_twist(align_rot, temp_var);
+	Vector3 up(0, 1, 0);	
+	Vector<Quaternion> decomposition = get_swing_twist(align_rot, up);
 	double angle_delta_2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
 	angle_delta_2 = to_tau(angle_delta_2);
 	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
@@ -361,7 +361,7 @@ Vector<Ref<LimitCone>> &IKKusudama::get_limit_cones() {
 Vector<Quaternion> IKKusudama::get_swing_twist(Quaternion p_quaternion, Vector3 p_axis) {
 	Quaternion twist_rotation = p_quaternion;
 	const float d = twist_rotation.get_axis().dot(p_axis);
-	twist_rotation = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, twist_rotation.w);
+	twist_rotation = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, twist_rotation.w).normalized();
 	if (d < 0) {
 		twist_rotation *= -1.0f;
 	}
