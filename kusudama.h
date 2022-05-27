@@ -111,31 +111,6 @@ public:
 	Ref<Ray3D> bone_ray = Ref<Ray3D>(memnew(Ray3D()));
 	Ref<Ray3D> constrained_ray = Ref<Ray3D>(memnew(Ray3D()));
 
-	// virtual void setAxesToReturnfulled(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cosHalfReturnfullness, double angleReturnfullness);
-
-	// /**
-	//  * A value between (ideally between 0 and 1) dictating
-	//  * how much the bone to which this kusudama belongs
-	//  * prefers to be away from the edges of the kusudama
-	//  * if it can. This is useful for avoiding unnatural poses,
-	//  * as the kusudama will push bones back into their more
-	//  * "comfortable" regions. Leave this value at its default of
-	//  * 0 unless you empircal observations show you need it.
-	//  * Setting this value to anything higher than 0.4 is probably overkill
-	//  * in most situations.
-	//  *
-	//  * @param amt
-	//  */
-	// virtual void set_painfullness(double amt);
-
-	// /**
-	//  * @return A value between (ideally between 0 and 1) dictating
-	//  * how much the bone to which this kusudama belongs
-	//  * prefers to be away from the edges of the kusudama
-	//  * if it can.
-	//  */
-	// virtual double getPainfullness();
-
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.

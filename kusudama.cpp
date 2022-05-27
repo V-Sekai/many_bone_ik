@@ -105,44 +105,6 @@ void IKKusudama::update_tangent_radii() {
 	}
 }
 
-// Todo: fire 2022-05-13 Haven't been using this code path the last week. This is planned to be replaced by cushions.
-// Re-enable and debug if we want bouncy constraint.
-// void IKKusudama::setAxesToReturnfulled(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cosHalfReturnfullness, double angleReturnfullness) {
-// 	if (limiting_axes != nullptr && painfullness > 0) {
-// 		if (orientationally_constrained) {
-// 			Vector3 origin = to_set->get_transform().origin;
-// 			Vector3 in_point = to_set->get_transform().basis[Vector3::AXIS_Y];
-// 			Vector3 pathPoint = local_point_on_path_sequence(in_point, limiting_axes);
-// 			in_point -= origin;
-// 			pathPoint -= origin;
-// 			Quaternion toClamp = Quaternion(in_point, pathPoint);
-// 			toClamp.rotation.clampToQuadranceAngle(cosHalfReturnfullness);
-// 			to_set->rotate_local_with_global(toClamp);
-// 		}
-// 		if (axially_constrained) {
-// 			double angleToTwistMid = angle_to_twist_center(to_set, limiting_axes);
-// 			double clampedAngle = CLAMP(angleToTwistMid, -angleReturnfullness, angleReturnfullness);
-// 			to_set->rotateAboutY(clampedAngle, false);
-// 		}
-// 	}
-// }
-
-// void IKKusudama::set_painfullness(double amt) {
-// 	painfullness = amt;
-// 	if (!(attached_to().is_valid() && attached_to()->parentArmature.is_valid())) {
-// 		return;
-// 	}
-// 	Ref<IKBone3D> wb = this->attached_to();
-// 	if (wb.is_null()) {
-// 		return;
-// 	}
-// 	wb->updateCosDampening();
-// }
-
-// double IKKusudama::getPainfullness() {
-// 	return painfullness;
-// }
-
 IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
 	Vector<double> in_bounds = { 1 };
 	/**
