@@ -8,7 +8,7 @@ budget_millisecond = 8.0
 root_bone = "Bone_01"
 default_damp = 0.872665
 pin_count = 2
-pins/0/name = "Bone_03"
+pins/0/name = "Bone_02"
 pins/0/target_node = NodePath("../../../BoneAttachment3D")
 pins/0/use_node_rotation = true
 pins/0/depth_falloff = 1.0
@@ -28,10 +28,10 @@ pins/1/weight_y_direction = null
 pins/1/weight_z_direction = null
 constraint_count = 1
 constraints/0/name = &"Bone_02"
-constraints/0/kusudama_twist_degrees = Vector2(0, 180)
+constraints/0/kusudama_twist_degrees = Vector2(0, 15)
 constraints/0/kusudama_limit_cone_count = 1
 constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/0/kusudama_limit_cone/0/radius = 4.0
+constraints/0/kusudama_limit_cone/0/radius = 5.0
 
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_xr835"]
 enabled = true
@@ -46,11 +46,10 @@ size = Vector3(0.25, 0.25, 0.125)
 [node name="ewbik_test_rig_2_bone" parent="." instance=ExtResource( "1_7vofn" )]
 
 [node name="Skeleton3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature" index="0"]
-bones/1/position = Vector3(1.19982e-15, 0.6, 0)
-bones/1/rotation = Quaternion(-0.131965, 0.90343, 0.0196797, 0.407446)
-bones/1/scale = Vector3(1, 1, 1)
-bones/2/position = Vector3(-0.000925675, 0.60943, -0.000130683)
-bones/2/rotation = Quaternion(0.813567, -0.0118558, 0.574935, -0.0861263)
+bones/1/position = Vector3(2.96628e-15, 0.6, 0)
+bones/1/rotation = Quaternion(1.04912e-07, -0.33387, 3.6289e-08, 0.942619)
+bones/2/position = Vector3(-0.00100172, 0.613336, 9.13907e-05)
+bones/2/rotation = Quaternion(0.0207409, -0.716659, -0.015333, 0.696947)
 bones/2/scale = Vector3(1, 1, 1)
 modification_stack = SubResource( "SkeletonModificationStack3D_xr835" )
 
@@ -58,7 +57,7 @@ modification_stack = SubResource( "SkeletonModificationStack3D_xr835" )
 visible = false
 
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D" index="1"]
-transform = Transform3D(0.498074, 0.0877364, -0.862684, -0.0558492, -0.989557, -0.132884, -0.865334, 0.114366, -0.487973, -0.154597, 1.18792, -0.0430923)
+transform = Transform3D(-0.649862, -0.0385229, -0.759076, -0.0511013, 0.99867, -0.00693327, 0.758333, 0.0342841, -0.650965, -0.000836005, 1.21334, -0.000558981)
 bone_name = "Bone_03"
 bone_idx = 2
 
@@ -68,8 +67,8 @@ mesh = SubResource( "BoxMesh_cy8x8" )
 [node name="Node3D" type="Node3D" parent="."]
 
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="."]
-transform = Transform3D(0.498075, 0.0877361, -0.862683, -0.0558496, -0.989559, -0.132885, -0.865335, 0.114366, -0.487972, -0.234561, 1.49201, -0.0653814)
-bone_name = "Bone_03"
+transform = Transform3D(0.488986, 0, -0.872289, 0, 1, 0, 0.872291, 0, 0.488986, 0.00371526, 1.22667, 0.0218528)
+bone_name = "Bone_02"
 bone_idx = 2
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="BoneAttachment3D"]
