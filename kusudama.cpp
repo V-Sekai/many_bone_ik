@@ -159,12 +159,12 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 
 	Quaternion quaternion;
+	Vector3 axis = to_set->get_transform().basis[Vector3::AXIS_Y];
 	if (from_min_to_angle_delta < Math_TAU - range) {
 		double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 		double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + range)));
 		double turnDiff = 1;
 		turnDiff *= limiting_axes->getGlobalChirality();
-		Vector3 axis = to_set->get_transform().basis[Vector3::AXIS_Y];
 		axis = to_set->to_global(axis).normalized();
 		if (dist_to_min < dist_to_max) {
 			turnDiff = turnDiff * (from_min_to_angle_delta);
@@ -176,7 +176,7 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 		r_turn_diff = turnDiff < 0 ? turnDiff * -1 : turnDiff;
 	}
 	r_turn_diff = 0;
-	return quaternion;
+	return Quaternion(axis, r_turn_diff);
 }
 
 double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
@@ -359,22 +359,22 @@ Vector<Ref<LimitCone>> &IKKusudama::get_limit_cones() {
 }
 
 Vector<Quaternion> IKKusudama::get_swing_twist(Quaternion p_quaternion, Vector3 p_axis) {
-	Quaternion twist_rotation = p_quaternion;
-	const float d = twist_rotation.get_axis().dot(p_axis);
-	twist_rotation = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, twist_rotation.w).normalized();
+	const float d = p_quaternion.get_axis().dot(p_axis);
+	Quaternion twist = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, p_quaternion.w).normalized();
 	if (d < 0) {
-		twist_rotation *= -1.0f;
+		twist *= -1.0f;
 	}
-	Quaternion swing = twist_rotation;
+	Quaternion swing = twist;
 	swing.x = -swing.x;
 	swing.y = -swing.y;
 	swing.z = -swing.z;
-	swing = twist_rotation * swing;
+	swing = twist * p_quaternion;
+	swing.normalize();
 
 	Vector<Quaternion> result;
 	result.resize(2);
 	result.write[0] = swing;
-	result.write[1] = twist_rotation;
+	result.write[1] = twist;
 	return result;
 }
 
