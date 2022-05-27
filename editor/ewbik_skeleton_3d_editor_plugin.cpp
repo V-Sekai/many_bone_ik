@@ -259,8 +259,8 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					if (modification.is_valid() && current_kusudama_constraint.has(constraint_id)) {
 						Ref<SphereMesh> sphere_mesh;
 						sphere_mesh.instantiate();
-						sphere_mesh->set_radius(dist / 8.0f);
-						sphere_mesh->set_height(dist / 4.0f);
+						sphere_mesh->set_radius(dist / 4.0);
+						sphere_mesh->set_height(dist / 2.0);
 						PackedFloat32Array kusudama_limit_cones;
 						kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 						kusudama_limit_cones.fill(0.0f);
