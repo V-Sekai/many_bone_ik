@@ -150,8 +150,7 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 	if (!axially_constrained) {
 		return Quaternion();
 	}
-	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
-	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
+	Basis align_rot = limiting_axes->get_global_transform().basis.inverse() * to_set->get_global_transform().basis;
 	Vector3 up(0, 1, 0);
 	Vector<Quaternion> decomposition = get_swing_twist(align_rot, up);
 	double angle_delta_2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
@@ -162,11 +161,13 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 	}
 	double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 	double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + range)));
-	Vector3 axis = limiting_axes->get_global_transform().basis[Vector3::AXIS_Y].normalized();
+	Vector3 axis = align_rot[Vector3::AXIS_Y].normalized();
 	if (dist_to_min < dist_to_max) {
-		return Quaternion(axis, limiting_axes->getGlobalChirality() * (from_min_to_angle_delta));
+		double difference = limiting_axes->getGlobalChirality() * (from_min_to_angle_delta);
+		return Basis(decomposition[1])[Vector3::AXIS_Y] *  difference;
 	}
-	return Quaternion(axis, limiting_axes->getGlobalChirality() * (range - (Math_TAU - from_min_to_angle_delta)));
+	double difference = limiting_axes->getGlobalChirality() * (range - (Math_TAU - from_min_to_angle_delta));
+	return Basis(decomposition[1])[Vector3::AXIS_Y] * difference;
 }
 
 double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
