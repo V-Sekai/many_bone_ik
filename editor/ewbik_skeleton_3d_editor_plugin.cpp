@@ -31,6 +31,7 @@
 #include "ewbik_skeleton_3d_editor_plugin.h"
 
 #include "../kusudama.h"
+#include "../skeleton_modification_3d_ewbik.h"
 #include "core/io/resource_saver.h"
 #include "editor/editor_file_dialog.h"
 #include "editor/editor_node.h"
@@ -38,7 +39,6 @@
 #include "editor/editor_scale.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
-#include "../skeleton_modification_3d_ewbik.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
 #include "scene/3d/label_3d.h"
@@ -275,42 +275,42 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 shader_type spatial;
 render_mode depth_prepass_alpha, cull_disabled;
 
-uniform vec4 kusudamaColor : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
+uniform vec4 kusudama_color : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
 const int CONE_COUNT_MAX = 30;
 
-
 // 0,0,0 is the center of the kusudama. The kusudamas have their own bases that automatically get reoriented such that +y points in the direction that is the weighted average of the limitcones on the kusudama.
-// But, if you have a kusuduma with just 1 limitcone, then in general that limitcone should be 0,1,0 in the kusudama's basis unless the user has specifically specified otherwise.
+// But, if you have a kusuduma with just 1 limit_cone, then in general that limit_cone should be 0,1,0 in the kusudama's basis unless the user has specifically specified otherwise.
 
-uniform vec4 coneSequence[30];
+uniform vec4 cone_sequence[30];
 
 // This shader can display up to 30 cones (represented by 30 4d vectors) 
 // Each group of 4 represents the xyz coordinates of the cone direction
 // vector in model space and the fourth element represents radius
 
-// TODO: Use a texture to store bone parameters.
+// TODO: fire 2022-05-26
+// Use a texture to store bone parameters.
 // Use the uv to get the row of the bone.
 
-varying vec3 normalModelDir;
-varying vec4 vertModelColor;
+varying vec3 normal_model_dir;
+varying vec4 vert_model_color;
 
-bool isInInterConePath(in vec3 normalDir, in vec4 tangent1, in vec4 cone1, in vec4 tangent2, in vec4 cone2) {
-	vec3 c1xc2 = cross(cone1.xyz, cone2.xyz);		
-	float c1c2dir = dot(normalDir, c1xc2);
+bool is_in_inter_cone_path(in vec3 normal_dir, in vec4 tangent_1, in vec4 cone_1, in vec4 tangent_2, in vec4 cone_2) {
+	vec3 c1xc2 = cross(cone_1.xyz, cone_2.xyz);		
+	float c1c2dir = dot(normal_dir, c1xc2);
 		
 	if (c1c2dir < 0.0) { 
-		vec3 c1xt1 = cross(cone1.xyz, tangent1.xyz); 
-		vec3 t1xc2 = cross(tangent1.xyz, cone2.xyz);	
-		float c1t1dir = dot(normalDir, c1xt1);
-		float t1c2dir = dot(normalDir, t1xc2);
+		vec3 c1xt1 = cross(cone_1.xyz, tangent_1.xyz); 
+		vec3 t1xc2 = cross(tangent_1.xyz, cone_2.xyz);	
+		float c1t1dir = dot(normal_dir, c1xt1);
+		float t1c2dir = dot(normal_dir, t1xc2);
 		
 	 	return (c1t1dir > 0.0 && t1c2dir > 0.0); 
 			
 	} else {
-		vec3 t2xc1 = cross(tangent2.xyz, cone1.xyz);	
-		vec3 c2xt2 = cross(cone2.xyz, tangent2.xyz);	
-		float t2c1dir = dot(normalDir, t2xc1);
-		float c2t2dir = dot(normalDir, c2xt2);
+		vec3 t2xc1 = cross(tangent_2.xyz, cone_1.xyz);	
+		vec3 c2xt2 = cross(cone_2.xyz, tangent_2.xyz);	
+		float t2c1dir = dot(normal_dir, t2xc1);
+		float c2t2dir = dot(normal_dir, c2xt2);
 		
 		return (c2t2dir > 0.0 && t2c1dir > 0.0);
 	}	
@@ -319,30 +319,30 @@ bool isInInterConePath(in vec3 normalDir, in vec4 tangent1, in vec4 cone1, in ve
 
 //determines the current draw condition based on the desired draw condition in the setToArgument
 // -3 = disallowed entirely; 
-// -2 = disallowed and on tangentCone boundary
-// -1 = disallowed and on controlCone boundary
+// -2 = disallowed and on tangent_cone boundary
+// -1 = disallowed and on control_cone boundary
 // 0 =  allowed and empty; 
-// 1 =  allowed and on controlCone boundary
-// 2  = allowed and on tangentCone boundary
-int getAllowabilityCondition(in int currentCondition, in int setTo) {
-	if((currentCondition == -1 || currentCondition == -2)
-		&& setTo >= 0) {
-		return currentCondition *= -1;
-	} else if(currentCondition == 0 && (setTo == -1 || setTo == -2)) {
-		return setTo *=-2;
+// 1 =  allowed and on control_cone boundary
+// 2  = allowed and on tangent_cone boundary
+int get_allowability_condition(in int current_condition, in int set_to) {
+	if((current_condition == -1 || current_condition == -2)
+		&& set_to >= 0) {
+		return current_condition *= -1;
+	} else if(current_condition == 0 && (set_to == -1 || set_to == -2)) {
+		return set_to *=-2;
 	}  	
-	return max(currentCondition, setTo);
+	return max(current_condition, set_to);
 }
 
-// returns 1 if normalDir is beyond (cone.a) radians from the cone.rgb
-// returns 0 if normalDir is within (cone.a + boundaryWidth) radians from the cone.rgb
-// return -1 if normalDir is less than (cone.a) radians from the cone.rgb
-int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
-	float arcDistToCone = acos(dot(normalDir, cone.rgb));
-	if (arcDistToCone > (cone.a+(boundaryWidth/2.))) {
+// returns 1 if normal_dir is beyond (cone.a) radians from the cone.rgb
+// returns 0 if normal_dir is within (cone.a + boundary_width) radians from the cone.rgb
+// return -1 if normal_dir is less than (cone.a) radians from the cone.rgb
+int is_in_cone(in vec3 normal_dir, in vec4 cone, in float boundary_width) {
+	float arc_dist_to_cone = acos(dot(normal_dir, cone.rgb));s
+	if (arc_dist_to_cone > (cone.a+(boundary_width/2.))) {
 		return 1; 
 	}
-	if (arcDistToCone < (cone.a-(boundaryWidth/2.))) {
+	if (arc_dist_to_cone < (cone.a-(boundary_width/2.))) {
 		return -1;
 	}
 	return 0;
@@ -350,33 +350,33 @@ int isInCone(in vec3 normalDir, in vec4 cone, in float boundaryWidth) {
 
 // Returns a color corresponding to the allowability of this region,
 // or otherwise the boundaries corresponding 
-// to various cones and tangentCone.
-vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth) {
-	int currentCondition = -3;
-	if (coneCounts == 1) {
-		vec4 cone = coneSequence[0];
-		int inCone = isInCone(normalDir, cone, boundaryWidth);
-		bool isInCone = inCone == 0;
-		if (isInCone) {
-			inCone = -1;
+// to various cones and tangent_cone.
+vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_width) {
+	int current_condition = -3;
+	if (cone_counts == 1) {
+		vec4 cone = cone_sequence[0];
+		int in_cone = is_in_cone(normal_dir, cone, boundary_width);
+		bool is_in_cone = in_cone == 0;
+		if (is_in_cone) {
+			in_cone = -1;
 		} else {
-			if (inCone < 0) {
-				inCone = 0;
+			if (in_cone < 0) {
+				in_cone = 0;
 			} else {
-				inCone = -3;
+				in_cone = -3;
 			}
 		}
-		currentCondition = getAllowabilityCondition(currentCondition, inCone);
+		current_condition = get_allowability_condition(current_condition, in_cone);
 	} else {
-		for(int i=0; i < coneCounts-1; i += 3) {
-			normalDir = normalize(normalDir);
+		for(int i=0; i < cone_counts-1; i += 3) {
+			normal_dir = normalize(normal_dir);
 			int idx = i*3; 
-			vec4 cone1 = coneSequence[idx];
-			vec4 tangent1 = coneSequence[idx+1];
-			vec4 tangent2 = coneSequence[idx+2];
-			vec4 cone2 = coneSequence[idx+3];
+			vec4 cone_1 = cone_sequence[idx];
+			vec4 tangent_1 = cone_sequence[idx+1];
+			vec4 tangent_2 = cone_sequence[idx+2];
+			vec4 cone_2 = cone_sequence[idx+3];
 
-			int inCone1 = isInCone(normalDir, cone1, boundaryWidth);
+			int inCone1 = is_in_cone(normal_dir, cone_1, boundary_width);
 			if (inCone1 == 0) {
 				inCone1 = -1;
 			} else {
@@ -386,9 +386,9 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 					inCone1 = -3;
 				}
 			}
-			currentCondition = getAllowabilityCondition(currentCondition, inCone1);
+			current_condition = get_allowability_condition(current_condition, inCone1);
 
-			int inCone2 = isInCone(normalDir, cone2, boundaryWidth);
+			int inCone2 = is_in_cone(normal_dir, cone_2, boundary_width);
 			if (inCone2 == 0) {
 				inCone2 = -1;
 			} else {
@@ -398,28 +398,28 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 					inCone2 = -3;
 				}
 			}
-			currentCondition = getAllowabilityCondition(currentCondition, inCone2);
+			current_condition = get_allowability_condition(current_condition, inCone2);
 
-			int inTan1 = isInCone(normalDir, tangent1, boundaryWidth); 
-			int inTan2 = isInCone(normalDir, tangent2, boundaryWidth);
-			
-			if (float(inTan1) < 1. || float(inTan2) < 1.) {
-				inTan1 = inTan1 == 0 ? -2 : -3;
-				currentCondition = getAllowabilityCondition(currentCondition, inTan1);
-				inTan2 = inTan2 == 0 ? -2 : -3;
-				currentCondition = getAllowabilityCondition(currentCondition, inTan2);
-			} else {				 
-				bool inIntercone = isInInterConePath(normalDir, tangent1, cone1, tangent2, cone2);
-				int interconeCondition = inIntercone ? 0 : -3;
-				currentCondition = getAllowabilityCondition(currentCondition, interconeCondition);
+			int in_tan_1 = is_in_cone(normal_dir, tangent_1, boundary_width); 
+			int in_tan_2 = is_in_cone(normal_dir, tangent_2, boundary_width);
+
+			if (float(in_tan_1) < 1. || float(in_tan_2) < 1.) {
+				in_tan_1 = in_tan_1 == 0 ? -2 : -3;
+				current_condition = get_allowability_condition(current_condition, in_tan_1);
+				in_tan_2 = in_tan_2 == 0 ? -2 : -3;
+				current_condition = get_allowability_condition(current_condition, in_tan_2);
+			} else {
+				bool in_intercone = is_in_inter_cone_path(normal_dir, tangent_1, cone_1, tangent_2, cone_2);
+				int intercone_condition = in_intercone ? 0 : -3;
+				current_condition = get_allowability_condition(current_condition, intercone_condition);
 			}
 		}
 	}
-	vec4 result = vertModelColor;
-	if (currentCondition != 0) {
-		float onTanBoundary = abs(currentCondition) == 2 ? 0.3 : 0.0; 
-		float onConeBoundary = abs(currentCondition) == 1 ? 0.3 : 0.0;
-		result += vec4(0.0, onConeBoundary, onTanBoundary, 0.0);
+	vec4 result = vert_model_color;
+	if (current_condition != 0) {
+		float on_tan_boundary = abs(current_condition) == 2 ? 0.3 : 0.0; 
+		float on_cone_boundary = abs(current_condition) == 1 ? 0.3 : 0.0;
+		result += vec4(0.0, on_cone_boundary, on_tan_boundary, 0.0);
 	} else {
 		return vec4(0.0, 0.0, 0.0, 0.0);
 	}
@@ -427,25 +427,25 @@ vec4 colorAllowed(in vec3 normalDir,  in int coneCounts, in float boundaryWidth)
 }
 
 void vertex() {
-	normalModelDir = NORMAL;
-	vertModelColor.rgb = kusudamaColor.rgb;
+	normal_model_dir = NORMAL;
+	vert_model_color.rgb = kusudama_color.rgb;
 }
 
 void fragment() {
-	vec4 resultColorAllowed = vec4(0.0, 0.0, 0.0, 0.0);
-	if (coneSequence.length() == 30) {
-		resultColorAllowed = colorAllowed(normalModelDir, CONE_COUNT_MAX, 0.02);
+	vec4 result_color_allowed = vec4(0.0, 0.0, 0.0, 0.0);
+	if (cone_sequence.length() == 30) {
+		result_color_allowed = color_allowed(normal_model_dir, CONE_COUNT_MAX, 0.02);
 	}
-	if (resultColorAllowed.a == 0.0) {
+	if (result_color_allowed.a == 0.0) {
 		discard;
 	}
-	ALBEDO = resultColorAllowed.rgb;
-	ALPHA = resultColorAllowed.a;
+	ALBEDO = result_color_allowed.rgb;
+	ALPHA = result_color_allowed.a;
 }
 )");
 						kusudama_material->set_shader(kusudama_shader);
-						kusudama_material->set_shader_param("coneSequence", kusudama_limit_cones);
-						kusudama_material->set_shader_param("kusudamaColor", current_bone_color);
+						kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
+						kusudama_material->set_shader_param("kusudama_color", current_bone_color);
 						Ref<SurfaceTool> kusudama_surface_tool;
 						kusudama_surface_tool.instantiate();
 						kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
