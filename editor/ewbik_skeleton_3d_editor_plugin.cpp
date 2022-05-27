@@ -275,7 +275,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 shader_type spatial;
 render_mode depth_prepass_alpha, cull_disabled;
 
-uniform vec4 kusudama_color : hint_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
+uniform vec4 kusudama_color : source_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
 const int CONE_COUNT_MAX = 30;
 
 // 0,0,0 is the center of the kusudama. The kusudamas have their own bases that automatically get reoriented such that +y points in the direction that is the weighted average of the limitcones on the kusudama.
