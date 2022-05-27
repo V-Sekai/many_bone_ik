@@ -28,10 +28,10 @@ pins/1/weight_y_direction = null
 pins/1/weight_z_direction = null
 constraint_count = 1
 constraints/0/name = &"Bone_02"
-constraints/0/kusudama_twist_degrees = Vector2(0, 360)
+constraints/0/kusudama_twist_degrees = Vector2(90, 95)
 constraints/0/kusudama_limit_cone_count = 1
 constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/0/kusudama_limit_cone/0/radius = 1.0
+constraints/0/kusudama_limit_cone/0/radius = 0.0
 
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_xr835"]
 enabled = true
@@ -47,7 +47,8 @@ size = Vector3(0.25, 0.25, 0.125)
 
 [node name="Skeleton3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature" index="0"]
 bones/1/position = Vector3(2.96628e-15, 0.6, 0)
-bones/1/rotation = Quaternion(-1.43385e-07, -0.496139, 8.19342e-08, 0.868243)
+bones/1/rotation = Quaternion(-1.65137e-07, 0.00886968, -1.4648e-09, 0.999961)
+bones/1/scale = Vector3(1, 1, 1)
 bones/2/position = Vector3(-0.00100172, 0.613336, 9.13907e-05)
 bones/2/rotation = Quaternion(0.0207409, -0.716659, -0.015333, 0.696947)
 modification_stack = SubResource( "SkeletonModificationStack3D_xr835" )
@@ -56,7 +57,7 @@ modification_stack = SubResource( "SkeletonModificationStack3D_xr835" )
 visible = false
 
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="ewbik_test_rig_2_bone/Simple_Test_Rig_Armature/Skeleton3D" index="1"]
-transform = Transform3D(-0.874131, -0.0480838, -0.483305, -0.0511009, 0.998669, -0.00693355, 0.482995, 0.0186365, -0.875425, -0.000587301, 1.21334, -0.000816424)
+transform = Transform3D(-0.00995681, -0.00745173, -0.999923, -0.0511009, 0.998669, -0.00693355, 0.998644, 0.0510279, -0.0103244, -0.000999941, 1.21334, 0.000109344)
 bone_name = "Bone_03"
 bone_idx = 2
 
@@ -66,7 +67,7 @@ mesh = SubResource( "BoxMesh_cy8x8" )
 [node name="Node3D" type="Node3D" parent="."]
 
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="."]
-transform = Transform3D(0.964392, 0, 0.264479, 0, 1, 0, -0.264478, 0, 0.96439, -0.0582242, 1.20636, -0.665948)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.999998, -0.00127381, 1.52055, 0.174301)
 bone_name = "Bone_03"
 bone_idx = 2
 

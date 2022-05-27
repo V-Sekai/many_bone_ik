@@ -146,7 +146,6 @@ void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 }
 
 Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
-
 	if (!axially_constrained) {
 		return Quaternion();
 	}
@@ -164,7 +163,7 @@ Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IK
 	Vector3 axis = align_rot[Vector3::AXIS_Y].normalized();
 	if (dist_to_min < dist_to_max) {
 		double difference = limiting_axes->getGlobalChirality() * (from_min_to_angle_delta);
-		return Basis(decomposition[1])[Vector3::AXIS_Y] *  difference;
+		return Basis(decomposition[1])[Vector3::AXIS_Y] * difference;
 	}
 	double difference = limiting_axes->getGlobalChirality() * (range - (Math_TAU - from_min_to_angle_delta));
 	return Basis(decomposition[1])[Vector3::AXIS_Y] * difference;
