@@ -151,7 +151,7 @@ double IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTran
 		return turn_diff;
 	}
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
-	Basis align_rot = inv_rot * to_set->get_global_transform().basis * limiting_axes->get_global_transform().basis;
+	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
 	Vector3 up(0, 1, 0);	
 	Vector<Quaternion> decomposition = get_swing_twist(align_rot, up);
 	double angle_delta_2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;

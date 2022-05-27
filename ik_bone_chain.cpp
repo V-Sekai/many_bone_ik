@@ -249,26 +249,7 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		if (p_for_bone->getConstraint()->is_axially_constrained()) {
 			double twist_diff = p_for_bone->getConstraint()->get_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform());
 			twist_diff *= p_for_bone->get_ik_transform()->getGlobalChirality();
-			Vector3 axis = p_for_bone->get_ik_transform()->get_transform().basis[Vector3::AXIS_Y];
-			axis = p_for_bone->get_ik_transform()->to_global(axis);
-			Quaternion twist_snap;
-			{ // Use an unnormalized quaternion.
-				real_t d = axis.length();
-				if (Math::is_zero_approx(d)) {
-					twist_snap.x = 0;
-					twist_snap.y = 0;
-					twist_snap.z = 0;
-					twist_snap.w = 0;
-				} else {
-					real_t sin_angle = Math::sin(twist_diff * 0.5f);
-					real_t cos_angle = Math::cos(twist_diff * 0.5f);
-					real_t s = sin_angle / d;
-					twist_snap.x = axis.x * s;
-					twist_snap.y = axis.y * s;
-					twist_snap.z = axis.z * s;
-					twist_snap.w = cos_angle;
-				}
-			}
+			Quaternion twist_snap = Quaternion(Vector3(0, 1, 0), twist_diff);
 			p_for_bone->get_ik_transform()->rotate_local_with_global(twist_snap);
 		}
 	}
