@@ -52,14 +52,14 @@ void IKKusudama::optimize_limiting_axes() {
 	originalLimitingAxes->set_global_transform(_limiting_axes->get_global_transform());
 	Vector<Vector3> directions;
 	if (get_limit_cones().size() == 1) {
-		Vector3 &cone = limit_cones[0]->get_control_point();
+		Vector3 &cone = limit_cones.write[0]->get_control_point();
 		cone.normalize();
 		directions.push_back(cone);
 	} else {
 		for (int i = 0; i < get_limit_cones().size() - 1; i++) {
-			Vector3 &thisC = get_limit_cones()[i]->get_control_point();
+			Vector3 &thisC = get_limit_cones().write[i]->get_control_point();
 			thisC.normalize();
-			Vector3 &nextC = get_limit_cones()[i + 1]->get_control_point();
+			Vector3 &nextC = get_limit_cones().write[i + 1]->get_control_point();
 			nextC.normalize();
 			Quaternion thisToNext = quaternion_unnormalized(thisC, nextC);
 			Vector3 axis;
