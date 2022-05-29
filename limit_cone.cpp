@@ -192,7 +192,7 @@ void LimitCone::compute_triangles(Ref<LimitCone> next) {
 	second_triangle_next.write[2] = next->get_control_point().normalized();
 }
 
-Vector3 &LimitCone::get_control_point() {
+Vector3 LimitCone::get_control_point() const {
 	return control_point;
 }
 

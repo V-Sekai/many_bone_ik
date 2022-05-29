@@ -195,8 +195,8 @@ private:
 	void compute_triangles(Ref<LimitCone> next);
 
 public:
-	virtual Vector3 &get_control_point();
-	void set_control_point(Vector3 control_point) {
+	virtual Vector3 get_control_point() const;
+	virtual void set_control_point(Vector3 control_point) {
 		this->control_point = control_point;
 		this->control_point.normalize();
 	}

@@ -51,16 +51,21 @@ void IKKusudama::optimize_limiting_axes() {
 	originalLimitingAxes.instantiate();
 	originalLimitingAxes->set_global_transform(_limiting_axes->get_global_transform());
 	Vector<Vector3> directions;
-	if (get_limit_cones().size() == 1) {
-		Vector3 &cone = limit_cones.write[0]->get_control_point();
+	Vector<Ref<LimitCone>> limit_cones = get_limit_cones();
+	if (limit_cones.size() == 1) {
+		Vector3 cone = limit_cones.write[0]->get_control_point();
 		cone.normalize();
+		limit_cones.write[0]->set_control_point(cone);
 		directions.push_back(cone);
 	} else {
-		for (int i = 0; i < get_limit_cones().size() - 1; i++) {
-			Vector3 &thisC = get_limit_cones().write[i]->get_control_point();
+		for (int limit_cone_i = 0; limit_cone_i < limit_cones.size() - 1; limit_cone_i++) {
+			Ref<LimitCone> cone = get_limit_cones()[limit_cone_i];
+			Vector3 thisC = cone->get_control_point();
 			thisC.normalize();
-			Vector3 &nextC = get_limit_cones().write[i + 1]->get_control_point();
+			limit_cones.write[limit_cone_i]->set_control_point(thisC);
+			Vector3 nextC = limit_cones.write[limit_cone_i + 1]->get_control_point();
 			nextC.normalize();
+			limit_cones.write[limit_cone_i]->set_control_point(nextC);
 			Quaternion thisToNext = quaternion_unnormalized(thisC, nextC);
 			Vector3 axis;
 			real_t angle;
@@ -72,6 +77,7 @@ void IKKusudama::optimize_limiting_axes() {
 			directions.push_back(halfAngle);
 		}
 	}
+	set_limit_cones(limit_cones);
 
 	Vector3 newY;
 	for (Vector3 dv : directions) {
@@ -343,7 +349,7 @@ double IKKusudama::get_strength() const {
 	return this->strength;
 }
 
-Vector<Ref<LimitCone>> &IKKusudama::get_limit_cones() {
+Vector<Ref<LimitCone>> IKKusudama::get_limit_cones() const {
 	return limit_cones;
 }
 
