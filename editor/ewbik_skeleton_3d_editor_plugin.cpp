@@ -196,6 +196,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				Vector<float> cone_constraint;
 				for (int32_t cone_i = 0; cone_i < ewbik_modification->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 					Vector3 center = ewbik_modification->get_kusudama_limit_cone_center(constraint_i, cone_i);
+					center.normalize();
 					Vector<float> cone;
 					cone.resize(4);
 					cone.write[0] = center.x;
