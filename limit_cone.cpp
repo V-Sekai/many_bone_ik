@@ -44,13 +44,13 @@ void LimitCone::update_tangent_handles(Ref<LimitCone> next) {
 	update_tangent_and_cushion_handles(next, CUSHION);
 }
 
-void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> next, int mode) {
-	if (next.is_valid()) {
-		double radA = this->_get_radius(mode);
-		double radB = next->_get_radius(mode);
+void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> p_next, int p_mode) {
+	if (p_next.is_valid()) {
+		double radA = this->_get_radius(p_mode);
+		double radB = p_next->_get_radius(p_mode);
 
 		Vector3 A = this->get_control_point();
-		Vector3 B = next->get_control_point();
+		Vector3 B = p_next->get_control_point();
 
 		Vector3 arcNormal = A.cross(B);
 
@@ -114,9 +114,9 @@ void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> next, int mode
 		Vector3 sphereCenter;
 		intersectionRay->intersectsSphere(sphereCenter, 1.0f, sphereIntersect1, sphereIntersect2);
 
-		this->set_tangent_circle_center_next_1(sphereIntersect1, mode);
-		this->set_tangent_circle_center_next_2(sphereIntersect2, mode);
-		this->set_tangent_circle_radius_next(tRadius, mode);
+		this->set_tangent_circle_center_next_1(sphereIntersect1, p_mode);
+		this->set_tangent_circle_center_next_2(sphereIntersect2, p_mode);
+		this->set_tangent_circle_radius_next(tRadius, p_mode);
 	}
 	if (this->tangent_circle_center_next_1 == Vector3(NAN, NAN, NAN)) {
 		this->tangent_circle_center_next_1 = get_orthogonal(control_point).normalized();
@@ -126,8 +126,8 @@ void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> next, int mode
 		tangent_circle_center_next_2 = (tangent_circle_center_next_1 * -1).normalized();
 		cushion_tangent_circle_center_next_2 = (cushion_tangent_circle_center_next_2 * -1).normalized();
 	}
-	if (next.is_valid()) {
-		compute_triangles(next);
+	if (p_next.is_valid()) {
+		compute_triangles(p_next);
 	}
 }
 
@@ -182,18 +182,23 @@ double LimitCone::_get_radius_cosine(int mode) {
 	return radius_cosine;
 }
 
-void LimitCone::compute_triangles(Ref<LimitCone> next) {
+void LimitCone::compute_triangles(Ref<LimitCone> p_next) {
 	first_triangle_next.write[1] = this->tangent_circle_center_next_1.normalized();
 	first_triangle_next.write[0] = this->get_control_point().normalized();
-	first_triangle_next.write[2] = next->get_control_point().normalized();
+	first_triangle_next.write[2] = p_next->get_control_point().normalized();
 
 	second_triangle_next.write[1] = this->tangent_circle_center_next_2.normalized();
 	second_triangle_next.write[0] = this->get_control_point().normalized();
-	second_triangle_next.write[2] = next->get_control_point().normalized();
+	second_triangle_next.write[2] = p_next->get_control_point().normalized();
 }
 
 Vector3 LimitCone::get_control_point() const {
 	return control_point;
+}
+
+inline void LimitCone::set_control_point(Vector3 p_control_point) {
+	this->control_point = p_control_point;
+	this->control_point.normalize();
 }
 
 double LimitCone::get_radius() const {
@@ -204,9 +209,9 @@ double LimitCone::get_radius_cosine() const {
 	return this->radius_cosine;
 }
 
-void LimitCone::set_radius(double radius) {
-	this->radius = radius;
-	this->radius_cosine = cos(radius);
+void LimitCone::set_radius(double p_radius) {
+	this->radius = p_radius;
+	this->radius_cosine = cos(p_radius);
 	this->parent_kusudama->_update_constraint();
 }
 
@@ -218,8 +223,8 @@ double LimitCone::get_cushion_cosine() {
 	return this->cushion_cosine;
 }
 
-void LimitCone::set_cushion_boundary(double cushion) {
-	double adjustedCushion = MIN(1, std::max(0.001, cushion));
+void LimitCone::set_cushion_boundary(double p_cushion) {
+	double adjustedCushion = MIN(1, std::max(0.001, p_cushion));
 	this->cushion_radius = this->radius * adjustedCushion;
 	this->cushion_cosine = cos(cushion_radius);
 }

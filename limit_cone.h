@@ -172,7 +172,7 @@ private:
 
 	Vector3 closest_cone(Ref<LimitCone> next, Vector3 input) const;
 
-	void update_tangent_and_cushion_handles(Ref<LimitCone> next, int mode);
+	void update_tangent_and_cushion_handles(Ref<LimitCone> p_next, int p_mode);
 
 	void set_tangent_circle_center_next_1(Vector3 point, int mode);
 	void set_tangent_circle_center_next_2(Vector3 point, int mode);
@@ -192,31 +192,22 @@ protected:
 	virtual double _get_radius_cosine(int mode);
 
 private:
-	void compute_triangles(Ref<LimitCone> next);
+	void compute_triangles(Ref<LimitCone> p_next);
 
 public:
 	virtual Vector3 get_control_point() const;
-	virtual void set_control_point(Vector3 control_point) {
-		this->control_point = control_point;
-		this->control_point.normalize();
-	}
-
+	virtual void set_control_point(Vector3 p_control_point);
 	virtual double get_radius() const;
-
 	virtual double get_radius_cosine() const;
-
 	virtual void set_radius(double radius);
-
 	virtual double get_cushion_radius();
-
 	virtual double get_cushion_cosine();
-
 	/**
-	 * @param cushion range 0-1, how far toward the boundary to begin slowing down the rotation if soft constraints are enabled.
+	 * @param p_cushion range 0-1, how far toward the boundary to begin slowing down the rotation if soft constraints are enabled.
 	 * Value of 1 creates a hard boundary. Value of 0 means it will always be the case that the closer a joint in the allowable region
 	 * is to the boundary, the more any further rotation in the direction of that boundary will be avoided.
 	 */
-	virtual void set_cushion_boundary(double cushion);
+	virtual void set_cushion_boundary(double p_cushion);
 
 	virtual Ref<IKKusudama> get_parent_kusudama();
 };

@@ -239,24 +239,12 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	if (p_for_bone->getConstraint().is_valid() && p_for_bone->get_constraint_transform().is_valid()) {
 		if (p_for_bone->getConstraint()->is_orientationally_constrained()) {
 			Quaternion orientation_snap = p_for_bone->getConstraint()->get_axes_to_orientation_snap(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), p_for_bone->get_cos_half_dampen());
-			if (!Math::is_equal_approx(p_dampening, -1.0f)) {
-				bone_damp = p_dampening;
-				orientation_snap = clamp_to_angle(orientation_snap, bone_damp);
-			} else {
-				orientation_snap = clamp_to_quadrance_angle(orientation_snap, bone_damp);
-			}
 			p_for_bone->get_ik_transform()->rotate_local_with_global(orientation_snap);
 		}
-		if (p_for_bone->getConstraint()->is_axially_constrained()) {
-			Quaternion twist_snap = p_for_bone->getConstraint()->get_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform());
-			if (!Math::is_equal_approx(p_dampening, -1.0f)) {
-				bone_damp = p_dampening;
-				twist_snap = clamp_to_angle(twist_snap, bone_damp);
-			} else {
-				twist_snap = clamp_to_quadrance_angle(twist_snap, bone_damp);
-			}
-			p_for_bone->get_ik_transform()->rotate_local_with_global(twist_snap);
-		}
+		// if (p_for_bone->getConstraint()->is_axially_constrained()) {
+		// 	Quaternion twist_snap = p_for_bone->getConstraint()->get_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform());
+		// 	p_for_bone->get_ik_transform()->rotate_local_with_global(twist_snap);
+		// }
 	}
 	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 	p_for_bone->set_global_pose(result);

@@ -42,8 +42,8 @@ IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
 }
 
 void IKKusudama::_update_constraint() {
-	this->update_tangent_radii();
-	this->update_rotational_freedom();
+	update_tangent_radii();
+	update_rotational_freedom();
 }
 
 void IKKusudama::optimize_limiting_axes() {
@@ -134,9 +134,10 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 	 */
 }
 
-bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes) {
+bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> p_global_axes, Ref<IKTransform3D> p_limiting_axes) {
 	Vector<double> in_bounds = { 1 };
-	Vector3 local_point = _limiting_axes->to_local(global_axes->get_global_transform().basis[Vector3::AXIS_Y]);
+	Vector3 global_y_heading = p_global_axes->get_global_transform().basis[Vector3::AXIS_Y];
+	Vector3 local_point = p_limiting_axes->to_local(global_y_heading);
 	Vector3 in_limits = _local_point_in_limits(local_point, in_bounds, IKKusudama::CUSHION);
 	bool is_rotation = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
 	if (in_bounds[0] < 0.0 || !is_rotation) {
