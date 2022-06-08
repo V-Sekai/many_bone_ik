@@ -139,8 +139,6 @@ bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> p_globa
 	Vector3 global_y_heading = p_global_axes->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	global_y_heading = global_y_heading + p_global_axes->get_global_transform().origin;
 	Vector3 local_point = p_limiting_axes->to_local(global_y_heading);
-	Vector3 cone_local_control_point = get_limit_cones()[0]->get_control_point();
-	Vector3 globalized_control_point = p_limiting_axes->to_global(cone_local_control_point);
 	Vector3 in_limits = _local_point_in_limits(local_point, in_bounds, IKKusudama::BOUNDARY);
 	bool is_rotation = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
 	if (in_bounds[0] < 0.0 || !is_rotation) {
