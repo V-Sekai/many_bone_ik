@@ -156,7 +156,7 @@ void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 }
 
 void IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
-	Quaternion invRot = limiting_axes->get_global_transform().basis.inverse();
+	Quaternion invRot = limiting_axes->get_global_transform().basis.get_quaternion().inverse();
 	Quaternion alignRot = invRot * to_set->get_global_transform().basis;
 	Vector3 up(0, 1, 0);
 	Vector<Quaternion> decomposition = get_swing_twist(alignRot, up);
@@ -362,7 +362,11 @@ Vector<Ref<LimitCone>> IKKusudama::get_limit_cones() const {
 }
 
 Vector<Quaternion> IKKusudama::get_swing_twist(Quaternion p_quaternion, Vector3 p_axis) {
-	const float d = p_quaternion.get_axis().dot(p_axis);
+	Vector3 quaternion_axis;
+	quaternion_axis.x = p_quaternion.x;
+	quaternion_axis.y = p_quaternion.y;
+	quaternion_axis.z = p_quaternion.z;
+	const float d = quaternion_axis.dot(p_axis);
 	Quaternion twist = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, p_quaternion.w).normalized();
 	if (d < 0) {
 		twist *= -1.0f;
