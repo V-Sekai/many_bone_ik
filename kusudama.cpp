@@ -155,27 +155,31 @@ void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 	_update_constraint();
 }
 
-Quaternion IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
-	if (!axially_constrained) {
-		return Quaternion();
-	}
-	Basis align_rot = limiting_axes->get_global_transform().basis.inverse() * to_set->get_global_transform().basis;
+void IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
+	Quaternion invRot = limiting_axes->get_global_transform().basis.inverse();
+	Quaternion alignRot = invRot * to_set->get_global_transform().basis;
 	Vector3 up(0, 1, 0);
-	Vector<Quaternion> decomposition = get_swing_twist(align_rot, up);
-	double angle_delta_2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
-	angle_delta_2 = to_tau(angle_delta_2);
-	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
-	if (!(from_min_to_angle_delta < Math_TAU - range)) {
-		return Quaternion();
+	Vector<Quaternion> decomposition = get_swing_twist(alignRot, up);
+	double angleDelta2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
+	angleDelta2 = to_tau(angleDelta2);
+	double fromMinToAngleDelta = to_tau(signed_angle_difference(angleDelta2, Math_TAU - min_axial_angle()));
+
+	if (fromMinToAngleDelta < Math_TAU - range) {
+		double distToMin = Math::abs(signed_angle_difference(angleDelta2, Math_TAU - min_axial_angle()));
+		double distToMax = Math::abs(signed_angle_difference(angleDelta2, Math_TAU - (min_axial_angle() + range)));
+		double turnDiff = 1;
+		// uncomment the next line for reflectable axis  support (removed for performance reasons)
+		turnDiff *= limiting_axes->getGlobalChirality();
+		Vector3 axis_y = to_set->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+		if (distToMin < distToMax) {
+			turnDiff = turnDiff * (fromMinToAngleDelta);
+			to_set->rotate_local_with_global(Quaternion(axis_y, turnDiff));
+		} else {
+			turnDiff = turnDiff * (range - (Math_TAU - fromMinToAngleDelta));
+			to_set->rotate_local_with_global(Quaternion(axis_y, turnDiff));
+		}
+		return;
 	}
-	double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
-	double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + range)));
-	if (dist_to_min < dist_to_max) {
-		double difference = limiting_axes->getGlobalChirality() * (from_min_to_angle_delta);
-		return Basis(decomposition[1])[Vector3::AXIS_Y] * difference;
-	}
-	double difference = limiting_axes->getGlobalChirality() * (range - (Math_TAU - from_min_to_angle_delta));
-	return Basis(decomposition[1])[Vector3::AXIS_Y] * difference;
 }
 
 double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {

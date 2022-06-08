@@ -242,10 +242,9 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		if (p_for_bone->getConstraint()->is_orientationally_constrained()) {
 			p_for_bone->getConstraint()->get_axes_to_orientation_snap(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), p_for_bone->get_cos_half_dampen());
 		}
-		// if (p_for_bone->getConstraint()->is_axially_constrained()) {
-		// 	Quaternion twist_snap = p_for_bone->getConstraint()->get_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform());
-		// 	p_for_bone->get_ik_transform()->rotate_local_with_global(twist_snap);
-		// }
+		if (p_for_bone->getConstraint()->is_axially_constrained()) {
+		 	p_for_bone->getConstraint()->get_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform());
+		}
 	}
 	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 	p_for_bone->set_global_pose(result);
