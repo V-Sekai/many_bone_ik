@@ -798,19 +798,6 @@ String SkeletonModification3DEWBIK::get_pin_bone_name(int32_t p_effector_index) 
 	return data->get_name();
 }
 
-void SkeletonModification3DEWBIK::check_shadow_bones_transform() {
-	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
-		Ref<IKBone3D> bone = bone_list[bone_i];
-		if (bone.is_null()) {
-			continue;
-		}
-		bone->set_initial_pose(skeleton);
-		if (bone->is_pinned()) {
-			bone->get_pin()->update_target_global_transform(skeleton);
-		}
-	}
-}
-
 void SkeletonModification3DEWBIK::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius) {
 	ERR_FAIL_COND(!kusudama_limit_cones.has(p_effector_index));
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());

@@ -95,7 +95,7 @@ void IKKusudama::optimize_limiting_axes() {
 	Ref<Ray3D> newYRay = memnew(Ray3D(temp_var, newY));
 
 	Quaternion oldYtoNewY = quaternion_unnormalized(
-			originalLimitingAxes->to_global(newYRay->heading()), _limiting_axes->get_global_transform().basis[Vector3::AXIS_Y]);
+			originalLimitingAxes->to_global(newYRay->heading()), _limiting_axes->get_global_transform().basis.get_column(Vector3::AXIS_Y));
 	_limiting_axes->rotate_local_with_global(oldYtoNewY);
 
 	for (Ref<LimitCone> lc : get_limit_cones()) {
@@ -136,9 +136,11 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 
 bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> p_global_axes, Ref<IKTransform3D> p_limiting_axes) {
 	Vector<double> in_bounds = { 1 };
-	Vector3 global_y_heading = p_global_axes->get_global_transform().basis[Vector3::AXIS_Y];
+	Vector3 global_y_heading = p_global_axes->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	Vector3 local_point = p_limiting_axes->to_local(global_y_heading);
-	Vector3 in_limits = _local_point_in_limits(local_point, in_bounds, IKKusudama::CUSHION);
+	Vector3 cone_local_control_point = get_limit_cones()[0]->get_control_point();
+	Vector3 globalized_control_point = p_limiting_axes->to_global(cone_local_control_point); 
+	Vector3 in_limits = _local_point_in_limits(local_point, in_bounds, IKKusudama::BOUNDARY);
 	bool is_rotation = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
 	if (in_bounds[0] < 0.0 || !is_rotation) {
 		return false;
@@ -398,7 +400,19 @@ Vector3 IKKusudama::local_point_on_path_sequence(Vector3 in_point, Ref<IKTransfo
 }
 
 Vector3 IKKusudama::_local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode) {
-	Vector3 point = in_point;
+	Vector3 point = in_point.normalized();
+
+	if (limit_cones.size() == 1) {
+		Ref<LimitCone> cone = limit_cones[0];
+		bool is_in_bounds = cone->determine_if_in_bounds(nullptr, point);
+		if (is_in_bounds) {
+			in_bounds.write[0] = 1;
+			return in_point;
+		}
+		in_bounds.write[0] = -1;
+		return point;
+	}
+
 	// This is an exact check for being inside the bounds.
 	for (int i = 0; i < limit_cones.size(); i++) {
 		Ref<LimitCone> cone = limit_cones[i];
@@ -423,7 +437,7 @@ Quaternion IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, R
 	}
 	Vector<double> in_bounds = { 1 };
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
-	bone_ray->p2(to_set->get_global_transform().basis[Vector3::AXIS_Y]);
+	bone_ray->p2(to_set->get_global_transform().basis.get_column(Vector3::AXIS_Y));
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
 	_ALLOW_DISCARD_ _local_point_in_limits(bone_tip, in_bounds);
 	if (in_bounds[0] > 0.0) {

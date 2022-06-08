@@ -62,7 +62,6 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	Ref<IKTransform3D> root_transform = memnew(IKTransform3D);
 
 	void update_shadow_bones_transform();
-	void check_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
 	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
