@@ -445,6 +445,7 @@ Vector3 LimitCone::closest_to_cone(Vector3 input, Vector<double> &in_bounds) con
 	Quaternion rotTo = Quaternion(axis, this->get_radius());
 	Vector3 axis_control_point = this->get_control_point();
 	Vector3 result = rotTo.xform(axis_control_point);
+	in_bounds.write[0] = -1;
 	return result;
 }
 
