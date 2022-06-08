@@ -297,7 +297,7 @@ Vector3 LimitCone::get_closest_path_point(Ref<LimitCone> next, Vector3 input) co
 }
 
 Vector3 LimitCone::get_closest_collision(Ref<LimitCone> next, Vector3 input) const {
-	Vector3 result = _get_on_great_tangent_triangle(next, input);
+	Vector3 result = get_on_great_tangent_triangle(next, input);
 
 	bool is_number = !(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z));
 	if (!is_number) {
@@ -371,7 +371,7 @@ LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to
 	parent_kusudama = attached_to;
 }
 
-Vector3 LimitCone::_get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const {
+Vector3 LimitCone::get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const {
 	Vector3 c1xc2 = control_point.cross(next->control_point);
 	double c1c2dir = input.dot(c1xc2);
 	if (c1c2dir < 0.0) {
@@ -415,11 +415,11 @@ Vector3 LimitCone::closest_cone(Ref<LimitCone> next, Vector3 input) const {
 }
 
 Vector3 LimitCone::closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 input, Vector<double> &in_bounds) const {
-	Vector3 closestToFirst = this->_closest_to_cone(input, in_bounds);
+	Vector3 closestToFirst = this->closest_to_cone(input, in_bounds);
 	if (in_bounds[0] > 0.0) {
 		return closestToFirst;
 	}
-	Vector3 closestToSecond = next->_closest_to_cone(input, in_bounds);
+	Vector3 closestToSecond = next->closest_to_cone(input, in_bounds);
 	if (in_bounds[0] > 0.0) {
 		return closestToSecond;
 	}
@@ -433,7 +433,7 @@ Vector3 LimitCone::closest_point_on_closest_cone(Ref<LimitCone> next, Vector3 in
 	}
 }
 
-Vector3 LimitCone::_closest_to_cone(Vector3 input, Vector<double> &in_bounds) const {
+Vector3 LimitCone::closest_to_cone(Vector3 input, Vector<double> &in_bounds) const {
 	if (input.dot(this->get_control_point()) > this->get_radius_cosine()) {
 		in_bounds.write[0] = 1.0;
 		return input;

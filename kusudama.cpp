@@ -137,9 +137,10 @@ IKKusudama::IKKusudama(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direct
 bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> p_global_axes, Ref<IKTransform3D> p_limiting_axes) {
 	Vector<double> in_bounds = { 1 };
 	Vector3 global_y_heading = p_global_axes->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+	global_y_heading = global_y_heading + p_global_axes->get_global_transform().origin;
 	Vector3 local_point = p_limiting_axes->to_local(global_y_heading);
 	Vector3 cone_local_control_point = get_limit_cones()[0]->get_control_point();
-	Vector3 globalized_control_point = p_limiting_axes->to_global(cone_local_control_point); 
+	Vector3 globalized_control_point = p_limiting_axes->to_global(cone_local_control_point);
 	Vector3 in_limits = _local_point_in_limits(local_point, in_bounds, IKKusudama::BOUNDARY);
 	bool is_rotation = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
 	if (in_bounds[0] < 0.0 || !is_rotation) {
@@ -401,71 +402,70 @@ Vector3 IKKusudama::local_point_on_path_sequence(Vector3 in_point, Ref<IKTransfo
 
 Vector3 IKKusudama::_local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode) {
 	Vector3 point = in_point.normalized();
-
-	if (limit_cones.size() == 1) {
-		Ref<LimitCone> cone = limit_cones[0];
-		bool is_in_bounds = cone->determine_if_in_bounds(nullptr, point);
-		if (is_in_bounds) {
-			in_bounds.write[0] = 1;
-			return in_point;
-		}
-		in_bounds.write[0] = -1;
-		return point;
-	}
-
+	real_t closest_cos = -2.0;
+	Vector3 closest_collision_point = Vector3(NAN, NAN, NAN);
 	// This is an exact check for being inside the bounds.
 	for (int i = 0; i < limit_cones.size(); i++) {
 		Ref<LimitCone> cone = limit_cones[i];
-		Ref<LimitCone> cone_next = limit_cones[i];
+		Ref<LimitCone> cone_next;
 		if (i - 1 > -1) {
 			cone_next = limit_cones[i - 1];
 		}
-		bool is_in_bounds = cone->determine_if_in_bounds(cone_next, point);
-		if (is_in_bounds) {
+		// bool is_in_bounds = cone->determine_if_in_bounds(cone_next, point);
+		// if (is_in_bounds) {
+		//	in_bounds.write[0] = 1;
+		//	return point;
+		// }
+		Vector3 collision_point = cone->closest_to_cone(point, in_bounds);
+		if (Math::is_nan(collision_point.x)) {
 			in_bounds.write[0] = 1;
 			return point;
 		}
+		real_t this_cos = collision_point.dot(point);
+		if (Math::is_nan(closest_collision_point.x) || this_cos > closest_cos) {
+			closest_collision_point = collision_point;
+			closest_cos = this_cos;
+		}
 	}
-	in_bounds.write[0] = -1;
-	return point;
+	// Case where there are multiple cones and we're out of bounds of all cones.
+	// Are we in the paths between the cones.
+	if (in_bounds[0] == -1) {
+		for (int i = 0; i < limit_cones.size() - 1; i++) {
+			Ref<LimitCone> currCone = limit_cones[i];
+			Ref<LimitCone> nextCone = limit_cones[i + 1];
+			Vector3 collision_point = Vector3();
+			collision_point = currCone->get_on_great_tangent_triangle(nextCone, point);
+			if (Math::is_nan(collision_point.x)) {
+				continue;
+			}
+			real_t this_cos = collision_point.dot(point);
+			if (this_cos == 1.0) {
+				in_bounds.write[0] = 1;
+				closest_collision_point = point;
+				return point;
+			}
+			if (this_cos > closest_cos) {
+				closest_collision_point = collision_point;
+				closest_cos = this_cos;
+			}
+		}
+	}
+	// Move to the closest boundary between cones or on the cones if out of bounds.
+	return closest_collision_point;
 }
 
-Quaternion IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
-	bool is_bound = is_in_global_pose_orientation_limits(to_set, limiting_axes);
-	if (is_bound) {
-		return Quaternion();
-	}
+void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
 	Vector<double> in_bounds = { 1 };
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
 	bone_ray->p2(to_set->get_global_transform().basis.get_column(Vector3::AXIS_Y));
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
-	_ALLOW_DISCARD_ _local_point_in_limits(bone_tip, in_bounds);
-	if (in_bounds[0] > 0.0) {
-		return Quaternion();
+	Vector3 in_limits = _local_point_in_limits(bone_tip, in_bounds, IKKusudama::BOUNDARY);
+	if (in_bounds[0] == -1 && !Math::is_nan(in_limits.x)) {
+		constrained_ray->p1(bone_ray->p1());
+		constrained_ray->p2(limiting_axes->to_global(in_limits));
+		Quaternion rectified_rot = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
+		to_set->rotate_local_with_global(rectified_rot);
 	}
-	double closest_cos = -2;
-	Vector3 closest_collision_point = Vector3(NAN, NAN, NAN);
-	// This returns a point on the constraint sphere.
-	for (int i = 0; i < limit_cones.size(); i++) {
-		Ref<LimitCone> cone = limit_cones[i];
-		Ref<LimitCone> cone_next = limit_cones[i];
-		if (i - 1 > -1) {
-			cone_next = limit_cones[i - 1];
-		}
-		Vector3 collision_point = cone->get_closest_collision(cone_next, bone_tip);
-		double this_cos = collision_point.dot(bone_tip);
-		if (this_cos > closest_cos) {
-			closest_cos = this_cos;
-			closest_collision_point = collision_point;
-		}
-	}
-	if (in_bounds[0] > 0.0) {
-		return Quaternion();
-	}
-	constrained_ray->p1(bone_ray->p1());
-	constrained_ray->p2(closest_collision_point);
-	Quaternion rectified_rotation = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
-	return rectified_rotation;
 }
 
 void IKKusudama::set_axes_to_soft_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {

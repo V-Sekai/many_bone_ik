@@ -42,8 +42,8 @@ public:
 	static constexpr int Z = 2;
 
 protected:
-	Vector3 p1_Conflict;
-	Vector3 p2_Conflict;
+	Vector3 _p1;
+	Vector3 _p2;
 	Vector3 workingVector;
 
 public:
@@ -365,7 +365,7 @@ public:
 	}
 
 	operator String() const {
-		return String(L"(") + this->p1_Conflict.x + L" ->  " + this->p2_Conflict.x + L") \n " + L"(" + this->p1_Conflict.y + L" ->  " + this->p2_Conflict.y + L") \n " + L"(" + this->p1_Conflict.z + L" ->  " + this->p2_Conflict.z + L") \n ";
+		return String(L"(") + this->_p1.x + L" ->  " + this->_p2.x + L") \n " + L"(" + this->_p1.y + L" ->  " + this->_p2.y + L") \n " + L"(" + this->_p1.z + L" ->  " + this->_p2.z + L") \n ";
 	}
 };
 
