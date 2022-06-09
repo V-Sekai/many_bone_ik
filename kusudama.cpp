@@ -176,7 +176,6 @@ void IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransf
 			turnDiff = turnDiff * (range - (Math_TAU - fromMinToAngleDelta));
 			to_set->rotate_local_with_global(Quaternion(axis_y, turnDiff));
 		}
-		return;
 	}
 }
 
@@ -471,6 +470,7 @@ void IKKusudama::get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
 		Quaternion rectified_rot = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
 		to_set->rotate_local_with_global(rectified_rot);
+		_ALLOW_DISCARD_ to_set->get_global_transform();
 	}
 }
 
