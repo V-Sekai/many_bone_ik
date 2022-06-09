@@ -78,6 +78,9 @@ protected:
 	static void _bind_methods();
 
 public:
+	Ref<IKBoneSegment> get_segmented_skeleton() {
+		return segmented_skeleton;
+	}
 	float get_max_ik_iterations() const {
 		return max_ik_iterations;
 	}

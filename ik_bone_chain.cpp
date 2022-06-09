@@ -77,6 +77,7 @@ void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTem
 		} else if (children.size() == 1) {
 			BoneId bone_id = children[0];
 			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip, p_pins)));
+			root_segment->bone_map[bone_id] = next;
 			temp_tip = next;
 		} else {
 			break;
@@ -237,11 +238,15 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	}
 	p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
 	if (p_for_bone->getConstraint().is_valid() && p_for_bone->get_constraint_transform().is_valid()) {
+		if (!p_for_bone->getConstraint()->get_limit_cones().is_empty()) {
+			Vector3 control_point = p_for_bone->get_constraint_transform()->to_global(p_for_bone->getConstraint()->get_limit_cones()[0]->get_control_point());
+			control_point -= p_for_bone->get_constraint_transform()->get_global_transform().origin;
+		}
 		if (p_for_bone->getConstraint()->is_orientationally_constrained()) {
 			p_for_bone->getConstraint()->get_axes_to_orientation_snap(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), p_for_bone->get_cos_half_dampen());
 		}
 		if (p_for_bone->getConstraint()->is_axially_constrained()) {
-		 	p_for_bone->getConstraint()->get_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform());
+			p_for_bone->getConstraint()->get_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform());
 		}
 	}
 	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
@@ -297,6 +302,12 @@ Ref<IKBoneSegment> IKBoneSegment::get_parent_segment() {
 IKBoneSegment::IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent) {
 	skeleton = p_skeleton;
 	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, IK_DEFAULT_DAMPENING)));
+	if (p_parent.is_valid()) {
+		root_segment = p_parent->root_segment;
+	} else {
+		root_segment = Ref<IKBoneSegment>(this);
+	}
+	root_segment->bone_map[root->get_bone_id()] = root;
 	if (p_parent.is_valid()) {
 		parent_segment = p_parent;
 		root->set_parent(p_parent->get_tip());

@@ -51,6 +51,7 @@ class IKBoneSegment : public Resource {
 	Vector<Ref<IKBone3D>> bones;
 	Vector<Ref<IKBoneSegment>> child_segments; // Contains only direct child chains that end with effectors or have child that end with effectors
 	Ref<IKBoneSegment> parent_segment;
+	Ref<IKBoneSegment> root_segment;
 	Vector<Ref<IKEffector3D>> effector_list;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
@@ -74,6 +75,8 @@ class IKBoneSegment : public Resource {
 	Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
 
 	float get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights);
+
+	HashMap<BoneId, Ref<IKBone3D>> bone_map;
 
 protected:
 	static void _bind_methods();
@@ -111,6 +114,15 @@ public:
 	bool is_pinned() const;
 	Vector<Ref<IKBoneSegment>> get_child_segments() const;
 	void set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
+	Vector<Ref<IKBone3D>> get_bone_list() {
+		return bones;
+	}
+	Ref<IKBone3D> get_ik_bone(BoneId p_bone) {
+		if (!bone_map.has(p_bone)) {
+			return Ref<IKBone3D>();
+		}
+		return bone_map[p_bone];
+	}
 	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins);
 	void update_pinned_list();
 	IKBoneSegment() {}

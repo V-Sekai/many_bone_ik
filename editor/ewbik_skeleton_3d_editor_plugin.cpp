@@ -266,8 +266,28 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 						kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 						kusudama_limit_cones.fill(0.0f);
 						Vector<float> limit_cones = current_kusudama_constraint[constraint_id];
-						for (int32_t value_i = 0; value_i < limit_cones.size(); value_i++) {
-							kusudama_limit_cones.write[value_i] = limit_cones[value_i];
+						Transform3D transform;
+						Ref<IKBoneSegment> bone_segment = modification->get_segmented_skeleton();
+						if (bone_segment.is_null()) {
+							continue;
+						}
+						Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
+						if (ik_bone.is_null()) {
+							continue;
+						}
+						Ref<IKKusudama> ik_kusudama = ik_bone->getConstraint();
+						if (ik_kusudama.is_null()) {
+							continue;
+						}
+						Vector<Ref<LimitCone>> current_limit_cones = ik_kusudama->get_limit_cones();
+						for (int32_t cone_i = 0; cone_i < current_limit_cones.size(); cone_i++) {
+							Vector3 controlPoint = current_limit_cones[cone_i]->get_control_point();
+							controlPoint = transform.xform(controlPoint);
+							int out_idx = cone_i * 4;
+							kusudama_limit_cones.write[out_idx + 0] = controlPoint.x;
+							kusudama_limit_cones.write[out_idx + 1] = controlPoint.y;
+							kusudama_limit_cones.write[out_idx + 2] = controlPoint.z;
+							kusudama_limit_cones.write[out_idx + 3] = current_limit_cones[cone_i]->get_radius();
 						}
 						Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
 						Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
@@ -459,7 +479,6 @@ void fragment() {
 						PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
 						PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
 						PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
-						Transform3D transform = skeleton->get_bone_global_rest(current_bone_idx);
 						for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
 							Vector3 sphere_vertex = vertex_array[vertex_i];
 							kusudama_surface_tool->set_color(current_bone_color);
@@ -475,7 +494,7 @@ void fragment() {
 							tangent_vertex.normal.z = tangent_array[vertex_i + 2];
 							tangent_vertex.d = tangent_array[vertex_i + 3];
 							kusudama_surface_tool->set_tangent(tangent_vertex);
-							kusudama_surface_tool->add_vertex(transform.xform(sphere_vertex));
+							kusudama_surface_tool->add_vertex(skeleton->get_bone_global_pose(current_bone_idx).xform(sphere_vertex));
 						}
 						for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
 							int32_t index = index_array[index_i];
