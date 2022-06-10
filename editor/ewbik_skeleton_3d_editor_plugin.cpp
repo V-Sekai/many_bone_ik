@@ -478,7 +478,8 @@ void fragment() {
 						int32_t index = index_array[index_i];
 						kusudama_surface_tool->add_index(index);
 					}
-					p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+					kusudama_material = memnew(StandardMaterial3D());
+					p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 				}
 			}
 			// Add the bone's children to the list of bones to be processed.
