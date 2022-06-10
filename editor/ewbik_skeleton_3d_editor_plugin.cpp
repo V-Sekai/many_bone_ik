@@ -448,9 +448,10 @@ void fragment() {
 					PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
 					Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
 					BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
-					if (parent_idx != -1) {
-						kusudama_transform = skeleton->get_bone_global_rest(parent_idx);
+					if (parent_idx == -1) {
+						continue;
 					}
+					kusudama_transform = skeleton->get_bone_global_rest(parent_idx);
 					kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * ik_bone->get_constraint_transform()->get_transform();
 					kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
 					for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
