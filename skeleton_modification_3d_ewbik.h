@@ -125,15 +125,8 @@ public:
 	StringName get_constraint_name(int32_t p_effector_index) const;
 	void set_kusudama_twist_from(int32_t p_index, float p_from);
 	void set_kusudama_twist_to(int32_t p_index, float p_to);
-	float get_kusudama_twist_from(int32_t p_index) const {
-		ERR_FAIL_INDEX_V(p_index, kusudama_twist_from.size(), 0.0f);
-		return kusudama_twist_from[p_index];
-	}
-	float get_kusudama_twist_to(int32_t p_index) const {
-		ERR_FAIL_INDEX_V(p_index, kusudama_twist_to.size(), 360.0f);
-		return kusudama_twist_to[p_index];
-
-	}
+	float get_kusudama_twist_from(int32_t p_index) const;
+	float get_kusudama_twist_to(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
 	Vector3 get_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index) const;

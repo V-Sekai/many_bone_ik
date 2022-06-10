@@ -793,3 +793,11 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_center(int32_t p_effec
 
 	is_dirty = true;
 }
+float SkeletonModification3DEWBIK::get_kusudama_twist_from(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, kusudama_twist_from.size(), 0.0f);
+	return kusudama_twist_from[p_index];
+}
+float SkeletonModification3DEWBIK::get_kusudama_twist_to(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, kusudama_twist_to.size(), 360.0f);
+	return kusudama_twist_to[p_index];
+}
