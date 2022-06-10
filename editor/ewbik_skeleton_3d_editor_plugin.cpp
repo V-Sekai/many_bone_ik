@@ -218,6 +218,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				continue;
 			}
 			Transform3D kusudama_transform = skeleton->get_bone_global_pose(parent_id);
+			kusudama_transform.origin = skeleton->get_bone_global_pose(current_bone_idx).origin;
 			if (stack.is_null()) {
 				return;
 			}
@@ -252,11 +253,11 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					}
 					Vector<Ref<LimitCone>> current_limit_cones = ik_kusudama->get_limit_cones();
 
-					BoneId parent_id = skeleton->get_bone_parent(current_bone_idx);
-					if (parent_id == -1) {
+					BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
+					if (parent_idx == -1) {
 						continue;
 					}
-					kusudama_transform = skeleton->get_bone_global_pose(parent_id) * skeleton->get_bone_global_pose(parent_id) * ik_bone->get_constraint_transform()->get_transform();
+					kusudama_transform = skeleton->get_bone_global_pose(parent_idx) * skeleton->get_bone_global_pose(parent_idx) * ik_bone->get_constraint_transform()->get_transform();
 					kusudama_transform.origin = skeleton->get_bone_global_pose(current_bone_idx).origin;
 					for (int32_t cone_i = 0; cone_i < current_limit_cones.size(); cone_i++) {
 						Vector3 control_point = current_limit_cones[cone_i]->get_control_point();
@@ -472,7 +473,8 @@ void fragment() {
 						tangent_vertex.normal.z = tangent_array[vertex_i + 2];
 						tangent_vertex.d = tangent_array[vertex_i + 3];
 						kusudama_surface_tool->set_tangent(tangent_vertex);
-						kusudama_surface_tool->add_vertex(kusudama_transform.xform(sphere_vertex));
+						Transform3D sphere_transform = skeleton->get_bone_global_pose(current_bone_idx);
+						kusudama_surface_tool->add_vertex(sphere_transform.xform(sphere_vertex));
 					}
 					for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
 						int32_t index = index_array[index_i];
