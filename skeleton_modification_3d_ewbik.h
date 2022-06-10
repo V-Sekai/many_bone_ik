@@ -52,7 +52,8 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	bool is_dirty = true;
 	bool debug_skeleton = false;
 	HashMap<int32_t, int32_t> kusudama_limit_cone_count;
-	HashMap<int32_t, Vector2> kusudana_twist;
+	HashMap<int32_t, float> kusudama_twist_from;
+	HashMap<int32_t, float> kusudama_twist_to;
 	HashMap<int32_t, PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float time_budget_millisecond = 0.1f;
@@ -122,8 +123,17 @@ public:
 	void set_constraint_count(int32_t p_count);
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_effector_index) const;
-	void set_kusudama_twist_degrees(int32_t p_index, Vector2 p_twist);
-	Vector2 get_kusudama_twist_degrees(int32_t p_index) const;
+	void set_kusudama_twist_from(int32_t p_index, float p_from);
+	void set_kusudama_twist_to(int32_t p_index, float p_to);
+	float get_kusudama_twist_from(int32_t p_index) const {
+		ERR_FAIL_INDEX_V(p_index, kusudama_twist_from.size(), 0.0f);
+		return kusudama_twist_from[p_index];
+	}
+	float get_kusudama_twist_to(int32_t p_index) const {
+		ERR_FAIL_INDEX_V(p_index, kusudama_twist_to.size(), 360.0f);
+		return kusudama_twist_to[p_index];
+
+	}
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
 	Vector3 get_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index) const;
