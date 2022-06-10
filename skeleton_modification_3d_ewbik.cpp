@@ -372,7 +372,6 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 }
 
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
-	
 	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
@@ -470,13 +469,13 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 	if (name == "ik_iterations") {
 		r_ret = get_ik_iterations();
 		return true;
-	} else if (name == "pin_count") {
-		r_ret = get_pin_count();
-		return true;
 	} else if (name == "constraint_count") {
 		r_ret = get_constraint_count();
 		return true;
-	} else if (name.begins_with("pins/")) {
+	} else if (name == "pin_count") {
+		r_ret = get_pin_count();
+		return true;
+	}  else if (name.begins_with("pins/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, pins.size(), false);
@@ -541,45 +540,12 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 
 bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &p_value) {
 	String name = p_name;
-	if (name == "pin_count") {
-		set_pin_count(p_value);
-		return true;
-	} else if (name == "constraint_count") {
+	if (name == "constraint_count") {
 		set_constraint_count(p_value);
 		return true;
-	} else if (name.begins_with("pins/")) {
-		int index = name.get_slicec('/', 1).to_int();
-		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, pin_count, true);
-		if (what == "name") {
-			set_pin_bone(index, p_value);
-			return true;
-		} else if (what == "target_node") {
-			set_pin_target_nodepath(index, p_value);
-			String existing_bone = get_pin_bone_name(index);
-			if (!existing_bone.is_empty() && existing_bone != "None") {
-				return true;
-			}
-			String node_path = p_value;
-			set_pin_bone(index, node_path.get_file());
-			return true;
-		} else if (what == "use_node_rotation") {
-			set_pin_use_node_rotation(index, p_value);
-			return true;
-		} else if (what == "depth_falloff") {
-			set_pin_depth_falloff(index, p_value);
-			return true;
-		} else if (what == "priority") {
-			return true;
-		} else if (what == "weight_translation") {
-			return true;
-		} else if (what == "weight_x_direction") {
-			return true;
-		} else if (what == "weight_y_direction") {
-			return true;
-		} else if (what == "weight_z_direction") {
-			return true;
-		}
+	} else if (name == "pin_count") {
+		set_pin_count(p_value);
+		return true;
 	} else if (name.begins_with("constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
@@ -616,7 +582,40 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 				return true;
 			}
 		}
-	}
+	} else if (name.begins_with("pins/")) {
+		int index = name.get_slicec('/', 1).to_int();
+		String what = name.get_slicec('/', 2);
+		ERR_FAIL_INDEX_V(index, pin_count, true);
+		if (what == "name") {
+			set_pin_bone(index, p_value);
+			return true;
+		} else if (what == "target_node") {
+			set_pin_target_nodepath(index, p_value);
+			String existing_bone = get_pin_bone_name(index);
+			if (!existing_bone.is_empty() && existing_bone != "None") {
+				return true;
+			}
+			String node_path = p_value;
+			set_pin_bone(index, node_path.get_file());
+			return true;
+		} else if (what == "use_node_rotation") {
+			set_pin_use_node_rotation(index, p_value);
+			return true;
+		} else if (what == "depth_falloff") {
+			set_pin_depth_falloff(index, p_value);
+			return true;
+		} else if (what == "priority") {
+			return true;
+		} else if (what == "weight_translation") {
+			return true;
+		} else if (what == "weight_x_direction") {
+			return true;
+		} else if (what == "weight_y_direction") {
+			return true;
+		} else if (what == "weight_z_direction") {
+			return true;
+		}
+	} 
 	return false;
 }
 
