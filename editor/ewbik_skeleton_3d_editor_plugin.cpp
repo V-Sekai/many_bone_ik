@@ -426,7 +426,7 @@ vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_wi
 }
 
 void vertex() {
-	normal_model_dir = NORMAL;
+	normal_model_dir = CUSTOM0.rgb;
 	vert_model_color.rgb = kusudama_color.rgb;
 }
 
@@ -451,12 +451,14 @@ void fragment() {
 					kusudama_surface_tool->create_from(sphere_mesh, 0);
 					Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
 					kusudama_surface_tool->clear();
+					const int32_t MESH_CUSTOM_0 = 0;
 					kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+					kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGB_FLOAT);
 					Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
 					PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
 					PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
 					PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
-					PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT]; //
+					PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
 					for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
 						Vector3 sphere_vertex = vertex_array[vertex_i];
 						kusudama_surface_tool->set_color(current_bone_color);
@@ -472,14 +474,18 @@ void fragment() {
 						tangent_vertex.normal.z = tangent_array[vertex_i + 2];
 						tangent_vertex.d = tangent_array[vertex_i + 3];
 						kusudama_surface_tool->set_tangent(tangent_vertex);
+						Color c;
+						c.r = normal_vertex.x;
+						c.g = normal_vertex.y;
+						c.b = normal_vertex.z;
+						kusudama_surface_tool->set_custom(MESH_CUSTOM_0, c);
 						kusudama_surface_tool->add_vertex(kusudama_transform.xform(sphere_vertex));
 					}
 					for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
 						int32_t index = index_array[index_i];
 						kusudama_surface_tool->add_index(index);
 					}
-					kusudama_material = memnew(StandardMaterial3D());
-					p_gizmo->add_mesh(kusudama_surface_tool->commit(), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+					p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<ArrayMesh>(), RS::ARRAY_CUSTOM_RGB_FLOAT << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 				}
 			}
 			// Add the bone's children to the list of bones to be processed.
