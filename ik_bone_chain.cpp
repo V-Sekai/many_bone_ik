@@ -89,13 +89,13 @@ void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTem
 	}
 	set_name(vformat("IKBoneSegment%sRoot%sTip", root->get_name(), tip->get_name()));
 	bones.clear();
-	set_bone_list(bones, false);
+	create_bone_list(bones, false);
 }
 
-void IKBoneSegment::set_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
+void IKBoneSegment::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
 	if (p_recursive) {
 		for (int32_t child_i = 0; child_i < child_segments.size(); child_i++) {
-			child_segments[child_i]->set_bone_list(p_list, p_recursive, p_debug_skeleton);
+			child_segments[child_i]->create_bone_list(p_list, p_recursive, p_debug_skeleton);
 		}
 	}
 	Ref<IKBone3D> current_bone = tip;
