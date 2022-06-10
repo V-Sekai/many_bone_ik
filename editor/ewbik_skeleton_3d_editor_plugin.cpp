@@ -213,11 +213,11 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
 			real_t dist = v0.distance_to(v1);
 			bones[0] = current_bone_idx;
-			BoneId parent_id = skeleton->get_bone_parent(current_bone_idx);
-			if (parent_id == -1) {
+			BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
+			if (parent_idx == -1) {
 				continue;
 			}
-			Transform3D kusudama_transform = skeleton->get_bone_global_pose(parent_id);
+			Transform3D kusudama_transform = skeleton->get_bone_global_pose(parent_idx);
 			if (stack.is_null()) {
 				return;
 			}
