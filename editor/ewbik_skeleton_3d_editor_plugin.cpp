@@ -464,10 +464,10 @@ void fragment() {
 						//	kusudama_surface_tool->add_index(index);
 						//}
 						BoneId parent_id = skeleton->get_bone_parent(current_bone_idx);
-						Transform3D kusuTransform = skeleton->get_bone_global_pose(parent_id) * ik_bone->get_constraint_transform()->get_transform();
-						kusuTransform.origin = skeleton->get_bone_global_pose(current_bone_idx).origin;
+						Transform3D kusudama_transform = skeleton->get_bone_global_pose(parent_id) * ik_bone->get_constraint_transform()->get_transform();
+						kusudama_transform.origin = skeleton->get_bone_global_pose(current_bone_idx).origin;
 						//p_gizmo->add_mesh(sphere_mesh->commit(), kusudama_material, kusuTransform, skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
-						p_gizmo->add_mesh(sphere_mesh, kusudama_material, kusuTransform, skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+						p_gizmo->add_mesh(sphere_mesh, kusudama_material, kusudama_transform, skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 					}
 				}
 			}
