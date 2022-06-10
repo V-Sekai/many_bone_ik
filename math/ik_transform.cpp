@@ -45,8 +45,10 @@ void IKTransform3D::_update_local_transform() const {
 }
 
 void IKTransform3D::rotate_local_with_global(Quaternion p_q) {
-	// TODO: set new_rot to identity if there's no parent.
-	Quaternion new_rot = parent->get_global_transform().basis.get_rotation_quaternion();
+	Quaternion new_rot;
+	if (parent.is_valid()) {
+		new_rot = parent->get_global_transform().basis.get_rotation_quaternion();
+	}
 	new_rot = new_rot.inverse() * p_q * new_rot;
 	new_rot = new_rot * local_transform.basis.get_rotation_quaternion();
 	local_transform = Transform3D(new_rot.normalized(), local_transform.origin);
