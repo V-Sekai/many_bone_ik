@@ -213,11 +213,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
 			real_t dist = v0.distance_to(v1);
 			bones[0] = current_bone_idx;
-			BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
-			if (parent_idx == -1) {
-				continue;
-			}
-			Transform3D kusudama_transform = skeleton->get_bone_global_rest(parent_idx);
 			if (stack.is_null()) {
 				return;
 			}
@@ -251,16 +246,8 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 						continue;
 					}
 					Vector<Ref<LimitCone>> current_limit_cones = ik_kusudama->get_limit_cones();
-
-					BoneId parent_id = skeleton->get_bone_parent(current_bone_idx);
-					if (parent_id == -1) {
-						continue;
-					}
-					kusudama_transform = skeleton->get_bone_global_rest(parent_id) * ik_bone->get_constraint_transform()->get_transform();
-					kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
 					for (int32_t cone_i = 0; cone_i < current_limit_cones.size(); cone_i++) {
 						Vector3 control_point = current_limit_cones[cone_i]->get_control_point();
-						control_point = kusudama_transform.xform(control_point).normalized();
 						int out_idx = cone_i * 4;
 						kusudama_limit_cones.write[out_idx + 0] = control_point.x;
 						kusudama_limit_cones.write[out_idx + 1] = control_point.y;
@@ -459,6 +446,13 @@ void fragment() {
 					PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
 					PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
 					PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
+					Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
+					BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
+					if (parent_idx != -1) {
+						kusudama_transform = skeleton->get_bone_global_rest(parent_idx);
+					}
+					kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * ik_bone->get_constraint_transform()->get_transform();
+					kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
 					for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
 						Vector3 sphere_vertex = vertex_array[vertex_i];
 						kusudama_surface_tool->set_color(current_bone_color);
