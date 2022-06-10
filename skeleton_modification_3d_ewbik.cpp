@@ -401,9 +401,9 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_from", PROPERTY_HINT_RANGE, "0,359.9,0.1,degrees,exp"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_from", PROPERTY_HINT_RANGE, "0,359.9,0.1,radians,exp"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_to", PROPERTY_HINT_RANGE, "0,359.9,0.1,degrees,exp"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_to", PROPERTY_HINT_RANGE, "0,359.9,0.1,radians,exp"));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
@@ -555,7 +555,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
 		if (what == "name") {
 			if (index >= constraint_names.size()) {
-				constraint_names.resize(constraint_count);
+				set_constraint_count(constraint_count);
 			}
 			constraint_names.write[index] = p_value;
 			return true;
@@ -712,7 +712,7 @@ inline StringName SkeletonModification3DEWBIK::get_constraint_name(int32_t p_eff
 }
 
 void SkeletonModification3DEWBIK::set_kusudama_twist_from(int32_t p_index, float p_from) {
-	ERR_FAIL_INDEX(p_index, kusudama_twist_to.size());
+	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist_from.write[p_index] = p_from;
 	if (skeleton) {
 		skeleton->notify_property_list_changed();
@@ -721,7 +721,7 @@ void SkeletonModification3DEWBIK::set_kusudama_twist_from(int32_t p_index, float
 }
 
 void SkeletonModification3DEWBIK::set_kusudama_twist_to(int32_t p_index, float p_to) {
-	ERR_FAIL_INDEX(p_index, kusudama_twist_to.size());
+	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist_to.write[p_index] = p_to;
 	if (skeleton) {
 		skeleton->notify_property_list_changed();
