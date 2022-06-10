@@ -730,7 +730,7 @@ void SkeletonModification3DEWBIK::set_kusudama_twist_to(int32_t p_index, float p
 }
 
 int32_t SkeletonModification3DEWBIK::find_effector_id(StringName p_bone_name) {
-	for (int32_t constraint_i = 0; constraint_i < constraint_names.size(); constraint_i++) {
+	for (int32_t constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		if (constraint_names[constraint_i] == p_bone_name) {
 			return constraint_i;
 		}

@@ -177,6 +177,9 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	HashMap<int32_t, HashMap<int32_t, Vector<float>>> modification_kusudama_constraint;
 	Ref<SkeletonModificationStack3D> stack;
 	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
+	if (!skeleton) {
+		return;
+	}
 	if (skeleton) {
 		stack = skeleton->get_modification_stack();
 	}
@@ -254,8 +257,11 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			if (stack.is_valid()) {
 				for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
 					HashMap<int32_t, Vector<float>> current_kusudama_constraint = modification_kusudama_constraint[modification_i];
-					Ref<SkeletonModification3DEWBIK> modification = stack->get_modification(0);
+					Ref<SkeletonModification3DEWBIK> modification = stack->get_modification(modification_i);
 					String bone_name = skeleton->get_bone_name(current_bone_idx);
+					if (modification.is_null()) {
+						continue;
+					}
 					BoneId constraint_id = modification->find_effector_id(bone_name);
 					if (modification.is_valid() && current_kusudama_constraint.has(constraint_id)) {
 						Ref<SphereMesh> sphere_mesh;
@@ -266,7 +272,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 						kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 						kusudama_limit_cones.fill(0.0f);
 						Vector<float> limit_cones = current_kusudama_constraint[constraint_id];
-						Transform3D transform;
+
 						Ref<IKBoneSegment> bone_segment = modification->get_segmented_skeleton();
 						if (bone_segment.is_null()) {
 							continue;
@@ -281,12 +287,11 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 						}
 						Vector<Ref<LimitCone>> current_limit_cones = ik_kusudama->get_limit_cones();
 						for (int32_t cone_i = 0; cone_i < current_limit_cones.size(); cone_i++) {
-							Vector3 controlPoint = current_limit_cones[cone_i]->get_control_point();
-							controlPoint = transform.xform(controlPoint);
+							Vector3 control_point = current_limit_cones[cone_i]->get_control_point();
 							int out_idx = cone_i * 4;
-							kusudama_limit_cones.write[out_idx + 0] = controlPoint.x;
-							kusudama_limit_cones.write[out_idx + 1] = controlPoint.y;
-							kusudama_limit_cones.write[out_idx + 2] = controlPoint.z;
+							kusudama_limit_cones.write[out_idx + 0] = control_point.x;
+							kusudama_limit_cones.write[out_idx + 1] = control_point.y;
+							kusudama_limit_cones.write[out_idx + 2] = control_point.z;
 							kusudama_limit_cones.write[out_idx + 3] = current_limit_cones[cone_i]->get_radius();
 						}
 						Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
@@ -294,7 +299,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 						kusudama_shader->set_code(R"(
 // Skeleton 3D gizmo kusudama constraint shader.
 shader_type spatial;
-render_mode depth_prepass_alpha, cull_disabled;
+render_mode depth_prepass_alpha, cull_disabled, world_vertex_coords;
 
 uniform vec4 kusudama_color : source_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
 const int CONE_COUNT_MAX = 30;
@@ -448,7 +453,7 @@ vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_wi
 }
 
 void vertex() {
-	normal_model_dir = NORMAL;
+	normal_model_dir = POSITION * NORMAL;
 	vert_model_color.rgb = kusudama_color.rgb;
 }
 
