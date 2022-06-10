@@ -131,48 +131,6 @@ String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
 	return "Skeleton3D";
 }
 
-int EWBIKSkeleton3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
-	ERR_FAIL_COND_V(!skeleton, -1);
-	return -1;
-}
-
-Transform3D EWBIKSkeleton3DGizmoPlugin::get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
-	ERR_FAIL_COND_V(!skeleton, Transform3D());
-
-	return skeleton->get_bone_global_pose(p_id);
-}
-
-void EWBIKSkeleton3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
-	ERR_FAIL_COND(!skeleton);
-
-	// Prepare for global to local.
-	Transform3D original_to_local = Transform3D();
-	int parent_idx = skeleton->get_bone_parent(p_id);
-	if (parent_idx >= 0) {
-		original_to_local = original_to_local * skeleton->get_bone_global_pose(parent_idx);
-	}
-	Basis to_local = original_to_local.get_basis().inverse();
-
-	// Prepare transform.
-	Transform3D t = Transform3D();
-
-	// Basis.
-	t.basis = to_local * p_transform.get_basis();
-
-	// Origin.
-	Vector3 orig = skeleton->get_bone_pose(p_id).origin;
-	Vector3 sub = p_transform.origin - skeleton->get_bone_global_pose(p_id).origin;
-	t.origin = orig + to_local.xform(sub);
-
-	// Apply transform.
-	skeleton->set_bone_pose_position(p_id, t.origin);
-	skeleton->set_bone_pose_rotation(p_id, t.basis.get_rotation_quaternion());
-	skeleton->set_bone_pose_scale(p_id, t.basis.get_scale());
-}
-
 void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	HashMap<int32_t, HashMap<int32_t, Vector<float>>> modification_kusudama_constraint;
 	Ref<SkeletonModificationStack3D> stack;
@@ -453,7 +411,7 @@ vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_wi
 }
 
 void vertex() {
-	normal_model_dir = POSITION * NORMAL;
+	normal_model_dir = NORMAL;
 	vert_model_color.rgb = kusudama_color.rgb;
 }
 
