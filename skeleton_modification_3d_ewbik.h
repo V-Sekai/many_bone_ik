@@ -52,8 +52,8 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	bool is_dirty = true;
 	bool debug_skeleton = false;
 	HashMap<int32_t, int32_t> kusudama_limit_cone_count;
-	HashMap<int32_t, float> kusudama_twist_from;
-	HashMap<int32_t, float> kusudama_twist_to;
+	Vector<float> kusudama_twist_from;
+	Vector<float> kusudama_twist_to;
 	HashMap<int32_t, PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float time_budget_millisecond = 0.1f;
