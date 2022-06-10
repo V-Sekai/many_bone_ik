@@ -320,6 +320,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			}
 			constraint->update_tangent_radii();
 			constraint->update_rotational_freedom();
+			constraint->optimize_limiting_axes();
 			ik_bone_3d->addConstraint(constraint);
 			break;
 		}
