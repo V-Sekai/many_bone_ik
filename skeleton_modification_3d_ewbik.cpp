@@ -372,6 +372,49 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 }
 
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
+	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
+	RBSet<String> existing_constraints;
+	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+		const String name = get_constraint_name(constraint_i);
+		existing_constraints.insert(name);
+	}
+	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+		PropertyInfo bone_name;
+		bone_name.type = Variant::STRING_NAME;
+		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
+		if (skeleton) {
+			String names;
+			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
+				String name = skeleton->get_bone_name(bone_i);
+				if (existing_constraints.has(name)) {
+					continue;
+				}
+				name += ",";
+				names += name;
+				existing_constraints.insert(name);
+			}
+			bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
+			bone_name.hint_string = names;
+		} else {
+			bone_name.hint = PROPERTY_HINT_NONE;
+			bone_name.hint_string = "";
+		}
+		p_list->push_back(bone_name);
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_from", PROPERTY_HINT_RANGE, "0,359.9,0.1,degrees,exp"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_to", PROPERTY_HINT_RANGE, "0,359.9,0.1,degrees,exp"));
+		p_list->push_back(
+				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
+						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+						vformat("Limit Cones,constraints/%s/kusudama_limit_cone/", itos(constraint_i))));
+		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+			p_list->push_back(
+					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"));
+			p_list->push_back(
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius"));
+		}
+	}
 	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
@@ -418,49 +461,6 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_y_direction"));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_z_direction"));
-	}
-	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
-	RBSet<String> existing_constraints;
-	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
-		const String name = get_constraint_name(constraint_i);
-		existing_constraints.insert(name);
-	}
-	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
-		PropertyInfo bone_name;
-		bone_name.type = Variant::STRING_NAME;
-		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
-		if (skeleton) {
-			String names;
-			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-				String name = skeleton->get_bone_name(bone_i);
-				if (existing_constraints.has(name)) {
-					continue;
-				}
-				name += ",";
-				names += name;
-				existing_constraints.insert(name);
-			}
-			bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
-			bone_name.hint_string = names;
-		} else {
-			bone_name.hint = PROPERTY_HINT_NONE;
-			bone_name.hint_string = "";
-		}
-		p_list->push_back(bone_name);
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_from", PROPERTY_HINT_RANGE, "0,359.9,0.1,degrees,exp"));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_to", PROPERTY_HINT_RANGE, "0,359.9,0.1,degrees,exp"));
-		p_list->push_back(
-				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
-						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
-						vformat("Limit Cones,constraints/%s/kusudama_limit_cone/", itos(constraint_i))));
-		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
-			p_list->push_back(
-					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"));
-			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius"));
-		}
 	}
 }
 
@@ -679,7 +679,6 @@ void SkeletonModification3DEWBIK::set_pin_depth_falloff(int32_t p_effector_index
 	Ref<IKEffectorTemplate> data = pins[p_effector_index];
 	ERR_FAIL_NULL(data);
 	data->set_depth_falloff(p_depth_falloff);
-
 	if (skeleton) {
 		skeleton->notify_property_list_changed();
 	}
