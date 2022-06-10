@@ -258,7 +258,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
 	segmented_skeleton->generate_default_segments_from_root(pins);
 	bone_list.clear();
-	segmented_skeleton->set_bone_list(bone_list, true, debug_skeleton);
+	segmented_skeleton->create_bone_list(bone_list, true, debug_skeleton);
 
 	segmented_skeleton->update_pinned_list();
 	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
