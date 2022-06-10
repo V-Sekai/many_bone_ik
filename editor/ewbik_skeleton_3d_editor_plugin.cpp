@@ -217,7 +217,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			if (parent_idx == -1) {
 				continue;
 			}
-			Transform3D kusudama_transform = skeleton->get_bone_global_pose(parent_idx);
+			Transform3D kusudama_transform = skeleton->get_bone_global_rest(parent_idx);
 			if (stack.is_null()) {
 				return;
 			}
@@ -256,8 +256,8 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					if (parent_id == -1) {
 						continue;
 					}
-					kusudama_transform = skeleton->get_bone_global_pose(parent_id) * skeleton->get_bone_global_pose(parent_id) * ik_bone->get_constraint_transform()->get_transform();
-					kusudama_transform.origin = skeleton->get_bone_global_pose(current_bone_idx).origin;
+					kusudama_transform = skeleton->get_bone_global_rest(parent_id) * ik_bone->get_constraint_transform()->get_transform();
+					kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
 					for (int32_t cone_i = 0; cone_i < current_limit_cones.size(); cone_i++) {
 						Vector3 control_point = current_limit_cones[cone_i]->get_control_point();
 						control_point = kusudama_transform.xform(control_point).normalized();
