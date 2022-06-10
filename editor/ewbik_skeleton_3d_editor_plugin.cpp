@@ -442,23 +442,23 @@ void fragment() {
 						//PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
 						//PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
 						//PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];//
-						/*for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
-							Vector3 sphere_vertex = vertex_array[vertex_i];
-							kusudama_surface_tool->set_color(current_bone_color);
-							kusudama_surface_tool->set_bones(bones);
-							kusudama_surface_tool->set_weights(weights);
-							Vector2 uv_vertex = uv_array[vertex_i];
-							kusudama_surface_tool->set_uv(uv_vertex);
-							Vector3 normal_vertex = normal_array[vertex_i];
-							kusudama_surface_tool->set_normal(normal_vertex);
-							Plane tangent_vertex;
-							tangent_vertex.normal.x = tangent_array[vertex_i + 0];
-							tangent_vertex.normal.y = tangent_array[vertex_i + 1];
-							tangent_vertex.normal.z = tangent_array[vertex_i + 2];
-							tangent_vertex.d = tangent_array[vertex_i + 3];
-							kusudama_surface_tool->set_tangent(tangent_vertex);
-							kusudama_surface_tool->add_vertex(skeleton->get_bone_global_pose(current_bone_idx).xform(sphere_vertex));
-						}*/
+						//for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
+						//	Vector3 sphere_vertex = vertex_array[vertex_i];
+						//	kusudama_surface_tool->set_color(current_bone_color);
+						//	kusudama_surface_tool->set_bones(bones);
+						//	kusudama_surface_tool->set_weights(weights);
+						//	Vector2 uv_vertex = uv_array[vertex_i];
+						//	kusudama_surface_tool->set_uv(uv_vertex);
+						//	Vector3 normal_vertex = normal_array[vertex_i];
+						//	kusudama_surface_tool->set_normal(normal_vertex);
+						//	Plane tangent_vertex;
+						//	tangent_vertex.normal.x = tangent_array[vertex_i + 0];
+						//	tangent_vertex.normal.y = tangent_array[vertex_i + 1];
+						//	tangent_vertex.normal.z = tangent_array[vertex_i + 2];
+						//	tangent_vertex.d = tangent_array[vertex_i + 3];
+						//	kusudama_surface_tool->set_tangent(tangent_vertex);
+						//	kusudama_surface_tool->add_vertex(skeleton->get_bone_global_pose(current_bone_idx).xform(sphere_vertex));
+						//}
 						//for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
 						//	int32_t index = index_array[index_i];
 						//	kusudama_surface_tool->add_index(index);
