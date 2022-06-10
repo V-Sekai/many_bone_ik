@@ -372,6 +372,7 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 }
 
 void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
+	
 	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
@@ -752,6 +753,10 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone(int32_t p_constraint, 
 	cone.a = p_radius;
 	cones.write[p_index] = cone;
 	kusudama_limit_cones[p_constraint] = cones;
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
+	is_dirty = true;
 }
 
 Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
@@ -798,6 +803,10 @@ real_t SkeletonModification3DEWBIK::get_default_damp() const {
 
 void SkeletonModification3DEWBIK::set_default_damp(float p_default_damp) {
 	default_damp = p_default_damp;
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
+	is_dirty = true;
 }
 
 String SkeletonModification3DEWBIK::get_pin_bone_name(int32_t p_effector_index) const {
