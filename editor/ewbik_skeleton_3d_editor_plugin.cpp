@@ -121,14 +121,11 @@ EWBIKSkeleton3DGizmoPlugin::EWBIKSkeleton3DGizmoPlugin() {
 }
 
 bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	if (Object::cast_to<Skeleton3D>(p_spatial)) {
-		return true;
-	}
-	return false;
+	return true;
 }
 
 String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
-	return "Skeleton3D";
+	return "Inverse Kinematic Constraints";
 }
 
 void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
