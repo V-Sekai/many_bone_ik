@@ -51,7 +51,6 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool debug_skeleton = false;
-	bool generate_constraints = false;
 	HashMap<int32_t, int32_t> kusudama_limit_cone_count;
 	Vector<float> kusudama_twist_from;
 	Vector<float> kusudama_twist_to;
@@ -103,8 +102,6 @@ public:
 	// Expose properties bound by script
 	bool get_debug_skeleton() const;
 	void set_debug_skeleton(bool p_enabled);
-	bool get_generate_constraints() const;
-	void set_generate_constraints(bool p_generate);
 	void set_ik_iterations(int32_t p_iterations);
 	int32_t get_ik_iterations() const;
 	void set_root_bone(const String &p_root_bone);
