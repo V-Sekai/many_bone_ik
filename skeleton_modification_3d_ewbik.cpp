@@ -846,4 +846,6 @@ float SkeletonModification3DEWBIK::get_kusudama_twist_to(int32_t p_index) const 
 void SkeletonModification3DEWBIK::set_constraint_name(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	constraint_names.write[p_index] = p_name;
+	notify_property_list_changed();
+	is_dirty = true;
 }
