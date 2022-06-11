@@ -358,7 +358,7 @@ vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_wi
 }
 
 void vertex() {
-	normal_model_dir = NORMAL;
+	normal_model_dir = CUSTOM0.rgb;
 	vert_model_color.rgb = kusudama_color.rgb;
 }
 
@@ -407,6 +407,12 @@ void fragment() {
 				}
 				BoneId constraint_id = modification->find_effector_id(bone_name);
 				if (modification.is_valid() && current_kusudama_constraint.has(constraint_id)) {
+					Ref<SphereMesh> sphere_mesh;
+					sphere_mesh.instantiate();
+					sphere_mesh->set_radius(dist / 4.0);
+					sphere_mesh->set_height(dist / 2.0);
+					sphere_mesh->set_rings(4);
+					sphere_mesh->set_radial_segments(2);
 					PackedFloat32Array kusudama_limit_cones;
 					kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 					kusudama_limit_cones.fill(0.0f);
@@ -428,6 +434,19 @@ void fragment() {
 					kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
 					kusudama_material->set_shader_param("kusudama_color", current_bone_color);
 
+					Ref<SurfaceTool> kusudama_surface_tool;
+					kusudama_surface_tool.instantiate();
+					kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+					kusudama_surface_tool->create_from(sphere_mesh, 0);
+					sphere_mesh.unref();
+					Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
+					kusudama_surface_tool->clear();
+					const int32_t MESH_CUSTOM_0 = 0;
+					kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+					kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGB_FLOAT);
+					Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
+					PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
+					PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
 					Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
 					BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
 					if (parent_idx == -1) {
@@ -446,75 +465,29 @@ void fragment() {
 					}
 					kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
 					kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
-					Ref<ImmediateMesh> immediate_mesh;
-					immediate_mesh.instantiate();
-					immediate_mesh->surface_begin(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES);
-					{
-						// Copied from the SphereMesh.
-						float radius = dist / 4.0;
-						float height = dist / 2.0;
-						int radial_segments = 32;
-						int rings = 16;
-
-						int i, j, prevrow, thisrow, point;
-						float x, y, z;
-
-						float scale = height * 0.5;
-
-						Vector<Vector3> points;
-						Vector<Vector3> normals;
-						Vector<int> indices;
-						point = 0;
-
-						thisrow = 0;
-						prevrow = 0;
-						for (j = 0; j <= (rings + 1); j++) {
-							float v = j;
-							float w;
-
-							v /= (rings + 1);
-							w = sin(Math_PI * v);
-							y = scale * cos(Math_PI * v);
-
-							for (i = 0; i <= radial_segments; i++) {
-								float u = i;
-								u /= radial_segments;
-
-								x = sin(u * Math_TAU);
-								z = cos(u * Math_TAU);
-
-								Vector3 p = Vector3(x * radius * w, y, z * radius * w);
-								points.push_back(p);
-								Vector3 normal = Vector3(x * w * scale, radius * (y / scale), z * w * scale);
-								normals.push_back(normal.normalized());
-								point++;
-
-								if (i > 0 && j > 0) {
-									indices.push_back(prevrow + i - 1);
-									indices.push_back(prevrow + i);
-									indices.push_back(thisrow + i - 1);
-
-									indices.push_back(prevrow + i);
-									indices.push_back(thisrow + i);
-									indices.push_back(thisrow + i - 1);
-								};
-							};
-
-							prevrow = thisrow;
-							thisrow = point;
-						}
-						for (int32_t index_i : indices) {
-							immediate_mesh->surface_set_color(current_bone_color);
-							immediate_mesh->surface_set_normal(normals[index_i]);
-							immediate_mesh->surface_add_vertex(points[index_i]);
-						}
+					for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
+						Vector3 sphere_vertex = vertex_array[vertex_i];
+						kusudama_surface_tool->set_color(current_bone_color);
+						kusudama_surface_tool->set_bones(bones);
+						kusudama_surface_tool->set_weights(weights);
+						Vector3 normal_vertex = normal_array[vertex_i];
+						kusudama_surface_tool->set_normal(normal_vertex);
+						Color c;
+						c.r = normal_vertex.x;
+						c.g = normal_vertex.y;
+						c.b = normal_vertex.z;
+						kusudama_surface_tool->set_custom(MESH_CUSTOM_0, c);
+						kusudama_surface_tool->add_vertex(kusudama_transform.xform(sphere_vertex));
 					}
-					immediate_mesh->surface_end();
-					p_gizmo->add_mesh(immediate_mesh, kusudama_material, kusudama_transform * skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+					for (int32_t index_i = 0; index_i < index_array.size(); index_i++) {
+						int32_t index = index_array[index_i];
+						kusudama_surface_tool->add_index(index);
+					}
+					p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<ArrayMesh>(), RS::ARRAY_CUSTOM_RGB_FLOAT << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material->duplicate(), skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 				}
 			}
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
-		}
+		}				
 	}
 }
