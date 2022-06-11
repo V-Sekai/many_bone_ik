@@ -183,6 +183,11 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	if (is_dirty || segmented_skeleton.is_null()) {
 		update_skeleton();
 	}
+	
+	if (!skeleton) {
+		return;
+	}
+	update_skeleton();
 	if (bone_list.size()) {
 		Ref<IKTransform3D> bone_ik_transform = bone_list.write[0]->get_ik_transform();
 		ERR_FAIL_NULL(bone_ik_transform);
@@ -540,7 +545,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 			if (index >= constraint_names.size()) {
 				set_constraint_count(constraint_count);
 			}
-			constraint_names.write[index] = p_value;
+			set_constraint_name(index, p_value);
 			return true;
 		} else if (what == "kusudama_twist_from") {
 			set_kusudama_twist_from(index, p_value);
@@ -625,11 +630,14 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &SkeletonModification3DEWBIK::set_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
+	ClassDB::bind_method(D_METHOD("get_generate_constraints"), &SkeletonModification3DEWBIK::get_generate_constraints);
+	ClassDB::bind_method(D_METHOD("set_generate_constraints"), &SkeletonModification3DEWBIK::set_generate_constraints);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "budget_millisecond", PROPERTY_HINT_RANGE, "0.01,2.0,0.01,or_greater"), "set_time_budget_millisecond", "get_time_budget_millisecond");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "generate_constraints", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_generate_constraints", "get_generate_constraints");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
@@ -811,4 +819,35 @@ float SkeletonModification3DEWBIK::get_kusudama_twist_from(int32_t p_index) cons
 float SkeletonModification3DEWBIK::get_kusudama_twist_to(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, kusudama_twist_to.size(), 360.0f);
 	return kusudama_twist_to[p_index];
+}
+
+void SkeletonModification3DEWBIK::set_constraint_name(int32_t p_index, String p_name) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	constraint_names.write[p_index] = p_name;
+}
+
+bool SkeletonModification3DEWBIK::get_generate_constraints() const {
+	return generate_constraints;
+}
+
+void SkeletonModification3DEWBIK::set_generate_constraints(bool p_generate) {
+	generate_constraints = p_generate;
+	if (!generate_constraints) {
+		return;
+	}
+	set_constraint_count(0);
+	update_skeleton();
+	Vector<Ref<IKBone3D>> list;
+	segmented_skeleton->create_bone_list(list, true, false);
+	set_constraint_count(list.size());
+	for (int32_t count_i = 0; count_i < constraint_count; count_i++) {
+		Ref<IKBone3D> bone = list[count_i];
+		if (bone.is_null()) {
+			continue;
+		}
+		BoneId bone_idx = bone->get_bone_id();
+		String bone_name = skeleton->get_bone_name(bone_idx);
+		set_kusudama_twist_from(count_i, 0.0f);
+		set_kusudama_twist_to(count_i, Math::deg2rad(170.f));
+	}
 }
