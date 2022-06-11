@@ -616,6 +616,19 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 }
 
 void SkeletonModification3DEWBIK::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_radius", "index", "cone_index", "radius"), &SkeletonModification3DEWBIK::set_kusudama_limit_cone_radius);
+	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_radius", "index", "cone_index"), &SkeletonModification3DEWBIK::get_kusudama_limit_cone_radius);
+	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_center", "index", "cone_index", "center"), &SkeletonModification3DEWBIK::set_kusudama_limit_cone_center);
+	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_center", "index", "cone_index"), &SkeletonModification3DEWBIK::set_kusudama_limit_cone_center);
+	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_count", "index", "count"), &SkeletonModification3DEWBIK::set_kusudama_limit_cone_count);
+	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_count", "index"), &SkeletonModification3DEWBIK::get_kusudama_limit_cone_count);
+	ClassDB::bind_method(D_METHOD("set_kusudama_twist_from", "index", "name"), &SkeletonModification3DEWBIK::set_kusudama_twist_from);
+	ClassDB::bind_method(D_METHOD("get_kusudama_twist_from", "index"), &SkeletonModification3DEWBIK::get_kusudama_twist_from);
+	ClassDB::bind_method(D_METHOD("set_kusudama_twist_to", "index", "name"), &SkeletonModification3DEWBIK::set_kusudama_twist_to);
+	ClassDB::bind_method(D_METHOD("get_kusudama_twist_to", "index"), &SkeletonModification3DEWBIK::get_kusudama_twist_to);
+	ClassDB::bind_method(D_METHOD("set_constraint_name", "index", "name"), &SkeletonModification3DEWBIK::set_constraint_name);
+	ClassDB::bind_method(D_METHOD("get_constraint_name", "index"), &SkeletonModification3DEWBIK::get_constraint_name);
+	ClassDB::bind_method(D_METHOD("get_segmented_skeleton"), &SkeletonModification3DEWBIK::get_segmented_skeleton);
 	ClassDB::bind_method(D_METHOD("get_max_ik_iterations"), &SkeletonModification3DEWBIK::get_max_ik_iterations);
 	ClassDB::bind_method(D_METHOD("set_max_ik_iterations", "count"), &SkeletonModification3DEWBIK::set_max_ik_iterations);
 	ClassDB::bind_method(D_METHOD("get_time_budget_millisecond"), &SkeletonModification3DEWBIK::get_time_budget_millisecond);
@@ -703,9 +716,9 @@ int32_t SkeletonModification3DEWBIK::get_constraint_count() const {
 	return constraint_count;
 }
 
-inline StringName SkeletonModification3DEWBIK::get_constraint_name(int32_t p_effector_index) const {
-	ERR_FAIL_INDEX_V(p_effector_index, constraint_names.size(), StringName());
-	return constraint_names[p_effector_index];
+inline StringName SkeletonModification3DEWBIK::get_constraint_name(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), StringName());
+	return constraint_names[p_index];
 }
 
 void SkeletonModification3DEWBIK::set_kusudama_twist_from(int32_t p_index, float p_from) {
@@ -867,9 +880,7 @@ void SkeletonModification3DEWBIK::set_generate_constraints(bool p_generate) {
 		String bone_name = skeleton->get_bone_name(bone_idx);
 		set_constraint_name(count_i, bone_name);
 		set_kusudama_twist_from(count_i, 0.0f);
-		set_kusudama_twist_to(count_i, Math_TAU);
-		set_kusudama_limit_cone_count(count_i, 1);
-		set_kusudama_limit_cone(count_i, 0, Vector3(0.0, 1.0, 0.0), Math::deg2rad(90.0f));
+		set_kusudama_twist_to(count_i, Math::rad2deg(90.0f));
 	}
 	skeleton->notify_property_list_changed();
 	is_dirty = true;

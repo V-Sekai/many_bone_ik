@@ -126,7 +126,7 @@ public:
 	void set_default_damp(float p_default_damp);
 	void set_constraint_count(int32_t p_count);
 	int32_t get_constraint_count() const;
-	StringName get_constraint_name(int32_t p_effector_index) const;
+	StringName get_constraint_name(int32_t p_index) const;
 	void set_constraint_name(int32_t p_index, String p_name);
 	void set_kusudama_twist_from(int32_t p_index, float p_from);
 	void set_kusudama_twist_to(int32_t p_index, float p_to);
