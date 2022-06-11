@@ -139,6 +139,44 @@ public:
 	void set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius);
 	int32_t get_kusudama_limit_cone_count(int32_t p_effector_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_effector_index, int32_t p_count);
+	bool get_kusudama_flip_handedness(int32_t p_bone) const {
+		Vector<Ref<IKBone3D>> bone_list = segmented_skeleton->get_bone_list();
+		for (Ref<IKBone3D> bone : bone_list) {
+			if (bone.is_null()) {
+				continue;
+			}
+			if (bone->get_bone_id() != p_bone) {
+				continue;
+			}
+			Ref<IKTransform3D> transform = bone->get_ik_transform();
+			if (transform.is_null()) {
+				continue;
+			}
+			float chirality = transform->get_global_chirality();
+			if (chirality <= 0) {
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+	void set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
+		Vector<Ref<IKBone3D>> bone_list = segmented_skeleton->get_bone_list();
+		for (Ref<IKBone3D> bone : bone_list) {
+			if (bone.is_null()) {
+				continue;
+			}
+			if (bone->get_bone_id() != p_bone) {
+				continue;
+			}
+			Ref<IKTransform3D> transform = bone->get_ik_transform();
+			if (transform.is_null()) {
+				continue;
+			}
+			transform->set_global_chirality(p_flip ? -1.0, 1.0);
+			break;
+		}
+	}
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
 };

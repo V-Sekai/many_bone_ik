@@ -114,7 +114,7 @@ public:
 	bool is_pinned() const;
 	Vector<Ref<IKBoneSegment>> get_child_segments() const;
 	void create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
-	Vector<Ref<IKBone3D>> get_bone_list() {
+	Vector<Ref<IKBone3D>> get_bone_list() const {
 		return bones;
 	}
 	Ref<IKBone3D> get_ik_bone(BoneId p_bone) {

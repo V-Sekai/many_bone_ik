@@ -167,7 +167,7 @@ void IKKusudama::get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransf
 		double distToMax = Math::abs(signed_angle_difference(angleDelta2, Math_TAU - (min_axial_angle() + range)));
 		double turnDiff = 1;
 		// uncomment the next line for reflectable axis  support (removed for performance reasons)
-		turnDiff *= limiting_axes->getGlobalChirality();
+		turnDiff *= limiting_axes->get_global_chirality();
 		Vector3 axis_y = to_set->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 		if (distToMin < distToMax) {
 			turnDiff = turnDiff * (fromMinToAngleDelta);
