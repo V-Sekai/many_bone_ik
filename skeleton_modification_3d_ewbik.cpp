@@ -656,6 +656,7 @@ void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 
 	notify_property_list_changed();
 	is_dirty = true;
+	debug_skeleton = false;
 }
 
 float SkeletonModification3DEWBIK::get_pin_depth_falloff(int32_t p_effector_index) const {
@@ -859,4 +860,5 @@ void SkeletonModification3DEWBIK::set_generate_constraints(bool p_generate) {
 	}
 	notify_property_list_changed();
 	is_dirty = true;
+	generate_constraints = false;
 }
