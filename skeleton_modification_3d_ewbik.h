@@ -55,6 +55,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	HashMap<int32_t, int32_t> kusudama_limit_cone_count;
 	Vector<float> kusudama_twist_from;
 	Vector<float> kusudama_twist_to;
+	Vector<bool> kusudama_flip_handedness;
 	HashMap<int32_t, PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float time_budget_millisecond = 0.6f;
@@ -140,42 +141,27 @@ public:
 	int32_t get_kusudama_limit_cone_count(int32_t p_effector_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_effector_index, int32_t p_count);
 	bool get_kusudama_flip_handedness(int32_t p_bone) const {
-		Vector<Ref<IKBone3D>> bone_list = segmented_skeleton->get_bone_list();
-		for (Ref<IKBone3D> bone : bone_list) {
-			if (bone.is_null()) {
-				continue;
-			}
-			if (bone->get_bone_id() != p_bone) {
-				continue;
-			}
-			Ref<IKTransform3D> transform = bone->get_ik_transform();
-			if (transform.is_null()) {
-				continue;
-			}
-			float chirality = transform->get_global_chirality();
-			if (chirality <= 0) {
-				return false;
-			}
-			return true;
-		}
-		return false;
+		ERR_FAIL_INDEX_V(p_bone, kusudama_flip_handedness.size(), false);
+		return kusudama_flip_handedness[p_bone];
 	}
+
 	void set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
-		Vector<Ref<IKBone3D>> bone_list = segmented_skeleton->get_bone_list();
-		for (Ref<IKBone3D> bone : bone_list) {
-			if (bone.is_null()) {
-				continue;
-			}
-			if (bone->get_bone_id() != p_bone) {
-				continue;
-			}
-			Ref<IKTransform3D> transform = bone->get_ik_transform();
-			if (transform.is_null()) {
-				continue;
-			}
-			transform->set_global_chirality(p_flip ? -1.0 : 1.0);
-			break;
+		ERR_FAIL_INDEX(p_bone, kusudama_flip_handedness.size());
+		kusudama_flip_handedness.write[p_bone] = p_flip;
+		if (segmented_skeleton.is_null()) {
+			return;
 		}
+		Ref<IKBone3D> bone = segmented_skeleton->get_ik_bone(p_bone);
+		if (bone.is_null()) {
+			return;
+		}
+		Ref<IKTransform3D> transform = bone->get_constraint_transform();
+		if (transform.is_null()) {
+			return;
+		}
+		transform->set_global_chirality(p_flip ? -1.0 : 1.0);
+		notify_property_list_changed();
+		set_dirty();
 	}
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();

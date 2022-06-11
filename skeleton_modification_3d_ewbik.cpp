@@ -688,10 +688,12 @@ void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 	constraint_names.resize(p_count);
 	kusudama_twist_from.resize(p_count);
 	kusudama_twist_to.resize(p_count);
+	kusudama_flip_handedness.resize(p_count);
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
 		kusudama_twist_from.write[constraint_i] = 0.0f;
 		kusudama_twist_to.write[constraint_i] = Math_TAU;
+		kusudama_flip_handedness.write[constraint_i] = false;
 	}
 	notify_property_list_changed();
 	is_dirty = true;
