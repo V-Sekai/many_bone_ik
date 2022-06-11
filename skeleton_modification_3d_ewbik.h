@@ -173,7 +173,7 @@ public:
 			if (transform.is_null()) {
 				continue;
 			}
-			transform->set_global_chirality(p_flip ? -1.0, 1.0);
+			transform->set_global_chirality(p_flip ? -1.0 : 1.0);
 			break;
 		}
 	}
