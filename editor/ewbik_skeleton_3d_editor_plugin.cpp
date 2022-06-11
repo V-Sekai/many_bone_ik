@@ -121,7 +121,10 @@ EWBIKSkeleton3DGizmoPlugin::EWBIKSkeleton3DGizmoPlugin() {
 }
 
 bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return true;
+	if (Object::cast_to<Skeleton3D>(p_spatial)) {
+		return true;
+	}
+	return false;
 }
 
 String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
@@ -371,9 +374,6 @@ void fragment() {
 	ALPHA = result_color_allowed.a;
 }
 )");
-	Ref<ImmediateMesh> immediate_mesh;
-	immediate_mesh.instantiate();
-	immediate_mesh->surface_begin(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES);
 	while (bones_to_process.size() > current_bone_index) {
 		int current_bone_idx = bones_to_process[current_bone_index];
 		current_bone_index++;
@@ -446,12 +446,15 @@ void fragment() {
 					}
 					kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
 					kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
+					Ref<ImmediateMesh> immediate_mesh;
+					immediate_mesh.instantiate();
+					immediate_mesh->surface_begin(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES);
 					{
 						// Copied from the SphereMesh.
 						float radius = dist / 4.0;
 						float height = dist / 2.0;
-						int radial_segments = 6;
-						int rings = 6;
+						int radial_segments = 32;
+						int rings = 16;
 
 						int i, j, prevrow, thisrow, point;
 						float x, y, z;
@@ -481,7 +484,6 @@ void fragment() {
 								z = cos(u * Math_TAU);
 
 								Vector3 p = Vector3(x * radius * w, y, z * radius * w);
-								p = kusudama_transform.xform(p);
 								points.push_back(p);
 								Vector3 normal = Vector3(x * w * scale, radius * (y / scale), z * w * scale);
 								normals.push_back(normal.normalized());
@@ -507,12 +509,12 @@ void fragment() {
 							immediate_mesh->surface_add_vertex(points[index_i]);
 						}
 					}
-					}
+					immediate_mesh->surface_end();
+					p_gizmo->add_mesh(immediate_mesh, kusudama_material, kusudama_transform * skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+				}
 			}
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
 		}
 	}
-	immediate_mesh->surface_end();
-	p_gizmo->add_mesh(immediate_mesh, kusudama_material, skeleton->get_global_transform());
 }
