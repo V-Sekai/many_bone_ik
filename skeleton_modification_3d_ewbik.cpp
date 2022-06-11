@@ -838,6 +838,9 @@ void SkeletonModification3DEWBIK::set_generate_constraints(bool p_generate) {
 	set_constraint_count(0);
 	update_skeleton();
 	Vector<Ref<IKBone3D>> list;
+	if (segmented_skeleton.is_null()) {
+		return;
+	}
 	segmented_skeleton->create_bone_list(list, true, false);
 	if (list.is_empty()) {
 		return;	
