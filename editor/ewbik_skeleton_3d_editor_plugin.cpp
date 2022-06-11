@@ -442,7 +442,7 @@ void fragment() {
 					Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
 					kusudama_surface_tool->clear();
 					const int32_t MESH_CUSTOM_0 = 0;
-					kusudama_surface_tool->begin(Mesh::PRIMITIVE_LINES);
+					kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
 					kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGB_FLOAT);
 					Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
 					PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
