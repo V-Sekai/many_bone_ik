@@ -121,7 +121,10 @@ EWBIKSkeleton3DGizmoPlugin::EWBIKSkeleton3DGizmoPlugin() {
 }
 
 bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return true;
+	if (Object::cast_to<Skeleton3D>(p_spatial)) {
+		return true;
+	}
+	return false;
 }
 
 String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
@@ -129,10 +132,6 @@ String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
 }
 
 void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
-	if (!p_gizmo->is_selected()) {
-		p_gizmo->clear();
-		return;
-	}
 	HashMap<int32_t, HashMap<int32_t, Vector<float>>> modification_kusudama_constraint;
 	Ref<SkeletonModificationStack3D> stack;
 	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
