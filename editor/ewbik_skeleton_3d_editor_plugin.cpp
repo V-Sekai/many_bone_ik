@@ -446,9 +446,7 @@ void fragment() {
 					kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGB_FLOAT);
 					Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
 					PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
-					PackedVector2Array uv_array = kusudama_array[Mesh::ARRAY_TEX_UV];
 					PackedVector3Array normal_array = kusudama_array[Mesh::ARRAY_NORMAL];
-					PackedFloat32Array tangent_array = kusudama_array[Mesh::ARRAY_TANGENT];
 					Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
 					BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
 					if (parent_idx == -1) {
@@ -472,16 +470,8 @@ void fragment() {
 						kusudama_surface_tool->set_color(current_bone_color);
 						kusudama_surface_tool->set_bones(bones);
 						kusudama_surface_tool->set_weights(weights);
-						Vector2 uv_vertex = uv_array[vertex_i];
-						kusudama_surface_tool->set_uv(uv_vertex);
 						Vector3 normal_vertex = normal_array[vertex_i];
 						kusudama_surface_tool->set_normal(normal_vertex);
-						Plane tangent_vertex;
-						tangent_vertex.normal.x = tangent_array[vertex_i + 0];
-						tangent_vertex.normal.y = tangent_array[vertex_i + 1];
-						tangent_vertex.normal.z = tangent_array[vertex_i + 2];
-						tangent_vertex.d = tangent_array[vertex_i + 3];
-						kusudama_surface_tool->set_tangent(tangent_vertex);
 						Color c;
 						c.r = normal_vertex.x;
 						c.g = normal_vertex.y;
