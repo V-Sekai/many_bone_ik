@@ -840,14 +840,17 @@ void SkeletonModification3DEWBIK::set_generate_constraints(bool p_generate) {
 	Vector<Ref<IKBone3D>> list;
 	segmented_skeleton->create_bone_list(list, true, false);
 	set_constraint_count(list.size());
-	for (int32_t count_i = 0; count_i < constraint_count; count_i++) {
+	for (int32_t count_i = 0; count_i < list.size(); count_i++) {
 		Ref<IKBone3D> bone = list[count_i];
 		if (bone.is_null()) {
 			continue;
 		}
 		BoneId bone_idx = bone->get_bone_id();
 		String bone_name = skeleton->get_bone_name(bone_idx);
+		set_constraint_name(count_i, bone_name);
 		set_kusudama_twist_from(count_i, 0.0f);
 		set_kusudama_twist_to(count_i, Math::deg2rad(170.f));
 	}
+	notify_property_list_changed();
+	is_dirty = true;
 }
