@@ -391,9 +391,9 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::BOOL, "constraints/" + itos(constraint_i) + "/kusudama_flip_handedness"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_from", PROPERTY_HINT_RANGE, "0,359.9,0.1,radians,exp"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_from", PROPERTY_HINT_RANGE, "-360.0,360.0,0.1,radians,exp"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_to", PROPERTY_HINT_RANGE, "0,359.9,0.1,radians,exp"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_to", PROPERTY_HINT_RANGE, "-360.0,360.0,0.1,radians,exp"));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
@@ -867,9 +867,9 @@ void SkeletonModification3DEWBIK::set_generate_constraints(bool p_generate) {
 		String bone_name = skeleton->get_bone_name(bone_idx);
 		set_constraint_name(count_i, bone_name);
 		set_kusudama_twist_from(count_i, 0.0f);
-		set_kusudama_twist_to(count_i, Math::deg2rad(170.f));
+		set_kusudama_twist_to(count_i, Math_TAU);
 		set_kusudama_limit_cone_count(count_i, 1);
-		set_kusudama_limit_cone(count_i, 0, Vector3(0.0, 1.0, 0.0), Math::deg2rad(90.0f));
+		set_kusudama_limit_cone(count_i, 0, Vector3(0.0, 1.0, 0.0), Math_TAU);
 	}
 	skeleton->notify_property_list_changed();
 	is_dirty = true;
