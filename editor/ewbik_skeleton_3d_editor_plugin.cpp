@@ -151,6 +151,9 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			if (ewbik_modification.is_null()) {
 				continue;
 			}
+			if (ewbik_modification->get_enabled()) {
+				return;
+			}
 			int32_t constraint_count = ewbik_modification->get_constraint_count();
 			HashMap<int32_t, Vector<float>> kusudama_constraint;
 			for (int32_t constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
