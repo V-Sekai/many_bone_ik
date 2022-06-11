@@ -436,6 +436,7 @@ void fragment() {
 					kusudama_surface_tool.instantiate();
 					kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
 					kusudama_surface_tool->create_from(sphere_mesh, 0);
+					sphere_mesh.unref();
 					Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
 					kusudama_surface_tool->clear();
 					const int32_t MESH_CUSTOM_0 = 0;
