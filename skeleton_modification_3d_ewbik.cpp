@@ -867,7 +867,7 @@ void SkeletonModification3DEWBIK::set_generate_constraints(bool p_generate) {
 		String bone_name = skeleton->get_bone_name(bone_idx);
 		set_constraint_name(count_i, bone_name);
 		set_kusudama_twist_from(count_i, 0.0f);
-		set_kusudama_twist_to(count_i, Math_TAU);
+		set_kusudama_twist_to(count_i, Math_PI);
 		set_kusudama_limit_cone_count(count_i, 1);
 		set_kusudama_limit_cone(count_i, 0, Vector3(0.0, 1.0, 0.0), Math_TAU);
 	}
