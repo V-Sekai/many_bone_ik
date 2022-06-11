@@ -170,7 +170,6 @@ public:
 	Vector3 get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const;
 
 private:
-
 	Vector3 closest_cone(Ref<LimitCone> next, Vector3 input) const;
 
 	void update_tangent_and_cushion_handles(Ref<LimitCone> p_next, int p_mode);
@@ -179,6 +178,7 @@ private:
 	void set_tangent_circle_center_next_2(Vector3 point, int mode);
 
 	void set_tangent_circle_radius_next(double rad, int mode);
+
 protected:
 	virtual Vector3 get_tangent_circle_center_next_1(int mode);
 

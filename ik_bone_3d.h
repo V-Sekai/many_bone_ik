@@ -58,11 +58,11 @@ class IKBone3D : public Resource {
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
 	Ref<IKKusudama> constraint;
 	// In the space of the local parent bone transform
-	// Origin is the origin of the bone direction transform 
+	// Origin is the origin of the bone direction transform
 	// Can be independent and should be calculated
-	// to keep -y to be the opposite of its bone forward orientation 
-	// To avoid singularity that is ambigous. 
-	Ref<IKTransform3D> constraint_transform = memnew(IKTransform3D()); 
+	// to keep -y to be the opposite of its bone forward orientation
+	// To avoid singularity that is ambigous.
+	Ref<IKTransform3D> constraint_transform = memnew(IKTransform3D());
 	Ref<IKTransform3D> transform = memnew(IKTransform3D()); // bone's actual transform
 	Ref<IKTransform3D> bone_direction_transform = memnew(IKTransform3D()); // Physical direction of the bone. Calculate Y is the bone up.
 protected:

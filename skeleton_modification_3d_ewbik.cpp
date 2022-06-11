@@ -476,7 +476,7 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 	} else if (name == "pin_count") {
 		r_ret = get_pin_count();
 		return true;
-	}  else if (name.begins_with("pins/")) {
+	} else if (name.begins_with("pins/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, pins.size(), false);
@@ -563,7 +563,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		} else if (what == "kusudama_twist_from") {
 			set_kusudama_twist_from(index, p_value);
 			return true;
-		}  else if (what == "kusudama_twist_to") {
+		} else if (what == "kusudama_twist_to") {
 			set_kusudama_twist_to(index, p_value);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
@@ -616,7 +616,7 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		} else if (what == "weight_z_direction") {
 			return true;
 		}
-	} 
+	}
 	return false;
 }
 
