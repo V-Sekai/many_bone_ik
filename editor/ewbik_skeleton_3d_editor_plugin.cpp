@@ -411,8 +411,8 @@ void fragment() {
 					sphere_mesh.instantiate();
 					sphere_mesh->set_radius(dist / 4.0);
 					sphere_mesh->set_height(dist / 2.0);
-					sphere_mesh->set_rings(8);
-					sphere_mesh->set_radial_segments(8);
+					sphere_mesh->set_rings(4);
+					sphere_mesh->set_radial_segments(2);
 					PackedFloat32Array kusudama_limit_cones;
 					kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 					kusudama_limit_cones.fill(0.0f);
