@@ -132,6 +132,10 @@ String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
 }
 
 void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
+	if (!p_gizmo->is_selected()) {
+		p_gizmo->clear();
+		return;
+	}
 	HashMap<int32_t, HashMap<int32_t, Vector<float>>> modification_kusudama_constraint;
 	Ref<SkeletonModificationStack3D> stack;
 	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
@@ -151,7 +155,7 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			if (ewbik_modification.is_null()) {
 				continue;
 			}
-			if (ewbik_modification->get_enabled()) {
+			if (!ewbik_modification->get_is_setup()) {
 				return;
 			}
 			int32_t constraint_count = ewbik_modification->get_constraint_count();
@@ -407,32 +411,24 @@ void fragment() {
 					sphere_mesh.instantiate();
 					sphere_mesh->set_radius(dist / 4.0);
 					sphere_mesh->set_height(dist / 2.0);
-					sphere_mesh->set_rings(16);
+					sphere_mesh->set_rings(8);
 					sphere_mesh->set_radial_segments(8);
 					PackedFloat32Array kusudama_limit_cones;
 					kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 					kusudama_limit_cones.fill(0.0f);
-					Vector<float> limit_cones = current_kusudama_constraint[constraint_id];
-					Ref<IKBoneSegment> bone_segment = modification->get_segmented_skeleton();
-					if (bone_segment.is_null()) {
-						continue;
-					}
-					Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
-					if (ik_bone.is_null()) {
-						continue;
-					}
-					Ref<IKKusudama> ik_kusudama = ik_bone->getConstraint();
-					if (ik_kusudama.is_null()) {
-						continue;
-					}
-					Vector<Ref<LimitCone>> current_limit_cones = ik_kusudama->get_limit_cones();
-					for (int32_t cone_i = 0; cone_i < current_limit_cones.size(); cone_i++) {
-						Vector3 control_point = current_limit_cones[cone_i]->get_control_point();
-						int out_idx = cone_i * 4;
-						kusudama_limit_cones.write[out_idx + 0] = control_point.x;
-						kusudama_limit_cones.write[out_idx + 1] = control_point.y;
-						kusudama_limit_cones.write[out_idx + 2] = control_point.z;
-						kusudama_limit_cones.write[out_idx + 3] = current_limit_cones[cone_i]->get_radius();
+					for (int32_t constraint_i = 0; constraint_i < modification->get_constraint_count(); constraint_i++) {
+						if (modification->get_constraint_name(constraint_i) == skeleton->get_bone_name(current_bone_idx)) {
+							continue;
+						}
+						for (int32_t cone_i = 0; cone_i < modification->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+							Vector3 control_point = modification->get_kusudama_limit_cone_center(constraint_i, cone_i);
+							int out_idx = cone_i * 4;
+							kusudama_limit_cones.write[out_idx + 0] = control_point.x;
+							kusudama_limit_cones.write[out_idx + 1] = control_point.y;
+							kusudama_limit_cones.write[out_idx + 2] = control_point.z;
+							kusudama_limit_cones.write[out_idx + 3] = modification->get_kusudama_limit_cone_radius(constraint_i, cone_i);
+						}
+						break;
 					}
 					kusudama_material->set_shader(kusudama_shader);
 					kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
@@ -446,7 +442,7 @@ void fragment() {
 					Array kusudama_array = kusudama_surface_tool->commit_to_arrays();
 					kusudama_surface_tool->clear();
 					const int32_t MESH_CUSTOM_0 = 0;
-					kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+					kusudama_surface_tool->begin(Mesh::PRIMITIVE_LINES);
 					kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGB_FLOAT);
 					Vector<Vector3> vertex_array = kusudama_array[Mesh::ARRAY_VERTEX];
 					PackedFloat32Array index_array = kusudama_array[Mesh::ARRAY_INDEX];
@@ -458,8 +454,18 @@ void fragment() {
 					if (parent_idx == -1) {
 						continue;
 					}
-					kusudama_transform = skeleton->get_bone_global_rest(parent_idx);
-					kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * ik_bone->get_constraint_transform()->get_transform();
+					Ref<IKBoneSegment> bone_segment = modification->get_segmented_skeleton();
+					Transform3D constraint_transform;
+					if (bone_segment.is_valid()) {
+						Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
+						if (ik_bone.is_valid()) {
+							Ref<IKKusudama> ik_kusudama = ik_bone->getConstraint();
+							if (ik_kusudama.is_valid()) {
+								constraint_transform = ik_bone->get_constraint_transform()->get_transform();
+							}
+						}
+					}
+					kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
 					kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
 					for (int32_t vertex_i = 0; vertex_i < vertex_array.size(); vertex_i++) {
 						Vector3 sphere_vertex = vertex_array[vertex_i];
@@ -492,6 +498,6 @@ void fragment() {
 			}
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
-		}
+		}				
 	}
 }
