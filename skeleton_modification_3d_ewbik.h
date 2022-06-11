@@ -56,8 +56,8 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	Vector<float> kusudama_twist_to;
 	HashMap<int32_t, PackedColorArray> kusudama_limit_cones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
-	float time_budget_millisecond = 0.1f;
-	int32_t ik_iterations = 10;
+	float time_budget_millisecond = 0.6f;
+	int32_t ik_iterations = 0;
 	int32_t max_ik_iterations = 30;
 	float default_damp = Math::deg2rad(5.0f);
 	Ref<IKTransform3D> root_transform = memnew(IKTransform3D);
