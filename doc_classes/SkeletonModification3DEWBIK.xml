@@ -5,7 +5,7 @@
 	</brief_description>
 	<description>
 		Kusudamas are a sequential collection of reach cones, forming a path by their tangents.
-		A reach cone is essentially a cone bounding the rotation of a ball-and-socket joint. A reach cone is defined as a vector pointing in the direction which the cone is opening, and a radius (in radians) representing how much the cone is opening up.			
+		A reach cone is essentially a cone bounding the rotation of a ball-and-socket joint. A reach cone is defined as a vector pointing in the direction which the cone is opening, and a radius (in radians) representing how much the cone is opening up.
 		You can think of a Kusudama (taken from the Japanese word for "ball with a bunch of cones sticking out of it") as a ball with with a bunch of reach-cones sticking out of it. Except that these reach cones are arranged sequentially, and a smooth path is automatically inferred leading from one cone to the next.
 	</description>
 	<tutorials>

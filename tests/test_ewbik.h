@@ -38,7 +38,6 @@
 #include "tests/test_macros.h"
 
 namespace TestEWBIK {
-
 Vector3 deg2rad(const Vector3 &p_rotation) {
 	return p_rotation / 180.0 * Math_PI;
 }

@@ -269,7 +269,7 @@ const int CONE_COUNT_MAX = 30;
 
 uniform vec4 cone_sequence[30];
 
-// This shader can display up to 30 cones (represented by 30 4d vectors) 
+// This shader can display up to 30 cones (represented by 30 4d vectors)
 // Each group of 4 represents the xyz coordinates of the cone direction
 // vector in model space and the fourth element represents radius
 
@@ -281,33 +281,33 @@ varying vec3 normal_model_dir;
 varying vec4 vert_model_color;
 
 bool is_in_inter_cone_path(in vec3 normal_dir, in vec4 tangent_1, in vec4 cone_1, in vec4 tangent_2, in vec4 cone_2) {
-	vec3 c1xc2 = cross(cone_1.xyz, cone_2.xyz);		
+	vec3 c1xc2 = cross(cone_1.xyz, cone_2.xyz);
 	float c1c2dir = dot(normal_dir, c1xc2);
-		
-	if (c1c2dir < 0.0) { 
-		vec3 c1xt1 = cross(cone_1.xyz, tangent_1.xyz); 
-		vec3 t1xc2 = cross(tangent_1.xyz, cone_2.xyz);	
+
+	if (c1c2dir < 0.0) {
+		vec3 c1xt1 = cross(cone_1.xyz, tangent_1.xyz);
+		vec3 t1xc2 = cross(tangent_1.xyz, cone_2.xyz);
 		float c1t1dir = dot(normal_dir, c1xt1);
 		float t1c2dir = dot(normal_dir, t1xc2);
-		
-	 	return (c1t1dir > 0.0 && t1c2dir > 0.0); 
-			
+
+	 	return (c1t1dir > 0.0 && t1c2dir > 0.0);
+
 	} else {
-		vec3 t2xc1 = cross(tangent_2.xyz, cone_1.xyz);	
-		vec3 c2xt2 = cross(cone_2.xyz, tangent_2.xyz);	
+		vec3 t2xc1 = cross(tangent_2.xyz, cone_1.xyz);
+		vec3 c2xt2 = cross(cone_2.xyz, tangent_2.xyz);
 		float t2c1dir = dot(normal_dir, t2xc1);
 		float c2t2dir = dot(normal_dir, c2xt2);
-		
+
 		return (c2t2dir > 0.0 && t2c1dir > 0.0);
-	}	
+	}
 	return false;
 }
 
 //determines the current draw condition based on the desired draw condition in the setToArgument
-// -3 = disallowed entirely; 
+// -3 = disallowed entirely;
 // -2 = disallowed and on tangent_cone boundary
 // -1 = disallowed and on control_cone boundary
-// 0 =  allowed and empty; 
+// 0 =  allowed and empty;
 // 1 =  allowed and on control_cone boundary
 // 2  = allowed and on tangent_cone boundary
 int get_allowability_condition(in int current_condition, in int set_to) {
@@ -316,7 +316,7 @@ int get_allowability_condition(in int current_condition, in int set_to) {
 		return current_condition *= -1;
 	} else if(current_condition == 0 && (set_to == -1 || set_to == -2)) {
 		return set_to *=-2;
-	}  	
+	}
 	return max(current_condition, set_to);
 }
 
@@ -326,16 +326,16 @@ int get_allowability_condition(in int current_condition, in int set_to) {
 int is_in_cone(in vec3 normal_dir, in vec4 cone, in float boundary_width) {
 	float arc_dist_to_cone = acos(dot(normal_dir, cone.rgb));
 	if (arc_dist_to_cone > (cone.a+(boundary_width/2.))) {
-		return 1; 
+		return 1;
 	}
 	if (arc_dist_to_cone < (cone.a-(boundary_width/2.))) {
 		return -1;
 	}
 	return 0;
-} 
+}
 
 // Returns a color corresponding to the allowability of this region,
-// or otherwise the boundaries corresponding 
+// or otherwise the boundaries corresponding
 // to various cones and tangent_cone.
 vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_width) {
 	int current_condition = -3;
@@ -356,7 +356,7 @@ vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_wi
 	} else {
 		for(int i=0; i < cone_counts-1; i += 3) {
 			normal_dir = normalize(normal_dir);
-			int idx = i*3; 
+			int idx = i*3;
 			vec4 cone_1 = cone_sequence[idx];
 			vec4 tangent_1 = cone_sequence[idx+1];
 			vec4 tangent_2 = cone_sequence[idx+2];
@@ -386,7 +386,7 @@ vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_wi
 			}
 			current_condition = get_allowability_condition(current_condition, inCone2);
 
-			int in_tan_1 = is_in_cone(normal_dir, tangent_1, boundary_width); 
+			int in_tan_1 = is_in_cone(normal_dir, tangent_1, boundary_width);
 			int in_tan_2 = is_in_cone(normal_dir, tangent_2, boundary_width);
 
 			if (float(in_tan_1) < 1. || float(in_tan_2) < 1.) {
@@ -403,7 +403,7 @@ vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_wi
 	}
 	vec4 result = vert_model_color;
 	if (current_condition != 0) {
-		float on_tan_boundary = abs(current_condition) == 2 ? 0.3 : 0.0; 
+		float on_tan_boundary = abs(current_condition) == 2 ? 0.3 : 0.0;
 		float on_cone_boundary = abs(current_condition) == 1 ? 0.3 : 0.0;
 		result += vec4(0.0, on_cone_boundary, on_tan_boundary, 0.0);
 	} else {
