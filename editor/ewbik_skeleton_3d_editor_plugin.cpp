@@ -378,7 +378,7 @@ void fragment() {
 	kusudama_surface_tool.instantiate();
 	const int32_t MESH_CUSTOM_0 = 0;
 	kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-	kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGB_FLOAT);
+	kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGBA_HALF);
 	int32_t offset = 0;
 	while (bones_to_process.size() > current_bone_index) {
 		int current_bone_idx = bones_to_process[current_bone_index];
@@ -530,5 +530,5 @@ void fragment() {
 			bones_to_process.push_back(child_bones_vector[i]);
 		}
 	}
-	p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<ArrayMesh>(), RS::ARRAY_CUSTOM_RGB_FLOAT << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+	p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<ArrayMesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 }
