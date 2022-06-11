@@ -409,12 +409,13 @@ void fragment() {
 				}
 				BoneId constraint_id = modification->find_effector_id(bone_name);
 				if (modification.is_valid() && current_kusudama_constraint.has(constraint_id)) {
-					int32_t current_constraint = -1;
+					PackedFloat32Array kusudama_limit_cones;
+					kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
+					kusudama_limit_cones.fill(0.0f);
 					for (int32_t constraint_i = 0; constraint_i < modification->get_constraint_count(); constraint_i++) {
 						if (modification->get_constraint_name(constraint_i) == skeleton->get_bone_name(current_bone_idx)) {
 							continue;
 						}
-						current_constraint = constraint_i;
 						for (int32_t cone_i = 0; cone_i < modification->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 							Vector3 control_point = modification->get_kusudama_limit_cone_center(constraint_i, cone_i);
 							int out_idx = cone_i * 4;
@@ -425,6 +426,9 @@ void fragment() {
 						}
 						break;
 					}
+					kusudama_material->set_shader(kusudama_shader);
+					kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
+					kusudama_material->set_shader_param("kusudama_color", current_bone_color);
 					Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
 					BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
 					if (parent_idx == -1) {
@@ -504,7 +508,7 @@ void fragment() {
 							c.r = normals[point_i].x;
 							c.g = normals[point_i].y;
 							c.b = normals[point_i].z;
-							c.a = current_constraint;
+							c.a = 0;
 							kusudama_surface_tool->set_custom(MESH_CUSTOM_0, c);
 							kusudama_surface_tool->set_normal(normals[point_i]);
 							kusudama_surface_tool->set_color(current_bone_color);
