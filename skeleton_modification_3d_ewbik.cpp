@@ -183,7 +183,7 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 	if (is_dirty || segmented_skeleton.is_null()) {
 		update_skeleton();
 	}
-	
+
 	if (!skeleton) {
 		return;
 	}
@@ -770,12 +770,16 @@ Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bo
 }
 
 float SkeletonModification3DEWBIK::get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
-	ERR_FAIL_COND_V(!kusudama_limit_cones.has(p_bone), 0.0f);
+	if (!kusudama_limit_cones.has(p_bone)) {
+		return 0.0f;
+	}
 	return kusudama_limit_cones[p_bone][p_index].a;
 }
 
 int32_t SkeletonModification3DEWBIK::get_kusudama_limit_cone_count(int32_t p_effector) const {
-	ERR_FAIL_COND_V(!kusudama_limit_cone_count.has(p_effector), 0);
+	if (!kusudama_limit_cone_count.has(p_effector)) {
+		return 0;
+	}
 	return kusudama_limit_cone_count[p_effector];
 }
 
