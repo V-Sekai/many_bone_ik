@@ -43,7 +43,7 @@ StringName SkeletonModification3DEWBIK::get_root_bone() const {
 	return root_bone;
 }
 
-void SkeletonModification3DEWBIK::set_root_bone(const String &p_root_bone) {
+void SkeletonModification3DEWBIK::set_root_bone(const StringName &p_root_bone) {
 	root_bone = p_root_bone;
 	if (skeleton) {
 		root_bone_index = skeleton->find_bone(root_bone);
@@ -226,7 +226,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	if (!skeleton) {
 		return;
 	}
-	if (root_bone.is_empty()) {
+	if (!root_bone) {
 		Vector<int32_t> roots = skeleton->get_parentless_bones();
 		if (roots.size()) {
 			set_root_bone_index(roots[0]);
@@ -234,7 +234,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	} else if (root_bone_index == -1) {
 		set_root_bone(root_bone);
 	}
-	ERR_FAIL_COND(root_bone.is_empty());
+	ERR_FAIL_COND(!root_bone);
 #ifdef TOOLS_ENABLED
 	if (InspectorDock::get_inspector_singleton()->is_connected("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty))) {
 		InspectorDock::get_inspector_singleton()->disconnect("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty));
@@ -806,7 +806,7 @@ void SkeletonModification3DEWBIK::set_default_damp(float p_default_damp) {
 	is_dirty = true;
 }
 
-String SkeletonModification3DEWBIK::get_pin_bone_name(int32_t p_effector_index) const {
+StringName SkeletonModification3DEWBIK::get_pin_bone_name(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), "");
 	Ref<IKEffectorTemplate> data = pins[p_effector_index];
 	return data->get_name();

@@ -378,14 +378,14 @@ void fragment() {
 		Vector<int> child_bones_vector;
 		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
 		int child_bones_size = child_bones_vector.size();
-		for (int i = 0; i < child_bones_size; i++) {
+		for (int child_i = 0; child_i < child_bones_size; child_i++) {
 			// Something wrong.
-			if (child_bones_vector[i] < 0) {
+			if (child_bones_vector[child_i] < 0) {
 				continue;
 			}
 			// Add the bone's children to the list of bones to be processed.
-			bones_to_process.push_back(child_bones_vector[i]);
-			int child_bone_idx = child_bones_vector[i];
+			bones_to_process.push_back(child_bones_vector[child_i]);
+			int child_bone_idx = child_bones_vector[child_i];
 			Vector3 v0 = skeleton->get_bone_global_rest(current_bone_idx).origin;
 			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
 			real_t dist = v0.distance_to(v1);
@@ -520,7 +520,7 @@ void fragment() {
 				}
 			}
 			// Add the bone's children to the list of bones to be processed.
-			bones_to_process.push_back(child_bones_vector[i]);
+			bones_to_process.push_back(child_bones_vector[child_i]);
 		}
 	}
 }

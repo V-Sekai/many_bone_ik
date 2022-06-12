@@ -104,14 +104,14 @@ public:
 	void set_debug_skeleton(bool p_enabled);
 	void set_ik_iterations(int32_t p_iterations);
 	int32_t get_ik_iterations() const;
-	void set_root_bone(const String &p_root_bone);
-	String get_root_bone() const;
+	void set_root_bone(const StringName &p_root_bone);
+	StringName get_root_bone() const;
 	void set_root_bone_index(BoneId p_index);
 	BoneId get_root_bone_index() const;
 	void set_pin_count(int32_t p_value);
 	int32_t get_pin_count() const;
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
-	String get_pin_bone_name(int32_t p_effector_index) const;
+	StringName get_pin_bone_name(int32_t p_effector_index) const;
 	int32_t find_effector_id(StringName p_bone_name);
 	void set_pin_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
 	NodePath get_pin_target_nodepath(int32_t p_pin_index);
