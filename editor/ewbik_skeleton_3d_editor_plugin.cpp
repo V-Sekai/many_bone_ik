@@ -194,8 +194,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 
 	int current_bone_index = 0;
 	Vector<int> bones_to_process = skeleton->get_parentless_bones();
-
-	Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
 	Ref<Shader> kusudama_shader = Ref<Shader>(memnew(Shader));
 	kusudama_shader->set_code(R"(
 // Skeleton 3D gizmo kusudama constraint shader.
@@ -363,6 +361,7 @@ void fragment() {
 	if (cone_sequence.length() == 30) {
 		result_color_allowed = color_allowed(normal_model_dir, CONE_COUNT_MAX, 0.02);
 	}
+	ALBEDO = kusudama_color.rgb;
 	if (result_color_allowed.a == 0.0) {
 		discard;
 	}
@@ -420,13 +419,13 @@ void fragment() {
 						}
 						break;
 					}
+					Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
 					kusudama_material->set_shader(kusudama_shader);
 					kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
 					kusudama_material->set_shader_param("kusudama_color", current_bone_color);
 					const int32_t MESH_CUSTOM_0 = 0;
 					Ref<SurfaceTool> kusudama_surface_tool;
 					kusudama_surface_tool.instantiate();
-					const int32_t MESH_CUSTOM_0 = 0;
 					kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
 					kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGBA_HALF);
 					Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
@@ -511,12 +510,12 @@ void fragment() {
 							c.a = 0;
 							kusudama_surface_tool->set_custom(MESH_CUSTOM_0, c);
 							kusudama_surface_tool->set_normal(normals[point_i]);
-							kusudama_surface_tool->set_color(current_bone_color);
 							kusudama_surface_tool->add_vertex(kusudama_transform.xform(points[point_i]));
 						}
 						for (int32_t index_i : indices) {
 							kusudama_surface_tool->add_index(index_i);
 						}
+						p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<ArrayMesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 					}
 				}
 			}
@@ -524,5 +523,4 @@ void fragment() {
 			bones_to_process.push_back(child_bones_vector[i]);
 		}
 	}
-	p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<ArrayMesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 }
