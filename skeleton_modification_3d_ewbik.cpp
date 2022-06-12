@@ -39,7 +39,7 @@ int32_t SkeletonModification3DEWBIK::get_ik_iterations() const {
 	return ik_iterations;
 }
 
-String SkeletonModification3DEWBIK::get_root_bone() const {
+StringName SkeletonModification3DEWBIK::get_root_bone() const {
 	return root_bone;
 }
 

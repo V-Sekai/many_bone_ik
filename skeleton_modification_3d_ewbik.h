@@ -41,7 +41,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 
 	Skeleton3D *skeleton = nullptr;
-	String root_bone;
+	StringName root_bone;
 	BoneId root_bone_index = -1;
 	Ref<IKBoneSegment> segmented_skeleton;
 	int32_t constraint_count = 0;
