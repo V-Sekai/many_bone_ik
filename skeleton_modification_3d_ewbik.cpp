@@ -661,7 +661,6 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
 	enabled = true;
-	execution_mode = 1;
 }
 
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
