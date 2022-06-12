@@ -370,12 +370,6 @@ void fragment() {
 	ALPHA = result_color_allowed.a;
 }
 )");
-	Ref<SurfaceTool> kusudama_surface_tool;
-	kusudama_surface_tool.instantiate();
-	const int32_t MESH_CUSTOM_0 = 0;
-	kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-	kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGBA_HALF);
-	int32_t offset = 0;
 	while (bones_to_process.size() > current_bone_index) {
 		int current_bone_idx = bones_to_process[current_bone_index];
 		current_bone_index++;
@@ -429,6 +423,12 @@ void fragment() {
 					kusudama_material->set_shader(kusudama_shader);
 					kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
 					kusudama_material->set_shader_param("kusudama_color", current_bone_color);
+					const int32_t MESH_CUSTOM_0 = 0;
+					Ref<SurfaceTool> kusudama_surface_tool;
+					kusudama_surface_tool.instantiate();
+					const int32_t MESH_CUSTOM_0 = 0;
+					kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+					kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGBA_HALF);
 					Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
 					BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
 					if (parent_idx == -1) {
@@ -513,12 +513,10 @@ void fragment() {
 							kusudama_surface_tool->set_normal(normals[point_i]);
 							kusudama_surface_tool->set_color(current_bone_color);
 							kusudama_surface_tool->add_vertex(kusudama_transform.xform(points[point_i]));
-						
 						}
 						for (int32_t index_i : indices) {
-							kusudama_surface_tool->add_index(offset + index_i);
+							kusudama_surface_tool->add_index(index_i);
 						}
-						offset += points.size();
 					}
 				}
 			}
