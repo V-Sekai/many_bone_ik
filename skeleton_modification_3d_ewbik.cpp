@@ -393,7 +393,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 			p_list->push_back(
 					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"));
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,359.9,0.1,radians,exp"));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians,exp"));
 		}
 	}
 	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Pins,pins/"));
@@ -431,17 +431,17 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 
 		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/use_node_rotation"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/depth_falloff"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/depth_falloff", PROPERTY_HINT_RANGE, "0,1,0.01"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/priority"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/priority", PROPERTY_HINT_RANGE, "0,1,0.01"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_translation"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_translation", PROPERTY_HINT_RANGE, "0,1,0.01"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_x_direction"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_x_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_y_direction"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_y_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_z_direction"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_z_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
 	}
 }
 
@@ -510,9 +510,17 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			int32_t cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
 			if (cone_what == "center") {
+				if (!get_kusudama_limit_cone_count(cone_index)) {
+					r_ret = Vector3(0, 1, 0);
+					return true;
+				}
 				r_ret = get_kusudama_limit_cone_center(index, cone_index);
 				return true;
 			} else if (cone_what == "radius") {
+				if (!get_kusudama_limit_cone_count(cone_index)) {
+					r_ret = 0.0f;
+					return true;
+				}
 				r_ret = get_kusudama_limit_cone_radius(index, cone_index);
 				return true;
 			}
@@ -691,7 +699,7 @@ void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
 		kusudama_twist_from.write[constraint_i] = 0.0f;
-		kusudama_twist_to.write[constraint_i] = Math_TAU;
+		kusudama_twist_to.write[constraint_i] = Math::deg2rad(1.0f);
 		kusudama_flip_handedness.write[constraint_i] = false;
 	}
 	is_dirty = true;
@@ -778,7 +786,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_effect
 		cone.r = 0.0f;
 		cone.g = 1.0f;
 		cone.b = 0.0f;
-		cone.a = Math_TAU;
+		cone.a = 0.0f;
 	}
 	is_dirty = true;
 }
@@ -835,20 +843,27 @@ void SkeletonModification3DEWBIK::set_constraint_name(int32_t p_index, String p_
 }
 void SkeletonModification3DEWBIK::set_dirty() {
 	is_dirty = true;
-}Ref<IKBoneSegment> SkeletonModification3DEWBIK::get_segmented_skeleton() {
+}
+Ref<IKBoneSegment> SkeletonModification3DEWBIK::get_segmented_skeleton() {
 	return segmented_skeleton;
-}float SkeletonModification3DEWBIK::get_max_ik_iterations() const {
+}
+float SkeletonModification3DEWBIK::get_max_ik_iterations() const {
 	return max_ik_iterations;
-}void SkeletonModification3DEWBIK::set_max_ik_iterations(const float &p_max_ik_iterations) {
+}
+void SkeletonModification3DEWBIK::set_max_ik_iterations(const float &p_max_ik_iterations) {
 	max_ik_iterations = p_max_ik_iterations;
-}float SkeletonModification3DEWBIK::get_time_budget_millisecond() const {
+}
+float SkeletonModification3DEWBIK::get_time_budget_millisecond() const {
 	return time_budget_millisecond;
-}void SkeletonModification3DEWBIK::set_time_budget_millisecond(const float &p_time_budget) {
+}
+void SkeletonModification3DEWBIK::set_time_budget_millisecond(const float &p_time_budget) {
 	time_budget_millisecond = p_time_budget;
-}bool SkeletonModification3DEWBIK::get_kusudama_flip_handedness(int32_t p_bone) const {
+}
+bool SkeletonModification3DEWBIK::get_kusudama_flip_handedness(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, kusudama_flip_handedness.size(), false);
 	return kusudama_flip_handedness[p_bone];
-}void SkeletonModification3DEWBIK::set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
+}
+void SkeletonModification3DEWBIK::set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
 	ERR_FAIL_INDEX(p_bone, kusudama_flip_handedness.size());
 	kusudama_flip_handedness.write[p_bone] = p_flip;
 	if (segmented_skeleton.is_null()) {
