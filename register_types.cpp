@@ -36,6 +36,10 @@
 #include "kusudama.h"
 #include "skeleton_modification_3d_ewbik.h"
 
+#ifdef TOOLS_ENABLED
+#include "editor/ewbik_skeleton_3d_editor_plugin.h"
+#endif
+
 void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
 		GDREGISTER_CLASS(IKEffectorTemplate);
@@ -45,6 +49,11 @@ void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(IKBoneSegment);
 		GDREGISTER_CLASS(IKKusudama);
 	}
+#ifdef TOOLS_ENABLED
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
+		EditorPlugins::add_by_type<EWBIKSkeleton3DEditorPlugin>();
+	}
+#endif
 }
 
 void uninitialize_ewbik_module(ModuleInitializationLevel p_level) {
