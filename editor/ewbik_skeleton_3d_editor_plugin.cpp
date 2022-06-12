@@ -450,7 +450,7 @@ void fragment() {
 						// Copied from the SphereMesh.
 						float radius = dist / 4.0;
 						float height = dist / 2.0;
-						int radial_segments = 8;
+						int radial_segments = 6;
 						int rings = 6;
 
 						int i, j, prevrow, thisrow, point;
