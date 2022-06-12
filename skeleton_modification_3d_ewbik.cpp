@@ -48,6 +48,7 @@ void SkeletonModification3DEWBIK::set_root_bone(const StringName &p_root_bone) {
 	if (skeleton) {
 		root_bone_index = skeleton->find_bone(root_bone);
 	}
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -60,6 +61,7 @@ void SkeletonModification3DEWBIK::set_root_bone_index(BoneId p_index) {
 	if (skeleton) {
 		root_bone = skeleton->get_bone_name(p_index);
 	}
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -70,6 +72,7 @@ void SkeletonModification3DEWBIK::set_pin_count(int32_t p_value) {
 	for (int32_t pin_i = p_value; pin_i-- > old_count;) {
 		pins.write[pin_i].instantiate();
 	}
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -88,6 +91,7 @@ void SkeletonModification3DEWBIK::add_pin(const StringName &p_name, const NodePa
 	set_pin_bone(count, p_name);
 	set_pin_target_nodepath(count, p_target_node);
 	set_pin_use_node_rotation(count, p_use_node_rotation);
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -99,6 +103,7 @@ void SkeletonModification3DEWBIK::set_pin_bone(int32_t p_pin_index, const String
 		pins.write[p_pin_index] = data;
 	}
 	data->set_name(p_bone);
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -110,6 +115,7 @@ void SkeletonModification3DEWBIK::set_pin_target_nodepath(int32_t p_pin_index, c
 		pins.write[p_pin_index] = data;
 	}
 	data->set_target_node(p_target_node);
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -125,6 +131,7 @@ void SkeletonModification3DEWBIK::set_pin_use_node_rotation(int32_t p_pin_index,
 	ERR_FAIL_NULL(data);
 	data->set_target_node_rotation(p_use_node_rot);
 
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -158,6 +165,7 @@ void SkeletonModification3DEWBIK::remove_pin(int32_t p_index) {
 	pins.remove_at(p_index);
 	pin_count--;
 	pins.resize(pin_count);
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -207,6 +215,7 @@ void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3
 	if (!skeleton) {
 		return;
 	}
+	notify_property_list_changed();
 	update_skeleton();
 	is_setup = true;
 	is_dirty = false;
@@ -672,6 +681,7 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
 
+	notify_property_list_changed();
 	is_dirty = true;
 	debug_skeleton = false;
 }
@@ -686,6 +696,7 @@ void SkeletonModification3DEWBIK::set_pin_depth_falloff(int32_t p_effector_index
 	Ref<IKEffectorTemplate> data = pins[p_effector_index];
 	ERR_FAIL_NULL(data);
 	data->set_depth_falloff(p_depth_falloff);
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -702,6 +713,7 @@ void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 		kusudama_twist_to.write[constraint_i] = Math::deg2rad(1.0f);
 		kusudama_flip_handedness.write[constraint_i] = false;
 	}
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -717,12 +729,14 @@ inline StringName SkeletonModification3DEWBIK::get_constraint_name(int32_t p_ind
 void SkeletonModification3DEWBIK::set_kusudama_twist_from(int32_t p_index, float p_from) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist_from.write[p_index] = p_from;
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
 void SkeletonModification3DEWBIK::set_kusudama_twist_to(int32_t p_index, float p_to) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist_to.write[p_index] = p_to;
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -749,6 +763,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone(int32_t p_constraint, 
 	cone.a = p_radius;
 	cones.write[p_index] = cone;
 	kusudama_limit_cones[p_constraint] = cones;
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -788,6 +803,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_effect
 		cone.b = 0.0f;
 		cone.a = 0.0f;
 	}
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -797,6 +813,7 @@ real_t SkeletonModification3DEWBIK::get_default_damp() const {
 
 void SkeletonModification3DEWBIK::set_default_damp(float p_default_damp) {
 	default_damp = p_default_damp;
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -812,6 +829,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_radius(int32_t p_effec
 	Color &cone = kusudama_limit_cones[p_effector_index].write[p_index];
 	cone.a = p_radius;
 
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -823,6 +841,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_center(int32_t p_effec
 	cone.g = p_center.y;
 	cone.b = p_center.z;
 
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -839,6 +858,7 @@ float SkeletonModification3DEWBIK::get_kusudama_twist_to(int32_t p_index) const 
 void SkeletonModification3DEWBIK::set_constraint_name(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	constraint_names.write[p_index] = p_name;
+	notify_property_list_changed();
 	is_dirty = true;
 }
 void SkeletonModification3DEWBIK::set_dirty() {
@@ -878,5 +898,6 @@ void SkeletonModification3DEWBIK::set_kusudama_flip_handedness(int32_t p_bone, b
 		return;
 	}
 	transform->set_global_chirality(p_flip ? -1.0 : 1.0);
+	notify_property_list_changed();
 	set_dirty();
 }
