@@ -184,13 +184,13 @@ Quaternion IKBoneSegment::set_quadrance_angle(Quaternion p_quat, real_t p_cos_ha
 	return rot;
 }
 
-Quaternion IKBoneSegment::clamp_to_angle(Quaternion p_quat, real_t p_angle) const {
+Quaternion IKBoneSegment::clamp_to_angle(Quaternion p_quat, real_t p_angle) {
 	real_t x = cos(p_angle);
 	real_t cos_half_angle = x;
 	return clamp_to_quadrance_angle(p_quat, cos_half_angle);
 }
 
-Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
+Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) {
 	double newCoeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
 	Quaternion rot = p_quat;
 	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
@@ -243,10 +243,10 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 			control_point -= p_for_bone->get_constraint_transform()->get_global_transform().origin;
 		}
 		if (p_for_bone->getConstraint()->is_orientationally_constrained()) {
-			p_for_bone->getConstraint()->get_axes_to_orientation_snap(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), p_for_bone->get_cos_half_dampen());
+			p_for_bone->getConstraint()->set_axes_to_orientation_snap(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 		}
 		if (p_for_bone->getConstraint()->is_axially_constrained()) {
-			p_for_bone->getConstraint()->get_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform());
+			p_for_bone->getConstraint()->set_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 		}
 	}
 	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);

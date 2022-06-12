@@ -62,15 +62,11 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	int32_t max_ik_iterations = 30;
 	float default_damp = Math::deg2rad(5.0f);
 	Ref<IKTransform3D> root_transform = memnew(IKTransform3D);
-
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform(real_t p_blending_delta);
 	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
-
-	void set_dirty() {
-		is_dirty = true;
-	}
+	void set_dirty();
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
@@ -80,21 +76,11 @@ protected:
 	static void _bind_methods();
 
 public:
-	Ref<IKBoneSegment> get_segmented_skeleton() {
-		return segmented_skeleton;
-	}
-	float get_max_ik_iterations() const {
-		return max_ik_iterations;
-	}
-	void set_max_ik_iterations(const float &p_max_ik_iterations) {
-		max_ik_iterations = p_max_ik_iterations;
-	}
-	float get_time_budget_millisecond() const {
-		return time_budget_millisecond;
-	}
-	void set_time_budget_millisecond(const float &p_time_budget) {
-		time_budget_millisecond = p_time_budget;
-	}
+	Ref<IKBoneSegment> get_segmented_skeleton();
+	float get_max_ik_iterations() const;
+	void set_max_ik_iterations(const float &p_max_ik_iterations);
+	float get_time_budget_millisecond() const;
+	void set_time_budget_millisecond(const float &p_time_budget);
 	virtual void _execute(real_t p_delta) override;
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
 	void add_pin(const StringName &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
@@ -137,29 +123,8 @@ public:
 	void set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius);
 	int32_t get_kusudama_limit_cone_count(int32_t p_effector_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_effector_index, int32_t p_count);
-	bool get_kusudama_flip_handedness(int32_t p_bone) const {
-		ERR_FAIL_INDEX_V(p_bone, kusudama_flip_handedness.size(), false);
-		return kusudama_flip_handedness[p_bone];
-	}
-
-	void set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
-		ERR_FAIL_INDEX(p_bone, kusudama_flip_handedness.size());
-		kusudama_flip_handedness.write[p_bone] = p_flip;
-		if (segmented_skeleton.is_null()) {
-			return;
-		}
-		Ref<IKBone3D> bone = segmented_skeleton->get_ik_bone(p_bone);
-		if (bone.is_null()) {
-			return;
-		}
-		Ref<IKTransform3D> transform = bone->get_constraint_transform();
-		if (transform.is_null()) {
-			return;
-		}
-		transform->set_global_chirality(p_flip ? -1.0 : 1.0);
-		notify_property_list_changed();
-		set_dirty();
-	}
+	bool get_kusudama_flip_handedness(int32_t p_bone) const;
+	void set_kusudama_flip_handedness(int32_t p_bone, bool p_flip);
 	SkeletonModification3DEWBIK();
 	~SkeletonModification3DEWBIK();
 };

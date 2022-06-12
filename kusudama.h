@@ -126,7 +126,7 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void get_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen);
+	virtual void set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, double p_dampen, double p_cos_half_angle_dampen);
 
 	virtual bool is_in_global_pose_orientation_limits(Ref<IKTransform3D> global_axes, Ref<IKTransform3D> limiting_axes);
 
@@ -151,7 +151,7 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual void get_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
+	virtual void set_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, float p_dampening, float p_cos_half_dampen);
 
 	virtual double angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes);
 
