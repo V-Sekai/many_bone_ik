@@ -154,36 +154,30 @@ void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 }
 
 void IKKusudama::set_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes, float p_dampening, float p_cos_half_dampen) {
-	Quaternion inv_rot = limiting_axes->get_global_transform().basis.get_quaternion().inverse();
-	Quaternion align_rot = inv_rot * to_set->get_global_transform().basis;
-	Vector3 up(0, 1, 0);
-	Vector<Quaternion> decomposition = get_swing_twist(align_rot, up);
-	double angle_delta_2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
+	Basis inv_rot = limiting_axes->get_global_transform().basis.get_quaternion().inverse();
+	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
+	Quaternion swing;
+	Quaternion twist;
+	get_swing_twist(align_rot.get_rotation_quaternion(), Vector3(0, 1, 0), swing, twist);
+	double angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
 	angle_delta_2 = to_tau(angle_delta_2);
 	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle()));
-
-	if (from_min_to_angle_delta < Math_TAU - range) {
-		double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle()));
-		double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle() + range)));
-		double turn_diff = 1;
-		// uncomment the next line for reflectable axis  support (removed for performance reasons)
-		turn_diff *= limiting_axes->get_global_chirality();
-		Vector3 axis_y = to_set->get_global_transform().basis.get_column(Vector3::AXIS_Y);
-		Quaternion rot;
-		if (dist_to_min < dist_to_max) {
-			turn_diff = turn_diff * (from_min_to_angle_delta);
-			rot = Quaternion(axis_y, turn_diff);
-		} else {
-			turn_diff = turn_diff * (range - (Math_TAU - from_min_to_angle_delta));
-			rot = Quaternion(axis_y, turn_diff);
-		}
-		if (!Math::is_equal_approx(p_dampening, -1.0f)) {
-			rot = IKBoneSegment::clamp_to_angle(rot, p_dampening);
-		} else {
-			rot = IKBoneSegment::clamp_to_quadrance_angle(rot, p_cos_half_dampen);
-		}
-		to_set->rotate_local_with_global(rot);
+	if (!(from_min_to_angle_delta < Math_TAU - range)) {
+		return;
 	}
+	double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle()));
+	double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle() + range)));
+	double turn_diff = 1;
+	turn_diff *= limiting_axes->get_global_chirality();
+	Quaternion rot;
+	Vector3 axis_y = to_set->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+	if (dist_to_min < dist_to_max) {
+		turn_diff = turn_diff * (from_min_to_angle_delta);
+	} else {
+		turn_diff = turn_diff * (range - (Math_TAU - from_min_to_angle_delta));
+	}
+	rot = Quaternion(axis_y, turn_diff);
+	to_set->rotate_local_with_global(rot);
 }
 
 double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransform3D> limiting_axes) {
@@ -192,8 +186,10 @@ double IKKusudama::angle_to_twist_center(Ref<IKTransform3D> to_set, Ref<IKTransf
 	}
 	Quaternion align_rot = limiting_axes->get_global_transform().basis.inverse() * to_set->get_global_transform().basis;
 	Vector3 temp_var(0, 1, 0);
-	Vector<Quaternion> decomposition = get_swing_twist(align_rot, temp_var);
-	double angle_delta_2 = decomposition[1].get_angle() * Basis(decomposition[1]).get_euler().y * -1;
+	Quaternion swing;
+	Quaternion twist;
+	get_swing_twist(align_rot, temp_var, swing, twist);
+	double angle_delta_2 = twist.get_angle() * Basis(twist).get_euler().y * -1;
 	angle_delta_2 = to_tau(angle_delta_2);
 	double dist_to_mid = signed_angle_difference(angle_delta_2, Math_TAU - (this->min_axial_angle() + (range / 2)));
 	return dist_to_mid;
@@ -203,8 +199,10 @@ bool IKKusudama::in_twist_limits(Ref<IKTransform3D> bone_axes, Ref<IKTransform3D
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
 	Basis align_rot = inv_rot * bone_axes->get_global_transform().basis;
 	Vector3 temp_var(0, 1, 0);
-	Vector<Quaternion> decomposition = get_swing_twist(align_rot, temp_var);
-	double angle_delta_2 = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1;
+	Quaternion swing;
+	Quaternion twist;
+	get_swing_twist(align_rot, temp_var, swing, twist);
+	double angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
 	angle_delta_2 = to_tau(angle_delta_2);
 	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - this->min_axial_angle()));
 
@@ -363,30 +361,6 @@ Vector<Ref<LimitCone>> IKKusudama::get_limit_cones() const {
 	return limit_cones;
 }
 
-Vector<Quaternion> IKKusudama::get_swing_twist(Quaternion p_quaternion, Vector3 p_axis) {
-	Vector3 quaternion_axis;
-	quaternion_axis.x = p_quaternion.x;
-	quaternion_axis.y = p_quaternion.y;
-	quaternion_axis.z = p_quaternion.z;
-	const float d = quaternion_axis.dot(p_axis);
-	Quaternion twist = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, p_quaternion.w).normalized();
-	if (d < 0) {
-		twist *= -1.0f;
-	}
-	Quaternion swing = twist;
-	swing.x = -swing.x;
-	swing.y = -swing.y;
-	swing.z = -swing.z;
-	swing = twist * p_quaternion;
-	swing.normalize();
-
-	Vector<Quaternion> result;
-	result.resize(2);
-	result.write[0] = swing;
-	result.write[1] = twist;
-	return result;
-}
-
 Vector3 IKKusudama::local_point_on_path_sequence(Vector3 in_point, Ref<IKTransform3D> limiting_axes) {
 	double closest_point_dot = 0;
 	Vector3 point = limiting_axes->get_transform().xform(in_point);
@@ -473,12 +447,7 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 	if (in_bounds[0] == -1 && !Math::is_nan(in_limits.x)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
-		Quaternion rectified_rot = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());	
-		if (!Math::is_equal_approx(p_dampening, -1.0)) {
-			rectified_rot = IKBoneSegment::clamp_to_angle(rectified_rot, p_dampening);
-		} else {
-			rectified_rot = IKBoneSegment::clamp_to_quadrance_angle(rectified_rot, p_cos_half_angle_dampen);
-		}
+		Quaternion rectified_rot = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
 		to_set->rotate_local_with_global(rectified_rot);
 		_ALLOW_DISCARD_ to_set->get_global_transform();
 	}

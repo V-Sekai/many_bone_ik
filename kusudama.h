@@ -306,7 +306,7 @@ public:
 		limit_cones = p_cones;
 	}
 
-public:
+public:	
 	/**
 	 * Get the swing rotation and twist rotation for the specified axis. The twist
 	 * rotation represents the rotation around the
@@ -328,6 +328,36 @@ public:
 	 * @see <a href=
 	 *      "http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
 	 */
-	static Vector<Quaternion> get_swing_twist(Quaternion p_quaternion, Vector3 p_axis);
+	static void get_swing_twist(
+			Quaternion p_rotation,
+			Vector3 p_axis,
+			Quaternion &swing,
+			Quaternion &twist) {
+		Quaternion rotation = p_rotation;
+		rotation.x *= -1;
+		rotation.y *= -1;
+		rotation.z *= -1;
+		Vector3 quaternion_axis;
+		quaternion_axis.x = rotation.x;
+		quaternion_axis.y = rotation.y;
+		quaternion_axis.z = rotation.z;
+		const float d = quaternion_axis.dot(p_axis);
+		twist = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, rotation.w).normalized();
+		if (d < 0) {
+			twist *= -1.0f;
+		}
+		swing = twist;
+		swing.x *= -1;
+		swing.y *= -1;
+		swing.z *= -1;
+		swing = twist * p_rotation;
+		swing.normalize();
+		swing.x *= -1;
+		swing.y *= -1;
+		swing.z *= -1;
+		twist.x *= -1;
+		twist.y *= -1;
+		twist.z *= -1;
+	}
 };
 #endif

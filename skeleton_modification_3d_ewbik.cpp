@@ -861,28 +861,35 @@ void SkeletonModification3DEWBIK::set_constraint_name(int32_t p_index, String p_
 	notify_property_list_changed();
 	is_dirty = true;
 }
+
 void SkeletonModification3DEWBIK::set_dirty() {
 	is_dirty = true;
 }
+
 Ref<IKBoneSegment> SkeletonModification3DEWBIK::get_segmented_skeleton() {
 	return segmented_skeleton;
 }
 float SkeletonModification3DEWBIK::get_max_ik_iterations() const {
 	return max_ik_iterations;
 }
+
 void SkeletonModification3DEWBIK::set_max_ik_iterations(const float &p_max_ik_iterations) {
 	max_ik_iterations = p_max_ik_iterations;
 }
+
 float SkeletonModification3DEWBIK::get_time_budget_millisecond() const {
 	return time_budget_millisecond;
 }
+
 void SkeletonModification3DEWBIK::set_time_budget_millisecond(const float &p_time_budget) {
 	time_budget_millisecond = p_time_budget;
 }
+
 bool SkeletonModification3DEWBIK::get_kusudama_flip_handedness(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, kusudama_flip_handedness.size(), false);
 	return kusudama_flip_handedness[p_bone];
 }
+
 void SkeletonModification3DEWBIK::set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
 	ERR_FAIL_INDEX(p_bone, kusudama_flip_handedness.size());
 	kusudama_flip_handedness.write[p_bone] = p_flip;
@@ -894,6 +901,11 @@ void SkeletonModification3DEWBIK::set_kusudama_flip_handedness(int32_t p_bone, b
 		return;
 	}
 	Ref<IKTransform3D> transform = bone->get_constraint_transform();
+	if (transform.is_null()) {
+		return;
+	}
+	transform->set_global_chirality(p_flip ? -1.0 : 1.0);
+	Ref<IKTransform3D> transform = bone->get_transform();
 	if (transform.is_null()) {
 		return;
 	}
