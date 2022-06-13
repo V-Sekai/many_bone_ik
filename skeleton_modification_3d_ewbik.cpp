@@ -900,12 +900,12 @@ void SkeletonModification3DEWBIK::set_kusudama_flip_handedness(int32_t p_bone, b
 	if (bone.is_null()) {
 		return;
 	}
-	Ref<IKTransform3D> transform = bone->get_constraint_transform();
-	if (transform.is_null()) {
+	Ref<IKTransform3D> constraint_transform = bone->get_constraint_transform();
+	if (constraint_transform.is_null()) {
 		return;
 	}
-	transform->set_global_chirality(p_flip ? -1.0 : 1.0);
-	Ref<IKTransform3D> transform = bone->get_transform();
+	constraint_transform->set_global_chirality(p_flip ? -1.0 : 1.0);
+	Ref<IKTransform3D> transform = bone->get_ik_transform();
 	if (transform.is_null()) {
 		return;
 	}
