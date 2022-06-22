@@ -667,7 +667,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "print_skeleton", PROPERTY_HINT_RANGE, "0.0,1.0,1,or_greater" | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_pin_depth_falloff", "get_pin_depth_falloff");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "print_skeleton", PROPERTY_HINT_RANGE, "0.0,1.0,1,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_pin_depth_falloff", "get_pin_depth_falloff");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
