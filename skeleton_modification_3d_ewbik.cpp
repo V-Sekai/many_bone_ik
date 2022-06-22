@@ -634,6 +634,8 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist_from", "index"), &SkeletonModification3DEWBIK::get_kusudama_twist_from);
 	ClassDB::bind_method(D_METHOD("set_kusudama_twist_to", "index", "name"), &SkeletonModification3DEWBIK::set_kusudama_twist_to);
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist_to", "index"), &SkeletonModification3DEWBIK::get_kusudama_twist_to);
+	ClassDB::bind_method(D_METHOD("set_pin_depth_falloff", "index", "falloff"), &SkeletonModification3DEWBIK::set_pin_depth_falloff);
+	ClassDB::bind_method(D_METHOD("get_pin_depth_falloff", "index"), &SkeletonModification3DEWBIK::get_pin_depth_falloff);
 	ClassDB::bind_method(D_METHOD("set_constraint_name", "index", "name"), &SkeletonModification3DEWBIK::set_constraint_name);
 	ClassDB::bind_method(D_METHOD("get_constraint_name", "index"), &SkeletonModification3DEWBIK::get_constraint_name);
 	ClassDB::bind_method(D_METHOD("get_segmented_skeleton"), &SkeletonModification3DEWBIK::get_segmented_skeleton);
@@ -665,6 +667,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "print_skeleton", PROPERTY_HINT_RANGE, "0.0,1.0,1,or_greater" | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_pin_depth_falloff", "get_pin_depth_falloff");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
