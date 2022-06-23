@@ -306,7 +306,7 @@ public:
 		limit_cones = p_cones;
 	}
 
-public:	
+public:
 	/**
 	 * Get the swing rotation and twist rotation for the specified axis. The twist
 	 * rotation represents the rotation around the

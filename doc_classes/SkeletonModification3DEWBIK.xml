@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="SkeletonModification3DEWBIK" inherits="SkeletonModification3D" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+<class
+  name="SkeletonModification3DEWBIK"
+  inherits="SkeletonModification3D"
+  version="4.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="../class.xsd"
+>
 	<brief_description>
 		Kusudamas are a sequential collection of reach cones, forming a path by their tangents.
 	</brief_description>
@@ -71,16 +77,46 @@
 		</method>
 	</methods>
 	<members>
-		<member name="budget_millisecond" type="float" setter="set_time_budget_millisecond" getter="get_time_budget_millisecond" default="0.1">
+		<member
+      name="budget_millisecond"
+      type="float"
+      setter="set_time_budget_millisecond"
+      getter="get_time_budget_millisecond"
+      default="0.1"
+    >
 		</member>
-		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.0872665">
+		<member
+      name="default_damp"
+      type="float"
+      setter="set_default_damp"
+      getter="get_default_damp"
+      default="0.0872665"
+    >
 			The default maximum number of radians a bone is allowed to rotate per solver iteration. The lower this value, the more natural the pose results. However, this will increase the number of iterations the solver requires to converge.
 		</member>
-		<member name="max_ik_iterations" type="float" setter="set_max_ik_iterations" getter="get_max_ik_iterations" default="30.0">
+		<member
+      name="max_ik_iterations"
+      type="float"
+      setter="set_max_ik_iterations"
+      getter="get_max_ik_iterations"
+      default="30.0"
+    >
 		</member>
-		<member name="print_skeleton" type="bool" setter="set_debug_skeleton" getter="get_debug_skeleton" default="false">
+		<member
+      name="print_skeleton"
+      type="bool"
+      setter="set_debug_skeleton"
+      getter="get_debug_skeleton"
+      default="false"
+    >
 		</member>
-		<member name="root_bone" type="String" setter="set_root_bone" getter="get_root_bone" default="&quot;&quot;">
+		<member
+      name="root_bone"
+      type="String"
+      setter="set_root_bone"
+      getter="get_root_bone"
+      default="&quot;&quot;"
+    >
 		</member>
 	</members>
 </class>

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="IKEffectorTemplate" inherits="Resource" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+<class
+  name="IKEffectorTemplate"
+  inherits="Resource"
+  version="4.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="../class.xsd"
+>
 	<brief_description>
 	</brief_description>
 	<description>
@@ -20,9 +26,21 @@
 		</method>
 	</methods>
 	<members>
-		<member name="depth_falloff" type="float" setter="set_depth_falloff" getter="get_depth_falloff" default="1.0">
+		<member
+      name="depth_falloff"
+      type="float"
+      setter="set_depth_falloff"
+      getter="get_depth_falloff"
+      default="1.0"
+    >
 		</member>
-		<member name="target_node" type="NodePath" setter="set_target_node" getter="get_target_node" default="NodePath(&quot;&quot;)">
+		<member
+      name="target_node"
+      type="NodePath"
+      setter="set_target_node"
+      getter="get_target_node"
+      default="NodePath(&quot;&quot;)"
+    >
 		</member>
 	</members>
 </class>
