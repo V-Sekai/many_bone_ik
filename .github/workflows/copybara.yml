@@ -10,6 +10,6 @@ jobs:
           fetch-depth: 0
       - uses: olivr/copybara-action@v1.2.3
         with:
-          access_token: ${{ secrets.GH_TOKEN }}
           ssh_key: ${{ secrets.SSH_KEY }}
+          workflow: pr
           custom_config: copy.bara.sky
