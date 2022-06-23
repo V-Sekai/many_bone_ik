@@ -11,9 +11,9 @@ jobs:
       - uses: olivr/copybara-action@v1.2.3
         with:
           ssh_key: ${{ secrets.SSH_KEY }}
-          sot_repo: https://github.com/godot-extended-libraries/ewbik
+          sot_repo: godot-extended-libraries/ewbik
           sot_branch: master
-          destination_repo: git@github.com:V-Sekai/groups-modules-copyabara.git
+          destination_repo: V-Sekai/groups-modules-copyabara.git
           destination_branch: main
           push_include: "**"
           access_token: ${{ secrets.GH_TOKEN }}
