@@ -8,10 +8,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
       - uses: olivr/copybara-action@v1.2.3
         with:
           ssh_key: ${{ secrets.SSH_KEY }}
           access_token: ${{ secrets.GH_TOKEN }}
-          sot_repo: your/repo
-          destination_repo: other/repo
+          sot_repo: godot-extended-libraries/ewbik
+          destination_repo: V-Sekai/godot-modules-groups
+          pr_move: |
+            || ewbik
