@@ -18,4 +18,4 @@ jobs:
           push_include: "**"
           pr_move: |
             || modules/ewbik
-          workflow: pr
+          workflow: push
