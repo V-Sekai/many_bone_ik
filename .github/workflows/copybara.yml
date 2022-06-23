@@ -13,4 +13,3 @@ jobs:
           git_name: godot-extended-libraries/ewbik
           git_email: godot-extended-libraries-ewbik@chibifire.com
           ssh_key: ${{ secrets.SSH_KEY }}
-          access_token: ${{ secrets.GH_TOKEN }}
