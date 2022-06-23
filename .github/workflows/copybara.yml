@@ -11,5 +11,5 @@ jobs:
       - uses: olivr/copybara-action@v1.2.3
         with:
           ssh_key: ${{ secrets.SSH_KEY }}
-          workflow: pr
+          workflow: default
           custom_config: copy.bara.sky
