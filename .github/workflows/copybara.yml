@@ -12,3 +12,10 @@ jobs:
         with:
           ssh_key: ${{ secrets.SSH_KEY }}
           custom_config: copy.bara.sky
+          sot_repo: godot-extended-libraries/ewbik
+          sot_branch: master
+          destination_repo: V-Sekai/groups-modules-copyabara
+          destination_branch: main
+          push_include: "**"
+          pr_move: |
+            || modules/ewbik
