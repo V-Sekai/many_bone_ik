@@ -13,6 +13,8 @@ jobs:
           ssh_key: ${{ secrets.SSH_KEY }}
           access_token: ${{ secrets.GH_TOKEN }}
           sot_repo: godot-extended-libraries/ewbik
+          sot_branch: master
           destination_repo: V-Sekai/godot-modules-groups
+          destination_branch: groups-modules-4.x
           pr_move: |
             || ewbik
