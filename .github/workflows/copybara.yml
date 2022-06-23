@@ -10,13 +10,7 @@ jobs:
           fetch-depth: 0
       - uses: olivr/copybara-action@v1.2.3
         with:
-          ssh_key: ${{ secrets.SSH_KEY }}
-          sot_repo: godot-extended-libraries/ewbik
-          sot_branch: master
-          destination_repo: V-Sekai/groups-modules-copyabara.git
-          destination_branch: main
-          push_include: "**"
           access_token: ${{ secrets.GH_TOKEN }}
-          pr_move: |
-            || modules/ewbik
-          create_repo: no
+          ssh_key: ${{ secrets.SSH_KEY }}
+          workflow: create
+          custom_config: copy.bara.sky

@@ -1,0 +1,24 @@
+sourceUrl = "https://github.com/godot-extended-libraries/ewbik.git"
+destinationUrl = "git@github.com:V-Sekai/groups-modules-copyabara.git"
+
+core.workflow(
+    name = "default",
+    origin = git.origin(
+        url = sourceUrl,
+        ref = "master",
+    ),
+    destination = git.destination(
+        url = destinationUrl,
+        fetch = "main",
+        push = "main",
+    ),
+    # Change path to the folder you want to publish publicly
+    origin_files = glob(["**"]),
+
+    authoring = authoring.pass_thru("godot-extended-libraries/ewbik <godot-extended-libraries-ewbik@chibifire.com>"),
+
+    # Change the path here to the folder you want to publish publicly
+    transformations = [
+	    core.move("", "modules/ewbik"),
+	],
+)
