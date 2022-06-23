@@ -16,6 +16,6 @@ jobs:
           destination_repo: V-Sekai/groups-modules-copyabara
           destination_branch: main
           push_include: "**"
+          access_token: ${{ secrets.GH_TOKEN }}
           pr_move: |
             || modules/ewbik
-          workflow: push
