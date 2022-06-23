@@ -16,5 +16,6 @@ jobs:
           sot_branch: master
           destination_repo: V-Sekai/groups-modules-copyabara
           destination_branch: groups-modules-4.x
+          push_include: "**"
           pr_move: |
             || modules/ewbik
