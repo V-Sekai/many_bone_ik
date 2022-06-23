@@ -23,8 +23,7 @@ jobs:
             # github.com:22 SSH-2.0-babeld-5e2005f4
             # github.com:22 SSH-2.0-babeld-5e2005f4
           if_key_exists: replace
-      - uses: will-molloy/copybara-action@v1
+      - uses: olivr/copybara-action@v1.2.3
         with:
-          git_name: godot-extended-libraries/ewbik
-          git_email: godot-extended-libraries-ewbik@chibifire.com
           ssh_key: ${{ secrets.SSH_KEY }}
+          custom_config: copy.bara.sky
