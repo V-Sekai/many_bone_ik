@@ -801,7 +801,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_effect
 		cone.r = 0.0f;
 		cone.g = 1.0f;
 		cone.b = 0.0f;
-		cone.a = 0.0f;
+		cone.a = Math_TAU;
 	}
 	notify_property_list_changed();
 	is_dirty = true;
