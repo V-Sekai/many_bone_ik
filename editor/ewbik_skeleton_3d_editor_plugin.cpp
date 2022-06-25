@@ -364,20 +364,20 @@ void fragment() {
 				if (modification.is_valid()) {
 					PackedFloat32Array kusudama_limit_cones;
 					kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
-					for (int cone_i = 0; cone_i < KUSUDAMA_MAX_CONES * 4; cone_i += 4) {
-						kusudama_limit_cones.write[cone_i * 4 + 0] = 0.0f;
-						kusudama_limit_cones.write[cone_i * 4 + 1] = 1.0f;
-						kusudama_limit_cones.write[cone_i * 4 + 2] = 0.0f;
-						kusudama_limit_cones.write[cone_i * 4 + 3] = Math_TAU;
+					kusudama_limit_cones.fill(0.0f);
+					for (int cone_i = 0; cone_i < KUSUDAMA_MAX_CONES; cone_i++) {
+						const int out_idx = cone_i * 4;
+						kusudama_limit_cones.write[out_idx + 1] = 1.0f;
+						kusudama_limit_cones.write[out_idx + 3] = Math_PI;
 					}
 					for (int32_t constraint_i = 0; constraint_i < modification->get_constraint_count(); constraint_i++) {
 						if (modification->get_constraint_name(constraint_i) == skeleton->get_bone_name(current_bone_idx)) {
 							continue;
 						}
 						for (int32_t cone_i = 0; cone_i < modification->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+							const int out_idx = cone_i * 4;
 							Vector3 control_point = modification->get_kusudama_limit_cone_center(constraint_i, cone_i);
 							control_point.normalize();
-							int out_idx = cone_i * 4;
 							kusudama_limit_cones.write[out_idx + 0] = control_point.x;
 							kusudama_limit_cones.write[out_idx + 1] = control_point.y;
 							kusudama_limit_cones.write[out_idx + 2] = control_point.z;
