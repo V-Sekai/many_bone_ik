@@ -516,17 +516,9 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 			int32_t cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
 			if (cone_what == "center") {
-				if (!get_kusudama_limit_cone_count(cone_index)) {
-					r_ret = Vector3(0, 1, 0);
-					return true;
-				}
 				r_ret = get_kusudama_limit_cone_center(index, cone_index);
 				return true;
 			} else if (cone_what == "radius") {
-				if (!get_kusudama_limit_cone_count(cone_index)) {
-					r_ret = Math_PI;
-					return true;
-				}
 				r_ret = get_kusudama_limit_cone_radius(index, cone_index);
 				return true;
 			}
@@ -779,7 +771,7 @@ Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bo
 
 float SkeletonModification3DEWBIK::get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
 	if (!kusudama_limit_cones.has(p_bone)) {
-		return Math_PI;
+		return Math_TAU;
 	}
 	return kusudama_limit_cones[p_bone][p_index].a;
 }
@@ -830,7 +822,10 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_radius(int32_t p_effec
 	Color &cone = cones.write[p_index];
 	cone.a = p_radius;
 
-	notify_property_list_changed();
+	// Must notify the skeleton too.
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
 	is_dirty = true;
 }
 
