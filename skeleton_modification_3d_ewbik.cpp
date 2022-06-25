@@ -755,7 +755,10 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone(int32_t p_constraint, 
 	cone.a = p_radius;
 	cones.write[p_index] = cone;
 	kusudama_limit_cones[p_constraint] = cones;
-	notify_property_list_changed();
+	// Must notify the skeleton too.
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
 	is_dirty = true;
 }
 
@@ -771,7 +774,7 @@ Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bo
 
 float SkeletonModification3DEWBIK::get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
 	if (!kusudama_limit_cones.has(p_bone)) {
-		return Math_TAU;
+		return 0.0f;
 	}
 	return kusudama_limit_cones[p_bone][p_index].a;
 }
@@ -795,7 +798,10 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_count(int32_t p_effect
 		cone.b = 0.0f;
 		cone.a = Math_TAU;
 	}
-	notify_property_list_changed();
+	// Must notify the skeleton too.
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
 	is_dirty = true;
 }
 
@@ -805,7 +811,10 @@ real_t SkeletonModification3DEWBIK::get_default_damp() const {
 
 void SkeletonModification3DEWBIK::set_default_damp(float p_default_damp) {
 	default_damp = p_default_damp;
-	notify_property_list_changed();
+	// Must notify the skeleton too.
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
 	is_dirty = true;
 }
 
@@ -838,7 +847,10 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_center(int32_t p_effec
 	cone.g = p_center.y;
 	cone.b = p_center.z;
 
-	notify_property_list_changed();
+	// Must notify the skeleton too.
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
 	is_dirty = true;
 }
 

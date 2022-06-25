@@ -368,7 +368,7 @@ void fragment() {
 					for (int cone_i = 0; cone_i < KUSUDAMA_MAX_CONES; cone_i++) {
 						const int out_idx = cone_i * 4;
 						kusudama_limit_cones.write[out_idx + 1] = 1.0f;
-						kusudama_limit_cones.write[out_idx + 3] = Math_PI;
+						kusudama_limit_cones.write[out_idx + 3] = 0;
 					}
 					for (int32_t constraint_i = 0; constraint_i < modification->get_constraint_count(); constraint_i++) {
 						if (modification->get_constraint_name(constraint_i) == skeleton->get_bone_name(current_bone_idx)) {
@@ -381,7 +381,8 @@ void fragment() {
 							kusudama_limit_cones.write[out_idx + 0] = control_point.x;
 							kusudama_limit_cones.write[out_idx + 1] = control_point.y;
 							kusudama_limit_cones.write[out_idx + 2] = control_point.z;
-							kusudama_limit_cones.write[out_idx + 3] = modification->get_kusudama_limit_cone_radius(constraint_i, cone_i);
+							float radius = modification->get_kusudama_limit_cone_radius(constraint_i, cone_i);
+							kusudama_limit_cones.write[out_idx + 3] = radius;
 						}
 						break;
 					}
