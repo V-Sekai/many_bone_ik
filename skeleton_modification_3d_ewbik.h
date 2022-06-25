@@ -85,7 +85,6 @@ public:
 	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
 	void add_pin(const StringName &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
 	void remove_pin(int32_t p_index);
-	// Expose properties bound by script
 	bool get_debug_skeleton() const;
 	void set_debug_skeleton(bool p_enabled);
 	void set_ik_iterations(int32_t p_iterations);
