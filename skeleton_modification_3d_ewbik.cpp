@@ -826,7 +826,8 @@ StringName SkeletonModification3DEWBIK::get_pin_bone_name(int32_t p_effector_ind
 void SkeletonModification3DEWBIK::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius) {
 	ERR_FAIL_COND(!kusudama_limit_cones.has(p_effector_index));
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
-	Color &cone = kusudama_limit_cones[p_effector_index].write[p_index];
+	PackedColorArray &cones = kusudama_limit_cones[p_effector_index];
+	Color &cone = cones.write[p_index];
 	cone.a = p_radius;
 
 	notify_property_list_changed();
@@ -836,7 +837,8 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone_radius(int32_t p_effec
 void SkeletonModification3DEWBIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
 	ERR_FAIL_COND(!kusudama_limit_cones.has(p_effector_index));
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
-	Color &cone = kusudama_limit_cones[p_effector_index].write[p_index];
+	PackedColorArray &cones = kusudama_limit_cones[p_effector_index];
+	Color &cone = cones.write[p_index];
 	cone.r = p_center.x;
 	cone.g = p_center.y;
 	cone.b = p_center.z;

@@ -132,7 +132,6 @@ String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
 }
 
 void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
-	HashMap<int32_t, HashMap<int32_t, Vector<float>>> modification_kusudama_constraint;
 	Ref<SkeletonModificationStack3D> stack;
 	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_spatial_node());
 	if (!skeleton) {
@@ -140,40 +139,6 @@ void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	}
 	if (skeleton) {
 		stack = skeleton->get_modification_stack();
-	}
-	if (stack.is_valid()) {
-		for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
-			Ref<SkeletonModification3D> modification = stack->get_modification(modification_i);
-			if (modification.is_null()) {
-				continue;
-			}
-			Ref<SkeletonModification3DEWBIK> ewbik_modification = modification;
-			if (ewbik_modification.is_null()) {
-				continue;
-			}
-			if (!ewbik_modification->get_is_setup()) {
-				return;
-			}
-			int32_t constraint_count = ewbik_modification->get_constraint_count();
-			HashMap<int32_t, Vector<float>> kusudama_constraint;
-			for (int32_t constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
-				Vector<float> cone_constraint;
-				for (int32_t cone_i = 0; cone_i < ewbik_modification->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
-					Vector3 center = ewbik_modification->get_kusudama_limit_cone_center(constraint_i, cone_i);
-					center.normalize();
-					Vector<float> cone;
-					cone.resize(4);
-					cone.write[0] = center.x;
-					cone.write[1] = center.y;
-					cone.write[2] = center.z;
-					float radius = ewbik_modification->get_kusudama_limit_cone_radius(constraint_i, cone_i);
-					cone.write[3] = radius;
-					cone_constraint.append_array(cone);
-				}
-				kusudama_constraint[constraint_i] = cone_constraint;
-			}
-			modification_kusudama_constraint[modification_i] = kusudama_constraint;
-		}
 	}
 	p_gizmo->clear();
 
@@ -366,7 +331,6 @@ void fragment() {
 	ALPHA = result_color_allowed.a;
 }
 )");
-	Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
 	while (bones_to_process.size() > current_bone_index) {
 		int current_bone_idx = bones_to_process[current_bone_index];
 		current_bone_index++;
@@ -391,25 +355,23 @@ void fragment() {
 				return;
 			}
 			for (int32_t modification_i = 0; modification_i < stack->get_modification_count(); modification_i++) {
-				HashMap<int32_t, Vector<float>> current_kusudama_constraint = modification_kusudama_constraint[modification_i];
 				Ref<SkeletonModification3DEWBIK> modification = stack->get_modification(modification_i);
 				String bone_name = skeleton->get_bone_name(current_bone_idx);
 				if (modification.is_null()) {
 					continue;
 				}
 				BoneId constraint_id = modification->find_effector_id(bone_name);
-				if (modification.is_valid() && current_kusudama_constraint.has(constraint_id)) {
+				if (modification.is_valid()) {
 					PackedFloat32Array kusudama_limit_cones;
 					kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 					kusudama_limit_cones.fill(0.0f);
-					bool has_constraints = false;
 					for (int32_t constraint_i = 0; constraint_i < modification->get_constraint_count(); constraint_i++) {
 						if (modification->get_constraint_name(constraint_i) == skeleton->get_bone_name(current_bone_idx)) {
 							continue;
 						}
-						has_constraints = true;
 						for (int32_t cone_i = 0; cone_i < modification->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 							Vector3 control_point = modification->get_kusudama_limit_cone_center(constraint_i, cone_i);
+							control_point.normalize();
 							int out_idx = cone_i * 4;
 							kusudama_limit_cones.write[out_idx + 0] = control_point.x;
 							kusudama_limit_cones.write[out_idx + 1] = control_point.y;
@@ -418,12 +380,6 @@ void fragment() {
 						}
 						break;
 					}
-					if (!has_constraints) {
-						continue;
-					}
-					kusudama_material->set_shader(kusudama_shader);
-					kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
-					kusudama_material->set_shader_param("kusudama_color", current_bone_color);
 					Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
 					BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
 					if (parent_idx == -1) {
@@ -443,8 +399,8 @@ void fragment() {
 								// Copied from the SphereMesh.
 								float radius = dist / 4.0;
 								float height = dist / 2.0;
-								int radial_segments = 6;
-								int rings = 6;
+								int radial_segments = 8;
+								int rings = 8;
 
 								int i, j, prevrow, thisrow, point;
 								float x, y, z;
@@ -513,6 +469,10 @@ void fragment() {
 								for (int32_t index_i : indices) {
 									kusudama_surface_tool->add_index(index_i);
 								}
+								Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+								kusudama_material->set_shader(kusudama_shader);
+								kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
+								kusudama_material->set_shader_param("kusudama_color", current_bone_color);
 								p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 							}
 						}
