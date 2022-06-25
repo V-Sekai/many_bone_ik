@@ -110,6 +110,7 @@ void IKBoneSegment::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recur
 	if (p_debug_skeleton) {
 		for (int32_t name_i = 0; name_i < list.size(); name_i++) {
 			BoneId bone = list[name_i]->get_bone_id();
+
 			String bone_name = skeleton->get_bone_name(bone);
 			String effector;
 			if (list[name_i]->is_pinned()) {
@@ -122,7 +123,7 @@ void IKBoneSegment::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recur
 			if (list[name_i] == tip) {
 				prefix += "(" + effector + "Tip) ";
 			}
-			print_line(prefix + bone_name);
+			print_line(vformat("%s%s (%s)", prefix, bone_name, itos(bone));
 		}
 	}
 	p_list.append_array(list);
