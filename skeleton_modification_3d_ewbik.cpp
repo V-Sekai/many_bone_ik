@@ -180,14 +180,15 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		execution_error_found = false;
 		return;
 	}
-	if (is_dirty || segmented_skeleton.is_null()) {
-		update_skeleton();
-	}
-
 	if (!skeleton) {
 		return;
 	}
-	update_skeleton();
+	if (is_dirty || segmented_skeleton.is_null()) {
+		update_skeleton();
+		if (get_debug_skeleton()) {
+			set_debug_skeleton(false);
+		}
+	}
 	if (bone_list.size()) {
 		Ref<IKTransform3D> bone_ik_transform = bone_list.write[0]->get_ik_transform();
 		ERR_FAIL_NULL(bone_ik_transform);
@@ -672,10 +673,10 @@ bool SkeletonModification3DEWBIK::get_debug_skeleton() const {
 
 void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
-
-	notify_property_list_changed();
+	if (skeleton) {
+		skeleton->notify_property_list_changed();
+	}
 	is_dirty = true;
-	debug_skeleton = false;
 }
 
 float SkeletonModification3DEWBIK::get_pin_depth_falloff(int32_t p_effector_index) const {
