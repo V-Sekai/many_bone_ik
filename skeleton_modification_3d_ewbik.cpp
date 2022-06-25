@@ -774,7 +774,7 @@ Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bo
 
 float SkeletonModification3DEWBIK::get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
 	if (!kusudama_limit_cones.has(p_bone)) {
-		return 0.0f;
+		return Math_TAU;
 	}
 	return kusudama_limit_cones[p_bone][p_index].a;
 }
