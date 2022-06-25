@@ -60,7 +60,7 @@ bool IKEffector3D::is_following_translation_only() const {
 void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
-	target_global_transform = p_skeleton->local_pose_to_global_pose(for_bone->get_bone_id(), for_bone->get_pose());
+	target_global_transform = for_bone->get_global_pose();
 	if (target_node_cache.is_null()) {
 		update_cache_target(p_skeleton);
 	}
