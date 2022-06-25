@@ -123,7 +123,7 @@ void IKBoneSegment::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recur
 			if (list[name_i] == tip) {
 				prefix += "(" + effector + "Tip) ";
 			}
-			print_line(vformat("%s%s (%s)", prefix, bone_name, itos(bone));
+			print_line(vformat("%s%s (%s)", prefix, bone_name, itos(bone)));
 		}
 	}
 	p_list.append_array(list);
