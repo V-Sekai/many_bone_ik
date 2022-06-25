@@ -524,7 +524,7 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 				return true;
 			} else if (cone_what == "radius") {
 				if (!get_kusudama_limit_cone_count(cone_index)) {
-					r_ret = 0.0f;
+					r_ret = Math_TAU;
 					return true;
 				}
 				r_ret = get_kusudama_limit_cone_radius(index, cone_index);
@@ -779,7 +779,7 @@ Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bo
 
 float SkeletonModification3DEWBIK::get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
 	if (!kusudama_limit_cones.has(p_bone)) {
-		return 0.0f;
+		return Math_TAU;
 	}
 	return kusudama_limit_cones[p_bone][p_index].a;
 }

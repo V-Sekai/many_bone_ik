@@ -364,7 +364,12 @@ void fragment() {
 				if (modification.is_valid()) {
 					PackedFloat32Array kusudama_limit_cones;
 					kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
-					kusudama_limit_cones.fill(0.0f);
+					for (int cone_i = 0; cone_i < KUSUDAMA_MAX_CONES * 4; cone_i += 4) {
+						kusudama_limit_cones.write[cone_i * 4 + 0] = 0.0f;
+						kusudama_limit_cones.write[cone_i * 4 + 1] = 1.0f;
+						kusudama_limit_cones.write[cone_i * 4 + 2] = 0.0f;
+						kusudama_limit_cones.write[cone_i * 4 + 3] = Math_TAU;
+					}
 					for (int32_t constraint_i = 0; constraint_i < modification->get_constraint_count(); constraint_i++) {
 						if (modification->get_constraint_name(constraint_i) == skeleton->get_bone_name(current_bone_idx)) {
 							continue;
