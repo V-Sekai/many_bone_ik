@@ -350,7 +350,6 @@ void fragment() {
 			Vector3 v0 = skeleton->get_bone_global_rest(current_bone_idx).origin;
 			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
 			real_t dist = v0.distance_to(v1);
-			bones[0] = current_bone_idx;
 			if (stack.is_null()) {
 				return;
 			}
@@ -391,6 +390,7 @@ void fragment() {
 					if (parent_idx == -1) {
 						continue;
 					}
+					bones[0] = parent_idx;
 					Ref<IKBoneSegment> bone_segment = modification->get_segmented_skeleton();
 					Transform3D constraint_transform;
 					if (bone_segment.is_valid()) {
