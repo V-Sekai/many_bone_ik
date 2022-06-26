@@ -371,7 +371,7 @@ void fragment() {
 						kusudama_limit_cones.write[out_idx + 3] = 0;
 					}
 					for (int32_t constraint_i = 0; constraint_i < modification->get_constraint_count(); constraint_i++) {
-						if (modification->get_constraint_name(constraint_i) == skeleton->get_bone_name(current_bone_idx)) {
+						if (modification->get_constraint_name(constraint_i) != skeleton->get_bone_name(current_bone_idx)) {
 							continue;
 						}
 						for (int32_t cone_i = 0; cone_i < modification->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
