@@ -359,7 +359,6 @@ void fragment() {
 				if (modification.is_null()) {
 					continue;
 				}
-				BoneId constraint_id = modification->find_effector_id(bone_name);
 				if (modification.is_valid()) {
 					PackedFloat32Array kusudama_limit_cones;
 					kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
