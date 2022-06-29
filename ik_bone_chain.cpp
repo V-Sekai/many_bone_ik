@@ -276,7 +276,9 @@ void IKBoneSegment::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3A
 }
 
 void IKBoneSegment::segment_solver(real_t p_damp) {
-	for (Ref<IKBoneSegment> child : child_segments) {
+	Vector<Ref<IKBoneSegment>> reversed_child_segments = child_segments;
+	reversed_child_segments.reverse();
+	for (Ref<IKBoneSegment> child : reversed_child_segments) {
 		child->segment_solver(p_damp);
 	}
 	bool is_translate = parent_segment.is_null();
