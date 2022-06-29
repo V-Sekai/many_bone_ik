@@ -227,16 +227,24 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	ERR_FAIL_NULL(r_htip);
 	ERR_FAIL_NULL(r_htarget);
 	ERR_FAIL_NULL(r_weights);
-	QCP qcp = QCP(1E-6, 1E-11);
-	Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
-	Vector3 translation = qcp.get_translation();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
-	if (!Math::is_equal_approx(p_dampening, -1.0f)) {
-		bone_damp = p_dampening;
-		rot = clamp_to_angle(rot, bone_damp);
-	} else {
-		rot = clamp_to_quadrance_angle(rot, bone_damp);
+	{
+		// Solved ik transform and apply it.
+		QCP qcp = QCP(1E-6, 1E-11);
+		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+		Vector3 translation = qcp.get_translation();
+		if (!Math::is_equal_approx(p_dampening, -1.0f)) {
+			bone_damp = p_dampening;
+			rot = clamp_to_angle(rot, bone_damp);
+		} else {
+			rot = clamp_to_quadrance_angle(rot, bone_damp);
+		}
+		p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
+		Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
+		p_for_bone->set_global_pose(result);
 	}
+
+	// If the solved transform is outside the hard constraints, move it back into range.
 	if (p_for_bone->getConstraint().is_valid() && p_for_bone->get_constraint_transform().is_valid()) {
 		if (!p_for_bone->getConstraint()->get_limit_cones().is_empty()) {
 			Vector3 control_point = p_for_bone->get_constraint_transform()->to_global(p_for_bone->getConstraint()->get_limit_cones()[0]->get_control_point());
@@ -249,9 +257,6 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 			p_for_bone->getConstraint()->set_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 		}
 	}
-	p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
-	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
-	p_for_bone->set_global_pose(result);
 }
 
 void IKBoneSegment::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_target_headings) {
