@@ -67,6 +67,10 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
 	void set_dirty();
+	void set_root_bone(const StringName &p_root_bone);
+	StringName get_root_bone() const;
+	void set_root_bone_index(BoneId p_index);
+	BoneId get_root_bone_index() const;
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
@@ -89,10 +93,6 @@ public:
 	void set_debug_skeleton(bool p_enabled);
 	void set_ik_iterations(int32_t p_iterations);
 	int32_t get_ik_iterations() const;
-	void set_root_bone(const StringName &p_root_bone);
-	StringName get_root_bone() const;
-	void set_root_bone_index(BoneId p_index);
-	BoneId get_root_bone_index() const;
 	void set_pin_count(int32_t p_value);
 	int32_t get_pin_count() const;
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);

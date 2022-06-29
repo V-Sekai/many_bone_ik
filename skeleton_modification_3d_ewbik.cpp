@@ -588,8 +588,6 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_time_budget_millisecond"), &SkeletonModification3DEWBIK::get_time_budget_millisecond);
 	ClassDB::bind_method(D_METHOD("set_time_budget_millisecond", "budget"), &SkeletonModification3DEWBIK::set_time_budget_millisecond);
 	ClassDB::bind_method(D_METHOD("get_ik_iterations"), &SkeletonModification3DEWBIK::get_ik_iterations);
-	ClassDB::bind_method(D_METHOD("set_root_bone", "root_bone"), &SkeletonModification3DEWBIK::set_root_bone);
-	ClassDB::bind_method(D_METHOD("get_root_bone"), &SkeletonModification3DEWBIK::get_root_bone);
 	ClassDB::bind_method(D_METHOD("get_constraint_count"), &SkeletonModification3DEWBIK::get_constraint_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_count", "count"),
 			&SkeletonModification3DEWBIK::set_constraint_count);
@@ -609,7 +607,6 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "", "get_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "budget_millisecond", PROPERTY_HINT_RANGE, "0.01,2.0,0.01,or_greater"), "set_time_budget_millisecond", "get_time_budget_millisecond");
-	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
 }
@@ -657,7 +654,7 @@ void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
 		kusudama_twist_from.write[constraint_i] = 0.0f;
-		kusudama_twist_to.write[constraint_i] = Math::deg2rad(1.0f);
+		kusudama_twist_to.write[constraint_i] = 0.0f;
 		kusudama_flip_handedness.write[constraint_i] = false;
 	}
 	notify_property_list_changed();
