@@ -79,7 +79,7 @@ void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> p_next, int p_
 		double boundaryPlusTangentRadiusA = radA + tRadius;
 		double boundaryPlusTangentRadiusB = radB + tRadius;
 
-		// the axis of this cone, scaled to minimize its distance to the tangent  contact points.
+		// the axis of this cone, scaled to minimize its distance to the tangent contact points.
 		Vector3 scaledAxisA = A * cos(boundaryPlusTangentRadiusA);
 		// a point on the plane running through the tangent contact points
 		Basis temp_var(arcNormal, boundaryPlusTangentRadiusA);
@@ -381,6 +381,7 @@ Vector3 LimitCone::get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 in
 			double toNextCos = input.dot(tangent_circle_center_next_1);
 			if (toNextCos > tangent_circle_radius_next_cos) {
 				Vector3 planeNormal = tangent_circle_center_next_1.cross(input);
+				planeNormal.normalize();
 				Quaternion rotateAboutBy = Quaternion(planeNormal, tangent_circle_radius_next);
 				return rotateAboutBy.xform(tangent_circle_center_next_1);
 			} else {
@@ -395,6 +396,7 @@ Vector3 LimitCone::get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 in
 		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
 			if (input.dot(tangent_circle_center_next_2) > tangent_circle_radius_next_cos) {
 				Vector3 planeNormal = tangent_circle_center_next_2.cross(input);
+				planeNormal.normalize();
 				Quaternion rotateAboutBy = Quaternion(planeNormal, tangent_circle_radius_next);
 				return rotateAboutBy.xform(tangent_circle_center_next_2);
 			} else {
@@ -442,7 +444,7 @@ Vector3 LimitCone::closest_to_cone(Vector3 input, Vector<double> &in_bounds) con
 		return Vector3(NAN, NAN, NAN);
 	}
 	Vector3 axis = this->get_control_point().cross(input).normalized();
-	Quaternion rotTo = Quaternion(axis, this->get_radius());
+	Quaternion rotTo = Quaternion(axis.normalized(), this->get_radius());
 	Vector3 axis_control_point = this->get_control_point();
 	Vector3 result = rotTo.xform(axis_control_point);
 	in_bounds.write[0] = -1;

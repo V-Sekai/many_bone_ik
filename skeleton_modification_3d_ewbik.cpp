@@ -251,8 +251,8 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			Ref<IKKusudama> constraint;
 			constraint.instantiate();
 			constraint->enable_axial_limits();
-			float axial_from = get_kusudama_twist_from(constraint_i);
-			float axial_to = get_kusudama_twist_to(constraint_i);
+			const double axial_from = get_kusudama_twist_from(constraint_i);
+			const double axial_to = get_kusudama_twist_to(constraint_i);
 			constraint->set_axial_limits(axial_from, axial_to);
 			if (get_kusudama_limit_cone_count(constraint_i)) {
 				constraint->enable_orientational_limits();
@@ -260,12 +260,18 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 			for (int32_t cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 				constraint->add_limit_cone(get_kusudama_limit_cone_center(constraint_i, cone_i), get_kusudama_limit_cone_radius(constraint_i, cone_i));
 			}
-			constraint->update_tangent_radii();
-			constraint->update_rotational_freedom();
-			constraint->optimize_limiting_axes();
-			ik_bone_3d->addConstraint(constraint);
+			ik_bone_3d->add_constraint(constraint);
 			break;
 		}
+	}
+	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+		Ref<IKKusudama> constraint = ik_bone_3d->get_constraint();
+		if (constraint.is_null()) {
+			continue;
+		}
+		constraint->update_tangent_radii();
+		constraint->update_rotational_freedom();
+		constraint->optimize_limiting_axes();
 	}
 	is_dirty = false;
 }
@@ -523,7 +529,13 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 				return false;
 			}
 			if (cone_what == "center") {
-				set_kusudama_limit_cone_center(index, cone_index, p_value);
+				Vector3 center = p_value;
+				if (Math::is_zero_approx(center.length_squared())) {
+					center = Vector3(0.0, 1.0, 0.0);
+				} else {
+					center.normalize();
+				}
+				set_kusudama_limit_cone_center(index, cone_index, center);
 				return true;
 			} else if (cone_what == "radius") {
 				set_kusudama_limit_cone_radius(index, cone_index, p_value);

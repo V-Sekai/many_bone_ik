@@ -147,14 +147,14 @@ void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
 	cos_half_dampen = p_cos_half_dampen;
 }
 
-Ref<IKKusudama> IKBone3D::getConstraint() const {
+Ref<IKKusudama> IKBone3D::get_constraint() const {
 	return constraint;
 }
 
-void IKBone3D::updateCosDampening() {
+void IKBone3D::update_cosine_dampening() {
 }
 
-void IKBone3D::addConstraint(Ref<IKKusudama> p_constraint) {
+void IKBone3D::add_constraint(Ref<IKKusudama> p_constraint) {
 	constraint = p_constraint;
 }
 

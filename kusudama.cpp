@@ -37,39 +37,52 @@ IKKusudama::IKKusudama() {
 IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
 	this->_attached_to = for_bone;
 	this->_limiting_axes->set_global_transform(for_bone->get_global_pose());
-	this->_attached_to->addConstraint(Ref<IKKusudama>(this));
+	this->_attached_to->add_constraint(Ref<IKKusudama>(this));
 	this->enable();
 }
 
 void IKKusudama::_update_constraint() {
 	update_tangent_radii();
 	update_rotational_freedom();
+	optimize_limiting_axes();
 }
 
+/**
+ * This function should be called after you've set all of the Limiting Cones
+ * for this Kusudama. It will orient the axes relative to which constrained rotations are computed
+ * so as to minimize the potential for undesirable twist rotations due to antipodal singularities.
+ *
+ * In general, auto-optimization attempts to point the y-component of the constraint
+ * axes in the direction that places it within an orientation allowed by the constraint,
+ * and roughly as far as possible from any orientations not allowed by the constraint.
+ */
 void IKKusudama::optimize_limiting_axes() {
-	Ref<IKTransform3D> originalLimitingAxes;
-	originalLimitingAxes.instantiate();
-	originalLimitingAxes->set_global_transform(_limiting_axes->get_global_transform());
 	Vector<Vector3> directions;
 	Vector<Ref<LimitCone>> limit_cones = get_limit_cones();
 	if (limit_cones.size() == 1) {
 		Vector3 cone = limit_cones.write[0]->get_control_point();
-		cone.normalize();
 		limit_cones.write[0]->set_control_point(cone);
 		directions.push_back(cone);
 	} else {
 		for (int limit_cone_i = 0; limit_cone_i < limit_cones.size() - 1; limit_cone_i++) {
-			Ref<LimitCone> cone = get_limit_cones()[limit_cone_i];
+			Ref<LimitCone> &cone = limit_cones.write[limit_cone_i];
 			Vector3 thisC = cone->get_control_point();
 			thisC.normalize();
-			limit_cones.write[limit_cone_i]->set_control_point(thisC);
-			Vector3 nextC = limit_cones.write[limit_cone_i + 1]->get_control_point();
+			if (Math::is_zero_approx(thisC.length_squared())) {
+				thisC = Vector3(0, 1, 0);
+			}
+			limit_cones.write[limit_cone_i]->control_point = thisC;
+			Vector3 nextC = limit_cones[limit_cone_i + 1]->get_control_point();
 			nextC.normalize();
-			limit_cones.write[limit_cone_i]->set_control_point(nextC);
+			if (Math::is_zero_approx(nextC.length_squared())) {
+				nextC = Vector3(0, 1, 0);
+			}
+			limit_cones.write[limit_cone_i + 1]->control_point = nextC;
 			Quaternion thisToNext = quaternion_unnormalized(thisC, nextC);
 			Vector3 axis;
 			real_t angle;
 			thisToNext.get_axis_angle(axis, angle);
+			axis.normalize();
 			Quaternion halfThisToNext(axis, angle / 2.0f);
 			Vector3 halfAngle = halfThisToNext.xform(thisC);
 			halfAngle.normalize();
@@ -85,7 +98,7 @@ void IKKusudama::optimize_limiting_axes() {
 	}
 
 	newY /= directions.size();
-	if (newY.length() != 0.f && !Math::is_nan(newY.y)) {
+	if (!Math::is_zero_approx(newY.length()) && !Math::is_nan(newY.y)) {
 		newY.normalize();
 	} else {
 		newY = Vector3(0.f, 1.f, 0.f);
@@ -94,12 +107,15 @@ void IKKusudama::optimize_limiting_axes() {
 	Vector3 temp_var(0.f, 0.f, 0.f);
 	Ref<Ray3D> newYRay = memnew(Ray3D(temp_var, newY));
 
+	Ref<IKTransform3D> original_limiting_axes;
+	original_limiting_axes.instantiate();
+	original_limiting_axes->set_global_transform(_limiting_axes->get_global_transform());
 	Quaternion oldYtoNewY = quaternion_unnormalized(
-			originalLimitingAxes->to_global(newYRay->heading()), _limiting_axes->get_global_transform().basis.get_column(Vector3::AXIS_Y));
+			original_limiting_axes->to_global(newYRay->heading()), _limiting_axes->get_global_transform().basis.get_column(Vector3::AXIS_Y));
 	_limiting_axes->rotate_local_with_global(oldYtoNewY);
 
 	for (Ref<LimitCone> lc : get_limit_cones()) {
-		lc->control_point = originalLimitingAxes->to_global(lc->control_point);
+		lc->control_point = original_limiting_axes->to_global(lc->control_point);
 		lc->control_point = _limiting_axes->to_local(lc->control_point);
 		lc->control_point.normalize();
 	}
@@ -140,7 +156,7 @@ bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> p_globa
 	global_y_heading = global_y_heading + p_global_axes->get_global_transform().origin;
 	Vector3 local_point = p_limiting_axes->to_local(global_y_heading);
 	Vector3 in_limits = _local_point_in_limits(local_point, in_bounds, IKKusudama::BOUNDARY);
-	bool is_rotation = !(Math::is_nan(in_limits.x) && Math::is_nan(in_limits.y) && Math::is_nan(in_limits.z));
+	bool is_rotation = !Math::is_nan(in_limits.x);
 	if (in_bounds[0] < 0.0 || !is_rotation) {
 		return false;
 	}
@@ -176,7 +192,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKTransform3D> to_set, Ref<IKTransf
 	} else {
 		turn_diff = turn_diff * (range - (Math_TAU - from_min_to_angle_delta));
 	}
-	rot = Quaternion(axis_y, turn_diff);
+	rot = Quaternion(axis_y.normalized(), turn_diff).normalized();
 	to_set->rotate_local_with_global(rot);
 }
 
@@ -384,6 +400,19 @@ Vector3 IKKusudama::local_point_on_path_sequence(Vector3 in_point, Ref<IKTransfo
 	return result;
 }
 
+/**
+ * Given a point (in global coordinates), checks to see if a ray can be extended from the Kusudama's
+ * origin to that point, such that the ray in the Kusudama's reference frame is within the range allowed by the Kusudama's
+ * coneLimits.
+ * If such a ray exists, the original point is returned (the point is within the limits).
+ * If it cannot exist, the tip of the ray within the kusudama's limits that would require the least rotation
+ * to arrive at the input point is returned.
+ * @param in_point the point to test.
+ * @param in_bounds returns a number from -1 to 1 representing the point's distance from the boundary, 0 means the point is right on
+ * the boundary, 1 means the point is within the boundary and on the path furthest from the boundary. any negative number means
+ * the point is outside of the boundary, but does not signify anything about how far from the boundary the point is.
+ * @return the original point, if it's in limits, or the closest point which is in limits.
+ */
 Vector3 IKKusudama::_local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds, int mode) {
 	Vector3 point = in_point.normalized();
 	real_t closest_cos = -2.0;
@@ -395,11 +424,11 @@ Vector3 IKKusudama::_local_point_in_limits(Vector3 in_point, Vector<double> &in_
 		if (i - 1 > -1) {
 			cone_next = limit_cones[i - 1];
 		}
-		// bool is_in_bounds = cone->determine_if_in_bounds(cone_next, point);
-		// if (is_in_bounds) {
-		//	in_bounds.write[0] = 1;
-		//	return point;
-		// }
+		bool is_in_bounds = cone->determine_if_in_bounds(cone_next, point);
+		if (is_in_bounds) {
+			in_bounds.write[0] = 1;
+			return point;
+		}
 		Vector3 collision_point = cone->closest_to_cone(point, in_bounds);
 		if (Math::is_nan(collision_point.x)) {
 			in_bounds.write[0] = 1;
@@ -413,25 +442,22 @@ Vector3 IKKusudama::_local_point_in_limits(Vector3 in_point, Vector<double> &in_
 	}
 	// Case where there are multiple cones and we're out of bounds of all cones.
 	// Are we in the paths between the cones.
-	if (in_bounds[0] == -1) {
-		for (int i = 0; i < limit_cones.size() - 1; i++) {
-			Ref<LimitCone> currCone = limit_cones[i];
-			Ref<LimitCone> nextCone = limit_cones[i + 1];
-			Vector3 collision_point = Vector3();
-			collision_point = currCone->get_on_great_tangent_triangle(nextCone, point);
-			if (Math::is_nan(collision_point.x)) {
-				continue;
-			}
-			real_t this_cos = collision_point.dot(point);
-			if (this_cos == 1.0) {
-				in_bounds.write[0] = 1;
-				closest_collision_point = point;
-				return point;
-			}
-			if (this_cos > closest_cos) {
-				closest_collision_point = collision_point;
-				closest_cos = this_cos;
-			}
+	for (int i = 0; i < limit_cones.size() - 1; i++) {
+		Ref<LimitCone> currCone = limit_cones[i];
+		Ref<LimitCone> nextCone = limit_cones[i + 1];
+		Vector3 collision_point = currCone->get_on_great_tangent_triangle(nextCone, point);
+		if (!Math::is_nan(collision_point.x)) {
+			continue;
+		}
+		real_t this_cos = collision_point.dot(point);
+		if (Math::is_equal_approx(this_cos, real_t(1.0))) {
+			in_bounds.write[0] = 1;
+			closest_collision_point = point;
+			return point;
+		}
+		if (this_cos > closest_cos) {
+			closest_collision_point = collision_point;
+			closest_cos = this_cos;
 		}
 	}
 	// Move to the closest boundary between cones or on the cones if out of bounds.
@@ -444,7 +470,7 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 	bone_ray->p2(to_set->get_global_transform().basis.get_column(Vector3::AXIS_Y));
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
 	Vector3 in_limits = _local_point_in_limits(bone_tip, in_bounds, IKKusudama::BOUNDARY);
-	if (in_bounds[0] == -1 && !Math::is_nan(in_limits.x)) {
+	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
 		Quaternion rectified_rot = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
@@ -471,6 +497,16 @@ Quaternion IKKusudama::quaternion_unnormalized(Vector3 u, Vector3 v) {
 		ret.x = -w.x;
 		ret.y = -w.y;
 		ret.z = -w.z;
+		return ret.normalized();
 	}
-	return Quaternion(u, v);
+	// general case: (u, v) defines a plane, we select
+	// the shortest possible rotation: axis orthogonal to this plane
+	ret.w = Math::sqrt(0.5 * (1.0 + dot / norm_product));
+	double coeff = 1.0 / (2.0 * ret.w * norm_product);
+	Vector3 q = v.cross(u);
+	// Hamilton quaternion to JPL Quaternion.
+	ret.x = -coeff * q.x;
+	ret.y = -coeff * q.y;
+	ret.z = -coeff * q.z;
+	return ret.normalized();
 }

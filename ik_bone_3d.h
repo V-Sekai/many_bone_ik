@@ -79,9 +79,9 @@ public:
 		constraint_transform = p_transform;
 	}
 	Ref<IKTransform3D> get_constraint_transform();
-	void addConstraint(Ref<IKKusudama> p_constraint);
-	Ref<IKKusudama> getConstraint() const;
-	void updateCosDampening();
+	void add_constraint(Ref<IKKusudama> p_constraint);
+	Ref<IKKusudama> get_constraint() const;
+	void update_cosine_dampening();
 	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
