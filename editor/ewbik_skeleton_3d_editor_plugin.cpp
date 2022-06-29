@@ -363,17 +363,19 @@ void fragment() {
 					PackedFloat32Array kusudama_limit_cones;
 					kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 					kusudama_limit_cones.fill(0.0f);
-					for (int cone_i = 0; cone_i < KUSUDAMA_MAX_CONES; cone_i++) {
-						const int out_idx = cone_i * 4;
-						kusudama_limit_cones.write[out_idx + 1] = 1.0f;
-						kusudama_limit_cones.write[out_idx + 3] = 0;
-					}
 					for (int32_t constraint_i = 0; constraint_i < modification->get_constraint_count(); constraint_i++) {
 						if (modification->get_constraint_name(constraint_i) != skeleton->get_bone_name(current_bone_idx)) {
 							continue;
 						}
-						for (int32_t cone_i = 0; cone_i < modification->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+						for (int32_t cone_i = 0; cone_i < KUSUDAMA_MAX_CONES; cone_i++) {
 							const int out_idx = cone_i * 4;
+							if (cone_i >= modification->get_kusudama_limit_cone_count(constraint_i)) {
+								kusudama_limit_cones.write[out_idx + 0] = 0.0;
+								kusudama_limit_cones.write[out_idx + 1] = 1.0;
+								kusudama_limit_cones.write[out_idx + 2] = 0.0;
+								kusudama_limit_cones.write[out_idx + 3] = 0.0;
+								continue;
+							}
 							Vector3 control_point = modification->get_kusudama_limit_cone_center(constraint_i, cone_i);
 							control_point.normalize();
 							kusudama_limit_cones.write[out_idx + 0] = control_point.x;
@@ -391,12 +393,12 @@ void fragment() {
 					}
 					bones[0] = parent_idx;
 					Ref<IKBoneSegment> bone_segment = modification->get_segmented_skeleton();
-					Transform3D constraint_transform;
 					if (bone_segment.is_valid()) {
 						Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
 						if (ik_bone.is_valid()) {
-							Ref<IKKusudama> ik_kusudama = ik_bone->getConstraint();
+							Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 							if (ik_kusudama.is_valid()) {
+								Transform3D constraint_transform;
 								constraint_transform = ik_bone->get_constraint_transform()->get_transform();
 
 								kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
@@ -404,7 +406,6 @@ void fragment() {
 								// Copied from the SphereMesh.
 								float radius = dist / 4.0;
 								float height = dist / 2.0;
-								int radial_segments = 32;
 								int rings = 64;
 
 								int i, j, prevrow, thisrow, point;
@@ -420,6 +421,7 @@ void fragment() {
 								thisrow = 0;
 								prevrow = 0;
 								for (j = 0; j <= (rings + 1); j++) {
+									int radial_segments = 32;
 									float v = j;
 									float w;
 
