@@ -147,21 +147,6 @@ Vector<Ref<IKEffectorTemplate>> SkeletonModification3DEWBIK::get_bone_effectors(
 
 void SkeletonModification3DEWBIK::remove_pin(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, pins.size());
-	Node *node = skeleton->get_node_or_null(get_pin_target_nodepath(p_index));
-	if (node) {
-		bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-		if (is_tree_exited_connected) {
-			node->disconnect(SNAME("tree_exited"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-		}
-		bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-		if (is_tree_entered_connected) {
-			node->disconnect(SNAME("tree_entered"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-		}
-		bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-		if (is_renamed_connected) {
-			node->disconnect(SNAME("renamed"), callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath));
-		}
-	}
 	pins.remove_at(p_index);
 	pin_count--;
 	pins.resize(pin_count);
@@ -190,11 +175,11 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		}
 	}
 	if (bone_list.size()) {
-		Ref<IKTransform3D> bone_ik_transform = bone_list.write[0]->get_ik_transform();
-		ERR_FAIL_NULL(bone_ik_transform);
-		Ref<IKTransform3D> root_ik_transform = bone_ik_transform->get_parent();
-		ERR_FAIL_NULL(root_ik_transform);
-		root_ik_transform->set_global_transform(skeleton->get_global_transform());
+		Ref<IKTransform3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
+		ERR_FAIL_NULL(root_ik_bone);
+		Ref<IKTransform3D> root_ik_parent_transform = root_ik_bone->get_parent();
+		ERR_FAIL_NULL(root_ik_parent_transform);
+		root_ik_parent_transform->set_global_transform(skeleton->get_global_transform());
 	}
 	update_shadow_bones_transform();
 	double time_ms = OS::get_singleton()->get_ticks_msec() + get_time_budget_millisecond();
@@ -236,12 +221,6 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 		set_root_bone(root_bone);
 	}
 	ERR_FAIL_COND(!root_bone);
-#ifdef TOOLS_ENABLED
-	if (InspectorDock::get_inspector_singleton()->is_connected("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty))) {
-		InspectorDock::get_inspector_singleton()->disconnect("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty));
-	}
-	InspectorDock::get_inspector_singleton()->connect("edited_object_changed", callable_mp(this, &SkeletonModification3DEWBIK::set_dirty));
-#endif
 	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
 	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
 	segmented_skeleton->generate_default_segments_from_root(pins);
