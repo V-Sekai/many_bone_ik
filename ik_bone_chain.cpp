@@ -237,7 +237,6 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	} else {
 		rot = clamp_to_quadrance_angle(rot, bone_damp);
 	}
-	p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
 	if (p_for_bone->getConstraint().is_valid() && p_for_bone->get_constraint_transform().is_valid()) {
 		if (!p_for_bone->getConstraint()->get_limit_cones().is_empty()) {
 			Vector3 control_point = p_for_bone->get_constraint_transform()->to_global(p_for_bone->getConstraint()->get_limit_cones()[0]->get_control_point());
@@ -250,6 +249,7 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 			p_for_bone->getConstraint()->set_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 		}
 	}
+	p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
 	Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 	p_for_bone->set_global_pose(result);
 }
