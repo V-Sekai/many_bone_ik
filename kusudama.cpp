@@ -283,7 +283,7 @@ double IKKusudama::max_axial_angle() {
 }
 
 double IKKusudama::absolute_max_axial_angle() {
-	return signed_angle_difference(range + _min_axial_angle, Math_PI * 2);
+	return signed_angle_difference(range + _min_axial_angle, Math_TAU);
 }
 
 bool IKKusudama::is_axially_constrained() {
