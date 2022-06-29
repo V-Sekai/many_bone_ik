@@ -256,31 +256,6 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 		}
 		String bone = data->get_name();
 		BoneId bone_id = skeleton->find_bone(bone);
-		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-			if (ik_bone_3d->get_bone_id() != bone_id) {
-				continue;
-			}
-			Node *node = skeleton->get_node_or_null(data->get_target_node());
-			if (!node) {
-				continue;
-			}
-			Callable callable = callable_mp(this, &SkeletonModification3DEWBIK::set_pin_target_nodepath);
-			bool is_tree_exited_connected = node->is_connected(SNAME("tree_exited"), callable);
-			if (is_tree_exited_connected) {
-				node->disconnect(SNAME("tree_exited"), callable);
-			}
-			bool is_tree_entered_connected = node->is_connected(SNAME("tree_entered"), callable);
-			if (is_tree_entered_connected) {
-				node->disconnect(SNAME("tree_entered"), callable);
-			}
-			bool is_renamed_connected = node->is_connected(SNAME("renamed"), callable);
-			if (is_renamed_connected) {
-				node->disconnect(SNAME("renamed"), callable);
-			}
-			node->connect(SNAME("tree_exited"), callable, varray(effector_i, data->get_target_node()));
-			node->connect(SNAME("tree_entered"), callable, varray(effector_i, data->get_target_node()));
-			node->connect(SNAME("renamed"), callable, varray(effector_i, data->get_target_node()));
-		}
 	}
 
 	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
