@@ -271,7 +271,6 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 		}
 		constraint->update_tangent_radii();
 		constraint->update_rotational_freedom();
-		constraint->optimize_limiting_axes();
 	}
 	is_dirty = false;
 }

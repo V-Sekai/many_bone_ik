@@ -95,17 +95,6 @@ public:
 
 	virtual void _update_constraint();
 
-	/**
-	 * This function should be called after you've set all of the Limiting Cones
-	 * for this Kusudama. It will orient the axes relative to which constrained rotations are computed
-	 * so as to minimize the potential for undesirable twist rotations due to antipodal singularities.
-	 *
-	 * In general, auto-optimization attempts to point the y-component of the constraint
-	 * axes in the direction that places it within an oreintation allowed by the constraint,
-	 * and roughly as far as possible from any orientations not allowed by the constraint.
-	 */
-	virtual void optimize_limiting_axes();
-
 	virtual void update_tangent_radii();
 
 	Ref<Ray3D> bone_ray = Ref<Ray3D>(memnew(Ray3D()));
@@ -272,8 +261,6 @@ public:
 	double get_rotational_freedom();
 
 	double rotational_freedom = 1;
-
-	static Quaternion quaternion_unnormalized(Vector3 u, Vector3 v);
 
 	virtual void update_rotational_freedom();
 

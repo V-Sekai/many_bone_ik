@@ -44,83 +44,6 @@ IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
 void IKKusudama::_update_constraint() {
 	update_tangent_radii();
 	update_rotational_freedom();
-	optimize_limiting_axes();
-}
-
-/**
- * This function should be called after you've set all of the Limiting Cones
- * for this Kusudama. It will orient the axes relative to which constrained rotations are computed
- * so as to minimize the potential for undesirable twist rotations due to antipodal singularities.
- *
- * In general, auto-optimization attempts to point the y-component of the constraint
- * axes in the direction that places it within an orientation allowed by the constraint,
- * and roughly as far as possible from any orientations not allowed by the constraint.
- */
-void IKKusudama::optimize_limiting_axes() {
-	Vector<Vector3> directions;
-	Vector<Ref<LimitCone>> limit_cones = get_limit_cones();
-	if (limit_cones.size() == 1) {
-		Vector3 cone = limit_cones.write[0]->get_control_point();
-		limit_cones.write[0]->set_control_point(cone);
-		directions.push_back(cone);
-	} else {
-		for (int limit_cone_i = 0; limit_cone_i < limit_cones.size() - 1; limit_cone_i++) {
-			Ref<LimitCone> &cone = limit_cones.write[limit_cone_i];
-			Vector3 thisC = cone->get_control_point();
-			thisC.normalize();
-			if (Math::is_zero_approx(thisC.length_squared())) {
-				thisC = Vector3(0, 1, 0);
-			}
-			limit_cones.write[limit_cone_i]->control_point = thisC;
-			Vector3 nextC = limit_cones[limit_cone_i + 1]->get_control_point();
-			nextC.normalize();
-			if (Math::is_zero_approx(nextC.length_squared())) {
-				nextC = Vector3(0, 1, 0);
-			}
-			limit_cones.write[limit_cone_i + 1]->control_point = nextC;
-			Quaternion thisToNext = quaternion_unnormalized(thisC, nextC);
-			Vector3 axis;
-			real_t angle;
-			thisToNext.get_axis_angle(axis, angle);
-			axis.normalize();
-			Quaternion halfThisToNext(axis, angle / 2.0f);
-			Vector3 halfAngle = halfThisToNext.xform(thisC);
-			halfAngle.normalize();
-			halfAngle *= thisToNext.get_euler();
-			directions.push_back(halfAngle);
-		}
-	}
-	set_limit_cones(limit_cones);
-
-	Vector3 newY;
-	for (Vector3 dv : directions) {
-		newY += dv;
-	}
-
-	newY /= directions.size();
-	if (!Math::is_zero_approx(newY.length()) && !Math::is_nan(newY.y)) {
-		newY.normalize();
-	} else {
-		newY = Vector3(0.f, 1.f, 0.f);
-	}
-
-	Vector3 temp_var(0.f, 0.f, 0.f);
-	Ref<Ray3D> newYRay = memnew(Ray3D(temp_var, newY));
-
-	Ref<IKTransform3D> original_limiting_axes;
-	original_limiting_axes.instantiate();
-	original_limiting_axes->set_global_transform(_limiting_axes->get_global_transform());
-	Quaternion oldYtoNewY = quaternion_unnormalized(
-			original_limiting_axes->to_global(newYRay->heading()), _limiting_axes->get_global_transform().basis.get_column(Vector3::AXIS_Y));
-	_limiting_axes->rotate_local_with_global(oldYtoNewY);
-
-	for (Ref<LimitCone> lc : get_limit_cones()) {
-		lc->control_point = original_limiting_axes->to_global(lc->control_point);
-		lc->control_point = _limiting_axes->to_local(lc->control_point);
-		lc->control_point.normalize();
-	}
-
-	this->update_tangent_radii();
 }
 
 void IKKusudama::update_tangent_radii() {
@@ -473,40 +396,11 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKT
 	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
-		Quaternion rectified_rot = quaternion_unnormalized(bone_ray->heading(), constrained_ray->heading());
+		Quaternion rectified_rot = Quaternion(bone_ray->heading(), constrained_ray->heading());
 		to_set->rotate_local_with_global(rectified_rot);
 		_ALLOW_DISCARD_ to_set->get_global_transform();
 	}
 }
 
 void IKKusudama::set_axes_to_soft_orientation_snap(Ref<IKTransform3D> to_set, Ref<IKTransform3D> bone_direction, Ref<IKTransform3D> limiting_axes, double cos_half_angle_dampen) {
-}
-
-Quaternion IKKusudama::quaternion_unnormalized(Vector3 u, Vector3 v) {
-	float norm_product = u.length() * v.length();
-	Quaternion ret;
-	if (Math::is_zero_approx(norm_product)) {
-		return ret;
-	}
-	float dot = u.dot(v);
-	if (dot < ((2.0e-15 - 1.0f) * norm_product)) {
-		// The special case u = -v: we select a PI angle rotation around
-		// an arbitrary vector orthogonal to u.
-		Vector3 w = LimitCone::get_orthogonal(u);
-		ret.w = 0.0f;
-		ret.x = -w.x;
-		ret.y = -w.y;
-		ret.z = -w.z;
-		return ret.normalized();
-	}
-	// general case: (u, v) defines a plane, we select
-	// the shortest possible rotation: axis orthogonal to this plane
-	ret.w = Math::sqrt(0.5 * (1.0 + dot / norm_product));
-	double coeff = 1.0 / (2.0 * ret.w * norm_product);
-	Vector3 q = v.cross(u);
-	// Hamilton quaternion to JPL Quaternion.
-	ret.x = -coeff * q.x;
-	ret.y = -coeff * q.y;
-	ret.z = -coeff * q.z;
-	return ret.normalized();
 }
