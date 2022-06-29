@@ -52,7 +52,7 @@ void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> p_next, int p_
 		Vector3 A = this->get_control_point();
 		Vector3 B = p_next->get_control_point();
 
-		Vector3 arcNormal = A.cross(B);
+		Vector3 arcNormal = A.cross(B).normalized();
 
 		/**
 		 * There are an infinite number of circles co-tangent with A and B, every other
