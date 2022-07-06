@@ -226,17 +226,7 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 	segmented_skeleton->generate_default_segments_from_root(pins);
 	bone_list.clear();
 	segmented_skeleton->create_bone_list(bone_list, true, debug_skeleton);
-
 	segmented_skeleton->update_pinned_list();
-	for (int effector_i = 0; effector_i < get_pin_count(); effector_i++) {
-		Ref<IKEffectorTemplate> data = pins.write[effector_i];
-		if (data.is_null()) {
-			continue;
-		}
-		String bone = data->get_name();
-		BoneId bone_id = skeleton->find_bone(bone);
-	}
-
 	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		String bone = constraint_names[constraint_i];
 		BoneId bone_id = skeleton->find_bone(bone);
