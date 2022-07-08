@@ -63,7 +63,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	float default_damp = Math::deg2rad(5.0f);
 	Ref<IKTransform3D> root_transform = memnew(IKTransform3D);
 	void update_shadow_bones_transform();
-	void update_skeleton_bones_transform(real_t p_blending_delta);
+	void update_skeleton_bones_transform();
 	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
 	void set_dirty();

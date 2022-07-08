@@ -188,7 +188,7 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		segmented_skeleton->segment_solver(get_default_damp());
 		ik_iterations++;
 	} while (time_ms > OS::get_singleton()->get_ticks_msec() && ik_iterations < get_max_ik_iterations());
-	update_skeleton_bones_transform(delta);
+	update_skeleton_bones_transform();
 	execution_error_found = false;
 }
 
@@ -278,7 +278,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 	}
 }
 
-void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blending_delta) {
+void SkeletonModification3DEWBIK::update_skeleton_bones_transform() {
 	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {
@@ -287,7 +287,7 @@ void SkeletonModification3DEWBIK::update_skeleton_bones_transform(real_t p_blend
 		if (bone->get_bone_id() == -1) {
 			continue;
 		}
-		bone->set_skeleton_bone_pose(skeleton, p_blending_delta);
+		bone->set_skeleton_bone_pose(skeleton, 1.0);
 	}
 }
 
