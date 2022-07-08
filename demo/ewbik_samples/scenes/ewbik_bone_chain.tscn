@@ -4,7 +4,6 @@
 
 [sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_3xd3x"]
 budget_millisecond = 4.0
-root_bone = "A0"
 pin_count = 3
 pins/0/name = "C3"
 pins/0/target_node = NodePath("../../../C3")
@@ -37,7 +36,7 @@ pins/2/weight_z_direction = null
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_nguf7"]
 enabled = true
 modification_count = 1
-modifications/0 = SubResource( "SkeletonModification3DEWBIK_3xd3x" )
+modifications/0 = SubResource("SkeletonModification3DEWBIK_3xd3x")
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_5tvgf"]
 top_radius = 0.0
@@ -52,67 +51,67 @@ albedo_color = Color(0.184314, 0.301961, 0.576471, 1)
 
 [node name="Node3D" type="Node3D"]
 
-[node name="ewbik_3_bone_chain" parent="." instance=ExtResource( "1_clbwx" )]
+[node name="ewbik_3_bone_chain" parent="." instance=ExtResource("1_clbwx")]
 
 [node name="Skeleton3D" parent="ewbik_3_bone_chain/Armature" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0373183, 0.00746339, 0)
-bones/0/position = Vector3(0.0869366, 0.138676, -0.0593615)
-bones/0/rotation = Quaternion(1.17097e-10, 4.98744e-10, 4.66294e-10, 1)
+bones/0/position = Vector3(0.0496183, 0.146139, -0.0593615)
+bones/0/rotation = Quaternion(1.17097e-10, 1.48574e-10, 2.32847e-10, 1)
 bones/0/scale = Vector3(1, 1, 1)
 bones/1/position = Vector3(-6.30319e-06, 0.0930787, 7.37607e-06)
-bones/1/rotation = Quaternion(-0.0725226, -0.135001, -0.117248, 0.981208)
+bones/1/rotation = Quaternion(-0.0725753, -0.135018, -0.117245, 0.981202)
 bones/1/scale = Vector3(1, 1, 1)
-bones/2/position = Vector3(-5.70212e-05, 0.107581, -3.01413e-05)
-bones/2/rotation = Quaternion(-0.000231997, -0.177805, 0.000213221, 0.984066)
+bones/2/position = Vector3(-5.77848e-05, 0.107611, -3.50997e-05)
+bones/2/rotation = Quaternion(-0.000162559, -0.177961, 0.000184093, 0.984037)
 bones/2/scale = Vector3(1, 1, 1)
-bones/3/position = Vector3(-1.98521e-05, 0.100156, 1.48974e-05)
-bones/3/rotation = Quaternion(0.000152529, -0.188488, 7.93044e-05, 0.982075)
+bones/3/position = Vector3(-1.93343e-05, 0.100163, 1.39661e-05)
+bones/3/rotation = Quaternion(0.000188892, -0.193749, 7.07318e-05, 0.981051)
 bones/3/scale = Vector3(1, 1, 1)
-bones/4/position = Vector3(8.17701e-06, 0.100163, -1.60187e-06)
-bones/4/rotation = Quaternion(-0.274199, -0.023181, 0.294124, 0.915297)
+bones/4/position = Vector3(9.06363e-06, 0.100164, -1.00955e-06)
+bones/4/rotation = Quaternion(-0.271449, -0.0217307, 0.296798, 0.915289)
 bones/4/scale = Vector3(1, 1, 1)
-bones/5/position = Vector3(1.66297e-05, 0.0983486, -1.78069e-05)
-bones/5/rotation = Quaternion(-0.000155902, 0.0874495, -4.65667e-05, 0.996169)
+bones/5/position = Vector3(1.508e-05, 0.0983623, -2.30968e-05)
+bones/5/rotation = Quaternion(-0.000145669, 0.0874551, -0.000104755, 0.996168)
 bones/5/scale = Vector3(1, 1, 1)
-bones/6/position = Vector3(-3.96371e-06, 0.100121, 7.51019e-06)
-bones/6/rotation = Quaternion(4.8649e-05, 0.0578355, 4.48053e-06, 0.998326)
+bones/6/position = Vector3(-6.78003e-06, 0.10013, 8.73208e-06)
+bones/6/rotation = Quaternion(2.92112e-05, 0.0579251, 2.16646e-05, 0.998321)
 bones/6/scale = Vector3(1, 1, 1)
-bones/7/position = Vector3(-1.49012e-08, 0.100166, 1.2219e-06)
-bones/7/rotation = Quaternion(0.483471, 0.286904, 0.0201616, 0.826762)
+bones/7/position = Vector3(-3.21865e-06, 0.100182, 2.5332e-06)
+bones/7/rotation = Quaternion(0.483573, 0.290105, 0.0182966, 0.825628)
 bones/7/scale = Vector3(1, 1, 1)
-bones/8/position = Vector3(1.83098e-05, 0.100194, -5.71832e-06)
-bones/8/rotation = Quaternion(0.593156, 0.385235, -0.172595, 0.685544)
+bones/8/position = Vector3(1.79298e-05, 0.100192, -8.97795e-06)
+bones/8/rotation = Quaternion(0.591902, 0.388206, -0.176609, 0.683928)
 bones/8/scale = Vector3(1, 1, 1)
-bones/9/position = Vector3(-2.87294e-05, 0.100173, 2.31266e-05)
-bones/9/rotation = Quaternion(-4.34311e-05, -0.173676, 0.000119555, 0.984803)
+bones/9/position = Vector3(-3.19034e-05, 0.100186, 2.40803e-05)
+bones/9/rotation = Quaternion(-4.77128e-06, -0.173671, 0.000130398, 0.984804)
 bones/9/scale = Vector3(1, 1, 1)
-bones/10/position = Vector3(7.35e-06, 0.100153, 1.36495e-05)
-bones/10/rotation = Quaternion(1.90098e-05, 0.254448, -2.18005e-05, 0.967086)
+bones/10/position = Vector3(9.74536e-06, 0.100167, 2.96235e-05)
+bones/10/rotation = Quaternion(4.90241e-05, 0.254454, -1.60692e-05, 0.967085)
 bones/10/scale = Vector3(1, 1, 1)
-bones/11/position = Vector3(-5.76675e-06, 0.10022, 1.8537e-05)
-bones/11/rotation = Quaternion(-0.0590858, -0.0369432, 0.0975975, 0.992783)
+bones/11/position = Vector3(-6.48201e-06, 0.100239, 2.00272e-05)
+bones/11/rotation = Quaternion(-0.0590023, -0.0357149, 0.0976547, 0.992828)
 bones/11/scale = Vector3(1, 1, 1)
-modification_stack = SubResource( "SkeletonModificationStack3D_nguf7" )
+modification_stack = SubResource("SkeletonModificationStack3D_nguf7")
 
 [node name="B3" type="BoneAttachment3D" parent="ewbik_3_bone_chain/Armature/Skeleton3D" index="1"]
-transform = Transform3D(1, -4.47035e-07, 4.17233e-07, 5.06639e-07, 1, -8.9407e-08, -4.76837e-07, 2.98023e-08, 1, 0.256475, 0.686756, -0.328857)
+transform = Transform3D(1, -5.06639e-07, 3.57628e-07, 7.45058e-07, 1, -8.9407e-08, -3.72529e-07, 2.98023e-08, 1, 0.219177, 0.694259, -0.328904)
 bone_name = "B3"
 bone_idx = 7
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="ewbik_3_bone_chain/Armature/Skeleton3D/B3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.032, 0)
-mesh = SubResource( "CylinderMesh_5tvgf" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_2ak6d" )
+mesh = SubResource("CylinderMesh_5tvgf")
+surface_material_override/0 = SubResource("StandardMaterial3D_2ak6d")
 
 [node name="C3" type="BoneAttachment3D" parent="ewbik_3_bone_chain/Armature/Skeleton3D" index="2"]
-transform = Transform3D(0.945927, -0.32438, -4.47035e-08, 0.158351, 0.461768, -0.872752, 0.283103, 0.825559, 0.488164, 0.125048, 0.643657, 0.181121)
+transform = Transform3D(0.945926, -0.32438, -2.30968e-07, 0.158351, 0.461768, -0.872751, 0.283103, 0.825559, 0.488164, 0.0877266, 0.65115, 0.181164)
 bone_name = "C3"
 bone_idx = 11
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="ewbik_3_bone_chain/Armature/Skeleton3D/C3"]
 transform = Transform3D(1, 0, 0, 0, 0.999988, 0, 0, 0, 1.00001, 0, 0.032, 0)
-mesh = SubResource( "CylinderMesh_5tvgf" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_mwrrr" )
+mesh = SubResource("CylinderMesh_5tvgf")
+surface_material_override/0 = SubResource("StandardMaterial3D_mwrrr")
 
 [node name="Node3D" type="Node3D" parent="ewbik_3_bone_chain/Armature" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0496183, 0.146139, -0.0593615)
@@ -124,8 +123,8 @@ bone_idx = 7
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="B3"]
 transform = Transform3D(1, 1.05714e-14, -5.68434e-14, -2.82703e-15, 1, 0, 0, 0, 1, 0, 0.032, 2.98023e-08)
-mesh = SubResource( "CylinderMesh_5tvgf" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_2ak6d" )
+mesh = SubResource("CylinderMesh_5tvgf")
+surface_material_override/0 = SubResource("StandardMaterial3D_2ak6d")
 
 [node name="C3" type="BoneAttachment3D" parent="."]
 transform = Transform3D(0.945927, -0.32438, 7.21764e-08, 0.158351, 0.461768, -0.872752, 0.283103, 0.825559, 0.488164, 0.0744506, 0.69088, 0.275544)
@@ -134,7 +133,7 @@ bone_idx = 11
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="C3"]
 transform = Transform3D(1, 0, 0, 0, 0.999988, 0, 0, 0, 1.00001, 0, 0.032, 0)
-mesh = SubResource( "CylinderMesh_5tvgf" )
-surface_material_override/0 = SubResource( "StandardMaterial3D_mwrrr" )
+mesh = SubResource("CylinderMesh_5tvgf")
+surface_material_override/0 = SubResource("StandardMaterial3D_mwrrr")
 
 [editable path="ewbik_3_bone_chain"]

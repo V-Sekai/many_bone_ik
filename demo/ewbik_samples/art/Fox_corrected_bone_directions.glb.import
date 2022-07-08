@@ -15,6 +15,7 @@ dest_files=["res://.godot/imported/Fox_corrected_bone_directions.glb-d3650fe3173
 
 nodes/root_type="Node3D"
 nodes/root_name="Scene Root"
+nodes/scene_scale=1.0
 nodes/root_scale=1.0
 nodes/generate_physics=false
 nodes/generate_navmesh=0
