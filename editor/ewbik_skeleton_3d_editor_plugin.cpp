@@ -404,8 +404,8 @@ void fragment() {
 								kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
 								kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
 								// Copied from the SphereMesh.
-								float radius = dist / 4.0;
-								float height = dist / 2.0;
+								float radius = dist / 5.0;
+								float height = dist / 2.5;
 								int rings = 64;
 
 								int i, j, prevrow, thisrow, point;
