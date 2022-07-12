@@ -29,12 +29,13 @@
 /*************************************************************************/
 
 #include "ik_effector_3d.h"
+#include "skeleton_modification_3d_ewbik.h"
 #include "math/ik_transform.h"
 
 void IKEffector3D::set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path) {
 	ERR_FAIL_NULL(p_skeleton);
 	target_node_path = p_target_node_path;
-	update_cache_target(p_skeleton);
+	update_cache_target(p_skeleton, nullptr);
 }
 
 NodePath IKEffector3D::get_target_node() const {
@@ -57,19 +58,19 @@ bool IKEffector3D::is_following_translation_only() const {
 	return false;
 }
 
-void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton) {
+void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_ewbik) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
 	target_global_transform = for_bone->get_global_pose();
 	if (target_node_cache.is_null()) {
-		update_cache_target(p_skeleton);
+		update_cache_target(p_skeleton, p_ewbik);
 	}
 	Node3D *current_target_node = nullptr;
 	if (target_node_cache.is_valid()) {
 		current_target_node = cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
 	}
 	if (!target_node_path.is_empty() && !(current_target_node && current_target_node->is_inside_tree())) {
-		update_cache_target(p_skeleton);
+		update_cache_target(p_skeleton, p_ewbik);
 		current_target_node = cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
 	}
 	if (!current_target_node || !current_target_node->is_inside_tree()) {
@@ -210,17 +211,17 @@ float IKEffector3D::get_depth_falloff() const {
 	return depth_falloff;
 }
 
-void IKEffector3D::update_cache_target(Skeleton3D *p_skeleton) {
-	ERR_FAIL_NULL(p_skeleton);
+void IKEffector3D::update_cache_target(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_ewbik) {
+	ERR_FAIL_NULL(p_ewbik);
 	target_node_cache = ObjectID();
-	if (!(p_skeleton->is_inside_tree() && target_node_path.is_empty() == false)) {
+	if (!p_ewbik->is_inside_tree() || target_node_path.is_empty()) {
 		return;
 	}
-	if (!p_skeleton->has_node(target_node_path)) {
+	if (!p_ewbik->has_node(target_node_path)) {
 		return;
 	}
-	Node *node = p_skeleton->get_node_or_null(target_node_path);
-	ERR_FAIL_COND_MSG(!node || p_skeleton == node,
+	Node *node = p_ewbik->get_node_or_null(target_node_path);
+	ERR_FAIL_COND_MSG(!node || p_ewbik == node,
 			"Cannot update target cache: Target node is this modification's skeleton or cannot be found. Cannot execute modification");
 	ERR_FAIL_COND_MSG(!node->is_inside_tree(),
 			"Cannot update target cache: Target node is not in the scene tree. Cannot execute modification!");

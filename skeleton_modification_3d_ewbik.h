@@ -33,14 +33,18 @@
 
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
-#include "ik_bone_chain.h"
 #include "ik_effector_template.h"
-#include "scene/resources/skeleton_modification_3d.h"
+#include "math/ik_transform.h"
+#include "ik_bone_3d.h"
 
-class SkeletonModification3DEWBIK : public SkeletonModification3D {
-	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 
+class IKBoneSegment;
+class SkeletonModification3DEWBIK : public Node3D {
+	GDCLASS(SkeletonModification3DEWBIK, Node3D);
+
+	bool live_preview = true;
 	Skeleton3D *skeleton = nullptr;
+	NodePath skeleton_path; 
 	StringName root_bone;
 	BoneId root_bone_index = -1;
 	Ref<IKBoneSegment> segmented_skeleton;
@@ -80,13 +84,27 @@ protected:
 	static void _bind_methods();
 
 public:
+	void _notification(int p_what);
+	NodePath get_skeleton() const {
+		return skeleton_path;
+	}
+	void set_skeleton(NodePath p_skeleton) {
+		skeleton_path = p_skeleton;
+		is_dirty = true;
+	};
+	bool get_live_preview() const {
+		return live_preview;
+	}
+	void set_live_preview(bool p_enabled) {
+		live_preview = p_enabled;
+	}
 	Ref<IKBoneSegment> get_segmented_skeleton();
 	float get_max_ik_iterations() const;
 	void set_max_ik_iterations(const float &p_max_ik_iterations);
 	float get_time_budget_millisecond() const;
 	void set_time_budget_millisecond(const float &p_time_budget);
-	virtual void _execute(real_t p_delta) override;
-	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
+	void _execute(real_t p_delta);
+	void _setup_modification(SkeletonModificationStack3D *p_stack);
 	void add_pin(const StringName &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
 	void remove_pin(int32_t p_index);
 	bool get_debug_skeleton() const;

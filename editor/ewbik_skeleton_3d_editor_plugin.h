@@ -40,6 +40,8 @@
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/immediate_mesh.h"
 
+#include "../skeleton_modification_3d_ewbik.h"
+
 class Joint;
 class PhysicalBone3D;
 class EWBIKSkeleton3DEditorPlugin;
@@ -49,7 +51,6 @@ class EWBIKSkeleton3DEditor : public VBoxContainer {
 	GDCLASS(EWBIKSkeleton3DEditor, VBoxContainer);
 
 	friend class EWBIKSkeleton3DEditorPlugin;
-
 	struct BoneInfo {
 		PhysicalBone3D *physical_bone = nullptr;
 		Transform3D relative_rest; // Relative to skeleton node.
@@ -81,7 +82,7 @@ public:
 
 class EWBIKSkeleton3DEditorPlugin : public EditorPlugin {
 	GDCLASS(EWBIKSkeleton3DEditorPlugin, EditorPlugin);
-
+	Skeleton3D *skeleton = nullptr;
 public:
 	virtual EditorPlugin::AfterGUIInput forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) override;
 
@@ -95,6 +96,7 @@ public:
 class EWBIKSkeleton3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(EWBIKSkeleton3DGizmoPlugin, EditorNode3DGizmoPlugin);
 
+	SkeletonModification3DEWBIK *ewbik = nullptr;
 public:
 	const int32_t KUSUDAMA_MAX_CONES = 30;
 	bool has_gizmo(Node3D *p_spatial) override;

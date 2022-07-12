@@ -155,24 +155,21 @@ void SkeletonModification3DEWBIK::remove_pin(int32_t p_index) {
 }
 
 void SkeletonModification3DEWBIK::_execute(real_t delta) {
-	ERR_FAIL_COND_MSG(!stack || !is_setup || skeleton == nullptr,
-			"The modification is not set up and therefore cannot execute.");
-	if (!enabled) {
+	if (!live_preview) {
 		is_dirty = true;
 		return;
 	}
-	if (stack->get_strength() <= 0.01f) {
-		execution_error_found = false;
-		return;
-	}
-	if (!skeleton) {
-		return;
-	}
-	if (is_dirty || segmented_skeleton.is_null()) {
+	if (is_dirty) {
 		update_skeleton();
 		if (get_debug_skeleton()) {
 			set_debug_skeleton(false);
 		}
+	}
+	if (!skeleton) {
+		return;
+	}
+	if (segmented_skeleton.is_null()) {
+		return;
 	}
 	if (bone_list.size()) {
 		Ref<IKTransform3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
@@ -188,27 +185,14 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		segmented_skeleton->segment_solver(get_default_damp());
 		ik_iterations++;
 	} while (time_ms > OS::get_singleton()->get_ticks_msec() && ik_iterations < get_max_ik_iterations());
-	update_skeleton_bones_transform();
-	execution_error_found = false;
+	update_skeleton_bones_transform(delta);
 }
 
 void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3D *p_stack) {
-	stack = p_stack;
-	if (!stack) {
-		return;
-	}
-	skeleton = stack->skeleton;
-	if (!skeleton) {
-		return;
-	}
-	notify_property_list_changed();
-	update_skeleton();
-	is_setup = true;
-	is_dirty = false;
-	execution_error_found = false;
 }
 
 void SkeletonModification3DEWBIK::update_skeleton() {
+	skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton()));
 	if (!skeleton) {
 		return;
 	}
@@ -217,9 +201,8 @@ void SkeletonModification3DEWBIK::update_skeleton() {
 		if (roots.size()) {
 			set_root_bone_index(roots[0]);
 		}
-	} else if (root_bone_index == -1) {
-		set_root_bone(root_bone);
 	}
+	ERR_FAIL_COND(root_bone_index == -1);
 	ERR_FAIL_COND(!root_bone);
 	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
 	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
@@ -273,7 +256,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 		}
 		bone->set_initial_pose(skeleton);
 		if (bone->is_pinned()) {
-			bone->get_pin()->update_target_global_transform(skeleton);
+			bone->get_pin()->update_target_global_transform(skeleton, this);
 		}
 	}
 }
@@ -605,15 +588,21 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
 	ClassDB::bind_method(D_METHOD("get_kusudama_flip_handedness"), &SkeletonModification3DEWBIK::get_kusudama_flip_handedness);
+	ClassDB::bind_method(D_METHOD("set_live_preview", "enable"), &SkeletonModification3DEWBIK::set_live_preview);
+	ClassDB::bind_method(D_METHOD("get_live_preview"), &SkeletonModification3DEWBIK::get_live_preview);
+	ClassDB::bind_method(D_METHOD("set_skeleton", "skeleton"), &SkeletonModification3DEWBIK::set_skeleton);
+	ClassDB::bind_method(D_METHOD("get_skeleton"), &SkeletonModification3DEWBIK::get_skeleton);
+
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "", "get_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "budget_millisecond", PROPERTY_HINT_RANGE, "0.01,2.0,0.01,or_greater"), "set_time_budget_millisecond", "get_time_budget_millisecond");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "live_preview"), "set_live_preview", "get_live_preview");
+	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT), "set_skeleton", "get_skeleton");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
-	enabled = true;
 }
 
 SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
@@ -874,4 +863,23 @@ void SkeletonModification3DEWBIK::set_kusudama_flip_handedness(int32_t p_bone, b
 	transform->set_global_chirality(p_flip ? -1.0 : 1.0);
 	notify_property_list_changed();
 	set_dirty();
+}
+
+void SkeletonModification3DEWBIK::_notification(int p_what) {
+	switch (p_what) {
+		case NOTIFICATION_READY: {
+			_setup_modification(nullptr);
+			set_process_internal(true);
+		} break;
+		case NOTIFICATION_INTERNAL_PROCESS: {
+			if (!Engine::get_singleton()->is_editor_hint() || live_preview) {
+				_execute(get_process_delta_time());
+			}
+		} break;
+		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
+			if (!Engine::get_singleton()->is_editor_hint() || live_preview) {
+				_execute(get_physics_process_delta_time());
+			}
+		} break;
+	}
 }
