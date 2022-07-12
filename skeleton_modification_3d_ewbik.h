@@ -39,8 +39,8 @@
 
 
 class IKBoneSegment;
-class SkeletonModification3DEWBIK : public Node3D {
-	GDCLASS(SkeletonModification3DEWBIK, Node3D);
+class SkeletonModification3DEWBIK : public Node {
+	GDCLASS(SkeletonModification3DEWBIK, Node);
 
 	bool live_preview = true;
 	Skeleton3D *skeleton = nullptr;

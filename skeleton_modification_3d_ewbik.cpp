@@ -706,6 +706,7 @@ void SkeletonModification3DEWBIK::set_kusudama_limit_cone(int32_t p_constraint, 
 
 Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
 	ERR_FAIL_COND_V(!kusudama_limit_cones.has(p_bone), Vector3(0.0, 1.0, 0.0));
+	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), Vector3(0.0, 1.0, 0.0));
 	const Color &cone = kusudama_limit_cones[p_bone][p_index];
 	Vector3 ret;
 	ret.x = cone.r;
@@ -715,9 +716,8 @@ Vector3 SkeletonModification3DEWBIK::get_kusudama_limit_cone_center(int32_t p_bo
 }
 
 float SkeletonModification3DEWBIK::get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
-	if (!kusudama_limit_cones.has(p_bone)) {
-		return Math_TAU;
-	}
+	ERR_FAIL_COND_V(!kusudama_limit_cones.has(p_bone), Math_TAU);
+	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), Math_TAU);
 	return kusudama_limit_cones[p_bone][p_index].a;
 }
 
