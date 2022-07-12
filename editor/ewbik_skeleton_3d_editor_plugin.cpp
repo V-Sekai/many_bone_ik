@@ -359,13 +359,6 @@ void fragment() {
 					if (ik_kusudama.is_valid()) {
 						Transform3D constraint_transform;
 						constraint_transform = ik_bone->get_constraint_transform()->get_transform();
-
-								kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
-								kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
-								// Copied from the SphereMesh.
-								float radius = dist / 5.0;
-								float height = dist / 2.5;
-								int rings = 64;
 						kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
 						kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
 						// Copied from the SphereMesh.
@@ -381,39 +374,6 @@ void fragment() {
 						Vector<Vector3> points;
 						Vector<Vector3> normals;
 						Vector<int> indices;
-						point = 0;
-									prevrow = thisrow;
-									thisrow = point;
-								}
-								Ref<SurfaceTool> kusudama_surface_tool;
-								kusudama_surface_tool.instantiate();
-								kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-								const int32_t MESH_CUSTOM_0 = 0;
-								kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGBA_HALF);
-								for (int32_t point_i = 0; point_i < points.size(); point_i++) {
-									kusudama_surface_tool->set_bones(bones);
-									kusudama_surface_tool->set_weights(weights);
-									Color c;
-									c.r = normals[point_i].x;
-									c.g = normals[point_i].y;
-									c.b = normals[point_i].z;
-									c.a = 0;
-									kusudama_surface_tool->set_custom(MESH_CUSTOM_0, c);
-									kusudama_surface_tool->set_normal(normals[point_i]);
-									kusudama_surface_tool->add_vertex(kusudama_transform.xform(points[point_i]));
-								}
-								for (int32_t index_i : indices) {
-									kusudama_surface_tool->add_index(index_i);
-								}
-								Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
-								kusudama_material->set_shader(kusudama_shader);
-								kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
-								kusudama_material->set_shader_param("kusudama_color", current_bone_color);
-								p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
-							}
-							prevrow = thisrow;
-							thisrow = point;
-						}
 						Ref<SurfaceTool> kusudama_surface_tool;
 						kusudama_surface_tool.instantiate();
 						kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
