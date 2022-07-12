@@ -869,7 +869,8 @@ void EWBIK::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
 			_setup_modification(nullptr);
-			set_process_internal(true);
+			set_process_internal(false);
+			set_physics_process_internal(true);
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
 			if (!Engine::get_singleton()->is_editor_hint() || live_preview) {
