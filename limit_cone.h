@@ -35,7 +35,7 @@
 #include "core/math/vector3.h"
 #include "core/object/ref_counted.h"
 
-#include "ik_bone_chain.h"
+#include "ik_bone_segment.h"
 #include "kusudama.h"
 #include "ray_3d.h"
 

@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "ik_bone_chain.h"
+#include "ik_bone_segment.h"
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
 

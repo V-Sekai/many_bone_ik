@@ -38,7 +38,7 @@
 #include "core/object/ref_counted.h"
 
 #include "ik_bone_3d.h"
-#include "ik_bone_chain.h"
+#include "ik_bone_segment.h"
 #include "kusudama.h"
 #include "limit_cone.h"
 #include "math/ik_transform.h"
