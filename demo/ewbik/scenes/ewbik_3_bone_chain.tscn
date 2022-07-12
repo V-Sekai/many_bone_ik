@@ -1,0 +1,128 @@
+[gd_scene load_steps=2 format=3 uid="uid://7h0vd62y614d"]
+
+[ext_resource type="PackedScene" uid="uid://deuapcn1ywqqi" path="res://ewbik_samples/art/ewbik_3_bone_chain.glb" id="1_v0rok"]
+
+[node name="ewbik_3_bone_chain" instance=ExtResource("1_v0rok")]
+
+[node name="Skeleton3D" parent="Armature" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00408727, 0, 0)
+bones/0/position = Vector3(0, 1.4013e-45, 1.06437e-09)
+bones/0/rotation = Quaternion(-1.4013e-45, -7.1388e-18, -1.4013e-45, 1)
+bones/0/scale = Vector3(1, 1, 1)
+bones/1/position = Vector3(-2.62354e-06, 0.0926482, -5.17815e-07)
+bones/1/rotation = Quaternion(0.0299446, -0.63951, 0.137934, 0.755715)
+bones/1/scale = Vector3(1, 1, 1)
+bones/2/position = Vector3(-3.94415e-05, 0.108163, -2.05077e-06)
+bones/2/rotation = Quaternion(-0.256422, 0.0966702, -0.222893, 0.935533)
+bones/2/scale = Vector3(1, 1, 1)
+bones/3/position = Vector3(5.7064e-05, 0.100598, -8.86619e-07)
+bones/3/rotation = Quaternion(0.144665, 0.512565, 0.316244, 0.785072)
+bones/3/scale = Vector3(1, 1, 1)
+bones/4/position = Vector3(0.000346482, 0.104047, 6.16349e-06)
+bones/4/rotation = Quaternion(-0.052045, -3.48352e-07, 0.121686, 0.991203)
+bones/4/scale = Vector3(1, 1, 1)
+bones/5/position = Vector3(8.67695e-05, 0.0979524, 1.35042e-06)
+bones/5/rotation = Quaternion(0.0605926, 0.105404, 0.0511398, 0.991263)
+bones/5/scale = Vector3(1, 1, 1)
+bones/6/position = Vector3(0.0013738, 0.101713, 1.99117e-06)
+bones/6/rotation = Quaternion(2.62266e-05, -0.0250999, -0.0135697, 0.999593)
+bones/6/scale = Vector3(1, 1, 1)
+bones/7/position = Vector3(-0.00135966, 0.099577, -2.84659e-06)
+bones/7/rotation = Quaternion(-0.0117727, -0.0469808, 0.0652585, 0.996692)
+bones/7/scale = Vector3(1, 1, 1)
+bones/8/position = Vector3(0.000320181, 0.103993, 6.49318e-06)
+bones/8/rotation = Quaternion(0.00729307, 0.0409649, 0.391045, 0.91943)
+bones/8/scale = Vector3(1, 1, 1)
+bones/9/position = Vector3(-0.000137508, 0.100699, -3.99677e-06)
+bones/9/rotation = Quaternion(0.0582381, -0.0645026, 0.403285, 0.910938)
+bones/9/scale = Vector3(1, 1, 1)
+bones/10/position = Vector3(-0.00358272, 0.101344, 1.93715e-07)
+bones/10/rotation = Quaternion(-0.097024, 0.0904536, -0.492193, 0.86032)
+bones/10/scale = Vector3(1, 1, 1)
+bones/11/position = Vector3(-0.000435919, 0.102587, 1.04308e-07)
+bones/11/rotation = Quaternion(0.0383094, -0.025551, 0.319822, 0.946358)
+bones/11/scale = Vector3(1, 1, 1)
+
+[node name="EWBIK" type="EWBIK" parent="Armature/Skeleton3D" index="1"]
+skeleton = NodePath("..")
+constraint_count = 1
+constraints/0/name = &"B0"
+constraints/0/kusudama_flip_handedness = false
+constraints/0/kusudama_twist_from = 0.0
+constraints/0/kusudama_twist_to = 0.261799
+constraints/0/kusudama_limit_cone_count = 1
+constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
+constraints/0/kusudama_limit_cone/0/radius = 0.785398
+pin_count = 6
+pins/0/name = "A0"
+pins/0/target_node = NodePath("../A0")
+pins/0/use_node_rotation = true
+pins/0/depth_falloff = 0.0
+pins/0/priority = null
+pins/0/weight_translation = null
+pins/0/weight_x_direction = null
+pins/0/weight_y_direction = null
+pins/0/weight_z_direction = null
+pins/1/name = "B0"
+pins/1/target_node = NodePath("../B0")
+pins/1/use_node_rotation = true
+pins/1/depth_falloff = 57.2958
+pins/1/priority = null
+pins/1/weight_translation = null
+pins/1/weight_x_direction = null
+pins/1/weight_y_direction = null
+pins/1/weight_z_direction = null
+pins/2/name = "B3"
+pins/2/target_node = NodePath("../B3")
+pins/2/use_node_rotation = true
+pins/2/depth_falloff = 57.2958
+pins/2/priority = null
+pins/2/weight_translation = null
+pins/2/weight_x_direction = null
+pins/2/weight_y_direction = null
+pins/2/weight_z_direction = null
+pins/3/name = "C0"
+pins/3/target_node = NodePath("../C0")
+pins/3/use_node_rotation = true
+pins/3/depth_falloff = 57.2958
+pins/3/priority = null
+pins/3/weight_translation = null
+pins/3/weight_x_direction = null
+pins/3/weight_y_direction = null
+pins/3/weight_z_direction = null
+pins/4/name = "C3"
+pins/4/target_node = NodePath("../C3")
+pins/4/use_node_rotation = true
+pins/4/depth_falloff = 57.2958
+pins/4/priority = null
+pins/4/weight_translation = null
+pins/4/weight_x_direction = null
+pins/4/weight_y_direction = null
+pins/4/weight_z_direction = null
+pins/5/name = "A3"
+pins/5/target_node = NodePath("../A3")
+pins/5/use_node_rotation = true
+pins/5/depth_falloff = 57.2958
+pins/5/priority = null
+pins/5/weight_translation = null
+pins/5/weight_x_direction = null
+pins/5/weight_y_direction = null
+pins/5/weight_z_direction = null
+
+[node name="A0" type="Position3D" parent="Armature/Skeleton3D" index="2"]
+transform = Transform3D(0.999986, 0, 0, 0, 0.999991, 0, 0, 0, 0.999985, 0, 0, 0)
+
+[node name="A3" type="Position3D" parent="Armature/Skeleton3D" index="3"]
+transform = Transform3D(0.951657, -0.307177, -1.43472e-06, 0.30718, 0.951644, -1.70045e-06, 1.56685e-06, 1.33952e-06, 1.00001, -0.0143113, 0.29924, 6.25646e-07)
+
+[node name="B0" type="Position3D" parent="Armature/Skeleton3D" index="4"]
+transform = Transform3D(0.830515, -0.524517, -0.187399, 0.535211, 0.844688, 0.00783521, 0.154178, -0.106807, 0.98226, 0.0343095, 0.278221, 0.00479796)
+
+[node name="C0" type="Position3D" parent="Armature/Skeleton3D" index="5"]
+transform = Transform3D(0.431682, -0.902015, -2.02423e-06, 0.902012, 0.431673, -9.62905e-07, 1.76499e-06, -1.05152e-06, 1.00001, 0.0145551, 0.407122, 8.58381e-07)
+
+[node name="C3" type="Position3D" parent="Armature/Skeleton3D" index="6"]
+transform = Transform3D(-8.1311e-06, -0.999984, -1.95992e-06, 0.999976, -1.45684e-05, 6.54027e-08, 1.09756e-07, -1.64607e-06, 1.00001, -0.288365, 0.45027, 3.64239e-07)
+
+[node name="B3" type="Position3D" parent="Armature/Skeleton3D" index="7"]
+transform = Transform3D(0.725538, -0.688166, -7.08006e-06, 0.688153, 0.725554, -8.24961e-06, 3.50371e-06, 1.58331e-06, 0.999991, -0.267193, 0.729379, 1.47061e-06)

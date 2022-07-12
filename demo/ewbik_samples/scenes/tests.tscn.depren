@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://ik_samples/cases/arm/Godot_Simple_Test_Rig.glb" id="1_iyo6g"]
 
-[sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_gufnc"]
+[sub_resource type="EWBIK" id="EWBIK_gufnc"]
 resource_local_to_scene = true
 root_bone = "Bone_01"
 pin_count = 2
@@ -21,7 +21,7 @@ pins/1/remove = false
 
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_dyke6"]
 modification_count = 1
-modifications/0 = SubResource( "SkeletonModification3DEWBIK_gufnc" )
+modifications/0 = SubResource( "EWBIK_gufnc" )
 
 [node name="Godot_Simple_Test_Rig" instance=ExtResource( "1_iyo6g" )]
 

@@ -2,41 +2,11 @@
 
 [ext_resource type="PackedScene" uid="uid://deuapcn1ywqqi" path="res://ewbik_samples/art/ewbik_3_bone_chain.glb" id="1_clbwx"]
 
-[sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_3xd3x"]
-budget_millisecond = 4.0
-pin_count = 3
-pins/0/name = "C3"
-pins/0/target_node = NodePath("../../../C3")
-pins/0/use_node_rotation = true
-pins/0/depth_falloff = 1.0
-pins/0/priority = null
-pins/0/weight_translation = null
-pins/0/weight_x_direction = null
-pins/0/weight_y_direction = null
-pins/0/weight_z_direction = null
-pins/1/name = "B3"
-pins/1/target_node = NodePath("../../../B3")
-pins/1/use_node_rotation = true
-pins/1/depth_falloff = 1.0
-pins/1/priority = null
-pins/1/weight_translation = null
-pins/1/weight_x_direction = null
-pins/1/weight_y_direction = null
-pins/1/weight_z_direction = null
-pins/2/name = "A0"
-pins/2/target_node = NodePath("../Node3D")
-pins/2/use_node_rotation = true
-pins/2/depth_falloff = 0.0
-pins/2/priority = null
-pins/2/weight_translation = null
-pins/2/weight_x_direction = null
-pins/2/weight_y_direction = null
-pins/2/weight_z_direction = null
 
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_nguf7"]
 enabled = true
 modification_count = 1
-modifications/0 = SubResource("SkeletonModification3DEWBIK_3xd3x")
+modifications/0 = SubResource("EWBIK_3xd3x")
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_5tvgf"]
 top_radius = 0.0

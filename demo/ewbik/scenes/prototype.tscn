@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://t5klaqxtralo" path="res://ewbik/art/prototype/rigged_simple/RiggedSimple.glb" id="1"]
 
-[sub_resource type="SkeletonModification3DEWBIK" id="SkeletonModification3DEWBIK_bqj4w"]
+[sub_resource type="EWBIK" id="EWBIK_bqj4w"]
 root_bone = "Bone"
 default_damp = 0.00174533
 ik_iterations = 1
@@ -16,7 +16,7 @@ pins/0/remove = false
 [sub_resource type="SkeletonModificationStack3D" id="SkeletonModificationStack3D_7vlvp"]
 enabled = true
 modification_count = 1
-modifications/0 = SubResource( "SkeletonModification3DEWBIK_bqj4w" )
+modifications/0 = SubResource( "EWBIK_bqj4w" )
 
 [node name="RiggedSimple" instance=ExtResource( "1" )]
 
