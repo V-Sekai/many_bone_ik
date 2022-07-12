@@ -185,7 +185,7 @@ void SkeletonModification3DEWBIK::_execute(real_t delta) {
 		segmented_skeleton->segment_solver(get_default_damp());
 		ik_iterations++;
 	} while (time_ms > OS::get_singleton()->get_ticks_msec() && ik_iterations < get_max_ik_iterations());
-	update_skeleton_bones_transform(delta);
+	update_skeleton_bones_transform();
 }
 
 void SkeletonModification3DEWBIK::_setup_modification(SkeletonModificationStack3D *p_stack) {
