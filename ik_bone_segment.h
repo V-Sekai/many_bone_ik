@@ -69,17 +69,17 @@ class IKBoneSegment : public Resource {
 	void qcp_solver(real_t p_damp, bool p_translate);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);
 
-
 	float get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights);
 
 	HashMap<BoneId, Ref<IKBone3D>> bone_map;
 
 	// This orientation angle is a cos(angle/2) representation.
 	Quaternion set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
+
 protected:
 	static void _bind_methods();
 
-public:	
+public:
 	static Quaternion clamp_to_angle(Quaternion p_quat, real_t p_angle);
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle);
 

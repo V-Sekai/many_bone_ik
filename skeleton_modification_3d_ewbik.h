@@ -33,10 +33,9 @@
 
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
+#include "ik_bone_3d.h"
 #include "ik_effector_template.h"
 #include "math/ik_transform.h"
-#include "ik_bone_3d.h"
-
 
 class IKBoneSegment;
 class SkeletonModification3DEWBIK : public Node {
@@ -44,7 +43,7 @@ class SkeletonModification3DEWBIK : public Node {
 
 	bool live_preview = true;
 	Skeleton3D *skeleton = nullptr;
-	NodePath skeleton_path; 
+	NodePath skeleton_path;
 	StringName root_bone;
 	BoneId root_bone_index = -1;
 	Ref<IKBoneSegment> segmented_skeleton;

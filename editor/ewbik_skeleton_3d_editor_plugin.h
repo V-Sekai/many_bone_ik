@@ -83,6 +83,7 @@ public:
 class EWBIKSkeleton3DEditorPlugin : public EditorPlugin {
 	GDCLASS(EWBIKSkeleton3DEditorPlugin, EditorPlugin);
 	Skeleton3D *skeleton = nullptr;
+
 public:
 	virtual EditorPlugin::AfterGUIInput forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) override;
 
@@ -97,6 +98,7 @@ class EWBIKSkeleton3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(EWBIKSkeleton3DGizmoPlugin, EditorNode3DGizmoPlugin);
 
 	SkeletonModification3DEWBIK *ewbik = nullptr;
+
 public:
 	const int32_t KUSUDAMA_MAX_CONES = 30;
 	bool has_gizmo(Node3D *p_spatial) override;
