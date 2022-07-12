@@ -38,8 +38,8 @@
 #include "math/ik_transform.h"
 
 class IKBoneSegment;
-class SkeletonModification3DEWBIK : public Node {
-	GDCLASS(SkeletonModification3DEWBIK, Node);
+class EWBIK : public Node {
+	GDCLASS(EWBIK, Node);
 
 	bool live_preview = true;
 	Skeleton3D *skeleton = nullptr;
@@ -141,8 +141,8 @@ public:
 	void set_kusudama_limit_cone_count(int32_t p_effector_index, int32_t p_count);
 	bool get_kusudama_flip_handedness(int32_t p_bone) const;
 	void set_kusudama_flip_handedness(int32_t p_bone, bool p_flip);
-	SkeletonModification3DEWBIK();
-	~SkeletonModification3DEWBIK();
+	EWBIK();
+	~EWBIK();
 };
 
 #endif // SKELETON_MODIFICATION_3D_EWBIK_H

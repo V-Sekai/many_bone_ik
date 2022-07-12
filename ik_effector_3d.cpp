@@ -59,7 +59,7 @@ bool IKEffector3D::is_following_translation_only() const {
 	return false;
 }
 
-void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_ewbik) {
+void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, EWBIK *p_ewbik) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
 	target_global_transform = for_bone->get_global_pose();
@@ -212,7 +212,7 @@ float IKEffector3D::get_depth_falloff() const {
 	return depth_falloff;
 }
 
-void IKEffector3D::update_cache_target(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_ewbik) {
+void IKEffector3D::update_cache_target(Skeleton3D *p_skeleton, EWBIK *p_ewbik) {
 	ERR_FAIL_NULL(p_ewbik);
 	target_node_cache = ObjectID();
 	if (!p_ewbik->is_inside_tree() || target_node_path.is_empty()) {

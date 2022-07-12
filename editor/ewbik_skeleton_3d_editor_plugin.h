@@ -97,7 +97,7 @@ public:
 class EWBIKSkeleton3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(EWBIKSkeleton3DGizmoPlugin, EditorNode3DGizmoPlugin);
 
-	SkeletonModification3DEWBIK *ewbik = nullptr;
+	EWBIK *ewbik = nullptr;
 
 public:
 	const int32_t KUSUDAMA_MAX_CONES = 30;

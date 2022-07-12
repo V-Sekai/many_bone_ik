@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="EWBIK" inherits="Node" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+	<brief_description>
+		Kusudamas are a sequential collection of reach cones, forming a path by their tangents.
+	</brief_description>
+	<description>
+		Kusudamas are a sequential collection of reach cones, forming a path by their tangents.
+		A reach cone is essentially a cone bounding the rotation of a ball-and-socket joint. A reach cone is defined as a vector pointing in the direction which the cone is opening, and a radius (in radians) representing how much the cone is opening up.
+		You can think of a Kusudama (taken from the Japanese word for "ball with a bunch of cones sticking out of it") as a ball with with a bunch of reach-cones sticking out of it. Except that these reach cones are arranged sequentially, and a smooth path is automatically inferred leading from one cone to the next.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="add_pin">
+			<return type="void" />
+			<argument index="0" name="name" type="StringName" />
+			<argument index="1" name="target_node" type="NodePath" />
+			<argument index="2" name="use_node_rotation" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="get_constraint_count" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_constraint_name" qualifiers="const">
+			<return type="StringName" />
+			<argument index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_kusudama_flip_handedness" qualifiers="const">
+			<return type="bool" />
+			<argument index="0" name="arg0" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_kusudama_limit_cone_center">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<argument index="1" name="cone_index" type="int" />
+			<argument index="2" name="arg2" type="Vector3" />
+			<description>
+			</description>
+		</method>
+		<method name="get_kusudama_limit_cone_count" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_kusudama_limit_cone_radius" qualifiers="const">
+			<return type="float" />
+			<argument index="0" name="index" type="int" />
+			<argument index="1" name="cone_index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_kusudama_twist_from" qualifiers="const">
+			<return type="float" />
+			<argument index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_kusudama_twist_to" qualifiers="const">
+			<return type="float" />
+			<argument index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_pin_bone_name" qualifiers="const">
+			<return type="StringName" />
+			<argument index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_pin_count" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_pin_depth_falloff" qualifiers="const">
+			<return type="float" />
+			<argument index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_segmented_skeleton">
+			<return type="IKBoneSegment" />
+			<description>
+			</description>
+		</method>
+		<method name="remove_pin">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="set_constraint_count">
+			<return type="void" />
+			<argument index="0" name="count" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="set_constraint_name">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<argument index="1" name="name" type="String" />
+			<description>
+			</description>
+		</method>
+		<method name="set_kusudama_limit_cone_center">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<argument index="1" name="cone_index" type="int" />
+			<argument index="2" name="center" type="Vector3" />
+			<description>
+			</description>
+		</method>
+		<method name="set_kusudama_limit_cone_count">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<argument index="1" name="count" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="set_kusudama_limit_cone_radius">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<argument index="1" name="cone_index" type="int" />
+			<argument index="2" name="radius" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="set_kusudama_twist_from">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<argument index="1" name="name" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="set_kusudama_twist_to">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<argument index="1" name="name" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="set_pin_count">
+			<return type="void" />
+			<argument index="0" name="count" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="set_pin_depth_falloff">
+			<return type="void" />
+			<argument index="0" name="index" type="int" />
+			<argument index="1" name="falloff" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="update_skeleton">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="budget_millisecond" type="float" setter="set_time_budget_millisecond" getter="get_time_budget_millisecond" default="0.6">
+		</member>
+		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.0872665">
+			The default maximum number of radians a bone is allowed to rotate per solver iteration. The lower this value, the more natural the pose results. However, this will increase the number of iterations the solver requires to converge.
+		</member>
+		<member name="iterations" type="int" setter="" getter="get_ik_iterations" default="0">
+		</member>
+		<member name="live_preview" type="bool" setter="set_live_preview" getter="get_live_preview" default="true">
+		</member>
+		<member name="max_ik_iterations" type="float" setter="set_max_ik_iterations" getter="get_max_ik_iterations" default="30.0">
+		</member>
+		<member name="print_skeleton" type="bool" setter="set_debug_skeleton" getter="get_debug_skeleton" default="false">
+		</member>
+		<member name="skeleton" type="NodePath" setter="set_skeleton" getter="get_skeleton" default="NodePath(&quot;&quot;)">
+		</member>
+	</members>
+</class>

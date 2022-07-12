@@ -38,7 +38,7 @@
 
 #define MIN_SCALE 0.1
 
-class SkeletonModification3DEWBIK;
+class EWBIK;
 class IKBone3D;
 
 class IKEffector3D : public Resource {
@@ -66,8 +66,8 @@ protected:
 	void create_headings(Vector<real_t> &p_weights);
 
 public:
-	void update_cache_target(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_modification = nullptr);
-	void update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_modification = nullptr);
+	void update_cache_target(Skeleton3D *p_skeleton, EWBIK *p_modification = nullptr);
+	void update_target_global_transform(Skeleton3D *p_skeleton, EWBIK *p_modification = nullptr);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);

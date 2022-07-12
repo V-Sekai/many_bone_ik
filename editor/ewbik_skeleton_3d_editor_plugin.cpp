@@ -80,7 +80,7 @@ EditorPlugin::AfterGUIInput EWBIKSkeleton3DEditorPlugin::forward_spatial_gui_inp
 }
 
 bool EWBIKSkeleton3DEditorPlugin::handles(Object *p_object) const {
-	SkeletonModification3DEWBIK *mod = cast_to<SkeletonModification3DEWBIK>(p_object);
+	EWBIK *mod = cast_to<EWBIK>(p_object);
 	if (mod) {
 		return true;
 	}
@@ -91,7 +91,7 @@ EWBIKSkeleton3DGizmoPlugin::EWBIKSkeleton3DGizmoPlugin() {
 }
 
 bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	if (Object::cast_to<SkeletonModification3DEWBIK>(p_spatial)) {
+	if (Object::cast_to<EWBIK>(p_spatial)) {
 		return true;
 	}
 	return false;
@@ -102,7 +102,7 @@ String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
 }
 
 void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
-	SkeletonModification3DEWBIK *ewbik = Object::cast_to<SkeletonModification3DEWBIK>(p_gizmo->get_spatial_node());
+	EWBIK *ewbik = Object::cast_to<EWBIK>(p_gizmo->get_spatial_node());
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(ewbik->get_node_or_null(ewbik->get_skeleton()));
 	if (!ewbik || !skeleton) {
 		return;
