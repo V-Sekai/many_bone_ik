@@ -30,7 +30,7 @@
 
 #include "ik_effector_3d.h"
 #include "math/ik_transform.h"
-#include "skeleton_modification_3d_ewbik.h"
+#include "ewbik.h"
 
 
 void IKEffector3D::set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path) {

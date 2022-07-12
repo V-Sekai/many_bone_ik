@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "skeleton_modification_3d_ewbik.h"
+#include "ewbik.h"
 
 #include "ik_effector_template.h"
 

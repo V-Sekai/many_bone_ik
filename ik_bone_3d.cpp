@@ -31,7 +31,7 @@
 #include "ik_bone_3d.h"
 
 #include "math/ik_transform.h"
-#include "skeleton_modification_3d_ewbik.h"
+#include "ewbik.h"
 
 void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);

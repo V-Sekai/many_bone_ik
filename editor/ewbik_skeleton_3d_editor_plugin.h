@@ -40,7 +40,7 @@
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/immediate_mesh.h"
 
-#include "../skeleton_modification_3d_ewbik.h"
+#include "../ewbik.h"
 
 class Joint;
 class PhysicalBone3D;
