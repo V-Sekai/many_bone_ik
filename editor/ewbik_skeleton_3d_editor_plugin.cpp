@@ -301,9 +301,7 @@ void fragment() {
 	while (bones_to_process.size() > current_bone_index) {
 		int current_bone_idx = bones_to_process[current_bone_index];
 		current_bone_index++;
-
 		Color current_bone_color = bone_color;
-
 		Vector<int> child_bones_vector;
 		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
 		int child_bones_size = child_bones_vector.size();
@@ -318,7 +316,6 @@ void fragment() {
 			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
 			real_t dist = v0.distance_to(v1);
 			String bone_name = skeleton->get_bone_name(current_bone_idx);
-
 			PackedFloat32Array kusudama_limit_cones;
 			kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 			kusudama_limit_cones.fill(0.0f);
@@ -352,58 +349,147 @@ void fragment() {
 			}
 			bones[0] = parent_idx;
 			Ref<IKBoneSegment> bone_segment = ewbik->get_segmented_skeleton();
-			if (bone_segment.is_valid()) {
-				Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
-				if (ik_bone.is_valid()) {
-					Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
-					if (ik_kusudama.is_valid()) {
-						Transform3D constraint_transform;
-						constraint_transform = ik_bone->get_constraint_transform()->get_transform();
-						kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
-						kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
-						// Copied from the SphereMesh.
-						float radius = dist / 4.0;
-						float height = dist / 2.0;
-						int rings = 64;
-
-						int i, j, prevrow, thisrow, point;
-						float x, y, z;
-
-						float scale = height * 0.5;
-
-						Vector<Vector3> points;
-						Vector<Vector3> normals;
-						Vector<int> indices;
-						Ref<SurfaceTool> kusudama_surface_tool;
-						kusudama_surface_tool.instantiate();
-						kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
-						const int32_t MESH_CUSTOM_0 = 0;
-						kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGBA_HALF);
-						for (int32_t point_i = 0; point_i < points.size(); point_i++) {
-							kusudama_surface_tool->set_bones(bones);
-							kusudama_surface_tool->set_weights(weights);
-							Color c;
-							c.r = normals[point_i].x;
-							c.g = normals[point_i].y;
-							c.b = normals[point_i].z;
-							c.a = 0;
-							kusudama_surface_tool->set_custom(MESH_CUSTOM_0, c);
-							kusudama_surface_tool->set_normal(normals[point_i]);
-							kusudama_surface_tool->add_vertex(kusudama_transform.xform(points[point_i]));
-						}
-						for (int32_t index_i : indices) {
-							kusudama_surface_tool->add_index(index_i);
-						}
-						Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
-						kusudama_material->set_shader(kusudama_shader);
-						kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
-						kusudama_material->set_shader_param("kusudama_color", current_bone_color);
-						p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
-					}
-				}
-				// Add the bone's children to the list of bones to be processed.
+			if (bone_segment.is_null()) {
 				bones_to_process.push_back(child_bones_vector[child_i]);
+				continue;
 			}
+			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
+			if (ik_bone.is_null()) {
+				bones_to_process.push_back(child_bones_vector[child_i]);
+				continue;
+			}
+			Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
+			if (ik_kusudama.is_null()) {
+				bones_to_process.push_back(child_bones_vector[child_i]);
+				continue;
+			}
+			Transform3D constraint_transform;
+			constraint_transform = ik_bone->get_constraint_transform()->get_transform();
+
+			kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
+			kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
+			// Copied from the SphereMesh.
+			float radius = dist / 5.0;
+			float height = dist / 2.5;
+			int rings = 64;
+
+			int i, j, prevrow, thisrow, point;
+			float x, y, z;
+
+			float scale = height * 0.5;
+
+			Vector<Vector3> points;
+			Vector<Vector3> normals;
+			Vector<int> indices;
+			point = 0;
+
+			thisrow = 0;
+			prevrow = 0;
+			for (j = 0; j <= (rings + 1); j++) {
+				int radial_segments = 32;
+				float v = j;
+				float w;
+
+				v /= (rings + 1);
+				w = sin(Math_PI * v);
+				y = scale * cos(Math_PI * v);
+
+				for (i = 0; i <= radial_segments; i++) {
+					float u = i;
+					u /= radial_segments;
+
+					x = sin(u * Math_TAU);
+					z = cos(u * Math_TAU);
+
+					Vector3 p = Vector3(x * radius * w, y, z * radius * w);
+					points.push_back(p);
+					Vector3 normal = Vector3(x * w * scale, radius * (y / scale), z * w * scale);
+					normals.push_back(normal.normalized());
+					point++;
+
+					if (i > 0 && j > 0) {
+						indices.push_back(prevrow + i - 1);
+						indices.push_back(prevrow + i);
+						indices.push_back(thisrow + i - 1);
+
+						indices.push_back(prevrow + i);
+						indices.push_back(thisrow + i);
+						indices.push_back(thisrow + i - 1);
+					};
+				};
+
+				prevrow = thisrow;
+				thisrow = point;
+			}
+			Ref<SurfaceTool> kusudama_surface_tool;
+			kusudama_surface_tool.instantiate();
+			kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+			const int32_t MESH_CUSTOM_0 = 0;
+			kusudama_surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGBA_HALF);
+			for (int32_t point_i = 0; point_i < points.size(); point_i++) {
+				kusudama_surface_tool->set_bones(bones);
+				kusudama_surface_tool->set_weights(weights);
+				Color c;
+				c.r = normals[point_i].x;
+				c.g = normals[point_i].y;
+				c.b = normals[point_i].z;
+				c.a = 0;
+				kusudama_surface_tool->set_custom(MESH_CUSTOM_0, c);
+				kusudama_surface_tool->set_normal(normals[point_i]);
+				kusudama_surface_tool->add_vertex(kusudama_transform.xform(points[point_i]));
+			}
+			for (int32_t index_i : indices) {
+				kusudama_surface_tool->add_index(index_i);
+			}
+			Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+			kusudama_material->set_shader(kusudama_shader);
+			kusudama_material->set_shader_param("cone_sequence", kusudama_limit_cones);
+			kusudama_material->set_shader_param("kusudama_color", current_bone_color);
+			p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+			{
+				double circumference = Math_TAU * radius;
+				Vector3 min = Vector3(0, 0, circumference);
+				Vector3 current = Vector3(0, 0, circumference);
+				Quaternion minRot = Quaternion(Vector3(0, 1, 0), ik_kusudama->min_axial_angle());
+				double absAngle = ik_kusudama->min_axial_angle() + Math::deg2rad(1.0f);
+				Quaternion maxRot = Quaternion(Vector3(0, 1, 0), absAngle);
+				double pieces = 20;
+				double granularity = 1 / pieces;
+				kusudama_surface_tool.instantiate();
+				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLE_STRIP);
+				bones[0] = current_bone_idx;
+				for (double i = 0; i <= pieces + (3 * granularity); i++) {
+					kusudama_surface_tool->set_bones(bones);
+					kusudama_surface_tool->set_weights(weights);
+					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3(0, 0, 0)));
+					Quaternion interp = minRot.slerp(maxRot, i * granularity);
+					current = interp.xform(min);
+					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3((float)current.x, (float)current.y, (float)(current.z))));
+				}
+				p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>()), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+			}
+			{
+				double circumference = Math_TAU * radius;
+				Vector3 min = Vector3(0, 0, circumference);
+				Vector3 current = Vector3(0, 0, circumference);
+				Quaternion minRot = Quaternion(Vector3(0, 1, 0), ik_kusudama->min_axial_angle());
+				double absAngle = ik_kusudama->min_axial_angle() + ik_kusudama->max_axial_angle();
+				Quaternion maxRot = Quaternion(Vector3(0, 1, 0), absAngle);
+				double pieces = 20;
+				double granularity = 1 / pieces;
+				kusudama_surface_tool.instantiate();
+				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLE_STRIP);
+				bones[0] = current_bone_idx;
+				for (double i = 0; i <= pieces + (3 * granularity); i++) {
+					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3(0, 0, 0)));
+					Quaternion interp = minRot.slerp(maxRot, i * granularity);
+					current = interp.xform(min);
+					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3((float)current.x, (float)current.y, (float)(current.z))));
+				}
+				p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>()), kusudama_material);
+			}
+			// Add the bone's children to the list of bones to be processed.
+			bones_to_process.push_back(child_bones_vector[child_i]);
 		}
 	}
 }

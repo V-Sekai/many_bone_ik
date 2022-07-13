@@ -5,12 +5,14 @@
 [node name="ewbik_test_rig_2_bone" instance=ExtResource("1_crqne")]
 
 [node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
-bones/0/position = Vector3(9.74023e-09, 4.25644e-09, 2.79232e-09)
-bones/0/rotation = Quaternion(1.64542e-07, 2.83702e-08, 1.59312e-09, 1)
-bones/1/position = Vector3(2.36622e-06, 0.600129, 4.64562e-11)
-bones/1/rotation = Quaternion(7.43115e-09, 2.66964e-10, -0.00949367, 0.999955)
-bones/2/position = Vector3(8.75276e-05, 0.600538, 1.37095e-09)
-bones/2/rotation = Quaternion(-4.1335e-10, -1.84109e-10, 0.00960546, 0.999954)
+bones/0/position = Vector3(2.55588e-16, 3.25963e-09, 2.79232e-09)
+bones/0/rotation = Quaternion(1.65099e-07, 2.83707e-08, -5.5553e-13, 1)
+bones/1/position = Vector3(2.3662e-06, 0.600129, 5.04774e-11)
+bones/1/rotation = Quaternion(7.00432e-09, -1.64029e-09, -0.00536464, 0.999986)
+bones/1/scale = Vector3(1, 1, 1)
+bones/2/position = Vector3(7.14818e-05, 0.600705, 1.366e-09)
+bones/2/rotation = Quaternion(-2.0658e-10, 1.72815e-09, 0.00547321, 0.999985)
+bones/2/scale = Vector3(1, 1, 1)
 
 [node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
 visible = false
