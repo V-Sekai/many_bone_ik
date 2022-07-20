@@ -8,11 +8,9 @@
 bones/0/position = Vector3(2.55588e-16, 3.25963e-09, 2.79232e-09)
 bones/0/rotation = Quaternion(1.65099e-07, 2.83707e-08, -5.5553e-13, 1)
 bones/1/position = Vector3(2.3662e-06, 0.600129, 5.04774e-11)
-bones/1/rotation = Quaternion(7.00432e-09, -1.64029e-09, -0.00536464, 0.999986)
-bones/1/scale = Vector3(1, 1, 1)
-bones/2/position = Vector3(7.14818e-05, 0.600705, 1.366e-09)
-bones/2/rotation = Quaternion(-2.0658e-10, 1.72815e-09, 0.00547321, 0.999985)
-bones/2/scale = Vector3(1, 1, 1)
+bones/1/rotation = Quaternion(6.86619e-09, 3.94567e-13, 3.14036e-08, 1)
+bones/2/position = Vector3(7.14887e-05, 0.600732, 1.34425e-09)
+bones/2/rotation = Quaternion(7.81597e-11, -1.21148e-12, -3.14028e-08, 1)
 
 [node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
 visible = false

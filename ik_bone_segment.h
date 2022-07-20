@@ -56,6 +56,8 @@ class IKBoneSegment : public Resource {
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
+	BoneId ewbik_root_bone = -1;
+	BoneId ewbik_tip_bone = -1;
 
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
 	Skeleton3D *skeleton = nullptr;
@@ -75,7 +77,6 @@ class IKBoneSegment : public Resource {
 
 	// This orientation angle is a cos(angle/2) representation.
 	Quaternion set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
-
 protected:
 	static void _bind_methods();
 
@@ -124,10 +125,11 @@ public:
 		}
 		return bone_map[p_bone];
 	}
-	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins);
+	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone);
 	void update_pinned_list();
 	IKBoneSegment() {}
-	IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent = nullptr);
+	IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent = nullptr, 
+		BoneId root = -1, BoneId tip = -1);
 	~IKBoneSegment() {}
 };
 

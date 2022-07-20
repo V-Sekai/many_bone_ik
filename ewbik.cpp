@@ -39,32 +39,6 @@ int32_t EWBIK::get_ik_iterations() const {
 	return ik_iterations;
 }
 
-StringName EWBIK::get_root_bone() const {
-	return root_bone;
-}
-
-void EWBIK::set_root_bone(const StringName &p_root_bone) {
-	root_bone = p_root_bone;
-	if (skeleton) {
-		root_bone_index = skeleton->find_bone(root_bone);
-	}
-	notify_property_list_changed();
-	is_dirty = true;
-}
-
-BoneId EWBIK::get_root_bone_index() const {
-	return root_bone_index;
-}
-
-void EWBIK::set_root_bone_index(BoneId p_index) {
-	root_bone_index = p_index;
-	if (skeleton) {
-		root_bone = skeleton->get_bone_name(p_index);
-	}
-	notify_property_list_changed();
-	is_dirty = true;
-}
-
 void EWBIK::set_pin_count(int32_t p_value) {
 	int32_t old_count = pins.size();
 	pin_count = p_value;
@@ -199,14 +173,16 @@ void EWBIK::update_skeleton() {
 	if (!root_bone) {
 		Vector<int32_t> roots = skeleton->get_parentless_bones();
 		if (roots.size()) {
-			set_root_bone_index(roots[0]);
+			StringName parentless_bone = skeleton->get_bone_name(roots[0]);
+			set_root_bone(parentless_bone);
 		}
 	}
-	ERR_FAIL_COND(root_bone_index == -1);
 	ERR_FAIL_COND(!root_bone);
-	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, skeleton->get_bone_name(root_bone_index), pins)));
+	BoneId root_bone_index = skeleton->find_bone(root_bone);
+	BoneId tip_bone_index = skeleton->find_bone(tip_bone);
+	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, root_bone, pins, nullptr, root_bone_index, tip_bone_index)));
 	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
-	segmented_skeleton->generate_default_segments_from_root(pins);
+	segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
 	bone_list.clear();
 	segmented_skeleton->create_bone_list(bone_list, true, debug_skeleton);
 	segmented_skeleton->update_pinned_list();
@@ -279,6 +255,25 @@ void EWBIK::_validate_property(PropertyInfo &property) const {
 		if (skeleton) {
 			String names;
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
+				String name = skeleton->get_bone_name(i);
+				name += ",";
+				names += name;
+			}
+			property.hint = PROPERTY_HINT_ENUM_SUGGESTION;
+			property.hint_string = names;
+		} else {
+			property.hint = PROPERTY_HINT_NONE;
+			property.hint_string = "";
+		}
+	}
+	if (property.name == "tip_bone") {
+		if (skeleton) {
+			String names;
+			BoneId root_bone_id = skeleton->find_bone(root_bone);
+			for (int i = 0; i < skeleton->get_bone_count(); i++) {
+				if (i <= root_bone_id) {
+					continue;
+				}
 				String name = skeleton->get_bone_name(i);
 				name += ",";
 				names += name;
@@ -552,6 +547,10 @@ bool EWBIK::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void EWBIK::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_root_bone", "root_bone"), &EWBIK::set_root_bone);
+	ClassDB::bind_method(D_METHOD("get_root_bone"), &EWBIK::get_root_bone);
+	ClassDB::bind_method(D_METHOD("set_tip_bone", "tip_bone"), &EWBIK::set_tip_bone);
+	ClassDB::bind_method(D_METHOD("get_tip_bone"), &EWBIK::get_tip_bone);
 	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_radius", "index", "cone_index", "radius"), &EWBIK::set_kusudama_limit_cone_radius);
 	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_radius", "index", "cone_index"), &EWBIK::get_kusudama_limit_cone_radius);
 	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_center", "index", "cone_index", "center"), &EWBIK::set_kusudama_limit_cone_center);
@@ -593,6 +592,8 @@ void EWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_skeleton", "skeleton"), &EWBIK::set_skeleton);
 	ClassDB::bind_method(D_METHOD("get_skeleton"), &EWBIK::get_skeleton);
 
+	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "", "get_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "budget_millisecond", PROPERTY_HINT_RANGE, "0.01,2.0,0.01,or_greater"), "set_time_budget_millisecond", "get_time_budget_millisecond");

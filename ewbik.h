@@ -40,12 +40,11 @@
 class IKBoneSegment;
 class EWBIK : public Node {
 	GDCLASS(EWBIK, Node);
-
+	StringName root_bone;
+	StringName tip_bone;
 	bool live_preview = true;
 	Skeleton3D *skeleton = nullptr;
 	NodePath skeleton_path;
-	StringName root_bone;
-	BoneId root_bone_index = -1;
 	Ref<IKBoneSegment> segmented_skeleton;
 	int32_t constraint_count = 0;
 	Vector<StringName> constraint_names;
@@ -70,11 +69,6 @@ class EWBIK : public Node {
 	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
 	void set_dirty();
-	void set_root_bone(const StringName &p_root_bone);
-	StringName get_root_bone() const;
-	void set_root_bone_index(BoneId p_index);
-	BoneId get_root_bone_index() const;
-
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -83,6 +77,22 @@ protected:
 	static void _bind_methods();
 
 public:
+	StringName get_root_bone() const {
+		return root_bone;
+	}
+	void set_root_bone(const StringName &p_root_bone) {
+		root_bone = p_root_bone;
+		notify_property_list_changed();
+		is_dirty = true;
+	}
+	StringName get_tip_bone() const {
+		return tip_bone;
+	}
+	void set_tip_bone(StringName p_bone) {
+		tip_bone = p_bone;
+		notify_property_list_changed();
+		is_dirty = true;
+	}
 	void _notification(int p_what);
 	NodePath get_skeleton() const {
 		return skeleton_path;

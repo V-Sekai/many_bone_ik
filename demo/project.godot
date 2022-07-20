@@ -19,10 +19,6 @@ config/icon="res://icon.png"
 
 file_logging/enable_file_logging=true
 
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/force_bone_forward-main/plugin.cfg")
-
 [gui]
 
 theme/default_font_multichannel_signed_distance_field=true

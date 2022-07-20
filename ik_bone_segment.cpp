@@ -56,9 +56,12 @@ BoneId IKBoneSegment::find_root_bone_id(BoneId p_bone) {
 	return root_id;
 }
 
-void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins) {
+void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone) {
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
+		if (skeleton->get_bone_parent(temp_tip->get_bone_id()) >= p_tip_bone) {
+			break;
+		}
 		Vector<BoneId> children = skeleton->get_bone_children(temp_tip->get_bone_id());
 		if (children.size() > 1 || temp_tip->is_pinned()) {
 			tip = temp_tip;
@@ -66,8 +69,8 @@ void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTem
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
 				String child_name = skeleton->get_bone_name(child_bone);
-				Ref<IKBoneSegment> child_segment = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, child_name, p_pins, parent)));
-				child_segment->generate_default_segments_from_root(p_pins);
+				Ref<IKBoneSegment> child_segment = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, child_name, p_pins, parent, p_root_bone, p_tip_bone)));
+				child_segment->generate_default_segments_from_root(p_pins, p_root_bone, p_tip_bone);
 				if (child_segment->has_pinned_descendants()) {
 					enable_pinned_descendants();
 					child_segments.push_back(child_segment);
@@ -78,7 +81,9 @@ void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTem
 			BoneId bone_id = children[0];
 			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip, p_pins)));
 			root_segment->bone_map[bone_id] = next;
-			temp_tip = next;
+			if (ewbik_root_bone != bone_id) {
+				temp_tip = next;
+			}
 		} else {
 			break;
 		}
@@ -308,7 +313,10 @@ Ref<IKBoneSegment> IKBoneSegment::get_parent_segment() {
 	return parent_segment;
 }
 
-IKBoneSegment::IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent) {
+IKBoneSegment::IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent,
+		BoneId p_root, BoneId p_tip) {
+	root = p_root;
+	tip = p_tip;
 	skeleton = p_skeleton;
 	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, IK_DEFAULT_DAMPENING)));
 	if (p_parent.is_valid()) {
