@@ -271,7 +271,7 @@ void EWBIK::_validate_property(PropertyInfo &property) const {
 			String names;
 			BoneId root_bone_id = skeleton->find_bone(root_bone);
 			for (int i = 0; i < skeleton->get_bone_count(); i++) {
-				if (i <= root_bone_id) {
+				if (i <= root_bone_id && root_bone_id != -1) {
 					continue;
 				}
 				String name = skeleton->get_bone_name(i);

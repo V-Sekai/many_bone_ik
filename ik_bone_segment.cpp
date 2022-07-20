@@ -59,7 +59,7 @@ BoneId IKBoneSegment::find_root_bone_id(BoneId p_bone) {
 void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone) {
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
-		if (skeleton->get_bone_parent(temp_tip->get_bone_id()) >= p_tip_bone) {
+		if (skeleton->get_bone_parent(temp_tip->get_bone_id()) >= p_tip_bone && p_tip_bone != -1) {
 			break;
 		}
 		Vector<BoneId> children = skeleton->get_bone_children(temp_tip->get_bone_id());
