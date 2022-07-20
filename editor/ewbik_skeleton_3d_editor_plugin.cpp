@@ -458,11 +458,11 @@ void fragment() {
 				kusudama_surface_tool.instantiate();
 				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLE_STRIP);
 				bones[0] = current_bone_idx;
-				for (double i = 0; i <= pieces + (3 * granularity); i++) {
+				for (double piece_i = 0; piece_i <= pieces + (3 * granularity); piece_i++) {
 					kusudama_surface_tool->set_bones(bones);
 					kusudama_surface_tool->set_weights(weights);
 					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3(0, 0, 0)));
-					Quaternion interp = minRot.slerp(maxRot, i * granularity);
+					Quaternion interp = minRot.slerp(maxRot, piece_i * granularity);
 					current = interp.xform(min);
 					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3((float)current.x, (float)current.y, (float)(current.z))));
 				}
@@ -480,9 +480,9 @@ void fragment() {
 				kusudama_surface_tool.instantiate();
 				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLE_STRIP);
 				bones[0] = current_bone_idx;
-				for (double i = 0; i <= pieces + (3 * granularity); i++) {
+				for (double piece_i = 0; piece_i <= pieces + (3 * granularity); piece_i++) {
 					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3(0, 0, 0)));
-					Quaternion interp = minRot.slerp(maxRot, i * granularity);
+					Quaternion interp = minRot.slerp(maxRot, piece_i * granularity);
 					current = interp.xform(min);
 					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3((float)current.x, (float)current.y, (float)(current.z))));
 				}
