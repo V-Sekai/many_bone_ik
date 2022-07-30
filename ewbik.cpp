@@ -162,9 +162,6 @@ void EWBIK::_execute(real_t delta) {
 	update_skeleton_bones_transform();
 }
 
-void EWBIK::_setup_modification(SkeletonModificationStack3D *p_stack) {
-}
-
 void EWBIK::update_skeleton() {
 	skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton()));
 	if (!skeleton) {
@@ -869,7 +866,6 @@ void EWBIK::set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
 void EWBIK::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			_setup_modification(nullptr);
 			set_process_internal(false);
 			set_physics_process_internal(true);
 		} break;

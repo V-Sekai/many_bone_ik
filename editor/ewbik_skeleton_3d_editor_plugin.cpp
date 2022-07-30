@@ -45,7 +45,6 @@
 #include "scene/3d/physics_body_3d.h"
 #include "scene/resources/capsule_shape_3d.h"
 #include "scene/resources/primitive_meshes.h"
-#include "scene/resources/skeleton_modification_3d.h"
 #include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/surface_tool.h"
 
