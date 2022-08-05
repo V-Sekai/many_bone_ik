@@ -285,7 +285,7 @@ void EWBIK::_validate_property(PropertyInfo &property) const {
 }
 
 void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
-	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"), "set_constraint_count", "get_constraint_count");
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		const String name = get_constraint_name(constraint_i);
@@ -330,7 +330,7 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,360,0.1,radians,exp"));
 		}
 	}
-	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Pins,pins/"));
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Pins,pins/"), "set_pin_count", "get_pin_count");
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
