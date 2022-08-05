@@ -576,6 +576,7 @@ void EWBIK::_bind_methods() {
 			&EWBIK::remove_pin);
 	ClassDB::bind_method(D_METHOD("add_pin", "name", "target_node", "use_node_rotation"), &EWBIK::add_pin);
 	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &EWBIK::get_pin_bone_name);
+	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &EWBIK::set_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &EWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &EWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &EWBIK::set_debug_skeleton);
@@ -586,7 +587,8 @@ void EWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_live_preview"), &EWBIK::get_live_preview);
 	ClassDB::bind_method(D_METHOD("set_skeleton", "skeleton"), &EWBIK::set_skeleton);
 	ClassDB::bind_method(D_METHOD("get_skeleton"), &EWBIK::get_skeleton);
-
+	ClassDB::bind_method(D_METHOD("get_pin_nodepath"), &EWBIK::get_pin_nodepath);
+	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &EWBIK::set_pin_nodepath);
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "", "get_ik_iterations");
@@ -880,4 +882,22 @@ void EWBIK::_notification(int p_what) {
 			}
 		} break;
 	}
+}
+
+void EWBIK::set_pin_bone_name(int32_t p_effector_index, StringName p_name) const {
+	ERR_FAIL_INDEX(p_effector_index, pins.size());
+	Ref<IKEffectorTemplate> data = pins[p_effector_index];
+	data->set_name(p_name);
+}
+
+void EWBIK::set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path) {
+	ERR_FAIL_INDEX(p_effector_index, pins.size());
+	Ref<IKEffectorTemplate> data = pins[p_effector_index];
+	data->set_target_node(p_node_path);
+}
+
+NodePath EWBIK::get_pin_nodepath(int32_t p_effector_index) const {
+	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), NodePath());
+	Ref<IKEffectorTemplate> data = pins[p_effector_index];
+	return data->get_target_node();
 }
