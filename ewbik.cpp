@@ -589,6 +589,7 @@ void EWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_skeleton"), &EWBIK::get_skeleton);
 	ClassDB::bind_method(D_METHOD("get_pin_nodepath"), &EWBIK::get_pin_nodepath);
 	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &EWBIK::set_pin_nodepath);
+	ClassDB::bind_method(D_METHOD("set_pin_use_node_rotation", "index", "node_rotation"), &EWBIK::set_pin_use_node_rotation);
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "", "get_ik_iterations");
