@@ -66,7 +66,6 @@ protected:
 	void create_headings(Vector<real_t> &p_weights);
 
 public:
-	void update_cache_target(Skeleton3D *p_skeleton, EWBIK *p_modification = nullptr);
 	void update_target_global_transform(Skeleton3D *p_skeleton, EWBIK *p_modification = nullptr);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
