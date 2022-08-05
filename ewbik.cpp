@@ -599,8 +599,8 @@ void EWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "live_preview"), "set_live_preview", "get_live_preview");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT), "set_skeleton", "get_skeleton");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "1,1024,1,or_greater"), "set_pin_count", "get_pin_count");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "1,1024,1,or_greater"), "set_constraint_count", "get_constraint_count");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater"), "set_pin_count", "get_pin_count");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater"), "set_constraint_count", "get_constraint_count");
 }
 
 EWBIK::EWBIK() {
