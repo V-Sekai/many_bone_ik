@@ -29,9 +29,8 @@
 /*************************************************************************/
 
 #include "ik_effector_3d.h"
-#include "math/ik_transform.h"
 #include "ewbik.h"
-
+#include "math/ik_transform.h"
 
 void IKEffector3D::set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path) {
 	ERR_FAIL_NULL(p_skeleton);
@@ -62,10 +61,7 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, EWBIK 
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
 	target_global_transform = for_bone->get_ik_transform()->get_global_transform();
-	Node3D *current_target_node = nullptr;
-	if (!target_node_path.is_empty() && !(current_target_node && current_target_node->is_inside_tree())) {
-		current_target_node = cast_to<Node3D>(ObjectDB::get_instance(target_node_cache));
-	}
+	Node3D *current_target_node = cast_to<Node3D>(p_skeleton->get_node_or_null(target_node_path));
 	if (!current_target_node || !current_target_node->is_inside_tree()) {
 		return;
 	}
