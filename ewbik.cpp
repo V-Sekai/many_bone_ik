@@ -869,8 +869,8 @@ void EWBIK::set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
 void EWBIK::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			set_process_internal(false);
-			set_physics_process_internal(true);
+			set_process_internal(true);
+			set_physics_process_internal(false);
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
 			if (!Engine::get_singleton()->is_editor_hint() || live_preview) {
