@@ -128,40 +128,6 @@ void EWBIK::remove_pin(int32_t p_index) {
 	is_dirty = true;
 }
 
-void EWBIK::_execute(real_t delta) {
-	if (!live_preview) {
-		is_dirty = true;
-		return;
-	}
-	if (is_dirty) {
-		update_skeleton();
-		if (get_debug_skeleton()) {
-			set_debug_skeleton(false);
-		}
-	}
-	if (!skeleton) {
-		return;
-	}
-	if (segmented_skeleton.is_null()) {
-		return;
-	}
-	if (bone_list.size()) {
-		Ref<IKTransform3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
-		ERR_FAIL_NULL(root_ik_bone);
-		Ref<IKTransform3D> root_ik_parent_transform = root_ik_bone->get_parent();
-		ERR_FAIL_NULL(root_ik_parent_transform);
-		root_ik_parent_transform->set_global_transform(skeleton->get_global_transform());
-	}
-	update_shadow_bones_transform();
-	double time_ms = OS::get_singleton()->get_ticks_msec() + get_time_budget_millisecond();
-	ik_iterations = 0;
-	do {
-		segmented_skeleton->segment_solver(get_default_damp());
-		ik_iterations++;
-	} while (time_ms > OS::get_singleton()->get_ticks_msec() && ik_iterations < get_max_ik_iterations());
-	update_skeleton_bones_transform();
-}
-
 void EWBIK::update_skeleton() {
 	skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton()));
 	if (!skeleton) {
@@ -285,7 +251,6 @@ void EWBIK::_validate_property(PropertyInfo &property) const {
 }
 
 void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
-	p_list->push_back(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Constraints,constraints/"));
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		const String name = get_constraint_name(constraint_i);
@@ -330,7 +295,6 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,360,0.1,radians,exp"));
 		}
 	}
-	p_list->push_back(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY, "Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
@@ -578,6 +542,7 @@ void EWBIK::_bind_methods() {
 			&EWBIK::remove_pin);
 	ClassDB::bind_method(D_METHOD("add_pin", "name", "target_node", "use_node_rotation"), &EWBIK::add_pin);
 	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &EWBIK::get_pin_bone_name);
+	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &EWBIK::set_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("update_skeleton"), &EWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &EWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &EWBIK::set_debug_skeleton);
@@ -588,7 +553,9 @@ void EWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_live_preview"), &EWBIK::get_live_preview);
 	ClassDB::bind_method(D_METHOD("set_skeleton", "skeleton"), &EWBIK::set_skeleton);
 	ClassDB::bind_method(D_METHOD("get_skeleton"), &EWBIK::get_skeleton);
-
+	ClassDB::bind_method(D_METHOD("get_pin_nodepath"), &EWBIK::get_pin_nodepath);
+	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &EWBIK::set_pin_nodepath);
+	ClassDB::bind_method(D_METHOD("set_pin_use_node_rotation", "index", "node_rotation"), &EWBIK::set_pin_use_node_rotation);
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "", "get_ik_iterations");
@@ -598,6 +565,8 @@ void EWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "live_preview"), "set_live_preview", "get_live_preview");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT), "set_skeleton", "get_skeleton");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater"), "set_pin_count", "get_pin_count");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater"), "set_constraint_count", "get_constraint_count");
 }
 
 EWBIK::EWBIK() {
@@ -866,18 +835,63 @@ void EWBIK::set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
 void EWBIK::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			set_process_internal(false);
-			set_physics_process_internal(true);
+			set_process_internal(true);
+			set_physics_process_internal(false);
 		} break;
-		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (!Engine::get_singleton()->is_editor_hint() || live_preview) {
-				_execute(get_process_delta_time());
-			}
-		} break;
+		case NOTIFICATION_INTERNAL_PROCESS:
+			[[fallthrough]];
 		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
 			if (!Engine::get_singleton()->is_editor_hint() || live_preview) {
-				_execute(get_physics_process_delta_time());
+				if (!live_preview) {
+					is_dirty = true;
+					return;
+				}
+				if (is_dirty) {
+					update_skeleton();
+					if (get_debug_skeleton()) {
+						set_debug_skeleton(false);
+					}
+				}
+				if (!skeleton) {
+					return;
+				}
+				if (segmented_skeleton.is_null()) {
+					return;
+				}
+				if (bone_list.size()) {
+					Ref<IKTransform3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
+					ERR_FAIL_NULL(root_ik_bone);
+					Ref<IKTransform3D> root_ik_parent_transform = root_ik_bone->get_parent();
+					ERR_FAIL_NULL(root_ik_parent_transform);
+					root_ik_parent_transform->set_global_transform(skeleton->get_global_transform());
+				}
+				update_shadow_bones_transform();
+				double time_ms = OS::get_singleton()->get_ticks_msec() + get_time_budget_millisecond();
+				ik_iterations = 0;
+				do {
+					segmented_skeleton->segment_solver(get_default_damp());
+					ik_iterations++;
+				} while (time_ms > OS::get_singleton()->get_ticks_msec() && ik_iterations < get_max_ik_iterations());
+				update_skeleton_bones_transform();
 			}
 		} break;
 	}
+}
+
+void EWBIK::set_pin_bone_name(int32_t p_effector_index, StringName p_name) const {
+	ERR_FAIL_INDEX(p_effector_index, pins.size());
+	Ref<IKEffectorTemplate> data = pins[p_effector_index];
+	data->set_name(p_name);
+}
+
+void EWBIK::set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path) {
+	ERR_FAIL_INDEX(p_effector_index, pins.size());
+	Ref<IKEffectorTemplate> data = pins[p_effector_index];
+	data->set_target_node(p_node_path);
+}
+
+NodePath EWBIK::get_pin_nodepath(int32_t p_effector_index) const {
+	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), NodePath());
+	Ref<IKEffectorTemplate> data = pins[p_effector_index];
+	return data->get_target_node();
 }

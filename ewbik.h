@@ -69,6 +69,7 @@ class EWBIK : public Node {
 	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
 	void set_dirty();
+
 protected:
 	virtual void _validate_property(PropertyInfo &property) const override;
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -112,7 +113,6 @@ public:
 	void set_max_ik_iterations(const float &p_max_ik_iterations);
 	float get_time_budget_millisecond() const;
 	void set_time_budget_millisecond(const float &p_time_budget);
-	void _execute(real_t p_delta);
 	void add_pin(const StringName &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
 	void remove_pin(int32_t p_index);
 	bool get_debug_skeleton() const;
@@ -123,6 +123,9 @@ public:
 	int32_t get_pin_count() const;
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
 	StringName get_pin_bone_name(int32_t p_effector_index) const;
+	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
+	void set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path);
+	NodePath get_pin_nodepath(int32_t p_effector_index) const;
 	int32_t find_effector_id(StringName p_bone_name);
 	void set_pin_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
 	NodePath get_pin_target_nodepath(int32_t p_pin_index);
