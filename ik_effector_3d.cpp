@@ -61,8 +61,8 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, EWBIK 
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
 	target_global_transform = for_bone->get_ik_transform()->get_global_transform();
-	Node3D *current_target_node = cast_to<Node3D>(p_skeleton->get_node_or_null(target_node_path));
-	if (!current_target_node || !current_target_node->is_inside_tree()) {
+	Node3D *current_target_node = cast_to<Node3D>(p_ewbik->get_node_or_null(target_node_path));
+	if (!current_target_node) {
 		return;
 	}
 	Transform3D xform = current_target_node->get_global_transform();
