@@ -113,7 +113,6 @@ public:
 	void set_max_ik_iterations(const float &p_max_ik_iterations);
 	float get_time_budget_millisecond() const;
 	void set_time_budget_millisecond(const float &p_time_budget);
-	void _execute(real_t p_delta);
 	void add_pin(const StringName &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
 	void remove_pin(int32_t p_index);
 	bool get_debug_skeleton() const;

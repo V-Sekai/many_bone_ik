@@ -128,40 +128,6 @@ void EWBIK::remove_pin(int32_t p_index) {
 	is_dirty = true;
 }
 
-void EWBIK::_execute(real_t delta) {
-	if (!live_preview) {
-		is_dirty = true;
-		return;
-	}
-	if (is_dirty) {
-		update_skeleton();
-		if (get_debug_skeleton()) {
-			set_debug_skeleton(false);
-		}
-	}
-	if (!skeleton) {
-		return;
-	}
-	if (segmented_skeleton.is_null()) {
-		return;
-	}
-	if (bone_list.size()) {
-		Ref<IKTransform3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
-		ERR_FAIL_NULL(root_ik_bone);
-		Ref<IKTransform3D> root_ik_parent_transform = root_ik_bone->get_parent();
-		ERR_FAIL_NULL(root_ik_parent_transform);
-		root_ik_parent_transform->set_global_transform(skeleton->get_global_transform());
-	}
-	update_shadow_bones_transform();
-	double time_ms = OS::get_singleton()->get_ticks_msec() + get_time_budget_millisecond();
-	ik_iterations = 0;
-	do {
-		segmented_skeleton->segment_solver(get_default_damp());
-		ik_iterations++;
-	} while (time_ms > OS::get_singleton()->get_ticks_msec() && ik_iterations < get_max_ik_iterations());
-	update_skeleton_bones_transform();
-}
-
 void EWBIK::update_skeleton() {
 	skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton()));
 	if (!skeleton) {
@@ -872,14 +838,41 @@ void EWBIK::_notification(int p_what) {
 			set_process_internal(true);
 			set_physics_process_internal(false);
 		} break;
-		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (!Engine::get_singleton()->is_editor_hint() || live_preview) {
-				_execute(get_process_delta_time());
-			}
-		} break;
+		case NOTIFICATION_INTERNAL_PROCESS:
+			[[fallthrough]];
 		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
 			if (!Engine::get_singleton()->is_editor_hint() || live_preview) {
-				_execute(get_physics_process_delta_time());
+				if (!live_preview) {
+					is_dirty = true;
+					return;
+				}
+				if (is_dirty) {
+					update_skeleton();
+					if (get_debug_skeleton()) {
+						set_debug_skeleton(false);
+					}
+				}
+				if (!skeleton) {
+					return;
+				}
+				if (segmented_skeleton.is_null()) {
+					return;
+				}
+				if (bone_list.size()) {
+					Ref<IKTransform3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
+					ERR_FAIL_NULL(root_ik_bone);
+					Ref<IKTransform3D> root_ik_parent_transform = root_ik_bone->get_parent();
+					ERR_FAIL_NULL(root_ik_parent_transform);
+					root_ik_parent_transform->set_global_transform(skeleton->get_global_transform());
+				}
+				update_shadow_bones_transform();
+				double time_ms = OS::get_singleton()->get_ticks_msec() + get_time_budget_millisecond();
+				ik_iterations = 0;
+				do {
+					segmented_skeleton->segment_solver(get_default_damp());
+					ik_iterations++;
+				} while (time_ms > OS::get_singleton()->get_ticks_msec() && ik_iterations < get_max_ik_iterations());
+				update_skeleton_bones_transform();
 			}
 		} break;
 	}
