@@ -251,6 +251,49 @@ void EWBIK::_validate_property(PropertyInfo &property) const {
 }
 
 void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
+	RBSet<String> existing_pins;
+	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
+		const String name = get_pin_bone_name(pin_i);
+		existing_pins.insert(name);
+	}
+	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
+		PropertyInfo effector_name;
+		effector_name.type = Variant::STRING_NAME;
+		effector_name.name = "pins/" + itos(pin_i) + "/name";
+		if (skeleton) {
+			String names;
+			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
+				String name = skeleton->get_bone_name(bone_i);
+				if (existing_pins.has(name)) {
+					continue;
+				}
+				name += ",";
+				names += name;
+			}
+			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
+			effector_name.hint_string = names;
+		} else {
+			effector_name.hint = PROPERTY_HINT_NONE;
+			effector_name.hint_string = "";
+		}
+		p_list->push_back(effector_name);
+		p_list->push_back(
+				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D"));
+
+		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/use_node_rotation"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/depth_falloff", PROPERTY_HINT_RANGE, "0,1,0.01"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/priority", PROPERTY_HINT_RANGE, "0,1,0.01"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_translation", PROPERTY_HINT_RANGE, "0,1,0.01"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_x_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_y_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_z_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
+	}
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		const String name = get_constraint_name(constraint_i);
@@ -294,52 +337,6 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 			p_list->push_back(
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,360,0.1,radians,exp"));
 		}
-	}
-	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
-		PropertyInfo effector_name;
-		effector_name.type = Variant::STRING_NAME;
-		effector_name.name = "pins/" + itos(pin_i) + "/name";
-		if (skeleton) {
-			RBSet<String> existing_pins;
-			for (Ref<IKEffectorTemplate> pin : pins) {
-				if (pin.is_null()) {
-					continue;
-				}
-				const String name = pin->get_name();
-				existing_pins.insert(name);
-			}
-			String names;
-			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-				String name = skeleton->get_bone_name(bone_i);
-				if (existing_pins.has(name)) {
-					continue;
-				}
-				name += ",";
-				names += name;
-			}
-			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
-			effector_name.hint_string = names;
-		} else {
-			effector_name.hint = PROPERTY_HINT_NONE;
-			effector_name.hint_string = "";
-		}
-		p_list->push_back(effector_name);
-		p_list->push_back(
-				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D"));
-
-		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/use_node_rotation"));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/depth_falloff", PROPERTY_HINT_RANGE, "0,1,0.01"));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/priority", PROPERTY_HINT_RANGE, "0,1,0.01"));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_translation", PROPERTY_HINT_RANGE, "0,1,0.01"));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_x_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_y_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_z_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
 	}
 }
 
@@ -425,6 +422,39 @@ bool EWBIK::_set(const StringName &p_name, const Variant &p_value) {
 	} else if (name == "pin_count") {
 		set_pin_count(p_value);
 		return true;
+	} else if (name.begins_with("pins/")) {
+		int index = name.get_slicec('/', 1).to_int();
+		String what = name.get_slicec('/', 2);
+		ERR_FAIL_INDEX_V(index, pin_count, true);
+		if (what == "name") {
+			set_pin_bone(index, p_value);
+			return true;
+		} else if (what == "target_node") {
+			set_pin_target_nodepath(index, p_value);
+			String existing_bone = get_pin_bone_name(index);
+			if (!existing_bone.is_empty() && existing_bone != "None") {
+				return true;
+			}
+			String node_path = p_value;
+			set_pin_bone(index, node_path.get_file());
+			return true;
+		} else if (what == "use_node_rotation") {
+			set_pin_use_node_rotation(index, p_value);
+			return true;
+		} else if (what == "depth_falloff") {
+			set_pin_depth_falloff(index, p_value);
+			return true;
+		} else if (what == "priority") {
+			return true;
+		} else if (what == "weight_translation") {
+			return true;
+		} else if (what == "weight_x_direction") {
+			return true;
+		} else if (what == "weight_y_direction") {
+			return true;
+		} else if (what == "weight_z_direction") {
+			return true;
+		}
 	} else if (name.begins_with("constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
@@ -469,39 +499,6 @@ bool EWBIK::_set(const StringName &p_name, const Variant &p_value) {
 				set_kusudama_limit_cone_radius(index, cone_index, p_value);
 				return true;
 			}
-		}
-	} else if (name.begins_with("pins/")) {
-		int index = name.get_slicec('/', 1).to_int();
-		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, pin_count, true);
-		if (what == "name") {
-			set_pin_bone(index, p_value);
-			return true;
-		} else if (what == "target_node") {
-			set_pin_target_nodepath(index, p_value);
-			String existing_bone = get_pin_bone_name(index);
-			if (!existing_bone.is_empty() && existing_bone != "None") {
-				return true;
-			}
-			String node_path = p_value;
-			set_pin_bone(index, node_path.get_file());
-			return true;
-		} else if (what == "use_node_rotation") {
-			set_pin_use_node_rotation(index, p_value);
-			return true;
-		} else if (what == "depth_falloff") {
-			set_pin_depth_falloff(index, p_value);
-			return true;
-		} else if (what == "priority") {
-			return true;
-		} else if (what == "weight_translation") {
-			return true;
-		} else if (what == "weight_x_direction") {
-			return true;
-		} else if (what == "weight_y_direction") {
-			return true;
-		} else if (what == "weight_z_direction") {
-			return true;
 		}
 	}
 	return false;
