@@ -251,19 +251,16 @@ void EWBIK::_validate_property(PropertyInfo &property) const {
 }
 
 void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
+	RBSet<String> existing_pins;
+	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
+		const String name = get_pin_bone_name(pin_i);
+		existing_pins.insert(name);
+	}
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/name";
 		if (skeleton) {
-			RBSet<String> existing_pins;
-			for (Ref<IKEffectorTemplate> pin : pins) {
-				if (pin.is_null()) {
-					continue;
-				}
-				const String name = pin->get_name();
-				existing_pins.insert(name);
-			}
 			String names;
 			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 				String name = skeleton->get_bone_name(bone_i);
@@ -438,8 +435,6 @@ bool EWBIK::_set(const StringName &p_name, const Variant &p_value) {
 			if (!existing_bone.is_empty() && existing_bone != "None") {
 				return true;
 			}
-			String node_path = p_value;
-			set_pin_bone(index, node_path.get_file());
 			return true;
 		} else if (what == "use_node_rotation") {
 			set_pin_use_node_rotation(index, p_value);
