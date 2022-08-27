@@ -62,7 +62,7 @@ class EWBIK : public Node {
 	float time_budget_millisecond = 0.6f;
 	int32_t ik_iterations = 0;
 	int32_t max_ik_iterations = 30;
-	float default_damp = Math::deg2rad(5.0f);
+	float default_damp = Math::deg_to_rad(5.0f);
 	Ref<IKTransform3D> root_transform = memnew(IKTransform3D);
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform();

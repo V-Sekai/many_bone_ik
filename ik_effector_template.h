@@ -38,7 +38,7 @@ class IKEffectorTemplate : public Resource {
 	GDCLASS(IKEffectorTemplate, Resource);
 
 	NodePath target_node;
-	float depth_falloff = Math::rad2deg(1.0f);
+	float depth_falloff = Math::rad_to_deg(1.0f);
 	bool is_target_node_rotation = true;
 
 protected:
