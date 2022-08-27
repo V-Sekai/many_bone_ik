@@ -450,7 +450,7 @@ void fragment() {
 				Vector3 min = Vector3(0, 0, circumference);
 				Vector3 current = Vector3(0, 0, circumference);
 				Quaternion minRot = Quaternion(Vector3(0, 1, 0), ik_kusudama->min_axial_angle());
-				double absAngle = ik_kusudama->min_axial_angle() + Math::deg2rad(1.0f);
+				double absAngle = ik_kusudama->min_axial_angle() + Math::deg_to_rad(1.0f);
 				Quaternion maxRot = Quaternion(Vector3(0, 1, 0), absAngle);
 				double pieces = 20;
 				double granularity = 1 / pieces;
