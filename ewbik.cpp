@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "ewbik.h"
+#include "core/core_string_names.h"
 #include "ik_bone_3d.h"
 
 #ifdef TOOLS_ENABLED
