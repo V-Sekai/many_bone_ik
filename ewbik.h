@@ -53,11 +53,11 @@ class EWBIK : public Node {
 	Vector<Ref<IKBone3D>> bone_list;
 	bool is_dirty = true;
 	bool debug_skeleton = false;
-	HashMap<int32_t, int32_t> kusudama_limit_cone_count;
 	Vector<float> kusudama_twist_from;
 	Vector<float> kusudama_twist_to;
 	Vector<bool> kusudama_flip_handedness;
-	HashMap<int32_t, PackedColorArray> kusudama_limit_cones;
+	Vector<Vector<Vector4>> kusudama_limit_cones;
+	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float time_budget_millisecond = 0.6f;
 	int32_t ik_iterations = 0;
@@ -145,12 +145,12 @@ public:
 	float get_kusudama_twist_to(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
-	Vector3 get_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index) const;
-	float get_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index) const;
-	void set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center);
-	void set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius);
-	int32_t get_kusudama_limit_cone_count(int32_t p_effector_index) const;
-	void set_kusudama_limit_cone_count(int32_t p_effector_index, int32_t p_count);
+	Vector3 get_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index) const;
+	float get_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index) const;
+	void set_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index, Vector3 p_center);
+	void set_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index, float p_radius);
+	int32_t get_kusudama_limit_cone_count(int32_t p_contraint_index) const;
+	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	bool get_kusudama_flip_handedness(int32_t p_bone) const;
 	void set_kusudama_flip_handedness(int32_t p_bone, bool p_flip);
 	EWBIK();

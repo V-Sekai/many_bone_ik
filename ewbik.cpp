@@ -257,9 +257,9 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		existing_pins.insert(name);
 	}
 	p_list->push_back(
-		PropertyInfo(Variant::INT, "pin_count",
-				PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
-				"Pins,pins/"));
+			PropertyInfo(Variant::INT, "pin_count",
+					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+					"Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
@@ -302,11 +302,11 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
-	}		
+	}
 	p_list->push_back(
-		PropertyInfo(Variant::INT, "constraint_count",
-				PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
-				"Constraints,constraints/"));
+			PropertyInfo(Variant::INT, "constraint_count",
+					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+					"Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
@@ -338,7 +338,7 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
-						vformat("Limit Cones,constraints/%s/kusudama_limit_cone/", itos(constraint_i))));
+						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
 					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"));
@@ -464,9 +464,6 @@ bool EWBIK::_set(const StringName &p_name, const Variant &p_value) {
 	} else if (name.begins_with("constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
-		if (index >= constraint_count) {
-			return false;
-		}
 		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
 		if (what == "name") {
 			if (index >= constraint_names.size()) {
@@ -489,9 +486,6 @@ bool EWBIK::_set(const StringName &p_name, const Variant &p_value) {
 		} else if (name.begins_with(begins)) {
 			int cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
-			if (cone_index >= kusudama_limit_cone_count[index]) {
-				return false;
-			}
 			if (cone_what == "center") {
 				Vector3 center = p_value;
 				if (Math::is_zero_approx(center.length_squared())) {
@@ -609,12 +603,17 @@ void EWBIK::set_constraint_count(int32_t p_count) {
 	kusudama_twist_from.resize(p_count);
 	kusudama_twist_to.resize(p_count);
 	kusudama_flip_handedness.resize(p_count);
+	kusudama_limit_cone_count.resize(p_count);
+	kusudama_limit_cones.resize(p_count);
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
 		kusudama_twist_from.write[constraint_i] = 0.0f;
 		kusudama_twist_to.write[constraint_i] = 0.0f;
 		kusudama_flip_handedness.write[constraint_i] = false;
+		kusudama_limit_cone_count.write[constraint_i] = 0;
+		kusudama_limit_cones.write[constraint_i].resize(30);
 	}
+
 	notify_property_list_changed();
 	is_dirty = true;
 }
@@ -651,67 +650,60 @@ int32_t EWBIK::find_effector_id(StringName p_bone_name) {
 	return -1;
 }
 
-void EWBIK::set_kusudama_limit_cone(int32_t p_constraint, int32_t p_index,
+void EWBIK::set_kusudama_limit_cone(int32_t p_contraint_index, int32_t p_index,
 		Vector3 p_center, float p_radius) {
-	PackedColorArray cones;
-	if (kusudama_limit_cones.has(p_constraint)) {
-		cones = kusudama_limit_cones[p_constraint];
-	}
+	ERR_FAIL_INDEX(p_contraint_index, kusudama_limit_cones.size());
+	Vector<Vector4> cones = kusudama_limit_cones.write[p_contraint_index];
 	Vector3 center = p_center;
-	Color cone;
-	cone.r = center.x;
-	cone.g = center.y;
-	cone.b = center.z;
-	cone.a = p_radius;
+	Vector4 cone;
+	cone.x = center.x;
+	cone.y = center.y;
+	cone.z = center.z;
+	cone.w = p_radius;
 	cones.write[p_index] = cone;
-	kusudama_limit_cones[p_constraint] = cones;
-	// Must notify the skeleton too.
-	if (skeleton) {
-		skeleton->notify_property_list_changed();
-	}
+	kusudama_limit_cones.write[p_contraint_index] = cones;
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
-Vector3 EWBIK::get_kusudama_limit_cone_center(int32_t p_bone, int32_t p_index) const {
-	ERR_FAIL_COND_V(!kusudama_limit_cones.has(p_bone), Vector3(0.0, 1.0, 0.0));
-	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), Vector3(0.0, 1.0, 0.0));
-	const Color &cone = kusudama_limit_cones[p_bone][p_index];
+Vector3 EWBIK::get_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cone_count.size(), Vector3(0.0, 1.0, 0.0));
+	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cones.size(), Vector3(0.0, 1.0, 0.0));
+	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_contraint_index].size(), Vector3(0.0, 1.0, 0.0));
+	const Vector4 &cone = kusudama_limit_cones[p_contraint_index][p_index];
 	Vector3 ret;
-	ret.x = cone.r;
-	ret.y = cone.g;
-	ret.z = cone.b;
+	ret.x = cone.x;
+	ret.y = cone.y;
+	ret.z = cone.z;
 	return ret;
 }
 
-float EWBIK::get_kusudama_limit_cone_radius(int32_t p_bone, int32_t p_index) const {
-	ERR_FAIL_COND_V(!kusudama_limit_cones.has(p_bone), Math_TAU);
-	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_bone].size(), Math_TAU);
-	return kusudama_limit_cones[p_bone][p_index].a;
+float EWBIK::get_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cone_count.size(), Math_TAU);
+	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cones.size(), Math_TAU);
+	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_contraint_index].size(), Math_TAU);
+	return kusudama_limit_cones[p_contraint_index][p_index].x;
 }
 
-int32_t EWBIK::get_kusudama_limit_cone_count(int32_t p_effector) const {
-	if (!kusudama_limit_cone_count.has(p_effector)) {
-		return 0;
-	}
-	return kusudama_limit_cone_count[p_effector];
+int32_t EWBIK::get_kusudama_limit_cone_count(int32_t p_contraint_index) const {
+	return kusudama_limit_cone_count[p_contraint_index];
 }
 
-void EWBIK::set_kusudama_limit_cone_count(int32_t p_effector, int32_t p_count) {
-	int32_t old_count = get_kusudama_limit_cone_count(p_effector);
-	kusudama_limit_cone_count[p_effector] = p_count;
-	PackedColorArray &cones = kusudama_limit_cones[p_effector];
+void EWBIK::set_kusudama_limit_cone_count(int32_t p_contraint_index, int32_t p_count) {
+	ERR_FAIL_INDEX(p_contraint_index, kusudama_limit_cone_count.size());
+	int32_t old_cone_count = kusudama_limit_cone_count[p_contraint_index];
+	kusudama_limit_cone_count.write[p_contraint_index] = p_count;
+	Vector<Vector4> &cones = kusudama_limit_cones.write[p_contraint_index];
 	cones.resize(p_count);
-	for (int32_t cone_i = p_count; cone_i-- > old_count;) {
-		Color &cone = cones.write[cone_i];
-		cone.r = 0.0f;
-		cone.g = 1.0f;
-		cone.b = 0.0f;
-		cone.a = 0.0f;
+	for (int32_t cone_i = p_count; cone_i-- > old_cone_count;) {
+		Vector4 &cone = cones.write[cone_i];
+		cone.x = 0.0f;
+		cone.y = 1.0f;
+		cone.z = 0.0f;
+		cone.w = 0.0f;
 	}
-	// Must notify the skeleton too.
-	if (skeleton) {
-		skeleton->notify_property_list_changed();
-	}
+
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -721,10 +713,7 @@ real_t EWBIK::get_default_damp() const {
 
 void EWBIK::set_default_damp(float p_default_damp) {
 	default_damp = p_default_damp;
-	// Must notify the skeleton too.
-	if (skeleton) {
-		skeleton->notify_property_list_changed();
-	}
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -735,32 +724,24 @@ StringName EWBIK::get_pin_bone_name(int32_t p_effector_index) const {
 }
 
 void EWBIK::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius) {
-	ERR_FAIL_COND(!kusudama_limit_cones.has(p_effector_index));
+	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
-	PackedColorArray &cones = kusudama_limit_cones[p_effector_index];
-	Color &cone = cones.write[p_index];
-	cone.a = p_radius;
-
-	// Must notify the skeleton too.
-	if (skeleton) {
-		skeleton->notify_property_list_changed();
-	}
+	Vector<Vector4> &cones = kusudama_limit_cones.write[p_effector_index];
+	Vector4 &cone = cones.write[p_index];
+	cone.w = p_radius;
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
 void EWBIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
-	ERR_FAIL_COND(!kusudama_limit_cones.has(p_effector_index));
+	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
-	PackedColorArray &cones = kusudama_limit_cones[p_effector_index];
-	Color &cone = cones.write[p_index];
-	cone.r = p_center.x;
-	cone.g = p_center.y;
-	cone.b = p_center.z;
-
-	// Must notify the skeleton too.
-	if (skeleton) {
-		skeleton->notify_property_list_changed();
-	}
+	Vector<Vector4> &cones = kusudama_limit_cones.write[p_effector_index];
+	Vector4 &cone = cones.write[p_index];
+	cone.x = p_center.x;
+	cone.y = p_center.y;
+	cone.z = p_center.z;
+	notify_property_list_changed();
 	is_dirty = true;
 }
 
