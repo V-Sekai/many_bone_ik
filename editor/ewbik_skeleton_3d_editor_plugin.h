@@ -47,55 +47,8 @@ class PhysicalBone3D;
 class EWBIKSkeleton3DEditorPlugin;
 class Button;
 
-class EWBIKSkeleton3DEditor : public VBoxContainer {
-	GDCLASS(EWBIKSkeleton3DEditor, VBoxContainer);
-
-	friend class EWBIKSkeleton3DEditorPlugin;
-	struct BoneInfo {
-		PhysicalBone3D *physical_bone = nullptr;
-		Transform3D relative_rest; // Relative to skeleton node.
-	};
-	Skeleton3D *skeleton = nullptr;
-	static EWBIKSkeleton3DEditor *singleton;
-
-	void _file_selected(const String &p_file);
-
-	EditorFileDialog *file_export_lib = nullptr;
-
-	Vector3 bone_original_position;
-	Quaternion bone_original_rotation;
-	Vector3 bone_original_scale;
-
-	void _subgizmo_selection_change();
-
-protected:
-	void _notification(int p_what);
-	void _node_removed(Node *p_node);
-	static void _bind_methods();
-
-public:
-	static EWBIKSkeleton3DEditor *get_singleton() { return singleton; }
-	Skeleton3D *get_skeleton() const { return skeleton; };
-
-	~EWBIKSkeleton3DEditor();
-};
-
-class EWBIKSkeleton3DEditorPlugin : public EditorPlugin {
-	GDCLASS(EWBIKSkeleton3DEditorPlugin, EditorPlugin);
-	Skeleton3D *skeleton = nullptr;
-
-public:
-	virtual EditorPlugin::AfterGUIInput forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) override;
-
-	bool has_main_screen() const override { return false; }
-	virtual bool handles(Object *p_object) const override;
-	virtual String get_name() const override { return "Skeleton3D"; }
-
-	EWBIKSkeleton3DEditorPlugin();
-};
-
-class EWBIKSkeleton3DGizmoPlugin : public EditorNode3DGizmoPlugin {
-	GDCLASS(EWBIKSkeleton3DGizmoPlugin, EditorNode3DGizmoPlugin);
+class EWBIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
+	GDCLASS(EWBIK3DGizmoPlugin, EditorNode3DGizmoPlugin);
 
 	EWBIK *ewbik = nullptr;
 
@@ -108,7 +61,16 @@ public:
 	int get_priority() const override {
 		return -2;
 	}
-	EWBIKSkeleton3DGizmoPlugin();
+	EWBIK3DGizmoPlugin() {}
 };
 
+class EditorPluginEWBIK : public EditorPlugin {
+	GDCLASS(EditorPluginEWBIK, EditorPlugin);
+
+public:
+	EditorPluginEWBIK() {
+		Ref<EWBIK3DGizmoPlugin> gizmo_plugin = Ref<EWBIK3DGizmoPlugin>(memnew(EWBIK3DGizmoPlugin));
+		Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
+	}
+};
 #endif // SKELETON_3D_EDITOR_PLUGIN_H

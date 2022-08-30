@@ -48,59 +48,18 @@
 #include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/surface_tool.h"
 
-EWBIKSkeleton3DEditor *EWBIKSkeleton3DEditor::singleton = nullptr;
-
-void EWBIKSkeleton3DEditor::_notification(int p_what) {
-}
-
-void EWBIKSkeleton3DEditor::_node_removed(Node *p_node) {
-}
-
-void EWBIKSkeleton3DEditor::_bind_methods() {
-}
-
-void EWBIKSkeleton3DEditor::_subgizmo_selection_change() {
-	if (!skeleton) {
-		return;
-	}
-	skeleton->clear_subgizmo_selection();
-}
-
-EWBIKSkeleton3DEditor::~EWBIKSkeleton3DEditor() {
-}
-
-EWBIKSkeleton3DEditorPlugin::EWBIKSkeleton3DEditorPlugin() {
-	Ref<EWBIKSkeleton3DGizmoPlugin> gizmo_plugin = Ref<EWBIKSkeleton3DGizmoPlugin>(memnew(EWBIKSkeleton3DGizmoPlugin));
-	Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
-}
-
-EditorPlugin::AfterGUIInput EWBIKSkeleton3DEditorPlugin::forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
-	return EditorPlugin::AFTER_GUI_INPUT_PASS;
-}
-
-bool EWBIKSkeleton3DEditorPlugin::handles(Object *p_object) const {
-	EWBIK *mod = cast_to<EWBIK>(p_object);
-	if (mod) {
-		return true;
-	}
-	return false;
-}
-
-EWBIKSkeleton3DGizmoPlugin::EWBIKSkeleton3DGizmoPlugin() {
-}
-
-bool EWBIKSkeleton3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
+bool EWBIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
 	if (Object::cast_to<EWBIK>(p_spatial)) {
 		return true;
 	}
 	return false;
 }
 
-String EWBIKSkeleton3DGizmoPlugin::get_gizmo_name() const {
+String EWBIK3DGizmoPlugin::get_gizmo_name() const {
 	return "Inverse Kinematic Constraints";
 }
 
-void EWBIKSkeleton3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
+void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	EWBIK *ewbik = Object::cast_to<EWBIK>(p_gizmo->get_spatial_node());
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(ewbik->get_node_or_null(ewbik->get_skeleton()));
 	if (!ewbik || !skeleton) {
@@ -301,8 +260,7 @@ void fragment() {
 		int current_bone_idx = bones_to_process[current_bone_index];
 		current_bone_index++;
 		Color current_bone_color = bone_color;
-		Vector<int> child_bones_vector;
-		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
+		Vector<int> child_bones_vector = skeleton->get_bone_children(current_bone_idx);
 		int child_bones_size = child_bones_vector.size();
 		Ref<ArrayMesh> mesh;
 		for (int child_i = 0; child_i < child_bones_size; child_i++) {
@@ -344,6 +302,7 @@ void fragment() {
 			Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
 			BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
 			if (parent_idx == -1) {
+				bones_to_process.push_back(child_bones_vector[child_i]);
 				continue;
 			}
 			bones[0] = parent_idx;
@@ -491,4 +450,7 @@ void fragment() {
 			bones_to_process.push_back(child_bones_vector[child_i]);
 		}
 	}
+	notify_property_list_changed();
+	ewbik->set_visible(false);
+	ewbik->set_visible(true);
 }

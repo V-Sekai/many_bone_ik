@@ -38,8 +38,8 @@
 #include "math/ik_transform.h"
 
 class IKBoneSegment;
-class EWBIK : public Node {
-	GDCLASS(EWBIK, Node);
+class EWBIK : public Node3D {
+	GDCLASS(EWBIK, Node3D);
 	StringName root_bone;
 	StringName tip_bone;
 	bool live_preview = true;

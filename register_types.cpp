@@ -51,7 +51,7 @@ void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 	}
 #ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
-		EditorPlugins::add_by_type<EWBIKSkeleton3DEditorPlugin>();
+		EditorPlugins::add_by_type<EditorPluginEWBIK>();
 	}
 #endif
 }
