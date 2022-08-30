@@ -8,6 +8,16 @@
 
 config_version=5
 
+_global_script_classes=[{
+"base": "Node3D",
+"class": &"VRMTopLevel",
+"language": &"GDScript",
+"path": "res://addons/vrm/vrm_toplevel.gd"
+}]
+_global_script_class_icons={
+"VRMTopLevel": ""
+}
+
 [application]
 
 config/name="EWBIK Game Project"
@@ -18,6 +28,10 @@ config/icon="res://icon.png"
 [debug]
 
 file_logging/enable_file_logging=true
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/Godot-MToon-Shader/plugin.cfg", "res://addons/vrm/plugin.cfg")
 
 [gui]
 
