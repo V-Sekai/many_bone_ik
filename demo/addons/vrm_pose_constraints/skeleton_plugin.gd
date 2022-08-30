@@ -61,6 +61,8 @@ func _generate_ewbik(vrm_top_level : Node3D, skeleton : Skeleton3D, ewbik : EWBI
 		var bone_name = profile.get_bone_name(pin_i)
 		var node_3d : Node3D = Node3D.new()
 		node_3d.name = bone_name
+		skeleton.get_parent().add_child(node_3d)
+		node_3d.owner = skeleton.owner
 		ewbik.set_pin_bone_name(pin_i, bone_name)
 		skeleton.get_parent().add_child(node_3d, true)
 		var bone_id = skeleton.find_bone(bone_name)
