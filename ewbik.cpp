@@ -682,7 +682,7 @@ float EWBIK::get_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p
 	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cone_count.size(), Math_TAU);
 	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cones.size(), Math_TAU);
 	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_contraint_index].size(), Math_TAU);
-	return kusudama_limit_cones[p_contraint_index][p_index].x;
+	return kusudama_limit_cones[p_contraint_index][p_index].w;
 }
 
 int32_t EWBIK::get_kusudama_limit_cone_count(int32_t p_contraint_index) const {
@@ -724,20 +724,20 @@ StringName EWBIK::get_pin_bone_name(int32_t p_effector_index) const {
 }
 
 void EWBIK::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius) {
+	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cone_count.size());
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
-	Vector<Vector4> &cones = kusudama_limit_cones.write[p_effector_index];
-	Vector4 &cone = cones.write[p_index];
+	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
 	cone.w = p_radius;
 	notify_property_list_changed();
 	is_dirty = true;
 }
 
 void EWBIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
+	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cone_count.size());
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
-	Vector<Vector4> &cones = kusudama_limit_cones.write[p_effector_index];
-	Vector4 &cone = cones.write[p_index];
+	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
 	cone.x = p_center.x;
 	cone.y = p_center.y;
 	cone.z = p_center.z;
