@@ -256,6 +256,10 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
+	p_list->push_back(
+		PropertyInfo(Variant::INT, "pin_count",
+				PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+				"Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
@@ -298,7 +302,11 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
-	}
+	}		
+	p_list->push_back(
+		PropertyInfo(Variant::INT, "constraint_count",
+				PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+				"Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
@@ -560,8 +568,6 @@ void EWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "live_preview"), "set_live_preview", "get_live_preview");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT), "set_skeleton", "get_skeleton");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "pin_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater"), "set_pin_count", "get_pin_count");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "constraint_count", PROPERTY_HINT_RANGE, "0,1024,1,or_greater"), "set_constraint_count", "get_constraint_count");
 }
 
 EWBIK::EWBIK() {
