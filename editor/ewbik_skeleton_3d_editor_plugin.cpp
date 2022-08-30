@@ -404,28 +404,6 @@ void fragment() {
 			kusudama_material->set_shader_uniform("cone_sequence", kusudama_limit_cones);
 			kusudama_material->set_shader_uniform("kusudama_color", current_bone_color);
 			p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
-			{
-				double circumference = Math_TAU * radius;
-				Vector3 min = Vector3(0, 0, circumference);
-				Vector3 current = Vector3(0, 0, circumference);
-				Quaternion minRot = Quaternion(Vector3(0, 1, 0), ik_kusudama->min_axial_angle());
-				double absAngle = ik_kusudama->min_axial_angle() + Math::deg_to_rad(1.0f);
-				Quaternion maxRot = Quaternion(Vector3(0, 1, 0), absAngle);
-				double pieces = 20;
-				double granularity = 1 / pieces;
-				kusudama_surface_tool.instantiate();
-				kusudama_surface_tool->begin(Mesh::PRIMITIVE_TRIANGLE_STRIP);
-				bones[0] = current_bone_idx;
-				for (double piece_i = 0; piece_i <= pieces + (3 * granularity); piece_i++) {
-					kusudama_surface_tool->set_bones(bones);
-					kusudama_surface_tool->set_weights(weights);
-					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3(0, 0, 0)));
-					Quaternion interp = minRot.slerp(maxRot, piece_i * granularity);
-					current = interp.xform(min);
-					kusudama_surface_tool->add_vertex(kusudama_transform.xform(Vector3((float)current.x, (float)current.y, (float)(current.z))));
-				}
-				p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>()), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
-			}
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[child_i]);
 		}
