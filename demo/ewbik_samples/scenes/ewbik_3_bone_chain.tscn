@@ -1,0 +1,138 @@
+[gd_scene load_steps=2 format=3 uid="uid://7h0vd62y614d"]
+
+[ext_resource type="PackedScene" uid="uid://deuapcn1ywqqi" path="res://ewbik_samples/art/ewbik_3_bone_chain.glb" id="1_l53lq"]
+
+[node name="ewbik_3_bone_chain" instance=ExtResource("1_l53lq")]
+
+[node name="Skeleton3D" parent="Armature" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00408727, 0, 0)
+bones/0/position = Vector3(0, 0, 3.94149e-09)
+bones/0/rotation = Quaternion(1.4013e-45, -8.93383e-17, 1.4013e-45, 1)
+bones/0/scale = Vector3(1, 1, 1)
+bones/1/position = Vector3(1.67638e-08, 0.0926459, -4.36562e-11)
+bones/1/rotation = Quaternion(-0.104711, 0.966039, -0.201341, -0.123556)
+bones/1/scale = Vector3(1, 1, 1)
+bones/2/position = Vector3(1.30367e-05, 0.108038, -3.78862e-05)
+bones/2/rotation = Quaternion(0.369865, 0.700513, -0.37692, -0.480014)
+bones/2/scale = Vector3(1, 1, 1)
+bones/3/position = Vector3(1.17272e-05, 0.10019, 1.34259e-05)
+bones/3/rotation = Quaternion(-0.322898, -0.621028, -0.180769, 0.69093)
+bones/3/scale = Vector3(1, 1, 1)
+bones/4/position = Vector3(4.64991e-05, 0.100183, 2.06232e-05)
+bones/4/rotation = Quaternion(-0.0556279, -0.0723193, -0.0871953, 0.992004)
+bones/4/scale = Vector3(1, 1, 1)
+bones/5/position = Vector3(-4.47221e-05, 0.0984772, 1.40369e-05)
+bones/5/rotation = Quaternion(0.655259, 0.357018, -0.374885, 0.550124)
+bones/5/scale = Vector3(1, 1, 1)
+bones/6/position = Vector3(-4.53182e-05, 0.100184, 5.06639e-07)
+bones/6/rotation = Quaternion(0.251456, -0.00821424, 0.214331, 0.943803)
+bones/6/scale = Vector3(1, 1, 1)
+bones/7/position = Vector3(2.05636e-06, 0.100025, -7.24196e-06)
+bones/7/rotation = Quaternion(0.294967, 0.0658721, -0.224176, 0.926499)
+bones/7/scale = Vector3(1, 1, 1)
+bones/8/position = Vector3(5.03212e-05, 0.100039, 2.50749e-05)
+bones/8/rotation = Quaternion(0.00180105, -0.000406999, 0.390887, 0.920437)
+bones/8/scale = Vector3(1, 1, 1)
+bones/9/position = Vector3(0.000209779, 0.100763, -1.04196e-05)
+bones/9/rotation = Quaternion(-0.0522828, 0.0204021, -0.143582, 0.988046)
+bones/9/scale = Vector3(1, 1, 1)
+bones/10/position = Vector3(-1.29491e-05, 0.100158, 5.26011e-06)
+bones/10/rotation = Quaternion(6.02381e-05, -0.00568083, 0.000320528, 0.999984)
+bones/10/scale = Vector3(1, 1, 1)
+bones/11/position = Vector3(5.19305e-05, 0.100047, -7.10785e-06)
+bones/11/rotation = Quaternion(0.0487691, -0.0262399, 0.358991, 0.931697)
+bones/11/scale = Vector3(1, 1, 1)
+
+[node name="EWBIK" type="EWBIK" parent="Armature/Skeleton3D" index="1"]
+root_bone = &"A0"
+skeleton = NodePath("..")
+pin_count = 6
+pins/0/name = "A0"
+pins/0/target_node = NodePath("../A0")
+pins/0/use_node_rotation = true
+pins/0/depth_falloff = 0.0
+pins/0/priority = null
+pins/0/weight_translation = null
+pins/0/weight_x_direction = null
+pins/0/weight_y_direction = null
+pins/0/weight_z_direction = null
+pins/1/name = "B0"
+pins/1/target_node = NodePath("../B0")
+pins/1/use_node_rotation = true
+pins/1/depth_falloff = 57.2958
+pins/1/priority = null
+pins/1/weight_translation = null
+pins/1/weight_x_direction = null
+pins/1/weight_y_direction = null
+pins/1/weight_z_direction = null
+pins/2/name = "B2"
+pins/2/target_node = NodePath("../B2")
+pins/2/use_node_rotation = true
+pins/2/depth_falloff = 57.2958
+pins/2/priority = null
+pins/2/weight_translation = null
+pins/2/weight_x_direction = null
+pins/2/weight_y_direction = null
+pins/2/weight_z_direction = null
+pins/3/name = "C0"
+pins/3/target_node = NodePath("../C0")
+pins/3/use_node_rotation = true
+pins/3/depth_falloff = 57.2958
+pins/3/priority = null
+pins/3/weight_translation = null
+pins/3/weight_x_direction = null
+pins/3/weight_y_direction = null
+pins/3/weight_z_direction = null
+pins/4/name = "C3"
+pins/4/target_node = NodePath("../C3")
+pins/4/use_node_rotation = true
+pins/4/depth_falloff = 57.2958
+pins/4/priority = null
+pins/4/weight_translation = null
+pins/4/weight_x_direction = null
+pins/4/weight_y_direction = null
+pins/4/weight_z_direction = null
+pins/5/name = "A3"
+pins/5/target_node = NodePath("../A3")
+pins/5/use_node_rotation = true
+pins/5/depth_falloff = 57.2958
+pins/5/priority = null
+pins/5/weight_translation = null
+pins/5/weight_x_direction = null
+pins/5/weight_y_direction = null
+pins/5/weight_z_direction = null
+constraint_count = 1
+constraints/0/name = &"B2"
+constraints/0/kusudama_flip_handedness = false
+constraints/0/kusudama_twist_from = -0.0174533
+constraints/0/kusudama_twist_to = 0.0174533
+constraints/0/kusudama_limit_cone_count = 4
+constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
+constraints/0/kusudama_limit_cone/0/radius = 0.785398
+constraints/0/kusudama_limit_cone/1/center = Vector3(0, 1, 1)
+constraints/0/kusudama_limit_cone/1/radius = 0.436332
+constraints/0/kusudama_limit_cone/2/center = Vector3(0, 1, 1)
+constraints/0/kusudama_limit_cone/2/radius = 0.436332
+constraints/0/kusudama_limit_cone/3/center = Vector3(0, 1, 1)
+constraints/0/kusudama_limit_cone/3/radius = 0.436332
+
+[node name="A0" type="Marker3D" parent="Armature/Skeleton3D" index="2"]
+transform = Transform3D(0.999986, 0, 0, 0, 0.999991, 0, 0, 0, 0.999985, 0, 0, 0)
+
+[node name="A3" type="Marker3D" parent="Armature/Skeleton3D" index="3"]
+transform = Transform3D(0.951657, -0.307177, -1.43472e-06, 0.30718, 0.951644, -1.70045e-06, 1.56685e-06, 1.33952e-06, 1.00001, 0.00850658, 0.29924, 6.25646e-07)
+
+[node name="B0" type="Marker3D" parent="Armature/Skeleton3D" index="4"]
+transform = Transform3D(0.975366, -0.14222, -0.168567, 0.157696, 0.984068, 0.082249, 0.154178, -0.106807, 0.98226, -0.0673592, 0.278221, 0.00479796)
+
+[node name="C0" type="Marker3D" parent="Armature/Skeleton3D" index="5"]
+transform = Transform3D(0.431682, -0.902015, -2.02423e-06, 0.902012, 0.431673, -9.62905e-07, 1.76499e-06, -1.05152e-06, 1.00001, -0.175907, 0.407122, 8.58381e-07)
+
+[node name="C3" type="Marker3D" parent="Armature/Skeleton3D" index="6"]
+transform = Transform3D(-8.1311e-06, -0.999984, -1.95992e-06, 0.999976, -1.45684e-05, 6.54027e-08, 1.09756e-07, -1.64607e-06, 1.00001, -0.340849, 0.567938, 3.64239e-07)
+
+[node name="B2" type="Marker3D" parent="Armature/Skeleton3D" index="7"]
+transform = Transform3D(0.867721, 0.411031, -0.279439, -0.0612356, -0.46952, -0.880788, -0.493223, 0.781412, -0.382244, 0.0793163, 0.461732, 0.136248)
+
+[node name="SpotLight3d" type="SpotLight3D" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.63151)

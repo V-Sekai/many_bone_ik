@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://dedgf6tmq2arv"]
+
+[ext_resource type="PackedScene" uid="uid://c1jc5gm5nb6i0" path="res://ewbik_samples/art/SK_VRoid用SRanipal対応BlendShape/male.vrm" id="1_0rj8f"]
+
+[node name="Node3d" type="Node3D"]
+
+[node name="male" parent="." instance=ExtResource("1_0rj8f")]
+
+[node name="GeneralSkeleton" parent="male" index="0"]
+bones/5/rotation = Quaternion(-3.59019e-09, -1.58503e-10, 2.15328e-09, 1)
+bones/6/position = Vector3(2.5495e-08, 0.0890688, 0.0144182)
+bones/6/rotation = Quaternion(-7.2825e-32, 2.13302e-14, -1.13796e-18, 1)
+bones/48/position = Vector3(0.00690937, 0.123151, -0.021474)
+bones/49/position = Vector3(-0.00155015, 0.219541, 0.0101634)
+bones/72/position = Vector3(-0.00690936, 0.123151, -0.021474)
+bones/73/position = Vector3(0.00154988, 0.219541, 0.0101633)
+
+[node name="Marker3d" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.19729, 1.55821, 0)
+
+[editable path="male"]
