@@ -629,14 +629,12 @@ inline StringName EWBIK::get_constraint_name(int32_t p_index) const {
 void EWBIK::set_kusudama_twist_from(int32_t p_index, float p_from) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist_from.write[p_index] = p_from;
-	notify_property_list_changed();
 	is_dirty = true;
 }
 
 void EWBIK::set_kusudama_twist_to(int32_t p_index, float p_to) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist_to.write[p_index] = p_to;
-	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -661,7 +659,6 @@ void EWBIK::set_kusudama_limit_cone(int32_t p_contraint_index, int32_t p_index,
 	cone.w = p_radius;
 	cones.write[p_index] = cone;
 	kusudama_limit_cones.write[p_contraint_index] = cones;
-	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -729,7 +726,6 @@ void EWBIK::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_i
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
 	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
 	cone.w = p_radius;
-	notify_property_list_changed();
 	is_dirty = true;
 }
 
@@ -741,7 +737,6 @@ void EWBIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_i
 	cone.x = p_center.x;
 	cone.y = p_center.y;
 	cone.z = p_center.z;
-	notify_property_list_changed();
 	is_dirty = true;
 }
 

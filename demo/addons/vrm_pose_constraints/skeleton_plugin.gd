@@ -57,7 +57,7 @@ func _generate_ewbik(vrm_top_level : Node3D, skeleton : Skeleton3D, ewbik : EWBI
 	var minimum_twist_diff = deg_to_rad(0.5)
 	var maximum_twist = deg_to_rad(360)
 	var pin_i = 0
-	var bones = ["Root", "Hips", "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot"]
+	var bones = ["Root", "Hips", "Head", "LeftShoulder", "LeftUpperArm", "LeftHand", "RightHand", "LeftFoot", "RightFoot"]
 	ewbik.pin_count = bones.size()
 	for bone_name in bones:
 		var bone_index = skeleton.find_bone(bone_name)

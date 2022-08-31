@@ -407,6 +407,13 @@ void fragment() {
 
 			kusudama_surface_tool->clear();
 			kusudama_surface_tool->begin(Mesh::PRIMITIVE_LINES);
+			// Make the gizmo color as bright as possible for better visibility
+			Color color = bone_color;
+			color.set_hsv(color.get_h(), color.get_s(), 1);
+
+			const Ref<Material> material_primary = get_material("lines_primary", p_gizmo);
+			const Ref<Material> material_secondary = get_material("lines_secondary", p_gizmo);
+
 			for (int32_t i = 0; i < kusudama_limit_cones.size(); i = i + 4) {
 				if (kusudama_limit_cones[i + 3] > 0.0f) {
 					Vector3 center = Vector3(kusudama_limit_cones[i + 0], kusudama_limit_cones[i + 1], kusudama_limit_cones[i + 2]);
@@ -415,13 +422,6 @@ void fragment() {
 					Quaternion cone_quaternion(Vector3(0, 1, 0), center);
 					Transform3D cone_transform = Transform3D(cone_quaternion * basis) * constraint_transform;
 					cone_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
-					// Make the gizmo color as bright as possible for better visibility
-					Color color = bone_color;
-					color.set_hsv(color.get_h(), color.get_s(), 1);
-
-					const Ref<Material> material_primary = get_material("lines_primary", p_gizmo);
-					const Ref<Material> material_secondary = get_material("lines_secondary", p_gizmo);
-
 					Vector<Vector3> points_primary;
 					Vector<Vector3> points_secondary;
 
@@ -463,7 +463,7 @@ void fragment() {
 					kusudama_surface_tool->add_vertex(cone_transform.xform(Vector3()));
 				}
 			}
-			p_gizmo->add_mesh(kusudama_surface_tool->commit(), Ref<Material>(), skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+			p_gizmo->add_mesh(kusudama_surface_tool->commit(), material_primary, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[child_i]);

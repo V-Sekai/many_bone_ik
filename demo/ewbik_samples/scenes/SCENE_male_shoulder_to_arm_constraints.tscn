@@ -1,0 +1,152 @@
+[gd_scene load_steps=2 format=3 uid="uid://dedgf6tmq2arv"]
+
+[ext_resource type="PackedScene" uid="uid://ctkuo212hujio" path="res://ewbik_samples/art/SK_VRoid用SRanipal対応BlendShape/male.vrm" id="1_0rj8f"]
+
+[node name="male" instance=ExtResource("1_0rj8f")]
+
+[node name="GeneralSkeleton" parent="." index="0"]
+bones/4/rotation = Quaternion(9.90829e-10, -3.78374e-10, -3.90918e-09, 1)
+bones/5/position = Vector3(3.24217e-08, 0.151207, -0.0106685)
+bones/5/rotation = Quaternion(-2.97968e-09, 3.13929e-10, 6.39156e-09, 1)
+bones/6/position = Vector3(-1.62981e-09, 0.0890688, 0.0144182)
+bones/6/rotation = Quaternion(-4.37555e-33, 5.68989e-15, -2.56319e-19, 1)
+bones/47/position = Vector3(0.0246242, 0.12091, -0.00517438)
+bones/47/rotation = Quaternion(-0.5, -0.5, -0.5, 0.5)
+bones/48/position = Vector3(0.00690993, 0.122857, -0.021474)
+bones/48/rotation = Quaternion(-0.0424483, 0.997831, 0.0485268, -0.0132794)
+bones/48/scale = Vector3(1, 1, 1)
+bones/49/position = Vector3(-0.00156945, 0.219684, 0.0105482)
+bones/49/rotation = Quaternion(0.0106909, -0.728394, -0.0208492, 0.684758)
+bones/49/scale = Vector3(1, 1, 1)
+bones/50/position = Vector3(0.000695229, 0.248178, 0.0205921)
+bones/50/rotation = Quaternion(0.559488, 0.455073, 0.513297, 0.465197)
+bones/50/scale = Vector3(1, 1, 1)
+bones/71/position = Vector3(-0.0246242, 0.12091, -0.00517512)
+bones/72/position = Vector3(-0.00691082, 0.123169, -0.021474)
+bones/72/rotation = Quaternion(0, 1, -7.49807e-19, 0)
+bones/73/position = Vector3(0.00154915, 0.219522, 0.0101633)
+bones/73/rotation = Quaternion(-5.30193e-19, 0.707107, -5.30193e-19, 0.707107)
+bones/74/position = Vector3(-0.000621915, 0.248088, 0.0205823)
+bones/74/rotation = Quaternion(5.30193e-19, -0.707107, 5.30193e-19, 0.707107)
+
+[node name="Face" parent="GeneralSkeleton" index="0"]
+visible = false
+
+[node name="Hair001" parent="GeneralSkeleton" index="2"]
+visible = false
+
+[node name="EWBIK" type="EWBIK" parent="GeneralSkeleton" index="3"]
+root_bone = &"Root"
+budget_millisecond = 2.0
+default_damp = 0.0174533
+skeleton = NodePath("..")
+pin_count = 8
+pins/0/name = "Root"
+pins/0/target_node = NodePath("../../Root")
+pins/0/use_node_rotation = true
+pins/0/depth_falloff = 0.0
+pins/0/priority = null
+pins/0/weight_translation = null
+pins/0/weight_x_direction = null
+pins/0/weight_y_direction = null
+pins/0/weight_z_direction = null
+pins/1/name = "Hips"
+pins/1/target_node = NodePath("../../Hips")
+pins/1/use_node_rotation = true
+pins/1/depth_falloff = 57.2958
+pins/1/priority = null
+pins/1/weight_translation = null
+pins/1/weight_x_direction = null
+pins/1/weight_y_direction = null
+pins/1/weight_z_direction = null
+pins/2/name = "Head"
+pins/2/target_node = NodePath("../../Head")
+pins/2/use_node_rotation = true
+pins/2/depth_falloff = 57.2958
+pins/2/priority = null
+pins/2/weight_translation = null
+pins/2/weight_x_direction = null
+pins/2/weight_y_direction = null
+pins/2/weight_z_direction = null
+pins/3/name = "LeftShoulder"
+pins/3/target_node = NodePath("../../LeftShoulder")
+pins/3/use_node_rotation = true
+pins/3/depth_falloff = 0.0
+pins/3/priority = null
+pins/3/weight_translation = null
+pins/3/weight_x_direction = null
+pins/3/weight_y_direction = null
+pins/3/weight_z_direction = null
+pins/4/name = "LeftHand"
+pins/4/target_node = NodePath("../../LeftHand")
+pins/4/use_node_rotation = true
+pins/4/depth_falloff = 0.0
+pins/4/priority = null
+pins/4/weight_translation = null
+pins/4/weight_x_direction = null
+pins/4/weight_y_direction = null
+pins/4/weight_z_direction = null
+pins/5/name = "RightHand"
+pins/5/target_node = NodePath("../../RightHand")
+pins/5/use_node_rotation = true
+pins/5/depth_falloff = 57.2958
+pins/5/priority = null
+pins/5/weight_translation = null
+pins/5/weight_x_direction = null
+pins/5/weight_y_direction = null
+pins/5/weight_z_direction = null
+pins/6/name = "LeftFoot"
+pins/6/target_node = NodePath("../../LeftFoot")
+pins/6/use_node_rotation = true
+pins/6/depth_falloff = 57.2958
+pins/6/priority = null
+pins/6/weight_translation = null
+pins/6/weight_x_direction = null
+pins/6/weight_y_direction = null
+pins/6/weight_z_direction = null
+pins/7/name = "RightFoot"
+pins/7/target_node = NodePath("../../RightFoot")
+pins/7/use_node_rotation = true
+pins/7/depth_falloff = 57.2958
+pins/7/priority = null
+pins/7/weight_translation = null
+pins/7/weight_x_direction = null
+pins/7/weight_y_direction = null
+pins/7/weight_z_direction = null
+constraint_count = 2
+constraints/0/name = &"LeftLowerArm"
+constraints/0/kusudama_flip_handedness = false
+constraints/0/kusudama_twist_from = 0.0
+constraints/0/kusudama_twist_to = -1.39626
+constraints/0/kusudama_limit_cone_count = 0
+constraints/1/name = &"LeftShoulder"
+constraints/1/kusudama_flip_handedness = false
+constraints/1/kusudama_twist_from = 0.0
+constraints/1/kusudama_twist_to = -1.39626
+constraints/1/kusudama_limit_cone_count = 0
+
+[node name="Root" type="Node3D" parent="." index="3"]
+
+[node name="Hips" type="Node3D" parent="." index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000761462, 1.14705, 0.0128133)
+
+[node name="Head" type="Node3D" parent="." index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000761437, 1.6842, 0.00888737)
+
+[node name="LeftShoulder" type="Node3D" parent="." index="6"]
+transform = Transform3D(0, 1, 0, 0, 0, 1, 1, 0, 0, 0.0238627, 1.56483, -3.66727e-05)
+
+[node name="LeftUpperArm" type="Node3D" parent="." index="7"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.267438, 1.54336, 0.0068727)
+
+[node name="LeftHand" type="Node3D" parent="." index="8"]
+transform = Transform3D(0.998437, -0.0558913, 0, 0, 0, -1, 0.0558913, 0.998437, 0, 0.615472, 1.56779, -0.014024)
+
+[node name="RightHand" type="Node3D" parent="." index="9"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.616165, 1.53257, 0.0290049)
+
+[node name="LeftFoot" type="Node3D" parent="." index="10"]
+transform = Transform3D(-1, 0, 0, 0, 0, 1, 0, 1, 0, 0.0427413, 0.121334, -0.0394799)
+
+[node name="RightFoot" type="Node3D" parent="." index="11"]
+transform = Transform3D(-1, 0, 0, 0, 0, 1, 0, 1, 0, -0.0442628, 0.121334, -0.0394801)
