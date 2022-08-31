@@ -150,6 +150,7 @@ void EWBIK::update_skeleton() {
 	bone_list.clear();
 	segmented_skeleton->create_bone_list(bone_list, true, debug_skeleton);
 	segmented_skeleton->update_pinned_list();
+	update_shadow_bones_transform();
 	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		String bone = constraint_names[constraint_i];
 		BoneId bone_id = skeleton->find_bone(bone);
@@ -161,18 +162,19 @@ void EWBIK::update_skeleton() {
 			bone_direction_transform.instantiate();
 			bone_direction_transform->set_parent(ik_bone_3d->get_ik_transform());
 			bone_direction_transform->set_transform(Transform3D(Basis(), ik_bone_3d->get_bone_direction_transform()->get_transform().origin));
-			Ref<IKKusudama> constraint;
-			constraint.instantiate();
+			Ref<IKKusudama> constraint = memnew(IKKusudama(ik_bone_3d));
 			constraint->enable_axial_limits();
 			const double axial_from = get_kusudama_twist_from(constraint_i);
 			const double axial_to = get_kusudama_twist_to(constraint_i);
+			for (int32_t cone_i = 0; cone_i < kusudama_limit_cone_count[constraint_i]; cone_i++) {
+				if (cone_i == 0) {
+					constraint->enable_orientational_limits();
+				}
+				Vector4 cone = kusudama_limit_cones[constraint_i][cone_i];
+				constraint->add_limit_cone(Vector3(cone.x, cone.y, cone.z), cone.w);
+			}
+			constraint->_update_constraint();
 			constraint->set_axial_limits(axial_from, axial_to);
-			if (get_kusudama_limit_cone_count(constraint_i)) {
-				constraint->enable_orientational_limits();
-			}
-			for (int32_t cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
-				constraint->add_limit_cone(get_kusudama_limit_cone_center(constraint_i, cone_i), get_kusudama_limit_cone_radius(constraint_i, cone_i));
-			}
 			ik_bone_3d->add_constraint(constraint);
 			break;
 		}

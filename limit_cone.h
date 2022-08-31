@@ -179,7 +179,7 @@ private:
 
 	void set_tangent_circle_radius_next(double rad, int mode);
 
-protected:
+public:
 	virtual Vector3 get_tangent_circle_center_next_1(int mode);
 
 	virtual double get_tangent_circle_radius_next(int mode);
@@ -187,7 +187,7 @@ protected:
 	virtual double get_tangent_circle_radius_next_cos(int mode);
 
 	virtual Vector3 get_tangent_circle_center_next_2(int mode);
-
+protected:
 	virtual double _get_radius(int mode);
 
 	virtual double _get_radius_cosine(int mode);
@@ -196,6 +196,23 @@ private:
 	void compute_triangles(Ref<LimitCone> p_next);
 
 public:
+	static Quaternion quaternion_set_axis_angle(Vector3 axis, real_t angle) {
+		real_t norm = axis.length();
+		if (norm == 0) {
+			ERR_PRINT_ONCE("Axis doesn't have a direction.");
+			return Quaternion();
+		}
+
+		real_t halfAngle = -0.5 * angle;
+		real_t coeff = sin(halfAngle) / norm;
+
+		real_t x = coeff * axis.x;
+		real_t y = coeff * axis.y;
+		real_t z = coeff * axis.z;
+		real_t w = cos(halfAngle);
+		return Quaternion(x * -1, y * -1, z * -1, w);
+	}
+
 	virtual Vector3 get_control_point() const;
 	virtual void set_control_point(Vector3 p_control_point);
 	virtual double get_radius() const;

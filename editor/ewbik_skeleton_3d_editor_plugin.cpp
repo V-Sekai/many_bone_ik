@@ -90,7 +90,7 @@ shader_type spatial;
 render_mode depth_prepass_alpha, cull_disabled;
 
 uniform vec4 kusudama_color : source_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
-const int CONE_COUNT_MAX = 30;
+uniform int cone_count = 0;
 
 // 0,0,0 is the center of the kusudama. The kusudamas have their own bases that automatically get reoriented such that +y points in the direction that is the weighted average of the limitcones on the kusudama.
 // But, if you have a kusuduma with just 1 limit_cone, then in general that limit_cone should be 0,1,0 in the kusudama's basis unless the user has specifically specified otherwise.
@@ -248,7 +248,7 @@ void vertex() {
 void fragment() {
 	vec4 result_color_allowed = vec4(0.0, 0.0, 0.0, 0.0);
 	if (cone_sequence.length() == 30) {
-		result_color_allowed = color_allowed(normal_model_dir, CONE_COUNT_MAX, 0.02);
+		result_color_allowed = color_allowed(normal_model_dir, cone_count, 0.02);
 	}
 	ALBEDO = kusudama_color.rgb;
 	if (result_color_allowed.a == 0.0) {
@@ -275,32 +275,6 @@ void fragment() {
 			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
 			real_t dist = v0.distance_to(v1);
 			String bone_name = skeleton->get_bone_name(current_bone_idx);
-			PackedFloat32Array kusudama_limit_cones;
-			kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
-			kusudama_limit_cones.fill(0.0f);
-			for (int32_t constraint_i = 0; constraint_i < ewbik->get_constraint_count(); constraint_i++) {
-				if (ewbik->get_constraint_name(constraint_i) != skeleton->get_bone_name(current_bone_idx)) {
-					continue;
-				}
-				for (int32_t cone_i = 0; cone_i < KUSUDAMA_MAX_CONES; cone_i++) {
-					const int out_idx = cone_i * 4;
-					if (cone_i >= ewbik->get_kusudama_limit_cone_count(constraint_i)) {
-						kusudama_limit_cones.write[out_idx + 0] = 0.0;
-						kusudama_limit_cones.write[out_idx + 1] = 1.0;
-						kusudama_limit_cones.write[out_idx + 2] = 0.0;
-						kusudama_limit_cones.write[out_idx + 3] = 0.0;
-						continue;
-					}
-					Vector3 control_point = ewbik->get_kusudama_limit_cone_center(constraint_i, cone_i);
-					control_point.normalize();
-					kusudama_limit_cones.write[out_idx + 0] = control_point.x;
-					kusudama_limit_cones.write[out_idx + 1] = control_point.y;
-					kusudama_limit_cones.write[out_idx + 2] = control_point.z;
-					float radius = ewbik->get_kusudama_limit_cone_radius(constraint_i, cone_i);
-					kusudama_limit_cones.write[out_idx + 3] = radius;
-				}
-				break;
-			}
 			BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
 			if (parent_idx == -1) {
 				bones_to_process.push_back(child_bones_vector[child_i]);
@@ -322,6 +296,48 @@ void fragment() {
 				bones_to_process.push_back(child_bones_vector[child_i]);
 				continue;
 			}
+
+			PackedFloat32Array kusudama_limit_cones;
+			kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
+			kusudama_limit_cones.fill(0.0f);
+			Ref<IKKusudama> kusudama = ik_bone->get_constraint();
+			for (int32_t constraint_i = 0; constraint_i < ewbik->get_constraint_count(); constraint_i++) {
+				if (ewbik->get_constraint_name(constraint_i) != skeleton->get_bone_name(current_bone_idx)) {
+					continue;
+				}
+				int out_idx = 0;
+				const Vector<Ref<LimitCone>> &limit_cones = kusudama->get_limit_cones();
+				for (int32_t cone_i = 0; cone_i < limit_cones.size(); cone_i++) {
+					Ref<LimitCone> limit_cone = limit_cones[cone_i];
+					Vector3 control_point = limit_cone->get_control_point();
+					control_point.normalize();
+					kusudama_limit_cones.write[out_idx + 0] = control_point.x;
+					kusudama_limit_cones.write[out_idx + 1] = control_point.y;
+					kusudama_limit_cones.write[out_idx + 2] = control_point.z;
+					float radius = limit_cone->get_radius();
+					kusudama_limit_cones.write[out_idx + 3] = radius;
+
+					Vector3 tangent_center_1 = limit_cone->get_tangent_circle_center_next_1(IKKusudama::BOUNDARY);
+					tangent_center_1.normalize();
+					out_idx += 4;
+					kusudama_limit_cones.write[out_idx + 0] = tangent_center_1.x;
+					kusudama_limit_cones.write[out_idx + 1] = tangent_center_1.y;
+					kusudama_limit_cones.write[out_idx + 2] = tangent_center_1.z;
+					float tangent_radius = limit_cone->get_tangent_circle_radius_next(IKKusudama::BOUNDARY);
+					kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
+
+					Vector3 tangent_center_2 = limit_cone->get_tangent_circle_center_next_2(IKKusudama::BOUNDARY);
+					tangent_center_2.normalize();
+					out_idx += 4;
+					kusudama_limit_cones.write[out_idx + 0] = tangent_center_2.x;
+					kusudama_limit_cones.write[out_idx + 1] = tangent_center_2.y;
+					kusudama_limit_cones.write[out_idx + 2] = tangent_center_2.z;
+					kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
+					out_idx += 4;
+				}
+				break;
+			}
+
 			Transform3D constraint_transform;
 			constraint_transform = ik_bone->get_constraint_transform()->get_transform();
 			Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx) * constraint_transform;
@@ -402,6 +418,8 @@ void fragment() {
 			Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
 			kusudama_material->set_shader(kusudama_shader);
 			kusudama_material->set_shader_uniform("cone_sequence", kusudama_limit_cones);
+			int32_t cone_count = kusudama->get_limit_cones().size();
+			kusudama_material->set_shader_uniform("cone_count", cone_count);
 			kusudama_material->set_shader_uniform("kusudama_color", current_bone_color);
 			p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 
@@ -414,7 +432,7 @@ void fragment() {
 			const Ref<Material> material_primary = get_material("lines_primary", p_gizmo);
 			const Ref<Material> material_secondary = get_material("lines_secondary", p_gizmo);
 
-			for (int32_t i = 0; i < kusudama_limit_cones.size(); i = i + 4) {
+			for (int32_t i = 0; i < kusudama_limit_cones.size(); i = i + (3 * 4)) {
 				if (kusudama_limit_cones[i + 3] > 0.0f) {
 					Vector3 center = Vector3(kusudama_limit_cones[i + 0], kusudama_limit_cones[i + 1], kusudama_limit_cones[i + 2]);
 					Basis basis;

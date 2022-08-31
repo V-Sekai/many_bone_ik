@@ -52,7 +52,7 @@ void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> p_next, int p_
 		Vector3 A = this->get_control_point();
 		Vector3 B = p_next->get_control_point();
 
-		Vector3 arcNormal = A.cross(B).normalized();
+		Vector3 arcNormal = A.cross(B);
 
 		/**
 		 * There are an infinite number of circles co-tangent with A and B, every other
@@ -70,7 +70,7 @@ void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> p_next, int p_
 		 * but their radii remain constant), we want our tangentCircle's diameter to be precisely that distance,
 		 * and so, our tangent circles radius should be precisely half of that distance.
 		 */
-		double tRadius = -(radA + radB) / 2;
+		double tRadius = (Math_PI - (radA + radB)) / 2;
 
 		/**
 		 * Once we have the desired radius for our tangent circle, we may find the solution for its
@@ -82,18 +82,18 @@ void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> p_next, int p_
 		// the axis of this cone, scaled to minimize its distance to the tangent contact points.
 		Vector3 scaledAxisA = A * cos(boundaryPlusTangentRadiusA);
 		// a point on the plane running through the tangent contact points
-		Basis temp_var(arcNormal, boundaryPlusTangentRadiusA);
+		Quaternion temp_var = quaternion_set_axis_angle(arcNormal, boundaryPlusTangentRadiusA);
 		Vector3 planeDir1A = temp_var.xform(A);
 		// another point on the same plane
-		Basis tempVar2(A, Math_PI / 2);
+		Quaternion tempVar2 = quaternion_set_axis_angle(A, Math_PI / 2);
 		Vector3 planeDir2A = tempVar2.xform(planeDir1A);
 
 		Vector3 scaledAxisB = B * cos(boundaryPlusTangentRadiusB);
 		// a point on the plane running through the tangent contact points
-		Basis tempVar3(arcNormal, boundaryPlusTangentRadiusB);
+		Quaternion tempVar3 = quaternion_set_axis_angle(arcNormal, boundaryPlusTangentRadiusB);
 		Vector3 planeDir1B = tempVar3.xform(B);
 		// another point on the same plane
-		Basis tempVar4(B, Math_PI / 2);
+		Quaternion tempVar4 = quaternion_set_axis_angle(B, Math_PI / 2);
 		Vector3 planeDir2B = tempVar4.xform(planeDir1B);
 
 		// ray from scaled center of next cone to half way point between the circumference of this cone and the next cone.
@@ -212,7 +212,6 @@ double LimitCone::get_radius_cosine() const {
 void LimitCone::set_radius(double p_radius) {
 	this->radius = p_radius;
 	this->radius_cosine = cos(p_radius);
-	this->parent_kusudama->_update_constraint();
 }
 
 double LimitCone::get_cushion_radius() {
@@ -224,6 +223,7 @@ double LimitCone::get_cushion_cosine() {
 }
 
 void LimitCone::set_cushion_boundary(double p_cushion) {
+	// Todo: fire 2022-08-31 Pending work.
 	double adjustedCushion = MIN(1, std::max(0.001, p_cushion));
 	this->cushion_radius = this->radius * adjustedCushion;
 	this->cushion_cosine = cos(cushion_radius);
@@ -347,7 +347,7 @@ Vector3 LimitCone::get_orthogonal(Vector3 p_in) {
 }
 
 LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusudama> attached_to) {
-	set_control_point(direction);
+	parent_kusudama = attached_to;
 	tangent_circle_center_next_1 = LimitCone::get_orthogonal(direction);
 	tangent_circle_center_next_2 = (tangent_circle_center_next_1 * -1);
 
@@ -356,19 +356,18 @@ LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusuda
 	double adjustedCushion = MIN(1, MAX(0.001, cushion));
 	this->cushion_radius = this->radius * adjustedCushion;
 	this->cushion_cosine = IKBoneSegment::cos(cushion_radius);
-	parent_kusudama = attached_to;
+	set_control_point(direction);
 }
 
 LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to) {
-	set_control_point(direction);
+	parent_kusudama = attached_to;
 	tangent_circle_center_next_1 = direction.normalized();
 	tangent_circle_center_next_2 = (tangent_circle_center_next_1 * -1);
-
 	this->radius = MAX(DBL_TRUE_MIN, rad);
 	this->radius_cosine = cos(radius);
 	this->cushion_radius = this->radius;
 	this->cushion_cosine = this->radius_cosine;
-	parent_kusudama = attached_to;
+	set_control_point(direction);
 }
 
 Vector3 LimitCone::get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const {

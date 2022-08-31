@@ -369,7 +369,7 @@ Vector3 Ray3D::intersectsPlane(Vector3 ta, Vector3 tb, Vector3 tc) {
 	return result + _p1;
 }
 
-int Ray3D::intersectsSphere(Vector3 sphereCenter, real_t radius, Vector3 S1, Vector3 S2) {
+int Ray3D::intersectsSphere(Vector3 sphereCenter, real_t radius, Vector3 &S1, Vector3 &S2) {
 	Vector3 tp1 = _p1 - sphereCenter;
 	Vector3 tp2 = _p2 - sphereCenter;
 	int result = intersectsSphere(tp1, tp2, radius, S1, S2);
@@ -402,8 +402,8 @@ void Ray3D::setP1(Vector3 p_p1) {
 	this->_p1 = p_p1;
 }
 
-int Ray3D::intersectsSphere(Vector3 rp1, Vector3 rp2, float radius, Vector3 S1, Vector3 S2) {
-	Vector3 direction = static_cast<Vector3>(rp2 - rp1);
+int Ray3D::intersectsSphere(Vector3 rp1, Vector3 rp2, float radius, Vector3 &S1, Vector3 &S2) {
+	Vector3 direction = rp2 - rp1;
 	Vector3 e = direction; // e=ray.dir
 	e.normalize(); // e=g/|g|
 	Vector3 h = _p1;
