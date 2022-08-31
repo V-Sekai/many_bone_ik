@@ -301,7 +301,6 @@ void fragment() {
 				}
 				break;
 			}
-			Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx);
 			BoneId parent_idx = skeleton->get_bone_parent(current_bone_idx);
 			if (parent_idx == -1) {
 				bones_to_process.push_back(child_bones_vector[child_i]);
@@ -325,8 +324,7 @@ void fragment() {
 			}
 			Transform3D constraint_transform;
 			constraint_transform = ik_bone->get_constraint_transform()->get_transform();
-
-			kusudama_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
+			Transform3D kusudama_transform = skeleton->get_bone_global_rest(current_bone_idx) * constraint_transform;
 			kusudama_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
 			// Copied from the SphereMesh.
 			float radius = dist / 5.0;
@@ -409,10 +407,13 @@ void fragment() {
 
 			kusudama_surface_tool->clear();
 			kusudama_surface_tool->begin(Mesh::PRIMITIVE_LINES);
-			Transform3D cone_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
 			for (int32_t i = 0; i < kusudama_limit_cones.size(); i = i + 4) {
 				if (kusudama_limit_cones[i + 3] > 0.0f) {
 					Vector3 center = Vector3(kusudama_limit_cones[i + 0], kusudama_limit_cones[i + 1], kusudama_limit_cones[i + 2]);
+					Basis basis;
+					basis.set_euler(Vector3(Math::deg_to_rad(90.0f), 0, 0));
+					Quaternion cone_quaternion(Vector3(0, 1, 0), center);
+					Transform3D cone_transform = Transform3D(cone_quaternion * basis) * constraint_transform;
 					cone_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
 					// Make the gizmo color as bright as possible for better visibility
 					Color color = bone_color;
@@ -460,11 +461,6 @@ void fragment() {
 					kusudama_surface_tool->set_bones(bones);
 					kusudama_surface_tool->set_weights(weights);
 					kusudama_surface_tool->add_vertex(cone_transform.xform(Vector3()));
-					Vector<Vector3> handles = {
-						cone_transform.xform(Vector3(0, 0, -r)),
-						cone_transform.xform(Vector3(w, 0, -d))
-					};
-					p_gizmo->add_handles(handles, get_material("handles"));
 				}
 			}
 			p_gizmo->add_mesh(kusudama_surface_tool->commit(), Ref<Material>(), skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
