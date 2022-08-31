@@ -491,8 +491,6 @@ bool EWBIK::_set(const StringName &p_name, const Variant &p_value) {
 				Vector3 center = p_value;
 				if (Math::is_zero_approx(center.length_squared())) {
 					center = Vector3(0.0, 1.0, 0.0);
-				} else {
-					center.normalize();
 				}
 				set_kusudama_limit_cone_center(index, cone_index, center);
 				return true;
@@ -692,7 +690,8 @@ int32_t EWBIK::get_kusudama_limit_cone_count(int32_t p_contraint_index) const {
 
 void EWBIK::set_kusudama_limit_cone_count(int32_t p_contraint_index, int32_t p_count) {
 	ERR_FAIL_INDEX(p_contraint_index, kusudama_limit_cone_count.size());
-	int32_t old_cone_count = kusudama_limit_cone_count[p_contraint_index];
+	ERR_FAIL_INDEX(p_contraint_index, kusudama_limit_cones.size());
+	int32_t old_cone_count = kusudama_limit_cones[p_contraint_index].size();
 	kusudama_limit_cone_count.write[p_contraint_index] = p_count;
 	Vector<Vector4> &cones = kusudama_limit_cones.write[p_contraint_index];
 	cones.resize(p_count);

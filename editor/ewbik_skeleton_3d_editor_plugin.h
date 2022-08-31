@@ -31,12 +31,15 @@
 #ifndef EWBIK_SKELETON_3D_EDITOR_PLUGIN_H
 #define EWBIK_SKELETON_3D_EDITOR_PLUGIN_H
 
+#include "core/templates/hash_map.h"
+#include "core/templates/local_vector.h"
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/label_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/node_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/immediate_mesh.h"
 
@@ -61,7 +64,15 @@ public:
 	int get_priority() const override {
 		return -2;
 	}
-	EWBIK3DGizmoPlugin() {}
+	EWBIK3DGizmoPlugin() {
+		// Enable vertex colors for the materials below as the gizmo color depends on the light color.
+		create_material("lines_primary", Color(1, 1, 1), false, false, true);
+		create_material("lines_secondary", Color(1, 1, 1, 0.35), false, false, true);
+		create_material("lines_billboard", Color(1, 1, 1), true, false, true);
+
+		create_handle_material("handles");
+		create_handle_material("handles_billboard", true);
+	}
 };
 
 class EditorPluginEWBIK : public EditorPlugin {
@@ -69,8 +80,9 @@ class EditorPluginEWBIK : public EditorPlugin {
 
 public:
 	EditorPluginEWBIK() {
-		Ref<EWBIK3DGizmoPlugin> gizmo_plugin = Ref<EWBIK3DGizmoPlugin>(memnew(EWBIK3DGizmoPlugin));
-		Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
+		Ref<EWBIK3DGizmoPlugin> ewbik_gizmo_plugin = Ref<EWBIK3DGizmoPlugin>(memnew(EWBIK3DGizmoPlugin));
+		Node3DEditor::get_singleton()->add_gizmo_plugin(ewbik_gizmo_plugin);
 	}
 };
+
 #endif // SKELETON_3D_EDITOR_PLUGIN_H

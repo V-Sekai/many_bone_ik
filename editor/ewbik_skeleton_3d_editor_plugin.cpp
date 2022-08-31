@@ -48,6 +48,8 @@
 #include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/surface_tool.h"
 
+#include "editor/plugins/node_3d_editor_gizmos.h"
+
 bool EWBIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
 	if (Object::cast_to<EWBIK>(p_spatial)) {
 		return true;
@@ -394,7 +396,7 @@ void fragment() {
 				c.a = 0;
 				kusudama_surface_tool->set_custom(MESH_CUSTOM_0, c);
 				kusudama_surface_tool->set_normal(normals[point_i]);
-				kusudama_surface_tool->add_vertex(kusudama_transform.xform(points[point_i]));
+				kusudama_surface_tool->add_vertex(kusudama_transform.origin + points[point_i]);
 			}
 			for (int32_t index_i : indices) {
 				kusudama_surface_tool->add_index(index_i);
@@ -404,6 +406,69 @@ void fragment() {
 			kusudama_material->set_shader_uniform("cone_sequence", kusudama_limit_cones);
 			kusudama_material->set_shader_uniform("kusudama_color", current_bone_color);
 			p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+
+			kusudama_surface_tool->clear();
+			kusudama_surface_tool->begin(Mesh::PRIMITIVE_LINES);
+			Transform3D cone_transform = skeleton->get_bone_global_rest(parent_idx) * constraint_transform;
+			for (int32_t i = 0; i < kusudama_limit_cones.size(); i = i + 4) {
+				if (kusudama_limit_cones[i + 3] > 0.0f) {
+					Vector3 center = Vector3(kusudama_limit_cones[i + 0], kusudama_limit_cones[i + 1], kusudama_limit_cones[i + 2]);
+					cone_transform.origin = skeleton->get_bone_global_rest(current_bone_idx).origin;
+					// Make the gizmo color as bright as possible for better visibility
+					Color color = bone_color;
+					color.set_hsv(color.get_h(), color.get_s(), 1);
+
+					const Ref<Material> material_primary = get_material("lines_primary", p_gizmo);
+					const Ref<Material> material_secondary = get_material("lines_secondary", p_gizmo);
+
+					Vector<Vector3> points_primary;
+					Vector<Vector3> points_secondary;
+
+					float r = radius;
+					float cone_radius = kusudama_limit_cones[i + 3];
+					float w = r * Math::sin(cone_radius);
+					float d = r * Math::cos(cone_radius);
+
+					for (int i = 0; i < 120; i++) {
+						// Draw a circle
+						const float ra = Math::deg_to_rad((float)(i * 3));
+						const float rb = Math::deg_to_rad((float)((i + 1) * 3));
+						const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
+						const Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * w;
+
+						kusudama_surface_tool->set_bones(bones);
+						kusudama_surface_tool->set_weights(weights);
+						kusudama_surface_tool->add_vertex(cone_transform.xform(Vector3(a.x, a.y, -d)));
+						kusudama_surface_tool->set_bones(bones);
+						kusudama_surface_tool->set_weights(weights);
+						kusudama_surface_tool->add_vertex(cone_transform.xform(Vector3(b.x, b.y, -d)));
+
+						if (i % 15 == 0) {
+							// Draw 8 lines from the cone origin to the sides of the circle
+							kusudama_surface_tool->set_bones(bones);
+							kusudama_surface_tool->set_weights(weights);
+							kusudama_surface_tool->add_vertex(cone_transform.xform(Vector3(a.x, a.y, -d)));
+							kusudama_surface_tool->set_bones(bones);
+							kusudama_surface_tool->set_weights(weights);
+							kusudama_surface_tool->add_vertex(cone_transform.xform(Vector3()));
+						}
+					}
+
+					kusudama_surface_tool->set_bones(bones);
+					kusudama_surface_tool->set_weights(weights);
+					kusudama_surface_tool->add_vertex(cone_transform.xform(Vector3(0, 0, -r)));
+					kusudama_surface_tool->set_bones(bones);
+					kusudama_surface_tool->set_weights(weights);
+					kusudama_surface_tool->add_vertex(cone_transform.xform(Vector3()));
+					Vector<Vector3> handles = {
+						cone_transform.xform(Vector3(0, 0, -r)),
+						cone_transform.xform(Vector3(w, 0, -d))
+					};
+					p_gizmo->add_handles(handles, get_material("handles"));
+				}
+			}
+			p_gizmo->add_mesh(kusudama_surface_tool->commit(), Ref<Material>(), skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
+
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[child_i]);
 		}
