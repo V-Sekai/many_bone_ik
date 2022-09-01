@@ -59,8 +59,6 @@ class EWBIK : public Node3D {
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
-	float time_budget_millisecond = 0.6f;
-	int32_t ik_iterations = 0;
 	int32_t max_ik_iterations = 30;
 	float default_damp = Math::deg_to_rad(5.0f);
 	Ref<IKTransform3D> root_transform = memnew(IKTransform3D);
@@ -117,8 +115,6 @@ public:
 	void remove_pin(int32_t p_index);
 	bool get_debug_skeleton() const;
 	void set_debug_skeleton(bool p_enabled);
-	void set_ik_iterations(int32_t p_iterations);
-	int32_t get_ik_iterations() const;
 	void set_pin_count(int32_t p_value);
 	int32_t get_pin_count() const;
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);

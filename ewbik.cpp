@@ -36,10 +36,6 @@
 #include "editor/editor_node.h"
 #endif
 
-int32_t EWBIK::get_ik_iterations() const {
-	return ik_iterations;
-}
-
 void EWBIK::set_pin_count(int32_t p_value) {
 	int32_t old_count = pins.size();
 	pin_count = p_value;
@@ -527,9 +523,6 @@ void EWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_segmented_skeleton"), &EWBIK::get_segmented_skeleton);
 	ClassDB::bind_method(D_METHOD("get_max_ik_iterations"), &EWBIK::get_max_ik_iterations);
 	ClassDB::bind_method(D_METHOD("set_max_ik_iterations", "count"), &EWBIK::set_max_ik_iterations);
-	ClassDB::bind_method(D_METHOD("get_time_budget_millisecond"), &EWBIK::get_time_budget_millisecond);
-	ClassDB::bind_method(D_METHOD("set_time_budget_millisecond", "budget"), &EWBIK::set_time_budget_millisecond);
-	ClassDB::bind_method(D_METHOD("get_ik_iterations"), &EWBIK::get_ik_iterations);
 	ClassDB::bind_method(D_METHOD("get_constraint_count"), &EWBIK::get_constraint_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_count", "count"),
 			&EWBIK::set_constraint_count);
@@ -556,9 +549,7 @@ void EWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_pin_use_node_rotation", "index", "node_rotation"), &EWBIK::set_pin_use_node_rotation);
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "", "get_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "budget_millisecond", PROPERTY_HINT_RANGE, "0.01,2.0,0.01,or_greater"), "set_time_budget_millisecond", "get_time_budget_millisecond");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "live_preview"), "set_live_preview", "get_live_preview");
@@ -774,14 +765,6 @@ void EWBIK::set_max_ik_iterations(const float &p_max_ik_iterations) {
 	max_ik_iterations = p_max_ik_iterations;
 }
 
-float EWBIK::get_time_budget_millisecond() const {
-	return time_budget_millisecond;
-}
-
-void EWBIK::set_time_budget_millisecond(const float &p_time_budget) {
-	time_budget_millisecond = p_time_budget;
-}
-
 bool EWBIK::get_kusudama_flip_handedness(int32_t p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, kusudama_flip_handedness.size(), false);
 	return kusudama_flip_handedness[p_bone];
@@ -845,12 +828,9 @@ void EWBIK::_notification(int p_what) {
 					root_ik_parent_transform->set_global_transform(skeleton->get_global_transform());
 				}
 				update_shadow_bones_transform();
-				double time_ms = OS::get_singleton()->get_ticks_msec() + get_time_budget_millisecond();
-				ik_iterations = 0;
-				do {
+				for (int32_t i = 0; i < get_max_ik_iterations(); i++) {
 					segmented_skeleton->segment_solver(get_default_damp());
-					ik_iterations++;
-				} while (time_ms > OS::get_singleton()->get_ticks_msec() && ik_iterations < get_max_ik_iterations());
+				}
 				update_skeleton_bones_transform();
 			}
 		} break;
