@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://cbf4yx8bqxvr"
-path="res://.godot/imported/female.vrm-c5b4c32f1fb09a31501f2288327ef571.scn"
+path="res://.godot/imported/female.vrm-69e68951edc6758fcdd99eabbb7b0e03.scn"
 
 [deps]
 
-source_file="res://ewbik_samples/art/SK_VRoid用SRanipal対応BlendShape/female.vrm"
-dest_files=["res://.godot/imported/female.vrm-c5b4c32f1fb09a31501f2288327ef571.scn"]
+source_file="res://ewbik/art/SK_VRoid用SRanipal対応BlendShape/female.vrm"
+dest_files=["res://.godot/imported/female.vrm-69e68951edc6758fcdd99eabbb7b0e03.scn"]
 
 [params]
 

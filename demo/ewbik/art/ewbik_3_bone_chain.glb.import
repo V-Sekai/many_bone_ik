@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://deuapcn1ywqqi"
-path="res://.godot/imported/ewbik_3_bone_chain.glb-e6e8bedf33193f941240a825f8ba47c4.scn"
+path="res://.godot/imported/ewbik_3_bone_chain.glb-fc953499ebc607063f9ee727a621eb14.scn"
 
 [deps]
 
-source_file="res://ewbik_samples/art/ewbik_3_bone_chain.glb"
-dest_files=["res://.godot/imported/ewbik_3_bone_chain.glb-e6e8bedf33193f941240a825f8ba47c4.scn"]
+source_file="res://ewbik/art/ewbik_3_bone_chain.glb"
+dest_files=["res://.godot/imported/ewbik_3_bone_chain.glb-fc953499ebc607063f9ee727a621eb14.scn"]
 
 [params]
 

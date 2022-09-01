@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://daav1dqydvgob"
-path="res://.godot/imported/Fox.glb-b572ef9399f0b9efcd3cbe0eb60eeed0.scn"
+uid="uid://d35nd14euhmox"
+path="res://.godot/imported/ewbik_simple_test_rig.glb-c44e6e67a7f09b6668cc5be66e6eca9f.scn"
 
 [deps]
 
-source_file="res://ewbik_samples/art/Fox.glb"
-dest_files=["res://.godot/imported/Fox.glb-b572ef9399f0b9efcd3cbe0eb60eeed0.scn"]
+source_file="res://ewbik/art/ewbik_simple_test_rig.glb"
+dest_files=["res://.godot/imported/ewbik_simple_test_rig.glb-c44e6e67a7f09b6668cc5be66e6eca9f.scn"]
 
 [params]
 
