@@ -1,31 +1,18 @@
 @tool
 extends EditorScript
 
-func _lock_rotation(ewbik, constraint_i):
-	ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
-	ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-	ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(90))
-
-func _full_rotation(ewbik, constraint_i):
-	ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
-	ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-	ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, TAU)
-
 func _run():
 	var root : Node3D = get_editor_interface().get_edited_scene_root()
 	var queue : Array
 	queue.push_back(root)
 	var string_builder : Array
-	var vrm_top_level : Node3D
 	var skeleton : Skeleton3D
 	var ewbik : EWBIK = null
 	while not queue.is_empty():
 		var front = queue.front()
 		var node : Node = front
 		if node is Skeleton3D:
-			skeleton = node
-		if node.script and node.script.resource_path == "res://addons/vrm/vrm_toplevel.gd":
-			vrm_top_level = node
+			skeleton = nodes
 		if node is EWBIK:
 			ewbik = node
 		var child_count : int = node.get_child_count()
@@ -43,20 +30,12 @@ func _run():
 	var profile : SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
 	var bone_map : BoneMap = BoneMap.new()
 	bone_map.profile = profile
-	_generate_ewbik(vrm_top_level, skeleton, ewbik, profile)
-	
-
-func _generate_ewbik(vrm_top_level : Node3D, skeleton : Skeleton3D, ewbik : EWBIK, profile : SkeletonProfileHumanoid) -> void:
-	var vrm_meta = vrm_top_level.get("vrm_meta")
 	var bone_vrm_mapping : Dictionary
 	ewbik.max_ik_iterations = 10
 	ewbik.default_damp = deg_to_rad(1)
 	ewbik.live_preview = true
-	var minimum_twist = deg_to_rad(-0.5)
-	var minimum_twist_diff = deg_to_rad(0.5)
-	var maximum_twist = deg_to_rad(360)
 	var pin_i = 0
-	var bones = ["Root", "Hips", "Head", "LeftShoulder", "LeftUpperArm", "LeftHand", "RightHand", "LeftFoot", "RightFoot"]
+	var bones = ["Root", "Hips", "LeftHand", "RightHand"]
 	ewbik.pin_count = bones.size()
 	for bone_name in bones:
 		var bone_index = skeleton.find_bone(bone_name)
@@ -85,40 +64,11 @@ func _generate_ewbik(vrm_top_level : Node3D, skeleton : Skeleton3D, ewbik : EWBI
 			continue
 		ewbik.set_constraint_name(constraint_i, bone_name)
 		# Female age 9 - 19 https://pubmed.ncbi.nlm.nih.gov/32644411/
-		if bone_name in ["Spine", "Chest", "UpperChest"]:
-			ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-2))
-			ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(2))
-			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
-			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(2))
-		elif bone_name in ["Neck"]:
-			ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-47))
-			ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(47))
-		elif bone_name in ["Head"]:
-			ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-5))
-			ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(5))
-		elif bone_name in ["LeftShoulder", "RightShoulder"]:
-			ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-18))
-			ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(30))
-		elif bone_name in ["LeftUpperArm", "RightUpperArm"]:
-			ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-18))
-			ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(30))
-		elif bone_name in ["LeftLowerArm", "RightLowerArm"]:
+		if bone_name in ["LeftLowerArm", "RightLowerArm"]:
 			ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-90))
 			ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(90))
-			if bone_name == "RightLowerArm":
-				ewbik.set_kusudama_flip_handedness(constraint_i, true)
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 2)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 1, 0).normalized())
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
-		elif bone_name in ["LeftHand","RightHand", "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftFoot", "RightFoot"]:
-			ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-90))
-			ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(90))
-		else:
-			ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-90))
-			ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(90))
-			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
-			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(45))

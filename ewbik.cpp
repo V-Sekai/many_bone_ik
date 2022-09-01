@@ -690,7 +690,7 @@ void EWBIK::set_kusudama_limit_cone_count(int32_t p_contraint_index, int32_t p_c
 		cone.x = 0.0f;
 		cone.y = 1.0f;
 		cone.z = 0.0f;
-		cone.w = 0.0f;
+		cone.w = Math::deg_to_rad(10.0f);
 	}
 
 	notify_property_list_changed();
