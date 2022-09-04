@@ -44,7 +44,7 @@ void EWBIK::set_pin_count(int32_t p_value) {
 		pins.write[pin_i].instantiate();
 	}
 	notify_property_list_changed();
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 int32_t EWBIK::get_pin_count() const {
@@ -63,7 +63,7 @@ void EWBIK::add_pin(const StringName &p_name, const NodePath &p_target_node, con
 	set_pin_target_nodepath(count, p_target_node);
 	set_pin_use_node_rotation(count, p_use_node_rotation);
 	notify_property_list_changed();
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 void EWBIK::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
@@ -75,7 +75,7 @@ void EWBIK::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
 	}
 	data->set_name(p_bone);
 	notify_property_list_changed();
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 void EWBIK::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_target_node) {
@@ -87,7 +87,7 @@ void EWBIK::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_targe
 	}
 	data->set_target_node(p_target_node);
 	notify_property_list_changed();
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 NodePath EWBIK::get_pin_target_nodepath(int32_t p_pin_index) {
@@ -103,7 +103,7 @@ void EWBIK::set_pin_use_node_rotation(int32_t p_pin_index, bool p_use_node_rot) 
 	data->set_target_node_rotation(p_use_node_rot);
 
 	notify_property_list_changed();
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 bool EWBIK::get_pin_use_node_rotation(int32_t p_effector_index) const {
@@ -122,68 +122,7 @@ void EWBIK::remove_pin(int32_t p_index) {
 	pin_count--;
 	pins.resize(pin_count);
 	notify_property_list_changed();
-	is_dirty = true;
-}
-
-void EWBIK::update_skeleton() {
-	skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton()));
-	if (!skeleton) {
-		return;
-	}
-	if (!root_bone) {
-		Vector<int32_t> roots = skeleton->get_parentless_bones();
-		if (roots.size()) {
-			StringName parentless_bone = skeleton->get_bone_name(roots[0]);
-			set_root_bone(parentless_bone);
-		}
-	}
-	ERR_FAIL_COND(!root_bone);
-	BoneId root_bone_index = skeleton->find_bone(root_bone);
-	BoneId tip_bone_index = skeleton->find_bone(tip_bone);
-	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, root_bone, pins, nullptr, root_bone_index, tip_bone_index)));
-	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
-	segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
-	bone_list.clear();
-	segmented_skeleton->create_bone_list(bone_list, true, debug_skeleton);
-	segmented_skeleton->update_pinned_list();
-	update_shadow_bones_transform();
-	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
-		String bone = constraint_names[constraint_i];
-		BoneId bone_id = skeleton->find_bone(bone);
-		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-			if (ik_bone_3d->get_bone_id() != bone_id) {
-				continue;
-			}
-			Ref<IKTransform3D> bone_direction_transform;
-			bone_direction_transform.instantiate();
-			bone_direction_transform->set_parent(ik_bone_3d->get_ik_transform());
-			bone_direction_transform->set_transform(Transform3D(Basis(), ik_bone_3d->get_bone_direction_transform()->get_transform().origin));
-			Ref<IKKusudama> constraint = memnew(IKKusudama(ik_bone_3d));
-			constraint->enable_axial_limits();
-			const double axial_from = get_kusudama_twist_from(constraint_i);
-			const double axial_to = get_kusudama_twist_to(constraint_i);
-			for (int32_t cone_i = 0; cone_i < kusudama_limit_cone_count[constraint_i]; cone_i++) {
-				if (cone_i == 0) {
-					constraint->enable_orientational_limits();
-				}
-				Vector4 cone = kusudama_limit_cones[constraint_i][cone_i];
-				constraint->add_limit_cone(Vector3(cone.x, cone.y, cone.z), cone.w);
-			}
-			constraint->_update_constraint();
-			constraint->set_axial_limits(axial_from, axial_to);
-			ik_bone_3d->add_constraint(constraint);
-			break;
-		}
-	}
-	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-		Ref<IKKusudama> constraint = ik_bone_3d->get_constraint();
-		if (constraint.is_null()) {
-			continue;
-		}
-		constraint->update_tangent_radii();
-		constraint->update_rotational_freedom();
-	}
-	is_dirty = false;
+	skeleton_changed(get_skeleton());
 }
 
 void EWBIK::update_shadow_bones_transform() {
@@ -192,9 +131,9 @@ void EWBIK::update_shadow_bones_transform() {
 		if (bone.is_null()) {
 			continue;
 		}
-		bone->set_initial_pose(skeleton);
+		bone->set_initial_pose(get_skeleton());
 		if (bone->is_pinned()) {
-			bone->get_pin()->update_target_global_transform(skeleton, this);
+			bone->get_pin()->update_target_global_transform(get_skeleton(), this);
 		}
 	}
 }
@@ -208,16 +147,16 @@ void EWBIK::update_skeleton_bones_transform() {
 		if (bone->get_bone_id() == -1) {
 			continue;
 		}
-		bone->set_skeleton_bone_pose(skeleton, 1.0);
+		bone->set_skeleton_bone_pose(get_skeleton(), 1.0);
 	}
 }
 
 void EWBIK::_validate_property(PropertyInfo &property) const {
 	if (property.name == "root_bone") {
-		if (skeleton) {
+		if (get_skeleton()) {
 			String names;
-			for (int i = 0; i < skeleton->get_bone_count(); i++) {
-				String name = skeleton->get_bone_name(i);
+			for (int i = 0; i < get_skeleton()->get_bone_count(); i++) {
+				String name = get_skeleton()->get_bone_name(i);
 				name += ",";
 				names += name;
 			}
@@ -229,14 +168,14 @@ void EWBIK::_validate_property(PropertyInfo &property) const {
 		}
 	}
 	if (property.name == "tip_bone") {
-		if (skeleton) {
+		if (get_skeleton()) {
 			String names;
-			BoneId root_bone_id = skeleton->find_bone(root_bone);
-			for (int i = 0; i < skeleton->get_bone_count(); i++) {
+			BoneId root_bone_id = get_skeleton()->find_bone(root_bone);
+			for (int i = 0; i < get_skeleton()->get_bone_count(); i++) {
 				if (i <= root_bone_id && root_bone_id != -1) {
 					continue;
 				}
-				String name = skeleton->get_bone_name(i);
+				String name = get_skeleton()->get_bone_name(i);
 				name += ",";
 				names += name;
 			}
@@ -263,10 +202,10 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/name";
-		if (skeleton) {
+		if (get_skeleton()) {
 			String names;
-			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-				String name = skeleton->get_bone_name(bone_i);
+			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+				String name = get_skeleton()->get_bone_name(bone_i);
 				if (existing_pins.has(name)) {
 					continue;
 				}
@@ -310,10 +249,10 @@ void EWBIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
-		if (skeleton) {
+		if (get_skeleton()) {
 			String names;
-			for (int bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-				String name = skeleton->get_bone_name(bone_i);
+			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+				String name = get_skeleton()->get_bone_name(bone_i);
 				if (existing_constraints.has(name)) {
 					continue;
 				}
@@ -534,16 +473,11 @@ void EWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_pin", "name", "target_node", "use_node_rotation"), &EWBIK::add_pin);
 	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &EWBIK::get_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &EWBIK::set_pin_bone_name);
-	ClassDB::bind_method(D_METHOD("update_skeleton"), &EWBIK::update_skeleton);
 	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &EWBIK::get_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &EWBIK::set_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &EWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &EWBIK::set_default_damp);
 	ClassDB::bind_method(D_METHOD("get_kusudama_flip_handedness"), &EWBIK::get_kusudama_flip_handedness);
-	ClassDB::bind_method(D_METHOD("set_live_preview", "enable"), &EWBIK::set_live_preview);
-	ClassDB::bind_method(D_METHOD("get_live_preview"), &EWBIK::get_live_preview);
-	ClassDB::bind_method(D_METHOD("set_skeleton", "skeleton"), &EWBIK::set_skeleton);
-	ClassDB::bind_method(D_METHOD("get_skeleton"), &EWBIK::get_skeleton);
 	ClassDB::bind_method(D_METHOD("get_pin_nodepath"), &EWBIK::get_pin_nodepath);
 	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &EWBIK::set_pin_nodepath);
 	ClassDB::bind_method(D_METHOD("set_pin_use_node_rotation", "index", "node_rotation"), &EWBIK::set_pin_use_node_rotation);
@@ -552,8 +486,6 @@ void EWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "live_preview"), "set_live_preview", "get_live_preview");
-	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT), "set_skeleton", "get_skeleton");
 }
 
 EWBIK::EWBIK() {
@@ -568,10 +500,10 @@ bool EWBIK::get_debug_skeleton() const {
 
 void EWBIK::set_debug_skeleton(bool p_enabled) {
 	debug_skeleton = p_enabled;
-	if (skeleton) {
-		skeleton->notify_property_list_changed();
+	if (get_skeleton()) {
+		get_skeleton()->notify_property_list_changed();
 	}
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 float EWBIK::get_pin_depth_falloff(int32_t p_effector_index) const {
@@ -585,7 +517,7 @@ void EWBIK::set_pin_depth_falloff(int32_t p_effector_index, const float p_depth_
 	ERR_FAIL_NULL(data);
 	data->set_depth_falloff(p_depth_falloff);
 	notify_property_list_changed();
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 void EWBIK::set_constraint_count(int32_t p_count) {
@@ -607,7 +539,7 @@ void EWBIK::set_constraint_count(int32_t p_count) {
 	}
 
 	notify_property_list_changed();
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 int32_t EWBIK::get_constraint_count() const {
@@ -622,13 +554,13 @@ inline StringName EWBIK::get_constraint_name(int32_t p_index) const {
 void EWBIK::set_kusudama_twist_from(int32_t p_index, float p_from) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist_from.write[p_index] = p_from;
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 void EWBIK::set_kusudama_twist_to(int32_t p_index, float p_to) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist_to.write[p_index] = p_to;
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 int32_t EWBIK::find_effector_id(StringName p_bone_name) {
@@ -652,7 +584,7 @@ void EWBIK::set_kusudama_limit_cone(int32_t p_contraint_index, int32_t p_index,
 	cone.w = p_radius;
 	cones.write[p_index] = cone;
 	kusudama_limit_cones.write[p_contraint_index] = cones;
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 Vector3 EWBIK::get_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index) const {
@@ -694,7 +626,7 @@ void EWBIK::set_kusudama_limit_cone_count(int32_t p_contraint_index, int32_t p_c
 	}
 
 	notify_property_list_changed();
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 real_t EWBIK::get_default_damp() const {
@@ -704,7 +636,7 @@ real_t EWBIK::get_default_damp() const {
 void EWBIK::set_default_damp(float p_default_damp) {
 	default_damp = p_default_damp;
 	notify_property_list_changed();
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 StringName EWBIK::get_pin_bone_name(int32_t p_effector_index) const {
@@ -719,7 +651,7 @@ void EWBIK::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_i
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
 	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
 	cone.w = p_radius;
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 void EWBIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
@@ -730,7 +662,7 @@ void EWBIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_i
 	cone.x = p_center.x;
 	cone.y = p_center.y;
 	cone.z = p_center.z;
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 float EWBIK::get_kusudama_twist_from(int32_t p_index) const {
@@ -747,11 +679,7 @@ void EWBIK::set_constraint_name(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	constraint_names.write[p_index] = p_name;
 	notify_property_list_changed();
-	is_dirty = true;
-}
-
-void EWBIK::set_dirty() {
-	is_dirty = true;
+	skeleton_changed(get_skeleton());
 }
 
 Ref<IKBoneSegment> EWBIK::get_segmented_skeleton() {
@@ -791,50 +719,7 @@ void EWBIK::set_kusudama_flip_handedness(int32_t p_bone, bool p_flip) {
 	}
 	transform->set_global_chirality(p_flip ? -1.0 : 1.0);
 	notify_property_list_changed();
-	set_dirty();
-}
-
-void EWBIK::_notification(int p_what) {
-	switch (p_what) {
-		case NOTIFICATION_READY: {
-			set_process_internal(true);
-			set_physics_process_internal(false);
-		} break;
-		case NOTIFICATION_INTERNAL_PROCESS:
-			[[fallthrough]];
-		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
-			if (!Engine::get_singleton()->is_editor_hint() || live_preview) {
-				if (!live_preview) {
-					is_dirty = true;
-					return;
-				}
-				if (is_dirty) {
-					update_skeleton();
-					if (get_debug_skeleton()) {
-						set_debug_skeleton(false);
-					}
-				}
-				if (!skeleton) {
-					return;
-				}
-				if (segmented_skeleton.is_null()) {
-					return;
-				}
-				if (bone_list.size()) {
-					Ref<IKTransform3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
-					ERR_FAIL_NULL(root_ik_bone);
-					Ref<IKTransform3D> root_ik_parent_transform = root_ik_bone->get_parent();
-					ERR_FAIL_NULL(root_ik_parent_transform);
-					root_ik_parent_transform->set_global_transform(skeleton->get_global_transform());
-				}
-				update_shadow_bones_transform();
-				for (int32_t i = 0; i < get_max_ik_iterations(); i++) {
-					segmented_skeleton->segment_solver(get_default_damp());
-				}
-				update_skeleton_bones_transform();
-			}
-		} break;
-	}
+	skeleton_changed(get_skeleton());
 }
 
 void EWBIK::set_pin_bone_name(int32_t p_effector_index, StringName p_name) const {
@@ -853,4 +738,106 @@ NodePath EWBIK::get_pin_nodepath(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), NodePath());
 	Ref<IKEffectorTemplate> data = pins[p_effector_index];
 	return data->get_target_node();
+}
+
+void EWBIK::execute(real_t delta) {
+	SkeletonModification3D::execute(delta);
+	if (segmented_skeleton.is_null()) {
+		return;
+	}
+	if (bone_list.size()) {
+		Ref<IKTransform3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
+		ERR_FAIL_NULL(root_ik_bone);
+		Ref<IKTransform3D> root_ik_parent_transform = root_ik_bone->get_parent();
+		ERR_FAIL_NULL(root_ik_parent_transform);
+		root_ik_parent_transform->set_global_transform(get_skeleton()->get_global_transform());
+	}
+	update_shadow_bones_transform();
+	for (int32_t i = 0; i < get_max_ik_iterations(); i++) {
+		segmented_skeleton->segment_solver(get_default_damp());
+	}
+	update_skeleton_bones_transform();
+}
+
+void EWBIK::skeleton_changed(Skeleton3D *p_skeleton) {
+	if (!p_skeleton) {
+		return;
+	}
+	if (!root_bone) {
+		Vector<int32_t> roots = p_skeleton->get_parentless_bones();
+		if (roots.size()) {
+			StringName parentless_bone = p_skeleton->get_bone_name(roots[0]);
+			set_root_bone(parentless_bone);
+		}
+	}
+	ERR_FAIL_COND(!root_bone);
+	BoneId root_bone_index = p_skeleton->find_bone(root_bone);
+	BoneId tip_bone_index = p_skeleton->find_bone(tip_bone);
+	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, root_bone, pins, nullptr, root_bone_index, tip_bone_index)));
+	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
+	segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
+	bone_list.clear();
+	segmented_skeleton->create_bone_list(bone_list, true, debug_skeleton);
+	segmented_skeleton->update_pinned_list();
+	update_shadow_bones_transform();
+	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
+		String bone = constraint_names[constraint_i];
+		BoneId bone_id = p_skeleton->find_bone(bone);
+		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+			if (ik_bone_3d->get_bone_id() != bone_id) {
+				continue;
+			}
+			Ref<IKTransform3D> bone_direction_transform;
+			bone_direction_transform.instantiate();
+			bone_direction_transform->set_parent(ik_bone_3d->get_ik_transform());
+			bone_direction_transform->set_transform(Transform3D(Basis(), ik_bone_3d->get_bone_direction_transform()->get_transform().origin));
+			Ref<IKKusudama> constraint = memnew(IKKusudama(ik_bone_3d));
+			constraint->enable_axial_limits();
+			const double axial_from = get_kusudama_twist_from(constraint_i);
+			const double axial_to = get_kusudama_twist_to(constraint_i);
+			for (int32_t cone_i = 0; cone_i < kusudama_limit_cone_count[constraint_i]; cone_i++) {
+				if (cone_i == 0) {
+					constraint->enable_orientational_limits();
+				}
+				Vector4 cone = kusudama_limit_cones[constraint_i][cone_i];
+				constraint->add_limit_cone(Vector3(cone.x, cone.y, cone.z), cone.w);
+			}
+			constraint->_update_constraint();
+			constraint->set_axial_limits(axial_from, axial_to);
+			ik_bone_3d->add_constraint(constraint);
+			break;
+		}
+	}
+	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+		Ref<IKKusudama> constraint = ik_bone_3d->get_constraint();
+		if (constraint.is_null()) {
+			continue;
+		}
+		constraint->update_tangent_radii();
+		constraint->update_rotational_freedom();
+	}
+	if (get_debug_skeleton()) {
+		set_debug_skeleton(false);
+	}
+	SkeletonModification3D::skeleton_changed(p_skeleton);
+}
+
+StringName EWBIK::get_root_bone() const {
+	return root_bone;
+}
+
+void EWBIK::set_root_bone(const StringName &p_root_bone) {
+	root_bone = p_root_bone;
+	notify_property_list_changed();
+	skeleton_changed(get_skeleton());
+}
+
+StringName EWBIK::get_tip_bone() const {
+	return tip_bone;
+}
+
+void EWBIK::set_tip_bone(StringName p_bone) {
+	tip_bone = p_bone;
+	notify_property_list_changed();
+	skeleton_changed(get_skeleton());
 }

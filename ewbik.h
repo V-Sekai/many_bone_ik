@@ -36,14 +36,13 @@
 #include "ik_bone_3d.h"
 #include "ik_effector_template.h"
 #include "math/ik_transform.h"
+#include "scene/3d/skeleton_modification_3d.h"
 
 class IKBoneSegment;
-class EWBIK : public Node3D {
-	GDCLASS(EWBIK, Node3D);
+class EWBIK : public SkeletonModification3D {
+	GDCLASS(EWBIK, SkeletonModification3D);
 	StringName root_bone;
 	StringName tip_bone;
-	bool live_preview = true;
-	Skeleton3D *skeleton = nullptr;
 	NodePath skeleton_path;
 	Ref<IKBoneSegment> segmented_skeleton;
 	int32_t constraint_count = 0;
@@ -51,7 +50,6 @@ class EWBIK : public Node3D {
 	int32_t pin_count = 0;
 	Vector<Ref<IKEffectorTemplate>> pins;
 	Vector<Ref<IKBone3D>> bone_list;
-	bool is_dirty = true;
 	bool debug_skeleton = false;
 	Vector<float> kusudama_twist_from;
 	Vector<float> kusudama_twist_to;
@@ -64,9 +62,7 @@ class EWBIK : public Node3D {
 	Ref<IKTransform3D> root_transform = memnew(IKTransform3D);
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform();
-	void update_skeleton();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
-	void set_dirty();
 
 protected:
 	void _validate_property(PropertyInfo &property) const;
@@ -74,38 +70,14 @@ protected:
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
+	virtual void skeleton_changed(Skeleton3D *skeleton) override;
+	virtual void execute(real_t delta) override;
 
 public:
-	StringName get_root_bone() const {
-		return root_bone;
-	}
-	void set_root_bone(const StringName &p_root_bone) {
-		root_bone = p_root_bone;
-		notify_property_list_changed();
-		is_dirty = true;
-	}
-	StringName get_tip_bone() const {
-		return tip_bone;
-	}
-	void set_tip_bone(StringName p_bone) {
-		tip_bone = p_bone;
-		notify_property_list_changed();
-		is_dirty = true;
-	}
-	void _notification(int p_what);
-	NodePath get_skeleton() const {
-		return skeleton_path;
-	}
-	void set_skeleton(NodePath p_skeleton) {
-		skeleton_path = p_skeleton;
-		is_dirty = true;
-	};
-	bool get_live_preview() const {
-		return live_preview;
-	}
-	void set_live_preview(bool p_enabled) {
-		live_preview = p_enabled;
-	}
+	StringName get_root_bone() const;
+	void set_root_bone(const StringName &p_root_bone);
+	StringName get_tip_bone() const;
+	void set_tip_bone(StringName p_bone);
 	Ref<IKBoneSegment> get_segmented_skeleton();
 	float get_max_ik_iterations() const;
 	void set_max_ik_iterations(const float &p_max_ik_iterations);

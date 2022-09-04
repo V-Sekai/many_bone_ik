@@ -25,7 +25,6 @@ func _run():
 	skeleton.add_child(ewbik, true)
 	ewbik.owner = skeleton.owner
 	ewbik.name = "EWBIK"
-	ewbik.skeleton = NodePath("..")
 	var godot_to_vrm : Dictionary
 	var profile : SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
 	var bone_map : BoneMap = BoneMap.new()
@@ -33,7 +32,6 @@ func _run():
 	var bone_vrm_mapping : Dictionary
 	ewbik.max_ik_iterations = 10
 	ewbik.default_damp = deg_to_rad(1)
-	ewbik.live_preview = true
 	var pin_i = 0
 	var bones = ["Root", "Hips", "LeftHand", "RightHand", "Head"]
 	ewbik.pin_count = bones.size()
