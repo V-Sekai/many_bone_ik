@@ -12,7 +12,7 @@ func _run():
 		var front = queue.front()
 		var node : Node = front
 		if node is Skeleton3D:
-			skeleton = nodes
+			skeleton = node
 		if node is EWBIK:
 			ewbik = node
 		var child_count : int = node.get_child_count()
@@ -35,7 +35,7 @@ func _run():
 	ewbik.default_damp = deg_to_rad(1)
 	ewbik.live_preview = true
 	var pin_i = 0
-	var bones = ["Root", "Hips", "LeftHand", "RightHand"]
+	var bones = ["Root", "Hips", "LeftHand", "RightHand", "Head"]
 	ewbik.pin_count = bones.size()
 	for bone_name in bones:
 		var bone_index = skeleton.find_bone(bone_name)
@@ -49,7 +49,7 @@ func _run():
 			pin_i = pin_i + 1
 			continue
 		var bone_global_pose : Transform3D = skeleton.get_bone_global_rest(bone_id)
-		bone_global_pose = skeleton.global_pose_to_world_transform(bone_global_pose)
+		bone_global_pose = skeleton.transform * bone_global_pose
 		node_3d.global_transform = bone_global_pose
 		ewbik.set_pin_use_node_rotation(pin_i, true)
 		if bone_name in ["Root"]:

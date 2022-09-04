@@ -417,10 +417,10 @@ void fragment() {
 			}
 			Ref<ShaderMaterial> kusudama_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
 			kusudama_material->set_shader(kusudama_shader);
-			kusudama_material->set_shader_uniform("cone_sequence", kusudama_limit_cones);
+			kusudama_material->set_shader_parameter("cone_sequence", kusudama_limit_cones);
 			int32_t cone_count = kusudama->get_limit_cones().size();
-			kusudama_material->set_shader_uniform("cone_count", cone_count);
-			kusudama_material->set_shader_uniform("kusudama_color", current_bone_color);
+			kusudama_material->set_shader_parameter("cone_count", cone_count);
+			kusudama_material->set_shader_parameter("kusudama_color", current_bone_color);
 			p_gizmo->add_mesh(kusudama_surface_tool->commit(Ref<Mesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT), kusudama_material, skeleton->get_global_transform(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 
 			kusudama_surface_tool->clear();

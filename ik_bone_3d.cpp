@@ -30,8 +30,8 @@
 
 #include "ik_bone_3d.h"
 
-#include "math/ik_transform.h"
 #include "ewbik.h"
+#include "math/ik_transform.h"
 
 void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
@@ -89,15 +89,18 @@ void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 		return;
 	}
 	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
-	xform = p_skeleton->global_pose_to_world_transform(xform);
+	xform = p_skeleton->get_transform() * xform;
 	set_global_pose(xform);
 }
 
 void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {
 	ERR_FAIL_NULL(p_skeleton);
 	Transform3D custom = get_global_pose();
-	custom = p_skeleton->world_transform_to_global_pose(custom);
-	custom = p_skeleton->global_pose_to_local_pose(bone_id, custom);
+	custom = p_skeleton->get_global_transform().affine_inverse() * custom;
+	int32_t parent_id = p_skeleton->get_bone_parent(bone_id);
+	if (parent_id != -1) {
+		custom = p_skeleton->get_bone_global_pose(parent_id).affine_inverse() * custom;
+	}
 	p_skeleton->set_bone_pose_position(bone_id, custom.origin);
 	p_skeleton->set_bone_pose_rotation(bone_id, custom.basis.get_rotation_quaternion());
 	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());
