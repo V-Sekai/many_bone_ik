@@ -497,8 +497,8 @@ void EWBIK::print_debug_skeleton() {
 	debug_skeleton = true;
 	if (get_skeleton()) {
 		get_skeleton()->notify_property_list_changed();
+		skeleton_changed(get_skeleton());
 	}
-	skeleton_changed(get_skeleton());
 	debug_skeleton = false;
 }
 

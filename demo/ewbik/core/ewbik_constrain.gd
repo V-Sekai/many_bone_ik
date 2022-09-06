@@ -39,7 +39,8 @@ func _run():
 		var bone_index = skeleton.find_bone(bone_name)
 		var node_3d : Node3D = Node3D.new()
 		node_3d.name = bone_name
-		root.add_child(node_3d)
+		if root.find_child(node_3d.name) == null:
+			root.add_child(node_3d)
 		node_3d.owner = root
 		ewbik.set_pin_bone_name(pin_i, bone_name)
 		var bone_id = skeleton.find_bone(bone_name)
@@ -70,3 +71,4 @@ func _run():
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 1, 0).normalized())
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
+	ewbik.print_debug_skeleton()
