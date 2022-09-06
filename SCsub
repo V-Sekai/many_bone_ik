@@ -7,7 +7,7 @@ env_ewbik.Prepend(CPPPATH=["#thirdparty/ewbik"])
 env_ewbik.Prepend(CPPPATH=["#thirdparty/ewbik/src/math"])
 env_ewbik.Prepend(CPPPATH=["#thirdparty/ewbik/src"])
 env_ewbik.add_source_files(env.modules_sources, "constraints/*.cpp")
-env_ewbik.add_source_files(env.modules_sources, "math/*.cpp")
+env_ewbik.add_source_files(env.modules_sources, "src/math/*.cpp")
 env_ewbik.add_source_files(env.modules_sources, "src/*.cpp")
 env_ewbik.add_source_files(env.modules_sources, "*.cpp")
 
