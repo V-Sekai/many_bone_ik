@@ -473,8 +473,7 @@ void EWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_pin", "name", "target_node", "use_node_rotation"), &EWBIK::add_pin);
 	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &EWBIK::get_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &EWBIK::set_pin_bone_name);
-	ClassDB::bind_method(D_METHOD("get_debug_skeleton"), &EWBIK::get_debug_skeleton);
-	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enabled"), &EWBIK::set_debug_skeleton);
+	ClassDB::bind_method(D_METHOD("print_debug_skeleton"), &EWBIK::print_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &EWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &EWBIK::set_default_damp);
 	ClassDB::bind_method(D_METHOD("get_kusudama_flip_handedness"), &EWBIK::get_kusudama_flip_handedness);
@@ -485,7 +484,6 @@ void EWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "print_skeleton", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_debug_skeleton", "get_debug_skeleton");
 }
 
 EWBIK::EWBIK() {
@@ -494,16 +492,14 @@ EWBIK::EWBIK() {
 EWBIK::~EWBIK() {
 }
 
-bool EWBIK::get_debug_skeleton() const {
-	return debug_skeleton;
-}
 
-void EWBIK::set_debug_skeleton(bool p_enabled) {
-	debug_skeleton = p_enabled;
+void EWBIK::print_debug_skeleton() {
+	debug_skeleton = true;
 	if (get_skeleton()) {
 		get_skeleton()->notify_property_list_changed();
 	}
 	skeleton_changed(get_skeleton());
+	debug_skeleton = false;
 }
 
 float EWBIK::get_pin_depth_falloff(int32_t p_effector_index) const {

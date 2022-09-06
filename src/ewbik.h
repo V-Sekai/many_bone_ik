@@ -50,7 +50,6 @@ class EWBIK : public SkeletonModification3D {
 	int32_t pin_count = 0;
 	Vector<Ref<IKEffectorTemplate>> pins;
 	Vector<Ref<IKBone3D>> bone_list;
-	bool debug_skeleton = false;
 	Vector<float> kusudama_twist_from;
 	Vector<float> kusudama_twist_to;
 	Vector<bool> kusudama_flip_handedness;
@@ -85,8 +84,7 @@ public:
 	void set_time_budget_millisecond(const float &p_time_budget);
 	void add_pin(const StringName &p_name, const NodePath &p_target_node = NodePath(), const bool &p_use_node_rotation = true);
 	void remove_pin(int32_t p_index);
-	bool get_debug_skeleton() const;
-	void set_debug_skeleton(bool p_enabled);
+	void print_debug_skeleton();
 	void set_pin_count(int32_t p_value);
 	int32_t get_pin_count() const;
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
