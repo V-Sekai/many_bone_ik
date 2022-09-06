@@ -43,7 +43,7 @@
 void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
 		GDREGISTER_CLASS(IKEffectorTemplate);
-		GDREGISTER_CLASS(EWBIK);
+		GDREGISTER_CLASS(SkeletonModification3DEWBIK);
 		GDREGISTER_CLASS(IKBone3D);
 		GDREGISTER_CLASS(IKEffector3D);
 		GDREGISTER_CLASS(IKBoneSegment);

@@ -344,4 +344,4 @@ public:
 		twist.z *= -1;
 	}
 };
-#endif
+#endif // KUSUDAMA_H

@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SKELETON_MODIFICATION_3D_EWBIK_H
-#define SKELETON_MODIFICATION_3D_EWBIK_H
+#ifndef EWBIK_H
+#define EWBIK_H
 
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
@@ -39,8 +39,8 @@
 #include "scene/3d/skeleton_modification_3d.h"
 
 class IKBoneSegment;
-class EWBIK : public SkeletonModification3D {
-	GDCLASS(EWBIK, SkeletonModification3D);
+class SkeletonModification3DEWBIK : public SkeletonModification3D {
+	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
 	StringName root_bone;
 	StringName tip_bone;
 	NodePath skeleton_path;
@@ -120,8 +120,8 @@ public:
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	bool get_kusudama_flip_handedness(int32_t p_bone) const;
 	void set_kusudama_flip_handedness(int32_t p_bone, bool p_flip);
-	EWBIK();
-	~EWBIK();
+	SkeletonModification3DEWBIK();
+	~SkeletonModification3DEWBIK();
 };
 
-#endif // SKELETON_MODIFICATION_3D_EWBIK_H
+#endif // EWBIK_H

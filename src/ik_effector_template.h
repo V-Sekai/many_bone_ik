@@ -28,7 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#pragma once
+#ifndef IK_EFFECTOR_TEMPLATE_H
+#define IK_EFFECTOR_TEMPLATE_H
 
 #include "core/io/resource.h"
 #include "core/object/ref_counted.h"
@@ -53,3 +54,5 @@ public:
 	void set_target_node_rotation(bool p_target_node_rotation);
 	IKEffectorTemplate();
 };
+
+#endif // IK_EFFECTOR_TEMPLATE_H

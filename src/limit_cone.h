@@ -229,4 +229,4 @@ public:
 
 	virtual Ref<IKKusudama> get_parent_kusudama();
 };
-#endif
+#endif // LIMIT_CONE_H

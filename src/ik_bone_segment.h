@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ik_bone_chain_H
-#define ik_bone_chain_H
+#ifndef IK_BONE_SEGMENT_H
+#define IK_BONE_SEGMENT_H
 
 #include "ik_bone_3d.h"
 #include "ik_effector_template.h"
@@ -119,4 +119,4 @@ public:
 	~IKBoneSegment() {}
 };
 
-#endif // ik_bone_chain_H
+#endif // IK_BONE_SEGMENT_H

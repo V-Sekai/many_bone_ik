@@ -51,7 +51,7 @@
 #include "../src/kusudama.h"
 
 bool EWBIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	if (Object::cast_to<EWBIK>(p_spatial)) {
+	if (Object::cast_to<SkeletonModification3DEWBIK>(p_spatial)) {
 		return true;
 	}
 	return false;
@@ -62,7 +62,7 @@ String EWBIK3DGizmoPlugin::get_gizmo_name() const {
 }
 
 void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
-	EWBIK *ewbik = Object::cast_to<EWBIK>(p_gizmo->get_spatial_node());
+	SkeletonModification3DEWBIK *ewbik = Object::cast_to<SkeletonModification3DEWBIK>(p_gizmo->get_spatial_node());
 	Skeleton3D *skeleton = ewbik->get_skeleton();
 	if (!ewbik || !skeleton) {
 		return;

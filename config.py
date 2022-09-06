@@ -8,7 +8,7 @@ def configure(env):
 
 def get_doc_classes():
     return [
-        "EWBIK",
+        "SkeletonModification3DEWBIK",
         "IKBone3D",
         "IKEffector3D",
         "IKBoneSegment",

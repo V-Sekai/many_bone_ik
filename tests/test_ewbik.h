@@ -76,7 +76,7 @@ void rotate_target_headings_quaternion(Vector<Vector3> &p_localizedTipHeadings, 
 	}
 }
 
-TEST_CASE("[Modules][EWBIK] qcp quaternion") {
+TEST_CASE("[Modules][SkeletonModification3DEWBIK] qcp quaternion") {
 	Vector<Vector3> localizedTipHeadings;
 	localizedTipHeadings.push_back(Vector3(-14.739, -18.673, 15.040));
 	localizedTipHeadings.push_back(Vector3(-12.473, -15.810, 16.074));
