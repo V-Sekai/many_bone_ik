@@ -21,6 +21,9 @@ func _run():
 		queue.pop_front()
 	if ewbik != null:
 		ewbik.free()
+	if skeleton == null:
+		return
+	skeleton.reset_bone_poses()
 	ewbik = SkeletonModification3DEWBIK.new()
 	skeleton.add_child(ewbik, true)
 	ewbik.owner = root

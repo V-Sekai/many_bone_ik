@@ -7,48 +7,13 @@
 [node name="male" parent="." instance=ExtResource("1_x3mur")]
 
 [node name="GeneralSkeleton" parent="male" index="0"]
-bones/0/position = Vector3(-7.45058e-09, 0, 0)
-bones/1/position = Vector3(-0.000761449, 1.14705, 0.0128133)
-bones/1/rotation = Quaternion(-8.74101e-05, -8.62692e-08, 1.75487e-05, 1)
-bones/2/position = Vector3(3.42494e-07, 0.141911, 0.000760757)
-bones/2/rotation = Quaternion(0.00395348, 0.0020944, 0.00523682, 0.999976)
-bones/2/scale = Vector3(1, 1, 1)
-bones/3/position = Vector3(1.15493e-05, 0.0788392, -0.00438355)
-bones/3/rotation = Quaternion(-0.00192643, -0.00269924, 0.000226553, 0.999994)
-bones/3/scale = Vector3(1, 1, 1)
-bones/4/position = Vector3(2.21841e-06, 0.077096, -0.0040206)
-bones/4/rotation = Quaternion(0.00391228, -0.0480988, -0.0596081, 0.997055)
-bones/4/scale = Vector3(1, 1, 1)
-bones/5/position = Vector3(-0.000142694, 0.15177, -0.0107146)
-bones/5/rotation = Quaternion(-0.0946996, 0.203167, -0.227631, 0.947597)
-bones/5/scale = Vector3(1, 1, 1)
-bones/6/position = Vector3(-1.2219e-05, 0.0889302, 0.0144058)
-bones/6/rotation = Quaternion(0.066532, -0.163135, 0.281768, 0.943169)
-bones/6/scale = Vector3(1, 1, 1)
-bones/47/position = Vector3(0.0246205, 0.120872, -0.00520039)
-bones/47/rotation = Quaternion(0.544584, 0.416187, 0.541752, -0.486541)
-bones/47/scale = Vector3(1, 1, 1)
-bones/48/position = Vector3(0.00688913, 0.123222, -0.0212538)
-bones/48/rotation = Quaternion(0.00200075, 0.987287, 0.158459, 0.0122536)
-bones/48/scale = Vector3(1, 0.999998, 0.999999)
-bones/49/position = Vector3(-0.00157022, 0.220079, 0.0102979)
-bones/49/rotation = Quaternion(-0.0706305, -0.695839, -0.00222184, 0.714713)
-bones/49/scale = Vector3(0.999998, 0.999999, 0.999997)
-bones/50/position = Vector3(0.0006212, 0.248453, 0.0206513)
-bones/50/rotation = Quaternion(0.0668193, 0.674472, -0.0247395, 0.734854)
-bones/50/scale = Vector3(1, 1, 1)
-bones/71/position = Vector3(-0.024711, 0.121109, -0.00514711)
-bones/71/rotation = Quaternion(-0.472982, 0.522805, 0.522183, 0.479883)
-bones/71/scale = Vector3(1, 1, 1)
-bones/72/position = Vector3(-0.006886, 0.12328, -0.0215061)
-bones/72/rotation = Quaternion(-0.0251293, 0.997648, -0.063149, 0.00889328)
-bones/72/scale = Vector3(1, 1, 1)
-bones/73/position = Vector3(0.00155468, 0.219989, 0.0100297)
-bones/73/rotation = Quaternion(-0.0137979, 0.629156, 0.0357787, 0.776333)
-bones/73/scale = Vector3(1, 1, 1)
-bones/74/position = Vector3(-0.00120986, 0.248611, 0.0206282)
-bones/74/rotation = Quaternion(-0.00335046, -0.611779, -0.0228561, 0.790691)
-bones/74/scale = Vector3(1, 1, 1)
+bones/5/rotation = Quaternion(-1.70536e-09, -1.28645e-10, 2.1542e-09, 1)
+bones/6/position = Vector3(2.5495e-08, 0.0890688, 0.0144182)
+bones/6/rotation = Quaternion(-8.03771e-34, 6.10623e-16, -4.3877e-19, 1)
+bones/48/position = Vector3(0.00690937, 0.123151, -0.021474)
+bones/49/position = Vector3(-0.00155015, 0.219541, 0.0101634)
+bones/72/position = Vector3(-0.00690936, 0.123151, -0.021474)
+bones/73/position = Vector3(0.00154988, 0.219541, 0.0101633)
 
 [node name="SkeletonModification3dewbik" type="SkeletonModification3DEWBIK" parent="male/GeneralSkeleton" index="3"]
 root_bone = &"Root"
@@ -393,6 +358,6 @@ transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.614642, 1.53257, 0.029005
 transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.616165, 1.53257, 0.0290049)
 
 [node name="Head" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0744311, 1.6842, -0.00885535)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000761437, 1.6842, 0.00888737)
 
 [editable path="male"]
