@@ -58,19 +58,19 @@ func _run():
 		var path_string : String = "../" + str(skeleton.get_path_to(root)) + "/" + bone_name
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		pin_i = pin_i + 1
-	ewbik.constraint_count = profile.bone_size
-	for constraint_i in profile.bone_size:
+	var constraint_bones = ["LeftLowerArm", "RightLowerArm"]
+	ewbik.constraint_count = constraint_bones.size()
+	for constraint_i in ewbik.constraint_count:
 		var bone_name : StringName = profile.get_bone_name(constraint_i)
 		if bone_name == null:
 			continue
 		ewbik.set_constraint_name(constraint_i, bone_name)
 		# Female age 9 - 19 https://pubmed.ncbi.nlm.nih.gov/32644411/
-		if bone_name in ["LeftLowerArm", "RightLowerArm"]:
-			ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-90))
-			ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(90))
-			ewbik.set_kusudama_limit_cone_count(constraint_i, 2)
-			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
-			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 1, 0).normalized())
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
+		ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-90))
+		ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(90))
+		ewbik.set_kusudama_limit_cone_count(constraint_i, 2)
+		ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+		ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
+		ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 1, 0).normalized())
+		ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
 	ewbik.print_debug_skeleton()

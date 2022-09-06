@@ -55,11 +55,15 @@ class EWBIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 
 	SkeletonModification3DEWBIK *ewbik = nullptr;
 
+protected:
+	static void _bind_methods() {
+		ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &EWBIK3DGizmoPlugin::get_gizmo_name);
+	}
+
 public:
 	const int32_t KUSUDAMA_MAX_CONES = 30;
 	bool has_gizmo(Node3D *p_spatial) override;
 	String get_gizmo_name() const override;
-
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	int get_priority() const override {
 		return -2;
