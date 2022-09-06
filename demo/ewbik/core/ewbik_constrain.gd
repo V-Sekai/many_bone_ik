@@ -53,8 +53,6 @@ func _run():
 		bone_global_pose = skeleton.transform * bone_global_pose
 		node_3d.global_transform = bone_global_pose
 		ewbik.set_pin_use_node_rotation(pin_i, true)
-		if bone_name in ["Root"]:
-			ewbik.set_pin_depth_falloff(pin_i, 0)
 		var path_string : String = "../" + str(skeleton.get_path_to(root)) + "/" + bone_name
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		pin_i = pin_i + 1
