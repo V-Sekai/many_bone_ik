@@ -812,9 +812,6 @@ void EWBIK::skeleton_changed(Skeleton3D *p_skeleton) {
 		constraint->update_tangent_radii();
 		constraint->update_rotational_freedom();
 	}
-	if (get_debug_skeleton()) {
-		set_debug_skeleton(false);
-	}
 	SkeletonModification3D::skeleton_changed(p_skeleton);
 }
 
