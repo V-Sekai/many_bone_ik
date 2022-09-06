@@ -21,7 +21,7 @@ _global_script_class_icons={
 [application]
 
 config/name="EWBIK Game Project"
-run/main_scene="res://ewbik_samples/scenes/ewbik_two_bone.tscn"
+run/main_scene="res://ewbik/scenes/male.tscn"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
 

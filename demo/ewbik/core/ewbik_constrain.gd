@@ -20,10 +20,10 @@ func _run():
 			queue.push_back(node.get_child(i))
 		queue.pop_front()
 	if ewbik != null:
-		ewbik.queue_free()
+		ewbik.free()
 	ewbik = EWBIK.new()
 	skeleton.add_child(ewbik, true)
-	ewbik.owner = skeleton.owner
+	ewbik.owner = root
 	ewbik.name = "EWBIK"
 	var godot_to_vrm : Dictionary
 	var profile : SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
@@ -39,8 +39,8 @@ func _run():
 		var bone_index = skeleton.find_bone(bone_name)
 		var node_3d : Node3D = Node3D.new()
 		node_3d.name = bone_name
-		skeleton.get_parent().add_child(node_3d)
-		node_3d.owner = skeleton.owner
+		root.add_child(node_3d)
+		node_3d.owner = root
 		ewbik.set_pin_bone_name(pin_i, bone_name)
 		var bone_id = skeleton.find_bone(bone_name)
 		if bone_id == -1:
@@ -52,7 +52,7 @@ func _run():
 		ewbik.set_pin_use_node_rotation(pin_i, true)
 		if bone_name in ["Root"]:
 			ewbik.set_pin_depth_falloff(pin_i, 0)
-		var path_string : String = "../../" + str(bone_name)
+		var path_string : String = "../" + str(skeleton.get_path_to(root)) + "/" + bone_name
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		pin_i = pin_i + 1
 	ewbik.constraint_count = profile.bone_size
