@@ -60,10 +60,10 @@ class IKEffector3D : public Resource {
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
+	void create_headings(Vector<real_t> &p_weights);
 
 protected:
 	static void _bind_methods();
-	void create_headings(Vector<real_t> &p_weights);
 
 public:
 	void update_target_global_transform(Skeleton3D *p_skeleton, EWBIK *p_modification = nullptr);

@@ -338,3 +338,14 @@ void IKBoneSegment::enable_pinned_descendants() {
 bool IKBoneSegment::has_pinned_descendants() {
 	return pinned_descendants;
 }
+
+Vector<Ref<IKBone3D>> IKBoneSegment::get_bone_list() const {
+	return bones;
+}
+
+Ref<IKBone3D> IKBoneSegment::get_ik_bone(BoneId p_bone) {
+	if (!bone_map.has(p_bone)) {
+		return Ref<IKBone3D>();
+	}
+	return bone_map[p_bone];
+}

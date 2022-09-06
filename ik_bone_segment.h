@@ -45,7 +45,6 @@ class LimitCone;
 
 class IKBoneSegment : public Resource {
 	GDCLASS(IKBoneSegment, Resource);
-
 	Ref<IKBone3D> root;
 	Ref<IKBone3D> tip;
 	Vector<Ref<IKBone3D>> bones;
@@ -58,7 +57,6 @@ class IKBoneSegment : public Resource {
 	Vector<real_t> heading_weights;
 	BoneId ewbik_root_bone = -1;
 	BoneId ewbik_tip_bone = -1;
-
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
 	Skeleton3D *skeleton = nullptr;
 	bool pinned_descendants = false;
@@ -70,20 +68,15 @@ class IKBoneSegment : public Resource {
 	void set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_heading_tip, Vector<real_t> *r_weights, float p_dampening = -1, bool p_translate = false);
 	void qcp_solver(real_t p_damp, bool p_translate);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);
-
 	float get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights);
-
 	HashMap<BoneId, Ref<IKBone3D>> bone_map;
-
 	// This orientation angle is a cos(angle/2) representation.
 	Quaternion set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
 protected:
 	static void _bind_methods();
-
 public:
 	static Quaternion clamp_to_angle(Quaternion p_quat, real_t p_angle);
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle);
-
 	_FORCE_INLINE_ static real_t cos(real_t p_angle) {
 		// https://stackoverflow.com/questions/18662261/fastest-implementation-of-sine-cosine-and-square-root-in-c-doesnt-need-to-b/28050328#28050328
 		real_t x = real_t(0.5) * p_angle;
@@ -116,15 +109,8 @@ public:
 	bool is_pinned() const;
 	Vector<Ref<IKBoneSegment>> get_child_segments() const;
 	void create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
-	Vector<Ref<IKBone3D>> get_bone_list() const {
-		return bones;
-	}
-	Ref<IKBone3D> get_ik_bone(BoneId p_bone) {
-		if (!bone_map.has(p_bone)) {
-			return Ref<IKBone3D>();
-		}
-		return bone_map[p_bone];
-	}
+	Vector<Ref<IKBone3D>> get_bone_list() const;
+	Ref<IKBone3D> get_ik_bone(BoneId p_bone);
 	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone);
 	void update_pinned_list();
 	IKBoneSegment() {}

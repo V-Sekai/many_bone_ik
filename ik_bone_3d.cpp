@@ -171,3 +171,15 @@ Ref<IKTransform3D> IKBone3D::get_ik_transform() {
 Ref<IKTransform3D> IKBone3D::get_constraint_transform() {
 	return constraint_transform;
 }
+
+void IKBone3D::set_constraint_transform(Ref<IKTransform3D> p_transform) {
+	constraint_transform = p_transform;
+}
+
+void IKBone3D::set_bone_direction_transform(Ref<IKTransform3D> p_bone_direction) {
+	bone_direction_transform = p_bone_direction;
+}
+
+Ref<IKTransform3D> IKBone3D::get_bone_direction_transform() {
+	return bone_direction_transform;
+}

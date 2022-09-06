@@ -201,10 +201,7 @@ public:
 	/**
 	 * @return the limiting_axes of this Kusudama (these are it's parentBone's majorRotationAxes)
 	 */
-	Ref<IKTransform3D> limiting_axes() {
-		// if(inverted) return inverseLimitingAxes;
-		return _limiting_axes;
-	}
+	Ref<IKTransform3D> limiting_axes();
 
 	/**
 	 *
