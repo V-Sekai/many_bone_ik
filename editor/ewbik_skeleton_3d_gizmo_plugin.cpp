@@ -28,9 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "ewbik_skeleton_3d_editor_plugin.h"
+#include "ewbik_skeleton_3d_gizmo_plugin.h"
 
-#include "../kusudama.h"
 #include "core/io/resource_saver.h"
 #include "editor/editor_file_dialog.h"
 #include "editor/editor_node.h"
@@ -38,6 +37,7 @@
 #include "editor/editor_scale.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
+#include "editor/plugins/node_3d_editor_gizmos.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
 #include "scene/3d/label_3d.h"
@@ -48,7 +48,7 @@
 #include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/surface_tool.h"
 
-#include "editor/plugins/node_3d_editor_gizmos.h"
+#include "../src/kusudama.h"
 
 bool EWBIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
 	if (Object::cast_to<EWBIK>(p_spatial)) {

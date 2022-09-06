@@ -43,7 +43,7 @@
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/immediate_mesh.h"
 
-#include "../ewbik.h"
+#include "../src/ewbik.h"
 
 class Joint;
 class PhysicalBone3D;

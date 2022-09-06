@@ -30,14 +30,14 @@
 
 #include "register_types.h"
 
-#include "ik_bone_3d.h"
-#include "ik_effector_3d.h"
-#include "ik_effector_template.h"
-#include "kusudama.h"
-#include "ewbik.h"
+#include "src/ik_bone_3d.h"
+#include "src/ik_effector_3d.h"
+#include "src/ik_effector_template.h"
+#include "src/kusudama.h"
+#include "src/ewbik.h"
 
 #ifdef TOOLS_ENABLED
-#include "editor/ewbik_skeleton_3d_editor_plugin.h"
+#include "editor/ewbik_skeleton_3d_gizmo_plugin.h"
 #endif
 
 void initialize_ewbik_module(ModuleInitializationLevel p_level) {

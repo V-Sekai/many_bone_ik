@@ -35,7 +35,6 @@
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
 
-
 #define MIN_SCALE 0.1
 
 class EWBIK;
