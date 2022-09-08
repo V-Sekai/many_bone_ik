@@ -64,11 +64,11 @@ func _run():
 			continue
 		ewbik.set_constraint_name(constraint_i, bone_name)
 		# Female age 9 - 19 https://pubmed.ncbi.nlm.nih.gov/32644411/
-		ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-90))
-		ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(90))
-		ewbik.set_kusudama_limit_cone_count(constraint_i, 2)
-		ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-		ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
-		ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 1, 0).normalized())
-		ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
+#		ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-90))
+#		ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(90))
+#		ewbik.set_kusudama_limit_cone_count(constraint_i, 2)
+#		ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+#		ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
+#		ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 1, 0).normalized())
+#		ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
 	ewbik.print_debug_skeleton()
