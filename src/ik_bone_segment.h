@@ -32,8 +32,8 @@
 #define IK_BONE_SEGMENT_H
 
 #include "ik_bone_3d.h"
-#include "ik_effector_template.h"
 #include "ik_effector_3d.h"
+#include "ik_effector_template.h"
 #include "math/qcp.h"
 #include "scene/3d/skeleton_3d.h"
 
@@ -73,8 +73,10 @@ class IKBoneSegment : public Resource {
 	HashMap<BoneId, Ref<IKBone3D>> bone_map;
 	// This orientation angle is a cos(angle/2) representation.
 	Quaternion set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const;
+
 protected:
 	static void _bind_methods();
+
 public:
 	static Quaternion clamp_to_angle(Quaternion p_quat, real_t p_angle);
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle);
@@ -115,8 +117,8 @@ public:
 	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone);
 	void update_pinned_list();
 	IKBoneSegment() {}
-	IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent = nullptr, 
-		BoneId root = -1, BoneId tip = -1);
+	IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent = nullptr,
+			BoneId root = -1, BoneId tip = -1);
 	~IKBoneSegment() {}
 };
 

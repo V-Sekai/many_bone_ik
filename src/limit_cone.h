@@ -187,6 +187,7 @@ public:
 	virtual double get_tangent_circle_radius_next_cos(int mode);
 
 	virtual Vector3 get_tangent_circle_center_next_2(int mode);
+
 protected:
 	virtual double _get_radius(int mode);
 
