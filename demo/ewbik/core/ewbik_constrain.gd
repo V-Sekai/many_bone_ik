@@ -45,6 +45,7 @@ func _run():
 			root.add_child(node_3d)
 		node_3d.owner = root
 		ewbik.set_pin_bone_name(pin_i, bone_name)
+		ewbik.set_pin_depth_falloff(pin_i, 1)
 		var bone_id = skeleton.find_bone(bone_name)
 		if bone_id == -1:
 			pin_i = pin_i + 1
