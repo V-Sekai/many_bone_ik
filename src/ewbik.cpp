@@ -473,7 +473,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_pin", "name", "target_node", "use_node_rotation"), &SkeletonModification3DEWBIK::add_pin);
 	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &SkeletonModification3DEWBIK::get_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &SkeletonModification3DEWBIK::set_pin_bone_name);
-	ClassDB::bind_method(D_METHOD("print_debug_skeleton"), &SkeletonModification3DEWBIK::print_debug_skeleton);
+	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enable"), &SkeletonModification3DEWBIK::set_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
 	ClassDB::bind_method(D_METHOD("get_kusudama_flip_handedness"), &SkeletonModification3DEWBIK::get_kusudama_flip_handedness);
@@ -483,7 +483,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.04,179.99,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 }
 
 SkeletonModification3DEWBIK::SkeletonModification3DEWBIK() {
@@ -493,13 +493,8 @@ SkeletonModification3DEWBIK::~SkeletonModification3DEWBIK() {
 }
 
 
-void SkeletonModification3DEWBIK::print_debug_skeleton() {
-	debug_skeleton = true;
-	if (get_skeleton()) {
-		get_skeleton()->notify_property_list_changed();
-		skeleton_changed(get_skeleton());
-	}
-	debug_skeleton = false;
+void SkeletonModification3DEWBIK::set_debug_skeleton(bool p_skeleton_debug) {
+	debug_skeleton = p_skeleton_debug;
 }
 
 float SkeletonModification3DEWBIK::get_pin_depth_falloff(int32_t p_effector_index) const {
