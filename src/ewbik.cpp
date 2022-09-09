@@ -736,7 +736,6 @@ void SkeletonModification3DEWBIK::skeleton_changed(Skeleton3D *p_skeleton) {
 		}
 	}
 	ERR_FAIL_COND(!root_bone);
-	set_dirty(false);
 	BoneId root_bone_index = p_skeleton->find_bone(root_bone);
 	BoneId tip_bone_index = p_skeleton->find_bone(tip_bone);
 	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, root_bone, pins, nullptr, root_bone_index, tip_bone_index)));
@@ -783,6 +782,7 @@ void SkeletonModification3DEWBIK::skeleton_changed(Skeleton3D *p_skeleton) {
 		constraint->update_rotational_freedom();
 	}
 	SkeletonModification3D::skeleton_changed(p_skeleton);
+	set_dirty(true);
 }
 
 StringName SkeletonModification3DEWBIK::get_root_bone() const {
