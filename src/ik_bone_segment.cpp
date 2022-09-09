@@ -174,7 +174,6 @@ void IKBoneSegment::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_d
 	ERR_FAIL_NULL(p_for_bone);
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
 	update_tip_headings(p_for_bone, &tip_headings);
-	double msd = get_manual_msd(tip_headings, target_headings, heading_weights);
 	// TODO: fire 2022-09-08 Research apply the rotation if the joint is too constrainted.
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate);
 }
