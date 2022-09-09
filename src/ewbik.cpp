@@ -730,9 +730,8 @@ void SkeletonModification3DEWBIK::execute(real_t delta) {
 		root_ik_parent_transform->set_global_transform(get_skeleton()->get_global_transform());
 	}
 	update_shadow_bones_transform();
-	int32_t iterations = get_max_ik_iterations() ? get_max_ik_iterations() : 1;
-	for (int32_t i = 0; i < iterations; i++) {
-		segmented_skeleton->segment_solver(get_default_damp() / iterations);
+	for (int32_t i = 0; i < get_max_ik_iterations(); i++) {
+		segmented_skeleton->segment_solver(get_default_damp());
 	}
 	update_skeleton_bones_transform();
 }
