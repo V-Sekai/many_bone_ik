@@ -60,9 +60,7 @@ class IKEffector3D : public Resource {
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
-	real_t priority_x_direction = 1.0;
-	real_t priority_y_direction = 0.0;
-	real_t priority_z_direction = 1.0;
+	Vector3 priority_direction = Vector3(1.0, 0, 1.0);
 	void create_headings(Vector<real_t> &p_weights);
 
 protected:
@@ -73,17 +71,9 @@ public:
 	real_t get_weight() const {
 		return weight;
 	}
-	void set_priority_x_direction(real_t p_priority_x_direction) { priority_x_direction = p_priority_x_direction; }
-	real_t get_priority_x_direction() const {
-		return priority_x_direction;
-	}
-	void set_priority_y_direction(real_t p_priority_y_direction) { priority_y_direction = p_priority_y_direction; }
-	real_t get_priority_y_direction() const {
-		return priority_y_direction;
-	}
-	void set_priority_z_direction(real_t p_priority_z_direction) { priority_z_direction = p_priority_z_direction; }
-	real_t get_priority_z_direction() const {
-		return priority_z_direction;
+	void set_priority_direction(Vector3 p_priority_direction) { priority_direction = p_priority_direction; }
+	Vector3 get_prioritydirection() const {
+		return priority_direction;
 	}
 	void update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_modification = nullptr);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;

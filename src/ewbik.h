@@ -111,53 +111,21 @@ public:
 		const Ref<IKEffectorTemplate> data = pins[p_pin_index];
 		return data->get_weight();
 	}
-	void set_pin_priority_x_direction(int32_t p_pin_index, const real_t &p_priority_x_direction) {
+	void set_pin_priority_direction(int32_t p_pin_index, const Vector3 &p_priority_direction) {
 		ERR_FAIL_INDEX(p_pin_index, pins.size());
 		Ref<IKEffectorTemplate> data = pins[p_pin_index];
 		if (data.is_null()) {
 			data.instantiate();
 			pins.write[p_pin_index] = data;
 		}
-		data->set_priority_x_direction(p_priority_x_direction);
+		data->set_priority_direction(p_priority_direction);
 		notify_property_list_changed();
 		skeleton_changed(get_skeleton());
 	}
-	real_t get_pin_priority_x_direction(int32_t p_pin_index) const {
-		ERR_FAIL_INDEX_V(p_pin_index, pins.size(), 0.0);
+	Vector3 get_pin_priority_direction(int32_t p_pin_index) const {
+		ERR_FAIL_INDEX_V(p_pin_index, pins.size(), Vector3(0, 0, 0));
 		const Ref<IKEffectorTemplate> data = pins[p_pin_index];
-		return data->get_priority_x_direction();
-	}
-	void set_pin_priority_y_direction(int32_t p_pin_index, const real_t &p_priority_y_direction) {
-		ERR_FAIL_INDEX(p_pin_index, pins.size());
-		Ref<IKEffectorTemplate> data = pins[p_pin_index];
-		if (data.is_null()) {
-			data.instantiate();
-			pins.write[p_pin_index] = data;
-		}
-		data->set_priority_y_direction(p_priority_y_direction);
-		notify_property_list_changed();
-		skeleton_changed(get_skeleton());
-	}
-	real_t get_pin_priority_y_direction(int32_t p_pin_index) const {
-		ERR_FAIL_INDEX_V(p_pin_index, pins.size(), 0.0);
-		const Ref<IKEffectorTemplate> data = pins[p_pin_index];
-		return data->get_priority_y_direction();
-	}
-	void set_pin_priority_z_direction(int32_t p_pin_index, const real_t &p_priority_z_direction) {
-		ERR_FAIL_INDEX(p_pin_index, pins.size());
-		Ref<IKEffectorTemplate> data = pins[p_pin_index];
-		if (data.is_null()) {
-			data.instantiate();
-			pins.write[p_pin_index] = data;
-		}
-		data->set_priority_z_direction(p_priority_z_direction);
-		notify_property_list_changed();
-		skeleton_changed(get_skeleton());
-	}
-	real_t get_pin_priority_z_direction(int32_t p_pin_index) const {
-		ERR_FAIL_INDEX_V(p_pin_index, pins.size(), 0.0);
-		const Ref<IKEffectorTemplate> data = pins[p_pin_index];
-		return data->get_priority_z_direction();
+		return data->get_priority_direction();
 	}
 	NodePath get_pin_target_nodepath(int32_t p_pin_index);
 	void set_pin_depth_falloff(int32_t p_effector_index, const float p_depth_falloff);
