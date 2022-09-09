@@ -59,7 +59,6 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	int32_t max_ik_iterations = 10;
 	float default_damp = Math::deg_to_rad(5.0f);
 	bool debug_skeleton = true;
-	bool is_dirty = false;
 	Ref<IKTransform3D> root_transform = memnew(IKTransform3D);
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform();
@@ -75,12 +74,6 @@ protected:
 	virtual void execute(real_t delta) override;
 
 public:
-	void set_dirty(bool p_dirty){
-		is_dirty = p_dirty;
-	}
-	bool get_dirty() const {
-		return is_dirty;
-	}
 	StringName get_root_bone() const;
 	void set_root_bone(const StringName &p_root_bone);
 	StringName get_tip_bone() const;
