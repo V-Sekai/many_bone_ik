@@ -49,6 +49,7 @@ class IKBoneSegment : public Resource {
 	Ref<IKBone3D> root;
 	Ref<IKBone3D> tip;
 	Vector<Ref<IKBone3D>> bones;
+	Vector<Ref<IKBone3D>> pinned_bones;
 	Vector<Ref<IKBoneSegment>> child_segments; // Contains only direct child chains that end with effectors or have child that end with effectors
 	Ref<IKBoneSegment> parent_segment;
 	Ref<IKBoneSegment> root_segment;
@@ -56,6 +57,7 @@ class IKBoneSegment : public Resource {
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
+	Vector<Vector<real_t>> penalty_array;
 	BoneId ewbik_root_bone = -1;
 	BoneId ewbik_tip_bone = -1;
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
@@ -105,6 +107,9 @@ public:
 #endif
 		return y;
 	}
+	static void recursive_create_headings_arrays_for(Ref<IKBoneSegment> p_bone_segment);
+	void create_headings_arrays();
+	void recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_segment, Vector<Vector<real_t>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, real_t p_falloff);
 	Ref<IKBoneSegment> get_parent_segment();
 	void segment_solver(real_t p_damp);
 	Ref<IKBone3D> get_root() const;
@@ -115,7 +120,7 @@ public:
 	Vector<Ref<IKBone3D>> get_bone_list() const;
 	Ref<IKBone3D> get_ik_bone(BoneId p_bone);
 	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone);
-	void update_pinned_list();
+	void update_pinned_list(Vector<Vector<real_t>> &r_weights);
 	IKBoneSegment() {}
 	IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent = nullptr,
 			BoneId root = -1, BoneId tip = -1);

@@ -87,8 +87,8 @@ public:
 	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;
-	void update_effector_target_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone, Vector<real_t> *p_weights) const;
-	void update_effector_tip_headings(PackedVector3Array *p_headings, int32_t &p_index, Ref<IKBone3D> p_for_bone) const;
+	void update_effector_target_headings(PackedVector3Array *p_headings, Ref<IKBone3D> p_for_bone, Vector<real_t> *p_weights) const;
+	void update_effector_tip_headings(PackedVector3Array *p_headings, Ref<IKBone3D> p_for_bone) const;
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
 	IKEffector3D() {}
 	~IKEffector3D() {}

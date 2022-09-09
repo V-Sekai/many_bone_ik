@@ -135,40 +135,28 @@ void IKBoneSegment::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recur
 	p_list.append_array(list);
 }
 
-void IKBoneSegment::update_pinned_list() {
-	real_t depth_falloff = is_pinned() ? tip->get_pin()->get_depth_falloff() : 1.0;
+void IKBoneSegment::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
+	real_t depth_falloff = is_pinned() ? tip->get_pin()->depth_falloff : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_segments.size(); chain_i++) {
 		Ref<IKBoneSegment> chain = child_segments[chain_i];
-		chain->update_pinned_list();
+		chain->update_pinned_list(r_weights);
 	}
 	if (is_pinned()) {
 		effector_list.push_back(tip->get_pin());
 	}
-	if (!Math::is_zero_approx(depth_falloff)) {
+	if (depth_falloff > 0.0) {
 		for (Ref<IKBoneSegment> child : child_segments) {
 			effector_list.append_array(child->effector_list);
 		}
 	}
-	for (Ref<IKEffector3D> effector : effector_list) {
-		// TODO: 2021-05-02 fire Implement proper weights
-		heading_weights.push_back(1.0f);
-		{
-			heading_weights.push_back(1.0f);
-			heading_weights.push_back(1.0f);
-		}
-		{
-			heading_weights.push_back(1.0f);
-			heading_weights.push_back(1.0f);
-		}
-		{
-			heading_weights.push_back(1.0f);
-			heading_weights.push_back(1.0f);
-		}
-		effector->create_headings(heading_weights);
-	}
-	int32_t n = heading_weights.size();
-	target_headings.resize(n);
-	tip_headings.resize(n);
+	// for(const Vector<real_t> &penalty : penalty_array);
+	// 	for(real_t weight : penalty) {
+	// 		heading_weights.push_back(weight);
+	// 	}
+	// }
+	// int32_t n = heading_weights.size();
+	// target_headings.resize(n);
+	// tip_headings.resize(n);
 }
 
 void IKBoneSegment::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
@@ -270,20 +258,18 @@ void IKBoneSegment::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real
 	ERR_FAIL_NULL(p_for_bone);
 	ERR_FAIL_NULL(r_weights);
 	ERR_FAIL_NULL(r_target_headings);
-	int32_t index = 0; // Index is increased by effector->update_effector_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		effector->update_effector_target_headings(r_target_headings, index, p_for_bone, r_weights);
+		effector->update_effector_target_headings(r_target_headings, p_for_bone, &penalty_array.write[effector_i]);
 	}
 }
 
 void IKBoneSegment::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip) {
 	ERR_FAIL_NULL(r_heading_tip);
 	ERR_FAIL_NULL(p_for_bone);
-	int32_t index = 0; // Index is increased by effector->update_target_headings() function
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		effector->update_effector_tip_headings(r_heading_tip, index, p_for_bone);
+		effector->update_effector_tip_headings(r_heading_tip, p_for_bone);
 	}
 }
 
@@ -347,4 +333,78 @@ Ref<IKBone3D> IKBoneSegment::get_ik_bone(BoneId p_bone) {
 		return Ref<IKBone3D>();
 	}
 	return bone_map[p_bone];
+}
+
+void IKBoneSegment::create_headings_arrays() {
+	penalty_array.clear();
+	Vector<Ref<IKBone3D>> new_pinned_bones;
+	recursive_create_penalty_array(this, penalty_array, new_pinned_bones, 1.0);
+	pinned_bones.resize(new_pinned_bones.size());
+	int32_t total_headings = 0;
+	for (const Vector<real_t> &current_penalty_array : penalty_array) {
+		total_headings += current_penalty_array.size();
+	}
+	for (int32_t bone_i = 0; bone_i < new_pinned_bones.size(); bone_i++) {
+		pinned_bones.write[bone_i] = new_pinned_bones[bone_i];
+	}
+	target_headings.resize(total_headings);
+	tip_headings.resize(total_headings);
+	heading_weights.resize(penalty_array.size());
+}
+
+void IKBoneSegment::recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_segment, Vector<Vector<real_t>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, real_t p_falloff) {
+	if (p_falloff <= 0.0) {
+		return;
+	} else {
+		real_t current_falloff = 1.0;
+		if (p_bone_segment->is_pinned()) {
+			Ref<IKBone3D> tip = p_bone_segment->get_tip();
+			Ref<IKEffector3D> pin = tip->get_pin();
+			real_t weight = pin->get_weight();
+			Vector<real_t> inner_weight_array;
+			inner_weight_array.push_back(weight * p_falloff);
+			real_t max_pin_weight = 0.0;
+			if (pin->get_priority_x_direction() > 0.0) {
+				max_pin_weight = MAX(max_pin_weight, pin->get_priority_x_direction());
+			}
+			if (pin->get_priority_y_direction() > 0.0) {
+				max_pin_weight = MAX(max_pin_weight, pin->get_priority_y_direction());
+			}
+			if (pin->get_priority_z_direction() > 0.0) {
+				max_pin_weight = MAX(max_pin_weight, pin->get_priority_z_direction());
+			}
+			if (max_pin_weight == 0.0) {
+				max_pin_weight = 1.0;
+			}
+			max_pin_weight = 1.0;
+			if (pin->get_priority_x_direction() > 0.0) {
+				double sub_target_weight = pin->get_weight() * (pin->get_priority_x_direction() / max_pin_weight) * p_falloff;
+				inner_weight_array.push_back(sub_target_weight);
+				inner_weight_array.push_back(sub_target_weight);
+			}
+			if (pin->get_priority_y_direction() > 0.0) {
+				double sub_target_weight = pin->get_weight() * (pin->get_priority_y_direction() / max_pin_weight) * p_falloff;
+				inner_weight_array.push_back(sub_target_weight);
+				inner_weight_array.push_back(sub_target_weight);
+			}
+			if (pin->get_priority_z_direction() > 0.0) {
+				double sub_target_weight = pin->get_weight() * (pin->get_priority_z_direction() / max_pin_weight) * p_falloff;
+				inner_weight_array.push_back(sub_target_weight);
+				inner_weight_array.push_back(sub_target_weight);
+			}
+			r_penalty_array.push_back(inner_weight_array);
+			r_pinned_bones.push_back(tip);
+			current_falloff = pin->get_depth_falloff();
+		}
+		for (Ref<IKBoneSegment> s : p_bone_segment->get_child_segments()) {
+			recursive_create_penalty_array(s, r_penalty_array, r_pinned_bones, p_falloff * current_falloff);
+		}
+	}
+}
+
+void IKBoneSegment::recursive_create_headings_arrays_for(Ref<IKBoneSegment> p_bone_segment) {
+	p_bone_segment->create_headings_arrays();
+	for (Ref<IKBoneSegment> segments : p_bone_segment->get_child_segments()) {
+		recursive_create_headings_arrays_for(segments);
+	}
 }

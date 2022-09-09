@@ -731,7 +731,9 @@ void SkeletonModification3DEWBIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
 	bone_list.clear();
 	segmented_skeleton->create_bone_list(bone_list, true, debug_skeleton);
-	segmented_skeleton->update_pinned_list();
+	Vector<Vector<real_t>> weight_array;
+	segmented_skeleton->update_pinned_list(weight_array);
+	segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
 	update_shadow_bones_transform();
 	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		String bone = constraint_names[constraint_i];
