@@ -226,15 +226,13 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/depth_falloff", PROPERTY_HINT_RANGE, "0,1,0.01"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/priority", PROPERTY_HINT_RANGE, "0,1,0.01"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight", PROPERTY_HINT_RANGE, "0,1,0.01"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_translation", PROPERTY_HINT_RANGE, "0,1,0.01"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/priority_x_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_x_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/priority_y_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_y_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight_z_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/priority_z_direction", PROPERTY_HINT_RANGE, "0,1,0.01"));
 	}
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
@@ -312,15 +310,17 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		} else if (what == "depth_falloff") {
 			r_ret = get_pin_depth_falloff(index);
 			return true;
-		} else if (what == "priority") {
+		} else if (what == "weight") {
+			r_ret = get_pin_weight(index);
 			return true;
-		} else if (what == "weight_translation") {
+		} else if (what == "priority_x_direction") {
+			r_ret = get_pin_priority_x_direction(index);
 			return true;
-		} else if (what == "weight_x_direction") {
+		} else if (what == "priority_y_direction") {
+			r_ret = get_pin_priority_y_direction(index);
 			return true;
-		} else if (what == "weight_y_direction") {
-			return true;
-		} else if (what == "weight_z_direction") {
+		} else if (what == "priority_z_direction") {
+			r_ret = get_pin_priority_z_direction(index);
 			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
@@ -388,15 +388,17 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		} else if (what == "depth_falloff") {
 			set_pin_depth_falloff(index, p_value);
 			return true;
-		} else if (what == "priority") {
+		} else if (what == "weight") {
+			set_pin_weight(index, p_value);
 			return true;
-		} else if (what == "weight_translation") {
+		} else if (what == "priority_x_direction") {
+			set_pin_priority_x_direction(index, p_value);
 			return true;
-		} else if (what == "weight_x_direction") {
+		} else if (what == "priority_y_direction") {
+			set_pin_priority_y_direction(index, p_value);
 			return true;
-		} else if (what == "weight_y_direction") {
-			return true;
-		} else if (what == "weight_z_direction") {
+		} else if (what == "priority_z_direction") {
+			set_pin_priority_z_direction(index, p_value);
 			return true;
 		}
 	} else if (name.begins_with("constraints/")) {

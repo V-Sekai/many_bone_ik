@@ -54,18 +54,37 @@ class IKEffector3D : public Resource {
 
 	Transform3D target_global_transform;
 	int32_t num_headings = 7;
-	real_t depth_falloff = 0.0;
 	real_t weight = 1.0;
+	real_t depth_falloff = 1.0;
 	bool follow_x = true, follow_y = true, follow_z = true;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
+	real_t priority_x_direction = 1.0;
+	real_t priority_y_direction = 0.0;
+	real_t priority_z_direction = 1.0;
 	void create_headings(Vector<real_t> &p_weights);
 
 protected:
 	static void _bind_methods();
 
 public:
+	void set_weight(real_t p_weight) { weight = p_weight; }
+	real_t get_weight() const {
+		return weight;
+	}
+	void set_priority_x_direction(real_t p_priority_x_direction) { priority_x_direction = p_priority_x_direction; }
+	real_t get_priority_x_direction() const {
+		return priority_x_direction;
+	}
+	void set_priority_y_direction(real_t p_priority_y_direction) { priority_y_direction = p_priority_y_direction; }
+	real_t get_priority_y_direction() const {
+		return priority_y_direction;
+	}
+	void set_priority_z_direction(real_t p_priority_z_direction) { priority_z_direction = p_priority_z_direction; }
+	real_t get_priority_z_direction() const {
+		return priority_z_direction;
+	}
 	void update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_modification = nullptr);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;

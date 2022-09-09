@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "ik_bone_segment.h"
+#include "ik_effector_3d.h"
 #include "math/ik_transform.h"
 #include "scene/3d/skeleton_3d.h"
 
@@ -135,7 +136,7 @@ void IKBoneSegment::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recur
 }
 
 void IKBoneSegment::update_pinned_list() {
-	real_t depth_falloff = is_pinned() ? tip->get_pin()->depth_falloff : 1.0;
+	real_t depth_falloff = is_pinned() ? tip->get_pin()->get_depth_falloff() : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_segments.size(); chain_i++) {
 		Ref<IKBoneSegment> chain = child_segments[chain_i];
 		chain->update_pinned_list();

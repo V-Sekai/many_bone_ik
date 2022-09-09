@@ -139,6 +139,10 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			effector->set_target_node(p_skeleton, elem->get_target_node());
 			effector->set_depth_falloff(elem->get_depth_falloff());
 			effector->set_target_node_rotation(elem->get_target_node_rotation());
+			effector->set_weight(elem->get_weight());
+			effector->set_priority_x_direction(elem->get_priority_x_direction());
+			effector->set_priority_y_direction(elem->get_priority_y_direction());
+			effector->set_priority_z_direction(elem->get_priority_z_direction());
 			break;
 		}
 	}

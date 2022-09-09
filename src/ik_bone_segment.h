@@ -33,6 +33,7 @@
 
 #include "ik_bone_3d.h"
 #include "ik_effector_template.h"
+#include "ik_effector_3d.h"
 #include "math/qcp.h"
 #include "scene/3d/skeleton_3d.h"
 

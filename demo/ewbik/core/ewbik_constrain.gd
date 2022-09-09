@@ -71,4 +71,4 @@ func _run():
 #		ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
 #		ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 1, 0).normalized())
 #		ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
-	ewbik.print_debug_skeleton()
+	ewbik.set_debug_skeleton(true)
