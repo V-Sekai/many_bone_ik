@@ -193,7 +193,7 @@ IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_current_bone) {
 }
 
 void IKEffector3D::set_depth_falloff(float p_depth_falloff) {
-	depth_falloff = p_depth_falloff;
+	depth_falloff = CLAMP(p_depth_falloff, 0.0, 1.0);
 }
 
 float IKEffector3D::get_depth_falloff() const {
