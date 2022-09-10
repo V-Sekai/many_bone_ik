@@ -120,7 +120,7 @@ void LimitCone::update_tangent_and_cushion_handles(Ref<LimitCone> p_next, int p_
 	}
 	if (this->tangent_circle_center_next_1 == Vector3(NAN, NAN, NAN)) {
 		this->tangent_circle_center_next_1 = get_orthogonal(control_point).normalized();
-		this->cushion_tangent_circle_center_next_1 = get_orthogonal(control_point).normalized();
+		this->cushion_tangent_circle_center_next_1 = this->tangent_circle_center_next_1;
 	}
 	if (tangent_circle_center_next_2 == Vector3(NAN, NAN, NAN)) {
 		tangent_circle_center_next_2 = (tangent_circle_center_next_1 * -1).normalized();
@@ -356,8 +356,7 @@ LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusuda
 	double adjustedCushion = MIN(1, MAX(0.001, cushion));
 	this->cushion_radius = this->radius * adjustedCushion;
 	this->cushion_cosine = IKBoneSegment::cos(cushion_radius);
-	this->control_point = direction;
-	this->control_point.normalize();
+	set_control_point(direction);
 }
 
 LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to) {
@@ -368,8 +367,7 @@ LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to
 	this->radius_cosine = cos(radius);
 	this->cushion_radius = this->radius;
 	this->cushion_cosine = this->radius_cosine;
-	this->control_point = direction;
-	this->control_point.normalize();
+	set_control_point(direction);
 }
 
 Vector3 LimitCone::get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const {

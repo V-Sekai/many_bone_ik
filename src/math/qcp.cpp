@@ -35,9 +35,9 @@ QCP::QCP(double p_evec_prec, double p_eval_prec) {
 	this->eval_prec = p_evec_prec;
 }
 
-void QCP::set(PackedVector3Array &p_target, PackedVector3Array &p_moved) {
-	target = p_target;
-	moved = p_moved;
+void QCP::set(PackedVector3Array &r_target, PackedVector3Array &r_moved) {
+	target = r_target;
+	moved = r_moved;
 	rmsd_calculated = false;
 	transformation_calculated = false;
 	inner_product_calculated = false;
@@ -63,8 +63,8 @@ Quaternion QCP::get_rotation() {
 	return result;
 }
 
-void QCP::calculate_rmsd(double len) {
-	rmsd = Math::sqrt(Math::abs(2.0f * (e0 - mxEigenV) / len));
+void QCP::calculate_rmsd(double r_length) {
+	rmsd = Math::sqrt(Math::abs(2.0f * (e0 - mxEigenV) / r_length));
 }
 
 Quaternion QCP::calculate_rotation() {
@@ -180,14 +180,14 @@ Quaternion QCP::calculate_rotation() {
 	}
 }
 
-double QCP::get_rmsd(PackedVector3Array &moved, PackedVector3Array &fixed) {
-	set(moved, fixed);
+double QCP::get_rmsd(PackedVector3Array &r_fixed, PackedVector3Array &r_moved) {
+	set(r_fixed, r_moved);
 	return get_rmsd();
 }
 
-void QCP::translate(Vector3 trans, PackedVector3Array &x) {
-	for (Vector3 &p : x) {
-		p += trans;
+void QCP::translate(Vector3 r_translate, PackedVector3Array &r_x) {
+	for (Vector3 &p : r_x) {
+		p += r_translate;
 	}
 }
 
@@ -195,18 +195,18 @@ Vector3 QCP::get_translation() {
 	return target_center - moved_center;
 }
 
-Vector3 QCP::move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight) {
+Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<real_t> &r_weight) {
 	Vector3 center;
-	if (!weight.is_empty()) {
-		for (int i = 0; i < toCenter.size(); i++) {
-			center += toCenter[i] * weight[i];
-			w_sum += weight[i];
+	if (!r_weight.is_empty()) {
+		for (int i = 0; i < r_to_center.size(); i++) {
+			center += r_to_center[i] * r_weight[i];
+			w_sum += r_weight[i];
 		}
 
 		center /= Vector3(w_sum, w_sum, w_sum);
 	} else {
-		for (int i = 0; i < toCenter.size(); i++) {
-			center += toCenter[i];
+		for (int i = 0; i < r_to_center.size(); i++) {
+			center += r_to_center[i];
 			w_sum++;
 		}
 		center /= Vector3(w_sum, w_sum, w_sum);

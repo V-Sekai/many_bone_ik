@@ -159,9 +159,9 @@ class QCP {
 	 */
 	void inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2);
 
-	void calculate_rmsd(double len);
+	void calculate_rmsd(double r_length);
 
-	void set(PackedVector3Array &target, PackedVector3Array &moved);
+	void set(PackedVector3Array &r_target, PackedVector3Array &r_moved);
 
 	Quaternion calculate_rotation();
 
@@ -178,10 +178,10 @@ class QCP {
 	 */
 	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate);
 
-	static void translate(Vector3 trans, PackedVector3Array &x);
+	static void translate(Vector3 r_translate, PackedVector3Array &r_x);
 
-	double get_rmsd(PackedVector3Array &fixed, PackedVector3Array &moved);
-	Vector3 move_to_weighted_center(PackedVector3Array &toCenter, Vector<real_t> &weight);
+	double get_rmsd(PackedVector3Array &r_fixed, PackedVector3Array &r_moved);
+	Vector3 move_to_weighted_center(PackedVector3Array &r_to_center, Vector<real_t> &r_weight);
 
 public:
 	/**
