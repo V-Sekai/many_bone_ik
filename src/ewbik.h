@@ -50,8 +50,7 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	int32_t pin_count = 0;
 	Vector<Ref<IKEffectorTemplate>> pins;
 	Vector<Ref<IKBone3D>> bone_list;
-	Vector<float> kusudama_twist_from;
-	Vector<float> kusudama_twist_to;
+	Vector<Vector2> kusudama_twist;
 	Vector<bool> kusudama_flip_handedness;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
@@ -138,10 +137,8 @@ public:
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
 	void set_constraint_name(int32_t p_index, String p_name);
-	void set_kusudama_twist_from(int32_t p_index, float p_from);
-	void set_kusudama_twist_to(int32_t p_index, float p_to);
-	float get_kusudama_twist_from(int32_t p_index) const;
-	float get_kusudama_twist_to(int32_t p_index) const;
+	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
+	Vector2 get_kusudama_twist(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
 	Vector3 get_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index) const;
