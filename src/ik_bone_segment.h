@@ -57,7 +57,6 @@ class IKBoneSegment : public Resource {
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
-	Vector<Vector<real_t>> penalty_array;
 	BoneId ewbik_root_bone = -1;
 	BoneId ewbik_tip_bone = -1;
 	int32_t idx_eff_i = -1, idx_eff_f = -1;

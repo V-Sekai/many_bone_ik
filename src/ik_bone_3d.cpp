@@ -138,9 +138,10 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			Ref<IKEffector3D> effector = get_pin();
 			effector->set_target_node(p_skeleton, elem->get_target_node());
 			effector->set_depth_falloff(elem->get_depth_falloff());
-			effector->set_target_node_rotation(elem->get_target_node_rotation());
+			const real_t weight = elem->get_weight();
 			effector->set_weight(elem->get_weight());
-			effector->set_priority_direction(elem->get_priority_direction());
+			effector->set_weight(weight);
+			effector->set_direction_priorities(elem->get_direction_priorities());
 			break;
 		}
 	}

@@ -228,7 +228,7 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		QCP qcp = QCP(1E-6, 1E-11);
 		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 		Vector3 translation = qcp.get_translation();
-		if (!Math::is_equal_approx(p_dampening, -1.0f)) {
+		if (p_dampening != -1.0f) { // Linter, stop yelling at me. We want the exact bit value of -1.0.
 			bone_damp = p_dampening;
 			rot = clamp_to_angle(rot, bone_damp);
 		} else {
@@ -258,18 +258,20 @@ void IKBoneSegment::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real
 	ERR_FAIL_NULL(p_for_bone);
 	ERR_FAIL_NULL(r_weights);
 	ERR_FAIL_NULL(r_target_headings);
+	int32_t last_index = 0;
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		effector->update_effector_target_headings(r_target_headings, p_for_bone, &penalty_array.write[effector_i]);
+		last_index = effector->update_effector_target_headings(r_target_headings, last_index, p_for_bone, &heading_weights);
 	}
 }
 
 void IKBoneSegment::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip) {
 	ERR_FAIL_NULL(r_heading_tip);
 	ERR_FAIL_NULL(p_for_bone);
+	int32_t last_index = 0;
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		effector->update_effector_tip_headings(r_heading_tip, p_for_bone);
+		last_index = effector->update_effector_tip_headings(r_heading_tip, last_index, p_for_bone);
 	}
 }
 
@@ -336,7 +338,7 @@ Ref<IKBone3D> IKBoneSegment::get_ik_bone(BoneId p_bone) {
 }
 
 void IKBoneSegment::create_headings_arrays() {
-	penalty_array.clear();
+	Vector<Vector<real_t>> penalty_array;
 	Vector<Ref<IKBone3D>> new_pinned_bones;
 	recursive_create_penalty_array(this, penalty_array, new_pinned_bones, 1.0);
 	pinned_bones.resize(new_pinned_bones.size());
@@ -349,7 +351,16 @@ void IKBoneSegment::create_headings_arrays() {
 	}
 	target_headings.resize(total_headings);
 	tip_headings.resize(total_headings);
-	heading_weights.resize(penalty_array.size());
+	heading_weights.resize(total_headings);
+	int currentHeading = 0;
+	for (const Vector<real_t> &current_penalty_array : penalty_array) {
+		for (real_t ad : current_penalty_array) {
+			heading_weights.write[currentHeading] = ad;
+			target_headings.write[currentHeading] = Vector3();
+			tip_headings.write[currentHeading] = Vector3();
+			currentHeading++;
+		}
+	}
 }
 
 void IKBoneSegment::recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_segment, Vector<Vector<real_t>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, real_t p_falloff) {
@@ -364,31 +375,32 @@ void IKBoneSegment::recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_seg
 			Vector<real_t> inner_weight_array;
 			inner_weight_array.push_back(weight * p_falloff);
 			real_t max_pin_weight = 0.0;
-			if (pin->get_priority_x_direction() > 0.0) {
-				max_pin_weight = MAX(max_pin_weight, pin->get_priority_x_direction());
+			Vector3 priority = pin->get_direction_priorities();
+			if (priority.x > 0.0) {
+				max_pin_weight = MAX(max_pin_weight, priority.x);
 			}
-			if (pin->get_priority_y_direction() > 0.0) {
-				max_pin_weight = MAX(max_pin_weight, pin->get_priority_y_direction());
+			if (priority.y > 0.0) {
+				max_pin_weight = MAX(max_pin_weight, priority.y);
 			}
-			if (pin->get_priority_z_direction() > 0.0) {
-				max_pin_weight = MAX(max_pin_weight, pin->get_priority_z_direction());
+			if (priority.z > 0.0) {
+				max_pin_weight = MAX(max_pin_weight, priority.z);
 			}
 			if (max_pin_weight == 0.0) {
 				max_pin_weight = 1.0;
 			}
 			max_pin_weight = 1.0;
-			if (pin->get_priority_x_direction() > 0.0) {
-				double sub_target_weight = pin->get_weight() * (pin->get_priority_x_direction() / max_pin_weight) * p_falloff;
+			if (priority.x > 0.0) {
+				double sub_target_weight = pin->get_weight() * (priority.x/ max_pin_weight) * p_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
 			}
-			if (pin->get_priority_y_direction() > 0.0) {
-				double sub_target_weight = pin->get_weight() * (pin->get_priority_y_direction() / max_pin_weight) * p_falloff;
+			if (priority.y > 0.0) {
+				double sub_target_weight = pin->get_weight() * (priority.y / max_pin_weight) * p_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
 			}
-			if (pin->get_priority_z_direction() > 0.0) {
-				double sub_target_weight = pin->get_weight() * (pin->get_priority_z_direction() / max_pin_weight) * p_falloff;
+			if (priority.z > 0.0) {
+				double sub_target_weight = pin->get_weight() * (priority.z / max_pin_weight) * p_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
 			}

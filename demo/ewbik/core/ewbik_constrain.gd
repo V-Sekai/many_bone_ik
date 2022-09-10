@@ -45,7 +45,7 @@ func _run():
 			root.add_child(node_3d)
 		node_3d.owner = root
 		ewbik.set_pin_bone_name(pin_i, bone_name)
-		ewbik.set_pin_depth_falloff(pin_i, 1)
+		ewbik.set_pin_depth_falloff(pin_i, 0)
 		var bone_id = skeleton.find_bone(bone_name)
 		if bone_id == -1:
 			pin_i = pin_i + 1
@@ -58,12 +58,12 @@ func _run():
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		pin_i = pin_i + 1
 	var constraint_bones = ["LeftLowerArm", "RightLowerArm"]
-	ewbik.constraint_count = constraint_bones.size()
-	for constraint_i in ewbik.constraint_count:
-		var bone_name : StringName = profile.get_bone_name(constraint_i)
-		if bone_name == null:
-			continue
-		ewbik.set_constraint_name(constraint_i, bone_name)
+#	ewbik.constraint_count = constraint_bones.size()
+#	for constraint_i in ewbik.constraint_count:
+#		var bone_name : StringName = profile.get_bone_name(constraint_i)
+#		if bone_name == null:
+#			continue
+#		ewbik.set_constraint_name(constraint_i, bone_name)
 		# Female age 9 - 19 https://pubmed.ncbi.nlm.nih.gov/32644411/
 #		ewbik.set_kusudama_twist_from(constraint_i, deg_to_rad(-90))
 #		ewbik.set_kusudama_twist_to(constraint_i, deg_to_rad(90))

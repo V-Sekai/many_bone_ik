@@ -61,7 +61,6 @@ void SkeletonModification3DEWBIK::add_pin(const StringName &p_name, const NodePa
 	set_pin_count(count + 1);
 	set_pin_bone(count, p_name);
 	set_pin_target_nodepath(count, p_target_node);
-	set_pin_use_node_rotation(count, p_use_node_rotation);
 	notify_property_list_changed();
 	skeleton_changed(get_skeleton());
 }
@@ -94,22 +93,6 @@ NodePath SkeletonModification3DEWBIK::get_pin_target_nodepath(int32_t p_pin_inde
 	ERR_FAIL_INDEX_V(p_pin_index, pins.size(), NodePath());
 	const Ref<IKEffectorTemplate> data = pins[p_pin_index];
 	return data->get_target_node();
-}
-
-void SkeletonModification3DEWBIK::set_pin_use_node_rotation(int32_t p_pin_index, bool p_use_node_rot) {
-	ERR_FAIL_INDEX(p_pin_index, pins.size());
-	Ref<IKEffectorTemplate> data = pins[p_pin_index];
-	ERR_FAIL_NULL(data);
-	data->set_target_node_rotation(p_use_node_rot);
-
-	notify_property_list_changed();
-	skeleton_changed(get_skeleton());
-}
-
-bool SkeletonModification3DEWBIK::get_pin_use_node_rotation(int32_t p_effector_index) const {
-	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
-	const Ref<IKEffectorTemplate> data = pins[p_effector_index];
-	return data->get_target_node_rotation();
 }
 
 Vector<Ref<IKEffectorTemplate>> SkeletonModification3DEWBIK::get_bone_effectors() const {
@@ -228,7 +211,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater"));
 		p_list->push_back(
-				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/priority_direction", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater"));
+				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater"));
 	}
 
 	RBSet<String> existing_constraints;
@@ -299,17 +282,14 @@ bool SkeletonModification3DEWBIK::_get(const StringName &p_name, Variant &r_ret)
 		} else if (what == "target_node") {
 			r_ret = data->get_target_node();
 			return true;
-		} else if (what == "use_node_rotation") {
-			r_ret = get_pin_use_node_rotation(index);
-			return true;
 		} else if (what == "depth_falloff") {
 			r_ret = get_pin_depth_falloff(index);
 			return true;
 		} else if (what == "weight") {
 			r_ret = get_pin_weight(index);
 			return true;
-		} else if (what == "priority_direction") {
-			r_ret = get_pin_priority_direction(index);
+		} else if (what == "direction_priorities") {
+			r_ret = get_pin_direction_priorities(index);
 			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
@@ -368,17 +348,14 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 				return false;
 			}
 			return true;
-		} else if (what == "use_node_rotation") {
-			set_pin_use_node_rotation(index, p_value);
-			return true;
 		} else if (what == "depth_falloff") {
 			set_pin_depth_falloff(index, p_value);
 			return true;
 		} else if (what == "weight") {
 			set_pin_weight(index, p_value);
 			return true;
-		} else if (what == "priority_direction") {
-			set_pin_priority_direction(index, p_value);
+		} else if (what == "direction_priorities") {
+			set_pin_direction_priorities(index, p_value);
 			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
@@ -456,7 +433,6 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_kusudama_flip_handedness"), &SkeletonModification3DEWBIK::get_kusudama_flip_handedness);
 	ClassDB::bind_method(D_METHOD("get_pin_nodepath"), &SkeletonModification3DEWBIK::get_pin_nodepath);
 	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &SkeletonModification3DEWBIK::set_pin_nodepath);
-	ClassDB::bind_method(D_METHOD("set_pin_use_node_rotation", "index", "node_rotation"), &SkeletonModification3DEWBIK::set_pin_use_node_rotation);
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");

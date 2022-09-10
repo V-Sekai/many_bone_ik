@@ -40,7 +40,6 @@ class IKEffectorTemplate : public Resource {
 
 	NodePath target_node;
 	real_t depth_falloff = Math::rad_to_deg(1.0f);
-	bool is_target_node_rotation = true;
 	real_t weight = 1.0f;
 	Vector3 priority_direction = Vector3(1.0f, 0.0, 1.0);
 
@@ -52,12 +51,10 @@ public:
 	void set_target_node(NodePath p_node_path);
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
-	bool get_target_node_rotation() const;
-	void set_target_node_rotation(bool p_target_node_rotation);
-	bool get_weight() const { return weight; }
+	real_t get_weight() const { return weight; }
 	void set_weight(real_t p_weight) { weight = p_weight; }
-	Vector3 get_priority_direction() const { return priority_direction; }
-	void set_priority_direction(Vector3 p_priority_direction) { priority_direction = p_priority_direction; }
+	Vector3 get_direction_priorities() const { return priority_direction; }
+	void set_direction_priorities(Vector3 p_priority_direction) { priority_direction = p_priority_direction; }
 
 	IKEffectorTemplate();
 };

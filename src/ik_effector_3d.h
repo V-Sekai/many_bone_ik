@@ -55,25 +55,27 @@ class IKEffector3D : public Resource {
 	Transform3D target_global_transform;
 	int32_t num_headings = 7;
 	real_t weight = 1.0;
-	real_t depth_falloff = 1.0;
+	real_t depth_falloff = 0.0;
 	bool follow_x = true, follow_y = true, follow_z = true;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
-	Vector3 priority_direction = Vector3(1.0, 0, 1.0);
+	Vector3 direction_priorities = Vector3(1.0, 0, 1.0);
 	void create_headings(Vector<real_t> &p_weights);
 
 protected:
 	static void _bind_methods();
 
 public:
-	void set_weight(real_t p_weight) { weight = p_weight; }
+	void set_weight(real_t p_weight) {
+		weight = p_weight;
+	}
 	real_t get_weight() const {
 		return weight;
 	}
-	void set_priority_direction(Vector3 p_priority_direction) { priority_direction = p_priority_direction; }
-	Vector3 get_prioritydirection() const {
-		return priority_direction;
+	void set_direction_priorities(Vector3 p_direction_priorities) { direction_priorities = p_direction_priorities; }
+	Vector3 get_direction_priorities() const {
+		return direction_priorities;
 	}
 	void update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_modification = nullptr);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
@@ -87,8 +89,8 @@ public:
 	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;
-	void update_effector_target_headings(PackedVector3Array *p_headings, Ref<IKBone3D> p_for_bone, Vector<real_t> *p_weights) const;
-	void update_effector_tip_headings(PackedVector3Array *p_headings, Ref<IKBone3D> p_for_bone) const;
+	int32_t update_effector_target_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone, const Vector<real_t> *p_weights) const;
+	int32_t update_effector_tip_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone) const;
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
 	IKEffector3D() {}
 	~IKEffector3D() {}

@@ -110,27 +110,25 @@ public:
 		const Ref<IKEffectorTemplate> data = pins[p_pin_index];
 		return data->get_weight();
 	}
-	void set_pin_priority_direction(int32_t p_pin_index, const Vector3 &p_priority_direction) {
+	void set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p_priority_direction) {
 		ERR_FAIL_INDEX(p_pin_index, pins.size());
 		Ref<IKEffectorTemplate> data = pins[p_pin_index];
 		if (data.is_null()) {
 			data.instantiate();
 			pins.write[p_pin_index] = data;
 		}
-		data->set_priority_direction(p_priority_direction);
+		data->set_direction_priorities(p_priority_direction);
 		notify_property_list_changed();
 		skeleton_changed(get_skeleton());
 	}
-	Vector3 get_pin_priority_direction(int32_t p_pin_index) const {
+	Vector3 get_pin_direction_priorities(int32_t p_pin_index) const {
 		ERR_FAIL_INDEX_V(p_pin_index, pins.size(), Vector3(0, 0, 0));
 		const Ref<IKEffectorTemplate> data = pins[p_pin_index];
-		return data->get_priority_direction();
+		return data->get_direction_priorities();
 	}
 	NodePath get_pin_target_nodepath(int32_t p_pin_index);
 	void set_pin_depth_falloff(int32_t p_effector_index, const float p_depth_falloff);
 	float get_pin_depth_falloff(int32_t p_effector_index) const;
-	void set_pin_use_node_rotation(int32_t p_index, bool p_use_node_rot);
-	bool get_pin_use_node_rotation(int32_t p_index) const;
 	real_t get_default_damp() const;
 	void set_default_damp(float p_default_damp);
 	void set_constraint_count(int32_t p_count);
