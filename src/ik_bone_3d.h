@@ -43,7 +43,6 @@
 
 class IKEffector3D;
 class IKKusudama;
-class IKBoneSegment;
 
 class IKBone3D : public Resource {
 	GDCLASS(IKBone3D, Resource);
@@ -55,7 +54,7 @@ class IKBone3D : public Resource {
 
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
-	float cos_half_dampen = IKBoneSegment::cos(dampening / 2.0f);
+	float cos_half_dampen = Math::cos(dampening / 2.0f);
 	float stiffness = 1.0f;
 	Ref<IKKusudama> constraint;
 	// In the space of the local parent bone transform
