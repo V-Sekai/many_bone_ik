@@ -160,9 +160,6 @@ Ref<IKKusudama> IKBone3D::get_constraint() const {
 	return constraint;
 }
 
-void IKBone3D::update_cosine_dampening() {
-}
-
 void IKBone3D::add_constraint(Ref<IKKusudama> p_constraint) {
 	constraint = p_constraint;
 }

@@ -43,6 +43,7 @@
 
 class IKEffector3D;
 class IKKusudama;
+class IKBoneSegment;
 
 class IKBone3D : public Resource {
 	GDCLASS(IKBone3D, Resource);
@@ -54,15 +55,16 @@ class IKBone3D : public Resource {
 
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
-	float cos_half_dampen = Math::cos(dampening / 2.0f);
+	float cos_half_dampen = IKBoneSegment::cos(dampening / 2.0f);
+	float stiffness = 1.0f;
 	Ref<IKKusudama> constraint;
 	// In the space of the local parent bone transform
 	// Origin is the origin of the bone direction transform
 	// Can be independent and should be calculated
 	// to keep -y to be the opposite of its bone forward orientation
-	// To avoid singularity that is ambigous.
+	// To avoid singularity that is ambiguous.
 	Ref<IKTransform3D> constraint_transform = memnew(IKTransform3D());
-	Ref<IKTransform3D> transform = memnew(IKTransform3D()); // bone's actual transform
+	Ref<IKTransform3D> transform = memnew(IKTransform3D()); // The bone's actual transform.
 	Ref<IKTransform3D> bone_direction_transform = memnew(IKTransform3D()); // Physical direction of the bone. Calculate Y is the bone up.
 protected:
 	static void _bind_methods();
@@ -74,7 +76,13 @@ public:
 	Ref<IKTransform3D> get_constraint_transform();
 	void add_constraint(Ref<IKKusudama> p_constraint);
 	Ref<IKKusudama> get_constraint() const;
-	void update_cosine_dampening();
+	void set_stiffness(float p_stiffness) {
+		stiffness = p_stiffness;
+	}
+	float get_stiffness() const {
+		return stiffness;
+	}
+
 	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
