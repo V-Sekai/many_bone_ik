@@ -88,9 +88,9 @@ public:
 	/**
 	 * sets the input vector equal to this sgRay's heading.
 	 *
-	 * @param setTo
+	 * @param r_set_to
 	 */
-	virtual void getHeading(Vector3 setTo);
+	virtual void getHeading(Vector3 &r_set_to);
 
 	/**
 	 * @return a copy of this ray with its z-component set to 0;

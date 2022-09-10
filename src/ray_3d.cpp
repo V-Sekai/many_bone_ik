@@ -88,9 +88,9 @@ void Ray3D::heading(Vector3 newHead) {
 	_p2 = newHead;
 }
 
-void Ray3D::getHeading(Vector3 setTo) {
-	setTo = _p2;
-	setTo -= this->_p1;
+void Ray3D::getHeading(Vector3 &r_set_to) {
+	r_set_to = _p2;
+	r_set_to -= this->_p1;
 }
 
 Ref<Ray3D> Ray3D::get2DCopy() {
