@@ -172,7 +172,7 @@ void SkeletonModification3DEWBIK::_validate_property(PropertyInfo &property) con
 			String names;
 			BoneId root_bone_id = get_skeleton()->find_bone(root_bone);
 			for (int i = 0; i < get_skeleton()->get_bone_count(); i++) {
-				if (i <= root_bone_id && root_bone_id != -1) {
+				if (i <= root_bone_id || root_bone_id == -1) {
 					continue;
 				}
 				String name = get_skeleton()->get_bone_name(i);
@@ -369,8 +369,8 @@ bool SkeletonModification3DEWBIK::_set(const StringName &p_name, const Variant &
 		} else if (what == "target_node") {
 			set_pin_target_nodepath(index, p_value);
 			String existing_bone = get_pin_bone_name(index);
-			if (!existing_bone.is_empty() && existing_bone != "None") {
-				return true;
+			if (existing_bone.is_empty()) {
+				return false;
 			}
 			return true;
 		} else if (what == "use_node_rotation") {

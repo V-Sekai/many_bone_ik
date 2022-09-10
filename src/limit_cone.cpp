@@ -356,7 +356,8 @@ LimitCone::LimitCone(Vector3 direction, double rad, double cushion, Ref<IKKusuda
 	double adjustedCushion = MIN(1, MAX(0.001, cushion));
 	this->cushion_radius = this->radius * adjustedCushion;
 	this->cushion_cosine = IKBoneSegment::cos(cushion_radius);
-	set_control_point(direction);
+	this->control_point = direction;
+	this->control_point.normalize();
 }
 
 LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to) {
@@ -367,7 +368,8 @@ LimitCone::LimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to
 	this->radius_cosine = cos(radius);
 	this->cushion_radius = this->radius;
 	this->cushion_cosine = this->radius_cosine;
-	set_control_point(direction);
+	this->control_point = direction;
+	this->control_point.normalize();
 }
 
 Vector3 LimitCone::get_on_great_tangent_triangle(Ref<LimitCone> next, Vector3 input) const {

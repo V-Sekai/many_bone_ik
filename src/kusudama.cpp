@@ -387,7 +387,6 @@ Vector3 IKKusudama::_local_point_in_limits(Vector3 in_point, Vector<double> &in_
 		real_t this_cos = collision_point.dot(point);
 		if (Math::is_equal_approx(this_cos, real_t(1.0))) {
 			in_bounds.write[0] = 1;
-			closest_collision_point = point;
 			return point;
 		}
 		if (this_cos > closest_cos) {

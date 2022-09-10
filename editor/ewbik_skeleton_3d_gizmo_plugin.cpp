@@ -59,7 +59,7 @@ String EWBIK3DGizmoPlugin::get_gizmo_name() const {
 }
 
 void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
-	SkeletonModification3DEWBIK *ewbik = Object::cast_to<SkeletonModification3DEWBIK>(p_gizmo->get_spatial_node());
+	ewbik = Object::cast_to<SkeletonModification3DEWBIK>(p_gizmo->get_spatial_node());
 	if (!ewbik) {
 		return;
 	}
