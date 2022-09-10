@@ -22,7 +22,7 @@ func adjust_mesh_zforward(mesh: ImporterMesh):
 	for surf_idx in range(surf_count):
 		var prim: int = mesh.get_surface_primitive_type(surf_idx)
 		var fmt_compress_flags: int = mesh.get_surface_format(surf_idx)
-		var arr: Array = mesh.get_surface_arrays(surf_idx) 
+		var arr: Array = mesh.get_surface_arrays(surf_idx)
 		var name: String = mesh.get_surface_name(surf_idx)
 		var bscount = mesh.get_blend_shape_count()
 		var bsarr: Array = []
