@@ -497,8 +497,6 @@ void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 	kusudama_limit_cones.resize(p_count);
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
-		kusudama_twist.write[constraint_i].x = -(Math_PI - CMP_EPSILON);
-		kusudama_twist.write[constraint_i].y = Math_PI - CMP_EPSILON;
 		kusudama_flip_handedness.write[constraint_i] = false;
 		kusudama_limit_cone_count.write[constraint_i] = 0;
 		kusudama_limit_cones.write[constraint_i].resize(0);
