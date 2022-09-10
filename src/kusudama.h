@@ -130,7 +130,7 @@ public:
 	 * This value is always interpreted as being in the positive direction. For example, if this value is -PI/2, the entire range from min_angle to min_angle + 3PI/4 is
 	 * considered valid.
 	 */
-	virtual void set_axial_limits(Vector2 p_axial_limit);
+	virtual void set_axial_limits(double min_angle, double in_range);
 
 	// protected CartesianAxes limitLocalAxes;
 

@@ -265,7 +265,7 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(
 				PropertyInfo(Variant::BOOL, "constraints/" + itos(constraint_i) + "/kusudama_flip_handedness"));
 		p_list->push_back(
-				PropertyInfo(Variant::VECTOR2, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_RANGE, "0.0,360.0,0.01,or_less,or_greater,degrees"));
+				PropertyInfo(Variant::VECTOR2, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_RANGE, "-360.0,360.0,0.1,radians,or_greater"));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
@@ -497,6 +497,8 @@ void SkeletonModification3DEWBIK::set_constraint_count(int32_t p_count) {
 	kusudama_limit_cones.resize(p_count);
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
+		kusudama_twist.write[constraint_i].x = -(Math_TAU - CMP_EPSILON);
+		kusudama_twist.write[constraint_i].y = Math_TAU - CMP_EPSILON;
 		kusudama_flip_handedness.write[constraint_i] = false;
 		kusudama_limit_cone_count.write[constraint_i] = 0;
 		kusudama_limit_cones.write[constraint_i].resize(0);
@@ -755,7 +757,7 @@ void SkeletonModification3DEWBIK::skeleton_changed(Skeleton3D *p_skeleton) {
 				constraint->add_limit_cone(Vector3(cone.x, cone.y, cone.z), cone.w);
 			}
 			constraint->_update_constraint();
-			constraint->set_axial_limits(axial_limit);
+			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
 			ik_bone_3d->add_constraint(constraint);
 			break;
 		}

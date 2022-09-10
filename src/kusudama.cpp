@@ -90,9 +90,9 @@ bool IKKusudama::is_in_global_pose_orientation_limits(Ref<IKTransform3D> p_globa
 	return true;
 }
 
-void IKKusudama::set_axial_limits(Vector2 p_axial_limit) {
-	_min_axial_angle = p_axial_limit.x;
-	range = to_tau(p_axial_limit.y);
+void IKKusudama::set_axial_limits(double min_angle, double in_range) {
+	_min_axial_angle = min_angle;
+	range = to_tau(in_range);
 	_update_constraint();
 }
 
