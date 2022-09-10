@@ -51,7 +51,7 @@ int32_t SkeletonModification3DEWBIK::get_pin_count() const {
 	return pin_count;
 }
 
-void SkeletonModification3DEWBIK::add_pin(const StringName &p_name, const NodePath &p_target_node, const bool &p_use_node_rotation) {
+void SkeletonModification3DEWBIK::add_pin(const StringName &p_name, const NodePath &p_target_node) {
 	for (Ref<IKEffectorTemplate> pin : pins) {
 		if (pin->get_name() == p_name) {
 			return;
@@ -204,8 +204,6 @@ void SkeletonModification3DEWBIK::_get_property_list(List<PropertyInfo> *p_list)
 		p_list->push_back(effector_name);
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D"));
-
-		p_list->push_back(PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/use_node_rotation"));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/depth_falloff", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater"));
 		p_list->push_back(
@@ -424,7 +422,6 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 			&SkeletonModification3DEWBIK::set_pin_count);
 	ClassDB::bind_method(D_METHOD("remove_pin", "index"),
 			&SkeletonModification3DEWBIK::remove_pin);
-	ClassDB::bind_method(D_METHOD("add_pin", "name", "target_node", "use_node_rotation"), &SkeletonModification3DEWBIK::add_pin);
 	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &SkeletonModification3DEWBIK::get_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &SkeletonModification3DEWBIK::set_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enable"), &SkeletonModification3DEWBIK::set_debug_skeleton);
