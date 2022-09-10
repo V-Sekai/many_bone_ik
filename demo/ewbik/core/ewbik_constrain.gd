@@ -46,6 +46,7 @@ func _run():
 		node_3d.owner = root
 		ewbik.set_pin_bone_name(pin_i, bone_name)
 		ewbik.set_pin_depth_falloff(pin_i, 0)
+		ewbik.set_pin_direction_priorities(pin_i, Vector3(0.25, 0, 0.25))
 		var bone_id = skeleton.find_bone(bone_name)
 		if bone_id == -1:
 			pin_i = pin_i + 1
@@ -53,7 +54,6 @@ func _run():
 		var bone_global_pose : Transform3D = skeleton.get_bone_global_rest(bone_id)
 		bone_global_pose = skeleton.transform * bone_global_pose
 		node_3d.global_transform = bone_global_pose
-		ewbik.set_pin_use_node_rotation(pin_i, true)
 		var path_string : String = "../" + str(skeleton.get_path_to(root)) + "/" + bone_name
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		pin_i = pin_i + 1

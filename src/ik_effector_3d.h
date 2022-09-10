@@ -56,11 +56,10 @@ class IKEffector3D : public Resource {
 	int32_t num_headings = 7;
 	real_t weight = 1.0;
 	real_t depth_falloff = 0.0;
-	bool follow_x = true, follow_y = true, follow_z = true;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
-	Vector3 direction_priorities = Vector3(1.0, 0, 1.0);
+	Vector3 direction_priorities = Vector3(0.25, 0, 0.25);
 	void create_headings(Vector<real_t> &p_weights);
 
 protected:

@@ -168,25 +168,26 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	p_headings->write[index] = tip_xform.origin - bone_origin;
 	index++;
 	double distance = target_global_transform.origin.distance_to(bone_origin);
-	distance = Math::is_zero_approx(distance) ? real_t(1.0) : distance / real_t(2);
-	double scale_by = MAX(1.0f, real_t(distance) / (real_t(4) * distance * distance * Math_PI));
+	double scale_by = MAX(1.0, distance);
 	const Vector3 priority = get_direction_priorities();
 	if (priority.x > 0.0) {			
-		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_X) * scale_by) + tip_xform.origin) - bone_origin;
+		Vector3 xDir = tip_basis.get_column(Vector3::AXIS_X);
+		p_headings->write[index] = ((xDir * scale_by) + tip_xform.origin) - bone_origin;
 		index++;
-		p_headings->write[index + 1] = (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_X) * scale_by)) - bone_origin;
+		Vector3 invXDir = xDir * -1.0;
+		p_headings->write[index + 1] = (tip_xform.origin - (invXDir * scale_by)) - bone_origin;
 		index++;
 	}
 	if (priority.y > 0.0) {			
 		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_Y) * scale_by) + tip_xform.origin) - bone_origin;
 		index++;
-		p_headings->write[index] = (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_Y) * scale_by)) - bone_origin;
+		p_headings->write[index] = (tip_xform.origin - (tip_basis.get_column(Vector3::AXIS_Y) * scale_by)) - bone_origin;
 		index++;
 	}
 	if (priority.z > 0.0) {
 		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_Z) * scale_by) + tip_xform.origin) - bone_origin;
 		index++;
-		p_headings->write[index] = (tip_xform.origin - (tip_xform.basis.get_column(Vector3::AXIS_Z) * scale_by)) - bone_origin;
+		p_headings->write[index] = (tip_xform.origin - (tip_basis.get_column(Vector3::AXIS_Z) * scale_by)) - bone_origin;
 		index++;
 	}
 	return index;
