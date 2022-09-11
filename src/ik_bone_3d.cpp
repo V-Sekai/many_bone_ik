@@ -95,7 +95,12 @@ void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 
 void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {
 	ERR_FAIL_NULL(p_skeleton);
-	Transform3D custom = get_pose();
+	Transform3D custom = get_global_pose();
+	custom = p_skeleton->get_global_transform().affine_inverse() * custom;
+	int32_t parent_id = p_skeleton->get_bone_parent(bone_id);
+	if (parent_id != -1) {
+		custom = p_skeleton->get_bone_global_pose(parent_id).affine_inverse() * custom;
+	}
 	p_skeleton->set_bone_pose_position(bone_id, custom.origin);
 	p_skeleton->set_bone_pose_rotation(bone_id, custom.basis.get_rotation_quaternion());
 	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());
@@ -131,7 +136,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 		if (elem->get_name() == p_bone) {
 			create_pin();
 			Ref<IKEffector3D> effector = get_pin();
-			effector->set_target_node(elem->get_target_node());
+			effector->set_target_node(p_skeleton, elem->get_target_node());
 			effector->set_depth_falloff(elem->get_depth_falloff());
 			const real_t weight = elem->get_weight();
 			effector->set_weight(elem->get_weight());

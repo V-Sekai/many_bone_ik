@@ -47,9 +47,12 @@ class IKEffector3D : public Resource {
 	friend class IKBoneSegment;
 
 	Ref<IKBone3D> for_bone;
-	NodePath target_node_reference;
+	bool use_target_node_rotation = true;
+	NodePath target_node_path;
+	ObjectID target_node_cache;
+	Node *target_node_reference = nullptr;
 
-	Ref<IKTransform3D> target_global_transform = memnew(IKTransform3D);
+	Transform3D target_global_transform;
 	int32_t num_headings = 7;
 	real_t weight = 1.0;
 	real_t depth_falloff = 0.0;
@@ -73,13 +76,15 @@ public:
 	Vector3 get_direction_priorities() const {
 		return direction_priorities;
 	}
-	void update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_ewbik, Ref<IKTransform3D> p_root_ik_transform_3d);
+	void update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_modification = nullptr);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
-	void set_target_node(NodePath p_target_node);
-	NodePath get_target_node();
-	Ref<IKTransform3D> get_target_global_transform();
+	void set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path);
+	NodePath get_target_node() const;
+	Transform3D get_target_global_transform() const;
+	void set_target_node_rotation(bool p_use);
+	bool get_target_node_rotation() const;
 	Ref<IKBone3D> get_shadow_bone() const;
 	void create_weights(Vector<real_t> &p_weights, real_t p_falloff) const;
 	bool is_following_translation_only() const;

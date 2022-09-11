@@ -48,7 +48,7 @@ protected:
 
 public:
 	NodePath get_target_node() const;
-	void set_target_node(NodePath p_node);
+	void set_target_node(NodePath p_node_path);
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
 	real_t get_weight() const { return weight; }

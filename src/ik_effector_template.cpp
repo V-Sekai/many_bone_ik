@@ -55,8 +55,8 @@ NodePath IKEffectorTemplate::get_target_node() const {
 	return target_node;
 }
 
-void IKEffectorTemplate::set_target_node(NodePath p_node) {
-	target_node = p_node;
+void IKEffectorTemplate::set_target_node(NodePath p_node_path) {
+	target_node = p_node_path;
 }
 
 float IKEffectorTemplate::get_depth_falloff() const {

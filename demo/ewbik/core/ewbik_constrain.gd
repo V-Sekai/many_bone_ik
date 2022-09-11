@@ -39,7 +39,7 @@ func _run():
 	ewbik.pin_count = bones.size()
 	for bone_name in bones:
 		var bone_index = skeleton.find_bone(bone_name)
-		var node_3d : Marker3D = Marker3D.new()
+		var node_3d : Node3D = Node3D.new()
 		node_3d.name = bone_name
 		if root.find_child(node_3d.name) == null:
 			root.add_child(node_3d)
@@ -51,7 +51,6 @@ func _run():
 		if bone_id == -1:
 			pin_i = pin_i + 1
 			continue
-		skeleton.reset_bone_poses()
 		var bone_global_pose : Transform3D = skeleton.get_bone_global_rest(bone_id)
 		bone_global_pose = skeleton.transform * bone_global_pose
 		node_3d.global_transform = bone_global_pose

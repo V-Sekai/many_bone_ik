@@ -116,7 +116,7 @@ void SkeletonModification3DEWBIK::update_shadow_bones_transform() {
 		}
 		bone->set_initial_pose(get_skeleton());
 		if (bone->is_pinned()) {
-			bone->get_pin()->update_target_global_transform(get_skeleton(), this, root_transform);
+			bone->get_pin()->update_target_global_transform(get_skeleton(), this);
 		}
 	}
 }
@@ -673,26 +673,12 @@ void SkeletonModification3DEWBIK::execute(real_t delta) {
 	if (segmented_skeleton.is_null()) {
 		return;
 	}
-	if (get_skeleton()->get_parent()) {
-		Node3D *parent_node_3d = cast_to<Node3D>(get_skeleton()->get_parent());
-		if (parent_node_3d) {
-			root_transform->set_global_transform(parent_node_3d->get_global_transform());
-		} else {
-			root_transform->set_global_transform(get_skeleton()->get_global_transform());
-		}
-	} else if (!get_skeleton()->get_parent()) {
-		root_transform->set_global_transform(get_skeleton()->get_global_transform());
-	} else {
-		root_transform->set_global_transform(Transform3D());
-	}
-	Ref<IKBone3D> root_bone = bone_list[bone_list.size() - 1];
 	if (bone_list.size()) {
-		Ref<IKTransform3D> root_ik_bone_transform = root_bone->get_ik_transform();
-		ERR_FAIL_NULL(root_ik_bone_transform);
-		Ref<IKTransform3D> root_ik_parent_transform = root_ik_bone_transform->get_parent();
+		Ref<IKTransform3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
+		ERR_FAIL_NULL(root_ik_bone);
+		Ref<IKTransform3D> root_ik_parent_transform = root_ik_bone->get_parent();
 		ERR_FAIL_NULL(root_ik_parent_transform);
-		Transform3D skeleton_transform = get_skeleton()->get_global_transform();
-		root_ik_parent_transform->set_global_transform(skeleton_transform);
+		root_ik_parent_transform->set_global_transform(get_skeleton()->get_global_transform());
 	}
 	update_shadow_bones_transform();
 	for (int32_t i = 0; i < get_max_ik_iterations(); i++) {
@@ -720,18 +706,10 @@ void SkeletonModification3DEWBIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
 	bone_list.clear();
 	segmented_skeleton->create_bone_list(bone_list, true, debug_skeleton);
-	Ref<IKBone3D> rbone = segmented_skeleton->get_root();
-	Ref<IKTransform3D> root_ik_parent_transform = segmented_skeleton->get_root()->get_ik_transform()->get_parent();
-	print_line(root_transform == root_ik_parent_transform);
 	Vector<Vector<real_t>> weight_array;
 	segmented_skeleton->update_pinned_list(weight_array);
 	segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
 	update_shadow_bones_transform();
-
-	rbone = segmented_skeleton->get_root();
-	root_ik_parent_transform = segmented_skeleton->get_root()->get_ik_transform()->get_parent();
-	print_line(root_transform == root_ik_parent_transform);
-
 	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		String bone = constraint_names[constraint_i];
 		BoneId bone_id = p_skeleton->find_bone(bone);
