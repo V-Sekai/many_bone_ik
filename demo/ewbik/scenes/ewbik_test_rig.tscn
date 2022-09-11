@@ -3,19 +3,19 @@
 [ext_resource type="PackedScene" uid="uid://bjjiy2toj1hdi" path="res://ewbik/art/ewbik_test_rig.glb" id="1_uasxh"]
 
 [node name="ewbik_test_rig" instance=ExtResource("1_uasxh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.36492, 0)
 
 [node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
-bones/0/position = Vector3(-0.2, 0, 0)
-bones/0/rotation = Quaternion(0, 1.4013e-45, 0, 1)
-bones/1/position = Vector3(0, 0.6, 1.80556e-35)
-bones/1/rotation = Quaternion(2.38857e-14, 9.53869e-15, 0.703501, 0.710694)
-bones/2/position = Vector3(-0.000104368, 0.600703, -2.84539e-14)
-bones/2/rotation = Quaternion(-1.49346e-14, -1.8399e-14, -0.703503, 0.710692)
+bones/0/rotation = Quaternion(0, 0, 0, 1)
+bones/1/position = Vector3(-2.52724e-05, 0.6, 1.80556e-35)
+bones/1/rotation = Quaternion(2.51214e-14, -5.51134e-15, 0.183716, 0.982979)
+bones/2/position = Vector3(-6.08116e-05, 0.60099, -2.84546e-14)
+bones/2/rotation = Quaternion(-1.27614e-14, 3.20142e-15, -0.183716, 0.982979)
 
 [node name="SkeletonModification3dewbik" type="SkeletonModification3DEWBIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]
 root_bone = &"Bone_01"
 max_ik_iterations = 1.0
-default_damp = 0.0109956
+default_damp = 0.872665
 pin_count = 2
 pins/0/name = "Bone_01"
 pins/0/target_node = NodePath("../../../Node3d")
@@ -26,9 +26,9 @@ pins/1/name = "Bone_03"
 pins/1/target_node = NodePath("../../../Marker3d")
 pins/1/depth_falloff = 0.0
 pins/1/weight = 5.0
-pins/1/direction_priorities = Vector3(0.01, 0, 0.01)
+pins/1/direction_priorities = Vector3(0.25, 0, 0.25)
 
 [node name="Node3d" type="Node3D" parent="." index="1"]
 
 [node name="Marker3d" type="Marker3D" parent="." index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0.606, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.548461, 0.650609, 0)

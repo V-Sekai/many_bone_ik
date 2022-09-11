@@ -1,0 +1,83 @@
+[gd_scene load_steps=2 format=3 uid="uid://c2beoekuv1ohl"]
+
+[ext_resource type="PackedScene" uid="uid://ctkuo212hujio" path="res://ewbik/art/SK_VRoid用SRanipal対応BlendShape/male.vrm" id="1_tndsm"]
+
+[node name="male" instance=ExtResource("1_tndsm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0146686, 0, 0)
+
+[node name="GeneralSkeleton" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.213853, 0, 0)
+bones/0/position = Vector3(0.310693, 0, 0)
+bones/1/position = Vector3(-0.00076282, 1.14704, 0.0128133)
+bones/1/rotation = Quaternion(0, 0, 2.79387e-08, 1)
+bones/2/position = Vector3(0, 0.140527, 0.000738916)
+bones/2/rotation = Quaternion(0.0236567, 0.0798701, 0.00201461, 0.996523)
+bones/3/position = Vector3(-2.44379e-06, 0.079074, -0.00443321)
+bones/3/rotation = Quaternion(-0.00169168, 0.0876311, -0.007029, 0.996127)
+bones/4/position = Vector3(-2.32458e-05, 0.0774407, -0.00400225)
+bones/4/rotation = Quaternion(0.0093515, -0.189304, 0.0111461, 0.981811)
+bones/5/position = Vector3(4.32134e-06, 0.151238, -0.0106754)
+bones/5/rotation = Quaternion(-0.115542, -0.105262, -0.00985661, 0.98766)
+bones/6/position = Vector3(-1.92225e-05, 0.0891066, 0.0144435)
+bones/6/rotation = Quaternion(0.0839998, 0.127769, 0.0129409, 0.988156)
+bones/47/position = Vector3(0.0246594, 0.121032, -0.00518139)
+bones/47/rotation = Quaternion(-0.368724, -0.396696, -0.574562, 0.613639)
+bones/48/position = Vector3(0.00690162, 0.123212, -0.0214258)
+bones/48/rotation = Quaternion(-0.00670977, 0.998206, 0.000458102, -0.0594969)
+bones/49/position = Vector3(-0.00156105, 0.219758, 0.0101608)
+bones/49/rotation = Quaternion(-0.0515501, -0.686811, -0.0342518, 0.724197)
+bones/50/position = Vector3(0.000625014, 0.248055, 0.020597)
+bones/50/rotation = Quaternion(0.0853657, 0.441015, -0.0189886, 0.893229)
+bones/71/position = Vector3(-0.0246261, 0.120966, -0.00517771)
+bones/71/rotation = Quaternion(-0.538523, 0.539966, 0.455216, 0.459574)
+bones/72/position = Vector3(-0.00689204, 0.123215, -0.0214283)
+bones/72/rotation = Quaternion(-0.0396083, 0.993671, 0.100454, 0.0309471)
+bones/73/position = Vector3(0.00155535, 0.219639, 0.0101858)
+bones/73/rotation = Quaternion(0.00782913, 0.660182, 0.0568206, 0.748912)
+bones/74/position = Vector3(-0.000577688, 0.248321, 0.0206007)
+bones/74/rotation = Quaternion(0.0932886, -0.673424, 0.0483156, 0.731753)
+
+[node name="SkeletonModification3dewbik" type="SkeletonModification3DEWBIK" parent="GeneralSkeleton" index="3"]
+root_bone = &"Root"
+default_damp = 0.0174533
+pin_count = 5
+pins/0/name = "Root"
+pins/0/target_node = NodePath("../../Root")
+pins/0/depth_falloff = 0.0
+pins/0/weight = 1.0
+pins/0/direction_priorities = Vector3(0.25, 0, 0.25)
+pins/1/name = "Hips"
+pins/1/target_node = NodePath("../../Hips")
+pins/1/depth_falloff = 0.0
+pins/1/weight = 1.0
+pins/1/direction_priorities = Vector3(0.25, 0, 0.25)
+pins/2/name = "LeftHand"
+pins/2/target_node = NodePath("../../LeftHand")
+pins/2/depth_falloff = 0.0
+pins/2/weight = 1.0
+pins/2/direction_priorities = Vector3(0.25, 0, 0.25)
+pins/3/name = "RightHand"
+pins/3/target_node = NodePath("../../RightHand")
+pins/3/depth_falloff = 0.0
+pins/3/weight = 1.0
+pins/3/direction_priorities = Vector3(0.25, 0, 0.25)
+pins/4/name = "Head"
+pins/4/target_node = NodePath("../../Head")
+pins/4/depth_falloff = 0.0
+pins/4/weight = 1.0
+pins/4/direction_priorities = Vector3(0.25, 0, 0.25)
+
+[node name="Root" type="Marker3D" parent="." index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.131681, 0, 0)
+
+[node name="Hips" type="Marker3D" parent="." index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.132442, 1.14705, 0.0128133)
+
+[node name="LeftHand" type="Marker3D" parent="." index="5"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.482961, 1.59037, 0.0290059)
+
+[node name="RightHand" type="Marker3D" parent="." index="6"]
+transform = Transform3D(0, -0.996447, 0.084217, 0, -0.084217, -0.996447, 1, 0, 0, -0.747846, 1.60679, 0.0290049)
+
+[node name="Head" type="Marker3D" parent="." index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.132442, 1.87099, 0.00888737)

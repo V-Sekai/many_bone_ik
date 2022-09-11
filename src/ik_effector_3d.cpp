@@ -32,21 +32,12 @@
 #include "ewbik.h"
 #include "math/ik_transform.h"
 
-void IKEffector3D::set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path) {
-	ERR_FAIL_NULL(p_skeleton);
-	target_node_path = p_target_node_path;
+void IKEffector3D::set_target_node(NodePath p_target_node) {
+	target_node_reference = p_target_node;
 }
 
-NodePath IKEffector3D::get_target_node() const {
-	return target_node_path;
-}
-
-void IKEffector3D::set_target_node_rotation(bool p_use) {
-	use_target_node_rotation = p_use;
-}
-
-bool IKEffector3D::get_target_node_rotation() const {
-	return use_target_node_rotation;
+NodePath IKEffector3D::get_target_node() {
+	return target_node_reference;
 }
 
 Ref<IKBone3D> IKEffector3D::get_shadow_bone() const {
@@ -57,19 +48,21 @@ bool IKEffector3D::is_following_translation_only() const {
 	return false;
 }
 
-void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_ewbik) {
+void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_ewbik, Ref<IKTransform3D> p_root_ik_transform_3d) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
-	target_global_transform = for_bone->get_ik_transform()->get_global_transform();
-	Node3D *current_target_node = cast_to<Node3D>(p_ewbik->get_node_or_null(target_node_path));
+	ERR_FAIL_NULL(p_ewbik);
+	//target_global_transform->set_global_transform(for_bone->get_ik_transform()->get_global_transform());
+	Node3D *current_target_node = cast_to<Node3D>(p_ewbik->get_node_or_null(target_node_reference));
 	if (!current_target_node) {
 		return;
 	}
 	Transform3D xform = current_target_node->get_global_transform();
-	target_global_transform = xform;
+	target_global_transform->set_global_transform(xform); //->set_global_transform(p_root_ik_transform_3d->get_global_transform().affine_inverse() * xform);
+	Transform3D updateTest = target_global_transform->get_global_transform();
 }
 
-Transform3D IKEffector3D::get_target_global_transform() const {
+Ref<IKTransform3D> IKEffector3D::get_target_global_transform() {
 	return target_global_transform;
 }
 
@@ -117,39 +110,44 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 
 	int32_t index = p_index;
 	Vector3 bone_origin = p_for_bone->get_global_pose().origin;
-	p_headings->write[index] = target_global_transform.origin - bone_origin;
+	Vector3 target_origin = target_global_transform->get_global_transform().origin;
+	Basis target_basis = target_global_transform->get_global_transform().basis;
+	p_headings->write[index] = target_origin - bone_origin;
 	index++;
 	Vector3 priority = get_direction_priorities();
-	if (priority.x > 0.0) {		
+	if (priority.x > 0.0) {
 		real_t w = (*p_weights)[index];
 		w = MAX(w, 1.0f);
-		p_headings->write[index] = (target_global_transform.basis.get_column(Vector3::AXIS_X) + target_global_transform.origin) - bone_origin;
-		p_headings->write[index] *= Vector3(w, w, w);
-		index++;
-		
-		p_headings->write[index] = (target_global_transform.origin - target_global_transform.basis.get_column(Vector3::AXIS_X)) - bone_origin;
-		p_headings->write[index] *= Vector3(w, w, w);
-		index++;
-	}
-	if (priority.y > 0.0){
-		real_t w = (*p_weights)[index];
-		w = MAX(w, 1.0f);
-		p_headings->write[index] = (target_global_transform.basis.get_column(Vector3::AXIS_Y) + target_global_transform.origin) - bone_origin;
+		const Vector3 x_dir = target_basis.get_column(Vector3::AXIS_X);
+		p_headings->write[index] = (x_dir + target_origin) - bone_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 
-		p_headings->write[index] = (target_global_transform.origin - target_global_transform.basis.get_column(Vector3::AXIS_Y)) - bone_origin;
+		p_headings->write[index] = (target_origin - x_dir) - bone_origin;
+		p_headings->write[index] *= Vector3(w, w, w);
+		index++;
+	}
+	if (priority.y > 0.0) {
+		real_t w = (*p_weights)[index];
+		w = MAX(w, 1.0f);
+		const Vector3 y_dir = target_basis.get_column(Vector3::AXIS_Y);
+		p_headings->write[index] = (y_dir + target_origin) - bone_origin;
+		p_headings->write[index] *= Vector3(w, w, w);
+		index++;
+
+		p_headings->write[index] = (target_origin - y_dir) - bone_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 	}
 	if (priority.z > 0.0) {
 		real_t w = (*p_weights)[index];
 		w = MAX(w, 1.0f);
-		p_headings->write[index] = (target_global_transform.basis.get_column(Vector3::AXIS_Z) + target_global_transform.origin) - bone_origin;
+		const Vector3 z_dir = target_basis.get_column(Vector3::AXIS_Z);
+		p_headings->write[index] = (z_dir + target_origin) - bone_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 
-		p_headings->write[index] = (target_global_transform.origin - target_global_transform.basis.get_column(Vector3::AXIS_Z)) - bone_origin;
+		p_headings->write[index] = (target_origin - z_dir) - bone_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 	}
@@ -167,27 +165,28 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	int32_t index = p_index;
 	p_headings->write[index] = tip_xform.origin - bone_origin;
 	index++;
-	double distance = target_global_transform.origin.distance_to(bone_origin);
+	double distance = target_global_transform->get_global_transform().origin.distance_to(bone_origin);
 	double scale_by = MAX(1.0, distance);
 	const Vector3 priority = get_direction_priorities();
-	if (priority.x > 0.0) {			
-		Vector3 xDir = tip_basis.get_column(Vector3::AXIS_X);
-		p_headings->write[index] = ((xDir * scale_by) + tip_xform.origin) - bone_origin;
+	if (priority.x > 0.0) {
+		const Vector3 x_dir = tip_xform.basis.get_column(Vector3::AXIS_X);
+		p_headings->write[index] = ((x_dir * scale_by) + tip_xform.origin) - bone_origin;
 		index++;
-		Vector3 invXDir = xDir * -1.0;
-		p_headings->write[index + 1] = (tip_xform.origin - (invXDir * scale_by)) - bone_origin;
+		p_headings->write[index] = (tip_xform.origin - (x_dir * scale_by)) - bone_origin;
 		index++;
 	}
-	if (priority.y > 0.0) {			
-		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_Y) * scale_by) + tip_xform.origin) - bone_origin;
+	if (priority.y > 0.0) {
+		const Vector3 y_dir = tip_xform.basis.get_column(Vector3::AXIS_Y);
+		p_headings->write[index] = ((y_dir * scale_by) + tip_xform.origin) - bone_origin;
 		index++;
-		p_headings->write[index] = (tip_xform.origin - (tip_basis.get_column(Vector3::AXIS_Y) * scale_by)) - bone_origin;
+		p_headings->write[index] = (tip_xform.origin - (y_dir * scale_by)) - bone_origin;
 		index++;
 	}
 	if (priority.z > 0.0) {
-		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_Z) * scale_by) + tip_xform.origin) - bone_origin;
+		const Vector3 z_dir = tip_xform.basis.get_column(Vector3::AXIS_Z);
+		p_headings->write[index] = ((z_dir * scale_by) + tip_xform.origin) - bone_origin;
 		index++;
-		p_headings->write[index] = (tip_xform.origin - (tip_basis.get_column(Vector3::AXIS_Z) * scale_by)) - bone_origin;
+		p_headings->write[index] = (tip_xform.origin - (z_dir * scale_by)) - bone_origin;
 		index++;
 	}
 	return index;
