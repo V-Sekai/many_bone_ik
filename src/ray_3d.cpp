@@ -35,19 +35,14 @@
 Ray3D::Ray3D() {
 }
 
-Ray3D::Ray3D(Vector3 p_origin) {
-	this->workingVector = p_origin;
-	this->_p1 = p_origin;
-}
-
 Ray3D::Ray3D(Vector3 p_p1, Vector3 p_p2) {
 	this->workingVector = p_p1;
 	this->_p1 = p_p1;
 	this->_p2 = p_p2;
 }
 
-Vector3 Ray3D::closestPointTo(Vector3 point) {
-	workingVector = point;
+Vector3 Ray3D::closest_point_to(const Vector3 p_point) {
+	workingVector = p_point;
 	workingVector = workingVector - this->_p1;
 	Vector3 heading = this->heading();
 	heading.length();
@@ -56,11 +51,11 @@ Vector3 Ray3D::closestPointTo(Vector3 point) {
 	heading.normalize();
 	real_t scale = workingVector.dot(heading);
 
-	return static_cast<Vector3>(this->getScaledTo(scale));
+	return static_cast<Vector3>(get_scaled_to(scale));
 }
 
-Vector3 Ray3D::closestPointToStrict(Vector3 point) {
-	Vector3 in_point = point;
+Vector3 Ray3D::closest_point_to_strict(const Vector3 &p_point) {
+	Vector3 in_point = p_point;
 	in_point = in_point - this->_p1;
 	Vector3 heading = this->heading();
 	real_t scale = (in_point.dot(heading) / (heading.length() * in_point.length())) * (in_point.length() / heading.length());
@@ -70,7 +65,7 @@ Vector3 Ray3D::closestPointToStrict(Vector3 point) {
 	} else if (scale >= 1) {
 		return this->_p2;
 	}
-	return this->getMultipledBy(scale);
+	return this->get_multipled_by(scale);
 }
 
 Vector3 Ray3D::heading() {
@@ -78,36 +73,38 @@ Vector3 Ray3D::heading() {
 	return workingVector - _p1;
 }
 
-void Ray3D::alignTo(Ref<Ray3D> target) {
-	_p1 = target->_p1;
-	_p2 = target->_p2;
+void Ray3D::set_align_to(Ref<Ray3D> p_target) {
+	_p1 = p_target->_p1;
+	_p2 = p_target->_p2;
 }
 
-void Ray3D::heading(Vector3 newHead) {
+void Ray3D::set_heading(Vector3 &p_new_head) {
 	_p2 = _p1;
-	_p2 = newHead;
+	_p2 = p_new_head;
 }
 
-void Ray3D::getHeading(Vector3 &r_set_to) {
-	r_set_to = _p2;
-	r_set_to -= this->_p1;
+Vector3 Ray3D::get_heading(const Vector3 &r_set_to) const {
+	Vector3 set_to;
+	set_to = _p2;
+	set_to -= this->_p1;
+	return set_to;
 }
 
-Ref<Ray3D> Ray3D::get2DCopy() {
-	return this->get2DCopy(Ray3D::Z);
+Ref<Ray3D> Ray3D::get_2d_copy() {
+	return get_2d_copy(Ray3D::Z);
 }
 
-Ref<Ray3D> Ray3D::get2DCopy(int collapseOnAxis) {
+Ref<Ray3D> Ray3D::get_2d_copy(const int &p_collapse_on_axis) {
 	Ref<Ray3D> result = this;
-	if (collapseOnAxis == Ray3D::X) {
+	if (p_collapse_on_axis == Ray3D::X) {
 		result->_p1.x = 0.0f;
 		result->_p2.x = 0.0f;
 	}
-	if (collapseOnAxis == Ray3D::Y) {
+	if (p_collapse_on_axis == Ray3D::Y) {
 		result->_p1.y = 0.0f;
 		result->_p2.y = 0.0f;
 	}
-	if (collapseOnAxis == Ray3D::Z) {
+	if (p_collapse_on_axis == Ray3D::Z) {
 		result->_p1.z = 0.0f;
 		result->_p2.z = 0.0f;
 	}
@@ -115,24 +112,24 @@ Ref<Ray3D> Ray3D::get2DCopy(int collapseOnAxis) {
 	return result;
 }
 
-Vector3 Ray3D::origin() {
+Vector3 Ray3D::get_origin() {
 	return _p1;
 }
 
-real_t Ray3D::length() {
+real_t Ray3D::get_length() {
 	workingVector = _p2;
 	return (workingVector - _p1).length();
 }
 
-void Ray3D::mag(real_t newMag) {
+void Ray3D::set_magnitude(const real_t &p_new_mag) {
 	workingVector = _p2;
 	Vector3 dir = workingVector - _p1;
-	dir = dir * newMag;
-	this->heading(dir);
+	dir = dir * p_new_mag;
+	this->set_heading(dir);
 }
 
-real_t Ray3D::scaled_projection(Vector3 input) {
-	workingVector = input;
+real_t Ray3D::scaled_projection(const Vector3 &p_input) {
+	workingVector = p_input;
 	workingVector = workingVector - this->_p1;
 	Vector3 heading = this->heading();
 	real_t headingMag = heading.length();
@@ -143,34 +140,34 @@ real_t Ray3D::scaled_projection(Vector3 input) {
 	return (workingVector.dot(heading) / (headingMag * workingVectorMag)) * (workingVectorMag / headingMag);
 }
 
-void Ray3D::div(real_t divisor) {
+void Ray3D::set_divide(const real_t &p_divisor) {
 	_p2 = _p2 - _p1;
-	_p2 = _p2 / divisor;
+	_p2 = _p2 / p_divisor;
 	_p2 = _p2 + _p1;
 }
 
-void Ray3D::multiply(real_t scalar) {
+void Ray3D::set_multiply(const real_t &p_scalar) {
 	_p2 = _p2 - _p1;
-	_p2 = _p2 * scalar;
+	_p2 = _p2 * p_scalar;
 	_p2 = _p2 + _p1;
 }
 
-Vector3 Ray3D::getMultipledBy(real_t scalar) {
+Vector3 Ray3D::get_multipled_by(const real_t &p_scalar) {
 	Vector3 result = this->heading();
-	result = result * scalar;
+	result = result * p_scalar;
 	result = result + _p1;
 	return result;
 }
 
-Vector3 Ray3D::getDivideddBy(real_t divisor) {
-	Vector3 result = this->heading();
-	result = result * divisor;
+Vector3 Ray3D::get_divided_by(const real_t &p_divisor) {
+	Vector3 result = heading();
+	result = result * p_divisor;
 	result = result + _p1;
 	return result;
 }
 
-Vector3 Ray3D::getScaledTo(real_t scale) {
-	Vector3 result = this->heading();
+Vector3 Ray3D::get_scaled_to(const real_t &scale) {
+	Vector3 result = heading();
 	result.normalize();
 	result *= scale;
 	result += _p1;
@@ -202,8 +199,8 @@ Ref<Ray3D> Ray3D::getReversed() {
 	return memnew(Ray3D(this->_p2, this->_p1));
 }
 
-Ref<Ray3D> Ray3D::getRayScaledTo(real_t scalar) {
-	return memnew(Ray3D(_p1, this->getScaledTo(scalar)));
+Ref<Ray3D> Ray3D::get_ray_scaled_to(real_t scalar) {
+	return memnew(Ray3D(_p1, get_scaled_to(scalar)));
 }
 
 void Ray3D::pointWith(Ref<Ray3D> r) {
@@ -219,7 +216,7 @@ void Ray3D::pointWith(Vector3 heading) {
 }
 
 Ref<Ray3D> Ray3D::getRayScaledBy(real_t scalar) {
-	return Ref<Ray3D>(memnew(Ray3D(_p1, this->getMultipledBy(scalar))));
+	return Ref<Ray3D>(memnew(Ray3D(_p1, get_multipled_by(scalar))));
 }
 
 Vector3 Ray3D::setToInvertedTip(Vector3 vec) {
@@ -258,7 +255,7 @@ void Ray3D::translateBy(Vector3 toAdd) {
 }
 
 void Ray3D::normalize() {
-	this->mag(1);
+	this->set_magnitude(1);
 }
 
 Vector3 Ray3D::intercepts2D(Ref<Ray3D> r) {
@@ -288,7 +285,7 @@ Vector3 Ray3D::intercepts2D(Ref<Ray3D> r) {
 
 Vector3 Ray3D::closestPointToSegment3D(Ref<Ray3D> r) {
 	Vector3 closestToThis = r->closestPointToRay3DStrict(this);
-	return this->closestPointTo(closestToThis);
+	return this->closest_point_to(closestToThis);
 }
 
 Vector3 Ray3D::closestPointToRay3D(Ref<Ray3D> r) {

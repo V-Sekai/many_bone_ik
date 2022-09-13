@@ -56,20 +56,18 @@ public:
 	virtual ~Ray3D() {}
 
 	Ray3D();
-
-	Ray3D(Vector3 origin);
-
+	
 	Ray3D(Vector3 p1, Vector3 p2);
 
 	/**
 	 * returns the point on this sgRay which is closest to the input point
 	 *
-	 * @param point
+	 * @param p_point
 	 * @return
 	 */
-	virtual Vector3 closestPointTo(Vector3 point);
+	virtual Vector3 closest_point_to(const Vector3 p_point);
 
-	virtual Vector3 closestPointToStrict(Vector3 point);
+	virtual Vector3 closest_point_to_strict(const Vector3 &p_point);
 
 	virtual Vector3 heading();
 
@@ -79,38 +77,38 @@ public:
 	 * target ray. Such that the two rays align without
 	 * creating a new variable.
 	 *
-	 * @param target
+	 * @param p_target
 	 */
-	virtual void alignTo(Ref<Ray3D> target);
+	virtual void set_align_to(Ref<Ray3D> p_target);
 
-	virtual void heading(Vector3 newHead);
+	virtual void set_heading(Vector3 &p_new_head);
 
 	/**
 	 * sets the input vector equal to this sgRay's heading.
 	 *
 	 * @param r_set_to
 	 */
-	virtual void getHeading(Vector3 &r_set_to);
+	virtual Vector3 get_heading(const Vector3 &r_set_to) const;
 
 	/**
 	 * @return a copy of this ray with its z-component set to 0;
 	 */
-	virtual Ref<Ray3D> get2DCopy();
+	virtual Ref<Ray3D> get_2d_copy();
 
 	/**
 	 * gets a copy of this ray, with the component specified by
-	 * collapseOnAxis set to 0.
+	 * p_collapse_on_axis set to 0.
 	 *
-	 * @param collapseOnAxis the axis on which to collapse the ray.
+	 * @param p_collapse_on_axis the axis on which to collapse the ray.
 	 * @return
 	 */
-	virtual Ref<Ray3D> get2DCopy(int collapseOnAxis);
+	virtual Ref<Ray3D> get_2d_copy(const int &p_collapse_on_axis);
 
-	virtual Vector3 origin();
+	virtual Vector3 get_origin();
 
-	virtual real_t length();
+	virtual real_t get_length();
 
-	virtual void mag(real_t new_length);
+	virtual void set_magnitude(const real_t &p_new_mag);
 
 	/**
 	 * Returns the scalar projection of the input vector on this
@@ -134,18 +132,18 @@ public:
 	 * same
 	 * vector as calling closestPointTo(someVector)
 	 *
-	 * @param input a vector to project onto this ray
+	 * @param p_input a vector to project onto this ray
 	 */
-	virtual real_t scaled_projection(Vector3 input);
+	virtual real_t scaled_projection(const Vector3 &p_input);
 
 	/**
 	 * divides the ray by the amount specified by divisor, such that the
 	 * base of the ray remains where it is, and the tip
 	 * is scaled accordinly.
 	 *
-	 * @param divisor
+	 * @param p_divisor
 	 */
-	virtual void div(real_t divisor);
+	virtual void set_divide(const real_t &p_divisor);
 
 	/**
 	 * multiples the ray by the amount specified by scalar, such that the
@@ -154,17 +152,17 @@ public:
 	 *
 	 * @param divisor
 	 */
-	virtual void multiply(real_t scalar);
+	virtual void set_multiply(const real_t &p_scalar);
 
 	/**
 	 * Returns a Vector3 representing where the tip
 	 * of this ray would be if multiply() was called on the ray
 	 * with scalar as the parameter.
 	 *
-	 * @param scalar
+	 * @param p_scalar
 	 * @return
 	 */
-	virtual Vector3 getMultipledBy(real_t scalar);
+	virtual Vector3 get_multipled_by(const real_t &p_scalar);
 
 	/**
 	 * Returns a Vector3 representing where the tip
@@ -174,7 +172,7 @@ public:
 	 * @param scalar
 	 * @return
 	 */
-	virtual Vector3 getDivideddBy(real_t divisor);
+	virtual Vector3 get_divided_by(const real_t &p_divisor);
 
 	/**
 	 * Returns a Vector3 representing where the tip
@@ -184,7 +182,7 @@ public:
 	 * @param scalar
 	 * @return
 	 */
-	virtual Vector3 getScaledTo(real_t scale);
+	virtual Vector3 get_scaled_to(const real_t &scale);
 
 	/**
 	 * adds the specified length to the ray in both directions.
@@ -197,7 +195,7 @@ public:
 
 	virtual Ref<Ray3D> getReversed();
 
-	virtual Ref<Ray3D> getRayScaledTo(real_t scalar);
+	virtual Ref<Ray3D> get_ray_scaled_to(real_t scalar);
 
 	/*
 	 * reverses this ray's direction so that it
