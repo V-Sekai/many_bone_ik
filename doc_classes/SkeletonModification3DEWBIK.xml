@@ -31,11 +31,10 @@
 			<description>
 			</description>
 		</method>
-		<method name="get_kusudama_limit_cone_center">
-			<return type="void" />
+		<method name="get_kusudama_limit_cone_center" qualifiers="const">
+			<return type="Vector3" />
 			<param index="0" name="index" type="int" />
 			<param index="1" name="cone_index" type="int" />
-			<param index="2" name="_unnamed_arg2" type="Vector3" />
 			<description>
 			</description>
 		</method>
