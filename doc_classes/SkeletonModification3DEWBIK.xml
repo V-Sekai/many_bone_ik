@@ -27,7 +27,7 @@
 		</method>
 		<method name="get_kusudama_flip_handedness" qualifiers="const">
 			<return type="bool" />
-			<param index="0" name="_unnamed_arg0" type="int" />
+			<param index="0" name="enable" type="int" />
 			<description>
 			</description>
 		</method>
