@@ -429,7 +429,7 @@ void SkeletonModification3DEWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_debug_skeleton", "enable"), &SkeletonModification3DEWBIK::set_debug_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DEWBIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DEWBIK::set_default_damp);
-	ClassDB::bind_method(D_METHOD("get_kusudama_flip_handedness"), &SkeletonModification3DEWBIK::get_kusudama_flip_handedness);
+	ClassDB::bind_method(D_METHOD("get_kusudama_flip_handedness", "enable"), &SkeletonModification3DEWBIK::get_kusudama_flip_handedness);
 	ClassDB::bind_method(D_METHOD("get_pin_nodepath"), &SkeletonModification3DEWBIK::get_pin_nodepath);
 	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &SkeletonModification3DEWBIK::set_pin_nodepath);
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
