@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="SkeletonModification3D" inherits="Node" is_experimental="true" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+<class name="SkeletonModification3D" inherits="Node" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
 	<brief_description>
 		A resource that operates on bones in a [Skeleton3D].
 	</brief_description>
@@ -44,6 +44,11 @@
 			<param index="0" name="delta" type="float" />
 			<description>
 				Manually process the modification. If the modification is enabled, execute runs automatically during internal process.
+			</description>
+		</method>
+		<method name="get_bone_name_list" qualifiers="const">
+			<return type="String" />
+			<description>
 			</description>
 		</method>
 		<method name="get_bone_rest_forward_vector">
@@ -97,6 +102,8 @@
 	<members>
 		<member name="enabled" type="bool" setter="set_enabled" getter="get_enabled" default="true">
 			When true, the modification's [method _execute] function will be called every frame during internal process.
+		</member>
+		<member name="run_in_editor" type="bool" setter="set_run_in_editor" getter="get_run_in_editor" default="true">
 		</member>
 		<member name="skeleton_path" type="NodePath" setter="set_skeleton_path" getter="get_skeleton_path" default="NodePath(&quot;..&quot;)">
 			Node path to the attached [Skeleton3D].
