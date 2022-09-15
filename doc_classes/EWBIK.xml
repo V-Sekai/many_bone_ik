@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="EWBIK" inherits="SkeletonModification3D" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+<class name="EWBIK" inherits="Node" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
 	<brief_description>
 		A full body inverse kinematics system.
 	</brief_description>
@@ -31,10 +31,11 @@
 			<description>
 			</description>
 		</method>
-		<method name="get_kusudama_limit_cone_center" qualifiers="const">
-			<return type="Vector3" />
+		<method name="get_kusudama_limit_cone_center">
+			<return type="void" />
 			<param index="0" name="index" type="int" />
 			<param index="1" name="cone_index" type="int" />
+			<param index="2" name="_unnamed_arg2" type="Vector3" />
 			<description>
 			</description>
 		</method>
@@ -142,7 +143,7 @@
 		<method name="set_kusudama_twist">
 			<return type="void" />
 			<param index="0" name="index" type="int" />
-			<param index="1" name="limit" type="Vector2" />
+			<param index="1" name="name" type="Vector2" />
 			<description>
 			</description>
 		</method>
@@ -182,12 +183,16 @@
 		</method>
 	</methods>
 	<members>
-		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.0872665">
+		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.261799">
 			The default maximum number of radians a bone is allowed to rotate per solver iteration. The lower this value, the more natural the pose results. However, this will increase the number of iterations the solver requires to converge.
+		</member>
+		<member name="enabled" type="bool" setter="set_enabled" getter="get_enabled" default="true">
 		</member>
 		<member name="max_ik_iterations" type="float" setter="set_max_ik_iterations" getter="get_max_ik_iterations" default="10.0">
 		</member>
 		<member name="root_bone" type="StringName" setter="set_root_bone" getter="get_root_bone" default="&amp;&quot;&quot;">
+		</member>
+		<member name="skeleton_node_path" type="NodePath" setter="set_skeleton_node_path" getter="get_skeleton_node_path" default="NodePath(&quot;..&quot;)">
 		</member>
 		<member name="tip_bone" type="StringName" setter="set_tip_bone" getter="get_tip_bone" default="&amp;&quot;&quot;">
 		</member>
