@@ -28,19 +28,18 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EWBIK_H
-#define EWBIK_H
+#ifndef SKELETON_MODIFICATION_3D_EWBIK_H
+#define SKELETON_MODIFICATION_3D_EWBIK_H
 
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
 #include "ik_bone_3d.h"
 #include "ik_effector_template.h"
 #include "math/ik_transform.h"
-#include "scene/3d/skeleton_modification_3d.h"
 
 class IKBoneSegment;
-class SkeletonModification3DEWBIK : public SkeletonModification3D {
-	GDCLASS(SkeletonModification3DEWBIK, SkeletonModification3D);
+class EWBIK : public Node {
+	GDCLASS(EWBIK, Node);
 	StringName root_bone;
 	StringName tip_bone;
 	NodePath skeleton_path;
@@ -56,9 +55,12 @@ class SkeletonModification3DEWBIK : public SkeletonModification3D {
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	int32_t max_ik_iterations = 10;
-	float default_damp = Math::deg_to_rad(5.0f);
+	float default_damp = Math::deg_to_rad(15.0f);
 	bool debug_skeleton = true;
 	Ref<IKTransform3D> root_transform = memnew(IKTransform3D);
+	bool is_dirty = true;
+	bool is_enabled = true;
+	NodePath skeleton_node_path = NodePath("..");
 	void update_shadow_bones_transform();
 	void update_skeleton_bones_transform();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
@@ -69,10 +71,44 @@ protected:
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
-	virtual void skeleton_changed(Skeleton3D *skeleton) override;
-	virtual void execute(real_t delta) override;
+	virtual void skeleton_changed(Skeleton3D *skeleton);
+	virtual void execute(real_t delta);
+	void _notification(int p_what) {
+		switch (p_what) {
+			case NOTIFICATION_READY: {
+				set_process_internal(true);
+			} break;
+			case NOTIFICATION_INTERNAL_PROCESS: {
+				if (!is_enabled) {
+					return;
+				}
+				if (is_dirty) {
+					skeleton_changed(get_skeleton());
+					is_dirty = false;
+				}
+				execute(get_process_delta_time());
+			} break;
+		}
+	}
 
 public:
+	void set_enabled(bool p_enabled) {
+		is_enabled = p_enabled;
+	}
+	bool get_enabled() const {
+		return is_enabled;
+	}
+	void set_skeleton_node_path(NodePath p_skeleton_node_path) {
+		is_dirty = true;
+		skeleton_node_path = p_skeleton_node_path;
+	}
+	NodePath get_skeleton_node_path() {
+		return skeleton_node_path;
+	}
+	Skeleton3D *get_skeleton() const {
+		Node *node = get_node_or_null(skeleton_node_path);
+		return cast_to<Skeleton3D>(node);
+	}
 	StringName get_root_bone() const;
 	void set_root_bone(const StringName &p_root_bone);
 	StringName get_tip_bone() const;
@@ -147,8 +183,8 @@ public:
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	bool get_kusudama_flip_handedness(int32_t p_bone) const;
 	void set_kusudama_flip_handedness(int32_t p_bone, bool p_flip);
-	SkeletonModification3DEWBIK();
-	~SkeletonModification3DEWBIK();
+	EWBIK();
+	~EWBIK();
 };
 
-#endif // EWBIK_H
+#endif // SKELETON_MODIFICATION_3D_EWBIK_H

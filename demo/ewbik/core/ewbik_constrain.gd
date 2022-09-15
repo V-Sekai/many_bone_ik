@@ -7,13 +7,13 @@ func _run():
 	queue.push_back(root)
 	var string_builder : Array
 	var skeleton : Skeleton3D
-	var ewbik : SkeletonModification3DEWBIK = null
+	var ewbik : EWBIK = null
 	while not queue.is_empty():
 		var front = queue.front()
 		var node : Node = front
 		if node is Skeleton3D:
 			skeleton = node
-		if node is SkeletonModification3DEWBIK:
+		if node is EWBIK:
 			ewbik = node
 		var child_count : int = node.get_child_count()
 		for i in child_count:
@@ -24,7 +24,7 @@ func _run():
 	if skeleton == null:
 		return
 	skeleton.reset_bone_poses()
-	ewbik = SkeletonModification3DEWBIK.new()
+	ewbik = EWBIK.new()
 	skeleton.add_child(ewbik, true)
 	ewbik.owner = root
 	var godot_to_vrm : Dictionary
@@ -35,7 +35,7 @@ func _run():
 	ewbik.max_ik_iterations = 10
 	ewbik.default_damp = deg_to_rad(1)
 	var pin_i = 0
-	var bones = ["Root", "Hips", "LeftHand", "RightHand", "Head"]
+	var bones = ["Root", "Hips", "LeftHand", "RightHand", "Head", "LeftFoot", "RightFoot"]
 	ewbik.pin_count = bones.size()
 	for bone_name in bones:
 		var bone_index = skeleton.find_bone(bone_name)

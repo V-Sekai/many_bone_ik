@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef IK_EFFECTOR_TEMPLATE_H
-#define IK_EFFECTOR_TEMPLATE_H
+#pragma once
 
 #include "core/io/resource.h"
 #include "core/object/ref_counted.h"
@@ -58,5 +57,3 @@ public:
 
 	IKEffectorTemplate();
 };
-
-#endif // IK_EFFECTOR_TEMPLATE_H

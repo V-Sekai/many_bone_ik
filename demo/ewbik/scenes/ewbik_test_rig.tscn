@@ -12,7 +12,7 @@ bones/1/rotation = Quaternion(2.38857e-14, 9.53869e-15, 0.703501, 0.710694)
 bones/2/position = Vector3(-0.000104368, 0.600703, -2.84539e-14)
 bones/2/rotation = Quaternion(-1.49346e-14, -1.8399e-14, -0.703503, 0.710692)
 
-[node name="SkeletonModification3dewbik" type="SkeletonModification3DEWBIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]
+[node name="SkeletonModification3dewbik" type="EWBIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]
 root_bone = &"Bone_01"
 max_ik_iterations = 1.0
 default_damp = 0.0109956

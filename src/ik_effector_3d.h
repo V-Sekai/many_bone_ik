@@ -27,9 +27,8 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-
-#ifndef IK_EFFECTOR_3D_H
-#define IK_EFFECTOR_3D_H
+#ifndef ik_pin_3d_H
+#define ik_pin_3d_H
 
 #include "core/object/ref_counted.h"
 #include "ik_bone_3d.h"
@@ -38,7 +37,7 @@
 
 #define MIN_SCALE 0.1
 
-class SkeletonModification3DEWBIK;
+class EWBIK;
 class IKBone3D;
 
 class IKEffector3D : public Resource {
@@ -76,7 +75,7 @@ public:
 	Vector3 get_direction_priorities() const {
 		return direction_priorities;
 	}
-	void update_target_global_transform(Skeleton3D *p_skeleton, SkeletonModification3DEWBIK *p_modification = nullptr);
+	void update_target_global_transform(Skeleton3D *p_skeleton, EWBIK *p_modification = nullptr);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_depth_falloff() const;
 	void set_depth_falloff(float p_depth_falloff);
@@ -95,4 +94,4 @@ public:
 	~IKEffector3D() {}
 };
 
-#endif // IK_EFFECTOR_3D_H
+#endif // ik_effector_3d_H

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="SkeletonModification3DEWBIK" inherits="SkeletonModification3D" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+<class name="EWBIK" inherits="SkeletonModification3D" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
 	<brief_description>
 		A full body inverse kinematics system.
 	</brief_description>
@@ -11,7 +11,7 @@
 	</description>
 	<tutorials>
 		<link title="Everything will be IK">https://github.com/EGjoni/Everything-Will-Be-IK</link>
-		<link title="Java SkeletonModification3DEWBIK">https://github.com/fire/java-ewbik</link>
+		<link title="Java EWBIK">https://github.com/fire/java-ewbik</link>
 	</tutorials>
 	<methods>
 		<method name="get_constraint_count" qualifiers="const">

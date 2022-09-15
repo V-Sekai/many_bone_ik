@@ -50,7 +50,7 @@ bones/84/position = Vector3(-0.000778913, 0.21369, 0.0176454)
 bones/84/rotation = Quaternion(-0.00248893, -0.719528, -0.0459437, 0.692938)
 bones/84/scale = Vector3(1, 1, 1)
 
-[node name="SkeletonModification3dewbik" type="SkeletonModification3DEWBIK" parent="GeneralSkeleton" index="3"]
+[node name="SkeletonModification3dewbik" type="EWBIK" parent="GeneralSkeleton" index="3"]
 root_bone = &"Root"
 default_damp = 0.0174533
 pin_count = 5

@@ -53,7 +53,7 @@ class Button;
 class EWBIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(EWBIK3DGizmoPlugin, EditorNode3DGizmoPlugin);
 
-	SkeletonModification3DEWBIK *ewbik = nullptr;
+	EWBIK *ewbik = nullptr;
 
 protected:
 	static void _bind_methods() {
