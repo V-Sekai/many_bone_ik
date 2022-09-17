@@ -56,7 +56,7 @@ public:
 	virtual ~Ray3D() {}
 
 	Ray3D();
-	
+
 	Ray3D(Vector3 p1, Vector3 p2);
 
 	/**

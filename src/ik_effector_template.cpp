@@ -38,7 +38,7 @@ void IKEffectorTemplate::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("get_depth_falloff"), &IKEffectorTemplate::get_depth_falloff);
 	ClassDB::bind_method(D_METHOD("set_depth_falloff", "depth_falloff"), &IKEffectorTemplate::set_depth_falloff);
-	
+
 	ClassDB::bind_method(D_METHOD("get_weight"), &IKEffectorTemplate::get_weight);
 	ClassDB::bind_method(D_METHOD("set_weight", "weight"), &IKEffectorTemplate::set_weight);
 

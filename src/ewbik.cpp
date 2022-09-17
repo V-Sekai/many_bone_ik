@@ -436,7 +436,7 @@ void EWBIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_enabled", "enabled"), &EWBIK::set_enabled);
 	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &EWBIK::get_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "node_path"), &EWBIK::set_skeleton_node_path);
-	
+
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enabled"), "set_enabled", "get_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
