@@ -8,7 +8,6 @@ import (
 )
 
 dagger.#Plan & {
-
 	client: filesystem: ".": read: contents:         dagger.#FS
 	client: filesystem: "./output": write: contents: actions.playbook.output
 

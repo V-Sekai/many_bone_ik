@@ -13,7 +13,6 @@ dagger.#Plan & {
 	client: network: "unix:///var/run/docker.sock": connect: dagger.#Socket
 
 	actions: test: image: {
-
 		// Test: change image config with docker.#Set
 		set: {
 			image: output: docker.#Image & {

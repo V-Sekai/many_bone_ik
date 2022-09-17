@@ -18,7 +18,7 @@ _#DefaultVersion: "3.8"
 	repository: *_#DefaultRepository | string
 	version:    string | *_#DefaultVersion
 
-	// Packages to install 
+	// Packages to install
 	packages: [pkgName=string]: version: string | *""
 
 	// Default packages installed on the image

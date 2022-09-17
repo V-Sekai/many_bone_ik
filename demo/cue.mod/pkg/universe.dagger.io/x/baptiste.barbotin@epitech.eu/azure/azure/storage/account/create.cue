@@ -6,7 +6,6 @@ import (
 
 // Create a storage account
 #Create: {
-
 	image: docker.#Image
 
 	// ResourceGroup name

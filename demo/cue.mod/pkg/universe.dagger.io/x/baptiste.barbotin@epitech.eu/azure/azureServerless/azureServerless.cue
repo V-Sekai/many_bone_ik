@@ -10,7 +10,6 @@ import (
 )
 
 #Config: {
-
 	// Azure login
 	login: azLogin.#Config
 
@@ -43,7 +42,6 @@ import (
 }
 
 #Deploy: {
-
 	// Source directory
 	source: dagger.#FS
 

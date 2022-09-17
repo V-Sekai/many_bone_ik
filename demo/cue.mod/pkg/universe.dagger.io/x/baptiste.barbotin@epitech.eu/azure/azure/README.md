@@ -10,7 +10,7 @@ The following are available:
 
 ## Login
 
-This package provides declarations to authenticate Users in Azure. It allows us to login once and to reuse your authentification in other Azure packages. 
+This package provides declarations to authenticate Users in Azure. It allows us to login once and to reuse your authentification in other Azure packages.
 
 It is available in the [login](./login) folder.
 
@@ -22,7 +22,7 @@ It is available in the [functionApp](./functionApp/) folder.
 
 ## Resource Group
 
-This package provides declarations to manage your Azure Ressource Group. Ressource Group in Azure is a container that holds related resources of an Azure Solution. 
+This package provides declarations to manage your Azure Ressource Group. Ressource Group in Azure is a container that holds related resources of an Azure Solution.
 
 It is available in the [resourceGroup](./resourceGroup/) folder.
 

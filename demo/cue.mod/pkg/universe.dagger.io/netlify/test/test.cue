@@ -18,7 +18,6 @@ dagger.#Plan & {
 	}
 
 	actions: test: {
-
 		// Configuration common to all tests
 		common: {
 			testSecrets: core.#DecodeSecret & {

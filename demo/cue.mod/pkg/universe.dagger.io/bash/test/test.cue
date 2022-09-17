@@ -10,7 +10,6 @@ import (
 
 dagger.#Plan & {
 	actions: test: {
-
 		_pull: docker.#Pull & {
 			source: "index.docker.io/debian"
 		}
@@ -28,7 +27,6 @@ dagger.#Plan & {
 
 		// Run a script from source directory + filename
 		runFile: {
-
 			dir:   _load.output
 			_load: core.#Source & {
 				path: "./data"

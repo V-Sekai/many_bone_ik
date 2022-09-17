@@ -8,7 +8,6 @@ import (
 
 dagger.#Plan & {
 	actions: test: {
-
 		_data: {
 			load: core.#Source & {
 				path: "."

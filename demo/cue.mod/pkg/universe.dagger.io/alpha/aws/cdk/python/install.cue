@@ -15,7 +15,6 @@ _#DefaultCdkCliVersion: "2.28.0"
 
 // Install cdk cli (using npm) and cdk library for python (using pip)
 #Install: {
-
 	// requirements.txt file
 	requirementsTxt: dagger.#FS
 

@@ -1,4 +1,4 @@
-// The doppler package makes it easy to fetch or update secrets using the 
+// The doppler package makes it easy to fetch or update secrets using the
 // doppler.com SecretOps platform
 package doppler
 

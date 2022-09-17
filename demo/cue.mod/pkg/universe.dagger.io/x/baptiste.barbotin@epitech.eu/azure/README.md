@@ -9,7 +9,7 @@ The following are available:
 
 ## Azure
 
-This package provides declarations to interact with the Azure Platform. 
+This package provides declarations to interact with the Azure Platform.
 
 It is available in the [azure](./azure) folder.
 
@@ -21,6 +21,6 @@ It is available in the [azureFuncCoreTool](./azureFuncCoreTool/) folder.
 
 ## AzureServerless
 
-This package provides declarations to easly publish your own Azure serverless function. 
+This package provides declarations to easly publish your own Azure serverless function.
 
 It is available in the [azureServerless](./azureServerless/) folder.

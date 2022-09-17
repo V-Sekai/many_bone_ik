@@ -11,7 +11,6 @@ import (
 
 dagger.#Plan & {
 	actions: test: {
-
 		"python.cue": {
 			// Run with a custom path to python
 			customPath: {
@@ -24,7 +23,6 @@ dagger.#Plan & {
 
 			// Run a script from source directory + filename
 			runFile: {
-
 				dir:   _load.output
 				_load: core.#Source & {
 					path: "./data"

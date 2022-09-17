@@ -50,7 +50,6 @@ import (
 		"source":  source
 		"project": project
 	}
-
 }
 
 // Run a yarn command (`yarn <ARGS>')

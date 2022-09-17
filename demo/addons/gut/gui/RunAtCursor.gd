@@ -58,7 +58,7 @@ func _update_buttons(info):
 	_ctrls.arrow_2.visible = info.test_method != null
 	_ctrls.btn_method.text = str(info.test_method)
 	_ctrls.btn_method.hint_tooltip = str("Run test ", info.test_method)
-	
+
 	# The button's new size won't take effect until the next frame.
 	# This appears to be what was causing the button to not be clickable the
 	# first time.

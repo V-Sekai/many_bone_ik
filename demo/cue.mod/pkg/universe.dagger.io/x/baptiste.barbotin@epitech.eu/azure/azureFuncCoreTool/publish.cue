@@ -6,7 +6,6 @@ import (
 )
 
 #Publish: {
-
 	image: docker.#Image
 
 	// Function name

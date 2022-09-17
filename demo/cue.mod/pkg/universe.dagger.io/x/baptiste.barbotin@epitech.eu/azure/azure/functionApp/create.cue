@@ -5,7 +5,6 @@ import (
 )
 
 #Create: {
-
 	image: docker.#Image
 
 	// Azure FunctionApp version

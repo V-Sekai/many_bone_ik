@@ -10,9 +10,8 @@ import (
 
 // Create a Uffizzi Preview
 #CreatePreview: {
-
 	source: {
-		// A directory containing all necessary file for creating theuffizzi preview 
+		// A directory containing all necessary file for creating theuffizzi preview
 		// (usually the source code and docker compose file of the said project )
 		directory: dagger.#FS
 

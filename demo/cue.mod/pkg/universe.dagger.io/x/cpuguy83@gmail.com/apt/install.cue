@@ -105,7 +105,7 @@ _#aptMounts: {
 						name: "/bin/sh"
 						args: ["-c", """
                             set -e
-                            if [ -z "$(find ${DAGGER_UPDATED_PATH} -mmin -${DAGGER_UPDATED_MAX_AGE})" ]; then 
+                            if [ -z "$(find ${DAGGER_UPDATED_PATH} -mmin -${DAGGER_UPDATED_MAX_AGE})" ]; then
                                 apt-get update
                             fi
                             apt-get install -y ${PKG_NAME}

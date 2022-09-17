@@ -39,7 +39,7 @@ icon = SubResource( 2 )
 offset_left = 32.0
 offset_right = 60.0
 offset_bottom = 24.0
-hint_tooltip = "Colorize output. 
+hint_tooltip = "Colorize output.
  It's not the same as everywhere else (long story),
  but it is better than nothing."
 toggle_mode = true

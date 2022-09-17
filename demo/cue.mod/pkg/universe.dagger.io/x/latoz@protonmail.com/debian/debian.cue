@@ -8,7 +8,6 @@ import (
 
 // Build a Debian Linux container image
 #Build: {
-
 	// Debian version to install.
 	version: string | *"bookworm-slim@sha256:d035fbd0acb0ad941eef3d95c692dd330947489159b4b87f48bfd6e26d0fefee"
 

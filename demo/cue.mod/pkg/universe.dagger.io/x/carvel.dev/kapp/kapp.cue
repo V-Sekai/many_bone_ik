@@ -40,7 +40,6 @@ _#entryPoint: {
 
 // Install Kapp cli
 #Image: {
-
 	imgFs: dagger.#FS
 
 	source: string | *null
@@ -65,7 +64,6 @@ _#entryPoint: {
 
 // kapp deploy command
 #Deploy: {
-
 	//kapp app name
 	app: string
 
@@ -114,7 +112,6 @@ _#entryPoint: {
 
 // kapp delete command
 #Delete: {
-
 	// Kubernetes Namespace in which the app to delete is present
 	namespace: string | *"default"
 
@@ -153,7 +150,6 @@ _#entryPoint: {
 
 // kapp list command
 #List: {
-
 	// Kubernetes Namespace
 	namespace: string | *"default"
 
@@ -186,7 +182,6 @@ _#entryPoint: {
 
 // kapp Inspect command
 #Inspect: {
-
 	// Kubernetes Namespace
 	namespace: string | *"default"
 

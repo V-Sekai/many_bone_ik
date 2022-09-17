@@ -7,7 +7,6 @@ import (
 )
 
 dagger.#Plan & {
-
 	client: {
 		env: AZ_SUB_ID_TOKEN: dagger.#Secret
 
@@ -15,7 +14,6 @@ dagger.#Plan & {
 	}
 
 	actions: deployFunction: azureServerless.#Deploy & {
-
 		source: client.filesystem."./deploy_function".read.contents
 
 		config: azureServerless.#Config & {

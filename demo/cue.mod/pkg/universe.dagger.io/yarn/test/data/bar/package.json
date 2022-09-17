@@ -9,4 +9,4 @@
 		"build": "mkdir -p ./build && cp /.env ./build/env"
 	}
   }
-  
+

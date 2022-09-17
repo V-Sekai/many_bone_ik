@@ -48,7 +48,7 @@ import (
 	// Log level: 1 -> -v, 2 -> -vv, 3 -> vvv [default=0]
 	logLevel: int | *0
 
-	// SSH keys of the hosts 
+	// SSH keys of the hosts
 	sshKeys?: #SSHKeys
 
 	_inventoryArg: #InventoryArg & {

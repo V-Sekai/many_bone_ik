@@ -44,6 +44,8 @@ func _run():
 		if root.find_child(node_3d.name) == null:
 			root.add_child(node_3d)
 		node_3d.owner = root
+		if bone_name ==  "Hips":
+			ewbik.set_pin_depth_falloff(pin_i, 1)
 		ewbik.set_pin_bone_name(pin_i, bone_name)
 		ewbik.set_pin_depth_falloff(pin_i, 0)
 		ewbik.set_pin_direction_priorities(pin_i, Vector3(0.25, 0, 0.25))

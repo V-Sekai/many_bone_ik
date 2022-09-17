@@ -176,14 +176,14 @@ dagger.#Plan & {
 					build_godot_windows.output
 				script: contents: #"""
 					cd /groups/godot
-					cp bin/godot.windows.opt.tools.x86_64.llvm.exe bin/windows_release_x86_64.exe 
+					cp bin/godot.windows.opt.tools.x86_64.llvm.exe bin/windows_release_x86_64.exe
 					mingw-strip --strip-debug bin/windows_release_x86_64.exe
 					cp bin/godot.windows.opt.tools.x86_64.llvm.pdb bin/windows_release_x86_64.pdb
 					cp bin/godot.linuxbsd.opt.tools.x86_64.llvm bin/linux_debug.x86_64.llvm
 					cp bin/godot.linuxbsd.opt.tools.x86_64.llvm bin/linux_editor.x86_64
 					# Export the game.
 					cp bin/godot.linuxbsd.opt.tools.x86_64.llvm bin/linux_release.x86_64.llvm && cp bin/godot.linuxbsd.opt.tools.x86_64.llvm bin/linux_release.x86_64 && strip --strip-debug bin/linux_release.x86_64
-					cp bin/godot.linuxbsd.opt.tools.x86_64.llvm bin/linux_debug.x86_64.llvm && cp bin/godot.linuxbsd.opt.tools.x86_64.llvm bin/linux_debug.x86_64 && strip --strip-debug bin/linux_debug.x86_64	
+					cp bin/godot.linuxbsd.opt.tools.x86_64.llvm bin/linux_debug.x86_64.llvm && cp bin/godot.linuxbsd.opt.tools.x86_64.llvm bin/linux_debug.x86_64 && strip --strip-debug bin/linux_debug.x86_64
 					rm -rf /groups/project/build
 					mkdir -p /groups/build/
 					rm -rf /groups/.local/share/godot/export_templates/
@@ -191,7 +191,7 @@ dagger.#Plan & {
 					cd /groups/.local/share/godot/export_templates/
 					eval `sed -e "s/ = /=/" /groups/godot/version.py` && echo $major.$minor.$status > /groups/build/version.txt
 					export VERSION=`cat /groups/build/version.txt`
-					export BASE_DIR=/groups/.local/share/godot/export_templates/ 
+					export BASE_DIR=/groups/.local/share/godot/export_templates/
 					export TEMPLATEDIR=$BASE_DIR/$VERSION/
 					mkdir -p $TEMPLATEDIR
 					cp /groups/godot/bin/windows_release_x86_64.exe $TEMPLATEDIR/windows_release_x86_64.exe

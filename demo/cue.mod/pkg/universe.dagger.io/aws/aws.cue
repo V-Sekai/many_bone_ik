@@ -14,7 +14,6 @@ import (
 // Can be customized with packages, and can be used with docker.#Run for executing custom scripts.
 // Used by default with aws.#Run
 #Build: {
-
 	docker.#Build & {
 		steps: [
 			docker.#Pull & {

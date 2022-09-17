@@ -10,7 +10,6 @@ import (
 #DefaultVersion: "3.0"
 
 #Config: {
-
 	// subscription id corresponds to your Azure active subscription id
 	subscriptionId: dagger.#Secret
 
@@ -18,12 +17,11 @@ import (
 	// each version contains a different version of the Azure Func core Tool
 	//
 	// for example: the version 3 of the image correspond to the version 4
-	// of the Azure Func core Tool 
+	// of the Azure Func core Tool
 	version: *#DefaultVersion | string
 }
 
 #Image: {
-
 	config: #Config
 
 	docker.#Build & {
