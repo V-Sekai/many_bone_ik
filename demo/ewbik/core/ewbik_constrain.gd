@@ -33,7 +33,6 @@ func _run():
 	bone_map.profile = profile
 	var bone_vrm_mapping : Dictionary
 	ewbik.max_ik_iterations = 10
-	ewbik.default_damp = deg_to_rad(1)
 	var pin_i = 0
 	var bones = ["Root", "Hips", "LeftHand", "RightHand", "Head", "LeftFoot", "RightFoot"]
 	ewbik.pin_count = bones.size()
