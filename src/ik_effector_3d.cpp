@@ -131,7 +131,7 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 	}
-	if (priority.y > 0.0){
+	if (priority.y > 0.0) {
 		real_t w = (*p_weights)[index];
 		w = MAX(w, 1.0f);
 		p_headings->write[index] = (target_global_transform.basis.get_column(Vector3::AXIS_Y) + target_global_transform.origin) - bone_origin;

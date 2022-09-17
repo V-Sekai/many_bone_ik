@@ -390,7 +390,7 @@ void IKBoneSegment::recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_seg
 			}
 			max_pin_weight = 1.0;
 			if (priority.x > 0.0) {
-				double sub_target_weight = pin->get_weight() * (priority.x/ max_pin_weight) * p_falloff;
+				double sub_target_weight = pin->get_weight() * (priority.x / max_pin_weight) * p_falloff;
 				inner_weight_array.push_back(sub_target_weight);
 				inner_weight_array.push_back(sub_target_weight);
 			}
