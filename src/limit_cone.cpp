@@ -224,7 +224,7 @@ double LimitCone::get_cushion_cosine() {
 
 void LimitCone::set_cushion_boundary(double p_cushion) {
 	// Todo: fire 2022-08-31 Pending work.
-	double adjustedCushion = MIN(1, std::max(0.001, p_cushion));
+	double adjustedCushion = MIN(1, MAX(0.001, p_cushion));
 	this->cushion_radius = this->radius * adjustedCushion;
 	this->cushion_cosine = cos(cushion_radius);
 }
