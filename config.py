@@ -1,5 +1,5 @@
 def can_build(env, platform):
-    return True
+    return False # Testing built in EWBIK.
 
 
 def configure(env):
