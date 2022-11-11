@@ -303,63 +303,61 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	Vector<Vector3> axial_from_handles;
 	Vector<Vector3> axial_middle_handles;
 	Vector<Vector3> axial_to_handles;
-	if (kusudama->get_limit_cones().size()) {
-		kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
-		kusudama_limit_cones.fill(0.0f);
-		int out_idx = 0;
-		const TypedArray<IKLimitCone> &limit_cones = ik_kusudama->get_limit_cones();
-		for (int32_t cone_i = 0; cone_i < limit_cones.size(); cone_i++) {
-			Ref<IKLimitCone> limit_cone = limit_cones[cone_i];
-			Vector3 control_point = limit_cone->get_control_point();
-			kusudama_limit_cones.write[out_idx + 0] = control_point.x;
-			kusudama_limit_cones.write[out_idx + 1] = control_point.y;
-			kusudama_limit_cones.write[out_idx + 2] = control_point.z;
-			float radius = limit_cone->get_radius();
-			kusudama_limit_cones.write[out_idx + 3] = radius;
-			out_idx += 4;
+	kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
+	kusudama_limit_cones.fill(0.0f);
+	int out_idx = 0;
+	const TypedArray<IKLimitCone> &limit_cones = ik_kusudama->get_limit_cones();
+	for (int32_t cone_i = 0; cone_i < limit_cones.size(); cone_i++) {
+		Ref<IKLimitCone> limit_cone = limit_cones[cone_i];
+		Vector3 control_point = limit_cone->get_control_point();
+		kusudama_limit_cones.write[out_idx + 0] = control_point.x;
+		kusudama_limit_cones.write[out_idx + 1] = control_point.y;
+		kusudama_limit_cones.write[out_idx + 2] = control_point.z;
+		float radius = limit_cone->get_radius();
+		kusudama_limit_cones.write[out_idx + 3] = radius;
+		out_idx += 4;
 
-			Vector3 tangent_center_1 = limit_cone->get_tangent_circle_center_next_1();
-			kusudama_limit_cones.write[out_idx + 0] = tangent_center_1.x;
-			kusudama_limit_cones.write[out_idx + 1] = tangent_center_1.y;
-			kusudama_limit_cones.write[out_idx + 2] = tangent_center_1.z;
-			float tangent_radius = limit_cone->get_tangent_circle_radius_next();
-			kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
-			out_idx += 4;
+		Vector3 tangent_center_1 = limit_cone->get_tangent_circle_center_next_1();
+		kusudama_limit_cones.write[out_idx + 0] = tangent_center_1.x;
+		kusudama_limit_cones.write[out_idx + 1] = tangent_center_1.y;
+		kusudama_limit_cones.write[out_idx + 2] = tangent_center_1.z;
+		float tangent_radius = limit_cone->get_tangent_circle_radius_next();
+		kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
+		out_idx += 4;
 
-			Vector3 tangent_center_2 = limit_cone->get_tangent_circle_center_next_2();
-			kusudama_limit_cones.write[out_idx + 0] = tangent_center_2.x;
-			kusudama_limit_cones.write[out_idx + 1] = tangent_center_2.y;
-			kusudama_limit_cones.write[out_idx + 2] = tangent_center_2.z;
-			kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
-			out_idx += 4;
+		Vector3 tangent_center_2 = limit_cone->get_tangent_circle_center_next_2();
+		kusudama_limit_cones.write[out_idx + 0] = tangent_center_2.x;
+		kusudama_limit_cones.write[out_idx + 1] = tangent_center_2.y;
+		kusudama_limit_cones.write[out_idx + 2] = tangent_center_2.z;
+		kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
+		out_idx += 4;
+	}
+	Ref<SurfaceTool> surface_tool;
+	surface_tool.instantiate();
+	surface_tool->begin(Mesh::PRIMITIVE_LINES);
+	for (int32_t cone_i = 0; cone_i < kusudama_limit_cones.size(); cone_i = cone_i + (3 * 4)) {
+		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
+		if (Math::is_zero_approx(center.length())) {
+			break;
 		}
-		Ref<SurfaceTool> surface_tool;
-		surface_tool.instantiate();
-		surface_tool->begin(Mesh::PRIMITIVE_LINES);
-		for (int32_t cone_i = 0; cone_i < kusudama_limit_cones.size(); cone_i = cone_i + (3 * 4)) {
-			Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
-			if (Math::is_zero_approx(center.length())) {
-				break;
-			}
-			{
-				Transform3D handle_relative_to_mesh;
-				handle_relative_to_mesh.origin = center * radius;
-				Transform3D handle_relative_to_universe = constraint_relative_to_the_universe * handle_relative_to_mesh;
-				center_handles.push_back(handle_relative_to_universe.origin);
-			}
-			{
-				float cone_radius = kusudama_limit_cones[cone_i + 3];
-				float w = r * Math::sin(cone_radius);
-				float d = r * Math::cos(cone_radius);
-				const float ra = (float)(0 * 3);
-				const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
-				Transform3D handle_border_relative_to_mesh;
-				Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), center)) * mesh_orientation;
-				handle_border_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
-				Transform3D handle_border_relative_to_skeleton = constraint_relative_to_the_skeleton * handle_border_relative_to_mesh;
-				Transform3D handle_border_relative_to_universe = ewbik_skeleton->get_global_transform() * handle_border_relative_to_skeleton;
-				radius_handles.push_back(handle_border_relative_to_universe.origin);
-			}
+		{
+			Transform3D handle_relative_to_mesh;
+			handle_relative_to_mesh.origin = center * radius;
+			Transform3D handle_relative_to_universe = constraint_relative_to_the_universe * handle_relative_to_mesh;
+			center_handles.push_back(handle_relative_to_universe.origin);
+		}
+		{
+			float cone_radius = kusudama_limit_cones[cone_i + 3];
+			float w = r * Math::sin(cone_radius);
+			float d = r * Math::cos(cone_radius);
+			const float ra = (float)(0 * 3);
+			const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
+			Transform3D handle_border_relative_to_mesh;
+			Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), center)) * mesh_orientation;
+			handle_border_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
+			Transform3D handle_border_relative_to_skeleton = constraint_relative_to_the_skeleton * handle_border_relative_to_mesh;
+			Transform3D handle_border_relative_to_universe = ewbik_skeleton->get_global_transform() * handle_border_relative_to_skeleton;
+			radius_handles.push_back(handle_border_relative_to_universe.origin);
 		}
 	}
 	const Vector3 axial_center = Vector3(0, 1, 0);
@@ -376,12 +374,11 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		Transform3D axial_relative_to_universe = ewbik_skeleton->get_global_transform() * axial_relative_to_skeleton;
 		axial_from_handles.push_back(axial_relative_to_universe.origin);
 	}
-	p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, false);
-	p_gizmo->add_handles(radius_handles, get_material("handles_radius"), Vector<int>(), false, true);
-	const int32_t segment_count = int(Math::rad_to_deg(IKKusudama::to_tau(kusudama->get_max_axial_angle() - kusudama->get_min_axial_angle()))) % 18;
-	if (Math::is_zero_approx(kusudama->get_absolute_max_axial_angle())) {
-		return;
+	if (center_handles.size() && radius_handles.size()) {
+		p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, false);
+		p_gizmo->add_handles(radius_handles, get_material("handles_radius"), Vector<int>(), false, true);
 	}
+	const int32_t segment_count = int(Math::rad_to_deg(IKKusudama::to_tau(kusudama->get_max_axial_angle() - kusudama->get_min_axial_angle()))) % 18;
 	for (int32_t segment_i = 1; segment_i < segment_count; segment_i++) {
 		const float ra = Math::lerp((float)kusudama->get_max_axial_angle(), (float)kusudama->get_min_axial_angle(), (float)segment_i / segment_count);
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
@@ -402,7 +399,11 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		Transform3D axial_relative_to_universe = ewbik_skeleton->get_global_transform() * axial_relative_to_skeleton;
 		axial_to_handles.push_back(axial_relative_to_universe.origin);
 	}
-	p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), false, false);
-	p_gizmo->add_handles(axial_middle_handles, get_material("handles_axial_middle"), Vector<int>(), false, true);
-	p_gizmo->add_handles(axial_to_handles, get_material("handles_axial_to"), Vector<int>(), false, false);
+	if (axial_from_handles.size() && axial_to_handles.size()) {
+		p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), false, false);
+		p_gizmo->add_handles(axial_to_handles, get_material("handles_axial_to"), Vector<int>(), false, false);
+	}
+	if (axial_middle_handles.size()) {
+		p_gizmo->add_handles(axial_middle_handles, get_material("handles_axial_middle"), Vector<int>(), false, true);
+	}
 }
