@@ -1,0 +1,63 @@
+[gd_scene load_steps=2 format=3 uid="uid://p70vo0hqdgqv"]
+
+[ext_resource type="PackedScene" uid="uid://deuapcn1ywqqi" path="res://ewbik/art/ewbik_3_bone_chain.glb" id="1_k4flg"]
+
+[node name="ewbik_3_bone_chain" instance=ExtResource("1_k4flg")]
+
+[node name="root" type="Marker3D" parent="Armature" index="0"]
+
+[node name="Skeleton3D" parent="Armature" index="1"]
+bones/0/position = Vector3(0, 0, -5.53926e-09)
+bones/0/rotation = Quaternion(0, 0, 0, 1)
+bones/0/scale = Vector3(1, 1, 1)
+bones/1/position = Vector3(-3.61848e-07, 0.0927208, -1.17266e-09)
+bones/1/rotation = Quaternion(0.028993, 0.983838, 0.102797, 0.14372)
+bones/1/scale = Vector3(1, 1, 1)
+bones/2/position = Vector3(0.000251055, 0.109072, -6.49123e-05)
+bones/2/rotation = Quaternion(-0.0141616, 0.963976, -0.0626199, -0.258125)
+bones/2/scale = Vector3(1, 1, 1)
+bones/3/position = Vector3(-3.23728e-06, 0.101434, 7.02217e-07)
+bones/3/rotation = Quaternion(0.000776107, -0.143746, 0.00836267, 0.989579)
+bones/3/scale = Vector3(1, 1, 1)
+bones/4/rotation = Quaternion(6.85413e-10, -0.0941975, -9.94455e-08, 0.995554)
+bones/5/rotation = Quaternion(0.00217821, 0.0941724, 0.0230216, 0.995287)
+bones/6/rotation = Quaternion(4.87597e-09, -4.64336e-07, -0.0118081, 0.99993)
+bones/6/scale = Vector3(1, 1, 1)
+bones/7/rotation = Quaternion(-3.45918e-09, 2.85479e-07, 0.00958492, 0.999954)
+bones/8/position = Vector3(2.47732e-06, 0.100782, 7.52509e-06)
+bones/8/rotation = Quaternion(-0.19009, -0.099636, -0.0790669, 0.973492)
+bones/8/scale = Vector3(1, 1, 1)
+bones/9/position = Vector3(2.73436e-06, 0.10022, -6.69807e-06)
+bones/9/rotation = Quaternion(-0.0477364, 0.189357, 0.36512, 0.910249)
+bones/9/scale = Vector3(1, 1, 1)
+bones/10/position = Vector3(-2.7284e-05, 0.1002, -8.12113e-06)
+bones/10/rotation = Quaternion(0.13972, 0.812693, 0.379815, -0.419224)
+bones/11/rotation = Quaternion(1.33279e-13, 3.71461e-16, 1.49012e-07, 1)
+
+[node name="Armature_mesh" parent="Armature/Skeleton3D" index="0"]
+visible = false
+
+[node name="o1" type="Marker3D" parent="Armature/Skeleton3D" index="1"]
+transform = Transform3D(0.962126, -0.0337157, 0.270511, 0.0338342, 0.999418, 0.00422625, -0.270498, 0.00508629, 0.962708, 0.00741683, 0.560822, 0.136896)
+
+[node name="SkeletonModification3DEWBIK" type="NBoneIK3D" parent="Armature/Skeleton3D" index="2"]
+root_bone = &"A0"
+max_ik_iterations = 120.0
+pin_count = 2
+pins/0/name = "A0"
+pins/0/target_node = NodePath("../../root")
+pins/0/depth_falloff = 0.0
+pins/0/weight = 1.0
+pins/0/direction_priorities = Vector3(0.707107, 0, 0.707107)
+pins/1/name = "C2"
+pins/1/target_node = NodePath("../o1")
+pins/1/depth_falloff = 1.0
+pins/1/weight = 1.0
+pins/1/direction_priorities = Vector3(0.707107, 0, 0.707107)
+constraint_count = 1
+constraints/0/name = &"A1"
+constraints/0/kusudama_twist_from = 0.0
+constraints/0/kusudama_twist_to = 0.261799
+constraints/0/kusudama_limit_cone_count = 1
+constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
+constraints/0/kusudama_limit_cone/0/radius = 0.698132

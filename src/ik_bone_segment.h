@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  ik_bone_segment.h                                        */
+/*  ik_bone_segment.h                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ik_bone_chain_H
-#define ik_bone_chain_H
+#ifndef IK_BONE_SEGMENT_H
+#define IK_BONE_SEGMENT_H
 
 #include "ik_bone_3d.h"
 #include "ik_effector_3d.h"
@@ -42,7 +42,7 @@
 
 class IKEffector3D;
 class IKBone3D;
-class LimitCone;
+class IKLimitCone;
 
 class IKBoneSegment : public Resource {
 	GDCLASS(IKBoneSegment, Resource);
@@ -88,23 +88,10 @@ public:
 		x *= tp;
 		x -= real_t(.25) + Math::floor(x + real_t(.25));
 		x *= real_t(16.) * (Math::abs(x) - real_t(.5));
-#if EXTRA_PRECISION
+		// BEGIN EXTRA_PRECISION
 		x += real_t(.225) * x * (Math::abs(x) - real_t(1.));
-#endif
+		// END EXTRA_PRECISION
 		return x;
-	}
-	// Untested fast sine.
-	_FORCE_INLINE_ static real_t sine(float x) {
-		// https://stackoverflow.com/questions/18662261/fastest-implementation-of-sine-cosine-and-square-root-in-c-doesnt-need-to-b
-		constexpr real_t B = 4. / Math_PI;
-		constexpr real_t C = -4. / (Math_PI * Math_PI);
-		real_t y = B * x + C * x * Math::abs(x);
-#ifdef EXTRA_PRECISION
-		const real_t Q = 0.775;
-		const real_t P = 0.225;
-		y = P * (y * Math::abs(y) - y) + y; // Q * y + P * y * Math::abs(y)
-#endif
-		return y;
 	}
 	static void recursive_create_headings_arrays_for(Ref<IKBoneSegment> p_bone_segment);
 	void create_headings_arrays();
@@ -126,4 +113,4 @@ public:
 	~IKBoneSegment() {}
 };
 
-#endif // ik_bone_chain_H
+#endif // IK_BONE_SEGMENT_H

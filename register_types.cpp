@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -30,11 +30,11 @@
 
 #include "register_types.h"
 
-#include "src/ewbik.h"
 #include "src/ik_bone_3d.h"
 #include "src/ik_effector_3d.h"
 #include "src/ik_effector_template.h"
-#include "src/kusudama.h"
+#include "src/ik_ewbik.h"
+#include "src/ik_kusudama.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/ewbik_skeleton_3d_gizmo_plugin.h"
@@ -42,18 +42,23 @@
 
 void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
-		GDREGISTER_CLASS(IKEffectorTemplate);
-		GDREGISTER_CLASS(EWBIK);
-		GDREGISTER_CLASS(IKBone3D);
-		GDREGISTER_CLASS(IKEffector3D);
-		GDREGISTER_CLASS(IKBoneSegment);
-		GDREGISTER_CLASS(IKKusudama);
 	}
 #ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 		EditorPlugins::add_by_type<EditorPluginEWBIK>();
 	}
 #endif
+	if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
+		GDREGISTER_CLASS(IKEffectorTemplate);
+		GDREGISTER_CLASS(NBoneIK3D);
+		GDREGISTER_CLASS(IKBone3D);
+		GDREGISTER_CLASS(IKNode3D);
+		GDREGISTER_CLASS(IKEffector3D);
+		GDREGISTER_CLASS(IKBoneSegment);
+		GDREGISTER_CLASS(IKKusudama);
+		GDREGISTER_CLASS(IKRay3D);
+		GDREGISTER_CLASS(IKLimitCone);
+	}
 }
 
 void uninitialize_ewbik_module(ModuleInitializationLevel p_level) {

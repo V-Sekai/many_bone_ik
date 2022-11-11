@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="IKBone3D" inherits="Resource" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+<class name="IKBone3D" inherits="Resource" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
 	</brief_description>
 	<description>
@@ -7,6 +7,16 @@
 	<tutorials>
 	</tutorials>
 	<methods>
+		<method name="get_constraint" qualifiers="const">
+			<return type="IKKusudama" />
+			<description>
+			</description>
+		</method>
+		<method name="get_constraint_transform">
+			<return type="IKNode3D" />
+			<description>
+			</description>
+		</method>
 		<method name="get_pin" qualifiers="const">
 			<return type="IKEffector3D" />
 			<description>

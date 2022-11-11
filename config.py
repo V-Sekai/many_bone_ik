@@ -1,5 +1,5 @@
 def can_build(env, platform):
-    return False # Testing built in EWBIK.
+    return True
 
 
 def configure(env):
@@ -8,12 +8,15 @@ def configure(env):
 
 def get_doc_classes():
     return [
-        "EWBIK",
+        "NBoneIK3D",
         "IKBone3D",
         "IKEffector3D",
         "IKBoneSegment",
         "IKEffectorTemplate",
         "IKKusudama",
+        "IKRay3D",
+        "IKNode3D",
+        "IKLimitCone",
     ]
 
 

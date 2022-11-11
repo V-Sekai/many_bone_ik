@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -30,8 +30,8 @@
 
 #include "ik_bone_3d.h"
 
-#include "ewbik.h"
-#include "math/ik_transform.h"
+#include "ik_ewbik.h"
+#include "math/ik_node_3d.h"
 
 void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
@@ -88,22 +88,16 @@ void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 	if (bone_id == -1) {
 		return;
 	}
-	Transform3D xform = p_skeleton->get_bone_global_pose(bone_id);
-	xform = p_skeleton->get_transform() * xform;
-	set_global_pose(xform);
+	Transform3D bone_origin_to_parent_origin = p_skeleton->get_bone_pose(bone_id);
+	set_pose(bone_origin_to_parent_origin);
 }
 
-void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength) {
+void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
-	Transform3D custom = get_global_pose();
-	custom = p_skeleton->get_global_transform().affine_inverse() * custom;
-	int32_t parent_id = p_skeleton->get_bone_parent(bone_id);
-	if (parent_id != -1) {
-		custom = p_skeleton->get_bone_global_pose(parent_id).affine_inverse() * custom;
-	}
-	p_skeleton->set_bone_pose_position(bone_id, custom.origin);
-	p_skeleton->set_bone_pose_rotation(bone_id, custom.basis.get_rotation_quaternion());
-	p_skeleton->set_bone_pose_scale(bone_id, custom.basis.get_scale());
+	Transform3D bone_origin_to_parent_origin = get_pose();
+	p_skeleton->set_bone_pose_position(bone_id, bone_origin_to_parent_origin.origin);
+	p_skeleton->set_bone_pose_rotation(bone_id, bone_origin_to_parent_origin.basis.get_rotation_quaternion());
+	p_skeleton->set_bone_pose_scale(bone_id, bone_origin_to_parent_origin.basis.get_scale());
 }
 
 void IKBone3D::create_pin() {
@@ -118,6 +112,8 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_pin"), &IKBone3D::get_pin);
 	ClassDB::bind_method(D_METHOD("set_pin", "pin"), &IKBone3D::set_pin);
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pinned);
+	ClassDB::bind_method(D_METHOD("get_constraint"), &IKBone3D::get_constraint);
+	ClassDB::bind_method(D_METHOD("get_constraint_transform"), &IKBone3D::get_constraint_transform);
 }
 
 IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening) {
@@ -164,22 +160,28 @@ void IKBone3D::add_constraint(Ref<IKKusudama> p_constraint) {
 	constraint = p_constraint;
 }
 
-Ref<IKTransform3D> IKBone3D::get_ik_transform() {
+Ref<IKNode3D> IKBone3D::get_ik_transform() {
 	return transform;
 }
 
-Ref<IKTransform3D> IKBone3D::get_constraint_transform() {
+Ref<IKNode3D> IKBone3D::get_constraint_transform() {
 	return constraint_transform;
 }
 
-void IKBone3D::set_constraint_transform(Ref<IKTransform3D> p_transform) {
+void IKBone3D::set_constraint_transform(Ref<IKNode3D> p_transform) {
 	constraint_transform = p_transform;
 }
 
-void IKBone3D::set_bone_direction_transform(Ref<IKTransform3D> p_bone_direction) {
+void IKBone3D::set_bone_direction_transform(Ref<IKNode3D> p_bone_direction) {
 	bone_direction_transform = p_bone_direction;
 }
 
-Ref<IKTransform3D> IKBone3D::get_bone_direction_transform() {
+Ref<IKNode3D> IKBone3D::get_bone_direction_transform() {
 	return bone_direction_transform;
+}
+void IKBone3D::set_stiffness(float p_stiffness) {
+	stiffness = p_stiffness;
+}
+float IKBone3D::get_stiffness() const {
+	return stiffness;
 }

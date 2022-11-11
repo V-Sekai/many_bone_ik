@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,18 +28,16 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EWBIK_SHADOW_BONE_3D_H
-#define EWBIK_SHADOW_BONE_3D_H
+#ifndef IK_BONE_3D_H
+#define IK_BONE_3D_H
 
 #include "ik_effector_template.h"
-#include "kusudama.h"
-#include "math/ik_transform.h"
+#include "ik_kusudama.h"
+#include "math/ik_node_3d.h"
 
 #include "core/io/resource.h"
 #include "core/object/ref_counted.h"
 #include "scene/3d/skeleton_3d.h"
-
-#define IK_DEFAULT_DAMPENING 0.20944f
 
 class IKEffector3D;
 class IKKusudama;
@@ -57,51 +55,46 @@ class IKBone3D : public Resource {
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
 	float stiffness = 1.0f;
 	Ref<IKKusudama> constraint;
-	// In the space of the local parent bone transform
-	// Origin is the origin of the bone direction transform
+	// In the space of the local parent bone transform.
+	// The origin is the origin of the bone direction transform
 	// Can be independent and should be calculated
 	// to keep -y to be the opposite of its bone forward orientation
 	// To avoid singularity that is ambiguous.
-	Ref<IKTransform3D> constraint_transform = memnew(IKTransform3D());
-	Ref<IKTransform3D> transform = memnew(IKTransform3D()); // The bone's actual transform.
-	Ref<IKTransform3D> bone_direction_transform = memnew(IKTransform3D()); // Physical direction of the bone. Calculate Y is the bone up.
+	Ref<IKNode3D> constraint_transform = Ref<IKNode3D>(memnew(IKNode3D()));
+	Ref<IKNode3D> transform = Ref<IKNode3D>(memnew(IKNode3D())); // The bone's actual transform.
+	Ref<IKNode3D> bone_direction_transform = Ref<IKNode3D>(memnew(IKNode3D())); // Physical direction of the bone. Calculate Y is the bone up.
 protected:
 	static void _bind_methods();
 
 public:
-	Ref<IKTransform3D> get_bone_direction_transform();
-	void set_bone_direction_transform(Ref<IKTransform3D> p_bone_direction);
-	void set_constraint_transform(Ref<IKTransform3D> p_transform);
-	Ref<IKTransform3D> get_constraint_transform();
+	Ref<IKNode3D> get_bone_direction_transform();
+	void set_bone_direction_transform(Ref<IKNode3D> p_bone_direction);
+	void set_constraint_transform(Ref<IKNode3D> p_transform);
+	Ref<IKNode3D> get_constraint_transform();
 	void add_constraint(Ref<IKKusudama> p_constraint);
 	Ref<IKKusudama> get_constraint() const;
-	void set_stiffness(float p_stiffness) {
-		stiffness = p_stiffness;
-	}
-	float get_stiffness() const {
-		return stiffness;
-	}
-
+	void set_stiffness(float p_stiffness);
+	float get_stiffness() const;
 	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
 	Ref<IKBone3D> get_parent() const;
 	void set_pin(const Ref<IKEffector3D> &p_pin);
 	Ref<IKEffector3D> get_pin() const;
-	void set_pose(const Transform3D &p_transform);
-	Transform3D get_pose() const;
 	void set_global_pose(const Transform3D &p_transform);
 	Transform3D get_global_pose() const;
+	void set_pose(const Transform3D &p_transform);
+	Transform3D get_pose() const;
 	void set_initial_pose(Skeleton3D *p_skeleton);
-	void set_skeleton_bone_pose(Skeleton3D *p_skeleton, real_t p_strength);
+	void set_skeleton_bone_pose(Skeleton3D *p_skeleton);
 	void create_pin();
 	bool is_pinned() const;
-	Ref<IKTransform3D> get_ik_transform();
+	Ref<IKNode3D> get_ik_transform();
 	IKBone3D() {}
-	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening = IK_DEFAULT_DAMPENING);
+	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening = Math_PI);
 	~IKBone3D() {}
 	float get_cos_half_dampen() const;
 	void set_cos_half_dampen(float p_cos_half_dampen);
 };
 
-#endif // EWBIK_SHADOW_BONE_3D_H
+#endif // IK_BONE_3D_H

@@ -9,31 +9,19 @@
 config_version=5
 
 _global_script_classes=[{
-"base": "RefCounted",
-"class": &"GutHookScript",
-"language": &"GDScript",
-"path": "res://addons/gut/hook_script.gd"
-}, {
-"base": "Node",
-"class": &"GutTest",
-"language": &"GDScript",
-"path": "res://addons/gut/test.gd"
-}, {
 "base": "Node3D",
 "class": &"VRMTopLevel",
 "language": &"GDScript",
 "path": "res://addons/vrm/vrm_toplevel.gd"
 }]
 _global_script_class_icons={
-"GutHookScript": "",
-"GutTest": "",
 "VRMTopLevel": ""
 }
 
 [application]
 
-config/name="EWBIK Game Project"
-run/main_scene="res://ewbik/scenes/male.tscn"
+config/name="NBoneIK Game Project"
+run/main_scene="res://4911040726795578408/4911040726795578408.tscn"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
 
@@ -43,7 +31,7 @@ file_logging/enable_file_logging=true
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/Godot-MToon-Shader/plugin.cfg", "res://addons/vrm/plugin.cfg", "res://addons/gut/plugin.cfg")
+enabled=PackedStringArray("res://addons/vrm/plugin.cfg", "res://addons/Godot-MToon-Shader/plugin.cfg")
 
 [gui]
 
@@ -54,5 +42,6 @@ theme/default_font_generate_mipmaps=true
 
 textures/default_filters/anisotropic_filtering_level=4
 anti_aliasing/quality/msaa_2d=1
+anti_aliasing/quality/msaa_3d=1
 occlusion_culling/use_occlusion_culling=true
 environment/default_environment="res://default_env.tres"

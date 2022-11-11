@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -30,7 +30,8 @@
 
 #include "ik_bone_segment.h"
 #include "ik_effector_3d.h"
-#include "math/ik_transform.h"
+#include "ik_limit_cone.h"
+#include "math/ik_node_3d.h"
 #include "scene/3d/skeleton_3d.h"
 
 Ref<IKBone3D> IKBoneSegment::get_root() const {
@@ -149,21 +150,12 @@ void IKBoneSegment::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
 			effector_list.append_array(child->effector_list);
 		}
 	}
-	// for(const Vector<real_t> &penalty : penalty_array);
-	// 	for(real_t weight : penalty) {
-	// 		heading_weights.push_back(weight);
-	// 	}
-	// }
-	// int32_t n = heading_weights.size();
-	// target_headings.resize(n);
-	// tip_headings.resize(n);
 }
 
 void IKBoneSegment::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
 	ERR_FAIL_NULL(p_for_bone);
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
 	update_tip_headings(p_for_bone, &tip_headings);
-	// TODO: fire 2022-09-08 Research apply the rotation if the joint is too constrainted.
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate);
 }
 
@@ -225,10 +217,10 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	{
 		// Solved ik transform and apply it.
-		QCP qcp = QCP(1E-6, 1E-11);
+		QCP qcp = QCP(DBL_EPSILON, DBL_EPSILON);
 		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 		Vector3 translation = qcp.get_translation();
-		if (p_dampening != -1.0f) { // Linter, stop yelling at me. We want the exact bit value of -1.0.
+		if (p_dampening != -1.0f) {
 			bone_damp = p_dampening;
 			rot = clamp_to_angle(rot, bone_damp);
 		} else {
@@ -242,14 +234,21 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	// If the solved transform is outside the hard constraints, move it back into range.
 	if (p_for_bone->get_constraint().is_valid() && p_for_bone->get_constraint_transform().is_valid()) {
 		if (!p_for_bone->get_constraint()->get_limit_cones().is_empty()) {
-			Vector3 control_point = p_for_bone->get_constraint_transform()->to_global(p_for_bone->get_constraint()->get_limit_cones()[0]->get_control_point());
-			control_point -= p_for_bone->get_constraint_transform()->get_global_transform().origin;
+			TypedArray<IKLimitCone> limit_cones = p_for_bone->get_constraint()->get_limit_cones();
+			if (limit_cones.size()) {
+				Ref<IKLimitCone> cone = limit_cones[0];
+				if (cone.is_valid()) {
+					Vector3 control_point = p_for_bone->get_constraint_transform()->to_global(cone->get_control_point());
+					control_point -= p_for_bone->get_constraint_transform()->get_global_transform().origin;
+				}
+			}
+		}
+		if (p_for_bone->get_constraint()->is_axially_constrained()) {
+			p_for_bone->get_constraint()->_update_constraint();
+			p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 		}
 		if (p_for_bone->get_constraint()->is_orientationally_constrained()) {
 			p_for_bone->get_constraint()->set_axes_to_orientation_snap(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
-		}
-		if (p_for_bone->get_constraint()->is_axially_constrained()) {
-			p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 		}
 	}
 }
@@ -277,6 +276,9 @@ void IKBoneSegment::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3A
 
 void IKBoneSegment::segment_solver(real_t p_damp) {
 	for (Ref<IKBoneSegment> child : child_segments) {
+		if (child.is_null()) {
+			continue;
+		}
 		child->segment_solver(p_damp);
 	}
 	bool is_translate = parent_segment.is_null();
@@ -294,6 +296,7 @@ void IKBoneSegment::qcp_solver(real_t p_damp, bool p_translate) {
 
 void IKBoneSegment::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBoneSegment::is_pinned);
+	ClassDB::bind_method(D_METHOD("get_ik_bone", "bone"), &IKBoneSegment::get_ik_bone);
 }
 
 Ref<IKBoneSegment> IKBoneSegment::get_parent_segment() {
@@ -305,7 +308,7 @@ IKBoneSegment::IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name
 	root = p_root;
 	tip = p_tip;
 	skeleton = p_skeleton;
-	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, IK_DEFAULT_DAMPENING)));
+	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, Math_PI)));
 	if (p_parent.is_valid()) {
 		root_segment = p_parent->root_segment;
 	} else {
@@ -369,8 +372,8 @@ void IKBoneSegment::recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_seg
 	} else {
 		real_t current_falloff = 1.0;
 		if (p_bone_segment->is_pinned()) {
-			Ref<IKBone3D> tip = p_bone_segment->get_tip();
-			Ref<IKEffector3D> pin = tip->get_pin();
+			Ref<IKBone3D> current_tip = p_bone_segment->get_tip();
+			Ref<IKEffector3D> pin = current_tip->get_pin();
 			real_t weight = pin->get_weight();
 			Vector<real_t> inner_weight_array;
 			inner_weight_array.push_back(weight * p_falloff);
@@ -405,7 +408,7 @@ void IKBoneSegment::recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_seg
 				inner_weight_array.push_back(sub_target_weight);
 			}
 			r_penalty_array.push_back(inner_weight_array);
-			r_pinned_bones.push_back(tip);
+			r_pinned_bones.push_back(current_tip);
 			current_falloff = pin->get_depth_falloff();
 		}
 		for (Ref<IKBoneSegment> s : p_bone_segment->get_child_segments()) {
