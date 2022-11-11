@@ -63,7 +63,7 @@ Vector3 IKEffector3D::get_direction_priorities() const {
 	return direction_priorities;
 }
 
-void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, NBoneIK3D *p_ewbik) {
+void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, NBoneIK *p_ewbik) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
 	target_relative_to_skeleton_origin = p_skeleton->get_global_transform().affine_inverse() * for_bone->get_ik_transform()->get_global_transform();

@@ -38,8 +38,8 @@
 #include "math/ik_node_3d.h"
 
 class IKBoneSegment;
-class NBoneIK3D : public Node {
-	GDCLASS(NBoneIK3D, Node);
+class NBoneIK : public Node {
+	GDCLASS(NBoneIK, Node);
 	StringName root_bone;
 	StringName tip_bone;
 	NodePath skeleton_path;
@@ -152,8 +152,8 @@ public:
 	void set_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index, float p_radius);
 	int32_t get_kusudama_limit_cone_count(int32_t p_contraint_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
-	NBoneIK3D();
-	~NBoneIK3D();
+	NBoneIK();
+	~NBoneIK();
 	void set_dirty();
 };
 

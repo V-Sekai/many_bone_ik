@@ -73,10 +73,10 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!owner_node) {
 		return;
 	}
-	TypedArray<Node> nodes = owner_node->find_children("*", "NBoneIK3D");
+	TypedArray<Node> nodes = owner_node->find_children("*", "NBoneIK");
 	p_gizmo->clear();
 	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
-		NBoneIK3D *ewbik = cast_to<NBoneIK3D>(nodes[node_i]);
+		NBoneIK *ewbik = cast_to<NBoneIK>(nodes[node_i]);
 		if (!ewbik) {
 			continue;
 		}

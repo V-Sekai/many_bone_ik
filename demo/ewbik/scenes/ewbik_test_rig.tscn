@@ -10,7 +10,7 @@ bones/0/rotation = Quaternion(0, 0.239542, 0, 0.970886)
 bones/1/position = Vector3(0, 0.6, 0)
 bones/1/rotation = Quaternion(1.26352e-08, 1.49012e-08, -2.56091e-08, 1)
 
-[node name="SkeletonModification3DEWBIK" type="NBoneIK3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
+[node name="SkeletonModification3DEWBIK" type="NBoneIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
 root_bone = &"Bone_01"
 pin_count = 1
 pins/0/name = "Bone_01"

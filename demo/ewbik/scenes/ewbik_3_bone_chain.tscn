@@ -40,7 +40,7 @@ visible = false
 [node name="o1" type="Marker3D" parent="Armature/Skeleton3D" index="1"]
 transform = Transform3D(0.962126, -0.0337157, 0.270511, 0.0338342, 0.999418, 0.00422625, -0.270498, 0.00508629, 0.962708, 0.00741683, 0.560822, 0.136896)
 
-[node name="SkeletonModification3DEWBIK" type="NBoneIK3D" parent="Armature/Skeleton3D" index="2"]
+[node name="SkeletonModification3DEWBIK" type="NBoneIK" parent="Armature/Skeleton3D" index="2"]
 root_bone = &"A0"
 max_ik_iterations = 120.0
 pin_count = 2
