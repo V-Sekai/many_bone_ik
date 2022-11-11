@@ -374,7 +374,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		Transform3D axial_relative_to_universe = ewbik_skeleton->get_global_transform() * axial_relative_to_skeleton;
 		axial_from_handles.push_back(axial_relative_to_universe.origin);
 	}
-	const int32_t segment_count = int(Math::rad_to_deg(IKKusudama::to_tau(kusudama->get_max_axial_angle() - kusudama->get_min_axial_angle()))) / 20;
+	const int32_t segment_count = int(Math::rad_to_deg(IKKusudama::to_tau(kusudama->get_max_axial_angle() - kusudama->get_min_axial_angle()))) % 18;
 	for (int32_t segment_i = 1; segment_i < segment_count; segment_i++) {
 		const float ra = Math::lerp((float)kusudama->get_max_axial_angle(), (float)kusudama->get_min_axial_angle(), (float)segment_i / segment_count);
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
