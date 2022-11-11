@@ -36,7 +36,7 @@
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
-#include "modules/ewbik/src/ik_bone_3d.h"
+#include "../src/ik_bone_3d.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/label_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
