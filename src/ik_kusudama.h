@@ -174,7 +174,7 @@ public:
 	 */
 	virtual double get_min_axial_angle();
 
-	virtual double get_max_axial_angle();
+	virtual double get_range_angle();
 
 	/**
 	 * the upper bound on the axial constraint in absolute terms

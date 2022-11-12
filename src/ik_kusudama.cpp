@@ -156,7 +156,7 @@ double IKKusudama::get_min_axial_angle() {
 	return min_axial_angle;
 }
 
-double IKKusudama::get_max_axial_angle() {
+double IKKusudama::get_range_angle() {
 	return range_angle;
 }
 
