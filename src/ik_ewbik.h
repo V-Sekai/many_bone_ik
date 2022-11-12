@@ -63,6 +63,7 @@ class NBoneIK : public Node {
 	void update_skeleton_bones_transform();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
 	bool is_enabled = true;
+
 protected:
 	void _validate_property(PropertyInfo &property) const;
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -107,6 +108,7 @@ public:
 		Node *node = get_node_or_null(skeleton_node_path);
 		return cast_to<Skeleton3D>(node);
 	}
+
 public:
 	StringName get_root_bone() const;
 	void set_root_bone(const StringName &p_root_bone);
@@ -139,6 +141,14 @@ public:
 	real_t get_default_damp() const;
 	void set_default_damp(float p_default_damp);
 	void set_constraint_count(int32_t p_count);
+	int32_t find_constraint(String p_string) const {
+		for (int32_t constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
+			if (get_constraint_name(constraint_i) == p_string) {
+				return constraint_i;
+			}
+		}
+		return -1;
+	}
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
 	void set_constraint_name(int32_t p_index, String p_name);

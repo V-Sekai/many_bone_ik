@@ -414,6 +414,7 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_segmented_skeleton"), &NBoneIK::get_segmented_skeleton);
 	ClassDB::bind_method(D_METHOD("get_max_ik_iterations"), &NBoneIK::get_max_ik_iterations);
 	ClassDB::bind_method(D_METHOD("set_max_ik_iterations", "count"), &NBoneIK::set_max_ik_iterations);
+	ClassDB::bind_method(D_METHOD("find_constraint", "name"), &NBoneIK::find_constraint);
 	ClassDB::bind_method(D_METHOD("get_constraint_count"), &NBoneIK::get_constraint_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_count", "count"),
 			&NBoneIK::set_constraint_count);

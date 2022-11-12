@@ -118,6 +118,7 @@ void IKBone3D::_bind_methods() {
 
 IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening) {
 	ERR_FAIL_NULL(p_skeleton);
+	
 	default_dampening = p_default_dampening;
 	cos_half_dampen = default_dampening / real_t(2.0);
 	set_name(p_bone);
