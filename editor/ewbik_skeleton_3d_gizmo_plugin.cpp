@@ -373,12 +373,14 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		axial_from_handles.push_back(axial_relative_to_universe.origin);
 	}
 	if (center_handles.size() && radius_handles.size()) {
-		p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, false);
+		p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, true);
 		p_gizmo->add_handles(radius_handles, get_material("handles_radius"), Vector<int>(), false, true);
 	}
-	const int32_t segment_count = 6;
-	for (int32_t segment_i = 1; segment_i < segment_count; segment_i++) {
-		const float ra = Math::lerp_angle((float)kusudama->get_max_axial_angle(), (float)kusudama->get_min_axial_angle(), (float)segment_i / segment_count);
+	float start_angle = kusudama->get_min_axial_angle();
+	float end_angle = start_angle + kusudama->get_max_axial_angle();
+	float gaps = Math::deg_to_rad(12.0f);
+	for (float theta = start_angle + gaps; theta < end_angle - gaps; theta += gaps) {
+		const float ra = theta;
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
