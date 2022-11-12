@@ -123,7 +123,6 @@ func _run():
 		var path_string : String = "../" + str(skeleton.get_path_to(root)) + "/" + bone_name
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		pin_i = pin_i + 1
-	# Female https://pubmed.ncbi.nlm.nih.gov/32644411/
 	ewbik.set_constraint_count(human_bone.size())
 	for constraint_i in range(human_bone.size()):
 		var bone_name : String = human_bone[constraint_i]
