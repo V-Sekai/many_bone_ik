@@ -271,10 +271,15 @@ void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D
 	Basis mesh_orientation = Basis::from_euler(Vector3(Math::deg_to_rad(90.0f), 0, 0));
 	const Vector3 axial_center = Vector3(0, 1, 0);
 	Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
-	// TODO Limit arc from start to end.
 	for (int i = 0; i < 120; i++) {
 		// Draw a circle
 		const float ra = Math::deg_to_rad((float)(i * 3));
+		if (ra < kusudama->get_min_axial_angle()) {
+			continue;
+		}
+		if (ra >= kusudama->get_max_axial_angle()) {
+			continue;
+		}
 		const float rb = Math::deg_to_rad((float)((i + 1) * 3));
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		const Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * w;
