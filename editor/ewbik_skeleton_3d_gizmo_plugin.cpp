@@ -256,7 +256,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D
 }
 
 EWBIK3DGizmoPlugin::EWBIK3DGizmoPlugin() {
-	create_material("lines_axial_arc", Color(0, 0.63529413938522, 0.90980392694473), false, true);
+	create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
 	Ref<Texture2D> handle_center = Node3DEditor::get_singleton()->get_theme_icon(SNAME("EditorPivot"), SNAME("EditorIcons"));
 	create_handle_material("handles", false, handle_center);
 	Ref<Texture2D> handle_radius = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Editor3DHandle"), SNAME("EditorIcons"));
@@ -264,6 +264,8 @@ EWBIK3DGizmoPlugin::EWBIK3DGizmoPlugin() {
 	create_handle_material("handles_billboard", true);
 	Ref<Texture2D> handle_axial_from = Node3DEditor::get_singleton()->get_theme_icon(SNAME("SpringArm3D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_from", false, handle_axial_from);
+	Ref<Texture2D> handle_axial_middle = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node"), SNAME("EditorIcons"));
+	create_handle_material("handles_axial_middle", false, handle_axial_middle);
 	Ref<Texture2D> handle_axial_to = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node3D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_to", false, handle_axial_to);
 }
@@ -328,6 +330,9 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
 		out_idx += 4;
 	}
+	Ref<SurfaceTool> surface_tool;
+	surface_tool.instantiate();
+	surface_tool->begin(Mesh::PRIMITIVE_LINES);
 	for (int32_t cone_i = 0; cone_i < kusudama_limit_cones.size(); cone_i = cone_i + (3 * 4)) {
 		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
 		if (Math::is_zero_approx(center.length())) {
@@ -371,6 +376,17 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, false);
 		p_gizmo->add_handles(radius_handles, get_material("handles_radius"), Vector<int>(), false, true);
 	}
+	const int32_t segment_count = 6;
+	for (int32_t segment_i = 1; segment_i < segment_count; segment_i++) {
+		const float ra = Math::lerp_angle((float)kusudama->get_max_axial_angle(), (float)kusudama->get_min_axial_angle(), (float)segment_i / segment_count);
+		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
+		Transform3D axial_from_relative_to_mesh;
+		Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
+		Transform3D axial_relative_to_skeleton = constraint_relative_to_the_skeleton * axial_from_relative_to_mesh;
+		Transform3D axial_relative_to_universe = ewbik_skeleton->get_global_transform() * axial_relative_to_skeleton;
+		axial_middle_handles.push_back(axial_relative_to_universe.origin);
+	}
 	{
 		const float ra = (float)(kusudama->get_max_axial_angle());
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
@@ -384,5 +400,8 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	if (axial_from_handles.size() && axial_to_handles.size()) {
 		p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), false, false);
 		p_gizmo->add_handles(axial_to_handles, get_material("handles_axial_to"), Vector<int>(), false, false);
+	}
+	if (axial_middle_handles.size()) {
+		p_gizmo->add_handles(axial_middle_handles, get_material("handles_axial_middle"), Vector<int>(), false, true);
 	}
 }
