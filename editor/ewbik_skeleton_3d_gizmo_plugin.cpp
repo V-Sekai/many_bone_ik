@@ -74,7 +74,6 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		return;
 	}
 	TypedArray<Node> nodes = owner_node->find_children("*", "NBoneIK");
-	p_gizmo->clear();
 	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
 		NBoneIK *ewbik = cast_to<NBoneIK>(nodes[node_i]);
 		if (!ewbik) {
@@ -87,6 +86,7 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		if (cast_to<Skeleton3D>(node_3d) != ewbik_skeleton) {
 			continue;
 		}
+		p_gizmo->clear();
 		Vector<int> bones_to_process = ewbik_skeleton->get_parentless_bones();
 		kusudama_shader.instantiate();
 		kusudama_shader->set_code(EWBIK_KUSUDAMA_SHADER);

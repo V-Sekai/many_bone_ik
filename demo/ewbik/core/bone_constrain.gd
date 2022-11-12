@@ -108,7 +108,7 @@ func _run():
 			root.add_child(node_3d)
 		node_3d.owner = root
 		ewbik.set_pin_bone_name(pin_i, bone_name)
-		ewbik.set_pin_depth_falloff(pin_i, 0.5)
+		ewbik.set_pin_depth_falloff(pin_i, 1)
 		if bone_name == "Hips":
 			ewbik.set_pin_depth_falloff(pin_i, 0)
 		# TODO: Expose weight
@@ -170,20 +170,23 @@ func _run():
 #			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 #			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(1, 0, 0))
 #			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
-			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(90), deg_to_rad(-90)))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(5), deg_to_rad(-5)))
 		elif bone_name in ["LeftShoulder"]:
 #			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 #			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(-1, 0, 0))
 #			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
-			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-90), deg_to_rad(90)))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(5), deg_to_rad(-5)))
 		elif bone_name in ["RightUpperArm"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(60))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-5), deg_to_rad(5)))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-90), deg_to_rad(90)))
 		elif bone_name in ["LeftUpperArm"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(60))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-90), deg_to_rad(-90)))
 		elif bone_name in ["RightLowerArm"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 3)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
