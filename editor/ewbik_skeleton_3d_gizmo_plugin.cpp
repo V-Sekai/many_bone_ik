@@ -253,38 +253,6 @@ void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D
 	p_gizmo->add_mesh(
 			surface_tool->commit(Ref<Mesh>(), RS::ARRAY_CUSTOM_RGBA_HALF << RS::ARRAY_FORMAT_CUSTOM0_SHIFT),
 			kusudama_material, constraint_relative_to_the_universe);
-	float cone_radius = Math::deg_to_rad(90.0f);
-	float r = radius;
-	float w = r * Math::sin(cone_radius);
-	float d = r * Math::cos(cone_radius);
-	Ref<SurfaceTool> cone_surface_tool;
-	cone_surface_tool.instantiate();
-	cone_surface_tool->begin(Mesh::PRIMITIVE_LINES);
-	const Ref<Material> material_primary = get_material("lines_axial_arc", p_gizmo);
-	Vector3 center = Vector3(kusudama_limit_cones[i + 0], kusudama_limit_cones[i + 1], kusudama_limit_cones[i + 2]);
-	Transform3D axial_from_relative_to_mesh;
-	Basis mesh_orientation = Basis::from_euler(Vector3(Math::deg_to_rad(90.0f), 0, 0));
-	const Vector3 axial_center = Vector3(0, 1, 0);
-	Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
-	for (int circle_i = 0; circle_i < 120; circle_i++) {
-		// Draw a circle
-		const float ra = Math::deg_to_rad((float)(circle_i * 3));
-		const float rb = Math::deg_to_rad((float)((circle_i + 1) * 3));
-		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
-		const Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * w;
-		double angle_delta_2 = IKKusudama::to_tau(ra);
-		double from_min_to_angle_delta = IKKusudama::to_tau(ik_kusudama->signed_angle_difference(angle_delta_2, Math_TAU - ik_kusudama->get_min_axial_angle()));
-		if (from_min_to_angle_delta >= Math_TAU - ik_kusudama->get_max_axial_angle()) {
-			continue;
-		}
-		cone_surface_tool->set_bones(bones);
-		cone_surface_tool->set_weights(weights);
-		cone_surface_tool->add_vertex(center_relative_to_mesh.xform(Vector3(a.x, a.y, -d)));
-		cone_surface_tool->set_bones(bones);
-		cone_surface_tool->set_weights(weights);
-		cone_surface_tool->add_vertex(center_relative_to_mesh.xform(Vector3(b.x, b.y, -d)));
-	}
-	p_gizmo->add_mesh(cone_surface_tool->commit(), material_primary, constraint_relative_to_the_universe);
 }
 
 EWBIK3DGizmoPlugin::EWBIK3DGizmoPlugin() {
