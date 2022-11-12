@@ -377,7 +377,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		p_gizmo->add_handles(radius_handles, get_material("handles_radius"), Vector<int>(), false, true);
 	}
 	const int32_t segment_count = 6;
-	for (int32_t segment_i = 1; segment_i < segment_count - 1; segment_i++) {
+	for (int32_t segment_i = 1; segment_i < segment_count; segment_i++) {
 		const float ra = Math::lerp_angle((float)kusudama->get_max_axial_angle(), (float)kusudama->get_min_axial_angle(), (float)segment_i / segment_count);
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		Transform3D axial_from_relative_to_mesh;
@@ -398,10 +398,10 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		axial_to_handles.push_back(axial_relative_to_universe.origin);
 	}
 	if (axial_from_handles.size() && axial_to_handles.size()) {
-		p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), false, false);
-		p_gizmo->add_handles(axial_to_handles, get_material("handles_axial_to"), Vector<int>(), false, false);
+		p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), true, false);
+		p_gizmo->add_handles(axial_to_handles, get_material("handles_axial_to"), Vector<int>(), true, false);
 	}
 	if (axial_middle_handles.size()) {
-		p_gizmo->add_handles(axial_middle_handles, get_material("handles_axial_middle"), Vector<int>(), false, true);
+		p_gizmo->add_handles(axial_middle_handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
 }
