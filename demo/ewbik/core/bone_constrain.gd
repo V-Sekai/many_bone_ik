@@ -131,7 +131,7 @@ func _run():
 		if bone_name == "Hips":
 			continue
 		ewbik.set_constraint_name(constraint_i, bone_name)
-		ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-360),  deg_to_rad(360)))
+		ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-270),  deg_to_rad(270)))
 #		# https://pubmed.ncbi.nlm.nih.gov/32644411/
 		if bone_name.is_empty() in []:
 			pass
