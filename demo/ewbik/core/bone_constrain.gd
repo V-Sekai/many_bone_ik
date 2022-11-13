@@ -101,8 +101,9 @@ func _run():
 	ewbik.pin_count = bones.size()
 	for bone_name in bones:
 		var bone_index = skeleton.find_bone(bone_name)
-		var node_3d : Node3D = Node3D.new()
+		var node_3d : Marker3D = Marker3D.new()
 		node_3d.name = bone_name
+		node_3d.gizmo_extents = 0.5
 		if root.find_child(node_3d.name) == null:
 			root.add_child(node_3d, true)
 		else:
