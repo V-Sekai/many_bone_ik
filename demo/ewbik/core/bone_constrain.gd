@@ -92,12 +92,9 @@ func _run():
 	ewbik.max_ik_iterations = 10
 	var pin_i = 0
 	var bones = [
-		"Hips", 
 		"LeftHand", 
 		"RightHand", 
 		"Head", 
-		"LeftLowerLeg", 
-		"RightLowerLeg",
 		"LeftFoot", 
 		"RightFoot"
 	]
@@ -112,10 +109,11 @@ func _run():
 			root.find_child(node_3d.name).free()
 			root.add_child(node_3d, true)
 		node_3d.owner = root
+		var path_string : String = "../" + str(skeleton.get_path_to(root)) + "/" + bone_name
+		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
+		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		ewbik.set_pin_bone_name(pin_i, bone_name)
-		ewbik.set_pin_depth_falloff(pin_i, 1)
-		if bone_name == "Hips":
-			ewbik.set_pin_depth_falloff(pin_i, 0)
+		ewbik.set_pin_depth_falloff(pin_i, 0)
 		# TODO: Expose weight
 		ewbik.set_pin_direction_priorities(pin_i, Vector3(0.5, 0, 0.5).normalized())
 		var bone_id = skeleton.find_bone(bone_name)
@@ -124,8 +122,6 @@ func _run():
 			continue
 		var bone_global_pose : Transform3D = skeleton.get_bone_global_rest(bone_id)
 		node_3d.global_transform =  skeleton.transform * bone_global_pose
-		var path_string : String = "../" + str(skeleton.get_path_to(root)) + "/" + bone_name
-		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		pin_i = pin_i + 1
 	ewbik.set_constraint_count(human_bone.size())
 	for bone_i in range(human_bone.size()):
