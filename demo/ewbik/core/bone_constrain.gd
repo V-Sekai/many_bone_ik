@@ -130,10 +130,10 @@ func _run():
 	ewbik.set_constraint_count(human_bone.size())
 	for bone_i in range(human_bone.size()):
 		var bone_name : String = human_bone[bone_i]
-		ewbik.set_constraint_name(bone_i, bone_name)
-		var constraint_i : int = ewbik.find_constraint(bone_name)
 		if bone_name == "Hips":
 			continue
+		ewbik.set_constraint_name(bone_i, bone_name)
+		var constraint_i : int = ewbik.find_constraint(bone_name)
 		ewbik.set_constraint_name(constraint_i, bone_name)
 		ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-270),  deg_to_rad(270)))
 #		# https://pubmed.ncbi.nlm.nih.gov/32644411/
