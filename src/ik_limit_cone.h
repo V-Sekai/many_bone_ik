@@ -41,7 +41,6 @@
 class IKKusudama;
 class IKLimitCone : public Resource {
 	GDCLASS(IKLimitCone, Resource);
-
 	void compute_triangles(Ref<IKLimitCone> p_next);
 	static Quaternion quaternion_set_axis_angle(Vector3 axis, real_t angle);
 
@@ -51,14 +50,8 @@ class IKLimitCone : public Resource {
 	// Radius stored as cosine to save on the acos call necessary for the angle between.
 	double radius_cosine = 0;
 	double radius = 0;
-
 	Vector3 closest_cone(Ref<IKLimitCone> next, Vector3 input) const;
-
-	void set_tangent_circle_center_next_1(Vector3 point);
-	void set_tangent_circle_center_next_2(Vector3 point);
-
 	void set_tangent_circle_radius_next(double rad);
-
 	Ref<IKKusudama> parent_kusudama;
 
 	Vector3 tangent_circle_center_next_1;
@@ -74,18 +67,6 @@ class IKLimitCone : public Resource {
 	Vector<Vector3> first_triangle_next = { Vector3(), Vector3(), Vector3() };
 	Vector<Vector3> second_triangle_next = { Vector3(), Vector3(), Vector3() };
 
-protected:
-	virtual double _get_radius();
-
-	virtual double _get_radius_cosine();
-
-public:
-	virtual ~IKLimitCone() {}
-	IKLimitCone();
-	IKLimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to);
-	static Vector3 get_orthogonal(Vector3 p_in);
-
-	void update_tangent_handles(Ref<IKLimitCone> p_next);
 
 	/**
 	 *
@@ -95,7 +76,6 @@ public:
 	 * if the point was out of bounds.
 	 */
 	Vector3 get_closest_collision(Ref<IKLimitCone> next, Vector3 input) const;
-	Vector3 get_closest_path_point(Ref<IKLimitCone> next, Vector3 input) const;
 
 	/**
 	 * Determines if a ray emanating from the origin to given point in local space
@@ -119,14 +99,20 @@ public:
 	 */
 	Vector3 closest_point_on_closest_cone(Ref<IKLimitCone> next, Vector3 input, Vector<double> &in_bounds) const;
 
-	/**
-	 * returns null if no rectification is required.
-	 * @param input
-	 * @param in_bounds
-	 * @return
-	 */
-	Vector3 closest_to_cone(Vector3 input, Vector<double> &in_bounds) const;
+	virtual double get_tangent_circle_radius_next_cos();
+	static Vector3 get_orthogonal(Vector3 p_in);
+protected:
+	virtual double _get_radius();
 
+	virtual double _get_radius_cosine();
+
+public:
+	virtual ~IKLimitCone() {}
+	IKLimitCone();
+	IKLimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attached_to);
+	void update_tangent_handles(Ref<IKLimitCone> p_next);
+	void set_tangent_circle_center_next_1(Vector3 point);
+	void set_tangent_circle_center_next_2(Vector3 point);
 	/**
 	 *
 	 * @param next
@@ -135,10 +121,17 @@ public:
 	 * between two cones if the point is out of bounds and applicable for rectification.
 	 */
 	Vector3 get_on_great_tangent_triangle(Ref<IKLimitCone> next, Vector3 input) const;
-	virtual Vector3 get_tangent_circle_center_next_1();
 	virtual double get_tangent_circle_radius_next();
-	virtual double get_tangent_circle_radius_next_cos();
+	virtual Vector3 get_tangent_circle_center_next_1();
 	virtual Vector3 get_tangent_circle_center_next_2();
+	/**
+	 * returns null if no rectification is required.
+	 * @param input
+	 * @param in_bounds
+	 * @return
+	 */
+	Vector3 closest_to_cone(Vector3 input, Vector<double> &in_bounds) const;
+	Vector3 get_closest_path_point(Ref<IKLimitCone> next, Vector3 input) const;
 	virtual Vector3 get_control_point() const;
 	virtual void set_control_point(Vector3 p_control_point);
 	virtual double get_radius() const;
