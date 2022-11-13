@@ -21,7 +21,6 @@ _global_script_class_icons={
 [application]
 
 config/name="NBoneIK Game Project"
-run/main_scene="res://4911040726795578408/4911040726795578408.tscn"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
 
