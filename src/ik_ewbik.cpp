@@ -394,6 +394,8 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void NBoneIK::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_enabled", "enable"), &NBoneIK::set_enabled);
+	ClassDB::bind_method(D_METHOD("get_enabled"), &NBoneIK::get_enabled);
 	ClassDB::bind_method(D_METHOD("set_pin_weight", "index," "weight"), &NBoneIK::set_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &NBoneIK::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &NBoneIK::set_dirty);
@@ -435,6 +437,7 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_pin_nodepath", "index"), &NBoneIK::get_pin_nodepath);
 	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &NBoneIK::set_pin_nodepath);
 
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enable"), "set_enabled", "get_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
