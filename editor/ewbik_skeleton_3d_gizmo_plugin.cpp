@@ -333,9 +333,6 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	surface_tool->begin(Mesh::PRIMITIVE_LINES);
 	for (int32_t cone_i = 0; cone_i < kusudama_limit_cones.size(); cone_i = cone_i + (3 * 4)) {
 		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
-		if (Math::is_zero_approx(center.length())) {
-			break;
-		}
 		{
 			Transform3D handle_relative_to_mesh;
 			handle_relative_to_mesh.origin = center * radius;
