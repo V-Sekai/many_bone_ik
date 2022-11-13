@@ -92,32 +92,36 @@ func _run():
 	ewbik.max_ik_iterations = 10
 	var pin_i = 0
 	var bones = [
+		"Head", 
 		"LeftHand", 
 		"RightHand", 
-		"Head", 
 		"LeftFoot", 
 		"RightFoot"
 	]
 	ewbik.pin_count = bones.size()
+	var head_3d : Marker3D = root.find_child("Head*")
+	if head_3d == null:
+		head_3d = Marker3D.new()
 	for bone_name in bones:
 		var bone_index = skeleton.find_bone(bone_name)
 		var node_3d : Marker3D = Marker3D.new()
 		node_3d.name = bone_name
 		node_3d.gizmo_extents = 0.5
-		if root.find_child(node_3d.name) == null:
-			root.add_child(node_3d, true)
-		else:
-			root.find_child(node_3d.name).free()
-			root.add_child(node_3d, true)
-		node_3d.owner = root
-		var path_string : String = "../" + str(skeleton.get_path_to(root)) + "/" + bone_name
-		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
+		if bone_name == "Head":
+			head_3d.name = bone_name
+			head_3d = node_3d
+			root.add_child(head_3d, true)
+			head_3d.owner = root
+		else: 
+			head_3d.add_child(node_3d, true)
+			node_3d.owner = root
+		var path_string : String = str(ewbik.get_path_to(root)) + "/" + str(root.get_path_to(node_3d))
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		ewbik.set_pin_bone_name(pin_i, bone_name)
 		ewbik.set_pin_depth_falloff(pin_i, 1)
 		ewbik.set_pin_weight(pin_i, 0.2)
 		if bone_name in ["Head"]:
-			ewbik.set_pin_weight(pin_i, 1)
+			ewbik.set_pin_depth_falloff(pin_i, 1)
 		if bone_name in ["LeftFoot", "RightFoot"]:
 			ewbik.set_pin_weight(pin_i, 0.4)
 
@@ -125,8 +129,8 @@ func _run():
 		if bone_id == -1:
 			pin_i = pin_i + 1
 			continue
-		var bone_global_pose : Transform3D = skeleton.get_bone_global_rest(bone_id)
-		node_3d.transform =  skeleton.global_transform * bone_global_pose
+		var bone_transform_relative_to_universe : Transform3D = skeleton.global_transform * skeleton.get_bone_global_rest(bone_id)
+		node_3d.transform = node_3d.global_transform.affine_inverse() * bone_transform_relative_to_universe.orthonormalized()
 		pin_i = pin_i + 1
 	ewbik.set_constraint_count(human_bone.size())
 	for bone_i in range(human_bone.size()):
