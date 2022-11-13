@@ -130,8 +130,6 @@ func _run():
 	ewbik.set_constraint_count(human_bone.size())
 	for bone_i in range(human_bone.size()):
 		var bone_name : String = human_bone[bone_i]
-		if bone_name == "Hips":
-			continue
 		ewbik.set_constraint_name(bone_i, bone_name)
 		var constraint_i : int = ewbik.find_constraint(bone_name)
 		ewbik.set_constraint_name(constraint_i, bone_name)
@@ -183,12 +181,12 @@ func _run():
 		elif bone_name in ["RightUpperArm"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(110))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(60))
 			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-90), deg_to_rad(90)))
 		elif bone_name in ["LeftUpperArm"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(-1, 1, 0))
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(110))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(60))
 			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(90), deg_to_rad(-90)))
 		elif bone_name in ["RightLowerArm"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 3)
