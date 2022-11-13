@@ -117,9 +117,7 @@ func _run():
 		ewbik.set_pin_weight(pin_i, 0.5)
 		if bone_name in ["Head"]:
 			ewbik.set_pin_weight(pin_i, 0.2)
-			
-		# TODO: Expose weight
-		ewbik.set_pin_direction_priorities(pin_i, Vector3(0.5, 0, 0.5).normalized())
+
 		var bone_id = skeleton.find_bone(bone_name)
 		if bone_id == -1:
 			pin_i = pin_i + 1
