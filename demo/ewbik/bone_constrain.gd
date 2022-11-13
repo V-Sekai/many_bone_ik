@@ -1,6 +1,6 @@
 @tool
 extends EditorScript
-var human_bone: Array  = [
+var human_bones: Array  = [
 	"Hips",
 	"Spine",
 	"Chest",
@@ -132,11 +132,11 @@ func _run():
 		var bone_transform_relative_to_universe : Transform3D = skeleton.global_transform * skeleton.get_bone_global_rest(bone_id)
 		node_3d.transform = node_3d.global_transform.affine_inverse() * bone_transform_relative_to_universe.orthonormalized()
 		pin_i = pin_i + 1
-	ewbik.set_constraint_count(human_bone.size())
-	for bone_i in range(human_bone.size()):
-		var bone_name : String = human_bone[bone_i]
+	ewbik.set_constraint_count(human_bones.size())
+	for bone_i in range(human_bones.size()):
+		var bone_name : String = human_bones[bone_i]
+		ewbik.set_constraint_name(bone_i, bone_name)
 		var constraint_i : int = ewbik.find_constraint(bone_name)
-		ewbik.set_constraint_name(constraint_i, bone_name)
 #		# https://pubmed.ncbi.nlm.nih.gov/32644411/
 		if bone_name in ["Chest"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
