@@ -394,6 +394,8 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void NBoneIK::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_pin_weight", "index," "weight"), &NBoneIK::set_pin_weight);
+	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &NBoneIK::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &NBoneIK::set_dirty);
 	ClassDB::bind_method(D_METHOD("set_root_bone", "root_bone"), &NBoneIK::set_root_bone);
 	ClassDB::bind_method(D_METHOD("get_root_bone"), &NBoneIK::get_root_bone);
