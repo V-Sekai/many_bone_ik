@@ -654,7 +654,7 @@ void NBoneIK::execute(real_t delta) {
 		if (root_ik_parent_transform.is_null()) {
 			return;
 		}
-		root_ik_parent_transform->set_transform(get_skeleton()->get_transform());
+		root_ik_parent_transform->set_global_transform(Transform3D());
 	}
 	update_ik_bones_transform();
 	for (int32_t i = 0; i < get_max_ik_iterations(); i++) {
