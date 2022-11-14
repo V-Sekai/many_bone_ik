@@ -31,12 +31,12 @@
 #ifndef EWBIK_SKELETON_3D_GIZMO_PLUGIN_H
 #define EWBIK_SKELETON_3D_GIZMO_PLUGIN_H
 
+#include "../src/ik_bone_3d.h"
 #include "core/templates/hash_map.h"
 #include "core/templates/local_vector.h"
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
-#include "../src/ik_bone_3d.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/label_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
@@ -67,8 +67,11 @@ public:
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	EWBIK3DGizmoPlugin();
-	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton);
-	void create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton);
+	int32_t get_priority() const {
+		return -1;
+	}
+	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton, NBoneIK *p_ewbik);
+	void create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton, NBoneIK *p_ewbik);
 };
 
 class EditorPluginEWBIK : public EditorPlugin {

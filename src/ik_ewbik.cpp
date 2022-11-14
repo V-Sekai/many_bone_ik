@@ -54,10 +54,6 @@ int32_t NBoneIK::get_pin_count() const {
 
 void NBoneIK::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
 	ERR_FAIL_INDEX(p_pin_index, pins.size());
-	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(skeleton_path));
-	ERR_FAIL_NULL(skeleton);
-	BoneId bone = skeleton->find_bone(p_bone);
-	ERR_FAIL_INDEX(bone, skeleton->get_bone_count());
 	Ref<IKEffectorTemplate> effector_template = pins[p_pin_index];
 	if (effector_template.is_null()) {
 		effector_template.instantiate();

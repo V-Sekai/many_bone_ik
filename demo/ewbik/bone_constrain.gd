@@ -299,7 +299,8 @@ func _run():
 		return
 	if ewbik == null:
 		ewbik = NBoneIK.new()
-		skeleton.add_child(ewbik, true)
+		root.add_child(ewbik, true)
+		ewbik.skeleton_node_path = "../" + str(root.get_path_to(skeleton))
 		ewbik.owner = root
 	ewbik.max_ik_iterations = 10
 	create_pins(ewbik, skeleton)

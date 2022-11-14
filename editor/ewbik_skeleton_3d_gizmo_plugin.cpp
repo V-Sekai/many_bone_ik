@@ -58,63 +58,62 @@ bool EWBIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
 }
 
 String EWBIK3DGizmoPlugin::get_gizmo_name() const {
-	return "NBoneIK";
+	return "Node3D";
 }
 
 void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!p_gizmo) {
 		return;
 	}
+	p_gizmo->clear();
 	Node3D *node_3d = p_gizmo->get_node_3d();
 	if (!node_3d) {
 		return;
 	}
-	Node *owner_node = node_3d->get_owner();
-	if (!owner_node) {
+	if (!node_3d->is_visible_in_tree()) {
 		return;
 	}
-	TypedArray<Node> nodes = owner_node->find_children("*", "NBoneIK");
-	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
-		NBoneIK *ewbik = cast_to<NBoneIK>(nodes[node_i]);
-		if (!ewbik) {
-			p_gizmo->clear();
+	NBoneIK *ewbik = cast_to<NBoneIK>(node_3d);
+	if (!ewbik) {
+		return;
+	}
+	Skeleton3D *ewbik_skeleton = ewbik->get_skeleton();
+	if (!ewbik_skeleton) {
+		return;
+	}
+	if (!ewbik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(this, &EWBIK3DGizmoPlugin::redraw))) {
+		ewbik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(this, &EWBIK3DGizmoPlugin::redraw));
+	}
+	Vector<int> bones_to_process = ewbik_skeleton->get_parentless_bones();
+	kusudama_shader.instantiate();
+	kusudama_shader->set_code(EWBIK_KUSUDAMA_SHADER);
+	int bones_to_process_i = 0;
+	Vector<BoneId> processing_bones;
+	Ref<IKBoneSegment> bone_segment = ewbik->get_segmented_skeleton();
+	if (bone_segment.is_null()) {
+		return;
+	}
+	while (bones_to_process_i < bones_to_process.size()) {
+		int current_bone_idx = bones_to_process[bones_to_process_i];
+		processing_bones.push_back(current_bone_idx);
+		Vector<int> child_bones_vector = ewbik_skeleton->get_bone_children(current_bone_idx);
+		for (int child_bone_idx : child_bones_vector) {
+			bones_to_process.push_back(child_bone_idx);
+		}
+		bones_to_process_i++;
+	}
+	Color current_bone_color = bone_color;
+	for (BoneId current_bone_idx : processing_bones) {
+		Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
+		if (ik_bone.is_null() || ik_bone->get_bone_id() != current_bone_idx) {
 			continue;
 		}
-		Skeleton3D *ewbik_skeleton = ewbik->get_skeleton();
-		if (!ewbik_skeleton) {
-			continue;
-		}
-		Vector<int> bones_to_process = ewbik_skeleton->get_parentless_bones();
-		kusudama_shader.instantiate();
-		kusudama_shader->set_code(EWBIK_KUSUDAMA_SHADER);
-		int bones_to_process_i = 0;
-		Vector<BoneId> processing_bones;
-		Ref<IKBoneSegment> bone_segment = ewbik->get_segmented_skeleton();
-		if (bone_segment.is_null()) {
-			return;
-		}
-		while (bones_to_process_i < bones_to_process.size()) {
-			int current_bone_idx = bones_to_process[bones_to_process_i];
-			processing_bones.push_back(current_bone_idx);
-			Vector<int> child_bones_vector = ewbik_skeleton->get_bone_children(current_bone_idx);
-			for (int child_bone_idx : child_bones_vector) {
-				bones_to_process.push_back(child_bone_idx);
-			}
-			bones_to_process_i++;
-		}
-		Color current_bone_color = bone_color;
-		for (BoneId current_bone_idx : processing_bones) {
-			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
-			if (ik_bone.is_null() || ik_bone->get_bone_id() != current_bone_idx) {
-				continue;
-			}
-			create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton);
-			create_gizmo_handles(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton);
-		}
+		create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+		create_gizmo_handles(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
 	}
 }
 
-void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton) {
+void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton, NBoneIK *p_ewbik) {
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
@@ -132,10 +131,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D
 	bones[0] = parent_idx;
 	weights[0] = 1;
 
-	Transform3D constraint_relative_to_the_skeleton;
-	if (ik_bone.is_valid()) {
-		constraint_relative_to_the_skeleton = ik_bone->get_constraint_transform()->get_global_transform();
-	}
+	Transform3D constraint_relative_to_the_skeleton = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ewbik_skeleton->get_global_transform() * ik_bone->get_ik_transform()->get_global_transform();
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
 	kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
@@ -282,7 +278,7 @@ EWBIK3DGizmoPlugin::EWBIK3DGizmoPlugin() {
 	create_handle_material("handles_axial_to", false, handle_axial_to);
 }
 
-void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton) {
+void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton, NBoneIK *p_ewbik) {
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
@@ -298,11 +294,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_relative_to_the_universe;
-	{
-		Transform3D constraint_relative_to_the_skeleton = ik_bone->get_constraint_transform()->get_global_transform();
-		constraint_relative_to_the_universe = ewbik_skeleton->get_global_transform() * constraint_relative_to_the_skeleton;
-	}
+	Transform3D constraint_relative_to_the_universe= p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ewbik_skeleton->get_global_transform() * ik_bone->get_ik_transform()->get_global_transform();
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
 	if (current_bone_idx >= ewbik_skeleton->get_bone_count()) {

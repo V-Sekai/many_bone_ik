@@ -87,11 +87,16 @@ protected:
 				}
 				execute(get_process_delta_time());
 			} break;
+			case NOTIFICATION_TRANSFORM_CHANGED: {
+				_notification(NOTIFICATION_INTERNAL_PROCESS);
+				update_gizmos();
+			} break;
 		}
 	}
 
 public:
-	void set_enabled(bool p_enabled) {
+	void
+	set_enabled(bool p_enabled) {
 		is_enabled = p_enabled;
 	}
 	bool get_enabled() const {
