@@ -516,9 +516,18 @@ void NBoneIK::set_kusudama_limit_cone(int32_t p_contraint_index, int32_t p_index
 }
 
 Vector3 NBoneIK::get_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cone_count.size(), Vector3(0.0, 1.0, 0.0));
-	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cones.size(), Vector3(0.0, 1.0, 0.0));
-	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_contraint_index].size(), Vector3(0.0, 1.0, 0.0));
+	if (unlikely((p_contraint_index) < 0 || (p_contraint_index) >= (kusudama_limit_cone_count.size()))) {
+		ERR_PRINT_ONCE("Can't get limit cone center.");
+		return Vector3(0.0, 1.0, 0.0);
+	}
+	if (unlikely((p_contraint_index) < 0 || (p_contraint_index) >= (kusudama_limit_cones.size()))) {
+		ERR_PRINT_ONCE("Can't get limit cone center.");
+		return Vector3(0.0, 1.0, 0.0);
+	}
+	if (unlikely((p_index) < 0 || (p_index) >= (kusudama_limit_cones[p_contraint_index].size()))) {
+		ERR_PRINT_ONCE("Can't get limit cone center.");
+		return Vector3(0.0, 1.0, 0.0);
+	}
 	const Vector4 &cone = kusudama_limit_cones[p_contraint_index][p_index];
 	Vector3 ret;
 	ret.x = cone.x;

@@ -1,71 +1,22 @@
 [gd_scene load_steps=2 format=3 uid="uid://bk8twmqnyakem"]
 
-[ext_resource type="PackedScene" uid="uid://dhxcx4gihe6do" path="res://4911040726795578408/4911040726795578408.vrm" id="1_xlx1b"]
+[ext_resource type="PackedScene" uid="uid://b0b83myhxp7tc" path="res://4911040726795578408/4911040726795578408.vrm" id="1_xlx1b"]
 
 [node name="Node3D" type="Node3D"]
 
 [node name="4911040726795578408" parent="." instance=ExtResource("1_xlx1b")]
 
-[node name="GeneralSkeleton" parent="4911040726795578408" index="0"]
-bones/0/position = Vector3(-0.0944091, -0.00305194, -0.158771)
-bones/0/rotation = Quaternion(0.103499, 0.00685512, 0.0768653, 0.991631)
-bones/0/scale = Vector3(1, 1, 1)
-bones/1/position = Vector3(6.25849e-07, 0.917164, -0.0035883)
-bones/1/rotation = Quaternion(-0.0523234, -0.00299227, -0.115838, 0.991884)
-bones/1/scale = Vector3(1, 1, 1)
-bones/10/position = Vector3(-2.29478e-06, 0.0521067, -0.0125221)
-bones/10/rotation = Quaternion(-0.0227659, -0.0311411, -0.037207, 0.998563)
-bones/15/position = Vector3(-9.83477e-07, 0.113039, -0.00305124)
-bones/15/rotation = Quaternion(-0.0805751, 0.00293563, -0.0332233, 0.99619)
-bones/16/position = Vector3(3.01003e-06, 0.107691, 0.0146523)
-bones/16/rotation = Quaternion(-0.0354834, 0.0040784, -0.00583582, 0.999345)
-bones/16/scale = Vector3(1, 1, 1)
-bones/21/position = Vector3(2.98023e-07, 0.13233, 0.0383658)
-bones/21/rotation = Quaternion(0.043618, 0.000390443, 0.000343205, 0.999048)
-bones/21/scale = Vector3(1, 1, 1)
-bones/22/position = Vector3(-9.23872e-07, 0.0731982, -0.00915042)
-bones/22/rotation = Quaternion(0.0452731, 0.00353481, 0.116839, 0.992112)
-bones/22/scale = Vector3(1, 1, 1)
-bones/103/position = Vector3(-0.0223988, 0.105713, 0.0299748)
-bones/103/rotation = Quaternion(-0.0928196, -0.000597137, -0.796202, 0.597868)
-bones/103/scale = Vector3(1, 1, 1)
-bones/104/position = Vector3(-7.39098e-06, -0.0861951, -0.0122653)
-bones/104/rotation = Quaternion(-0.442268, 0.634124, -0.0130794, 0.634124)
-bones/105/position = Vector3(-1.19209e-06, -0.219927, -3.8147e-06)
-bones/105/rotation = Quaternion(-0.0668764, 0.0145811, 0.755953, 0.651037)
-bones/105/scale = Vector3(1, 1, 1)
-bones/106/position = Vector3(-4.29153e-06, -0.214728, -0.000404)
-bones/106/rotation = Quaternion(0.0822941, -0.0293024, -0.424178, 0.901356)
-bones/122/position = Vector3(0.0223992, 0.105737, 0.0299791)
-bones/122/rotation = Quaternion(0.161355, 0.031636, 0.669285, 0.724583)
-bones/123/position = Vector3(-5.84126e-06, -0.0861801, -0.0122609)
-bones/123/rotation = Quaternion(-0.443394, -0.385931, 0.0308219, 0.808399)
-bones/123/scale = Vector3(1, 1, 1)
-bones/124/position = Vector3(-3.45707e-06, -0.219887, -8.34465e-07)
-bones/124/rotation = Quaternion(0.203745, -0.00124293, -0.50002, 0.841705)
-bones/124/scale = Vector3(1, 1, 1)
-bones/125/position = Vector3(3.76999e-06, -0.214733, -0.000370443)
-bones/125/rotation = Quaternion(0.348644, -0.144553, 0.344111, 0.859732)
-bones/125/scale = Vector3(1, 1, 1)
-bones/141/position = Vector3(-0.077186, -0.0397834, 0.00365911)
-bones/141/rotation = Quaternion(-0.578317, 0.109413, 0.804538, 0.0793466)
-bones/141/scale = Vector3(1, 1, 1)
-bones/150/position = Vector3(5.96046e-08, 0.352965, 0.0073837)
-bones/150/rotation = Quaternion(-0.316227, 0.791175, -0.312074, 0.4203)
-bones/150/scale = Vector3(1, 1, 1)
-bones/158/position = Vector3(-9.26852e-06, 0.414861, -0.0249435)
-bones/158/rotation = Quaternion(0.129427, -0.624074, 0.713563, -0.290876)
-bones/158/scale = Vector3(1, 1, 1)
-bones/160/position = Vector3(0.0771807, -0.0397642, 0.00365746)
-bones/160/rotation = Quaternion(-0.548658, 0.0126631, 0.832751, -0.0730757)
-bones/160/scale = Vector3(1, 1, 1)
-bones/169/position = Vector3(3.72529e-08, 0.352981, 0.00738525)
-bones/169/rotation = Quaternion(-0.201726, 0.863683, -0.199166, 0.416763)
-bones/169/scale = Vector3(1, 1, 1)
-bones/177/position = Vector3(-7.31647e-06, 0.414849, -0.0249426)
-bones/177/rotation = Quaternion(0.128492, -0.625721, 0.711949, -0.291706)
+[node name="Face" parent="4911040726795578408/GeneralSkeleton" index="0"]
+visible = false
+
+[node name="Body" parent="4911040726795578408/GeneralSkeleton" index="1"]
+visible = false
+
+[node name="Hair" parent="4911040726795578408/GeneralSkeleton" index="2"]
+visible = false
 
 [node name="NBoneIK" type="NBoneIK" parent="."]
+visible = false
 skeleton_node_path = NodePath("../4911040726795578408/GeneralSkeleton")
 root_bone = &"Root"
 pin_count = 5
