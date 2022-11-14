@@ -667,7 +667,9 @@ void NBoneIK::execute(real_t delta) {
 		segmented_skeleton->segment_solver(get_default_damp());
 	}
 	update_skeleton_bones_transform();
-	get_skeleton()->update_gizmos();
+	if (get_skeleton()) {
+		get_skeleton()->update_gizmos();
+	}
 }
 
 void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
