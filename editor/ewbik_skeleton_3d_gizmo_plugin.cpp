@@ -119,6 +119,9 @@ void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D
 	if (ik_kusudama.is_null()) {
 		return;
 	}
+	if (!ewbik) {
+		return;
+	}
 	BoneId parent_idx = ewbik_skeleton->get_bone_parent(current_bone_idx);
 	Vector<Vector3> handles;
 	LocalVector<int> bones;
@@ -285,6 +288,9 @@ EWBIK3DGizmoPlugin::EWBIK3DGizmoPlugin() {
 void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton) {
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
+		return;
+	}
+	if (!ewbik) {
 		return;
 	}
 	BoneId parent_idx = ewbik_skeleton->get_bone_parent(current_bone_idx);
