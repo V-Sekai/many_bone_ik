@@ -657,7 +657,6 @@ void NBoneIK::execute(real_t delta) {
 	if (is_dirty) {
 		skeleton_changed(get_skeleton());
 		notify_property_list_changed();
-		is_dirty = false;
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
@@ -678,9 +677,8 @@ void NBoneIK::execute(real_t delta) {
 		segmented_skeleton->segment_solver(get_default_damp());
 	}
 	update_skeleton_bones_transform();
-	if (get_skeleton()) {
-		get_skeleton()->update_gizmos();
-	}
+	update_gizmos();
+	is_dirty = false;
 }
 
 void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
