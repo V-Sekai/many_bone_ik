@@ -279,30 +279,25 @@ func _run():
 	var root : Node3D = get_editor_interface().get_edited_scene_root()
 	if root == null:
 		return
-	var queue : Array
-	queue.push_back(root)
 	var string_builder : Array
+	var skeletons : Array[Skeleton3D] = root.find_children("*", "Skeleton3D")
 	var skeleton : Skeleton3D = null
-	var ewbik : NBoneIK = null
-	while not queue.is_empty():
-		var front = queue.front()
-		var node : Node = front
-		if node is Skeleton3D:
-			skeleton = node
-		if node is NBoneIK:
-			ewbik = node
-		var child_count : int = node.get_child_count()
-		for i in child_count:
-			queue.push_back(node.get_child(i))
-		queue.pop_front()
+	for new_skeleton in skeletons:
+		skeleton = new_skeleton
+		break
+	var iks : Array[NBoneIK] = root.find_children("*", "NBoneIK")
+	var ik : NBoneIK = null
+	for new_ik in iks:
+		ik = new_ik
+		break
 	if skeleton == null:
 		return
-	if ewbik == null:
-		ewbik = NBoneIK.new()
-		root.add_child(ewbik, true)
-		ewbik.skeleton_node_path = "../" + str(root.get_path_to(skeleton))
-		ewbik.owner = root
-	ewbik.max_ik_iterations = 10
-	create_pins(ewbik, skeleton)
-	create_constraints(ewbik, skeleton)
-	ewbik.queue_print_skeleton()
+	if ik == null:
+		ik = NBoneIK.new()
+		root.add_child(ik, true)
+		ik.owner = root
+	ik.skeleton_node_path = "../" + str(root.get_path_to(skeleton))
+	ik.max_ik_iterations = 10
+	create_pins(ik, skeleton)
+	create_constraints(ik, skeleton)
+	ik.queue_print_skeleton()
