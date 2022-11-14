@@ -6,6 +6,10 @@
 
 [node name="passive_marker_man" parent="." instance=ExtResource("1_t4htj")]
 
+[node name="Head" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00940137, 1.50407, -0.0334357)
+gizmo_extents = 0.5
+
 [node name="LeftHand" type="Marker3D" parent="."]
 transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.740241, 1.44569, -0.0550295)
 gizmo_extents = 0.5
@@ -21,5 +25,3 @@ gizmo_extents = 0.5
 [node name="RightFoot" type="Marker3D" parent="."]
 transform = Transform3D(-1, 0, 0, 0, 0, 1, 0, 1, 0, -0.0963382, 0.121932, -0.0261158)
 gizmo_extents = 0.5
-
-[node name="Head" type="Marker3D" parent="."]
