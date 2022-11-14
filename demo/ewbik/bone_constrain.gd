@@ -304,4 +304,4 @@ func _run():
 	ewbik.max_ik_iterations = 10
 	create_pins(ewbik, skeleton)
 	create_constraints(ewbik, skeleton)
-	
+	ewbik.queue_print_skeleton()

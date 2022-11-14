@@ -385,6 +385,8 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void NBoneIK::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &NBoneIK::set_skeleton_node_path);
+	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &NBoneIK::get_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("set_enabled", "enable"), &NBoneIK::set_enabled);
 	ClassDB::bind_method(D_METHOD("get_enabled"), &NBoneIK::get_enabled);
 	ClassDB::bind_method(D_METHOD("set_pin_weight", "index,"
@@ -424,13 +426,14 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &NBoneIK::set_pin_bone_name);
 	ClassDB::bind_method(D_METHOD("get_pin_direction_priorities", "index"), &NBoneIK::get_pin_direction_priorities);
 	ClassDB::bind_method(D_METHOD("set_pin_direction_priorities", "index", "priority"), &NBoneIK::set_pin_direction_priorities);
-	ClassDB::bind_method(D_METHOD("queue_print_skeleton", "enable"), &NBoneIK::queue_print_skeleton);
+	ClassDB::bind_method(D_METHOD("queue_print_skeleton"), &NBoneIK::queue_print_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &NBoneIK::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &NBoneIK::set_default_damp);
 	ClassDB::bind_method(D_METHOD("get_pin_nodepath", "index"), &NBoneIK::get_pin_nodepath);
 	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &NBoneIK::set_pin_nodepath);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enable"), "set_enabled", "get_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
@@ -443,8 +446,8 @@ NBoneIK::NBoneIK() {
 NBoneIK::~NBoneIK() {
 }
 
-void NBoneIK::queue_print_skeleton(bool p_skeleton_debug) {
-	queue_debug_skeleton = p_skeleton_debug;
+void NBoneIK::queue_print_skeleton() {
+	queue_debug_skeleton = true;
 }
 
 float NBoneIK::get_pin_depth_falloff(int32_t p_effector_index) const {

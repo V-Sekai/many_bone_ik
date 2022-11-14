@@ -38,8 +38,8 @@
 #include "math/ik_node_3d.h"
 
 class IKBoneSegment;
-class NBoneIK : public Node {
-	GDCLASS(NBoneIK, Node);
+class NBoneIK : public Node3D {
+	GDCLASS(NBoneIK, Node3D);
 	StringName root_bone;
 	StringName tip_bone;
 	NodePath skeleton_path;
@@ -120,7 +120,7 @@ public:
 	float get_time_budget_millisecond() const;
 	void set_time_budget_millisecond(const float &p_time_budget);
 	void remove_pin(int32_t p_index);
-	void queue_print_skeleton(bool p_debug_skeleton);
+	void queue_print_skeleton();
 	void set_pin_count(int32_t p_value);
 	int32_t get_pin_count() const;
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
