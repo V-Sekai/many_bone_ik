@@ -53,8 +53,6 @@ class Button;
 
 class EWBIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(EWBIK3DGizmoPlugin, EditorNode3DGizmoPlugin);
-
-	NBoneIK *ewbik = nullptr;
 	Ref<Shader> kusudama_shader;
 
 protected:

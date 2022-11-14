@@ -640,6 +640,9 @@ NodePath NBoneIK::get_pin_nodepath(int32_t p_effector_index) const {
 }
 
 void NBoneIK::execute(real_t delta) {
+	if (!is_visible_in_tree()) {
+		return;
+	}
 	if (pin_count == 0) {
 		return;
 	}

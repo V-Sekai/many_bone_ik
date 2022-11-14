@@ -71,6 +71,9 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, NBoneI
 	if (!current_target_node) {
 		return;
 	}
+	if (!current_target_node->is_visible_in_tree()) {
+		return;
+	}
 	target_relative_to_skeleton_origin = p_skeleton->get_global_transform().affine_inverse() * current_target_node->get_global_transform();
 }
 

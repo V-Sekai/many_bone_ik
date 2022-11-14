@@ -77,13 +77,13 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
 		NBoneIK *ewbik = cast_to<NBoneIK>(nodes[node_i]);
 		if (!ewbik) {
+			p_gizmo->clear();
 			continue;
 		}
 		Skeleton3D *ewbik_skeleton = ewbik->get_skeleton();
 		if (!ewbik_skeleton) {
 			continue;
 		}
-		p_gizmo->clear();
 		Vector<int> bones_to_process = ewbik_skeleton->get_parentless_bones();
 		kusudama_shader.instantiate();
 		kusudama_shader->set_code(EWBIK_KUSUDAMA_SHADER);
@@ -117,9 +117,6 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton) {
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
-		return;
-	}
-	if (!ewbik) {
 		return;
 	}
 	BoneId parent_idx = ewbik_skeleton->get_bone_parent(current_bone_idx);
@@ -288,9 +285,6 @@ EWBIK3DGizmoPlugin::EWBIK3DGizmoPlugin() {
 void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton) {
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
-		return;
-	}
-	if (!ewbik) {
 		return;
 	}
 	BoneId parent_idx = ewbik_skeleton->get_bone_parent(current_bone_idx);
