@@ -52,21 +52,12 @@ int32_t NBoneIK::get_pin_count() const {
 	return pin_count;
 }
 
-void NBoneIK::add_pin(const StringName &p_name, const NodePath &p_target_node) {
-	for (Ref<IKEffectorTemplate> pin : pins) {
-		if (pin->get_name() == p_name) {
-			return;
-		}
-	}
-	int32_t count = get_pin_count();
-	set_pin_count(count + 1);
-	set_pin_bone(count, p_name);
-	set_pin_target_nodepath(count, p_target_node);
-	set_dirty();
-}
-
 void NBoneIK::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
 	ERR_FAIL_INDEX(p_pin_index, pins.size());
+	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(skeleton_path));
+	ERR_FAIL_NULL(skeleton);
+	BoneId bone = skeleton->find_bone(p_bone);
+	ERR_FAIL_INDEX(bone, skeleton->get_bone_count());
 	Ref<IKEffectorTemplate> effector_template = pins[p_pin_index];
 	if (effector_template.is_null()) {
 		effector_template.instantiate();
@@ -396,7 +387,9 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_enabled", "enable"), &NBoneIK::set_enabled);
 	ClassDB::bind_method(D_METHOD("get_enabled"), &NBoneIK::get_enabled);
-	ClassDB::bind_method(D_METHOD("set_pin_weight", "index," "weight"), &NBoneIK::set_pin_weight);
+	ClassDB::bind_method(D_METHOD("set_pin_weight", "index,"
+													"weight"),
+			&NBoneIK::set_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &NBoneIK::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &NBoneIK::set_dirty);
 	ClassDB::bind_method(D_METHOD("set_root_bone", "root_bone"), &NBoneIK::set_root_bone);
@@ -461,6 +454,7 @@ float NBoneIK::get_pin_depth_falloff(int32_t p_effector_index) const {
 }
 
 void NBoneIK::set_pin_depth_falloff(int32_t p_effector_index, const float p_depth_falloff) {
+	ERR_FAIL_INDEX(p_effector_index, pins.size());
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	ERR_FAIL_NULL(effector_template);
 	effector_template->set_depth_falloff(p_depth_falloff);
@@ -628,6 +622,10 @@ void NBoneIK::set_pin_bone_name(int32_t p_effector_index, StringName p_name) con
 
 void NBoneIK::set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path) {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
+	Node *node = get_node_or_null(p_node_path);
+	if (!node) {
+		return;
+	}
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	effector_template->set_target_node(p_node_path);
 }

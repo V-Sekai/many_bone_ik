@@ -119,7 +119,6 @@ public:
 	void set_max_ik_iterations(const float &p_max_ik_iterations);
 	float get_time_budget_millisecond() const;
 	void set_time_budget_millisecond(const float &p_time_budget);
-	void add_pin(const StringName &p_name, const NodePath &p_target_node = NodePath());
 	void remove_pin(int32_t p_index);
 	void queue_print_skeleton(bool p_debug_skeleton);
 	void set_pin_count(int32_t p_value);

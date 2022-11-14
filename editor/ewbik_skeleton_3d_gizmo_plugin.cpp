@@ -166,6 +166,18 @@ void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D
 		kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
 		out_idx += 4;
 	}
+	if (current_bone_idx >= ewbik_skeleton->get_bone_count()) {
+		return;
+	}
+	if (current_bone_idx <= -1) {
+		return;
+	}
+	if (parent_idx >= ewbik_skeleton->get_bone_count()) {
+		return;
+	}
+	if (parent_idx <= -1) {
+		return;
+	}
 	Vector3 v0 = ewbik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = ewbik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);
@@ -288,6 +300,18 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	Transform3D constraint_relative_to_the_skeleton = ik_bone->get_constraint_transform()->get_global_transform();
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
+	if (current_bone_idx >= ewbik_skeleton->get_bone_count()) {
+		return;
+	}
+	if (current_bone_idx <= -1) {
+		return;
+	}
+	if (parent_idx >= ewbik_skeleton->get_bone_count()) {
+		return;
+	}
+	if (parent_idx <= -1) {
+		return;
+	}
 	Vector3 v0 = ewbik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = ewbik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);

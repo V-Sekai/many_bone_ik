@@ -1,120 +1,33 @@
 @tool
 extends EditorScript
-var human_bones: Array  = [
-	"Hips",
-	"Spine",
-	"Chest",
-	"UpperChest",
-	"Neck",
-	"Head",
-	"LeftEye",
-	"RightEye",
-	"Jaw",
-	"LeftShoulder",
-	"LeftUpperArm",
-	"LeftLowerArm",
-	"LeftHand",
-	"LeftThumbMetacarpal",
-	"LeftThumbProximal",
-	"LeftThumbDistal",
-	"LeftIndexProximal",
-	"LeftIndexIntermediate",
-	"LeftIndexDistal",
-	"LeftMiddleProximal",
-	"LeftMiddleIntermediate",
-	"LeftMiddleDistal",
-	"LeftRingProximal",
-	"LeftRingIntermediate",
-	"LeftRingDistal",
-	"LeftLittleProximal",
-	"LeftLittleIntermediate",
-	"LeftLittleDistal",
-	"RightShoulder",
-	"RightUpperArm",
-	"RightLowerArm",
-	"RightHand",
-	"RightThumbMetacarpal",
-	"RightThumbProximal",
-	"RightThumbDistal",
-	"RightIndexProximal",
-	"RightIndexIntermediate",
-	"RightIndexDistal",
-	"RightMiddleProximal",
-	"RightMiddleIntermediate",
-	"RightMiddleDistal",
-	"RightRingProximal",
-	"RightRingIntermediate",
-	"RightRingDistal",
-	"RightLittleProximal",
-	"RightLittleIntermediate",
-	"RightLittleDistal",
-	"LeftUpperLeg",
-	"LeftLowerLeg",
-	"LeftFoot",
-	"LeftToes",
-	"RightUpperLeg",
-	"RightLowerLeg",
-	"RightFoot",
-	"RightToes"
-]
-
-func _run():
+func create_pins(ewbik : NBoneIK, skeleton):
 	var root : Node3D = get_editor_interface().get_edited_scene_root()
-	var queue : Array
-	queue.push_back(root)
-	var string_builder : Array
-	var skeleton : Skeleton3D
-	var ewbik : NBoneIK = null
-	while not queue.is_empty():
-		var front = queue.front()
-		var node : Node = front
-		if node is Skeleton3D:
-			skeleton = node
-		if node is NBoneIK:
-			ewbik = node
-		var child_count : int = node.get_child_count()
-		for i in child_count:
-			queue.push_back(node.get_child(i))
-		queue.pop_front()
-	if ewbik != null:
-		ewbik.free()
-	if skeleton == null:
+	if root == null:
 		return
-	skeleton.reset_bone_poses()
-	ewbik = NBoneIK.new()
-	skeleton.add_child(ewbik, true)
-	ewbik.owner = root
 	var godot_to_vrm : Dictionary
 	var profile : SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
 	var bone_map : BoneMap = BoneMap.new()
 	bone_map.profile = profile
 	var bone_vrm_mapping : Dictionary
-	ewbik.max_ik_iterations = 10
-	var pin_i = 0
-	var bones = [
-		"Head", 
+	var pins =  [
+		"Head",
 		"LeftHand", 
 		"RightHand", 
 		"LeftFoot", 
 		"RightFoot"
 	]
-	ewbik.pin_count = bones.size()
-	var head_3d : Marker3D = root.find_child("Head*")
-	if head_3d == null:
-		head_3d = Marker3D.new()
-	for bone_name in bones:
-		var bone_index = skeleton.find_bone(bone_name)
+	ewbik.set_pin_count(pins.size())
+	for pin_i in range(pins.size()):
+		var pin = pins[pin_i]
+		var bone_name = pin
+		var bone_i = skeleton.find_bone(bone_name)
+		if bone_i == -1:
+			continue
 		var node_3d : Marker3D = Marker3D.new()
 		node_3d.name = bone_name
 		node_3d.gizmo_extents = 0.5
-		if bone_name == "Head":
-			head_3d.name = bone_name
-			head_3d = node_3d
-			root.add_child(head_3d, true)
-			head_3d.owner = root
-		else: 
-			head_3d.add_child(node_3d, true)
-			node_3d.owner = root
+		root.add_child(node_3d)
+		node_3d.owner = root
 		var path_string : String = str(ewbik.get_path_to(root)) + "/" + str(root.get_path_to(node_3d))
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		ewbik.set_pin_bone_name(pin_i, bone_name)
@@ -124,19 +37,86 @@ func _run():
 			ewbik.set_pin_depth_falloff(pin_i, 1)
 		if bone_name in ["LeftFoot", "RightFoot"]:
 			ewbik.set_pin_weight(pin_i, 0.4)
-
-		var bone_id = skeleton.find_bone(bone_name)
-		if bone_id == -1:
-			pin_i = pin_i + 1
-			continue
-		var bone_transform_relative_to_universe : Transform3D = skeleton.global_transform * skeleton.get_bone_global_rest(bone_id)
+		var bone_transform_relative_to_universe : Transform3D = skeleton.global_transform * skeleton.get_bone_global_rest(bone_i)
 		node_3d.transform = node_3d.global_transform.affine_inverse() * bone_transform_relative_to_universe.orthonormalized()
-		pin_i = pin_i + 1
+
+	var head_3d : Marker3D = root.find_child("Head")
+	if head_3d != null:
+		head_3d.free()
+	head_3d = Marker3D.new()
+	head_3d.name = "Head"
+	root.add_child(head_3d)
+	head_3d.owner = root
+func create_constraints(ewbik, skeleton):
+	var human_bones: PackedStringArray  = [
+		"Hips",
+		"Spine",
+		"Chest",
+		"UpperChest",
+		"Neck",
+		"Head",
+		"LeftEye",
+		"RightEye",
+		"Jaw",
+		"LeftShoulder",
+		"LeftUpperArm",
+		"LeftLowerArm",
+		"LeftHand",
+		"LeftThumbMetacarpal",
+		"LeftThumbProximal",
+		"LeftThumbDistal",
+		"LeftIndexProximal",
+		"LeftIndexIntermediate",
+		"LeftIndexDistal",
+		"LeftMiddleProximal",
+		"LeftMiddleIntermediate",
+		"LeftMiddleDistal",
+		"LeftRingProximal",
+		"LeftRingIntermediate",
+		"LeftRingDistal",
+		"LeftLittleProximal",
+		"LeftLittleIntermediate",
+		"LeftLittleDistal",
+		"RightShoulder",
+		"RightUpperArm",
+		"RightLowerArm",
+		"RightHand",
+		"RightThumbMetacarpal",
+		"RightThumbProximal",
+		"RightThumbDistal",
+		"RightIndexProximal",
+		"RightIndexIntermediate",
+		"RightIndexDistal",
+		"RightMiddleProximal",
+		"RightMiddleIntermediate",
+		"RightMiddleDistal",
+		"RightRingProximal",
+		"RightRingIntermediate",
+		"RightRingDistal",
+		"RightLittleProximal",
+		"RightLittleIntermediate",
+		"RightLittleDistal",
+		"LeftUpperLeg",
+		"LeftLowerLeg",
+		"LeftFoot",
+		"LeftToes",
+		"RightUpperLeg",
+		"RightLowerLeg",
+		"RightFoot",
+		"RightToes"
+	]
+
+	var pending_bones : PackedStringArray
+	for bone_name in human_bones:
+		if skeleton.find_bone(bone_name) != -1:
+			pending_bones.push_back(bone_name)
+	human_bones.clear()
+	human_bones.append_array(pending_bones)
 	ewbik.set_constraint_count(human_bones.size())
-	for bone_i in range(human_bones.size()):
-		var bone_name : String = human_bones[bone_i]
-		ewbik.set_constraint_name(bone_i, bone_name)
-		var constraint_i : int = ewbik.find_constraint(bone_name)
+	var constraint_i = 0
+	while constraint_i < human_bones.size():
+		var bone_name = human_bones[constraint_i]
+		ewbik.set_constraint_name(constraint_i, bone_name)
 #		# https://pubmed.ncbi.nlm.nih.gov/32644411/
 		if bone_name in ["Chest"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
@@ -299,3 +279,36 @@ func _run():
 			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-270),  deg_to_rad(270)))
 		else:
 			print(bone_name)
+		constraint_i = constraint_i + 1
+
+func _run():
+	var root : Node3D = get_editor_interface().get_edited_scene_root()
+	if root == null:
+		return
+	var queue : Array
+	queue.push_back(root)
+	var string_builder : Array
+	var skeleton : Skeleton3D = null
+	var ewbik : NBoneIK = null
+	while not queue.is_empty():
+		var front = queue.front()
+		var node : Node = front
+		if node is Skeleton3D:
+			skeleton = node
+		if node is NBoneIK:
+			ewbik = node
+		var child_count : int = node.get_child_count()
+		for i in child_count:
+			queue.push_back(node.get_child(i))
+		queue.pop_front()
+	if skeleton == null:
+		return
+	if ewbik == null:
+		ewbik = NBoneIK.new()
+	ewbik.max_ik_iterations = 10
+	skeleton.reset_bone_poses()
+	skeleton.add_child(ewbik, true)
+	ewbik.owner = root
+	create_pins(ewbik, skeleton)
+	create_constraints(ewbik, skeleton)
+	
