@@ -280,12 +280,12 @@ func _run():
 	if root == null:
 		return
 	var string_builder : Array
-	var skeletons : Array[Skeleton3D] = root.find_children("*", "Skeleton3D")
+	var skeletons : Array[Node] = root.find_children("*", "Skeleton3D")
 	var skeleton : Skeleton3D = null
 	for new_skeleton in skeletons:
 		skeleton = new_skeleton
 		break
-	var iks : Array[NBoneIK] = root.find_children("*", "NBoneIK")
+	var iks : Array[Node] = root.find_children("*", "NBoneIK")
 	var ik : NBoneIK = null
 	for new_ik in iks:
 		ik = new_ik
