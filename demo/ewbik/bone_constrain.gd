@@ -21,6 +21,8 @@ func create_pins(ewbik : NBoneIK, skeleton):
 		if node != null:
 			node.free()
 	ewbik.set_pin_count(pins.size())
+	ewbik.enable = false
+	skeleton.reset_bone_poses()
 	for pin_i in range(pins.size()):
 		var pin = pins[pin_i]
 		var bone_name = pin
@@ -30,7 +32,7 @@ func create_pins(ewbik : NBoneIK, skeleton):
 		var node_3d : Marker3D = Marker3D.new()
 		node_3d.name = bone_name
 		node_3d.gizmo_extents = 0.5
-		skeleton.add_child(node_3d)
+		root.add_child(node_3d)
 		node_3d.owner = root
 		var path_string : String = str(ewbik.get_path_to(root)) + "/" + str(root.get_path_to(node_3d))
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
@@ -38,11 +40,13 @@ func create_pins(ewbik : NBoneIK, skeleton):
 		ewbik.set_pin_depth_falloff(pin_i, 1)
 		ewbik.set_pin_weight(pin_i, 0.2)
 		if bone_name in ["Head"]:
-			ewbik.set_pin_depth_falloff(pin_i, 1)
+			ewbik.set_pin_weight(pin_i, 1)
+			ewbik.set_pin_depth_falloff(pin_i, 0)
 		if bone_name in ["LeftFoot", "RightFoot"]:
 			ewbik.set_pin_weight(pin_i, 0.4)
 		var bone_transform : Transform3D = skeleton.get_bone_global_rest(bone_i)
 		node_3d.global_transform = bone_transform
+	ewbik.enable = true
 func create_constraints(ewbik, skeleton):
 	var human_bones: PackedStringArray  = [
 		"Hips",
@@ -301,7 +305,6 @@ func _run():
 		return
 	if ewbik == null:
 		ewbik = NBoneIK.new()
-		skeleton.reset_bone_poses()
 		skeleton.add_child(ewbik, true)
 		ewbik.owner = root
 	ewbik.max_ik_iterations = 10
