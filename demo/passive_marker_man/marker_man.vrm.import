@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bdg7oalw3juu5"
-path="res://.godot/imported/passive_marker_man.vrm-206254b6cb5d2289cee26aecb866c8f8.scn"
+uid="uid://xk6j7y7gy4u3"
+path="res://.godot/imported/marker_man.vrm-a64af719af15d8c3353e0e7b19c65169.scn"
 
 [deps]
 
-source_file="res://passive_marker_man/passive_marker_man.vrm"
-dest_files=["res://.godot/imported/passive_marker_man.vrm-206254b6cb5d2289cee26aecb866c8f8.scn"]
+source_file="res://passive_marker_man/marker_man.vrm"
+dest_files=["res://.godot/imported/marker_man.vrm-a64af719af15d8c3353e0e7b19c65169.scn"]
 
 [params]
 
