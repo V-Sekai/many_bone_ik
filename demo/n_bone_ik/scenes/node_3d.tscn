@@ -4,75 +4,10 @@
 
 [node name="Node3D" type="Node3D"]
 
-[node name="marker_man" parent="." instance=ExtResource("1_qlknk")]
-
-[node name="GeneralSkeleton" parent="marker_man" index="0"]
-bones/0/position = Vector3(-1.49008e-08, 0.963749, 0.000354721)
-bones/0/rotation = Quaternion(-0.0845607, 5.25308e-10, 4.48876e-07, 0.996418)
-bones/0/scale = Vector3(1, 0.999998, 0.999998)
-bones/11/position = Vector3(-8.48725e-08, 0.0922639, -0.0157738)
-bones/11/rotation = Quaternion(0.0259111, -0.395516, -0.0155293, 0.917962)
-bones/11/scale = Vector3(0.999926, 0.999718, 0.999826)
-bones/12/position = Vector3(1.86265e-06, 0.162527, 0.00165457)
-bones/12/rotation = Quaternion(0.0420284, 0.0939408, 0.00705211, 0.994665)
-bones/12/scale = Vector3(0.999961, 1.00002, 1.00005)
-bones/13/position = Vector3(1.11759e-06, 0.136395, 0.0129231)
-bones/13/rotation = Quaternion(0.0861133, 0.245803, -0.136901, 0.955732)
-bones/13/scale = Vector3(0.999957, 0.999782, 1.00016)
-bones/14/position = Vector3(-0.0614468, 0.101893, 0.0379302)
-bones/14/rotation = Quaternion(-0.484057, -0.486545, -0.44762, 0.573235)
-bones/14/scale = Vector3(1.0001, 1.00005, 1.00024)
-bones/15/position = Vector3(0.0179375, -0.123194, -0.0111327)
-bones/15/rotation = Quaternion(0.181482, 0.931617, 0.0184062, 0.314349)
-bones/15/scale = Vector3(1.00016, 0.999841, 0.999951)
-bones/16/position = Vector3(1.03712e-05, -0.276875, -1.35899e-05)
-bones/16/rotation = Quaternion(-0.225018, -0.382941, -0.32884, 0.833419)
-bones/16/scale = Vector3(1.00021, 0.999561, 1.00021)
-bones/17/position = Vector3(-2.06232e-05, -0.278734, -3.57628e-07)
-bones/17/rotation = Quaternion(0.0978212, 0.570451, 0.238424, 0.779853)
-bones/17/scale = Vector3(0.999495, 1.00058, 0.999908)
-bones/38/position = Vector3(8.04663e-07, 0.138755, 0.0435471)
-bones/38/rotation = Quaternion(-0.0716273, -0.0353834, 0.114141, 0.990247)
-bones/38/scale = Vector3(0.999575, 1.00001, 1.00077)
-bones/39/position = Vector3(8.71718e-07, 0.0434204, -0.00926457)
-bones/39/rotation = Quaternion(-0.0111917, -0.0139351, -0.0567871, 0.998226)
-bones/39/scale = Vector3(1.00154, 1.00015, 0.998759)
-bones/41/position = Vector3(0.0614087, 0.101855, 0.0379346)
-bones/41/rotation = Quaternion(0.483504, -0.237697, 0.597113, 0.59429)
-bones/41/scale = Vector3(1.00019, 1.00015, 1.00008)
-bones/42/position = Vector3(-0.0179282, -0.12323, -0.0111165)
-bones/42/rotation = Quaternion(0.0552396, -0.758164, 0.0635439, 0.646605)
-bones/42/scale = Vector3(0.999963, 0.999787, 1.00008)
-bones/43/position = Vector3(-7.86781e-06, -0.276859, 5.76675e-06)
-bones/43/rotation = Quaternion(0.152183, 0.163613, 0.172193, 0.959386)
-bones/43/scale = Vector3(1.00048, 0.999989, 0.999351)
-bones/44/position = Vector3(5.126e-06, -0.278742, 5.66244e-07)
-bones/44/rotation = Quaternion(-0.0814368, 0.529932, -0.235486, 0.810609)
-bones/44/scale = Vector3(1.00003, 1.00089, 0.999252)
-
-[node name="MocapGuy_Body" parent="marker_man/GeneralSkeleton" index="0"]
-visible = false
-
-[node name="MocapGuy_BrowsLashes" parent="marker_man/GeneralSkeleton" index="1"]
-visible = false
-
-[node name="MocapGuy_Caruncula" parent="marker_man/GeneralSkeleton" index="2"]
-visible = false
-
-[node name="MocapGuy_Eyes" parent="marker_man/GeneralSkeleton" index="3"]
-visible = false
-
-[node name="MocapGuy_Hat" parent="marker_man/GeneralSkeleton" index="4"]
-visible = false
-
-[node name="MocapGuy_Teeth" parent="marker_man/GeneralSkeleton" index="5"]
-visible = false
-
 [node name="NBoneIK" type="NBoneIK" parent="."]
 skeleton_node_path = NodePath("../marker_man/GeneralSkeleton")
 root_bone = &"Hips"
-max_ik_iterations = 1.0
-default_damp = 0.000174533
+default_damp = 0.0174533
 pin_count = 4
 pins/0/bone_name = "Hips"
 pins/0/target_node = NodePath("../Hips")
@@ -118,7 +53,7 @@ constraints/3/kusudama_twist_from = 0.0
 constraints/3/kusudama_twist_to = 6.28319
 constraints/3/kusudama_limit_cone_count = 1
 constraints/3/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/3/kusudama_limit_cone/0/radius = 0.523599
+constraints/3/kusudama_limit_cone/0/radius = 1.39626
 constraints/4/name = &"Neck"
 constraints/4/kusudama_twist_from = -0.0872665
 constraints/4/kusudama_twist_to = 0.0872665
@@ -377,6 +312,69 @@ constraints/46/kusudama_twist_to = 6.28319
 constraints/46/kusudama_limit_cone_count = 1
 constraints/46/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/46/kusudama_limit_cone/0/radius = 2.61799
+
+[node name="marker_man" parent="." instance=ExtResource("1_qlknk")]
+
+[node name="GeneralSkeleton" parent="marker_man" index="0"]
+bones/0/rotation = Quaternion(-0.0845484, 7.99448e-10, 4.48847e-07, 0.996419)
+bones/0/scale = Vector3(1, 1, 1)
+bones/11/position = Vector3(-8.54678e-08, 0.0922635, -0.0157714)
+bones/11/rotation = Quaternion(0.00303702, -1.21074e-06, -5.65485e-06, 0.999995)
+bones/11/scale = Vector3(1, 1.00001, 1.00001)
+bones/12/position = Vector3(-2.73121e-09, 0.16254, 0.0016557)
+bones/12/rotation = Quaternion(-0.0282746, -9.93805e-07, -3.43435e-06, 0.9996)
+bones/12/scale = Vector3(1, 0.999999, 0.999999)
+bones/13/position = Vector3(-7.63976e-10, 0.136395, 0.0129226)
+bones/13/rotation = Quaternion(0.261468, -2.29878e-05, 3.8715e-06, 0.965212)
+bones/13/scale = Vector3(1, 0.999999, 0.999999)
+bones/14/position = Vector3(-0.061442, 0.101869, 0.0379315)
+bones/14/rotation = Quaternion(0.392234, 0.522792, 0.606578, -0.452663)
+bones/14/scale = Vector3(0.999998, 1, 0.999997)
+bones/15/position = Vector3(0.0179353, -0.123191, -0.0111281)
+bones/15/rotation = Quaternion(-0.0710183, 0.984078, 0.0690774, 0.147564)
+bones/15/scale = Vector3(0.999998, 0.999999, 1)
+bones/16/position = Vector3(-1.19209e-07, -0.27687, 1.07288e-06)
+bones/16/rotation = Quaternion(0.199798, 0.803499, 0.26254, -0.495522)
+bones/16/scale = Vector3(1, 1.00001, 0.99999)
+bones/17/position = Vector3(1.19209e-06, -0.278738, -6.55651e-07)
+bones/17/rotation = Quaternion(0.174356, 0.785111, 0.191279, 0.562684)
+bones/17/scale = Vector3(0.99999, 1, 0.999995)
+bones/38/position = Vector3(-6.3028e-10, 0.138774, 0.043542)
+bones/38/rotation = Quaternion(0.0729872, 5.72668e-05, -9.07754e-06, 0.997333)
+bones/38/scale = Vector3(1, 0.999991, 0.999993)
+bones/39/position = Vector3(-2.29193e-10, 0.0433996, -0.00926858)
+bones/39/rotation = Quaternion(-0.225755, -3.06009e-05, -7.76424e-07, 0.974184)
+bones/39/scale = Vector3(1, 0.999998, 0.999997)
+bones/41/position = Vector3(0.0614021, 0.10187, 0.0379317)
+bones/41/rotation = Quaternion(-0.392213, 0.522825, 0.606569, 0.452656)
+bones/41/scale = Vector3(0.999996, 1, 0.999994)
+bones/42/position = Vector3(-0.0179352, -0.123231, -0.0111279)
+bones/42/rotation = Quaternion(0.0709925, 0.984082, 0.0690579, -0.147556)
+bones/42/scale = Vector3(0.999994, 0.999996, 0.999996)
+bones/43/position = Vector3(-2.23517e-07, -0.276871, 1.66893e-06)
+bones/43/rotation = Quaternion(-0.199795, 0.803501, 0.262542, 0.49552)
+bones/43/scale = Vector3(1.00001, 1.00002, 0.999998)
+bones/44/position = Vector3(-5.96046e-07, -0.278736, 1.3411e-07)
+bones/44/rotation = Quaternion(0.174352, -0.785116, -0.191282, 0.562677)
+bones/44/scale = Vector3(0.99999, 1, 0.999996)
+
+[node name="MocapGuy_Body" parent="marker_man/GeneralSkeleton" index="0"]
+visible = false
+
+[node name="MocapGuy_BrowsLashes" parent="marker_man/GeneralSkeleton" index="1"]
+visible = false
+
+[node name="MocapGuy_Caruncula" parent="marker_man/GeneralSkeleton" index="2"]
+visible = false
+
+[node name="MocapGuy_Eyes" parent="marker_man/GeneralSkeleton" index="3"]
+visible = false
+
+[node name="MocapGuy_Hat" parent="marker_man/GeneralSkeleton" index="4"]
+visible = false
+
+[node name="MocapGuy_Teeth" parent="marker_man/GeneralSkeleton" index="5"]
+visible = false
 
 [node name="Hips" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.49008e-08, 0.963749, 0.000354736)
