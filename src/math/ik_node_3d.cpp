@@ -48,6 +48,8 @@ void IKNode3D::rotate_local_with_global(Quaternion p_q) {
 	Quaternion new_rot;
 	if (parent.is_valid()) {
 		new_rot = parent->get_global_transform().basis.get_rotation_quaternion();
+	} else {
+		new_rot = get_global_transform().basis.get_rotation_quaternion();
 	}
 	new_rot = new_rot.inverse() * p_q * new_rot;
 	new_rot = new_rot * local_transform.basis.get_rotation_quaternion();
