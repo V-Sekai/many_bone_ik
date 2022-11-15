@@ -39,13 +39,8 @@ _global_script_class_icons={
 [application]
 
 config/name="NBoneIK Game Project"
-run/main_scene="res://ewbik/scenes/ewbik_test_rig.tscn"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
-
-[autoload]
-
-GdUnitSignals="*res://addons/gdUnit4/src/core/GdUnitSignals.gd"
 
 [debug]
 

@@ -58,9 +58,9 @@ class CmdLineParser:
 	# Parse out multiple comma delimited values from a command line
 	# option.  Values are separated from option name with "=" and
 	# additional values are comma separated.
-	func _parse_array_value(full_option):
-		var value = _parse_option_value(full_option)
-		var split = value.split(',')
+	func _parse_array_value(full_option) -> PackedStringArray:
+		var value : String = _parse_option_value(full_option)
+		var split : PackedStringArray = value.split(',', true, 1)
 		return split
 
 	# Parse out the value of an option.  Values are separated from
@@ -69,7 +69,7 @@ class CmdLineParser:
 		if(full_option.size() > 1):
 			return full_option[1]
 		else:
-			return null
+			return ""
 
 	# Search _opts for an element that starts with the option name
 	# specified.
