@@ -678,7 +678,7 @@ void NBoneIK::execute(real_t delta) {
 	}
 	update_skeleton_bones_transform();
 	update_gizmos();
-	is_dirty = false;
+	set_dirty();
 }
 
 void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
@@ -801,4 +801,50 @@ void NBoneIK::set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p
 
 void NBoneIK::set_dirty() {
 	is_dirty = true;
+}
+int32_t NBoneIK::find_constraint(String p_string) const {
+	for (int32_t constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
+		if (get_constraint_name(constraint_i) == p_string) {
+			return constraint_i;
+		}
+	}
+	return -1;
+}
+Skeleton3D *NBoneIK::get_skeleton() const {
+	Node *node = get_node_or_null(skeleton_node_path);
+	return cast_to<Skeleton3D>(node);
+}
+NodePath NBoneIK::get_skeleton_node_path() {
+	return skeleton_node_path;
+}
+void NBoneIK::set_skeleton_node_path(NodePath p_skeleton_node_path) {
+	is_dirty = true;
+	skeleton_node_path = p_skeleton_node_path;
+}
+bool NBoneIK::get_enabled() const {
+	return is_enabled;
+}
+void NBoneIK::set_enabled(bool p_enabled) {
+	is_enabled = p_enabled;
+}
+void NBoneIK::_notification(int p_what) {
+	switch (p_what) {
+		case NOTIFICATION_READY: {
+			set_process_internal(true);
+		} break;
+		case NOTIFICATION_INTERNAL_PROCESS: {
+			if (!is_enabled) {
+				return;
+			}
+			if (is_dirty) {
+				skeleton_changed(get_skeleton());
+			}
+			execute(get_process_delta_time());
+			is_dirty = false;
+		} break;
+		case NOTIFICATION_TRANSFORM_CHANGED: {
+			_notification(NOTIFICATION_INTERNAL_PROCESS);
+			update_gizmos();
+		} break;
+	}
 }
