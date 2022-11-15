@@ -34,10 +34,10 @@
 #include "core/templates/list.h"
 
 #include "core/math/transform_3d.h"
-#include "core/object/ref_counted.h"
+#include "core/io/resource.h"
 
-class IKNode3D : public RefCounted {
-	GDCLASS(IKNode3D, RefCounted);
+class IKNode3D : public Resource {
+	GDCLASS(IKNode3D, Resource);
 	friend class IKBone3D;
 
 	enum TransformDirty {

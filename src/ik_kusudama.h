@@ -49,9 +49,6 @@ class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
 protected:
-	Ref<IKNode3D> _limiting_axes = Ref<IKNode3D>(memnew(IKNode3D()));
-	double painfullness = 0;
-
 	/**
 	 * An array containing all of the Kusudama's limit_cones. The kusudama is built up
 	 * with the expectation that any limitCone in the array is connected to the cone at the previous element in the array,
@@ -91,6 +88,17 @@ public:
 	virtual void _update_constraint();
 
 	virtual void update_tangent_radii();
+
+	/**
+	 * This function should be called after you've set all of the Limiting Cones
+	 * for this Kusudama. It will orient the axes relative to which constrained rotations are computed
+	 * so as to minimize the potential for undesirable twist rotations due to antipodal singularities.
+	 *
+	 * In general, auto-optimization attempts to point the y-component of the constraint
+	 * axes in the direction that places it within an oreintation allowed by the constraint,
+	 * and roughly as far as possible from any orientations not allowed by the constraint.
+	 */
+	void optimize_limiting_axes();
 
 	Ref<IKRay3D> bone_ray = Ref<IKRay3D>(memnew(IKRay3D()));
 	Ref<IKRay3D> constrained_ray = Ref<IKRay3D>(memnew(IKRay3D()));
@@ -162,11 +170,6 @@ public:
 	static double to_tau(double angle);
 
 	static double mod(double x, double y);
-
-	/**
-	 * @return the limiting_axes of this Kusudama (these are it's parentBone's majorRotationAxes)
-	 */
-	Ref<IKNode3D> limiting_axes();
 
 	/**
 	 *

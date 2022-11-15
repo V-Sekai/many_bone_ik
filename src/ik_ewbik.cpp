@@ -737,18 +737,19 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 		}
 	}
 	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-		Ref<IKKusudama> constraint = ik_bone_3d->get_constraint();
-		if (constraint.is_null()) {
-			continue;
-		}
-		constraint->update_tangent_radii();
-		constraint->update_rotational_freedom();
-	}
-	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
 		ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
 	}
 	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
 		ik_bone_3d->update_default_constraint_transform();
+	}
+	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+		Ref<IKKusudama> constraint = ik_bone_3d->get_constraint();
+		if (constraint.is_null()) {
+			continue;
+		}
+		constraint->optimize_limiting_axes();
+		constraint->update_tangent_radii();
+		constraint->update_rotational_freedom();
 	}
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
