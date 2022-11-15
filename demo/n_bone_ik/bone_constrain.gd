@@ -1,5 +1,6 @@
 @tool
 extends EditorScript
+
 func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):	
 	var root : Node3D = get_editor_interface().get_edited_scene_root()
 	if root == null:
@@ -52,63 +53,7 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		marker_3d.gizmo_extents = 0.5
 	ewbik.enable = true
 	
-const human_bones: PackedStringArray  = [
-	"Hips",
-	"Spine",
-	"Chest",
-	"UpperChest",
-	"Neck",
-	"Head",
-	"LeftEye",
-	"RightEye",
-	"Jaw",
-	"LeftShoulder",
-	"LeftUpperArm",
-	"LeftLowerArm",
-	"LeftHand",
-	"LeftThumbMetacarpal",
-	"LeftThumbProximal",
-	"LeftThumbDistal",
-	"LeftIndexProximal",
-	"LeftIndexIntermediate",
-	"LeftIndexDistal",
-	"LeftMiddleProximal",
-	"LeftMiddleIntermediate",
-	"LeftMiddleDistal",
-	"LeftRingProximal",
-	"LeftRingIntermediate",
-	"LeftRingDistal",
-	"LeftLittleProximal",
-	"LeftLittleIntermediate",
-	"LeftLittleDistal",
-	"RightShoulder",
-	"RightUpperArm",
-	"RightLowerArm",
-	"RightHand",
-	"RightThumbMetacarpal",
-	"RightThumbProximal",
-	"RightThumbDistal",
-	"RightIndexProximal",
-	"RightIndexIntermediate",
-	"RightIndexDistal",
-	"RightMiddleProximal",
-	"RightMiddleIntermediate",
-	"RightMiddleDistal",
-	"RightRingProximal",
-	"RightRingIntermediate",
-	"RightRingDistal",
-	"RightLittleProximal",
-	"RightLittleIntermediate",
-	"RightLittleDistal",
-	"LeftUpperLeg",
-	"LeftLowerLeg",
-	"LeftFoot",
-	"LeftToes",
-	"RightUpperLeg",
-	"RightLowerLeg",
-	"RightFoot",
-	"RightToes"
-]
+var human_bones: PackedStringArray
 
 # NEED TO CHECK FOR PARENT TO CHILDREN BONE Y UP
 func create_constraints(ewbik):
@@ -254,6 +199,9 @@ func create_constraints(ewbik):
 #			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0),  deg_to_rad(130)))
 
 func _run():
+	var profile : SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
+	for bone_i in profile.bone_size:
+		human_bones.push_back(profile.get_bone_name(bone_i)) 
 	var root : Node3D = get_editor_interface().get_edited_scene_root()
 	if root == null:
 		return
@@ -276,7 +224,6 @@ func _run():
 	ik.set_pin_count(0)
 	ik.set_constraint_count(0)
 	ik.skeleton_node_path = "../" + str(root.get_path_to(skeleton))
-	ik.max_ik_iterations = 10
 	ik.visible = true
 	create_constraints(ik)
 	create_pins(ik, skeleton)
