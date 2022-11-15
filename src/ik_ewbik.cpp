@@ -508,6 +508,9 @@ void NBoneIK::set_kusudama_limit_cone(int32_t p_contraint_index, int32_t p_index
 		Vector3 p_center, float p_radius) {
 	ERR_FAIL_INDEX(p_contraint_index, kusudama_limit_cones.size());
 	Vector<Vector4> cones = kusudama_limit_cones.write[p_contraint_index];
+	if (Math::is_zero_approx(p_center.length_squared())) {
+		p_center = Vector3(0, 1, 0);
+	}
 	Vector3 center = p_center.normalized();
 	Vector4 cone;
 	cone.x = center.x;
