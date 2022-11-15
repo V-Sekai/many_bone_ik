@@ -477,7 +477,6 @@ void NBoneIK::set_constraint_count(int32_t p_count) {
 		kusudama_twist.write[constraint_i] = Vector2();
 	}
 	set_dirty();
-	notify_property_list_changed();
 }
 
 int32_t NBoneIK::get_constraint_count() const {
@@ -568,6 +567,7 @@ void NBoneIK::set_kusudama_limit_cone_count(int32_t p_contraint_index, int32_t p
 		cone.z = 0.0f;
 		cone.w = Math::deg_to_rad(10.0f);
 	}
+	notify_property_list_changed();
 	set_dirty();
 }
 
@@ -601,9 +601,15 @@ void NBoneIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
 	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
-	cone.x = p_center.x;
-	cone.y = p_center.y;
-	cone.z = p_center.z;
+	if (Math::is_zero_approx(p_center.length_squared())) {
+		cone.x = 0;
+		cone.y = 1;
+		cone.z = 0;
+	} else {
+		cone.x = p_center.x;
+		cone.y = p_center.y;
+		cone.z = p_center.z;
+	}
 	set_dirty();
 }
 
