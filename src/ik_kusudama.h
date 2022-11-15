@@ -35,6 +35,7 @@
 #include "core/math/quaternion.h"
 #include "core/object/ref_counted.h"
 #include "core/variant/typed_array.h"
+#include "scene/3d/node_3d.h"
 
 #include "ik_bone_3d.h"
 #include "ik_bone_segment.h"
