@@ -5,13 +5,13 @@
 [node name="ewbik_test_rig" instance=ExtResource("1_ns5u2")]
 
 [node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
-bones/0/rotation = Quaternion(-0.000464729, -1.98952e-13, -0.000523475, 1)
-bones/1/position = Vector3(0.00064036, 0.611643, -0.000568497)
-bones/1/rotation = Quaternion(-0.00709365, 0.0952814, 0.00270896, 0.995421)
-bones/1/scale = Vector3(1.00765, 1.01712, 1.00852)
-bones/2/position = Vector3(0.00689015, 0.596523, 0.00402909)
-bones/2/rotation = Quaternion(-0.00210558, -0.713474, -0.00603489, 0.700653)
-bones/2/scale = Vector3(1.00003, 0.999362, 1.00502)
+bones/0/rotation = Quaternion(-0.000464785, -5.68434e-14, -0.000523475, 1)
+bones/1/position = Vector3(0.00064036, 0.611643, -0.000568565)
+bones/1/rotation = Quaternion(0.000617644, -0.855877, -0.0107744, 0.517066)
+bones/1/scale = Vector3(1.00981, 1.02452, 1.01081)
+bones/2/position = Vector3(0.00689061, 0.596595, 0.00403168)
+bones/2/rotation = Quaternion(0.00524857, 0.516766, -0.00223654, 0.856107)
+bones/2/scale = Vector3(1.00004, 0.998778, 1.00567)
 
 [node name="Target3" type="Marker3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
 transform = Transform3D(-0.338426, 0, -0.940993, 0, 1, 0, 0.940993, 0, -0.338426, 0, 1.2, 0)
@@ -32,14 +32,14 @@ pins/1/weight = 1.0
 pins/1/direction_priorities = Vector3(0.707107, 0, 0.707107)
 constraint_count = 2
 constraints/0/name = &"Bone_02"
-constraints/0/kusudama_twist_from = 5.43496
-constraints/0/kusudama_twist_to = 0.174533
+constraints/0/kusudama_twist_from = 2.33351
+constraints/0/kusudama_twist_to = 0.0
 constraints/0/kusudama_limit_cone_count = 1
 constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/0/kusudama_limit_cone/0/radius = 1.5708
 constraints/1/name = &"Bone_03"
-constraints/1/kusudama_twist_from = -2.23402
-constraints/1/kusudama_twist_to = 1.38405
+constraints/1/kusudama_twist_from = 0.0
+constraints/1/kusudama_twist_to = 1.30376
 constraints/1/kusudama_limit_cone_count = 1
 constraints/1/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/1/kusudama_limit_cone/0/radius = 1.5708
