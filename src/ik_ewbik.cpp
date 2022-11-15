@@ -798,6 +798,7 @@ void NBoneIK::set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p
 }
 
 void NBoneIK::set_dirty() {
+	notify_property_list_changed();
 	is_dirty = true;
 }
 int32_t NBoneIK::find_constraint(String p_string) const {
@@ -847,7 +848,6 @@ void NBoneIK::_notification(int p_what) {
 		} break;
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			_notification(NOTIFICATION_INTERNAL_PROCESS);
-			update_gizmos();
 		} break;
 	}
 }
