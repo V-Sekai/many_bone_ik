@@ -3,7 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cd01ddduxn537"
+uid="uid://dh328t5m72yf7"
 path="res://.godot/imported/4911040726795578408.vrm-0e15d823fbbd0e70628f50d786f87045.scn"
 
 [deps]
@@ -29,8 +29,7 @@ import_script/path=""
 _subresources={
 "nodes": {
 "PATH:GeneralSkeleton": {
-"retarget/bone_map": Object(BoneMap,"resource_local_to_scene":false,"resource_name":"","profile":null,"bonemap":null,"script":null)
-
+"retarget/bone_map": null
 },
 "PATH:GeneralSkeleton/BoneAttachment3D": {
 "import/skip_import": true
