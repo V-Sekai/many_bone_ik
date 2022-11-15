@@ -4,11 +4,9 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 	var root : Node3D = get_editor_interface().get_edited_scene_root()
 	if root == null:
 		return
-	var godot_to_vrm : Dictionary
 	var profile : SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
 	var bone_map : BoneMap = BoneMap.new()
 	bone_map.profile = profile
-	var bone_vrm_mapping : Dictionary
 	var pins =  [
 		"Head",
 		"LeftHand", 
@@ -113,13 +111,7 @@ const human_bones: PackedStringArray  = [
 ]
 
 # NEED TO CHECK FOR PARENT TO CHILDREN BONE Y UP
-func create_constraints(ewbik, skeleton):
-	var pending_bones : PackedStringArray
-	for bone_name in human_bones:
-		if skeleton.find_bone(bone_name) != -1:
-			pending_bones.push_back(bone_name)
-	human_bones.clear()
-	human_bones.append_array(pending_bones)
+func create_constraints(ewbik):
 	ewbik.set_constraint_count(human_bones.size())
 	for constraint_i in range(human_bones.size()):
 		var bone_name = human_bones[constraint_i]
@@ -314,5 +306,5 @@ func _run():
 	ik.skeleton_node_path = "../" + str(root.get_path_to(skeleton))
 	ik.max_ik_iterations = 10
 	create_pins(ik, skeleton)
-	create_constraints(ik, skeleton)
+	create_constraints(ik)
 	ik.queue_print_skeleton()
