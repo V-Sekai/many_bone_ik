@@ -678,7 +678,7 @@ void NBoneIK::execute(real_t delta) {
 	}
 	update_skeleton_bones_transform();
 	update_gizmos();
-	set_dirty();
+	is_dirty = false;
 }
 
 void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
@@ -810,23 +810,29 @@ int32_t NBoneIK::find_constraint(String p_string) const {
 	}
 	return -1;
 }
+
 Skeleton3D *NBoneIK::get_skeleton() const {
 	Node *node = get_node_or_null(skeleton_node_path);
 	return cast_to<Skeleton3D>(node);
 }
+
 NodePath NBoneIK::get_skeleton_node_path() {
 	return skeleton_node_path;
 }
+
 void NBoneIK::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 	is_dirty = true;
 	skeleton_node_path = p_skeleton_node_path;
 }
+
 bool NBoneIK::get_enabled() const {
 	return is_enabled;
 }
+
 void NBoneIK::set_enabled(bool p_enabled) {
 	is_enabled = p_enabled;
 }
+
 void NBoneIK::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
@@ -837,10 +843,10 @@ void NBoneIK::_notification(int p_what) {
 				return;
 			}
 			if (is_dirty) {
+				notify_property_list_changed();
 				skeleton_changed(get_skeleton());
 			}
 			execute(get_process_delta_time());
-			is_dirty = false;
 		} break;
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			_notification(NOTIFICATION_INTERNAL_PROCESS);
