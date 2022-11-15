@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="NBoneIK" inherits="SkeletonModification3D" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+<class name="NBoneIK" inherits="Node3D" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
 	<brief_description>
 		A full body inverse kinematics system.
 	</brief_description>
@@ -13,6 +13,12 @@
 		<link title="Everything will be IK">https://github.com/EGjoni/Everything-Will-Be-IK</link>
 	</tutorials>
 	<methods>
+		<method name="find_constraint" qualifiers="const">
+			<return type="int" />
+			<param index="0" name="name" type="String" />
+			<description>
+			</description>
+		</method>
 		<method name="get_constraint_count" qualifiers="const">
 			<return type="int" />
 			<description>
@@ -79,6 +85,12 @@
 			<description>
 			</description>
 		</method>
+		<method name="get_pin_weight" qualifiers="const">
+			<return type="float" />
+			<param index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="get_segmented_skeleton">
 			<return type="IKBoneSegment" />
 			<description>
@@ -86,7 +98,6 @@
 		</method>
 		<method name="queue_print_skeleton">
 			<return type="void" />
-			<param index="0" name="enable" type="bool" />
 			<description>
 			</description>
 		</method>
@@ -178,14 +189,25 @@
 			<description>
 			</description>
 		</method>
+		<method name="set_pin_weight">
+			<return type="void" />
+			<param index="0" name="index,weight" type="int" />
+			<param index="1" name="_unnamed_arg1" type="float" />
+			<description>
+			</description>
+		</method>
 	</methods>
 	<members>
 		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.0872665">
 			The default maximum number of radians a bone is allowed to rotate per solver iteration. The lower this value, the more natural the pose results. However, this will increase the number of iterations the solver requires to converge.
 		</member>
+		<member name="enable" type="bool" setter="set_enabled" getter="get_enabled" default="true">
+		</member>
 		<member name="max_ik_iterations" type="float" setter="set_max_ik_iterations" getter="get_max_ik_iterations" default="10.0">
 		</member>
 		<member name="root_bone" type="StringName" setter="set_root_bone" getter="get_root_bone" default="&amp;&quot;&quot;">
+		</member>
+		<member name="skeleton_node_path" type="NodePath" setter="set_skeleton_node_path" getter="get_skeleton_node_path" default="NodePath(&quot;..&quot;)">
 		</member>
 		<member name="tip_bone" type="StringName" setter="set_tip_bone" getter="get_tip_bone" default="&amp;&quot;&quot;">
 		</member>
