@@ -397,8 +397,8 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	}
 	float start_angle = kusudama->get_min_axial_angle();
 	float end_angle = start_angle + kusudama->get_range_angle();
-	float gaps = Math::deg_to_rad(12.0f);
-	for (float theta = start_angle + gaps; theta < end_angle - gaps; theta += gaps) {
+	float gaps = Math::deg_to_rad(20.0f);
+	for (float theta = start_angle; theta < end_angle; theta += gaps) {
 		const float ra = theta;
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		Transform3D axial_from_relative_to_mesh;
@@ -407,6 +407,10 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		Transform3D axial_relative_to_universe = constraint_relative_to_the_universe * axial_from_relative_to_mesh;
 		axial_middle_handles.push_back(axial_relative_to_universe.origin);
 	}
+	axial_middle_handles.pop_back();
+	axial_middle_handles.reverse();
+	axial_middle_handles.pop_back();
+	axial_middle_handles.reverse();
 	{
 		const float ra = kusudama->get_min_axial_angle() + (float)(kusudama->get_range_angle());
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
