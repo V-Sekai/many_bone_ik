@@ -46,6 +46,7 @@ void NBoneIK::set_pin_count(int32_t p_value) {
 		pins.write[pin_i].instantiate();
 	}
 	set_dirty();
+	notify_property_list_changed();
 }
 
 int32_t NBoneIK::get_pin_count() const {
@@ -474,6 +475,7 @@ void NBoneIK::set_constraint_count(int32_t p_count) {
 		kusudama_twist.write[constraint_i] = Vector2();
 	}
 	set_dirty();
+	notify_property_list_changed();
 }
 
 int32_t NBoneIK::get_constraint_count() const {
@@ -798,7 +800,6 @@ void NBoneIK::set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p
 }
 
 void NBoneIK::set_dirty() {
-	notify_property_list_changed();
 	is_dirty = true;
 }
 int32_t NBoneIK::find_constraint(String p_string) const {
