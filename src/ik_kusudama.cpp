@@ -81,12 +81,12 @@ void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 	range_angle = in_range;
 }
 
-void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen) {
+void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen) {
 	if (!is_axially_constrained()) {
 		return;
 	}
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
-	Basis align_rot = inv_rot * to_set->get_global_transform().basis;
+	Basis align_rot = inv_rot * bone_direction->get_global_transform().basis;
 	Quaternion swing;
 	Quaternion twist;
 	get_swing_twist(align_rot.get_rotation_quaternion(), Vector3(0, 1, 0), swing, twist);
@@ -100,11 +100,14 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> to_set, Ref<IKNode3D> lim
 	double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
 	double turn_diff = 1;
 	Quaternion rot;
-	Vector3 axis_y = to_set->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	if (dist_to_min < dist_to_max) {
 		turn_diff = turn_diff * (from_min_to_angle_delta);
 	} else {
 		turn_diff = turn_diff * (range_angle - (Math_TAU - from_min_to_angle_delta));
+	}
+	if (turn_diff < 0) {
+		turn_diff *= -1;
 	}
 	rot = Quaternion(axis_y.normalized(), turn_diff).normalized();
 	to_set->rotate_local_with_global(rot);
@@ -314,10 +317,10 @@ Vector3 IKKusudama::get_local_point_in_limits(Vector3 in_point, Vector<double> &
 	return closest_collision_point;
 }
 
-void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, double p_dampening, double p_cos_half_angle_dampen) {
+void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, double p_dampening, double p_cos_half_angle_dampen) {
 	Vector<double> in_bounds = { 1.0 };
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
-	bone_ray->p2(to_set->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
+	bone_ray->p2(bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
 	Vector3 in_limits = get_local_point_in_limits(bone_tip, in_bounds);
 	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x)) {

@@ -5,31 +5,47 @@
 [node name="ewbik_test_rig" instance=ExtResource("1_ns5u2")]
 
 [node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
-bones/0/position = Vector3(0, 0.6, 1.9744e-07)
-bones/0/rotation = Quaternion(0, 0.239542, 0, 0.970886)
-bones/1/position = Vector3(0, 0.6, 0)
-bones/1/rotation = Quaternion(1.26352e-08, 1.49012e-08, -2.56091e-08, 1)
+bones/0/rotation = Quaternion(-0.000466605, -7.10543e-14, -0.000523475, 1)
+bones/0/scale = Vector3(1, 1, 1)
+bones/1/position = Vector3(0.00064036, 0.611643, -0.000569476)
+bones/1/rotation = Quaternion(0.0210999, -0.410736, 0.0448769, 0.910405)
+bones/1/scale = Vector3(1, 1, 1)
+bones/2/position = Vector3(0.00684371, 0.597072, 0.00404024)
+bones/2/rotation = Quaternion(0.0451793, 0.897852, -0.0191282, -0.437556)
+bones/2/scale = Vector3(1, 1, 1)
 
-[node name="SkeletonModification3DEWBIK" type="NBoneIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
+[node name="Target3" type="Marker3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
+transform = Transform3D(-0.284901, 0, 0.958557, 0, 1, 0, -0.958556, 0, -0.284903, -0.132314, 1.22958, 0.0531283)
+
+[node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]
+visible = false
+
+[node name="NBoneIK" type="NBoneIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.124032, 0)
 root_bone = &"Bone_01"
-pin_count = 1
-pins/0/name = "Bone_01"
-pins/0/target_node = NodePath("../Bone2")
+pin_count = 2
+pins/0/bone_name = "Bone_03"
+pins/0/target_node = NodePath("../Target3")
 pins/0/depth_falloff = 0.0
 pins/0/weight = 1.0
 pins/0/direction_priorities = Vector3(0.707107, 0, 0.707107)
-constraint_count = 1
+pins/1/bone_name = "Bone_01"
+pins/1/target_node = NodePath("../../Marker3D")
+pins/1/depth_falloff = 0.0
+pins/1/weight = 1.0
+pins/1/direction_priorities = Vector3(0.707107, 0, 0.707107)
+constraint_count = 2
 constraints/0/name = &"Bone_02"
-constraints/0/kusudama_twist_from = 0.0
-constraints/0/kusudama_twist_to = 1.5708
-constraints/0/kusudama_limit_cone_count = 2
+constraints/0/kusudama_twist_from = 5.43496
+constraints/0/kusudama_twist_to = 0.174533
+constraints/0/kusudama_limit_cone_count = 1
 constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/0/kusudama_limit_cone/0/radius = 0.174533
-constraints/0/kusudama_limit_cone/1/center = Vector3(1, 0, 1)
-constraints/0/kusudama_limit_cone/1/radius = 0.872665
+constraints/0/kusudama_limit_cone/0/radius = 1.5708
+constraints/1/name = &"Bone_03"
+constraints/1/kusudama_twist_from = -2.23402
+constraints/1/kusudama_twist_to = 1.38405
+constraints/1/kusudama_limit_cone_count = 1
+constraints/1/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
+constraints/1/kusudama_limit_cone/0/radius = 1.5708
 
-[node name="Bone2" type="Marker3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]
-transform = Transform3D(0.885239, 0, 0.465135, 0, 1, 0, -0.465135, 0, 0.885239, 4.77971e-16, 0.6, 1.98172e-07)
-
-[node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="2"]
-visible = false
+[node name="Marker3D" type="Marker3D" parent="Simple_Test_Rig_Armature" index="1"]

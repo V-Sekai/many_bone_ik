@@ -168,7 +168,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
-		effector_name.name = "pins/" + itos(pin_i) + "/name";
+		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
 			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
@@ -228,9 +228,9 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_from", PROPERTY_HINT_RANGE, "-360.0,360.0,0.1,radians"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_from", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,radians"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_to", PROPERTY_HINT_RANGE, "-360.0,360.0,0.1,radians"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_to", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,radians"));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
@@ -239,7 +239,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 			p_list->push_back(
 					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "0.0,1.0,0.01,or_greater"));
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,360,0.1,radians"));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians"));
 		}
 	}
 }
@@ -258,7 +258,7 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 		ERR_FAIL_INDEX_V(index, pins.size(), false);
 		Ref<IKEffectorTemplate> effector_template = pins[index];
 		ERR_FAIL_NULL_V(effector_template, false);
-		if (what == "name") {
+		if (what == "bone_name") {
 			r_ret = effector_template->get_name();
 			return true;
 		} else if (what == "target_node") {
@@ -320,7 +320,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, pin_count, true);
-		if (what == "name") {
+		if (what == "bone_name") {
 			set_pin_bone(index, p_value);
 			return true;
 		} else if (what == "target_node") {
@@ -743,6 +743,12 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 		}
 		constraint->update_tangent_radii();
 		constraint->update_rotational_freedom();
+	}
+	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+		ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
+	}
+	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+		ik_bone_3d->update_default_constraint_transform();
 	}
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;

@@ -47,8 +47,41 @@ void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 	parent = p_parent;
 	if (parent.is_valid()) {
 		parent->children.push_back(this);
-		transform->set_parent(parent->transform);
-		constraint_transform->set_parent(transform->get_parent());
+		godot_skeleton_aligned_transform->set_parent(parent->godot_skeleton_aligned_transform);
+		constraint_transform->set_parent(godot_skeleton_aligned_transform->get_parent());
+	}
+}
+
+void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
+	Vector3 child_centroid;
+	if (!children.size()) {
+		PackedInt32Array bone_children = p_skeleton->get_bone_children(bone_id);
+		for (BoneId child_bone_idx : bone_children) {
+			child_centroid += p_skeleton->get_bone_global_pose(child_bone_idx).origin;
+		}
+		child_centroid /= bone_children.size();
+	} else {
+		for (Ref<IKBone3D> ik_bone : children) {
+			child_centroid += ik_bone->get_ik_transform()->get_global_transform().origin;
+		}
+		child_centroid /= children.size();
+	}
+	Vector3 godot_bone_origin = godot_skeleton_aligned_transform->get_global_transform().origin;
+	child_centroid -= godot_bone_origin;
+	if (!Math::is_zero_approx(child_centroid.length_squared()) && (children.size() || p_skeleton->get_bone_children(bone_id).size())) {
+		child_centroid.normalize();
+		Vector3 bone_direction = bone_direction_transform->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)) - godot_bone_origin;
+		bone_direction.normalize();
+		bone_direction_transform->rotate_local_with_global(Quaternion(child_centroid, bone_direction));
+	}
+}
+
+void IKBone3D::update_default_constraint_transform() {
+	Ref<IKBone3D> parent_bone = get_parent();
+	if (parent_bone.is_valid()) {
+		Transform3D parent_bone_direction = parent_bone->get_bone_direction_transform()->get_global_transform();
+		parent_bone_direction.origin = get_bone_direction_transform()->get_global_transform().origin;
+		constraint_transform->set_global_transform(parent_bone_direction);
 	}
 }
 
@@ -66,21 +99,25 @@ Ref<IKEffector3D> IKBone3D::get_pin() const {
 }
 
 void IKBone3D::set_pose(const Transform3D &p_transform) {
-	transform->set_transform(p_transform);
+	godot_skeleton_aligned_transform->set_transform(p_transform);
 }
 
 Transform3D IKBone3D::get_pose() const {
-	return transform->get_transform();
+	return godot_skeleton_aligned_transform->get_transform();
 }
 
 void IKBone3D::set_global_pose(const Transform3D &p_transform) {
-	transform->set_global_transform(p_transform);
-	constraint_transform->local_transform.origin = transform->local_transform.origin;
+	godot_skeleton_aligned_transform->set_global_transform(p_transform);
+	constraint_transform->local_transform.origin = godot_skeleton_aligned_transform->local_transform.origin;
 	constraint_transform->_propagate_transform_changed();
 }
 
 Transform3D IKBone3D::get_global_pose() const {
-	return transform->get_global_transform();
+	return godot_skeleton_aligned_transform->get_global_transform();
+}
+
+Transform3D IKBone3D::get_bone_direction_global_pose() const {
+	return bone_direction_transform->get_global_transform();
 }
 
 void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
@@ -94,10 +131,10 @@ void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
 
 void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
-	Transform3D bone_origin_to_parent_origin = get_pose();
-	p_skeleton->set_bone_pose_position(bone_id, bone_origin_to_parent_origin.origin);
-	p_skeleton->set_bone_pose_rotation(bone_id, bone_origin_to_parent_origin.basis.get_rotation_quaternion());
-	p_skeleton->set_bone_pose_scale(bone_id, bone_origin_to_parent_origin.basis.get_scale());
+	Transform3D bone_to_parent = get_pose();
+	p_skeleton->set_bone_pose_position(bone_id, bone_to_parent.origin);
+	p_skeleton->set_bone_pose_rotation(bone_id, bone_to_parent.basis.get_rotation_quaternion());
+	p_skeleton->set_bone_pose_scale(bone_id, bone_to_parent.basis.get_scale());
 }
 
 void IKBone3D::create_pin() {
@@ -118,7 +155,7 @@ void IKBone3D::_bind_methods() {
 
 IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening) {
 	ERR_FAIL_NULL(p_skeleton);
-	
+
 	default_dampening = p_default_dampening;
 	cos_half_dampen = default_dampening / real_t(2.0);
 	set_name(p_bone);
@@ -142,7 +179,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			break;
 		}
 	}
-	bone_direction_transform->set_parent(transform);
+	bone_direction_transform->set_parent(godot_skeleton_aligned_transform);
 }
 
 float IKBone3D::get_cos_half_dampen() const {
@@ -162,7 +199,7 @@ void IKBone3D::add_constraint(Ref<IKKusudama> p_constraint) {
 }
 
 Ref<IKNode3D> IKBone3D::get_ik_transform() {
-	return transform;
+	return godot_skeleton_aligned_transform;
 }
 
 Ref<IKNode3D> IKBone3D::get_constraint_transform() {

@@ -102,7 +102,7 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, double p_dampen, double p_cos_half_angle_dampen);
+	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, double p_dampen, double p_cos_half_angle_dampen);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
@@ -123,7 +123,7 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual void set_snap_to_twist_limit(Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen);
+	virtual void set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen);
 
 	virtual double signed_angle_difference(double min_angle, double p_super);
 

@@ -61,16 +61,19 @@ class IKBone3D : public Resource {
 	// to keep -y to be the opposite of its bone forward orientation
 	// To avoid singularity that is ambiguous.
 	Ref<IKNode3D> constraint_transform = Ref<IKNode3D>(memnew(IKNode3D()));
-	Ref<IKNode3D> transform = Ref<IKNode3D>(memnew(IKNode3D())); // The bone's actual transform.
+	Ref<IKNode3D> godot_skeleton_aligned_transform = Ref<IKNode3D>(memnew(IKNode3D())); // The bone's actual transform.
 	Ref<IKNode3D> bone_direction_transform = Ref<IKNode3D>(memnew(IKNode3D())); // Physical direction of the bone. Calculate Y is the bone up.
 protected:
 	static void _bind_methods();
 
 public:
+	Transform3D get_bone_direction_global_pose() const;
 	Ref<IKNode3D> get_bone_direction_transform();
 	void set_bone_direction_transform(Ref<IKNode3D> p_bone_direction);
+	void update_default_bone_direction_transform(Skeleton3D *p_skeleton);
 	void set_constraint_transform(Ref<IKNode3D> p_transform);
 	Ref<IKNode3D> get_constraint_transform();
+	void update_default_constraint_transform();
 	void add_constraint(Ref<IKKusudama> p_constraint);
 	Ref<IKKusudama> get_constraint() const;
 	void set_stiffness(float p_stiffness);
