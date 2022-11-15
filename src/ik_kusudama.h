@@ -89,17 +89,6 @@ public:
 
 	virtual void update_tangent_radii();
 
-	/**
-	 * This function should be called after you've set all of the Limiting Cones
-	 * for this Kusudama. It will orient the axes relative to which constrained rotations are computed
-	 * so as to minimize the potential for undesirable twist rotations due to antipodal singularities.
-	 *
-	 * In general, auto-optimization attempts to point the y-component of the constraint
-	 * axes in the direction that places it within an oreintation allowed by the constraint,
-	 * and roughly as far as possible from any orientations not allowed by the constraint.
-	 */
-	void optimize_limiting_axes();
-
 	Ref<IKRay3D> bone_ray = Ref<IKRay3D>(memnew(IKRay3D()));
 	Ref<IKRay3D> constrained_ray = Ref<IKRay3D>(memnew(IKRay3D()));
 

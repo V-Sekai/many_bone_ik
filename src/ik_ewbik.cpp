@@ -739,7 +739,6 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 			constraint->enable_axial_limits();
 			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
 			ik_bone_3d->add_constraint(constraint);
-			constraint->optimize_limiting_axes();
 			break;
 		}
 	}
