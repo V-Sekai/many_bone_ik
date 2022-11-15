@@ -1,5 +1,9 @@
 # README.md
 
+N Bone IK is a full skeleton inverse kinematic solver.
+
+This is the demo project for N Bone IK.
+
 ## Godot Engine editor settings for Windows 11
 
 Use godot with an external editor.
