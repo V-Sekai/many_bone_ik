@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://bffhsevaw2c8y"]
+
+[ext_resource type="PackedScene" uid="uid://dm0yylna0uo3p" path="res://n_bone_ik/art/ewbik_test_rig.glb" id="1_3o6wq"]
+
+[node name="ewbik_test_rig" instance=ExtResource("1_3o6wq")]
