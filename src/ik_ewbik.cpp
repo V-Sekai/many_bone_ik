@@ -91,6 +91,7 @@ void NBoneIK::remove_pin(int32_t p_index) {
 	pin_count--;
 	pins.resize(pin_count);
 	set_dirty();
+	notify_property_list_changed();
 }
 
 void NBoneIK::update_ik_bones_transform() {
@@ -238,7 +239,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
-					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "0.0,1.0,0.01,or_greater"));
+					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater"));
 			p_list->push_back(
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians"));
 		}
@@ -382,6 +383,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void NBoneIK::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &NBoneIK::remove_constraint);
 	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &NBoneIK::set_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &NBoneIK::get_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("set_enabled", "enable"), &NBoneIK::set_enabled);
@@ -851,4 +853,24 @@ void NBoneIK::_notification(int p_what) {
 			_notification(NOTIFICATION_INTERNAL_PROCESS);
 		} break;
 	}
+}
+
+void NBoneIK::remove_constraint(int32_t p_index) {
+	ERR_FAIL_INDEX(p_index, constraint_count);
+
+	int32_t old_count = constraint_count;
+
+	constraint_names.remove_at(p_index);
+	kusudama_limit_cone_count.remove_at(p_index);
+	kusudama_limit_cones.remove_at(p_index);
+	kusudama_twist.remove_at(p_index);
+
+	constraint_count--;
+	constraint_names.resize(constraint_count);
+	kusudama_twist.resize(constraint_count);
+	kusudama_limit_cone_count.resize(constraint_count);
+	kusudama_limit_cones.resize(constraint_count);
+
+	set_dirty();
+	notify_property_list_changed();
 }

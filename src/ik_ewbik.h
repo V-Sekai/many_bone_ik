@@ -75,8 +75,7 @@ protected:
 	void _notification(int p_what);
 
 public:
-	void
-	set_enabled(bool p_enabled);
+	void set_enabled(bool p_enabled);
 	bool get_enabled() const;
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	NodePath get_skeleton_node_path();
@@ -90,12 +89,11 @@ public:
 	Ref<IKBoneSegment> get_segmented_skeleton();
 	float get_max_ik_iterations() const;
 	void set_max_ik_iterations(const float &p_max_ik_iterations);
-	float get_time_budget_millisecond() const;
-	void set_time_budget_millisecond(const float &p_time_budget);
 	void remove_pin(int32_t p_index);
 	void queue_print_skeleton();
 	void set_pin_count(int32_t p_value);
 	int32_t get_pin_count() const;
+	void remove_constraint(int32_t p_index);
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
 	StringName get_pin_bone_name(int32_t p_effector_index) const;
 	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
