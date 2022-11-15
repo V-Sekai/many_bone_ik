@@ -733,7 +733,7 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 				Vector4 cone = kusudama_limit_cones[constraint_i][cone_i];
 				constraint->add_limit_cone(Vector3(cone.x, cone.y, cone.z), cone.w);
 			}
-			constraint->_update_constraint(skeleton);
+			constraint->_update_constraint(p_skeleton);
 			constraint->enable_axial_limits();
 			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
 			ik_bone_3d->add_constraint(constraint);
