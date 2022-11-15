@@ -5,14 +5,15 @@
 [node name="ewbik_test_rig" instance=ExtResource("1_3o6wq")]
 
 [node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
-bones/0/position = Vector3(1.85597e-14, 0.00469154, 2.01837e-08)
-bones/0/rotation = Quaternion(2.05528e-07, 6.3628e-08, -1.88078e-13, 1)
-bones/1/position = Vector3(7.00482e-15, 0.595384, -5.62213e-10)
-bones/1/rotation = Quaternion(2.66505e-09, 4.68958e-13, 4.22708e-13, 1)
-bones/1/scale = Vector3(1, 0.990767, 0.990767)
-bones/2/position = Vector3(3.52686e-15, 0.60078, -1.18064e-10)
-bones/2/rotation = Quaternion(-1.25952e-08, -4.55784e-13, -6.07122e-16, 1)
-bones/2/scale = Vector3(0.997726, 0.999997, 0.999997)
+bones/0/position = Vector3(7.17397e-11, 0.00561655, 0.000261472)
+bones/0/rotation = Quaternion(0.000208819, 6.38282e-08, -2.99852e-09, 1)
+bones/0/scale = Vector3(1, 0.99996, 0.99996)
+bones/1/position = Vector3(-1.96421e-12, 0.594776, 3.36877e-07)
+bones/1/rotation = Quaternion(0.0230483, -1.56705e-08, 5.62621e-09, 0.999734)
+bones/1/scale = Vector3(1, 0.989858, 0.989858)
+bones/2/position = Vector3(1.48326e-12, 0.600776, 1.24238e-06)
+bones/2/rotation = Quaternion(-0.0232569, 1.52181e-08, -1.4973e-09, 0.99973)
+bones/2/scale = Vector3(0.995818, 0.999776, 0.999776)
 
 [node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
 visible = false
@@ -392,5 +393,5 @@ transform = Transform3D(1, -4.10649e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-
 gizmo_extents = 0.5
 
 [node name="Bone_03" type="Marker3D" parent="." index="3"]
-transform = Transform3D(1, -4.10649e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-07, -1.27256e-07, 4.14581e-07, 1, -4.92778e-15, 1.2, 4.97497e-07)
+transform = Transform3D(1, -4.10649e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-07, -1.27256e-07, 4.14581e-07, 1, 3.61724e-09, 1.2, 0.0284254)
 gizmo_extents = 0.5
