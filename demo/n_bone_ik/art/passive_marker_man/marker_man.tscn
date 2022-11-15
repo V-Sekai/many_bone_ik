@@ -1,6 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://dfi0h5mos1hj1"]
+[gd_scene load_steps=8 format=3]
 
-[ext_resource type="PackedScene" uid="uid://xk6j7y7gy4u3" path="res://passive_marker_man/marker_man.vrm" id="1_mhbbu"]
+[ext_resource type="PackedScene" uid="uid://xk6j7y7gy4u3" path="res://n_bone_ik/art/passive_marker_man/marker_man.vrm" id="1_mhbbu"]
+
 
 [sub_resource type="Skin" id="Skin_ojc1x"]
 resource_name = "Skin"

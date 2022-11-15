@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://bk8twmqnyakem"]
+[gd_scene load_steps=5 format=3]
 
-[ext_resource type="PackedScene" uid="uid://cd01ddduxn537" path="res://4911040726795578408/4911040726795578408.vrm" id="1_xlx1b"]
+[ext_resource type="PackedScene" uid="uid://cd01ddduxn537" path="res://n_bone_ik/art/4911040726795578408/4911040726795578408.vrm" id="1_xlx1b"]
+
 
 [sub_resource type="Skin" id="Skin_kmhd2"]
 resource_name = "Skin"

@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://p70vo0hqdgqv"]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" uid="uid://deuapcn1ywqqi" path="res://ewbik/art/ewbik_3_bone_chain.glb" id="1_k4flg"]
+[ext_resource type="PackedScene" uid="uid://deuapcn1ywqqi" path="res://n_bone_ik/art/ewbik_3_bone_chain.glb" id="1_k4flg"]
+
 
 [node name="ewbik_3_bone_chain" instance=ExtResource("1_k4flg")]
 

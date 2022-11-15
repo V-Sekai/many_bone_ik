@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://xk6j7y7gy4u3"
-path="res://.godot/imported/marker_man.vrm-a64af719af15d8c3353e0e7b19c65169.scn"
+path="res://.godot/imported/marker_man.vrm-85889428e3d9b8be7ee1494cd3b68944.scn"
 
 [deps]
 
-source_file="res://passive_marker_man/marker_man.vrm"
-dest_files=["res://.godot/imported/marker_man.vrm-a64af719af15d8c3353e0e7b19c65169.scn"]
+source_file="res://n_bone_ik/art/passive_marker_man/marker_man.vrm"
+dest_files=["res://.godot/imported/marker_man.vrm-85889428e3d9b8be7ee1494cd3b68944.scn"]
 
 [params]
 

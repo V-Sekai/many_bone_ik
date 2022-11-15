@@ -1,5 +1,5 @@
 {
-    "dirs":["res://test/unit/","res://test/integration/"],
+    "dirs":["res://n_bone_ik/test/unit","res://n_bone_ik/test/integration"],
     "double_strategy":"partial",
     "ignore_pause":false,
     "include_subdirs":true,
