@@ -85,7 +85,7 @@ public:
 
 	IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, double cos_half_angle_dampen);
 
-	virtual void _update_constraint();
+	virtual void _update_constraint(Node3D *p_node_3d);
 
 	virtual void update_tangent_radii();
 

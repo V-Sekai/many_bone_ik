@@ -656,7 +656,6 @@ void NBoneIK::execute(real_t delta) {
 	}
 	if (is_dirty) {
 		skeleton_changed(get_skeleton());
-		notify_property_list_changed();
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
@@ -678,7 +677,6 @@ void NBoneIK::execute(real_t delta) {
 	}
 	update_skeleton_bones_transform();
 	update_gizmos();
-	is_dirty = false;
 }
 
 void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
@@ -735,7 +733,7 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 				Vector4 cone = kusudama_limit_cones[constraint_i][cone_i];
 				constraint->add_limit_cone(Vector3(cone.x, cone.y, cone.z), cone.w);
 			}
-			constraint->_update_constraint();
+			constraint->_update_constraint(skeleton);
 			constraint->enable_axial_limits();
 			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
 			ik_bone_3d->add_constraint(constraint);
@@ -821,8 +819,8 @@ NodePath NBoneIK::get_skeleton_node_path() {
 }
 
 void NBoneIK::set_skeleton_node_path(NodePath p_skeleton_node_path) {
-	is_dirty = true;
 	skeleton_node_path = p_skeleton_node_path;
+	set_dirty();
 }
 
 bool NBoneIK::get_enabled() const {
@@ -843,7 +841,6 @@ void NBoneIK::_notification(int p_what) {
 				return;
 			}
 			if (is_dirty) {
-				notify_property_list_changed();
 				skeleton_changed(get_skeleton());
 			}
 			execute(get_process_delta_time());
