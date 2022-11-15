@@ -5,18 +5,15 @@
 [node name="ewbik_test_rig" instance=ExtResource("1_3o6wq")]
 
 [node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
-bones/0/position = Vector3(0.0352328, 0, 0)
-bones/0/rotation = Quaternion(-7.65469e-06, 6.36331e-08, -2.43186e-06, 1)
-bones/0/scale = Vector3(1.00002, 1.00015, 1.00007)
-bones/1/position = Vector3(2.89828e-06, 0.595377, -9.3624e-06)
-bones/1/rotation = Quaternion(0.0461645, -0.803176, 0.0340586, 0.592973)
-bones/1/scale = Vector3(0.999103, 0.990634, 0.990952)
-bones/2/position = Vector3(1.72853e-06, 0.601001, -1.04457e-05)
-bones/2/rotation = Quaternion(-0.0462841, 0.803173, -0.0339915, 0.592972)
-bones/2/scale = Vector3(1.00675, 0.999607, 0.992951)
-
-[node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
-visible = false
+bones/0/position = Vector3(0.0352328, 1.33227e-15, 4.65661e-09)
+bones/0/rotation = Quaternion(-4.84883e-06, -0.536563, -6.57599e-06, 0.84386)
+bones/0/scale = Vector3(1.00007, 1.00015, 1.00012)
+bones/1/position = Vector3(3.2885e-06, 0.595409, -9.17912e-06)
+bones/1/rotation = Quaternion(0.0820057, -0.767351, 0.0397936, 0.634716)
+bones/1/scale = Vector3(1.00072, 0.994815, 0.99237)
+bones/2/position = Vector3(-0.000217468, 0.599705, -4.55454e-05)
+bones/2/rotation = Quaternion(-0.0435021, -0.596053, 0.0799932, 0.797765)
+bones/2/scale = Vector3(1.00615, 0.999132, 0.993948)
 
 [node name="NBoneIK" type="NBoneIK" parent="." index="1"]
 skeleton_node_path = NodePath("../Simple_Test_Rig_Armature/Skeleton3D")
@@ -35,19 +32,21 @@ pins/1/direction_priorities = Vector3(0.707107, 0, 0.707107)
 constraint_count = 3
 constraints/0/name = &"Bone_01"
 constraints/0/kusudama_twist_from = 0.0
-constraints/0/kusudama_twist_to = 6.28319
-constraints/0/kusudama_limit_cone_count = 1
-constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/0/kusudama_limit_cone/0/radius = 0.349066
+constraints/0/kusudama_twist_to = 1.13272
+constraints/0/kusudama_limit_cone_count = 0
 constraints/1/name = &"Bone_02"
 constraints/1/kusudama_twist_from = 0.0
-constraints/1/kusudama_twist_to = 6.28319
-constraints/1/kusudama_limit_cone_count = 1
+constraints/1/kusudama_twist_to = 1.40848
+constraints/1/kusudama_limit_cone_count = 3
 constraints/1/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/1/kusudama_limit_cone/0/radius = 0.349066
+constraints/1/kusudama_limit_cone/1/center = Vector3(0.03, 1, 0)
+constraints/1/kusudama_limit_cone/1/radius = 1.12225
+constraints/1/kusudama_limit_cone/2/center = Vector3(0, 1, 0.98)
+constraints/1/kusudama_limit_cone/2/radius = 1.09781
 constraints/2/name = &"Bone_03"
 constraints/2/kusudama_twist_from = 0.0
-constraints/2/kusudama_twist_to = 6.28319
+constraints/2/kusudama_twist_to = 2.0944
 constraints/2/kusudama_limit_cone_count = 1
 constraints/2/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/2/kusudama_limit_cone/0/radius = 0.673697
@@ -57,5 +56,5 @@ transform = Transform3D(1, -4.10649e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-
 gizmo_extents = 0.5
 
 [node name="Bone_03" type="Marker3D" parent="." index="3"]
-transform = Transform3D(1, -4.10649e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-07, -1.27256e-07, 4.14581e-07, 1, -0.0344468, 1.2, 5.01881e-07)
+transform = Transform3D(-0.511428, 0, 0.859326, 3.5626e-07, 1, 2.12028e-07, -0.859326, 4.14581e-07, -0.511428, -0.0344468, 1.2, -0.0869615)
 gizmo_extents = 0.5
