@@ -704,23 +704,20 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	ERR_FAIL_COND(!root_bone);
 	BoneId root_bone_index = p_skeleton->find_bone(root_bone);
 	BoneId tip_bone_index = p_skeleton->find_bone(tip_bone);
-	if (segmented_skeleton.is_valid() && is_recreate) {
-		segmented_skeleton->unreference();
-		segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, root_bone, pins, nullptr, root_bone_index, tip_bone_index)));
-		segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
-		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
-		bone_list.clear();
-		segmented_skeleton->create_bone_list(bone_list, true, queue_debug_skeleton);
-		Vector<Vector<real_t>> weight_array;
-		segmented_skeleton->update_pinned_list(weight_array);
-		segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
-		update_ik_bones_transform();
-		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-			ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
-		}
-		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-			ik_bone_3d->update_default_constraint_transform();
-		}
+	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, root_bone, pins, nullptr, root_bone_index, tip_bone_index)));
+	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
+	segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
+	bone_list.clear();
+	segmented_skeleton->create_bone_list(bone_list, true, queue_debug_skeleton);
+	Vector<Vector<real_t>> weight_array;
+	segmented_skeleton->update_pinned_list(weight_array);
+	segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
+	update_ik_bones_transform();
+	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+		ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
+	}
+	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+		ik_bone_3d->update_default_constraint_transform();
 	}
 	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		String bone = constraint_names[constraint_i];
