@@ -77,7 +77,7 @@ IKKusudama::IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<I
 
 void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 	min_axial_angle = min_angle;
-	range_angle = in_range;
+	range_angle = to_tau(in_range);
 }
 
 void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen) {
@@ -85,14 +85,23 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 		return;
 	}
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
+	print_line("###inv_rot");
+	print_line(Math::rad_to_deg(inv_rot.get_rotation_quaternion().get_angle()));
 	Basis align_rot = inv_rot * bone_direction->get_global_transform().basis;
+	print_line("###align_rot");
+	print_line(Math::rad_to_deg(align_rot.get_rotation_quaternion().get_angle()));
 	Quaternion swing;
 	Quaternion twist;
 	get_swing_twist(align_rot.get_rotation_quaternion(), Vector3(0, 1, 0), swing, twist);
+	print_line("###TWIST");
+	print_line(Math::rad_to_deg(twist.get_angle()));
 	double angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
 	angle_delta_2 = to_tau(angle_delta_2);
 	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
-	if (!(from_min_to_angle_delta < Math_TAU - range_angle)) {
+	print_line("###from_min_to_angle_delta");
+	print_line(Math::rad_to_deg(from_min_to_angle_delta));
+	if (from_min_to_angle_delta >= Math_TAU - range_angle) {
+		print_line("###return");
 		return;
 	}
 	double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
@@ -108,7 +117,11 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	if (turn_diff < 0) {
 		turn_diff *= -1;
 	}
+	print_line("###turn_diff");
+	print_line(Math::rad_to_deg(turn_diff));
 	rot = Quaternion(axis_y.normalized(), turn_diff).normalized();
+	print_line("###ROT");
+	print_line(Math::rad_to_deg(rot.get_angle()));
 	to_set->rotate_local_with_global(rot);
 }
 
