@@ -667,6 +667,7 @@ void NBoneIK::execute(real_t delta) {
 	}
 	if (is_dirty) {
 		skeleton_changed(get_skeleton());
+		is_dirty = false;
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
