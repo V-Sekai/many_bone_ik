@@ -206,7 +206,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
 					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
-					"Constraints,constraints/"));
+					"Kusudama Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
@@ -230,9 +230,9 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_from", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,radians"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,radians"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_twist_to", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,radians"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_to", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,radians"));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
@@ -285,10 +285,10 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 			ERR_FAIL_INDEX_V(index, constraint_names.size(), false);
 			r_ret = constraint_names[index];
 			return true;
-		} else if (what == "kusudama_twist_from") {
+		} else if (what == "twist_from") {
 			r_ret = get_kusudama_twist(index).x;
 			return true;
-		} else if (what == "kusudama_twist_to") {
+		} else if (what == "twist_to") {
 			r_ret = get_kusudama_twist(index).y;
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
@@ -352,13 +352,13 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			}
 			set_constraint_name(index, p_value);
 			return true;
-		} else if (what == "kusudama_twist_from") {
-			Vector2 kusudama_twist_from = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(p_value, kusudama_twist_from.y));
+		} else if (what == "twist_from") {
+			Vector2 twist_from = get_kusudama_twist(index);
+			set_kusudama_twist(index, Vector2(p_value, twist_from.y));
 			return true;
-		} else if (what == "kusudama_twist_to") {
-			Vector2 kusudama_twist_to = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(kusudama_twist_to.x, p_value));
+		} else if (what == "twist_to") {
+			Vector2 twist_to = get_kusudama_twist(index);
+			set_kusudama_twist(index, Vector2(twist_to.x, p_value));
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
