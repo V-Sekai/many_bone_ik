@@ -386,9 +386,7 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &NBoneIK::remove_constraint);
 	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &NBoneIK::set_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &NBoneIK::get_skeleton_node_path);
-	ClassDB::bind_method(D_METHOD("set_pin_weight", "index,"
-													"weight"),
-			&NBoneIK::set_pin_weight);
+	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &NBoneIK::set_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &NBoneIK::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &NBoneIK::set_dirty);
 	ClassDB::bind_method(D_METHOD("set_root_bone", "root_bone"), &NBoneIK::set_root_bone);
