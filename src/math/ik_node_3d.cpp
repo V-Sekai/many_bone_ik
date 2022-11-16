@@ -52,6 +52,7 @@ void IKNode3D::rotate_local_with_global(const Basis &p_basis) {
 	new_rot = parent->get_global_transform().basis;
 	local_transform.basis = (new_rot.inverse() * p_basis * new_rot) * local_transform.basis;
 	dirty |= DIRTY_GLOBAL;
+	_propagate_transform_changed();
 }
 
 void IKNode3D::set_transform(const Transform3D &p_transform) {
