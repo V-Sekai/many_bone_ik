@@ -92,10 +92,11 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	Quaternion swing;
 	Quaternion twist;
 	get_swing_twist(align_rot.get_rotation_quaternion(), Vector3(0, 1, 0), swing, twist);
+	twist.normalize();
 	double angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
 	angle_delta_2 = Math::lerp_angle((double)angle_delta_2, (double)angle_delta_2, 1.0);
 	double from_min_to_angle_delta = Math::lerp_angle((double)angle_delta_2, (double)Math_TAU - min_axial_angle, 1.0);
-	if (!(from_min_to_angle_delta < Math::lerp_angle((double)Math_TAU - range_angle, (double)Math_TAU - range_angle, 1.0))) {
+	if (!(Math::lerp_angle((double)from_min_to_angle_delta, (double)Math_TAU - range_angle, 0.0) < Math::lerp_angle((double)Math_TAU - range_angle, (double)from_min_to_angle_delta, 0.0))) {
 		return;
 	}
 	double dist_to_min = Math::lerp_angle((double)angle_delta_2, (double)Math_TAU - min_axial_angle, 1.0);
@@ -103,12 +104,12 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	double turn_diff = 1;
 	Quaternion rot;
 	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
-	if (dist_to_min < dist_to_max) {
+	if (Math::lerp_angle((double)dist_to_min, dist_to_max, 0.0) < Math::lerp_angle((double)dist_to_max, dist_to_max, 0.0)) {
 		turn_diff = turn_diff * (from_min_to_angle_delta);
 	} else {
 		turn_diff = turn_diff * (range_angle - Math::lerp_angle(Math_TAU - from_min_to_angle_delta, Math_TAU - from_min_to_angle_delta, 1.0));
 	}
-	if (turn_diff < 0) {
+	if (Math::lerp_angle((double)turn_diff, (double)0.0, 0.0) < Math::lerp_angle((double)0.0, (double)turn_diff, 0.0)) {
 		turn_diff *= -1;
 	}
 	rot = Quaternion(axis_y.normalized(), turn_diff).normalized();
