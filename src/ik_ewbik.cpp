@@ -45,7 +45,7 @@ void NBoneIK::set_pin_count(int32_t p_value) {
 	for (int32_t pin_i = p_value; pin_i-- > old_count;) {
 		pins.write[pin_i].instantiate();
 	}
-	set_dirty(true);
+	set_dirty();
 	notify_property_list_changed();
 }
 
@@ -61,7 +61,7 @@ void NBoneIK::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
 		pins.write[p_pin_index] = effector_template;
 	}
 	effector_template->set_name(p_bone);
-	set_dirty(true);
+	set_dirty();
 }
 
 void NBoneIK::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_target_node) {
@@ -72,7 +72,7 @@ void NBoneIK::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_tar
 		pins.write[p_pin_index] = effector_template;
 	}
 	effector_template->set_target_node(p_target_node);
-	set_dirty(false);
+	set_dirty();
 }
 
 NodePath NBoneIK::get_pin_target_nodepath(int32_t p_pin_index) {
@@ -90,7 +90,7 @@ void NBoneIK::remove_pin(int32_t p_index) {
 	pins.remove_at(p_index);
 	pin_count--;
 	pins.resize(pin_count);
-	set_dirty(true);
+	set_dirty();
 	notify_property_list_changed();
 }
 
@@ -458,7 +458,7 @@ void NBoneIK::set_pin_depth_falloff(int32_t p_effector_index, const float p_dept
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	ERR_FAIL_NULL(effector_template);
 	effector_template->set_depth_falloff(p_depth_falloff);
-	set_dirty(false);
+	set_dirty();
 }
 
 void NBoneIK::set_constraint_count(int32_t p_count) {
@@ -474,7 +474,7 @@ void NBoneIK::set_constraint_count(int32_t p_count) {
 		kusudama_limit_cones.write[constraint_i].resize(0);
 		kusudama_twist.write[constraint_i] = Vector2();
 	}
-	set_dirty(true);
+	set_dirty();
 }
 
 int32_t NBoneIK::get_constraint_count() const {
@@ -489,7 +489,7 @@ inline StringName NBoneIK::get_constraint_name(int32_t p_index) const {
 void NBoneIK::set_kusudama_twist(int32_t p_index, Vector2 p_to) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist.write[p_index] = p_to;
-	set_dirty(false);
+	set_dirty();
 }
 
 int32_t NBoneIK::find_effector_id(StringName p_bone_name) {
@@ -516,7 +516,7 @@ void NBoneIK::set_kusudama_limit_cone(int32_t p_contraint_index, int32_t p_index
 	cone.w = p_radius;
 	cones.write[p_index] = cone;
 	kusudama_limit_cones.write[p_contraint_index] = cones;
-	set_dirty(true);
+	set_dirty();
 }
 
 Vector3 NBoneIK::get_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index) const {
@@ -566,7 +566,7 @@ void NBoneIK::set_kusudama_limit_cone_count(int32_t p_contraint_index, int32_t p
 		cone.w = Math::deg_to_rad(10.0f);
 	}
 	notify_property_list_changed();
-	set_dirty(true);
+	set_dirty();
 }
 
 real_t NBoneIK::get_default_damp() const {
@@ -575,7 +575,7 @@ real_t NBoneIK::get_default_damp() const {
 
 void NBoneIK::set_default_damp(float p_default_damp) {
 	default_damp = p_default_damp;
-	set_dirty(false);
+	set_dirty();
 }
 
 StringName NBoneIK::get_pin_bone_name(int32_t p_effector_index) const {
@@ -591,7 +591,7 @@ void NBoneIK::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
 	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
 	cone.w = p_radius;
-	set_dirty(false);
+	set_dirty();
 }
 
 void NBoneIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
@@ -608,7 +608,7 @@ void NBoneIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p
 		cone.y = p_center.y;
 		cone.z = p_center.z;
 	}
-	set_dirty(false);
+	set_dirty();
 }
 
 Vector2 NBoneIK::get_kusudama_twist(int32_t p_index) const {
@@ -619,7 +619,7 @@ Vector2 NBoneIK::get_kusudama_twist(int32_t p_index) const {
 void NBoneIK::set_constraint_name(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	constraint_names.write[p_index] = p_name;
-	set_dirty(true);
+	set_dirty();
 }
 
 Ref<IKBoneSegment> NBoneIK::get_segmented_skeleton() {
@@ -663,7 +663,7 @@ void NBoneIK::execute(real_t delta) {
 		return;
 	}
 	if (segmented_skeleton.is_null()) {
-		set_dirty(true);
+		set_dirty();
 	}
 	if (is_dirty) {
 		skeleton_changed(get_skeleton());
@@ -762,7 +762,7 @@ StringName NBoneIK::get_root_bone() const {
 
 void NBoneIK::set_root_bone(const StringName &p_root_bone) {
 	root_bone = p_root_bone;
-	set_dirty(true);
+	set_dirty();
 }
 
 StringName NBoneIK::get_tip_bone() const {
@@ -771,7 +771,7 @@ StringName NBoneIK::get_tip_bone() const {
 
 void NBoneIK::set_tip_bone(StringName p_bone) {
 	tip_bone = p_bone;
-	set_dirty(true);
+	set_dirty();
 }
 
 real_t NBoneIK::get_pin_weight(int32_t p_pin_index) const {
@@ -788,7 +788,7 @@ void NBoneIK::set_pin_weight(int32_t p_pin_index, const real_t &p_weight) {
 		pins.write[p_pin_index] = effector_template;
 	}
 	effector_template->set_weight(p_weight);
-	set_dirty(false);
+	set_dirty();
 }
 
 Vector3 NBoneIK::get_pin_direction_priorities(int32_t p_pin_index) const {
@@ -805,12 +805,11 @@ void NBoneIK::set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p
 		pins.write[p_pin_index] = effector_template;
 	}
 	effector_template->set_direction_priorities(p_priority_direction);
-	set_dirty(true);
+	set_dirty();
 }
 
-void NBoneIK::set_dirty(bool p_recreate) {
+void NBoneIK::set_dirty() {
 	is_dirty = true;
-	is_recreate = p_recreate;
 	update_gizmos();
 }
 
@@ -834,7 +833,7 @@ NodePath NBoneIK::get_skeleton_node_path() {
 
 void NBoneIK::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 	skeleton_node_path = p_skeleton_node_path;
-	set_dirty(true);
+	set_dirty();
 }
 
 void NBoneIK::_notification(int p_what) {
@@ -873,6 +872,6 @@ void NBoneIK::remove_constraint(int32_t p_index) {
 	kusudama_limit_cone_count.resize(constraint_count);
 	kusudama_limit_cones.resize(constraint_count);
 
-	set_dirty(true);
+	set_dirty();
 	notify_property_list_changed();
 }

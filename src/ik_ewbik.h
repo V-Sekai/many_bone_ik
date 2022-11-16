@@ -58,7 +58,6 @@ class NBoneIK : public Node3D {
 	bool queue_debug_skeleton = false;
 	Ref<IKNode3D> root_transform = Ref<IKNode3D>(memnew(IKNode3D));
 	bool is_dirty = true;
-	bool is_recreate = true;
 	NodePath skeleton_node_path = NodePath("..");
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
@@ -125,7 +124,7 @@ public:
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	NBoneIK();
 	~NBoneIK();
-	void set_dirty(bool p_recreate);
+	void set_dirty();
 };
 
 #endif // IK_EWBIK_H
