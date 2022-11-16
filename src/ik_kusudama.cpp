@@ -106,7 +106,10 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	} else {
 		turn_diff = turn_diff * (range_angle - (Math_TAU - from_min_to_angle_delta));
 	}
-	turn_diff = Math::lerp_angle(turn_diff, turn_diff, 1.0);
+	turn_diff = to_tau(turn_diff);
+	if (turn_diff < 0) {
+		turn_diff *= -1;
+	}
 	Basis rot = Basis(axis_y.normalized(), turn_diff);
 	to_set->rotate_local_with_global(rot);
 }
