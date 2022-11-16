@@ -232,7 +232,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,radians"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_to", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,radians"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,radians"));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
@@ -288,7 +288,7 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 		} else if (what == "twist_from") {
 			r_ret = get_kusudama_twist(index).x;
 			return true;
-		} else if (what == "twist_to") {
+		} else if (what == "twist_range") {
 			r_ret = get_kusudama_twist(index).y;
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
@@ -346,7 +346,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
-		if (what == "name") {
+		if (what == "bone_name") {
 			if (index >= constraint_names.size()) {
 				set_constraint_count(constraint_count);
 			}
@@ -356,9 +356,9 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			Vector2 twist_from = get_kusudama_twist(index);
 			set_kusudama_twist(index, Vector2(p_value, twist_from.y));
 			return true;
-		} else if (what == "twist_to") {
-			Vector2 twist_to = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(twist_to.x, p_value));
+		} else if (what == "twist_range") {
+			Vector2 twist_range = get_kusudama_twist(index);
+			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);

@@ -89,28 +89,45 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	Quaternion swing;
 	Quaternion twist;
 	get_swing_twist(align_rot.get_rotation_quaternion(), Vector3(0, 1, 0), swing, twist);
-	twist.normalize();
 	double angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
-	angle_delta_2 = Math::lerp_angle((double)angle_delta_2, (double)angle_delta_2, 1.0);
-	double from_min_to_angle_delta = Math::lerp_angle((double)angle_delta_2, (double)Math_TAU - min_axial_angle, 1.0);
-	if (!(Math::lerp_angle((double)from_min_to_angle_delta, (double)Math_TAU - range_angle, 0.0) < Math::lerp_angle((double)Math_TAU - range_angle, (double)from_min_to_angle_delta, 0.0))) {
+	angle_delta_2 = to_tau(angle_delta_2);
+	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
+	if (!(from_min_to_angle_delta < Math_TAU - range_angle)) {
 		return;
 	}
-	double dist_to_min = Math::lerp_angle((double)angle_delta_2, (double)Math_TAU - min_axial_angle, 1.0);
-	double dist_to_max = Math::lerp_angle((double)angle_delta_2, (double)Math_TAU - (min_axial_angle + range_angle), 1.0);
+	double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
+	double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
 	double turn_diff = 1;
 	Quaternion rot;
 	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
-	if (Math::lerp_angle((double)dist_to_min, dist_to_max, 0.0) < Math::lerp_angle((double)dist_to_max, dist_to_max, 0.0)) {
+	if (dist_to_min < dist_to_max) {
 		turn_diff = turn_diff * (from_min_to_angle_delta);
 	} else {
-		turn_diff = turn_diff * (range_angle - Math::lerp_angle(Math_TAU - from_min_to_angle_delta, Math_TAU - from_min_to_angle_delta, 1.0));
+		turn_diff = turn_diff * (range_angle - (Math_TAU - from_min_to_angle_delta));
 	}
-	if (Math::lerp_angle((double)turn_diff, (double)0.0, 0.0) < Math::lerp_angle((double)0.0, (double)turn_diff, 0.0)) {
+	if (turn_diff < 0) {
 		turn_diff *= -1;
 	}
 	rot = Quaternion(axis_y.normalized(), turn_diff).normalized();
 	to_set->rotate_local_with_global(rot);
+}
+
+double IKKusudama::signed_angle_difference(double min_angle, double p_super) {
+	double d = Math::fmod(Math::abs(min_angle - p_super), Math_TAU);
+	double r = d > Math_PI ? Math_TAU - d : d;
+
+	double sign = (min_angle - p_super >= 0 && min_angle - p_super <= Math_PI) || (min_angle - p_super <= -Math_PI && min_angle - p_super >= -Math_TAU) ? 1.0f : -1.0f;
+	r *= sign;
+	return r;
+}
+
+double IKKusudama::to_tau(double angle) {
+	double result = angle;
+	if (angle < 0) {
+		result = (2 * Math_PI) + angle;
+	}
+	result = mod(result, (Math_PI * 2.0f));
+	return result;
 }
 
 Ref<IKBone3D> IKKusudama::attached_to() {

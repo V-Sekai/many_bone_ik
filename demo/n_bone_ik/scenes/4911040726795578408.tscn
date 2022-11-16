@@ -110,7 +110,7 @@ pins/4/direction_priorities = Vector3(0.707107, 0, 0.707107)
 constraint_count = 2
 constraints/0/bone_name = &"Spine"
 constraints/0/twist_from = 4.4279
-constraints/0/twist_to = 1.61443
+constraints/0/twist_range = 1.61443
 constraints/0/kusudama_limit_cone_count = 3
 constraints/0/kusudama_limit_cone/0/center = Vector3(0, 0, -1)
 constraints/0/kusudama_limit_cone/0/radius = 3.14159
@@ -120,7 +120,7 @@ constraints/0/kusudama_limit_cone/2/center = Vector3(0, 0, 1)
 constraints/0/kusudama_limit_cone/2/radius = 3.14159
 constraints/1/bone_name = &""
 constraints/1/twist_from = 0.0
-constraints/1/twist_to = 0.0
+constraints/1/twist_range = 0.0
 constraints/1/kusudama_limit_cone_count = 0
 
 [node name="Head" type="Marker3D" parent="." index="5"]
