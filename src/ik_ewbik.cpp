@@ -659,7 +659,7 @@ void NBoneIK::execute(real_t delta) {
 	if (!is_visible_in_tree()) {
 		return;
 	}
-	if (pin_count == 0) {
+	if (get_pin_count() == 0) {
 		return;
 	}
 	if (segmented_skeleton.is_null()) {
