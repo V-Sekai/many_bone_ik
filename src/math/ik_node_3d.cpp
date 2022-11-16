@@ -44,12 +44,12 @@ void IKNode3D::_update_local_transform() const {
 	dirty &= ~DIRTY_LOCAL;
 }
 
-void IKNode3D::rotate_local_with_global(Quaternion p_q) {
+void IKNode3D::rotate_local_with_global(const Basis &p_basis) {
 	Basis new_rot;
 	if (parent.is_valid()) {
 		new_rot = parent->get_global_transform().basis;
 	}
-	local_transform.basis = (new_rot.inverse() * p_q * new_rot) * local_transform.basis;
+	local_transform.basis = (new_rot.inverse() * p_basis * new_rot) * local_transform.basis;
 	dirty |= DIRTY_VECTORS;
 	_propagate_transform_changed();
 }
