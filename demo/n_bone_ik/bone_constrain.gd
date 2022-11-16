@@ -77,6 +77,6 @@ func _run():
 		new_ik.visible = false
 		new_ik.set_pin_count(0)
 		new_ik.set_constraint_count(0)
-		create_constraints(new_ik)
+#		create_constraints(new_ik)
 		create_pins(new_ik, skeleton)
 		new_ik.visible = true
