@@ -41,8 +41,6 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		if bone_name in ["Head"]:
 			ewbik.set_pin_weight(pin_i, 1)
 			ewbik.set_pin_depth_falloff(pin_i, 0)
-		if bone_name in ["LeftFoot", "RightFoot"]:
-			ewbik.set_pin_weight(pin_i, 0.4)
 		var marker_3d : Marker3D = Marker3D.new()
 		marker_3d.name = bone_name
 		marker_3d.global_transform = node_3d.global_transform
