@@ -294,7 +294,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_relative_to_the_universe = ewbik_skeleton->get_global_transform() * ik_bone->get_constraint_transform()->get_global_transform();
+	Transform3D constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ewbik_skeleton->get_global_transform() * ik_bone->get_constraint_transform()->get_global_transform();
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
 	if (current_bone_idx >= ewbik_skeleton->get_bone_count()) {
@@ -373,8 +373,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 			Transform3D handle_border_relative_to_mesh;
 			Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), center)) * mesh_orientation;
 			handle_border_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
-			Transform3D handle_border_relative_to_skeleton = constraint_relative_to_the_universe * handle_border_relative_to_mesh;
-			Transform3D handle_border_relative_to_universe = ewbik_skeleton->get_global_transform() * handle_border_relative_to_skeleton;
+			Transform3D handle_border_relative_to_universe = constraint_relative_to_the_universe * handle_border_relative_to_mesh;
 			radius_handles.push_back(handle_border_relative_to_universe.origin);
 		}
 	}
