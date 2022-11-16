@@ -227,10 +227,8 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 			rot = clamp_to_quadrance_angle(rot, bone_damp);
 		}
 		p_for_bone->get_ik_transform()->rotate_local_with_global(rot, false);
-		if (p_translate) {
-			Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
-			p_for_bone->set_global_pose(result);
-		}
+		Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
+		p_for_bone->set_global_pose(result);
 	}
 
 	// If the solved transform is outside the hard constraints, move it back into range.
