@@ -668,6 +668,7 @@ void NBoneIK::execute(real_t delta) {
 	if (is_dirty) {
 		skeleton_changed(get_skeleton());
 		is_dirty = false;
+		update_gizmos();
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
@@ -807,7 +808,6 @@ void NBoneIK::set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p
 
 void NBoneIK::set_dirty() {
 	is_dirty = true;
-	update_gizmos();
 }
 
 int32_t NBoneIK::find_constraint(String p_string) const {
