@@ -43,9 +43,6 @@ IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
 void IKKusudama::_update_constraint(Node3D *p_node) {
 	update_tangent_radii();
 	update_rotational_freedom();
-	if (p_node) {
-		p_node->update_gizmos();
-	}
 }
 
 void IKKusudama::update_tangent_radii() {
