@@ -53,7 +53,7 @@ class NBoneIK : public Node3D {
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
-	int32_t ik_iterations = 10;
+	int32_t iterations_per_frame = 10;
 	float default_damp = Math::deg_to_rad(5.0f);
 	bool queue_debug_skeleton = false;
 	Ref<IKNode3D> root_transform = Ref<IKNode3D>(memnew(IKNode3D));
@@ -84,8 +84,8 @@ public:
 	StringName get_tip_bone() const;
 	void set_tip_bone(StringName p_bone);
 	Ref<IKBoneSegment> get_segmented_skeleton();
-	float get_ik_iterations() const;
-	void set_ik_iterations(const float &p_ik_iterations);
+	float get_iterations_per_frame() const;
+	void set_iterations_per_frame(const float &p_iterations_per_frame);
 	void remove_pin(int32_t p_index);
 	void queue_print_skeleton();
 	void set_pin_count(int32_t p_value);
