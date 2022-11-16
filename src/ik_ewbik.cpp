@@ -210,7 +210,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		bone_name.name = "constraints/" + itos(constraint_i) + "/name";
+		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
 			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
@@ -281,7 +281,7 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, constraint_count, false);
 		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone";
-		if (what == "name") {
+		if (what == "bone_name") {
 			ERR_FAIL_INDEX_V(index, constraint_names.size(), false);
 			r_ret = constraint_names[index];
 			return true;
