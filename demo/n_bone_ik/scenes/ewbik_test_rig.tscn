@@ -72,7 +72,7 @@ transform = Transform3D(1, 0, 1.27256e-07, 0, 1, -4.14581e-07, -1.27256e-07, 4.1
 gizmo_extents = 0.5
 
 [node name="Bone_03" type="Marker3D" parent="ConstraintBone"]
-transform = Transform3D(0.777278, 0, 0.629158, 2.60837e-07, 1, -3.22245e-07, -0.629158, 4.14581e-07, 0.777278, 0.356785, 2.63491, 0.605195)
+transform = Transform3D(0.777278, 0, 0.629158, 2.60837e-07, 1, -3.22245e-07, -0.629158, 4.14581e-07, 0.777278, 0.610569, 2.63491, 0.918727)
 gizmo_extents = 0.5
 
 [node name="Skeleton3D" type="Skeleton3D" parent="ConstraintBone"]
@@ -87,16 +87,16 @@ bones/1/name = "Bone_02"
 bones/1/parent = 0
 bones/1/rest = Transform3D(1, -7.83505e-21, 7.10543e-14, 7.83506e-21, 1, -2.84217e-14, -7.10543e-14, 2.84217e-14, 1, -3.81165e-21, 0.600001, 5.68434e-14)
 bones/1/enabled = true
-bones/1/position = Vector3(-3.04532e-16, 0.59247, -1.14727e-09)
-bones/1/rotation = Quaternion(0.0778154, 0.985327, 0.146351, -0.0406988)
-bones/1/scale = Vector3(1.00039, 0.985161, 0.986135)
+bones/1/position = Vector3(-3.04505e-16, 0.59247, -1.14727e-09)
+bones/1/rotation = Quaternion(0.126765, 0.968392, 0.210751, -0.0416228)
+bones/1/scale = Vector3(1.00048, 0.985174, 0.986278)
 bones/2/name = "Bone_03"
 bones/2/parent = 1
 bones/2/rest = Transform3D(1, 1.2679e-20, -9.9476e-14, -1.2679e-20, 1, 7.10543e-14, 9.9476e-14, -7.10543e-14, 1, 1.53864e-20, 0.600001, -1.36584e-20)
 bones/2/enabled = true
-bones/2/position = Vector3(-2.39089e-05, 0.600052, 0.00117673)
-bones/2/rotation = Quaternion(0.0255119, 0.942313, 0.16435, -0.290489)
-bones/2/scale = Vector3(0.977643, 0.98492, 1.02718)
+bones/2/position = Vector3(-1.46627e-05, 0.600008, 0.00121492)
+bones/2/rotation = Quaternion(0.0507365, 0.926469, 0.241567, -0.284125)
+bones/2/scale = Vector3(0.977456, 0.98432, 1.02793)
 
 [node name="Simple_Test_Rig" type="MeshInstance3D" parent="ConstraintBone/Skeleton3D"]
 visible = false
