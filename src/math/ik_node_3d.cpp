@@ -44,17 +44,16 @@ void IKNode3D::_update_local_transform() const {
 	dirty &= ~DIRTY_LOCAL;
 }
 
-void IKNode3D::rotate_local_with_global(const Basis &p_basis) {
-	if (p_basis == Basis()) {
-		return;
-	}
+void IKNode3D::rotate_local_with_global(const Basis &p_basis, bool p_propagate) {
 	Basis new_rot;
 	if (parent.is_valid()) {
 		new_rot = parent->get_global_transform().basis;
 	}
 	local_transform.basis = (new_rot.inverse() * p_basis * new_rot) * local_transform.basis;
 	dirty |= DIRTY_VECTORS;
-	_propagate_transform_changed();
+	if (p_propagate) {
+		_propagate_transform_changed();
+	}
 }
 
 void IKNode3D::set_transform(const Transform3D &p_transform) {
