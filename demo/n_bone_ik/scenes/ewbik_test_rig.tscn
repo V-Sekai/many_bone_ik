@@ -8,8 +8,8 @@
 bones/0/rotation = Quaternion(-1.08669e-08, 0, -2.85217e-07, 1)
 bones/0/scale = Vector3(1.00002, 1, 1.00002)
 bones/1/position = Vector3(3.42256e-07, 0.600005, -1.30401e-08)
-bones/1/rotation = Quaternion(-2.78552e-07, 0.955814, -7.52995e-08, -0.293974)
-bones/1/scale = Vector3(1.00006, 0.999975, 1.00028)
+bones/1/rotation = Quaternion(-2.79029e-07, 0.955814, -7.30693e-08, -0.293974)
+bones/1/scale = Vector3(1.00006, 0.999975, 1.0003)
 
 [node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
 visible = false
@@ -40,7 +40,7 @@ constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/0/kusudama_limit_cone/0/radius = 0.0872665
 constraints/1/bone_name = &"Bone_02"
 constraints/1/twist_from = 0.0
-constraints/1/twist_range = 0.392699
+constraints/1/twist_range = 0.174533
 constraints/1/kusudama_limit_cone_count = 1
 constraints/1/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/1/kusudama_limit_cone/0/radius = 0.324631
