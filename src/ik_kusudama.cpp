@@ -115,7 +115,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	if (turn_diff < 0) {
 		turn_diff *= -1;
 	}
-	Basis rot = Basis(axis_y.normalized(), turn_diff).orthogonalized();
+	Basis rot = Basis(axis_y.normalized(), turn_diff);
 	to_set->rotate_local_with_global(rot);
 }
 
