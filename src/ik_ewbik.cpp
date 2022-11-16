@@ -811,7 +811,9 @@ void NBoneIK::set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p
 
 void NBoneIK::set_dirty() {
 	is_dirty = true;
+	update_gizmos();
 }
+
 int32_t NBoneIK::find_constraint(String p_string) const {
 	for (int32_t constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		if (get_constraint_name(constraint_i) == p_string) {
