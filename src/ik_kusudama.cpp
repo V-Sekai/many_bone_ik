@@ -85,17 +85,12 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 		return;
 	}
 	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
-	print_line(Math::rad_to_deg(inv_rot.get_rotation_quaternion().get_angle()));
 	Basis align_rot = inv_rot * bone_direction->get_global_transform().basis;
-	print_line(Math::rad_to_deg(align_rot.get_rotation_quaternion().get_angle()));
 	Quaternion swing;
 	Quaternion twist;
-	get_swing_twist(align_rot.get_rotation_quaternion(), Vector3(0, 1, 0), swing, twist);
-	print_line(Math::rad_to_deg(twist.get_angle()));
 	double angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
 	angle_delta_2 = to_tau(angle_delta_2);
 	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
-	print_line(Math::rad_to_deg(from_min_to_angle_delta));
 	if (from_min_to_angle_delta >= Math_TAU - range_angle) {
 		return;
 	}
