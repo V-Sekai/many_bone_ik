@@ -5,17 +5,17 @@
 [node name="ewbik_test_rig" instance=ExtResource("1_6hflb")]
 
 [node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
-bones/0/rotation = Quaternion(-1.08669e-08, 2.11758e-22, -2.85217e-07, 1)
+bones/0/rotation = Quaternion(-1.08669e-08, 6.35275e-22, -2.85217e-07, 1)
 bones/0/scale = Vector3(1.00002, 1, 1.00002)
 bones/1/position = Vector3(3.42256e-07, 0.600005, -1.30401e-08)
-bones/1/rotation = Quaternion(-2.73108e-07, 0.961937, 8.56385e-08, 0.273271)
-bones/1/scale = Vector3(1.00006, 0.999975, 1.00035)
+bones/1/rotation = Quaternion(2.18698e-07, -0.770485, 1.79709e-07, 0.637458)
+bones/1/scale = Vector3(1.00005, 0.999972, 1.00035)
 
 [node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
 visible = false
 
 [node name="Target" type="Node3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]
-transform = Transform3D(-0.850646, 0, 0.525739, 0, 1, 0, -0.525739, 0, -0.850646, 0, 0.6, 0)
+transform = Transform3D(-0.187296, 0, -0.982304, 0, 1, 0, 0.982304, 0, -0.187296, 0, 0.6, 0)
 
 [node name="NBoneIK" type="NBoneIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="2"]
 root_bone = &"Bone_01"
