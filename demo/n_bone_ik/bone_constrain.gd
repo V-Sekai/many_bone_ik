@@ -57,7 +57,7 @@ func create_constraints(ewbik):
 		ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 		ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
 		ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(150))
-		ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(0.5)))
+		ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-15), deg_to_rad(30)))
 		# https://pubmed.ncbi.nlm.nih.gov/32644411/
 		if bone_name in ["Head"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
