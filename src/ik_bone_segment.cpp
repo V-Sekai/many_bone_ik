@@ -250,8 +250,6 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		}
 		if (p_for_bone->get_constraint()->is_axially_constrained()) {
 			p_for_bone->get_constraint()->_update_constraint(skeleton);
-			print_line("###BONE");
-			print_line(skeleton->get_bone_name(p_for_bone->get_bone_id()));
 			p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 		}
 	}
