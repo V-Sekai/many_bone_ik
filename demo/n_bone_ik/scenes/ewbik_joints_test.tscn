@@ -23,13 +23,13 @@ blend_shape_mode = 0
 [sub_resource type="Skin" id="Skin_ycyo1"]
 resource_name = "Skin"
 bind_count = 3
-bind/0/bone_name = &"Bone_01"
+bind/0/name = &""
 bind/0/bone = -1
 bind/0/pose = Transform3D(1, 6.04882e-14, -1.27256e-07, -1.49779e-14, 1, 3.57628e-07, 1.27256e-07, -4.71534e-07, 1, 0, 0, 0)
-bind/1/bone_name = &"Bone_02"
+bind/1/name = &""
 bind/1/bone = -1
 bind/1/pose = Transform3D(1, 6.04882e-14, -1.27256e-07, -1.49779e-14, 1, 3.57628e-07, 1.27256e-07, -4.71534e-07, 1, 3.38813e-21, -0.600001, -5.68434e-14)
-bind/2/bone_name = &"Bone_03"
+bind/2/name = &""
 bind/2/bone = -1
 bind/2/pose = Transform3D(1, 6.04882e-14, -1.27256e-07, -1.49779e-14, 1, 3.57628e-07, 1.27256e-07, -4.71534e-07, 1, 2.03288e-20, -1.2, -1.7053e-13)
 
@@ -56,13 +56,13 @@ blend_shape_mode = 0
 [sub_resource type="Skin" id="Skin_tjthk"]
 resource_name = "Skin"
 bind_count = 3
-bind/0/bone_name = &"Bone_01"
+bind/0/name = &""
 bind/0/bone = -1
 bind/0/pose = Transform3D(1, 6.87496e-14, -1.27366e-07, -8.01652e-15, 1, 4.76837e-07, 1.27366e-07, -4.71534e-07, 1, 0, 0, 0)
-bind/1/bone_name = &"Bone_02"
+bind/1/name = &""
 bind/1/bone = -1
 bind/1/pose = Transform3D(1, 6.87496e-14, -1.27367e-07, -8.01653e-15, 1, 4.76837e-07, 1.27367e-07, -4.71534e-07, 1, 1.35525e-20, -0.600001, -5.68434e-14)
-bind/2/bone_name = &"Bone_03"
+bind/2/name = &""
 bind/2/bone = -1
 bind/2/pose = Transform3D(1, 6.87496e-14, -1.27366e-07, -8.01651e-15, 1, 4.76837e-07, 1.27366e-07, -4.71534e-07, 1, 1.35525e-20, -1.2, 2.15767e-27)
 
@@ -111,27 +111,6 @@ transform = Transform3D(1, 0, 1.27256e-07, 0, 1, -4.14581e-07, -1.27256e-07, 4.1
 gizmo_extents = 0.5
 
 [node name="Skeleton3D" type="Skeleton3D" parent="CondyloidJoint"]
-bones/0/bone_name = "Bone_01"
-bones/0/parent = -1
-bones/0/rest = Transform3D(1, -4.1065e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-07, -1.27256e-07, 4.14581e-07, 1, 0, 0, 0)
-bones/0/enabled = true
-bones/0/position = Vector3(6.8325e-15, 3.33067e-16, 0)
-bones/0/rotation = Quaternion(2.06322e-07, 6.3628e-08, -1.28702e-14, 1)
-bones/0/scale = Vector3(1, 1, 1)
-bones/1/bone_name = "Bone_02"
-bones/1/parent = 0
-bones/1/rest = Transform3D(1, -7.83505e-21, 7.10543e-14, 7.83506e-21, 1, -2.84217e-14, -7.10543e-14, 2.84217e-14, 1, -3.81165e-21, 0.600001, 5.68434e-14)
-bones/1/enabled = true
-bones/1/position = Vector3(-3.05399e-16, 0.59247, -1.14727e-09)
-bones/1/rotation = Quaternion(-0.143005, 0.965467, 0.217765, -0.000792161)
-bones/1/scale = Vector3(0.995378, 0.978181, 0.976792)
-bones/2/bone_name = "Bone_03"
-bones/2/parent = 1
-bones/2/rest = Transform3D(1, 1.2679e-20, -9.9476e-14, -1.2679e-20, 1, 7.10543e-14, 9.9476e-14, -7.10543e-14, 1, 1.53864e-20, 0.600001, -1.36584e-20)
-bones/2/enabled = true
-bones/2/position = Vector3(0.000125423, 0.59577, 0.000614971)
-bones/2/rotation = Quaternion(-0.145266, 0.96522, 0.217363, 0.00138593)
-bones/2/scale = Vector3(0.989836, 0.98046, 1.09716)
 
 [node name="Simple_Test_Rig" type="MeshInstance3D" parent="CondyloidJoint/Skeleton3D"]
 visible = false
@@ -178,27 +157,6 @@ transform = Transform3D(1, 0, 1.27256e-07, 0, 1, -4.14581e-07, -1.27256e-07, 4.1
 gizmo_extents = 0.5
 
 [node name="Skeleton3D" type="Skeleton3D" parent="PivotJoint"]
-bones/0/bone_name = "Bone_01"
-bones/0/parent = -1
-bones/0/rest = Transform3D(1, -4.1065e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-07, -1.27256e-07, 4.14581e-07, 1, 0, 0, 0)
-bones/0/enabled = true
-bones/0/position = Vector3(6.8325e-15, 3.33067e-16, 0)
-bones/0/rotation = Quaternion(2.06322e-07, 6.3628e-08, -1.28699e-14, 1)
-bones/0/scale = Vector3(1, 1, 1)
-bones/1/bone_name = "Bone_02"
-bones/1/parent = 0
-bones/1/rest = Transform3D(1, -7.83505e-21, 7.10543e-14, 7.83506e-21, 1, -2.84217e-14, -7.10543e-14, 2.84217e-14, 1, -3.81165e-21, 0.600001, 5.68434e-14)
-bones/1/enabled = true
-bones/1/position = Vector3(-3.05731e-16, 0.59247, -1.14727e-09)
-bones/1/rotation = Quaternion(-0.00685753, -0.707766, -0.00684791, 0.70638)
-bones/1/scale = Vector3(0.999986, 0.984925, 0.984999)
-bones/2/bone_name = "Bone_03"
-bones/2/parent = 1
-bones/2/rest = Transform3D(1, 1.2679e-20, -9.9476e-14, -1.2679e-20, 1, 7.10543e-14, 9.9476e-14, -7.10543e-14, 1, 1.53864e-20, 0.600001, -1.36584e-20)
-bones/2/enabled = true
-bones/2/position = Vector3(1.92624e-05, 0.599561, 0.0116217)
-bones/2/rotation = Quaternion(0.0068582, 0.707766, 0.00684823, 0.70638)
-bones/2/scale = Vector3(1.00504, 0.943041, 0.972318)
 
 [node name="Simple_Test_Rig" type="MeshInstance3D" parent="PivotJoint/Skeleton3D"]
 visible = false
@@ -257,27 +215,6 @@ font_size = 20
 
 [node name="Skeleton3D" type="Skeleton3D" parent="HingeJoint"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.80341, -0.0550011, -0.0643523)
-bones/0/bone_name = "Bone_01"
-bones/0/parent = -1
-bones/0/rest = Transform3D(1, -8.52314e-15, 1.27366e-07, 6.89185e-14, 1, -4.74185e-07, -1.27366e-07, 4.74185e-07, 1, 0, 0, 0)
-bones/0/enabled = true
-bones/0/position = Vector3(1.80341, 0.0550011, 0.0643523)
-bones/0/rotation = Quaternion(8.78474e-08, 6.16499e-08, -3.88138e-16, 1)
-bones/0/scale = Vector3(1, 1, 1)
-bones/1/bone_name = "Bone_02"
-bones/1/parent = 0
-bones/1/rest = Transform3D(1, 2.11758e-21, 8.52651e-14, -2.11759e-21, 1, 8.52651e-14, -8.52651e-14, -8.52651e-14, 1, -1.18585e-20, 0.600001, -6.88214e-22)
-bones/1/enabled = true
-bones/1/position = Vector3(0, 0.588899, -1.3411e-07)
-bones/1/rotation = Quaternion(-0.0902956, 0.989954, 0.108635, -0.00601324)
-bones/1/scale = Vector3(1.00107, 0.999557, 0.99982)
-bones/2/bone_name = "Bone_03"
-bones/2/parent = 1
-bones/2/rest = Transform3D(1, 1.18585e-20, -9.9476e-14, -1.18585e-20, 1, -5.68434e-14, 9.9476e-14, 5.68434e-14, 1, 7.66347e-21, 0.600001, 5.68434e-14)
-bones/2/enabled = true
-bones/2/position = Vector3(0.00335133, 0.601781, 0.00475359)
-bones/2/rotation = Quaternion(-0.0877592, 0.992981, -0.0760142, 0.0225716)
-bones/2/scale = Vector3(1.00185, 0.999291, 1.00204)
 
 [node name="Simple_Test_Rig" type="MeshInstance3D" parent="HingeJoint/Skeleton3D"]
 visible = false
@@ -325,27 +262,6 @@ gizmo_extents = 0.5
 
 [node name="Skeleton3D" type="Skeleton3D" parent="BallAndSocketJoint"]
 transform = Transform3D(0.998298, 0.0583133, 0, -0.0583133, 0.998298, 0, 0, 0, 1, 0, 0, 0)
-bones/0/bone_name = "Bone_01"
-bones/0/parent = -1
-bones/0/rest = Transform3D(1, -4.1065e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-07, -1.27256e-07, 4.14581e-07, 1, 0, 0, 0)
-bones/0/enabled = true
-bones/0/position = Vector3(6.8325e-15, 3.33067e-16, 0)
-bones/0/rotation = Quaternion(2.06322e-07, 6.3628e-08, -1.27958e-14, 1)
-bones/0/scale = Vector3(1, 1, 1)
-bones/1/bone_name = "Bone_02"
-bones/1/parent = 0
-bones/1/rest = Transform3D(1, -7.83505e-21, 7.10543e-14, 7.83506e-21, 1, -2.84217e-14, -7.10543e-14, 2.84217e-14, 1, -3.81165e-21, 0.600001, 5.68434e-14)
-bones/1/enabled = true
-bones/1/position = Vector3(-3.93426e-16, 0.59247, -1.14727e-09)
-bones/1/rotation = Quaternion(-0.0216392, 0.999632, -0.00034987, -0.0163278)
-bones/1/scale = Vector3(0.995265, 0.984909, 0.980962)
-bones/2/bone_name = "Bone_03"
-bones/2/parent = 1
-bones/2/rest = Transform3D(1, 1.2679e-20, -9.9476e-14, -1.2679e-20, 1, 7.10543e-14, 9.9476e-14, -7.10543e-14, 1, 1.53864e-20, 0.600001, -1.36584e-20)
-bones/2/enabled = true
-bones/2/position = Vector3(9.58517e-06, 0.599884, 4.61395e-06)
-bones/2/rotation = Quaternion(-0.0218663, 0.999628, -0.000343444, 0.0163207)
-bones/2/scale = Vector3(0.99145, 0.95284, 1.04967)
 
 [node name="Simple_Test_Rig" type="MeshInstance3D" parent="BallAndSocketJoint/Skeleton3D"]
 visible = false
@@ -415,27 +331,6 @@ gizmo_extents = 0.5
 
 [node name="Skeleton3D" type="Skeleton3D" parent="SaddleJoint"]
 transform = Transform3D(0.998298, 0.0583133, 0, -0.0583133, 0.998298, 0, 0, 0, 1, 0, 0, 0)
-bones/0/bone_name = "Bone_01"
-bones/0/parent = -1
-bones/0/rest = Transform3D(1, -4.1065e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-07, -1.27256e-07, 4.14581e-07, 1, 0, 0, 0)
-bones/0/enabled = true
-bones/0/position = Vector3(-1.71909e-15, 0, 9.09495e-13)
-bones/0/rotation = Quaternion(2.06301e-07, -0.0174524, -3.63441e-09, 0.999848)
-bones/0/scale = Vector3(1, 1, 1)
-bones/1/bone_name = "Bone_02"
-bones/1/parent = 0
-bones/1/rest = Transform3D(1, -7.83505e-21, 7.10543e-14, 7.83506e-21, 1, -2.84217e-14, -7.10543e-14, 2.84217e-14, 1, -3.81165e-21, 0.600001, 5.68434e-14)
-bones/1/enabled = true
-bones/1/position = Vector3(-5.93327e-14, 0.59247, -1.13505e-09)
-bones/1/rotation = Quaternion(-0.0487482, 0.994747, -0.0899186, -0.00408971)
-bones/1/scale = Vector3(1.00287, 0.986571, 0.98817)
-bones/2/bone_name = "Bone_03"
-bones/2/parent = 1
-bones/2/rest = Transform3D(1, 1.2679e-20, -9.9476e-14, -1.2679e-20, 1, 7.10543e-14, 9.9476e-14, -7.10543e-14, 1, 1.53864e-20, 0.600001, -1.36584e-20)
-bones/2/enabled = true
-bones/2/position = Vector3(-0.000485886, 0.603438, -0.000630125)
-bones/2/rotation = Quaternion(0.000161736, 0.999914, 6.48789e-05, -0.013099)
-bones/2/scale = Vector3(0.990386, 1.00339, 1.13815)
 
 [node name="Simple_Test_Rig" type="MeshInstance3D" parent="SaddleJoint/Skeleton3D"]
 visible = false
@@ -487,27 +382,6 @@ gizmo_extents = 0.5
 
 [node name="Skeleton3D" type="Skeleton3D" parent="PlaneJoint"]
 transform = Transform3D(0.998298, 0.0583133, 0, -0.0583133, 0.998298, 0, 0, 0, 1, 0, 0, 0)
-bones/0/bone_name = "Bone_01"
-bones/0/parent = -1
-bones/0/rest = Transform3D(1, -4.1065e-15, 1.27256e-07, 5.68644e-14, 1, -4.14581e-07, -1.27256e-07, 4.14581e-07, 1, 0, 0, 0)
-bones/0/enabled = true
-bones/0/position = Vector3(-1.71909e-15, 0, 9.09495e-13)
-bones/0/rotation = Quaternion(2.06301e-07, -0.0174524, -3.63441e-09, 0.999848)
-bones/0/scale = Vector3(1, 1, 1)
-bones/1/bone_name = "Bone_02"
-bones/1/parent = 0
-bones/1/rest = Transform3D(1, -7.83505e-21, 7.10543e-14, 7.83506e-21, 1, -2.84217e-14, -7.10543e-14, 2.84217e-14, 1, -3.81165e-21, 0.600001, 5.68434e-14)
-bones/1/enabled = true
-bones/1/position = Vector3(-5.93327e-14, 0.59247, -1.13505e-09)
-bones/1/rotation = Quaternion(-0.105538, 0.978421, 0.177628, -0.0013352)
-bones/1/scale = Vector3(1.00352, 0.986506, 0.985739)
-bones/2/bone_name = "Bone_03"
-bones/2/parent = 1
-bones/2/rest = Transform3D(1, 1.2679e-20, -9.9476e-14, -1.2679e-20, 1, 7.10543e-14, 9.9476e-14, -7.10543e-14, 1, 1.53864e-20, 0.600001, -1.36584e-20)
-bones/2/enabled = true
-bones/2/position = Vector3(0.000669159, 0.603359, 0.00304751)
-bones/2/rotation = Quaternion(-0.110329, 0.978149, 0.175542, -0.0154018)
-bones/2/scale = Vector3(0.992517, 0.965394, 1.01344)
 
 [node name="Simple_Test_Rig" type="MeshInstance3D" parent="PlaneJoint/Skeleton3D"]
 visible = false
