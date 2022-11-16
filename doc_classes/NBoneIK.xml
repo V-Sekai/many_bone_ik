@@ -203,7 +203,7 @@
 		</member>
 		<member name="enable" type="bool" setter="set_enabled" getter="get_enabled" default="true">
 		</member>
-		<member name="max_ik_iterations" type="float" setter="set_max_ik_iterations" getter="get_max_ik_iterations" default="10.0">
+		<member name="ik_iterations" type="float" setter="set_ik_iterations" getter="get_ik_iterations" default="10.0">
 		</member>
 		<member name="root_bone" type="StringName" setter="set_root_bone" getter="get_root_bone" default="&amp;&quot;&quot;">
 		</member>

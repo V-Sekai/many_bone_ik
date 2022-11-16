@@ -408,8 +408,8 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constraint_name", "index", "name"), &NBoneIK::set_constraint_name);
 	ClassDB::bind_method(D_METHOD("get_constraint_name", "index"), &NBoneIK::get_constraint_name);
 	ClassDB::bind_method(D_METHOD("get_segmented_skeleton"), &NBoneIK::get_segmented_skeleton);
-	ClassDB::bind_method(D_METHOD("get_max_ik_iterations"), &NBoneIK::get_max_ik_iterations);
-	ClassDB::bind_method(D_METHOD("set_max_ik_iterations", "count"), &NBoneIK::set_max_ik_iterations);
+	ClassDB::bind_method(D_METHOD("get_ik_iterations"), &NBoneIK::get_ik_iterations);
+	ClassDB::bind_method(D_METHOD("set_ik_iterations", "count"), &NBoneIK::set_ik_iterations);
 	ClassDB::bind_method(D_METHOD("find_constraint", "name"), &NBoneIK::find_constraint);
 	ClassDB::bind_method(D_METHOD("get_constraint_count"), &NBoneIK::get_constraint_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_count", "count"),
@@ -433,7 +433,7 @@ void NBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_max_ik_iterations", "get_max_ik_iterations");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "ik_iterations", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_ik_iterations", "get_ik_iterations");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 }
 
@@ -625,12 +625,12 @@ void NBoneIK::set_constraint_name(int32_t p_index, String p_name) {
 Ref<IKBoneSegment> NBoneIK::get_segmented_skeleton() {
 	return segmented_skeleton;
 }
-float NBoneIK::get_max_ik_iterations() const {
-	return max_ik_iterations;
+float NBoneIK::get_ik_iterations() const {
+	return ik_iterations;
 }
 
-void NBoneIK::set_max_ik_iterations(const float &p_max_ik_iterations) {
-	max_ik_iterations = p_max_ik_iterations;
+void NBoneIK::set_ik_iterations(const float &p_ik_iterations) {
+	ik_iterations = p_ik_iterations;
 }
 
 void NBoneIK::set_pin_bone_name(int32_t p_effector_index, StringName p_name) const {
@@ -680,7 +680,7 @@ void NBoneIK::execute(real_t delta) {
 		root_ik_parent_transform->set_global_transform(Transform3D());
 	}
 	update_ik_bones_transform();
-	for (int32_t i = 0; i < get_max_ik_iterations(); i++) {
+	for (int32_t i = 0; i < get_ik_iterations(); i++) {
 		if (segmented_skeleton.is_null()) {
 			break;
 		}
