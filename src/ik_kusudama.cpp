@@ -102,17 +102,20 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
 	double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
 	double turn_diff = 1;
-	Quaternion rot;
 	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+	if (Math::is_zero_approx(axis_y.length_squared())) {
+		axis_y = Vector3(0, 1, 0);
+	}
 	if (dist_to_min < dist_to_max) {
 		turn_diff = turn_diff * (from_min_to_angle_delta);
 	} else {
 		turn_diff = turn_diff * (range_angle - (Math_TAU - from_min_to_angle_delta));
 	}
+	turn_diff = to_tau(turn_diff);
 	if (turn_diff < 0) {
 		turn_diff *= -1;
 	}
-	rot = Quaternion(axis_y.normalized(), turn_diff).normalized();
+	Basis rot = Basis(axis_y.normalized(), turn_diff).orthogonalized();
 	to_set->rotate_local_with_global(rot);
 }
 
