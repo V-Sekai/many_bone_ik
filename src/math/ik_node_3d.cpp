@@ -45,6 +45,9 @@ void IKNode3D::_update_local_transform() const {
 }
 
 void IKNode3D::rotate_local_with_global(const Basis &p_basis) {
+	if (p_basis == Basis()) {
+		return;
+	}
 	Basis new_rot;
 	if (parent.is_valid()) {
 		new_rot = parent->get_global_transform().basis;
