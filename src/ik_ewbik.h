@@ -62,7 +62,6 @@ class NBoneIK : public Node3D {
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
-	bool is_enabled = true;
 
 protected:
 	void _validate_property(PropertyInfo &property) const;
@@ -75,8 +74,6 @@ protected:
 	void _notification(int p_what);
 
 public:
-	void set_enabled(bool p_enabled);
-	bool get_enabled() const;
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;

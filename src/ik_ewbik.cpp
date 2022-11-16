@@ -386,8 +386,6 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &NBoneIK::remove_constraint);
 	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &NBoneIK::set_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &NBoneIK::get_skeleton_node_path);
-	ClassDB::bind_method(D_METHOD("set_enabled", "enable"), &NBoneIK::set_enabled);
-	ClassDB::bind_method(D_METHOD("get_enabled"), &NBoneIK::get_enabled);
 	ClassDB::bind_method(D_METHOD("set_pin_weight", "index,"
 													"weight"),
 			&NBoneIK::set_pin_weight);
@@ -837,21 +835,13 @@ void NBoneIK::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 	set_dirty();
 }
 
-bool NBoneIK::get_enabled() const {
-	return is_enabled;
-}
-
-void NBoneIK::set_enabled(bool p_enabled) {
-	is_enabled = p_enabled;
-}
-
 void NBoneIK::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
 			set_process_internal(true);
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (!is_enabled) {
+			if (!is_visible_in_tree()) {
 				return;
 			}
 			if (is_dirty) {
