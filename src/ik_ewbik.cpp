@@ -715,9 +715,6 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
 		ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
 	}
-	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-		ik_bone_3d->update_default_constraint_transform();
-	}
 	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		String bone = constraint_names[constraint_i];
 		BoneId bone_id = p_skeleton->find_bone(bone);
@@ -744,8 +741,12 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
 			ik_bone_3d->add_constraint(constraint);
 			constraint->_update_constraint(p_skeleton);
+			constraint->optimize_limiting_axes();
 			break;
 		}
+	}
+	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+		ik_bone_3d->update_default_constraint_transform();
 	}
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
