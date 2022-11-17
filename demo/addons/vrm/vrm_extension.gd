@@ -28,7 +28,7 @@ func adjust_mesh_zforward(mesh: ImporterMesh):
 		var bsarr: Array = []
 		for bsidx in range(bscount):
 			bsarr.append(mesh.get_surface_blend_shape_arrays(surf_idx, bsidx))
-		var lods: Dictionary = {} # mesh.surface_get_lods(surf_idx) # get_lods(mesh, surf_idx)
+		var lods: Dictionary = mesh.surface_get_lods(surf_idx) # get_lods(mesh, surf_idx)
 		var mat: Material = mesh.get_surface_material(surf_idx)
 		var vert_arr_len: int = (len(arr[ArrayMesh.ARRAY_VERTEX]))
 		var vertarr: PackedVector3Array = arr[ArrayMesh.ARRAY_VERTEX]
