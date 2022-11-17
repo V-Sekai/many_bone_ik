@@ -10,7 +10,8 @@ metadata/_edit_lock_ = true
 [node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
 bones/0/rotation = Quaternion(0, 0, 0, 1)
 bones/1/position = Vector3(-1.01644e-20, 0.600001, 0)
-bones/1/rotation = Quaternion(0, -0.0868516, 0, 0.996221)
+bones/1/rotation = Quaternion(0, 0.643023, 0, 0.765847)
+bones/1/scale = Vector3(1, 1, 1)
 metadata/_edit_lock_ = true
 
 [node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
@@ -19,7 +20,7 @@ metadata/_edit_group_ = true
 metadata/_edit_lock_ = true
 
 [node name="Target" type="Node3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]
-transform = Transform3D(0.863449, 0, -0.504438, 0, 1, 0, 0.504438, 0, 0.863449, 0, 0.6, 0)
+transform = Transform3D(0.560321, 0, -0.828276, 0, 1, 0, 0.828276, 0, 0.560321, 0, 0.6, 0)
 
 [node name="NBoneIK" type="NBoneIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="2"]
 root_bone = &"Bone_01"

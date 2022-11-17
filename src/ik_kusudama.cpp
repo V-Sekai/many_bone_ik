@@ -93,12 +93,10 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	if (Math::is_zero_approx(axis_y.length_squared())) {
 		axis_y = Vector3(0, 1, 0);
 	}
-	Quaternion distance_from_min = twist.slerp(Quaternion(axis_y, min_axial_angle), real_t(1.0));
 	Quaternion distance_from_max = twist.slerp(Quaternion(axis_y, min_axial_angle + range_angle), real_t(1.0));
-	Transform3D set_rot = to_set->get_global_transform();
-	Basis rot = twist.slerp(distance_from_max, 0.5).spherical_cubic_interpolate(twist.slerp(distance_from_min, 0.5), distance_from_min, distance_from_max, 1.0);
-	set_rot.basis = rot;
-	to_set->set_global_transform(set_rot);
+	Quaternion distance_from_min = Quaternion(axis_y, min_axial_angle).slerp(twist, real_t(1.0));
+	Basis rot = distance_from_max.spherical_cubic_interpolate(distance_from_min, align_rot, twist, 0.5);
+	to_set->rotate_local_with_global(rot);
 }
 
 double IKKusudama::signed_angle_difference(double min_angle, double p_super) {
