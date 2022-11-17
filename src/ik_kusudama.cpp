@@ -365,8 +365,8 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<
 	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
-		Quaternion rectified_rot = Quaternion(bone_ray->heading(), constrained_ray->heading()).normalized();
-		to_set->rotate_local_with_global(rectified_rot);
+		Quaternion rectified_rot = Quaternion(bone_ray->heading(), constrained_ray->heading());
+		to_set->rotate_local_with_global(Basis(rectified_rot).orthogonalized());
 	}
 }
 
