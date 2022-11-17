@@ -84,33 +84,21 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	if (!is_axially_constrained()) {
 		return;
 	}
-	Basis inv_rot = limiting_axes->get_global_transform().basis.inverse();
-	Basis align_rot = inv_rot * bone_direction->get_global_transform().basis;
+	Quaternion inv_rot = limiting_axes->get_global_transform().basis.get_rotation_quaternion().inverse();
+	Quaternion align_rot = bone_direction->get_global_transform().basis.get_rotation_quaternion() * inv_rot;
 	Quaternion swing;
 	Quaternion twist;
-	double angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
-	angle_delta_2 = to_tau(angle_delta_2);
-	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
-	if (from_min_to_angle_delta >= Math_TAU - range_angle) {
-		return;
-	}
-	double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
-	double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
-	double turn_diff = 1;
+	get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
 	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	if (Math::is_zero_approx(axis_y.length_squared())) {
 		axis_y = Vector3(0, 1, 0);
 	}
-	if (dist_to_min < dist_to_max) {
-		turn_diff = turn_diff * (from_min_to_angle_delta);
-	} else {
-		turn_diff = turn_diff * (range_angle - (Math_TAU - from_min_to_angle_delta));
-	}
-	if (turn_diff < 0) {
-		turn_diff *= -1;
-	}
-	Basis rot = Basis(axis_y.normalized(), turn_diff);
-	to_set->rotate_local_with_global(rot);
+	Quaternion distance_from_min = twist.slerp(Quaternion(axis_y, min_axial_angle), real_t(1.0));
+	Quaternion distance_from_max = twist.slerp(Quaternion(axis_y, min_axial_angle + range_angle), real_t(1.0));
+	Transform3D set_rot = to_set->get_global_transform();
+	Basis rot = twist.slerp(distance_from_max, 0.5).spherical_cubic_interpolate(twist.slerp(distance_from_min, 0.5), distance_from_min, distance_from_max, 1.0);
+	set_rot.basis = rot;
+	to_set->set_global_transform(set_rot);
 }
 
 double IKKusudama::signed_angle_difference(double min_angle, double p_super) {
@@ -144,7 +132,7 @@ void IKKusudama::remove_limit_cone(Ref<IKLimitCone> limitCone) {
 	this->limit_cones.erase(limitCone);
 }
 
-double IKKusudama::mod(double x, double y) {
+real_t IKKusudama::mod(double x, double y) {
 	if (!Math::is_zero_approx(y) && !Math::is_zero_approx(x)) {
 		double result = Math::fmod(x, y);
 		if (result < 0.0f) {
@@ -155,16 +143,16 @@ double IKKusudama::mod(double x, double y) {
 	return 0.0f;
 }
 
-double IKKusudama::get_min_axial_angle() {
+real_t IKKusudama::get_min_axial_angle() {
 	return min_axial_angle;
 }
 
-double IKKusudama::get_range_angle() {
+real_t IKKusudama::get_range_angle() {
 	return range_angle;
 }
 
-double IKKusudama::get_absolute_max_axial_angle() {
-	return Math::lerp_angle(range_angle + min_axial_angle, Math_TAU, 1.0);
+real_t IKKusudama::get_absolute_max_axial_angle() {
+	return Math::lerp_angle(range_angle + min_axial_angle, real_t(Math_TAU), real_t(1.0));
 }
 
 bool IKKusudama::is_axially_constrained() {

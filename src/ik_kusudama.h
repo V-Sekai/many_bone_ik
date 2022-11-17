@@ -61,12 +61,12 @@ protected:
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
 	 * limiting_axes Z axis.
 	 */
-	double min_axial_angle = -Math_TAU;
+	real_t min_axial_angle = -Math_TAU;
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
 	 * min_axial_angle
 	 */
-	double range_angle = Math_TAU * 2.0;
+	real_t range_angle = Math_TAU * 2.0;
 
 	bool orientationally_constrained = false;
 	bool axially_constrained = false;
@@ -159,21 +159,21 @@ public:
 
 	virtual void remove_limit_cone(Ref<IKLimitCone> limitCone);
 
-	static double mod(double x, double y);
+	static real_t mod(double x, double y);
 
 	/**
 	 *
 	 * @return the lower bound on the axial constraint
 	 */
-	virtual double get_min_axial_angle();
+	virtual real_t get_min_axial_angle();
 
-	virtual double get_range_angle();
+	virtual real_t get_range_angle();
 
 	/**
 	 * the upper bound on the axial constraint in absolute terms
 	 * @return
 	 */
-	virtual double get_absolute_max_axial_angle();
+	virtual real_t get_absolute_max_axial_angle();
 
 	virtual bool is_axially_constrained();
 
