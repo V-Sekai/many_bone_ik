@@ -8,10 +8,10 @@
 metadata/_edit_lock_ = true
 
 [node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
-bones/0/rotation = Quaternion(0, 0, 0, 1)
+bones/0/rotation = Quaternion(0, 0, 8.47032e-21, 1)
 bones/1/position = Vector3(-1.01644e-20, 0.600001, 0)
-bones/1/rotation = Quaternion(0, 0.643023, 0, 0.765847)
-bones/1/scale = Vector3(1, 1, 1)
+bones/1/rotation = Quaternion(0.0339469, -1.14587e-07, -0.706292, 0.707106)
+bones/1/scale = Vector3(0.999921, 0.999984, 0.999976)
 metadata/_edit_lock_ = true
 
 [node name="Simple_Test_Rig" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
@@ -20,7 +20,7 @@ metadata/_edit_group_ = true
 metadata/_edit_lock_ = true
 
 [node name="Target" type="Node3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]
-transform = Transform3D(0.560321, 0, -0.828276, 0, 1, 0, 0.828276, 0, 0.560321, 0, 0.6, 0)
+transform = Transform3D(-0.357705, 0.932339, -0.0528238, -0.933642, -0.358205, -3.72529e-09, -0.0189217, 0.0493186, 0.998603, 0, 0.6, 0)
 
 [node name="NBoneIK" type="NBoneIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="2"]
 root_bone = &"Bone_01"
@@ -39,16 +39,16 @@ pins/1/direction_priorities = Vector3(0.2, 0, 0.2)
 constraint_count = 2
 constraints/0/bone_name = &"Bone_01"
 constraints/0/twist_from = 0.0
-constraints/0/twist_range = 0.0
+constraints/0/twist_range = 6.26573
 constraints/0/kusudama_limit_cone_count = 1
 constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/0/kusudama_limit_cone/0/radius = 0.0872665
 constraints/1/bone_name = &"Bone_02"
 constraints/1/twist_from = 0.0
-constraints/1/twist_range = 1.5708
+constraints/1/twist_range = 0.174533
 constraints/1/kusudama_limit_cone_count = 1
 constraints/1/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/1/kusudama_limit_cone/0/radius = 0.324631
+constraints/1/kusudama_limit_cone/0/radius = 1.5708
 metadata/_edit_group_ = true
 metadata/_edit_lock_ = true
 
