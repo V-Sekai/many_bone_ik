@@ -107,7 +107,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 		} else {
 			turn_diff = turn_diff * (range_angle - (Math_TAU - from_min_to_angle_delta));
 		}
-		Basis rot = Basis(axis_y.normalized(), turn_diff);
+		Basis rot = Basis(axis_y, turn_diff).orthonormalized();
 		to_set->rotate_local_with_global(rot);
 	}
 }
@@ -366,7 +366,7 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
 		Quaternion rectified_rot = Quaternion(bone_ray->heading(), constrained_ray->heading());
-		to_set->rotate_local_with_global(Basis(rectified_rot).orthogonalized());
+		to_set->rotate_local_with_global(Basis(rectified_rot).orthonormalized());
 	}
 }
 

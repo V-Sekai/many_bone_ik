@@ -354,7 +354,7 @@ Vector3 IKLimitCone::closest_to_cone(Vector3 input, Vector<double> &in_bounds) c
 		return Vector3(NAN, NAN, NAN);
 	}
 	Vector3 axis = this->get_control_point().cross(input).normalized();
-	Quaternion rotTo = Quaternion(axis.normalized(), this->get_radius());
+	Quaternion rotTo = Quaternion(axis.normalized(), this->get_radius()).normalized();
 	Vector3 axis_control_point = this->get_control_point();
 	Vector3 result = rotTo.xform(axis_control_point);
 	in_bounds.write[0] = -1;
