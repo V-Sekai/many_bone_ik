@@ -49,6 +49,9 @@ class IKLimitCone;
 class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
+	static real_t mod(double x, double y);
+	static double to_tau(double angle);
+
 protected:
 	/**
 	 * An array containing all of the Kusudama's limit_cones. The kusudama is built up
@@ -103,9 +106,6 @@ public:
 	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, double p_dampen, double p_cos_half_angle_dampen);
 
 	double signed_angle_difference(double min_angle, double p_super);
-
-	static double to_tau(double angle);
-
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
 	 * The "Swing" component is the final direction of the bone. The "Twist" component represents how much
@@ -158,8 +158,6 @@ public:
 	virtual void add_limit_cone(Vector3 new_point, double radius);
 
 	virtual void remove_limit_cone(Ref<IKLimitCone> limitCone);
-
-	static real_t mod(double x, double y);
 
 	/**
 	 *
