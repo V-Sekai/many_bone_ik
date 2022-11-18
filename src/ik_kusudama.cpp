@@ -35,8 +35,8 @@ IKKusudama::IKKusudama() {
 }
 
 IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
-	_attached_to = for_bone;
-	_attached_to->add_constraint(Ref<IKKusudama>(this));
+	bone_attached_to = for_bone;
+	bone_attached_to->add_constraint(Ref<IKKusudama>(this));
 	enable();
 }
 
@@ -114,7 +114,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 }
 
 void IKKusudama::optimize_limiting_axes() {
-	Ref<IKNode3D> originalLimitingAxes = _attached_to->get_constraint_transform()->duplicate();
+	Ref<IKNode3D> originalLimitingAxes = bone_attached_to->get_constraint_transform()->duplicate();
 	Vector<Vector3> directions;
 	if (limit_cones.size() == 1) {
 		directions.push_back(Ref<IKLimitCone>(limit_cones[0])->get_control_point());
@@ -142,12 +142,12 @@ void IKKusudama::optimize_limiting_axes() {
 		newY = Vector3(0.0, 1.0, 0.0);
 	}
 	Ref<IKRay3D> newYRay = Ref<IKRay3D>(memnew(IKRay3D(Vector3(0, 0, 0), newY)));
-	Quaternion oldYtoNewY = Quaternion(_attached_to->get_constraint_transform()->get_global_transform().basis.get_column(Vector3::AXIS_Y), originalLimitingAxes->to_global(newYRay->p2()));
-	_attached_to->get_constraint_transform()->rotate_local_with_global(oldYtoNewY);
+	Quaternion oldYtoNewY = Quaternion(bone_attached_to->get_constraint_transform()->get_global_transform().basis.get_column(Vector3::AXIS_Y), originalLimitingAxes->to_global(newYRay->p2()));
+	bone_attached_to->get_constraint_transform()->rotate_local_with_global(oldYtoNewY);
 	for (int i = 0; i < limit_cones.size() - 1; i++) {
 		Ref<IKLimitCone> lc = limit_cones[i];
 		Vector3 control_point = originalLimitingAxes->to_global(lc->get_control_point());
-		control_point = _attached_to->get_constraint_transform()->to_local(control_point);
+		control_point = bone_attached_to->get_constraint_transform()->to_local(control_point);
 		lc->set_control_point(control_point.normalized());
 	}
 	update_tangent_radii();
@@ -172,7 +172,7 @@ double IKKusudama::to_tau(double angle) {
 }
 
 Ref<IKBone3D> IKKusudama::attached_to() {
-	return this->_attached_to;
+	return this->bone_attached_to;
 }
 
 void IKKusudama::add_limit_cone(Vector3 new_cone_local_point, double radius) {

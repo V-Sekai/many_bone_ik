@@ -71,7 +71,7 @@ protected:
 	bool orientationally_constrained = false;
 	bool axially_constrained = false;
 
-	Ref<IKBone3D> _attached_to;
+	Ref<IKBone3D> bone_attached_to;
 
 protected:
 	static void _bind_methods();
@@ -219,18 +219,6 @@ public:
 
 	virtual void update_rotational_freedom();
 
-protected:
-	/**
-	 * attaches the Kusudama to the BoneExample. If the
-	 * kusudama has its own limiting axes specified,
-	 * replaces the bone's major rotation
-	 * axes with the Kusudamas limiting axes.
-	 *
-	 * otherwise, this function will set the kusudama's
-	 * limiting axes to the major rotation axes specified by the bone.
-	 *
-	 * @param for_bone the bone to which to attach this Kusudama.
-	 */
 public:
 	virtual TypedArray<IKLimitCone> get_limit_cones() const;
 

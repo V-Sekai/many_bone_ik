@@ -205,7 +205,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
-					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
 					"Kusudama Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
