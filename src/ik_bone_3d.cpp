@@ -49,7 +49,6 @@ void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 		parent->children.push_back(this);
 		godot_skeleton_aligned_transform->set_parent(parent->godot_skeleton_aligned_transform);
 		constraint_transform->set_parent(godot_skeleton_aligned_transform->get_parent());
-		bone_direction_transform->set_parent(godot_skeleton_aligned_transform);
 	}
 }
 
@@ -180,6 +179,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			break;
 		}
 	}
+	bone_direction_transform->set_parent(godot_skeleton_aligned_transform);
 }
 
 float IKBone3D::get_cos_half_dampen() const {
