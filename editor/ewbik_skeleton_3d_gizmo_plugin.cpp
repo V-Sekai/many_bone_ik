@@ -54,7 +54,7 @@
 #include "../src/ik_kusudama.h"
 
 bool EWBIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<NBoneIK>(p_spatial);
+	return cast_to<Node3D>(p_spatial);
 }
 
 String EWBIK3DGizmoPlugin::get_gizmo_name() const {
@@ -76,40 +76,47 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!node_3d->is_visible_in_tree()) {
 		return;
 	}
-	NBoneIK *ewbik = cast_to<NBoneIK>(node_3d);
-	if (!ewbik) {
-		return;
-	}
-	Skeleton3D *ewbik_skeleton = ewbik->get_skeleton();
-	if (!ewbik_skeleton) {
-		return;
-	}
-	Vector<int> bones_to_process = ewbik_skeleton->get_parentless_bones();
-	kusudama_shader.instantiate();
-	kusudama_shader->set_code(EWBIK_KUSUDAMA_SHADER);
-	int bones_to_process_i = 0;
-	Vector<BoneId> processing_bones;
-	Ref<IKBoneSegment> bone_segment = ewbik->get_segmented_skeleton();
-	if (bone_segment.is_null()) {
-		return;
-	}
-	while (bones_to_process_i < bones_to_process.size()) {
-		int current_bone_idx = bones_to_process[bones_to_process_i];
-		processing_bones.push_back(current_bone_idx);
-		Vector<int> child_bones_vector = ewbik_skeleton->get_bone_children(current_bone_idx);
-		for (int child_bone_idx : child_bones_vector) {
-			bones_to_process.push_back(child_bone_idx);
+	Node *root = node_3d->get_tree()->get_edited_scene_root();
+	TypedArray<Node> nodes = root->find_children("*", "NBoneIK");
+	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
+		NBoneIK *ewbik = cast_to<NBoneIK>(nodes[node_i]);
+		if (!ewbik) {
+			return;
 		}
-		bones_to_process_i++;
-	}
-	Color current_bone_color = bone_color;
-	for (BoneId current_bone_idx : processing_bones) {
-		Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
-		if (ik_bone.is_null() || ik_bone->get_bone_id() != current_bone_idx) {
-			continue;
+		Skeleton3D *ewbik_skeleton = ewbik->get_skeleton();
+		if (!ewbik_skeleton) {
+			return;
 		}
-		create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
-		create_gizmo_handles(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+		if (!ewbik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
+			ewbik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
+		}
+		Vector<int> bones_to_process = ewbik_skeleton->get_parentless_bones();
+		kusudama_shader.instantiate();
+		kusudama_shader->set_code(EWBIK_KUSUDAMA_SHADER);
+		int bones_to_process_i = 0;
+		Vector<BoneId> processing_bones;
+		Ref<IKBoneSegment> bone_segment = ewbik->get_segmented_skeleton();
+		if (bone_segment.is_null()) {
+			return;
+		}
+		while (bones_to_process_i < bones_to_process.size()) {
+			int current_bone_idx = bones_to_process[bones_to_process_i];
+			processing_bones.push_back(current_bone_idx);
+			Vector<int> child_bones_vector = ewbik_skeleton->get_bone_children(current_bone_idx);
+			for (int child_bone_idx : child_bones_vector) {
+				bones_to_process.push_back(child_bone_idx);
+			}
+			bones_to_process_i++;
+		}
+		Color current_bone_color = bone_color;
+		for (BoneId current_bone_idx : processing_bones) {
+			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
+			if (ik_bone.is_null() || ik_bone->get_bone_id() != current_bone_idx) {
+				continue;
+			}
+			create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+			create_gizmo_handles(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+		}
 	}
 }
 
