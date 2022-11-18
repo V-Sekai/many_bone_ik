@@ -37,12 +37,15 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		ewbik.set_pin_bone_name(pin_i, bone_name)
-		ewbik.set_pin_depth_falloff(pin_i, 1)
-		if bone_name in ["LeftFoot", "RightFoot"]:
-			ewbik.set_pin_depth_falloff(pin_i, 0)
+		ewbik.set_pin_depth_falloff(pin_i, 0)
+		if bone_name == "Hips":
+			# expose directional priorities to gdscrip
+			# Set to zero
+			pass
+
 		var marker_3d : Marker3D = Marker3D.new()
 		marker_3d.name = bone_name
-		marker_3d.global_transform = node_3d.global_transform
+#		marker_3d.global_transform = node_3d.global_transform
 		node_3d.replace_by(marker_3d, true)
 		marker_3d.gizmo_extents = 0.5
 
