@@ -38,9 +38,7 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		ewbik.set_pin_bone_name(pin_i, bone_name)
 		ewbik.set_pin_depth_falloff(pin_i, 1)
-		if bone_name in ["Hips"]:
-			ewbik.set_pin_depth_falloff(pin_i, 0)
-		if bone_name in ["Head"]:
+		if bone_name in ["LeftFoot", "RightFoot"]:
 			ewbik.set_pin_depth_falloff(pin_i, 0)
 		var marker_3d : Marker3D = Marker3D.new()
 		marker_3d.name = bone_name
