@@ -36,8 +36,8 @@
 #include "core/math/transform_3d.h"
 #include "core/io/resource.h"
 
-class IKNode3D : public Resource {
-	GDCLASS(IKNode3D, Resource);
+class IKNode3D : public RefCounted {
+	GDCLASS(IKNode3D, RefCounted);
 	friend class IKBone3D;
 
 	enum TransformDirty {
