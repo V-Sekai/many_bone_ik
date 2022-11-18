@@ -49,8 +49,8 @@ class IKLimitCone;
 class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
-	static real_t _mod(double x, double y);
-	static double _to_tau(double angle);
+	static real_t _mod(real_t x, real_t y);
+	static real_t _to_tau(real_t angle);
 
 protected:
 	/**
@@ -87,7 +87,7 @@ public:
 
 	IKKusudama(Ref<IKBone3D> for_bone);
 
-	IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, double cos_half_angle_dampen);
+	IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, real_t cos_half_angle_dampen);
 
 	virtual void _update_constraint(Node3D *p_node_3d);
 
@@ -103,9 +103,9 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, double p_dampen, double p_cos_half_angle_dampen);
+	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampen, real_t p_cos_half_angle_dampen);
 
-	double signed_angle_difference(double min_angle, double p_super);
+	real_t signed_angle_difference(real_t min_angle, real_t p_super);
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
 	 * The "Swing" component is the final direction of the bone. The "Twist" component represents how much
@@ -117,7 +117,7 @@ public:
 	 * This value is always interpreted as being in the positive direction. For example, if this value is -PI/2, the entire range_angle from min_angle to min_angle + 3PI/4 is
 	 * considered valid.
 	 */
-	virtual void set_axial_limits(double min_angle, double in_range);
+	virtual void set_axial_limits(real_t min_angle, real_t in_range);
 
 	/**
 	 *

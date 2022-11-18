@@ -71,16 +71,16 @@ void IKKusudama::update_tangent_radii() {
  * (with the weight determining the resistance of the boundary). This result is stored for reference by future calls.
  * If the new d is less than the old d, we return the input orientation, and set the new d to this lower value for reference by future calls.
  */
-IKKusudama::IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, double cos_half_angle_dampen) {
-	Vector<double> in_bounds = { 1 };
+IKKusudama::IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, real_t cos_half_angle_dampen) {
+	Vector<real_t> in_bounds = { 1 };
 }
 
-void IKKusudama::set_axial_limits(double min_angle, double in_range) {
+void IKKusudama::set_axial_limits(real_t min_angle, real_t in_range) {
 	min_axial_angle = min_angle;
 	range_angle = _to_tau(in_range);
 }
 
-void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen) {
+void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_dampen) {
 	if (!is_axially_constrained()) {
 		return;
 	}
@@ -89,15 +89,15 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	Quaternion swing;
 	Quaternion twist;
 	get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
-	double angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
+	real_t angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
 	angle_delta_2 = _to_tau(angle_delta_2);
-	double from_min_to_angle_delta = _to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
+	real_t from_min_to_angle_delta = _to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
 	if (!(from_min_to_angle_delta < Math_TAU - range_angle)) {
 		return;
 	}
-	double dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
-	double dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
-	double turn_diff = 1;
+	real_t dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
+	real_t dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
+	real_t turn_diff = 0;
 	Vector3 limiting_axes_origin = limiting_axes->get_global_transform().origin;
 	Vector3 bone_axis_y = bone_direction->get_global_transform().xform(Vector3(0, 1, 0));
 	Vector3 axis_y = bone_axis_y - limiting_axes_origin;
@@ -113,17 +113,17 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	to_set->rotate_local_with_global(rot);
 }
 
-double IKKusudama::signed_angle_difference(double min_angle, double p_super) {
-	double d = Math::fmod(Math::abs(min_angle - p_super), Math_TAU);
-	double r = d > Math_PI ? Math_TAU - d : d;
+real_t IKKusudama::signed_angle_difference(real_t min_angle, real_t p_super) {
+	real_t d = Math::fmod(Math::abs(min_angle - p_super), real_t(Math_TAU));
+	real_t r = d > real_t(Math_PI) ? real_t(Math_TAU) - d : d;
 
-	double sign = (min_angle - p_super >= 0 && min_angle - p_super <= Math_PI) || (min_angle - p_super <= -Math_PI && min_angle - p_super >= -Math_TAU) ? 1.0f : -1.0f;
+	real_t sign = (min_angle - p_super >= 0 && min_angle - p_super <= real_t(Math_PI)) || (min_angle - p_super <= -real_t(Math_PI) && min_angle - p_super >= -real_t(Math_TAU)) ? real_t(1.0) : real_t(-1.0);
 	r *= sign;
 	return r;
 }
 
-double IKKusudama::_to_tau(double angle) {
-	double result = angle;
+real_t IKKusudama::_to_tau(real_t angle) {
+	real_t result = angle;
 	if (angle < 0) {
 		result = (2 * Math_PI) + angle;
 	}
@@ -144,9 +144,9 @@ void IKKusudama::remove_limit_cone(Ref<IKLimitCone> limitCone) {
 	this->limit_cones.erase(limitCone);
 }
 
-real_t IKKusudama::_mod(double x, double y) {
+real_t IKKusudama::_mod(real_t x, real_t y) {
 	if (!Math::is_zero_approx(y) && !Math::is_zero_approx(x)) {
-		double result = Math::fmod(x, y);
+		real_t result = Math::fmod(x, y);
 		if (result < 0.0f) {
 			result += y;
 		}
@@ -317,7 +317,7 @@ Vector3 IKKusudama::get_local_point_in_limits(Vector3 in_point, Vector<double> &
 	return closest_collision_point;
 }
 
-void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, double p_dampening, double p_cos_half_angle_dampen) {
+void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen) {
 	Vector<double> in_bounds = { 1.0 };
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
 	bone_ray->p2(bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
