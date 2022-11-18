@@ -58,12 +58,12 @@ func create_constraints(ewbik : NBoneIK):
 	constraint_bones["Head"] = {
 		"limit_cones" : [
 		Vector4(0, 1, 0, deg_to_rad(50)),],
-		"twist" : Vector2(deg_to_rad(150), deg_to_rad(55))
+		"twist_angle_range" : Vector2(deg_to_rad(150), deg_to_rad(55))
 	}	
 	constraint_bones["Neck"] = {
 		"limit_cones" : [
 		Vector4(0, 1, 0, deg_to_rad(50))],
-		"twist" : Vector2(deg_to_rad(150), deg_to_rad(55))
+		"twist_angle_range" : Vector2(deg_to_rad(150), deg_to_rad(55))
 	}
 	ewbik.set_constraint_count(constraint_bones.size())
 	var count : int = 0
@@ -77,8 +77,8 @@ func create_constraints(ewbik : NBoneIK):
 				ewbik.set_kusudama_limit_cone_center(count, cone_i, Vector3(cone.x, cone.y, cone.z))
 				ewbik.set_kusudama_limit_cone_radius(count, cone_i, cone.w)
 				cone_i = cone_i + 1
-		if constraint_bones[key].has("twist"):
-			ewbik.set_kusudama_twist(count, constraint_bones[key]["twist"])
+		if constraint_bones[key].has("twist_angle_range"):
+			ewbik.set_kusudama_twist(count, constraint_bones[key]["twist_angle_range"])
 		count = count + 1
 #			Vector2(0, deg_to_rad(25))
 #		elif bone_name in ["RightShoulder",]:
