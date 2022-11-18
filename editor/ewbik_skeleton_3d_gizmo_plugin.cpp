@@ -54,7 +54,7 @@
 #include "../src/ik_kusudama.h"
 
 bool EWBIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<Node3D>(p_spatial);
+	return cast_to<Node3D>(p_spatial) && !cast_to<Skeleton3D>(p_spatial);
 }
 
 String EWBIK3DGizmoPlugin::get_gizmo_name() const {
