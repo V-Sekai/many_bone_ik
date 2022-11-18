@@ -39,17 +39,12 @@ class IKRay3D : public RefCounted {
 
 	Vector3 tta, ttb, ttc;
 	Vector3 I, u, v, n, dir, w0;
-	bool inUse = false;
 	Vector3 m, at, bt, ct, pt;
 	Vector3 bc, ca, ac;
 
 	Vector3 point_1;
 	Vector3 point_2;
 	Vector3 working_vector;
-	static constexpr int X = 0;
-	static constexpr int Y = 1;
-	static constexpr int Z = 2;
-
 protected:
 	static void _bind_methods();
 
