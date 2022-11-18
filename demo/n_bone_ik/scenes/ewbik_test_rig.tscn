@@ -15,34 +15,36 @@ bones/2/position = Vector3(nan, nan, nan)
 bones/2/rotation = Quaternion(0, 0, 0, 1)
 bones/2/scale = Vector3(nan, nan, nan)
 
-[node name="NBoneIK" type="NBoneIK" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
+[node name="NBoneIK" type="NBoneIK" parent="." index="1"]
+skeleton_node_path = NodePath("../Simple_Test_Rig_Armature/Skeleton3D")
 root_bone = &"Bone_01"
 pin_count = 2
-pins/0/bone_name = "Bone_01"
-pins/0/target_node = NodePath("../Node3D")
+pins/0/bone_name = ""
+pins/0/target_node = NodePath("")
 pins/0/depth_falloff = 0.0
 pins/0/weight = 1.0
 pins/0/direction_priorities = Vector3(0.2, 0, 0.2)
-pins/1/bone_name = "Bone_03"
-pins/1/target_node = NodePath("../Node3D2")
+pins/1/bone_name = ""
+pins/1/target_node = NodePath("")
 pins/1/depth_falloff = 0.0
 pins/1/weight = 1.0
 pins/1/direction_priorities = Vector3(0.2, 0, 0.2)
-constraint_count = 2
-constraints/0/bone_name = &"Bone_02"
+constraint_count = 3
+constraints/0/bone_name = &"Bone_01"
 constraints/0/twist_from = 0.0
-constraints/0/twist_range = 0.122173
+constraints/0/twist_range = 6.28319
 constraints/0/kusudama_limit_cone_count = 1
 constraints/0/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/0/kusudama_limit_cone/0/radius = 2.19562
-constraints/1/bone_name = &"Bone_01"
-constraints/1/twist_from = 0.0715585
-constraints/1/twist_range = 0.0
+constraints/0/kusudama_limit_cone/0/radius = 0.349066
+constraints/1/bone_name = &"Bone_02"
+constraints/1/twist_from = 0.0
+constraints/1/twist_range = 6.28319
 constraints/1/kusudama_limit_cone_count = 1
 constraints/1/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/1/kusudama_limit_cone/0/radius = 3.14159
-
-[node name="Node3D" type="Node3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.0466919)
-
-[node name="Node3D2" type="Node3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="3"]
+constraints/1/kusudama_limit_cone/0/radius = 0.349066
+constraints/2/bone_name = &"Bone_03"
+constraints/2/twist_from = 0.0
+constraints/2/twist_range = 6.28319
+constraints/2/kusudama_limit_cone_count = 1
+constraints/2/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
+constraints/2/kusudama_limit_cone/0/radius = 0.349066
