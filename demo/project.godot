@@ -23,11 +23,17 @@ _global_script_classes=[{
 "class": &"GutTest",
 "language": &"GDScript",
 "path": "res://addons/gut/test.gd"
+}, {
+"base": "Node3D",
+"class": &"VRMTopLevel",
+"language": &"GDScript",
+"path": "res://addons/vrm/vrm_toplevel.gd"
 }]
 _global_script_class_icons={
 "GutHookScript": "",
 "GutStringUtils": "",
-"GutTest": ""
+"GutTest": "",
+"VRMTopLevel": ""
 }
 
 [application]
