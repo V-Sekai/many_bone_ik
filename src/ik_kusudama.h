@@ -49,8 +49,8 @@ class IKLimitCone;
 class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
-	static real_t mod(double x, double y);
-	static double to_tau(double angle);
+	static real_t _mod(double x, double y);
+	static double _to_tau(double angle);
 
 protected:
 	/**

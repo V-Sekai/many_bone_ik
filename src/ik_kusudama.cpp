@@ -77,7 +77,7 @@ IKKusudama::IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<I
 
 void IKKusudama::set_axial_limits(double min_angle, double in_range) {
 	min_axial_angle = min_angle;
-	range_angle = to_tau(in_range);
+	range_angle = _to_tau(in_range);
 }
 
 void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen) {
@@ -90,8 +90,8 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	Quaternion twist;
 	get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
 	double angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
-	angle_delta_2 = to_tau(angle_delta_2);
-	double from_min_to_angle_delta = to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
+	angle_delta_2 = _to_tau(angle_delta_2);
+	double from_min_to_angle_delta = _to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
 	if (!(from_min_to_angle_delta < Math_TAU - range_angle)) {
 		return;
 	}
@@ -162,12 +162,12 @@ double IKKusudama::signed_angle_difference(double min_angle, double p_super) {
 	return r;
 }
 
-double IKKusudama::to_tau(double angle) {
+double IKKusudama::_to_tau(double angle) {
 	double result = angle;
 	if (angle < 0) {
 		result = (2 * Math_PI) + angle;
 	}
-	result = mod(result, (Math_PI * 2.0f));
+	result = _mod(result, (Math_PI * 2.0f));
 	return result;
 }
 
@@ -184,7 +184,7 @@ void IKKusudama::remove_limit_cone(Ref<IKLimitCone> limitCone) {
 	this->limit_cones.erase(limitCone);
 }
 
-real_t IKKusudama::mod(double x, double y) {
+real_t IKKusudama::_mod(double x, double y) {
 	if (!Math::is_zero_approx(y) && !Math::is_zero_approx(x)) {
 		double result = Math::fmod(x, y);
 		if (result < 0.0f) {
