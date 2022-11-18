@@ -848,6 +848,7 @@ void NBoneIK::_notification(int p_what) {
 		} break;
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			_notification(NOTIFICATION_INTERNAL_PROCESS);
+			update_gizmos();
 		} break;
 	}
 }
