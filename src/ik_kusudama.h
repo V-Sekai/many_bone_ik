@@ -104,6 +104,8 @@ public:
 
 	double signed_angle_difference(double min_angle, double p_super);
 
+	static double to_tau(double angle);
+
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
 	 * The "Swing" component is the final direction of the bone. The "Twist" component represents how much
@@ -157,6 +159,8 @@ public:
 
 	virtual void remove_limit_cone(Ref<IKLimitCone> limitCone);
 
+	static real_t mod(double x, double y);
+
 	/**
 	 *
 	 * @return the lower bound on the axial constraint
@@ -164,6 +168,12 @@ public:
 	virtual real_t get_min_axial_angle();
 
 	virtual real_t get_range_angle();
+
+	/**
+	 * the upper bound on the axial constraint in absolute terms
+	 * @return
+	 */
+	virtual real_t get_absolute_max_axial_angle();
 
 	virtual bool is_axially_constrained();
 
