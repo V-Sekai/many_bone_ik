@@ -51,129 +51,139 @@ var human_bones: PackedStringArray
 
 # Create a data structure for constraint generation.
 
-# https://pubmed.ncbi.nlm.nih.gov/32644411/
-
-func create_constraints(ewbik : NBoneIK):
-	var constraint_bones : Dictionary
-	constraint_bones["Head"] = {
-		"limit_cones" : [
-		Vector4(0, 1, 0, deg_to_rad(50)),],
-		"twist_angle_range" : Vector2(deg_to_rad(150), deg_to_rad(55))
-	}	
-	constraint_bones["Neck"] = {
-		"limit_cones" : [
-		Vector4(0, 1, 0, deg_to_rad(50))],
-		"twist_angle_range" : Vector2(deg_to_rad(150), deg_to_rad(55))
-	}
-	ewbik.set_constraint_count(constraint_bones.size())
-	var count : int = 0
-	for key in constraint_bones.keys():
-		ewbik.set_constraint_name(count, key)
-		if constraint_bones[key].has("limit_cones"):
-			var cones : Array[Vector4] = constraint_bones[key]["limit_cones"]
-			var cone_i : int = 0
-			ewbik.set_kusudama_limit_cone_count(count, cones.size())
-			for cone in cones:
-				ewbik.set_kusudama_limit_cone_center(count, cone_i, Vector3(cone.x, cone.y, cone.z))
-				ewbik.set_kusudama_limit_cone_radius(count, cone_i, cone.w)
-				cone_i = cone_i + 1
-		if constraint_bones[key].has("twist_angle_range"):
-			ewbik.set_kusudama_twist(count, constraint_bones[key]["twist_angle_range"])
-		count = count + 1
-#			Vector2(0, deg_to_rad(25))
-#		elif bone_name in ["RightShoulder",]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(1, 0, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(90), deg_to_rad(5)))
-#		elif bone_name in ["LeftShoulder"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(-1, 0, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(90), deg_to_rad(5)))
-#		elif bone_name in ["RightUpperArm"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(90), deg_to_rad(50)))
-#		elif bone_name in ["LeftUpperArm"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-90), deg_to_rad(50)))
-#		elif bone_name in ["RightLowerArm"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(40))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 0, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(40))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(80), deg_to_rad(10)))
-#		elif bone_name in ["LeftLowerArm"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(40))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(-1, 0, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(40))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-80), deg_to_rad(10)))
-#		elif bone_name in ["RightHand"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(90))
-#		elif bone_name in ["LeftHand"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(90))
-#		elif bone_name in ["UpperChest"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(220), deg_to_rad(2)))
-#		elif bone_name in ["Chest"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(220), deg_to_rad(2)))
-#		elif bone_name in ["Spine"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(220), deg_to_rad(2)))
-#		elif bone_name in ["Hips"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(300), deg_to_rad(1)))
-#		elif bone_name in ["RightUpperLeg"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(350)))
-#		elif bone_name in ["LeftUpperLeg"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(350)))
-#		elif bone_name in ["RightLowerLeg"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(5))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(5))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(2)))
-#		elif bone_name in ["LeftLowerLeg"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(5))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(5))
-#			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(2)))
-#		elif bone_name in ["RightFoot"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
-#		elif bone_name in ["LeftFoot"]:
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
-#			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
-#			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
+func create_constraints(ewbik):
+	ewbik.set_constraint_count(human_bones.size())
+	for constraint_i in range(human_bones.size()):
+		var bone_name = human_bones[constraint_i]
+		ewbik.set_constraint_name(constraint_i, bone_name)
+		ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+		ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+		ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(150))
+		ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(250)))
+		# https://pubmed.ncbi.nlm.nih.gov/32644411/
+		if bone_name in ["Head"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(150), deg_to_rad(55)))
+		elif bone_name in ["Neck"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(25)))
+		elif bone_name in ["RightShoulder",]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(1, 0, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(90), deg_to_rad(5)))
+		elif bone_name in ["LeftShoulder"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(-1, 0, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(90), deg_to_rad(5)))
+		elif bone_name in ["RightUpperArm"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(90), deg_to_rad(50)))
+		elif bone_name in ["LeftUpperArm"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-90), deg_to_rad(50)))
+		elif bone_name in ["RightLowerArm"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 3)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 0, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(10))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(80), deg_to_rad(10)))
+		elif bone_name in ["LeftLowerArm"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 3)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(-1, 0, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(10))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-80), deg_to_rad(10)))
+		elif bone_name in ["RightHand"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(90))
+		elif bone_name in ["LeftHand"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(90))
+		elif bone_name in ["UpperChest"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(220), deg_to_rad(2)))
+		elif bone_name in ["Chest"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(220), deg_to_rad(2)))
+		elif bone_name in ["Spine"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(220), deg_to_rad(2)))
+		elif bone_name in ["Hips"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(300), deg_to_rad(1)))
+		elif bone_name in ["RightUpperLeg"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(350)))
+		elif bone_name in ["LeftUpperLeg"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(350)))
+		elif bone_name in ["RightLowerLeg"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 3)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(5))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(5))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(2)))
+		elif bone_name in ["LeftLowerLeg"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 3)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(5))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(5))
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(2)))
+		elif bone_name in ["RightFoot"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 2)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
+		elif bone_name in ["LeftFoot"]:
+			ewbik.set_kusudama_limit_cone_count(constraint_i, 2)
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(10))
 #		elif bone_name in ["RightToes"]:
+#			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 #			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
 #			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
 #			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0),  deg_to_rad(130)))
 #		elif bone_name in ["LeftToes"]:
+#			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 #			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
 #			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
 #			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0),  deg_to_rad(130)))
