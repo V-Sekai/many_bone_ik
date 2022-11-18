@@ -11,9 +11,9 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 	var pins =  [
 		"Head",
 		"LeftHand", 
-#		"RightHand", 
+		"RightHand", 
 		"LeftFoot", 
-#		"RightFoot",
+		"RightFoot",
 		skeleton.get_bone_name(0)
 	]
 	for pin in pins:
@@ -44,9 +44,7 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		node_3d.replace_by(marker_3d, true)
 		marker_3d.gizmo_extents = 0.5
 
-var human_bones: PackedStringArray
-
-func create_constraints(ewbik):
+func create_constraints(ewbik, human_bones):
 	ewbik.set_constraint_count(human_bones.size())
 	for constraint_i in range(human_bones.size()):
 		var bone_name = human_bones[constraint_i]
@@ -76,12 +74,12 @@ func create_constraints(ewbik):
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(180))
-		elif bone_name in ["LeftUpperLeg"]:
+		elif bone_name.ends_with("UpperLeg"):
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(90))
 			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(340), deg_to_rad(40)))
-		elif bone_name in ["LeftLowerLeg"]:
+		elif bone_name.ends_with("LowerLeg"):
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 3)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(10))
@@ -89,8 +87,8 @@ func create_constraints(ewbik):
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(40))
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(10))
-			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(340), deg_to_rad(40)))
-		elif bone_name in ["LeftFoot"]:
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(340), deg_to_rad(40)))		
+		elif bone_name.ends_with("Foot"):
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 5)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
@@ -103,7 +101,7 @@ func create_constraints(ewbik):
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 4, Vector3(0, 1, 0))
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 4, deg_to_rad(20))
 			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(230), deg_to_rad(175)))
-		elif bone_name in ["LeftToes"]:
+		elif bone_name.ends_with("Toes"):
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
@@ -134,6 +132,7 @@ func create_constraints(ewbik):
 
 func _run():
 	var profile : SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
+	var human_bones: PackedStringArray
 	for bone_i in profile.bone_size:
 		human_bones.push_back(profile.get_bone_name(bone_i)) 
 	var root : Node3D = get_editor_interface().get_edited_scene_root()
@@ -150,7 +149,7 @@ func _run():
 		new_ik.visible = false
 		new_ik.set_pin_count(0)
 		new_ik.set_constraint_count(0)
-		create_constraints(new_ik)
+		create_constraints(new_ik, human_bones)
 		create_pins(new_ik, skeleton)
 		new_ik.visible = true
 		new_ik.queue_print_skeleton()
