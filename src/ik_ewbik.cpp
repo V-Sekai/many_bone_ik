@@ -819,6 +819,9 @@ int32_t NBoneIK::find_constraint(String p_string) const {
 
 Skeleton3D *NBoneIK::get_skeleton() const {
 	Node *node = get_node_or_null(skeleton_node_path);
+	if (!node) {
+		return nullptr;
+	}
 	return cast_to<Skeleton3D>(node);
 }
 

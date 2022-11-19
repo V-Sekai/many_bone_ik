@@ -48,7 +48,7 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		marker_3d.global_transform = node_3d.global_transform
 		node_3d.replace_by(marker_3d, true)
 		marker_3d.gizmo_extents = 0.5
-#	enable_debug_pins(pins, ewbik)
+	enable_debug_pins(pins, ewbik)
 var human_bones: PackedStringArray
 
 
@@ -110,12 +110,12 @@ func create_constraints(ewbik):
 			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-80), deg_to_rad(10)))
 		elif bone_name in ["RightHand"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
-			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(90))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
 		elif bone_name in ["LeftHand"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
-			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
-			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(90))
+			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
 		elif bone_name in ["UpperChest"]:
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))

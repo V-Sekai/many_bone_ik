@@ -54,7 +54,7 @@ void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 
 void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 	Vector3 child_centroid;
-	if (!children.size()) {
+	if (children.is_empty()) {
 		PackedInt32Array bone_children = p_skeleton->get_bone_children(bone_id);
 		for (BoneId child_bone_idx : bone_children) {
 			child_centroid += p_skeleton->get_bone_global_pose(child_bone_idx).origin;
@@ -68,6 +68,10 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 	}
 	Vector3 godot_bone_origin = godot_skeleton_aligned_transform->get_global_transform().origin;
 	child_centroid -= godot_bone_origin;
+	if (Math::is_zero_approx(child_centroid.length_squared())) {
+		Vector3 parent_y_direction =   parent->get_ik_transform()->get_global_transform().xform(Vector3(0, 1, 0)) - parent->get_ik_transform()->get_global_transform().origin;
+		child_centroid = parent->get_bone_direction_transform()->get_global_transform().xform(Vector3(0, 1, 0)) - parent->get_bone_direction_transform()->get_global_transform().origin;
+	}
 	if (!Math::is_zero_approx(child_centroid.length_squared()) && (children.size() || p_skeleton->get_bone_children(bone_id).size())) {
 		child_centroid.normalize();
 		Vector3 bone_direction = bone_direction_transform->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)) - godot_bone_origin;
