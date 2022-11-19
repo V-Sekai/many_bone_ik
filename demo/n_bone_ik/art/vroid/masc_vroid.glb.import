@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://btvyb7dty7qpn"
-path="res://.godot/imported/fem_vroid.vrm-006256d7acc1527a24d49d0ad41c5b43.scn"
+uid="uid://d65gmlfwlajx"
+path="res://.godot/imported/masc_vroid.glb-1837eaa84e524f4a7d7defefc730014b.scn"
 
 [deps]
 
-source_file="res://n_bone_ik/art/vroid/fem_vroid.vrm"
-dest_files=["res://.godot/imported/fem_vroid.vrm-006256d7acc1527a24d49d0ad41c5b43.scn"]
+source_file="res://n_bone_ik/art/vroid/masc_vroid.glb"
+dest_files=["res://.godot/imported/masc_vroid.glb-1837eaa84e524f4a7d7defefc730014b.scn"]
 
 [params]
 
