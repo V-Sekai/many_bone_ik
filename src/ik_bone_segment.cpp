@@ -334,7 +334,7 @@ Vector<Ref<IKBone3D>> IKBoneSegment::get_bone_list() const {
 	return bones;
 }
 
-Ref<IKBone3D> IKBoneSegment::get_ik_bone(BoneId p_bone) {
+Ref<IKBone3D> IKBoneSegment::get_ik_bone(BoneId p_bone) const {
 	if (!bone_map.has(p_bone)) {
 		return Ref<IKBone3D>();
 	}

@@ -281,7 +281,9 @@ EWBIK3DGizmoPlugin::EWBIK3DGizmoPlugin() {
 	create_handle_material("handles_axial_from", false, handle_axial_from);
 	Ref<Texture2D> handle_axial_middle = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_middle", false, handle_axial_middle);
-	Ref<Texture2D> handle_axial_to = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node"), SNAME("EditorIcons"));
+	Ref<Texture2D> handle_current = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node"), SNAME("EditorIcons"));
+	create_handle_material("handles_axial_current", false, handle_current);
+	Ref<Texture2D> handle_axial_to = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node3D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_to", false, handle_axial_to);
 }
 
@@ -324,8 +326,10 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	float r = radius;
 	Vector<Vector3> center_handles;
 	Vector<Vector3> radius_handles;
+	Vector<Vector3> handles_current;
 	Vector<Vector3> axial_from_handles;
 	TypedArray<Vector3> axial_middle_handles;
+	TypedArray<Vector3> axial_current_handles;
 	Vector<Vector3> axial_to_handles;
 	kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 	kusudama_limit_cones.fill(0.0f);
@@ -411,6 +415,9 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 		Transform3D axial_relative_to_universe = constraint_relative_to_the_universe * axial_from_relative_to_mesh;
+		
+		Transform3D current_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 		axial_middle_handles.push_back(axial_relative_to_universe.origin);
 	}
 	axial_middle_handles.pop_front();
@@ -435,4 +442,5 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		}
 		p_gizmo->add_handles(handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
+	p_gizmo->add_handles(handles_current, get_material("handles_axial_current"), Vector<int>(), true, true);
 }

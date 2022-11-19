@@ -190,6 +190,8 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "-180,180.0,0.1,radians,or_lesser,or_greater"));
+		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "-180,180.0,0.1,radians,or_lesser,or_greater"));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0,360.0,0.1,radians,or_lesser,or_greater"));
@@ -284,6 +286,19 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 			ERR_FAIL_INDEX_V(index, constraint_names.size(), false);
 			r_ret = constraint_names[index];
 			return true;
+		} else if (what == "twist_current") {
+			String bone_name = constraint_names[index];
+			Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+			if (ik_bone.is_null()) {
+				r_ret = 0;
+				return true;
+			}
+			if (ik_bone->get_constraint().is_null()) {
+				r_ret = 0;
+				return true;
+			}
+			r_ret = ik_bone->get_constraint()->get_current_twist_rotation();
+			return true;
 		} else if (what == "twist_from") {
 			r_ret = get_kusudama_twist(index).x;
 			return true;
@@ -305,7 +320,6 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 			}
 		}
 	}
-
 	return false;
 }
 

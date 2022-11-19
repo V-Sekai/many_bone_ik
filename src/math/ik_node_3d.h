@@ -38,7 +38,6 @@
 
 class IKNode3D : public RefCounted {
 	GDCLASS(IKNode3D, RefCounted);
-	friend class IKBone3D;
 
 	enum TransformDirty {
 		DIRTY_NONE = 0,
@@ -59,7 +58,6 @@ class IKNode3D : public RefCounted {
 
 	bool disable_scale = false;
 
-	void _propagate_transform_changed();
 	void _update_local_transform() const;
 
 protected:
@@ -69,6 +67,7 @@ protected:
 	}
 
 public:
+	void _propagate_transform_changed();
 	void set_transform(const Transform3D &p_transform);
 	void set_global_transform(const Transform3D &p_transform);
 	Transform3D get_transform() const;

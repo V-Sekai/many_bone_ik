@@ -84,6 +84,8 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	if (!is_axially_constrained()) {
 		return;
 	}
+	// TODO: Asorb ik transform parameters
+	real_t current_rotation = get_current_twist_rotation();
 	Quaternion inv_rot = limiting_axes->get_global_transform().basis.inverse().get_rotation_quaternion();
 	Quaternion align_rot = inv_rot * bone_direction->get_global_transform().basis.get_rotation_quaternion();
 	Quaternion swing;
@@ -97,17 +99,17 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	}
 	real_t dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
 	real_t dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
-	real_t turn_diff = 0;
 	Vector3 limiting_axes_origin = limiting_axes->get_global_transform().origin;
 	Vector3 bone_axis_y = bone_direction->get_global_transform().xform(Vector3(0, 1, 0));
 	Vector3 axis_y = bone_axis_y - limiting_axes_origin;
 	if (Math::is_zero_approx(axis_y.length_squared())) {
 		axis_y = Vector3(0, 1, 0);
 	}
+	real_t turn_diff = 0;
 	if (dist_to_min < dist_to_max) {
-		turn_diff = turn_diff * (from_min_to_angle_delta);
+		turn_diff = (from_min_to_angle_delta);
 	} else {
-		turn_diff = turn_diff * (range_angle - (Math_TAU - from_min_to_angle_delta));
+		turn_diff = (range_angle - (Math_TAU - from_min_to_angle_delta));
 	}
 	Basis rot = Basis(axis_y, turn_diff).orthonormalized();
 	to_set->rotate_local_with_global(rot);
@@ -363,4 +365,14 @@ void IKKusudama::get_swing_twist(
 	r_twist.z *= -1;
 	r_swing = r_twist * p_rotation;
 	r_swing.normalize();
+}
+
+real_t IKKusudama::get_current_twist_rotation() {
+	Quaternion inv_rot = bone_attached_to->get_constraint_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
+	Quaternion align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
+	Quaternion swing;
+	Quaternion twist;
+	get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
+	real_t angle = twist.get_angle() * twist.get_axis().y;
+	return angle;
 }

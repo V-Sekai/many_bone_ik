@@ -104,7 +104,7 @@ public:
 	Vector<Ref<IKBoneSegment>> get_child_segments() const;
 	void create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	Vector<Ref<IKBone3D>> get_bone_list() const;
-	Ref<IKBone3D> get_ik_bone(BoneId p_bone);
+	Ref<IKBone3D> get_ik_bone(BoneId p_bone) const;
 	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone);
 	void update_pinned_list(Vector<Vector<real_t>> &r_weights);
 	IKBoneSegment() {}

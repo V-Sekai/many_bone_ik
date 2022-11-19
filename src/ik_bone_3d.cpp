@@ -112,7 +112,9 @@ Transform3D IKBone3D::get_pose() const {
 
 void IKBone3D::set_global_pose(const Transform3D &p_transform) {
 	godot_skeleton_aligned_transform->set_global_transform(p_transform);
-	constraint_transform->local_transform.origin = godot_skeleton_aligned_transform->local_transform.origin;
+	Transform3D transform = constraint_transform->get_transform();
+	transform.origin = godot_skeleton_aligned_transform->get_transform().origin;
+	constraint_transform->set_transform(transform);
 	constraint_transform->_propagate_transform_changed();
 }
 
