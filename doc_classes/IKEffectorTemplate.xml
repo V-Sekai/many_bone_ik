@@ -7,7 +7,7 @@
 	<tutorials>
 	</tutorials>
 	<members>
-		<member name="depth_falloff" type="float" setter="set_depth_falloff" getter="get_depth_falloff" default="0.0">
+		<member name="passthrough_factor" type="float" setter="set_passthrough_factor" getter="get_passthrough_factor" default="0.0">
 		</member>
 		<member name="direction_priorities" type="Vector3" setter="set_direction_priorities" getter="get_direction_priorities" default="Vector3(0.707107, 0, 0.707107)">
 		</member>

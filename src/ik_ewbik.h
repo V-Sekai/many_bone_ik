@@ -103,8 +103,8 @@ public:
 	void set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p_priority_direction);
 	Vector3 get_pin_direction_priorities(int32_t p_pin_index) const;
 	NodePath get_pin_target_nodepath(int32_t p_pin_index);
-	void set_pin_depth_falloff(int32_t p_effector_index, const float p_depth_falloff);
-	float get_pin_depth_falloff(int32_t p_effector_index) const;
+	void set_pin_passthrough_factor(int32_t p_effector_index, const float p_passthrough_factor);
+	float get_pin_passthrough_factor(int32_t p_effector_index) const;
 	real_t get_default_damp() const;
 	void set_default_damp(float p_default_damp);
 	void set_constraint_count(int32_t p_count);

@@ -167,12 +167,12 @@ void IKEffector3D::_bind_methods() {
 			&IKEffector3D::set_target_node);
 	ClassDB::bind_method(D_METHOD("get_target_node"),
 			&IKEffector3D::get_target_node);
-	ClassDB::bind_method(D_METHOD("set_depth_falloff", "amount"),
-			&IKEffector3D::set_depth_falloff);
-	ClassDB::bind_method(D_METHOD("get_depth_falloff"),
-			&IKEffector3D::get_depth_falloff);
+	ClassDB::bind_method(D_METHOD("set_passthrough_factor", "amount"),
+			&IKEffector3D::set_passthrough_factor);
+	ClassDB::bind_method(D_METHOD("get_passthrough_factor"),
+			&IKEffector3D::get_passthrough_factor);
 
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "passthrough_factor"), "set_passthrough_factor", "get_passthrough_factor");
 }
 
 void IKEffector3D::set_weight(real_t p_weight) {
@@ -188,10 +188,10 @@ IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_current_bone) {
 	for_bone = p_current_bone;
 }
 
-void IKEffector3D::set_depth_falloff(float p_depth_falloff) {
-	depth_falloff = CLAMP(p_depth_falloff, 0.0, 1.0);
+void IKEffector3D::set_passthrough_factor(float p_passthrough_factor) {
+	passthrough_factor = CLAMP(p_passthrough_factor, 0.0, 1.0);
 }
 
-float IKEffector3D::get_depth_falloff() const {
-	return depth_falloff;
+float IKEffector3D::get_passthrough_factor() const {
+	return passthrough_factor;
 }

@@ -36,8 +36,8 @@ void IKEffectorTemplate::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_target_node"), &IKEffectorTemplate::get_target_node);
 	ClassDB::bind_method(D_METHOD("set_target_node", "target_node"), &IKEffectorTemplate::set_target_node);
 
-	ClassDB::bind_method(D_METHOD("get_depth_falloff"), &IKEffectorTemplate::get_depth_falloff);
-	ClassDB::bind_method(D_METHOD("set_depth_falloff", "depth_falloff"), &IKEffectorTemplate::set_depth_falloff);
+	ClassDB::bind_method(D_METHOD("get_passthrough_factor"), &IKEffectorTemplate::get_passthrough_factor);
+	ClassDB::bind_method(D_METHOD("set_passthrough_factor", "passthrough_factor"), &IKEffectorTemplate::set_passthrough_factor);
 
 	ClassDB::bind_method(D_METHOD("get_weight"), &IKEffectorTemplate::get_weight);
 	ClassDB::bind_method(D_METHOD("set_weight", "weight"), &IKEffectorTemplate::set_weight);
@@ -45,7 +45,7 @@ void IKEffectorTemplate::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_direction_priorities"), &IKEffectorTemplate::get_direction_priorities);
 	ClassDB::bind_method(D_METHOD("set_direction_priorities", "direction_priorities"), &IKEffectorTemplate::set_direction_priorities);
 
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_falloff"), "set_depth_falloff", "get_depth_falloff");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "passthrough_factor"), "set_passthrough_factor", "get_passthrough_factor");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "weight"), "set_weight", "get_weight");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "direction_priorities"), "set_direction_priorities", "get_direction_priorities");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "target_node"), "set_target_node", "get_target_node");
@@ -59,12 +59,12 @@ void IKEffectorTemplate::set_target_node(NodePath p_node_path) {
 	target_node = p_node_path;
 }
 
-float IKEffectorTemplate::get_depth_falloff() const {
-	return depth_falloff;
+float IKEffectorTemplate::get_passthrough_factor() const {
+	return passthrough_factor;
 }
 
-void IKEffectorTemplate::set_depth_falloff(float p_depth_falloff) {
-	depth_falloff = p_depth_falloff;
+void IKEffectorTemplate::set_passthrough_factor(float p_passthrough_factor) {
+	passthrough_factor = p_passthrough_factor;
 }
 
 IKEffectorTemplate::IKEffectorTemplate() {

@@ -56,7 +56,7 @@ class IKEffector3D : public Resource {
 	int32_t num_headings = 7;
 	// See IKEffectorTemplate to change the defaults.
 	real_t weight = 0.0;
-	real_t depth_falloff = 0.0;
+	real_t passthrough_factor = 0.0;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
@@ -73,8 +73,8 @@ public:
 	Vector3 get_direction_priorities() const;
 	void update_target_global_transform(Skeleton3D *p_skeleton, NBoneIK *p_modification = nullptr);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
-	float get_depth_falloff() const;
-	void set_depth_falloff(float p_depth_falloff);
+	float get_passthrough_factor() const;
+	void set_passthrough_factor(float p_passthrough_factor);
 	void set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
 	Transform3D get_target_global_transform() const;

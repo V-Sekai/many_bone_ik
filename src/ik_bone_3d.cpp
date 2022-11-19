@@ -175,7 +175,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			create_pin();
 			Ref<IKEffector3D> effector = get_pin();
 			effector->set_target_node(p_skeleton, elem->get_target_node());
-			effector->set_depth_falloff(elem->get_depth_falloff());
+			effector->set_passthrough_factor(elem->get_passthrough_factor());
 			const real_t weight = elem->get_weight();
 			effector->set_weight(elem->get_weight());
 			effector->set_weight(weight);

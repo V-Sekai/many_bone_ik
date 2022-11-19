@@ -67,7 +67,7 @@
 			<description>
 			</description>
 		</method>
-		<method name="get_pin_depth_falloff" qualifiers="const">
+		<method name="get_pin_passthrough_factor" qualifiers="const">
 			<return type="float" />
 			<param index="0" name="index" type="int" />
 			<description>
@@ -168,7 +168,7 @@
 			<description>
 			</description>
 		</method>
-		<method name="set_pin_depth_falloff">
+		<method name="set_pin_passthrough_factor">
 			<return type="void" />
 			<param index="0" name="index" type="int" />
 			<param index="1" name="falloff" type="float" />
