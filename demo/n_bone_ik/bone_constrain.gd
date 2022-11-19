@@ -48,7 +48,7 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		marker_3d.global_transform = node_3d.global_transform
 		node_3d.replace_by(marker_3d, true)
 		marker_3d.gizmo_extents = 0.5
-	enable_debug_pins(pins, ewbik)
+#	enable_debug_pins(pins, ewbik)
 var human_bones: PackedStringArray
 
 
