@@ -181,7 +181,7 @@ func _run():
 		for constraint_i in range(human_bones.size()):
 			var bone_name = human_bones[constraint_i]
 			new_ik.set_constraint_name(constraint_i, bone_name)
-			new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-180), deg_to_rad(360 - 0.01)))
+			new_ik.set_kusudama_twist(constraint_i, Vector2(-PI, TAU - 0.001))
 		create_pins(new_ik, skeleton)
 		new_ik.queue_print_skeleton()
 		break

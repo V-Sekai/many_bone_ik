@@ -20,6 +20,6 @@ func _run():
 				ik.set_constraint_name(constraint_i, bone_name)
 				var twist_current : float = ik.get_kusudama_twist_current(constraint_i)
 				print("%s %s" % [bone_name, twist_current])
-				ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad((twist_current * 360) + 180), deg_to_rad(1)))
+				ik.set_kusudama_twist(constraint_i, Vector2(twist_current * (TAU - 0.001), TAU - 0.01))
 			ik.queue_print_skeleton()
 			break
