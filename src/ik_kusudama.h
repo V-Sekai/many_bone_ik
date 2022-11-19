@@ -237,8 +237,6 @@ public:
 			Vector3 p_axis,
 			Quaternion &r_swing,
 			Quaternion &r_twist);
-
-	void optimize_limiting_axes();
 };
 
 #endif // IK_KUSUDAMA_H

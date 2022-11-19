@@ -113,46 +113,6 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	to_set->rotate_local_with_global(rot);
 }
 
-void IKKusudama::optimize_limiting_axes() {
-	Ref<IKNode3D> originalLimitingAxes = bone_attached_to->get_constraint_transform()->duplicate();
-	Vector<Vector3> directions;
-	if (limit_cones.size() == 1) {
-		directions.push_back(Ref<IKLimitCone>(limit_cones[0])->get_control_point());
-	} else {
-		for (int i = 0; i < limit_cones.size() - 1; i++) {
-			Vector3 thisC = Ref<IKLimitCone>(limit_cones[i])->get_control_point();
-			Vector3 nextC = Ref<IKLimitCone>(limit_cones[i + 1])->get_control_point();
-			Quaternion thisToNext = Quaternion(thisC, nextC);
-			Quaternion halfThisToNext = Quaternion(thisToNext.get_axis(), thisToNext.get_angle() / 2.0);
-
-			Vector3 halfAngle = halfThisToNext.xform(thisC);
-			halfAngle.normalize();
-			halfAngle = halfAngle * thisToNext.get_angle();
-			directions.push_back(halfAngle);
-		}
-	}
-	Vector3 newY;
-	for (Vector3 dv : directions) {
-		newY += dv;
-	}
-	newY = newY / directions.size();
-	if (!Math::is_zero_approx(newY.length_squared()) && Math::is_finite(newY.y)) {
-		newY.normalize();
-	} else {
-		newY = Vector3(0.0, 1.0, 0.0);
-	}
-	Ref<IKRay3D> newYRay = Ref<IKRay3D>(memnew(IKRay3D(Vector3(0, 0, 0), newY)));
-	Quaternion oldYtoNewY = Quaternion(bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_column(Vector3::AXIS_Y), originalLimitingAxes->to_global(newYRay->p2()));
-	bone_attached_to->get_constraint_transform()->rotate_local_with_global(oldYtoNewY);
-	for (int i = 0; i < limit_cones.size() - 1; i++) {
-		Ref<IKLimitCone> lc = limit_cones[i];
-		Vector3 control_point = originalLimitingAxes->to_global(lc->get_control_point());
-		control_point = bone_attached_to->get_constraint_transform()->to_local(control_point);
-		lc->set_control_point(control_point.normalized());
-	}
-	update_tangent_radii();
-}
-
 real_t IKKusudama::signed_angle_difference(real_t min_angle, real_t p_super) {
 	real_t d = Math::fmod(Math::abs(min_angle - p_super), real_t(Math_TAU));
 	real_t r = d > Math_PI ? Math_TAU - d : d;
