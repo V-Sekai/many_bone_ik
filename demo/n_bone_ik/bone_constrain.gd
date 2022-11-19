@@ -18,6 +18,7 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		"RightHand", 
 		"LeftFoot", 
 		"RightFoot",
+		"Hips",
 	]
 	for pin in pins:
 		var node = root.find_child(pin)
@@ -31,6 +32,8 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		var bone_i = skeleton.find_bone(bone_name)
 		if bone_i == -1:
 			continue
+		if bone_name in ["Hips"]:
+			ewbik.set_pin_depth_falloff(pin_i, 0.1)
 		var node_3d : BoneAttachment3D = BoneAttachment3D.new()
 		node_3d.name = bone_name
 		node_3d.bone_name = bone_name
@@ -40,7 +43,7 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
 		ewbik.set_pin_nodepath(pin_i, NodePath(path_string))
 		ewbik.set_pin_bone_name(pin_i, bone_name)
-		ewbik.set_pin_depth_falloff(pin_i, 1)
+		ewbik.set_pin_depth_falloff(pin_i, 1)			
 		if bone_name in ["UpperChest"]:
 			ewbik.set_pin_weight(pin_i, 0.01)
 		var marker_3d : Marker3D = Marker3D.new()
