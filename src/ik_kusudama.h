@@ -128,7 +128,7 @@ public:
 	virtual void set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen);
 
 	real_t get_current_twist_rotation();
-	void set_current_twist_rotation();
+	void set_current_twist_rotation(real_t p_rotation);
 
 	/**
 	 * Given a point (in local coordinates), checks to see if a ray can be extended from the Kusudama's
