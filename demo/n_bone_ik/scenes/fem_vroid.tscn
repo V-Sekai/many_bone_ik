@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://dmka4t8pwv34v"]
+
+[ext_resource type="PackedScene" uid="uid://hpmisow0xxqo" path="res://n_bone_ik/art/vroid/fem_vroid.vrm" id="1_wiqty"]
+
+[node name="fem_vroid" instance=ExtResource("1_wiqty")]

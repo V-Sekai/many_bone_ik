@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1c557ubo88ux"]
+
+[ext_resource type="PackedScene" uid="uid://cv07sd54t8n8a" path="res://n_bone_ik/art/vroid/HairSample_Male.vrm" id="1_qhox4"]
+
+[node name="HairSample_Male" instance=ExtResource("1_qhox4")]
+
+[node name="Face" parent="GeneralSkeleton" index="0"]
+visible = false
+
+[node name="Body" parent="GeneralSkeleton" index="1"]
+visible = false
