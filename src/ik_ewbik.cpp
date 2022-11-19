@@ -414,6 +414,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void NBoneIK::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &NBoneIK::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &NBoneIK::remove_constraint);
 	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &NBoneIK::set_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &NBoneIK::get_skeleton_node_path);
@@ -904,4 +905,20 @@ void NBoneIK::remove_constraint(int32_t p_index) {
 
 	set_dirty();
 	notify_property_list_changed();
+}
+
+real_t NBoneIK::get_kusudama_twist_current(int32_t p_index) {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
+	String bone_name = constraint_names[p_index];
+	if (segmented_skeleton.is_null()) {
+		return 0;
+	}
+	Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+	if (ik_bone.is_null()) {
+		return 0;
+	}
+	if (ik_bone->get_constraint().is_null()) {
+		return 0;
+	}
+	return ik_bone->get_constraint()->get_current_twist_rotation();
 }

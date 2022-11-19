@@ -130,9 +130,9 @@ func create_constraints(ewbik):
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
 			ewbik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
-			# No twist. Set to 1 to avoid floating point error.
-			var twist : Vector2 = Vector2(deg_to_rad(0), deg_to_rad(1))
-			ewbik.set_kusudama_twist(constraint_i, twist)
+			ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(1)))
+			if bone_name.begins_with("Left"):
+				ewbik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(70), deg_to_rad(1)))
 		elif bone_name.ends_with("UpperLeg"):
 			ewbik.set_kusudama_limit_cone_count(constraint_i, 1)
 			ewbik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
@@ -176,11 +176,12 @@ func _run():
 		var new_ik : NBoneIK = NBoneIK.new()
 		skeleton.add_child(new_ik, true)
 		new_ik.owner = root
-		new_ik.visible = false
 		new_ik.set_pin_count(0)
-		new_ik.set_constraint_count(0)
-		create_constraints(new_ik)
+		new_ik.set_constraint_count(human_bones.size())
+		for constraint_i in range(human_bones.size()):
+			var bone_name = human_bones[constraint_i]
+			new_ik.set_constraint_name(constraint_i, bone_name)
+			new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(-180), deg_to_rad(360 - 0.01)))
 		create_pins(new_ik, skeleton)
-		new_ik.visible = true
 		new_ik.queue_print_skeleton()
 		break
