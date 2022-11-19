@@ -373,10 +373,14 @@ real_t IKKusudama::get_current_twist_rotation() {
 	Quaternion twist;
 	get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
 	real_t angle = twist.get_angle() * twist.get_axis().y;
-	return angle;
+	if (range_angle == 0.0) {
+		return 0;
+	}
+	return _to_tau(signed_angle_difference(angle, Math_TAU - min_axial_angle)) / range_angle;
 }
 
 void IKKusudama::set_current_twist_rotation(real_t p_rotation) {
+	p_rotation = (p_rotation * range_angle) + min_axial_angle;
 	Quaternion inv_rot = bone_attached_to->get_constraint_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
 	Quaternion align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
 	Quaternion swing;
