@@ -28,7 +28,7 @@ func adjust_mesh_zforward(mesh: ImporterMesh):
 		var bsarr: Array = []
 		for bsidx in range(bscount):
 			bsarr.append(mesh.get_surface_blend_shape_arrays(surf_idx, bsidx))
-		var lods: Dictionary = mesh.surface_get_lods(surf_idx) # get_lods(mesh, surf_idx)
+		var lods: Dictionary
 		var mat: Material = mesh.get_surface_material(surf_idx)
 		var vert_arr_len: int = (len(arr[ArrayMesh.ARRAY_VERTEX]))
 		var vertarr: PackedVector3Array = arr[ArrayMesh.ARRAY_VERTEX]
@@ -147,7 +147,9 @@ func rotate_scene_180(p_scene: Node3D):
 		adjust_mesh_zforward(mesh)
 	for skin in skin_set:
 		for b in range(skin.get_bind_count()):
-			skin.set_bind_pose(b, ROTATE_180_TRANSFORM * skin.get_bind_pose(b) * ROTATE_180_TRANSFORM)
+			var transform : Transform3D = skin.get_bind_pose(b)
+			transform.basis = ROTATE_180_BASIS * transform.basis * ROTATE_180_BASIS
+			skin.set_bind_pose(b, transform)
 
 func skeleton_rotate(p_base_scene: Node, src_skeleton: Skeleton3D, p_bone_map: BoneMap) -> Array[Basis]:
 	# is_renamed: was skeleton_rename already invoked?
@@ -480,7 +482,8 @@ func _update_materials(vrm_extension: Dictionary, gstate: GLTFState) -> void:
 		var oldpath = oldmat.resource_path
 		oldmat.resource_path = ""
 		newmat.take_over_path(oldpath)
-		ResourceSaver.save(newmat, oldpath)
+		if not oldpath.is_empty():
+			ResourceSaver.save(newmat, oldpath)
 	gstate.set_materials(materials)
 
 	var meshes = gstate.get_meshes()
