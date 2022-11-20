@@ -117,7 +117,7 @@ public:
 	virtual Vector3 p1();
 	virtual int intersects_sphere(Vector3 rp1, Vector3 rp2, float radius, Vector3 &S1, Vector3 &S2);
 	float triangle_area_2d(float x1, float y1, float x2, float y2, float x3, float y3);
-	void barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 &uvw);
+	Vector3 barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p);
 	virtual Vector3 plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc, Vector3 &uvw);
 	operator String() const {
 		return String(L"(") + this->point_1.x + L" ->  " + this->point_2.x + L") \n " + L"(" + this->point_1.y + L" ->  " + this->point_2.y + L") \n " + L"(" + this->point_1.z + L" ->  " + this->point_2.z + L") \n ";

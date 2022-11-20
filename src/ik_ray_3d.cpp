@@ -160,13 +160,15 @@ Vector3 IKRay3D::plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc, Vector
 	r = a / b;
 	I = dir;
 	I *= r;
-	barycentric(ta, tb, tc, I, uvw);
+	uvw = barycentric(ta, tb, tc, I);
 	return I;
 }
+
 float IKRay3D::triangle_area_2d(float x1, float y1, float x2, float y2, float x3, float y3) {
 	return (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2);
 }
-void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 &uvw) {
+
+Vector3 IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p) {
 	bc = b;
 	ca = a;
 	at = a;
@@ -197,17 +199,20 @@ void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 &u
 		nv = triangle_area_2d(pt.x, pt.y, ct.x, ct.y, at.x, at.y);
 		ood = 1.0f / m.z;
 	}
+	Vector3 uvw;
 	uvw[0] = nu * ood;
 	uvw[1] = nv * ood;
 	uvw[2] = 1.0f - uvw[0] - uvw[1];
+	return uvw;
 }
+
 void IKRay3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("heading"), &IKRay3D::heading);
 	ClassDB::bind_method(D_METHOD("scaled_projection", "input"), &IKRay3D::scaled_projection);
 	ClassDB::bind_method(D_METHOD("intersects_plane", "a", "b", "c"), &IKRay3D::intersects_plane);
+	ClassDB::bind_method(D_METHOD("barycentric", "a", "b", "c", "p"), &IKRay3D::barycentric);
 	// TODO: Bind variables that are c++ references.
 	// ClassDB::bind_method(D_METHOD("set_heading", "heading"), &IKRay3D::set_heading);
-	// ClassDB::bind_method(D_METHOD("barycentric", "a", "b", "c", "p", "uvw"), &IKRay3D::barycentric);
 	// ClassDB::bind_method(D_METHOD("plane_intersect_test", "ta", "tb", "tc", "uvw"), &IKRay3D::plane_intersect_test);
 	// ClassDB::bind_method(D_METHOD("p1", "point"), &IKRay3D::p1);
 	// ClassDB::bind_method(D_METHOD("p2", "point"), &IKRay3D::p2);
