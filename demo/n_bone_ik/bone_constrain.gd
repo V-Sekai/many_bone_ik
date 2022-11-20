@@ -55,7 +55,7 @@ func create_pins(ewbik : NBoneIK, skeleton : Skeleton3D):
 		marker_3d.global_transform = node_3d.global_transform
 		node_3d.replace_by(marker_3d, true)
 		marker_3d.gizmo_extents = 0.1
-#	enable_debug_pins(pins, ewbik)
+	enable_debug_pins(pins, ewbik)
 var human_bones: PackedStringArray
 
 func _run():
@@ -79,5 +79,5 @@ func _run():
 		for constraint_i in range(human_bones.size()):
 			var bone_name = human_bones[constraint_i]
 			new_ik.set_constraint_name(constraint_i, bone_name)
-			new_ik.set_kusudama_twist(constraint_i, Vector2(-PI, TAU - 0.001))
+			new_ik.set_kusudama_twist(constraint_i, Vector2(PI, TAU - 0.001))
 		create_pins(new_ik, skeleton)
