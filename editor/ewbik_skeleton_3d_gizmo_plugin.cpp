@@ -238,6 +238,9 @@ void EWBIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D
 		prevrow = thisrow;
 		thisrow = point;
 	}
+	if (!indices.size()) {
+		return;
+	}
 	Ref<SurfaceTool> surface_tool;
 	surface_tool.instantiate();
 	surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
@@ -415,7 +418,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 		Transform3D axial_relative_to_universe = constraint_relative_to_the_universe * axial_from_relative_to_mesh;
-		
+
 		Transform3D current_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 		axial_middle_handles.push_back(axial_relative_to_universe.origin);
@@ -442,5 +445,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		}
 		p_gizmo->add_handles(handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
-	p_gizmo->add_handles(handles_current, get_material("handles_axial_current"), Vector<int>(), true, true);
+	if (handles_current.size()) {
+		p_gizmo->add_handles(handles_current, get_material("handles_axial_current"), Vector<int>(), true, true);
+	}
 }
