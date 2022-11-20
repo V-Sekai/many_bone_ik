@@ -28,7 +28,7 @@ func adjust_mesh_zforward(mesh: ImporterMesh):
 		var bsarr: Array = []
 		for bsidx in range(bscount):
 			bsarr.append(mesh.get_surface_blend_shape_arrays(surf_idx, bsidx))
-		var lods: Dictionary
+		var lods: Dictionary = {} # mesh.surface_get_lods(surf_idx) # get_lods(mesh, surf_idx)
 		var mat: Material = mesh.get_surface_material(surf_idx)
 		var vert_arr_len: int = (len(arr[ArrayMesh.ARRAY_VERTEX]))
 		var vertarr: PackedVector3Array = arr[ArrayMesh.ARRAY_VERTEX]
@@ -147,9 +147,7 @@ func rotate_scene_180(p_scene: Node3D):
 		adjust_mesh_zforward(mesh)
 	for skin in skin_set:
 		for b in range(skin.get_bind_count()):
-			var transform : Transform3D = skin.get_bind_pose(b)
-			transform.basis = ROTATE_180_BASIS * transform.basis * ROTATE_180_BASIS
-			skin.set_bind_pose(b, transform)
+			skin.set_bind_pose(b, ROTATE_180_TRANSFORM * skin.get_bind_pose(b) * ROTATE_180_TRANSFORM)
 
 func skeleton_rotate(p_base_scene: Node, src_skeleton: Skeleton3D, p_bone_map: BoneMap) -> Array[Basis]:
 	# is_renamed: was skeleton_rename already invoked?
@@ -480,10 +478,10 @@ func _update_materials(vrm_extension: Dictionary, gstate: GLTFState) -> void:
 				newmat.render_priority = target_render_priority
 		materials[i] = newmat
 		var oldpath = oldmat.resource_path
-		oldmat.resource_path = ""
+		if oldpath.is_empty():
+			continue
 		newmat.take_over_path(oldpath)
-		if not oldpath.is_empty():
-			ResourceSaver.save(newmat, oldpath)
+		ResourceSaver.save(newmat, oldpath)
 	gstate.set_materials(materials)
 
 	var meshes = gstate.get_meshes()
@@ -856,12 +854,12 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 		spring_bone.comment = sbone.get("comment", "")
 		spring_bone.stiffness_force = float(sbone.get("stiffiness", 1.0))
 		spring_bone.gravity_power = float(sbone.get("gravityPower", 0.0))
-		var gravity_dir = sbone.get("gravity_dir", {"x": 0.0, "y": -1.0, "z": 0.0})
+		var gravity_dir = sbone.get("gravityDir", {"x": 0.0, "y": -1.0, "z": 0.0})
 		spring_bone.gravity_dir = Vector3(gravity_dir["x"], gravity_dir["y"], gravity_dir["z"])
-		spring_bone.drag_force = float(sbone.get("drag_force", 0.4))
+		spring_bone.drag_force = float(sbone.get("dragForce", 0.4))
 		spring_bone.hit_radius = float(sbone.get("hitRadius", 0.02))
 
-		if spring_bone.comment != "":
+		if not spring_bone.comment.is_empty():
 			spring_bone.resource_name = spring_bone.comment.split("\n")[0]
 		else:
 			var tmpname: String = ""
