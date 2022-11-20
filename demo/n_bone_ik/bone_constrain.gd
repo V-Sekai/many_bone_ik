@@ -14,7 +14,8 @@ func _run():
 	# Check if bones roll point forward
 	var profile : SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
 	for bone_i in profile.bone_size:
-		human_bones.push_back(profile.get_bone_name(bone_i)) 
+		human_bones.push_back(profile.get_bone_name(bone_i))
+	human_bones.reverse()
 	var root : Node3D = get_editor_interface().get_edited_scene_root()
 	if root == null:
 		return
