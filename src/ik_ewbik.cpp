@@ -192,7 +192,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "180,359.999,0.1,radians,or_lesser,or_greater"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0,360.0,0.1,radians,or_lesser,or_greater"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "-180,180.0,0.1,radians,or_lesser,or_greater"));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001"));
 		p_list->push_back(
@@ -503,7 +503,7 @@ void NBoneIK::set_constraint_count(int32_t p_count) {
 		constraint_names.write[constraint_i] = String();
 		kusudama_limit_cone_count.write[constraint_i] = 0;
 		kusudama_limit_cones.write[constraint_i].resize(0);
-		kusudama_twist.write[constraint_i] = Vector2();
+		kusudama_twist.write[constraint_i] = Vector2(Math_PI, Math_TAU - CMP_EPSILON);
 	}
 	set_dirty();
 }
