@@ -8,39 +8,43 @@ func enable_debug_pins(pins, new_ik : NBoneIK):
 			new_ik.set_pin_weight(pin_i, 1)
 		new_ik.default_damp = 0.001
 
-var human_bones: PackedStringArray
+var bones: PackedStringArray
 
 func _run():
-	# Check if bones roll point forward
-	var profile : SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
-	for bone_i in profile.bone_size:
-		human_bones.push_back(profile.get_bone_name(bone_i))
-	human_bones.reverse()
 	var root : Node3D = get_editor_interface().get_edited_scene_root()
 	if root == null:
 		return
 	var skeletons : Array[Node] = root.find_children("*", "Skeleton3D")
 	for skeleton in skeletons:
+		var current_skeleton : Skeleton3D = skeleton
+		if not current_skeleton.get_bone_count():
+			continue
 		var iks : Array[Node] = skeleton.find_children("*", "NBoneIK")
 		for ik in iks:
 			ik.free()
 		var new_ik : NBoneIK = NBoneIK.new()
 		skeleton.add_child(new_ik, true)
 		new_ik.owner = root
+		new_ik.visible = false
 		new_ik.set_pin_count(0)
-		new_ik.set_constraint_count(human_bones.size())
-		for constraint_i in range(human_bones.size()):
-			var bone_name = human_bones[constraint_i]
+		new_ik.set_constraint_count(bones.size())
+		for constraint_i in range(bones.size()):
+			var bone_name = bones[constraint_i]
 			new_ik.set_constraint_name(constraint_i, bone_name)
 		var pins =  [
-			"Head",
+			current_skeleton.get_bone_name(current_skeleton.get_parentless_bones()[0])
+		]
+		for bone_name in ["Head",
 			"LeftHand", 
 			"RightHand", 
 			"LeftFoot", 
 			"RightFoot",
 			"Spine",
-			"Root",
-		]
+			"Root"]:
+			var bone_i : int = current_skeleton.find_bone(bone_name)
+			if bone_i == -1:
+				continue
+			pins.push_back(bone_name)
 		for pin in pins:
 			var node = root.find_child(pin)
 			if node != null:
@@ -73,8 +77,8 @@ func _run():
 			node_3d.replace_by(marker_3d, true)
 			marker_3d.gizmo_extents = 0.1
 			
-		for constraint_i in human_bones.size():
-			var bone_name = human_bones[constraint_i]
+		for constraint_i in current_skeleton.get_bone_count():
+			var bone_name = current_skeleton.get_bone_name(constraint_i)
 			var twist_min = new_ik.get_kusudama_twist(constraint_i).x
 			if bone_name in ["UpperChest"]:
 				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, PI))
@@ -87,7 +91,7 @@ func _run():
 			elif bone_name.ends_with("LowerArm"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, PI))
 
-		for constraint_i in human_bones.size():
+		for constraint_i in current_skeleton.get_bone_count():
 			var bone_name : String = new_ik.get_constraint_name(constraint_i)
 			if bone_name in ["Head"]:
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
@@ -158,5 +162,5 @@ func _run():
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
 				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
-
-		enable_debug_pins(pins, new_ik)
+		new_ik.visible = true
+#		enable_debug_pins(pins, new_ik)

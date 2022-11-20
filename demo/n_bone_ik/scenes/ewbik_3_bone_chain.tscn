@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4uoqujqycdgj"]
+
+[ext_resource type="PackedScene" uid="uid://cr48tqlh6y3jy" path="res://n_bone_ik/art/ewbik_3_bone_chain.glb" id="1_linp6"]
+
+[node name="ewbik_3_bone_chain" instance=ExtResource("1_linp6")]
+
+[node name="Skeleton3D" parent="Armature" index="0"]
+bones/0/position = Vector3(-0.00265493, 0.0074012, -0.00129578)
+bones/0/rotation = Quaternion(0.00742728, 0.0304335, -0.0141107, 0.99941)
+bones/0/scale = Vector3(1, 1, 1)
+bones/1/rotation = Quaternion(-0.00677958, -0.0465434, -0.0146196, 0.998786)
+bones/1/scale = Vector3(1, 1, 1)
+bones/2/rotation = Quaternion(0.000126507, 0.0159217, 0.00794744, 0.999842)
+bones/2/scale = Vector3(1, 1, 1)
+bones/4/rotation = Quaternion(6.85413e-10, -0.0941975, -9.94455e-08, 0.995554)
+bones/5/rotation = Quaternion(0.00217821, 0.0941724, 0.0230216, 0.995287)
+bones/6/rotation = Quaternion(4.87597e-09, -4.64336e-07, -0.0118081, 0.99993)
+bones/6/scale = Vector3(1, 1, 1)
+bones/7/rotation = Quaternion(-3.45918e-09, 2.85479e-07, 0.00958492, 0.999954)
+bones/8/rotation = Quaternion(-4.67909e-07, -6.25651e-08, 0.550628, 0.834751)
+bones/11/rotation = Quaternion(1.33279e-13, 3.71461e-16, 1.49012e-07, 1)
+
+[node name="NBoneIK" type="NBoneIK" parent="Armature/Skeleton3D" index="1"]
+root_bone = &"A0"
+pin_count = 1
+pins/0/bone_name = "A0"
+pins/0/target_node = NodePath("../A0")
+pins/0/passthrough_factor = 1.0
+pins/0/weight = 1.0
+pins/0/direction_priorities = Vector3(0.2, 0, 0.2)
+
+[node name="A0" type="Marker3D" parent="Armature/Skeleton3D" index="2"]
+transform = Transform3D(0.997749, 0.0286568, 0.0606215, -0.0277527, 0.999491, -0.0157047, -0.0610407, 0.0139869, 0.998037, -0.00265493, 0.0074012, -0.00129578)
+gizmo_extents = 0.1
