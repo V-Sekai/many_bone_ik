@@ -49,7 +49,7 @@ func constraint(new_ik : NBoneIK, skeleton : Skeleton3D, root : Node) -> void:
 		node_3d.name = bone_name
 		node_3d.bone_name = bone_name
 		node_3d.bone_idx = skeleton.find_bone(bone_name)
-		new_ik.add_child(node_3d)
+		skeleton.add_child(node_3d)
 		node_3d.owner = root
 		var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
 		new_ik.set_pin_nodepath(pin_i, NodePath(path_string))
