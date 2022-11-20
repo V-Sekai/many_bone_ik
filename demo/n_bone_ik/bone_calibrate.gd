@@ -15,11 +15,16 @@ func _run():
 	for skeleton in skeletons:
 		var iks : Array[Node] = skeleton.find_children("*", "NBoneIK")
 		for ik in iks:
-			for constraint_i in range(human_bones.size()):
-				var bone_name = human_bones[constraint_i]
-				ik.set_constraint_name(constraint_i, bone_name)
-				var twist_current : float = ik.get_kusudama_twist_current(constraint_i)
-				print("%s %s" % [bone_name, twist_current])
-				ik.set_kusudama_twist(constraint_i, Vector2(twist_current * (TAU - 0.001), TAU - 0.01))
-			ik.queue_print_skeleton()
-			break
+			var new_ik : NBoneIK = ik
+			for i in range(5):
+				for constraint_i in range(human_bones.size()):
+					var bone_name = human_bones[constraint_i]
+					var twist_current : float = new_ik.get_kusudama_twist_current(constraint_i)
+					var twist_min : float = new_ik.get_kusudama_twist(constraint_i).x
+					var twist_range : float = new_ik.get_kusudama_twist(constraint_i).y
+					if twist_range < deg_to_rad(10):
+						continue
+					var current = new_ik.get_kusudama_twist_current(constraint_i) 
+					new_ik.set_kusudama_twist(constraint_i, Vector2(lerp_angle(0, TAU - twist_min, current), lerp_angle(0, twist_range, current)))
+					if current > 0.1:
+						new_ik.set_kusudama_twist(constraint_i, Vector2(lerp_angle(0, TAU - twist_min, 0.5), lerp_angle(0, twist_range, 0.5)))
