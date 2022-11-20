@@ -72,90 +72,90 @@ func _run():
 			node_3d.replace_by(marker_3d, true)
 			marker_3d.gizmo_extents = 0.1
 			
-#		for constraint_i in human_bones.size():
-#			var bone_name = human_bones[constraint_i]
-#			var twist_min = ewbik.get_kusudama_twist(constraint_i).x
-#			if bone_name in ["UpperChest"]:
-#				ewbik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
-#			elif bone_name in ["Chest"]:
-#				ewbik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
-#			elif bone_name in ["Spine"]:
-#				ewbik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
-#			elif bone_name.ends_with("UpperArm"):
-#				ewbik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
-#			elif bone_name.ends_with("LowerArm"):
-#				ewbik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
-#
-#		for constraint_i in human_bones.size():
-#			var bone_name : String = new_ik.get_constraint_name(constraint_i)
-#			if bone_name in ["Head"]:
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#			elif bone_name in ["Neck"]:
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
-#			elif bone_name in ["UpperChest"]:
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
-#			elif bone_name in ["Chest"]:
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
-#			elif bone_name in ["Spine"]:
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
-#			elif bone_name in ["Hips"]:
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
-#			elif bone_name.ends_with("Shoulder"):
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(-1, 0, 0))
-#				if bone_name.begins_with("Left"):
-#					new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(1, 0, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
-#			elif bone_name.ends_with("UpperArm"):
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
-#			elif bone_name.ends_with("LowerArm"):
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 3)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 0, 0))
-#				if bone_name.begins_with("Left"):
-#					new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(-1, 0, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(1))
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(1))
-#			elif bone_name.ends_with("Hand"):
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
-#			elif bone_name.ends_with("UpperLeg"):
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
-#			elif bone_name.ends_with("LowerLeg"):
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 3)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(1))
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(1))
-#			elif bone_name.ends_with("Foot"):
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 2)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(20))
-#			elif bone_name.ends_with("Toes"):
-#				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
-#				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
-#				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
+		for constraint_i in human_bones.size():
+			var bone_name = human_bones[constraint_i]
+			var twist_min = new_ik.get_kusudama_twist(constraint_i).x
+			if bone_name in ["UpperChest"]:
+				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, PI))
+			elif bone_name in ["Chest"]:
+				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, PI))
+			elif bone_name in ["Spine"]:
+				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, PI))
+			elif bone_name.ends_with("UpperArm"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, PI))
+			elif bone_name.ends_with("LowerArm"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, PI))
+
+		for constraint_i in human_bones.size():
+			var bone_name : String = new_ik.get_constraint_name(constraint_i)
+			if bone_name in ["Head"]:
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+			elif bone_name in ["Neck"]:
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
+			elif bone_name in ["UpperChest"]:
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
+			elif bone_name in ["Chest"]:
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
+			elif bone_name in ["Spine"]:
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
+			elif bone_name in ["Hips"]:
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
+			elif bone_name.ends_with("Shoulder"):
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(-1, 0, 0))
+				if bone_name.begins_with("Left"):
+					new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(1, 0, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
+			elif bone_name.ends_with("UpperArm"):
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
+			elif bone_name.ends_with("LowerArm"):
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 3)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(1, 0, 0))
+				if bone_name.begins_with("Left"):
+					new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(-1, 0, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(1))
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(1))
+			elif bone_name.ends_with("Hand"):
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
+			elif bone_name.ends_with("UpperLeg"):
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
+			elif bone_name.ends_with("LowerLeg"):
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 3)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(1))
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(1))
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(1))
+			elif bone_name.ends_with("Foot"):
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 2)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, -1, 0))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(20))
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(20))
+			elif bone_name.ends_with("Toes"):
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
 
 		enable_debug_pins(pins, new_ik)
