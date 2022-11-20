@@ -31,7 +31,7 @@ func constraint(new_ik : NBoneIK, skeleton : Skeleton3D, root : Node) -> void:
 			node.free()
 	skeleton.reset_bone_poses()
 	new_ik.set_pin_count(pins.size())
-	new_ik.set_constraint_count(skeleton.get_bone_count())
+	new_ik.set_constraint_count(0)
 	for constraint_i in skeleton.get_bone_count():
 		var bone_name = skeleton.get_bone_name(constraint_i)
 		var twist_min = new_ik.get_kusudama_twist(constraint_i).x
