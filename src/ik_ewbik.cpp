@@ -172,6 +172,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
+		bone_name.usage = usage;
 		if (get_skeleton()) {
 			String names;
 			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
