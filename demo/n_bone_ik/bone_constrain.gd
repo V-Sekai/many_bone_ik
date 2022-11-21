@@ -99,23 +99,25 @@ func _run():
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(355), deg_to_rad(30)))
 			elif bone_name.ends_with("UpperChest"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(355), deg_to_rad(30)))
-			elif bone_name.ends_with("UpperArm"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(60)))
+			# arms ---------
 			elif bone_name.ends_with("RightLowerArm"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(120)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(100), deg_to_rad(120)))
 			elif bone_name.ends_with("LeftLowerArm"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(146), deg_to_rad(120)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(170), deg_to_rad(60)))
+			elif bone_name.ends_with("RightShoulder"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
+			elif bone_name.ends_with("LeftShoulder"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(295.1), deg_to_rad(30)))
+			elif bone_name.ends_with("RightHand"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(78.6), deg_to_rad(5)))
+			elif bone_name.ends_with("LeftHand"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(5)))
+			# LEGS ---------
 			elif bone_name.ends_with("RightUpperLeg"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(19.2), deg_to_rad(30.6)))
 			elif bone_name.ends_with("LeftUpperLeg"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(207.6), deg_to_rad(30)))
 			elif bone_name.ends_with("LowerLeg"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(5)))
-			elif bone_name.ends_with("Shoulder"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
-			elif bone_name.ends_with("RightHand"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(78.6), deg_to_rad(5)))
-			elif bone_name.ends_with("LeftHand"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(5)))
 			elif bone_name.ends_with("Foot"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
@@ -212,3 +214,4 @@ func _run():
 			var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
 			new_ik.set_pin_nodepath(constraint_i, NodePath(path_string))
 		new_ik.visible = true
+		new_ik.edit_constraints = true
