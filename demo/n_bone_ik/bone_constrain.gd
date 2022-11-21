@@ -17,7 +17,9 @@ func _run():
 		if not skeleton.get_bone_count():
 			continue
 		var iks : Array[Node] = skeleton.find_children("*", "NBoneIK")
+		var edit_mode = false
 		for ik in iks:
+			edit_mode = ik.edit_constraints
 			ik.free()
 		var new_ik : NBoneIK = NBoneIK.new()
 		skeleton.add_child(new_ik, true)
@@ -100,6 +102,10 @@ func _run():
 			elif bone_name.ends_with("UpperChest"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(355), deg_to_rad(30)))
 			# arms ---------
+			elif bone_name.ends_with("RightUpperArm"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(95), deg_to_rad(20)))
+			elif bone_name.ends_with("LeftUpperArm"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(95), deg_to_rad(20)))
 			elif bone_name.ends_with("RightLowerArm"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(100), deg_to_rad(120)))
 			elif bone_name.ends_with("LeftLowerArm"):
@@ -214,4 +220,4 @@ func _run():
 			var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
 			new_ik.set_pin_nodepath(constraint_i, NodePath(path_string))
 		new_ik.visible = true
-#		new_ik.edit_constraints = true
+		new_ik.edit_constraints = edit_mode
