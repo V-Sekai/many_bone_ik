@@ -101,7 +101,12 @@ func _run():
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(355), deg_to_rad(30)))
 			elif bone_name.ends_with("UpperChest"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(355), deg_to_rad(30)))
-			# arms ---------
+			# HEAD ---------
+			elif bone_name.ends_with("Head"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(5)))
+			elif bone_name.ends_with("Neck"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(356), deg_to_rad(5)))
+			# ARMS ---------
 			elif bone_name.ends_with("RightUpperArm"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(95), deg_to_rad(20)))
 			elif bone_name.ends_with("LeftUpperArm"):
