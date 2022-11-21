@@ -55,7 +55,7 @@ Ref<IKBone3D> IKEffector3D::get_ik_node_3d_bone() const {
 }
 
 bool IKEffector3D::is_following_translation_only() const {
-	return Math::is_zero_approx(direction_priorities.get_length_squared());
+	return Math::is_zero_approx(direction_priorities.length_squared());
 }
 
 void IKEffector3D::set_direction_priorities(Vector3 p_direction_priorities) { direction_priorities = p_direction_priorities; }
