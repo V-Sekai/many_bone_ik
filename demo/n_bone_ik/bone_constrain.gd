@@ -46,6 +46,10 @@ func _run():
 				continue
 			if bone_name == "LeftEye":
 				continue
+			if bone_name.ends_with("UpperArm"):
+				continue
+			if bone_name.ends_with("LowerArm"):
+				continue
 			if bone_name.ends_with("Proximal"):
 				continue
 			if bone_name.ends_with("Proximal2"):
@@ -58,6 +62,22 @@ func _run():
 				continue
 			if bone_name.ends_with("Intermediate"):
 				continue
+			if bone_name.ends_with("Toes"):
+				continue
+			if bone_name.ends_with("UpperChest"):
+				continue
+			if bone_name.ends_with("UpperLeg"):
+				continue
+			if bone_name.ends_with("LowerLeg"):
+				continue
+			if bone_name.ends_with("Chest"):
+				continue
+			if bone_name.ends_with("Spine"):
+				continue
+			if bone_name.ends_with("Neck"):
+				continue
+			if bone_name.ends_with("Shoulder"):
+				continue
 			pins.push_back(bone_name)
 		for pin in pins:
 			var node = root.find_child(pin)
@@ -67,7 +87,45 @@ func _run():
 		new_ik.set_pin_count(pins.size())
 		new_ik.set_constraint_count(pins.size())
 		
-		for pin_i in range(pins.size()):
+		var constraints : Array
+		for bone_i in skeleton.get_bone_count():
+			var bone_name = skeleton.get_bone_name(bone_i)
+			if bone_i == -1:
+				continue
+			if pins.has(bone_name):
+				continue
+			if bone_name.find("_HoodString") != -1:
+				continue
+			if bone_name.find("HairJoint-") != -1:
+				continue
+			if bone_name.ends_with("C_Hood"):
+				continue
+			if bone_name.ends_with("_end"):
+				continue
+			if bone_name == "RightEye":
+				continue
+			if bone_name == "LeftEye":
+				continue
+			if bone_name.ends_with("UpperArm"):
+				continue
+			if bone_name.ends_with("LowerArm"):
+				continue
+			if bone_name.ends_with("Proximal"):
+				continue
+			if bone_name.ends_with("Proximal2"):
+				continue
+			if bone_name.ends_with("Metacarpal"):
+				continue
+			if bone_name.ends_with("Metacarpal2"):
+				continue
+			if bone_name.ends_with("Distal"):
+				continue
+			if bone_name.ends_with("Intermediate"):
+				continue
+			if bone_name.ends_with("Toes"):
+				continue
+			constraints.push_back(bone_name)
+		for pin_i in pins.size():
 			var pin = pins[pin_i]
 			var bone_name = pin
 			var bone_i = skeleton.find_bone(bone_name)
@@ -84,8 +142,8 @@ func _run():
 			if bone_name in ["UpperChest"]:
 				new_ik.set_pin_weight(pin_i, 0.01)
 			
-		for constraint_i in pins.size():
-			var bone_name = pins[constraint_i]
+		for constraint_i in constraints.size():
+			var bone_name = constraints[constraint_i]
 			new_ik.set_constraint_name(constraint_i, bone_name)
 
 		for constraint_i in new_ik.get_constraint_count():
@@ -112,9 +170,9 @@ func _run():
 			elif bone_name.ends_with("LeftUpperArm"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(95), deg_to_rad(20)))
 			elif bone_name.ends_with("RightLowerArm"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(100), deg_to_rad(120)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(110), deg_to_rad(1)))
 			elif bone_name.ends_with("LeftLowerArm"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(170), deg_to_rad(60)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(250), deg_to_rad(1)))
 			elif bone_name.ends_with("RightShoulder"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
 			elif bone_name.ends_with("LeftShoulder"):
@@ -134,8 +192,8 @@ func _run():
 				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
 			elif bone_name.ends_with("Toes"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
-		for bone_i in pins.size():
-			var bone_name : String =  pins[bone_i]
+		for bone_i in constraints.size():
+			var bone_name : String =  constraints[bone_i]
 			var constraint_i = new_ik.find_constraint(bone_name)
 			if bone_name in ["Head"]:
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
@@ -179,7 +237,7 @@ func _run():
 					new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(-1, 0, 0))
 				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(20))
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
-				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(1))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(10))
 			elif bone_name.ends_with("Hand"):
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
@@ -207,15 +265,8 @@ func _run():
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
 				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
 				
-#		pins = ["Root", "Hips", "Head", "LeftFoot", "RightFoot", "LeftHand", "RightHand"]
-		pins.erase("LeftToes")
-		pins.erase("RightToes")
-		pins.erase("UpperChest")
-		pins.erase("Chest")
-		pins.erase("Spine")
-		for bone_i in pins.size():
-			var bone_name : String = pins[bone_i]
-			var constraint_i = new_ik.find_constraint(bone_name)
+		for bone_i in new_ik.get_pin_count():
+			var bone_name : String = new_ik.get_pin_bone_name(bone_i)
 			var node_3d : BoneAttachment3D = BoneAttachment3D.new()
 			node_3d.name = bone_name
 			node_3d.bone_name = bone_name
@@ -223,6 +274,6 @@ func _run():
 			skeleton.add_child(node_3d)
 			node_3d.owner = root
 			var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
-			new_ik.set_pin_nodepath(constraint_i, NodePath(path_string))
+			new_ik.set_pin_nodepath(bone_i, NodePath(path_string))
 		new_ik.visible = true
 		new_ik.edit_constraints = edit_mode
