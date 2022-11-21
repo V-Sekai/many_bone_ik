@@ -85,14 +85,11 @@ func _run():
 				node.free()
 		skeleton.reset_bone_poses()
 		new_ik.set_pin_count(pins.size())
-		new_ik.set_constraint_count(pins.size())
 		
 		var constraints : Array
 		for bone_i in skeleton.get_bone_count():
 			var bone_name = skeleton.get_bone_name(bone_i)
 			if bone_i == -1:
-				continue
-			if pins.has(bone_name):
 				continue
 			if bone_name.find("_HoodString") != -1:
 				continue
@@ -105,10 +102,6 @@ func _run():
 			if bone_name == "RightEye":
 				continue
 			if bone_name == "LeftEye":
-				continue
-			if bone_name.ends_with("UpperArm"):
-				continue
-			if bone_name.ends_with("LowerArm"):
 				continue
 			if bone_name.ends_with("Proximal"):
 				continue
@@ -125,6 +118,7 @@ func _run():
 			if bone_name.ends_with("Toes"):
 				continue
 			constraints.push_back(bone_name)
+		new_ik.set_constraint_count(constraints.size())
 		for pin_i in pins.size():
 			var pin = pins[pin_i]
 			var bone_name = pin
