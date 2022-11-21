@@ -130,7 +130,11 @@ func _run():
 			new_ik.set_pin_bone_name(pin_i, bone_name)
 			new_ik.set_pin_passthrough_factor(pin_i, 1)
 			new_ik.set_pin_direction_priorities(pin_i, Vector3(0,0,0))
-			if bone_name in ["Hips", "Root"]:
+			if bone_name in ["Root"]:
+				new_ik.set_pin_passthrough_factor(pin_i, 0)
+				new_ik.set_pin_weight(pin_i, 0.3)
+				new_ik.set_pin_direction_priorities(pin_i, Vector3(0,0,0))
+			if bone_name in ["Hips"]:
 				new_ik.set_pin_passthrough_factor(pin_i, 0)
 				new_ik.set_pin_weight(pin_i, 0.3)
 			if bone_name in ["UpperChest"]:
@@ -168,9 +172,9 @@ func _run():
 			elif bone_name.ends_with("LeftLowerArm"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(250), deg_to_rad(1)))
 			elif bone_name.ends_with("RightShoulder"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(0)))
 			elif bone_name.ends_with("LeftShoulder"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(295.1), deg_to_rad(30)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(295.1), deg_to_rad(0)))
 			elif bone_name.ends_with("RightHand"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(78.6), deg_to_rad(5)))
 			elif bone_name.ends_with("LeftHand"):
@@ -217,7 +221,7 @@ func _run():
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(-1, 0, 0))
 				if bone_name.begins_with("Left"):
 					new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(1, 0, 0))
-				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(70))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
 			elif bone_name.ends_with("UpperArm"):
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
@@ -267,7 +271,12 @@ func _run():
 			node_3d.bone_idx = skeleton.find_bone(bone_name)
 			skeleton.add_child(node_3d)
 			node_3d.owner = root
+			var node_global_transform = node_3d.global_transform
 			var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
 			new_ik.set_pin_nodepath(bone_i, NodePath(path_string))
+			var marker_3d : Marker3D = Marker3D.new()
+			marker_3d.name = bone_name
+			marker_3d.global_transform = node_global_transform
+			node_3d.replace_by(marker_3d, true)
 		new_ik.visible = true
 		new_ik.edit_constraints = edit_mode
