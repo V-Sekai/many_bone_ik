@@ -52,7 +52,7 @@ class IKKusudama : public Resource {
 	static real_t _mod(real_t x, real_t y);
 	static real_t _to_tau(real_t angle);
 
-protected:
+
 	/**
 	 * An array containing all of the Kusudama's limit_cones. The kusudama is built up
 	 * with the expectation that any limitCone in the array is connected to the cone at the previous element in the array,
@@ -75,7 +75,22 @@ protected:
 	bool axially_constrained = false;
 
 	Ref<IKBone3D> bone_attached_to;
-
+	/**
+	 * Get the swing rotation and twist rotation for the specified axis. The twist rotation represents the rotation around the specified axis. The swing rotation represents the rotation of the specified
+	 * axis itself, which is the rotation around an axis perpendicular to the specified axis. The swing and twist rotation can be
+	 * used to reconstruct the original quaternion: this = swing * twist
+	 *
+	 * @param p_axis the X, Y, Z component of the normalized axis for which to get the swing and twist rotation
+	 * @return twist represent the rotational twist
+	 * @return swing represent the rotational swing
+	 * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
+	 */
+	static void get_swing_twist(
+			Quaternion p_rotation,
+			Vector3 p_axis,
+			Quaternion &r_swing,
+			Quaternion &r_twist);
+	double rotational_freedom = 1;
 protected:
 	static void _bind_methods();
 
@@ -95,7 +110,8 @@ public:
 
 	Ref<IKRay3D> bone_ray = Ref<IKRay3D>(memnew(IKRay3D()));
 	Ref<IKRay3D> constrained_ray = Ref<IKRay3D>(memnew(IKRay3D()));
-
+	double unit_hyper_area = 2 * Math::pow(Math_PI, 2);
+	double unit_area = 4 * Math_PI;
 public:
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
@@ -159,7 +175,6 @@ public:
 	 * @param radius the radius of the limitCone
 	 */
 	virtual void add_limit_cone(Vector3 new_point, double radius);
-
 	virtual void remove_limit_cone(Ref<IKLimitCone> limitCone);
 
 	/**
@@ -167,7 +182,6 @@ public:
 	 * @return the lower bound on the axial constraint
 	 */
 	virtual real_t get_min_axial_angle();
-
 	virtual real_t get_range_angle();
 
 	/**
@@ -175,31 +189,17 @@ public:
 	 * @return
 	 */
 	virtual real_t get_absolute_max_axial_angle();
-
 	virtual bool is_axially_constrained();
-
 	virtual bool is_orientationally_constrained();
-
 	virtual void disable_orientational_limits();
-
 	virtual void enable_orientational_limits();
-
 	virtual void toggle_orientational_limits();
-
 	virtual void disable_axial_limits();
-
 	virtual void enable_axial_limits();
-
 	virtual void toggle_axial_limits();
-
 	bool is_enabled();
-
 	void disable();
-
 	void enable();
-
-	double unit_hyper_area = 2 * Math::pow(Math_PI, 2);
-	double unit_area = 4 * Math_PI;
 
 	/**
 	 * TODO: This functionality is not yet fully implemented It always returns an overly simplistic representation
@@ -215,31 +215,9 @@ public:
 	 * cones intersect with a previous sequence.
 	 */
 	double get_rotational_freedom();
-
-	double rotational_freedom = 1;
-
 	virtual void update_rotational_freedom();
-
-public:
 	virtual TypedArray<IKLimitCone> get_limit_cones() const;
-
 	virtual void set_limit_cones(TypedArray<IKLimitCone> p_cones);
-
-	/**
-	 * Get the swing rotation and twist rotation for the specified axis. The twist rotation represents the rotation around the specified axis. The swing rotation represents the rotation of the specified
-	 * axis itself, which is the rotation around an axis perpendicular to the specified axis. The swing and twist rotation can be
-	 * used to reconstruct the original quaternion: this = swing * twist
-	 *
-	 * @param p_axis the X, Y, Z component of the normalized axis for which to get the swing and twist rotation
-	 * @return twist represent the rotational twist
-	 * @return swing represent the rotational swing
-	 * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
-	 */
-	static void get_swing_twist(
-			Quaternion p_rotation,
-			Vector3 p_axis,
-			Quaternion &r_swing,
-			Quaternion &r_twist);
 };
 
 #endif // IK_KUSUDAMA_H
