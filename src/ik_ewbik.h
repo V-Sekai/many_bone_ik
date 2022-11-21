@@ -80,8 +80,8 @@ public:
 	Skeleton3D *get_skeleton() const;
 
 public:
-	bool get_constraint_mode() const;
-	void set_constraint_mode(bool p_enable);
+	bool get_constraint_edit_mode() const;
+	void set_constraint_edit_mode(bool p_enable);
 	StringName get_root_bone() const;
 	void set_root_bone(const StringName &p_root_bone);
 	StringName get_tip_bone() const;

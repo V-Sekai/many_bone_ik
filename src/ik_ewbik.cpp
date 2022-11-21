@@ -163,26 +163,36 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
 	}
-	const uint32_t usage = get_constraint_mode() ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_READ_ONLY;
+	const uint32_t usage = get_constraint_edit_mode() ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_STORAGE;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
-					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+					PROPERTY_HINT_RANGE, "0,256,or_greater", usage | PROPERTY_USAGE_ARRAY,
 					"Kusudama Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		bone_name.usage = usage;
+		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
-			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-				String name = get_skeleton()->get_bone_name(bone_i);
-				if (existing_constraints.has(name)) {
-					continue;
+			if (!get_constraint_edit_mode()) {
+				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+					String name = get_skeleton()->get_bone_name(bone_i);
+					if (existing_constraints.has(name)) {
+						names = name;
+						break;
+					}
 				}
-				name += ",";
-				names += name;
-				existing_constraints.insert(name);
+			} else {
+				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+					String name = get_skeleton()->get_bone_name(bone_i);
+					if (existing_constraints.has(name)) {
+						continue;
+					}
+					name += ",";
+					names += name;
+					existing_constraints.insert(name);
+				}
 			}
 			bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			bone_name.hint_string = names;
@@ -199,7 +209,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001", usage));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
-						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+						PROPERTY_HINT_RANGE, "0,30,1", usage | PROPERTY_USAGE_ARRAY,
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
@@ -394,7 +404,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 				}
 				segmented_skeleton->segment_solver(get_default_damp(), constrain_mode);
 			}
-			update_skeleton_bones_transform();		
+			update_skeleton_bones_transform();
 			return true;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
@@ -427,8 +437,8 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void NBoneIK::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enable"), &NBoneIK::set_constraint_mode);
-	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &NBoneIK::get_constraint_mode);
+	ClassDB::bind_method(D_METHOD("set_constraint_edit_mode", "enable"), &NBoneIK::set_constraint_edit_mode);
+	ClassDB::bind_method(D_METHOD("get_constraint_edit_mode"), &NBoneIK::get_constraint_edit_mode);
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &NBoneIK::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "index", "rotation"), &NBoneIK::set_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &NBoneIK::remove_constraint);
@@ -480,7 +490,7 @@ void NBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "constraint_mode"), "set_constraint_mode", "get_constraint_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "edit_constraints"), "set_constraint_edit_mode", "get_constraint_edit_mode");
 }
 
 NBoneIK::NBoneIK() {
@@ -957,11 +967,15 @@ void NBoneIK::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
 	ik_bone->set_skeleton_bone_pose(get_skeleton());
 }
 
-bool NBoneIK::get_constraint_mode() const {
+bool NBoneIK::get_constraint_edit_mode() const {
 	return constrain_mode;
 }
 
-void NBoneIK::set_constraint_mode(bool p_enable) {
+void NBoneIK::set_constraint_edit_mode(bool p_enable) {
+	// TODO: Add tool tip to explain this disables. Or graphical widget.
+
+	// TODO: Toggle slider widget instead of checkbox?
+
 	// Anything which will automatically disable the solver when the user is trying to edit constraints,
 	// and re-enables the solver when they say they are done editing constraints.
 	// Possibly with a visual hint to indicate that solver is on or off as a result of being in that mode
