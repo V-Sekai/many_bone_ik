@@ -386,8 +386,13 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 				return false;
 			}
 			ik_bone->get_constraint()->set_current_twist_rotation(p_value);
-			ik_bone->set_skeleton_bone_pose(get_skeleton());
-			set_dirty();
+			for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
+				if (segmented_skeleton.is_null()) {
+					break;
+				}
+				segmented_skeleton->segment_solver(get_default_damp());
+			}
+			update_skeleton_bones_transform();		
 			return true;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);

@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://dykwiom26ahbp"]
+
+[ext_resource type="PackedScene" uid="uid://cafufvqxihty2" path="res://n_bone_ik/art/vroid/HairSample_Male.vrm" id="1_xlf2j"]
+
+[node name="HairSample_Male" instance=ExtResource("1_xlf2j")]
