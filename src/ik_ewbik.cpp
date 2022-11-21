@@ -505,6 +505,7 @@ void NBoneIK::set_constraint_count(int32_t p_count) {
 		kusudama_twist.write[constraint_i] = Vector2(Math_PI, Math_TAU - CMP_EPSILON);
 	}
 	set_dirty();
+	notify_property_list_changed();
 }
 
 int32_t NBoneIK::get_constraint_count() const {
