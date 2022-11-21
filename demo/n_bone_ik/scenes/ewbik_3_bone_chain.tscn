@@ -5,30 +5,151 @@
 [node name="ewbik_3_bone_chain" instance=ExtResource("1_linp6")]
 
 [node name="Skeleton3D" parent="Armature" index="0"]
-bones/0/position = Vector3(-0.00265493, 0.0074012, -0.00129578)
-bones/0/rotation = Quaternion(0.00742728, 0.0304335, -0.0141107, 0.99941)
+bones/0/position = Vector3(-0.00265199, 0.00739733, -0.00129577)
+bones/0/rotation = Quaternion(0.00742734, 0.0304335, -0.0141114, 0.99941)
 bones/0/scale = Vector3(1, 1, 1)
-bones/1/rotation = Quaternion(-0.00677958, -0.0465434, -0.0146196, 0.998786)
+bones/1/position = Vector3(-2.97558e-07, 0.0926706, -4.03146e-07)
+bones/1/rotation = Quaternion(-0.00677966, -0.0465435, -0.01462, 0.998786)
 bones/1/scale = Vector3(1, 1, 1)
-bones/2/rotation = Quaternion(0.000126507, 0.0159217, 0.00794744, 0.999842)
+bones/2/position = Vector3(-5.34579e-07, 0.107364, -1.9354e-09)
+bones/2/rotation = Quaternion(0.000126594, 0.0159217, 0.00794665, 0.999842)
 bones/2/scale = Vector3(1, 1, 1)
-bones/4/rotation = Quaternion(6.85413e-10, -0.0941975, -9.94455e-08, 0.995554)
-bones/5/rotation = Quaternion(0.00217821, 0.0941724, 0.0230216, 0.995287)
-bones/6/rotation = Quaternion(4.87597e-09, -4.64336e-07, -0.0118081, 0.99993)
+bones/3/position = Vector3(3.63681e-07, 0.0999923, 6.39488e-14)
+bones/3/rotation = Quaternion(-6.18704e-08, -3.52831e-08, -9.87202e-07, 1)
+bones/3/scale = Vector3(1, 1, 1)
+bones/4/position = Vector3(2.56114e-07, 0.100024, 1.60483e-10)
+bones/4/rotation = Quaternion(4.53519e-07, -0.0941975, 5.40904e-06, 0.995554)
+bones/4/scale = Vector3(1, 1, 1)
+bones/5/position = Vector3(2.04891e-08, 0.0981833, 1.46771e-07)
+bones/5/rotation = Quaternion(0.0021781, 0.0941725, 0.0230201, 0.995287)
+bones/5/scale = Vector3(1, 1, 1)
+bones/6/position = Vector3(5.90459e-07, 0.100004, 3.86535e-12)
+bones/6/rotation = Quaternion(2.51937e-08, -4.72824e-07, -0.0118083, 0.99993)
 bones/6/scale = Vector3(1, 1, 1)
-bones/7/rotation = Quaternion(-3.45918e-09, 2.85479e-07, 0.00958492, 0.999954)
-bones/8/rotation = Quaternion(-4.67909e-07, -6.25651e-08, 0.550628, 0.834751)
-bones/11/rotation = Quaternion(1.33279e-13, 3.71461e-16, 1.49012e-07, 1)
+bones/7/position = Vector3(-1.36904e-07, 0.099943, 3.58114e-12)
+bones/7/rotation = Quaternion(2.96436e-08, 2.76926e-07, 0.00958389, 0.999954)
+bones/7/scale = Vector3(1, 1, 1)
+bones/8/position = Vector3(2.66358e-07, 0.100002, 3.2685e-13)
+bones/8/rotation = Quaternion(-4.18657e-07, -5.9188e-08, 0.55063, 0.834749)
+bones/8/scale = Vector3(1, 1, 1)
+bones/9/position = Vector3(8.9407e-08, 0.10001, -5.96856e-13)
+bones/9/rotation = Quaternion(-1.23367e-07, -3.34785e-08, 0.221337, 0.975197)
+bones/9/scale = Vector3(1, 1, 1)
+bones/10/position = Vector3(-1.39177e-05, 0.100006, -1.19371e-12)
+bones/10/rotation = Quaternion(2.14247e-08, -2.24583e-09, 3.46483e-07, 1)
+bones/10/scale = Vector3(1, 1, 1)
+bones/11/position = Vector3(1.07288e-06, 0.100001, 1.98952e-13)
+bones/11/rotation = Quaternion(-4.92624e-08, 6.27846e-09, 1.06106e-07, 1)
+bones/11/scale = Vector3(1, 1, 1)
 
 [node name="NBoneIK" type="NBoneIK" parent="Armature/Skeleton3D" index="1"]
 root_bone = &"A0"
-pin_count = 1
+pin_count = 12
 pins/0/bone_name = "A0"
 pins/0/target_node = NodePath("../A0")
 pins/0/passthrough_factor = 1.0
 pins/0/weight = 1.0
 pins/0/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/1/bone_name = "A1"
+pins/1/target_node = NodePath("../A1")
+pins/1/passthrough_factor = 1.0
+pins/1/weight = 1.0
+pins/1/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/2/bone_name = "A2"
+pins/2/target_node = NodePath("../A2")
+pins/2/passthrough_factor = 1.0
+pins/2/weight = 1.0
+pins/2/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/3/bone_name = "A3"
+pins/3/target_node = NodePath("../A3")
+pins/3/passthrough_factor = 1.0
+pins/3/weight = 1.0
+pins/3/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/4/bone_name = "B0"
+pins/4/target_node = NodePath("../B0")
+pins/4/passthrough_factor = 1.0
+pins/4/weight = 1.0
+pins/4/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/5/bone_name = "B1"
+pins/5/target_node = NodePath("../B1")
+pins/5/passthrough_factor = 1.0
+pins/5/weight = 1.0
+pins/5/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/6/bone_name = "B2"
+pins/6/target_node = NodePath("../B2")
+pins/6/passthrough_factor = 1.0
+pins/6/weight = 1.0
+pins/6/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/7/bone_name = "B3"
+pins/7/target_node = NodePath("../B3")
+pins/7/passthrough_factor = 1.0
+pins/7/weight = 1.0
+pins/7/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/8/bone_name = "C0"
+pins/8/target_node = NodePath("../C0")
+pins/8/passthrough_factor = 1.0
+pins/8/weight = 1.0
+pins/8/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/9/bone_name = "C1"
+pins/9/target_node = NodePath("../C1")
+pins/9/passthrough_factor = 1.0
+pins/9/weight = 1.0
+pins/9/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/10/bone_name = "C2"
+pins/10/target_node = NodePath("../C2")
+pins/10/passthrough_factor = 1.0
+pins/10/weight = 1.0
+pins/10/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/11/bone_name = "C3"
+pins/11/target_node = NodePath("../C3")
+pins/11/passthrough_factor = 1.0
+pins/11/weight = 1.0
+pins/11/direction_priorities = Vector3(0.2, 0, 0.2)
 
 [node name="A0" type="Marker3D" parent="Armature/Skeleton3D" index="2"]
 transform = Transform3D(0.997749, 0.0286568, 0.0606215, -0.0277527, 0.999491, -0.0157047, -0.0610407, 0.0139869, 0.998037, -0.00265493, 0.0074012, -0.00129578)
+gizmo_extents = 0.1
+
+[node name="A1" type="Marker3D" parent="Armature/Skeleton3D" index="3"]
+transform = Transform3D(0.997829, 0.057671, -0.0317864, -0.0576418, 0.998335, 0.00183559, 0.0318394, 6.08154e-07, 0.999493, 1.97906e-08, 0.0999999, 5.28526e-08)
+gizmo_extents = 0.1
+
+[node name="A2" type="Marker3D" parent="Armature/Skeleton3D" index="4"]
+transform = Transform3D(0.999126, 0.0417938, 8.86619e-07, -0.0417939, 0.999126, -5.80214e-07, -8.67993e-07, 5.23694e-07, 1, 0.00619218, 0.207192, 1.17272e-07)
+gizmo_extents = 0.1
+
+[node name="A3" type="Marker3D" parent="Armature/Skeleton3D" index="5"]
+transform = Transform3D(0.999127, 0.0417939, 8.6755e-07, -0.0417939, 0.999126, -5.79742e-07, -8.4892e-07, 5.24019e-07, 1, 0.0103716, 0.307105, 1.69641e-07)
+gizmo_extents = 0.1
+
+[node name="B0" type="Marker3D" parent="Armature/Skeleton3D" index="6"]
+transform = Transform3D(0.981396, 0.0417941, -0.187393, -0.0410525, 0.999126, 0.0078382, 0.187556, 5.44119e-07, 0.982254, 0.014551, 0.407017, 2.22202e-07)
+gizmo_extents = 0.1
+
+[node name="B1" type="Marker3D" parent="Armature/Skeleton3D" index="7"]
+transform = Transform3D(0.99999, -0.00444673, 1.11759e-06, 0.00444666, 0.99999, -5.00586e-07, -1.13249e-06, 4.89876e-07, 1, 0.0186562, 0.505157, 2.69658e-07)
+gizmo_extents = 0.1
+
+[node name="B2" type="Marker3D" parent="Armature/Skeleton3D" index="8"]
+transform = Transform3D(0.999816, 0.0191688, 1.88869e-07, -0.0191689, 0.999816, -5.03501e-07, -2.15249e-07, 4.83713e-07, 1, 0.0182115, 0.605156, 3.18646e-07)
+gizmo_extents = 0.1
+
+[node name="B3" type="Marker3D" parent="Armature/Skeleton3D" index="9"]
+transform = Transform3D(1, -1.13621e-07, 7.59867e-07, 4.84291e-08, 1, -5.02055e-07, -7.76935e-07, 4.86305e-07, 1, 0.0201283, 0.705138, 3.67017e-07)
+gizmo_extents = 0.1
+
+[node name="C0" type="Marker3D" parent="Armature/Skeleton3D" index="10"]
+transform = Transform3D(0.431693, -0.902021, 2.78119e-07, 0.90202, 0.431693, 1.57812e-07, -2.63267e-07, 1.36579e-07, 1, 0.0145512, 0.407017, 2.22043e-07)
+gizmo_extents = 0.1
+
+[node name="C1" type="Marker3D" parent="Armature/Skeleton3D" index="11"]
+transform = Transform3D(-8.9407e-08, -1, -4.57675e-08, 1, -5.96047e-08, 9.44262e-08, -1.15126e-07, -8.70388e-08, 1, -0.0756511, 0.450187, 2.35701e-07)
+gizmo_extents = 0.1
+
+[node name="C2" type="Marker3D" parent="Armature/Skeleton3D" index="12"]
+transform = Transform3D(-8.94069e-08, -1, -4.57675e-08, 1, -5.96047e-08, 9.44263e-08, -1.15127e-07, -8.70388e-08, 1, -0.175651, 0.450187, 2.26997e-07)
+gizmo_extents = 0.1
+
+[node name="C3" type="Marker3D" parent="Armature/Skeleton3D" index="13"]
+transform = Transform3D(-3.8743e-07, -1, -4.57672e-08, 1, -3.57628e-07, 9.44263e-08, -1.15127e-07, -8.70385e-08, 1, -0.275652, 0.450187, 2.18293e-07)
 gizmo_extents = 0.1
