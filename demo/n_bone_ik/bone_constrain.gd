@@ -121,18 +121,9 @@ func _run():
 				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
 			elif bone_name.ends_with("Toes"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(30)))
-		pins = ["Root", "Hips", "Head", "LeftFoot", "RightFoot", "LeftHand", "RightHand"]
 		for bone_i in pins.size():
 			var bone_name : String =  pins[bone_i]
 			var constraint_i = new_ik.find_constraint(bone_name)
-			var node_3d : BoneAttachment3D = BoneAttachment3D.new()
-			node_3d.name = bone_name
-			node_3d.bone_name = bone_name
-			node_3d.bone_idx = skeleton.find_bone(bone_name)
-			skeleton.add_child(node_3d)
-			node_3d.owner = root
-			var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
-			new_ik.set_pin_nodepath(constraint_i, NodePath(path_string))
 			if bone_name in ["Head"]:
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
@@ -203,4 +194,21 @@ func _run():
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
 				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
 				
+#		pins = ["Root", "Hips", "Head", "LeftFoot", "RightFoot", "LeftHand", "RightHand"]
+		pins.erase("LeftToes")
+		pins.erase("RightToes")
+		pins.erase("UpperChest")
+		pins.erase("Chest")
+		pins.erase("Spine")
+		for bone_i in pins.size():
+			var bone_name : String = pins[bone_i]
+			var constraint_i = new_ik.find_constraint(bone_name)
+			var node_3d : BoneAttachment3D = BoneAttachment3D.new()
+			node_3d.name = bone_name
+			node_3d.bone_name = bone_name
+			node_3d.bone_idx = skeleton.find_bone(bone_name)
+			skeleton.add_child(node_3d)
+			node_3d.owner = root
+			var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
+			new_ik.set_pin_nodepath(constraint_i, NodePath(path_string))
 		new_ik.visible = true
