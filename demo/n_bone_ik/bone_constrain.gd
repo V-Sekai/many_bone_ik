@@ -64,15 +64,7 @@ func _run():
 		skeleton.reset_bone_poses()
 		new_ik.set_pin_count(pins.size())
 		new_ik.set_constraint_count(pins.size())
-		for constraint_i in pins.size():
-			var bone_name = pins[constraint_i]
-			new_ik.set_constraint_name(constraint_i, bone_name)
-			var bone_id = skeleton.find_bone(bone_name)
-			var rotation : Basis = skeleton.get_bone_global_rest(bone_id).basis
-			var angle = TAU - (rotation.get_euler().z - PI)
-			var min_angle = lerp_angle(angle, angle, 1.0)
-			new_ik.set_kusudama_twist(constraint_i, Vector2(min_angle, PI))
-
+		
 		for pin_i in range(pins.size()):
 			var pin = pins[pin_i]
 			var bone_name = pin
@@ -100,6 +92,10 @@ func _run():
 			node_3d.replace_by(marker_3d, true)
 			marker_3d.gizmo_extents = 0.1
 			
+		for constraint_i in pins.size():
+			var bone_name = pins[constraint_i]
+			new_ik.set_constraint_name(constraint_i, bone_name)
+
 #		for constraint_i in skeleton.get_bone_count():
 #			var bone_name = skeleton.get_bone_name(constraint_i)
 #			var twist_min = new_ik.get_kusudama_twist(constraint_i).x
