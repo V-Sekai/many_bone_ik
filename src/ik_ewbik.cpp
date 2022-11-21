@@ -163,15 +163,15 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
 	}
-	const uint32_t usage = get_constraint_edit_mode() ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_STORAGE;
+	const uint32_t constraint_usage = get_constraint_edit_mode() ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_STORAGE;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
-					PROPERTY_HINT_RANGE, "0,256,or_greater", usage | PROPERTY_USAGE_ARRAY,
+					PROPERTY_HINT_RANGE, "0,256,or_greater", constraint_usage | PROPERTY_USAGE_ARRAY,
 					"Kusudama Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		bone_name.usage = usage;
+		bone_name.usage = constraint_usage;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
@@ -202,20 +202,20 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,720,0.1,radians,or_lesser,or_greater", usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,720,0.1,radians,or_lesser,or_greater", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0.1,359.99.0,0.1,radians,or_lesser,or_greater", usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0.1,359.99.0,0.1,radians,or_lesser,or_greater", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001", usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
-						PROPERTY_HINT_RANGE, "0,30,1", usage | PROPERTY_USAGE_ARRAY,
+						PROPERTY_HINT_RANGE, "0,30,1", constraint_usage | PROPERTY_USAGE_ARRAY,
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
-					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater", usage));
+					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater", constraint_usage));
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians", usage));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians", constraint_usage));
 		}
 	}
 	RBSet<String> existing_pins;
@@ -223,14 +223,16 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
+	const uint32_t pin_usage = get_constraint_edit_mode() ? PROPERTY_USAGE_STORAGE : PROPERTY_USAGE_DEFAULT;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
-					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+					PROPERTY_HINT_RANGE, "0,1024,or_greater", pin_usage | PROPERTY_USAGE_ARRAY,
 					"Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
+		effector_name.usage = pin_usage;
 		if (get_skeleton()) {
 			String names;
 			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
@@ -249,13 +251,13 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(effector_name);
 		p_list->push_back(
-				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D"));
+				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D", pin_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater"));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater"));
+				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
 	}
 }
 
