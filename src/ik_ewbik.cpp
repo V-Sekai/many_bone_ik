@@ -190,9 +190,9 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "-180,180,0.1,radians,or_lesser,or_greater"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,720,0.1,radians,or_lesser,or_greater"));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0,360.0,0.1,radians,or_lesser,or_greater"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0.1,359.99.0,0.1,radians,or_lesser,or_greater"));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001"));
 		p_list->push_back(
@@ -288,6 +288,10 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 			return true;
 		} else if (what == "twist_current") {
 			String bone_name = constraint_names[index];
+			if (segmented_skeleton.is_null()) {
+				r_ret = 0;
+				return true;
+			}
 			Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
 			if (ik_bone.is_null()) {
 				r_ret = 0;
@@ -366,13 +370,14 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			set_constraint_name(index, p_value);
 			return true;
 		} else if (what == "twist_current") {
-			String bone_name = constraint_names[index];
+			Vector2 twist_from = get_kusudama_twist(index);
 			if (segmented_skeleton.is_null()) {
 				return false;
 			}
 			if (!get_skeleton()) {
 				return false;
 			}
+			String bone_name = constraint_names[index];
 			Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
 			if (ik_bone.is_null()) {
 				return false;
@@ -381,7 +386,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 				return false;
 			}
 			ik_bone->get_constraint()->set_current_twist_rotation(p_value);
-			ik_bone->set_skeleton_bone_pose(get_skeleton());
+			set_dirty();
 			return true;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
