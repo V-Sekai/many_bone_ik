@@ -386,6 +386,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 				return false;
 			}
 			ik_bone->get_constraint()->set_current_twist_rotation(p_value);
+			ik_bone->set_skeleton_bone_pose(get_skeleton());
 			set_dirty();
 			return true;
 		} else if (what == "twist_from") {
