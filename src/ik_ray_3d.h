@@ -110,7 +110,7 @@ public:
 	 *
 	 * @return number of intersections found;
 	 */
-	virtual int intersects_sphere(Vector3 p_sphere_center, real_tp_radius, Vector3 &r_first_intersection, Vector3 &r_second_intersection);
+	virtual int intersects_sphere(Vector3 p_sphere_center, real_t p_radius, Vector3 &r_first_intersection, Vector3 &r_second_intersection);
 	virtual void p1(Vector3 p_point);
 	virtual void p2(Vector3 p_point);
 	virtual Vector3 p2();
