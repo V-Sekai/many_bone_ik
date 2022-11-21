@@ -67,9 +67,9 @@ class IKBoneSegment : public Resource {
 	BoneId find_root_bone_id(BoneId p_bone);
 	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);
 	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip);
-	void set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_heading_tip, Vector<real_t> *r_weights, float p_dampening = -1, bool p_translate = false);
-	void qcp_solver(real_t p_damp, bool p_translate);
-	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate);
+	void set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_heading_tip, Vector<real_t> *r_weights, float p_dampening = -1, bool p_translate = false, bool p_constraint_mode = false);
+	void qcp_solver(real_t p_damp, bool p_translate, bool p_constraint_mode);
+	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode);
 	float get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights);
 	HashMap<BoneId, Ref<IKBone3D>> bone_map;
 	// This orientation angle is a cos(angle/2) representation.
@@ -97,7 +97,7 @@ public:
 	void create_headings_arrays();
 	void recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_segment, Vector<Vector<real_t>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, real_t p_falloff);
 	Ref<IKBoneSegment> get_parent_segment();
-	void segment_solver(real_t p_damp);
+	void segment_solver(real_t p_damp, bool p_constraint_mode);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_pinned() const;

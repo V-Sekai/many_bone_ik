@@ -152,11 +152,11 @@ void IKBoneSegment::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
 	}
 }
 
-void IKBoneSegment::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate) {
+void IKBoneSegment::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode) {
 	ERR_FAIL_NULL(p_for_bone);
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
 	update_tip_headings(p_for_bone, &tip_headings);
-	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate);
+	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
 }
 
 Quaternion IKBoneSegment::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
@@ -209,13 +209,13 @@ float IKBoneSegment::get_manual_msd(const PackedVector3Array &r_htip, const Pack
 	return manual_RMSD;
 }
 
-void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate) {
+void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<real_t> *r_weights, float p_dampening, bool p_translate, bool p_constraint_mode) {
 	ERR_FAIL_NULL(p_for_bone);
 	ERR_FAIL_NULL(r_htip);
 	ERR_FAIL_NULL(r_htarget);
 	ERR_FAIL_NULL(r_weights);
 	double bone_damp = p_for_bone->get_cos_half_dampen();
-	{
+	if (!p_constraint_mode) {
 		// Solved ik transform and apply it.
 		QCP qcp = QCP(FLT_EPSILON, FLT_EPSILON);
 		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
@@ -275,23 +275,23 @@ void IKBoneSegment::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3A
 	}
 }
 
-void IKBoneSegment::segment_solver(real_t p_damp) {
+void IKBoneSegment::segment_solver(real_t p_damp, bool p_constraint_mode) {
 	for (Ref<IKBoneSegment> child : child_segments) {
 		if (child.is_null()) {
 			continue;
 		}
-		child->segment_solver(p_damp);
+		child->segment_solver(p_damp, p_constraint_mode);
 	}
 	bool is_translate = parent_segment.is_null();
 	if (is_translate) {
 		p_damp = Math_PI;
 	}
-	qcp_solver(p_damp, is_translate);
+	qcp_solver(p_damp, is_translate, p_constraint_mode);
 }
 
-void IKBoneSegment::qcp_solver(real_t p_damp, bool p_translate) {
+void IKBoneSegment::qcp_solver(real_t p_damp, bool p_translate, bool p_constraint_mode) {
 	for (Ref<IKBone3D> current_bone : bones) {
-		update_optimal_rotation(current_bone, p_damp, p_translate && current_bone == root);
+		update_optimal_rotation(current_bone, p_damp, p_translate && current_bone == root, p_constraint_mode);
 	}
 }
 

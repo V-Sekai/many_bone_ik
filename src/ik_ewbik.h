@@ -40,6 +40,7 @@
 class IKBoneSegment;
 class NBoneIK : public Node3D {
 	GDCLASS(NBoneIK, Node3D);
+	bool constrain_mode = false;
 	StringName root_bone;
 	StringName tip_bone;
 	NodePath skeleton_path;
@@ -79,6 +80,8 @@ public:
 	Skeleton3D *get_skeleton() const;
 
 public:
+	bool get_constraint_mode() const;
+	void set_constraint_mode(bool p_enable);
 	StringName get_root_bone() const;
 	void set_root_bone(const StringName &p_root_bone);
 	StringName get_tip_bone() const;

@@ -163,6 +163,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
 	}
+	const uint32_t usage = get_constraint_mode() ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_READ_ONLY;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
 					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
@@ -190,20 +191,20 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,720,0.1,radians,or_lesser,or_greater"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,720,0.1,radians,or_lesser,or_greater", usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0.1,359.99.0,0.1,radians,or_lesser,or_greater"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0.1,359.99.0,0.1,radians,or_lesser,or_greater", usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001"));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001", usage));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,30,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
-					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater"));
+					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater", usage));
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians"));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians", usage));
 		}
 	}
 	RBSet<String> existing_pins;
@@ -390,7 +391,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 				if (segmented_skeleton.is_null()) {
 					break;
 				}
-				segmented_skeleton->segment_solver(get_default_damp());
+				segmented_skeleton->segment_solver(get_default_damp(), constrain_mode);
 			}
 			update_skeleton_bones_transform();		
 			return true;
@@ -425,6 +426,8 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void NBoneIK::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enable"), &NBoneIK::set_constraint_mode);
+	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &NBoneIK::get_constraint_mode);
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &NBoneIK::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "index", "rotation"), &NBoneIK::set_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &NBoneIK::remove_constraint);
@@ -476,6 +479,7 @@ void NBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "constraint_mode"), "set_constraint_mode", "get_constraint_mode");
 }
 
 NBoneIK::NBoneIK() {
@@ -728,7 +732,7 @@ void NBoneIK::execute(real_t delta) {
 		if (segmented_skeleton.is_null()) {
 			break;
 		}
-		segmented_skeleton->segment_solver(get_default_damp());
+		segmented_skeleton->segment_solver(get_default_damp(), constrain_mode);
 	}
 	update_skeleton_bones_transform();
 }
@@ -950,4 +954,17 @@ void NBoneIK::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
 	}
 	ik_bone->get_constraint()->set_current_twist_rotation(p_rotation);
 	ik_bone->set_skeleton_bone_pose(get_skeleton());
+}
+
+bool NBoneIK::get_constraint_mode() const {
+	return constrain_mode;
+}
+
+void NBoneIK::set_constraint_mode(bool p_enable) {
+	// Anything which will automatically disable the solver when the user is trying to edit constraints,
+	// and re-enables the solver when they say they are done editing constraints.
+	// Possibly with a visual hint to indicate that solver is on or off as a result of being in that mode
+
+	constrain_mode = p_enable;
+	notify_property_list_changed();
 }
