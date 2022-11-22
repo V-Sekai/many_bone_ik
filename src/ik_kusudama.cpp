@@ -183,9 +183,8 @@ void IKKusudama::enable() {
 }
 
 double IKKusudama::get_rotational_freedom() {
-	// computation cached from update_rotational_freedom
-	// feel free to override that method if you want your own more correct result.
-	// please contribute back a better solution if you write one.
+	// Computation is cached from the update_rotational_freedom function.
+	// Please contribute back a better solution if you write a better way to calculate rotational freedom.
 	return rotational_freedom;
 }
 
