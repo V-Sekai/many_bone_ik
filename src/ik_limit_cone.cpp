@@ -295,7 +295,7 @@ Vector3 IKLimitCone::get_on_great_tangent_triangle(Ref<IKLimitCone> next, Vector
 			if (toNextCos > tangent_circle_radius_next_cos) {
 				Vector3 planeNormal = tangent_circle_center_next_1.cross(input);
 				planeNormal.normalize();
-				Quaternion rotateAboutBy = Quaternion(planeNormal, tangent_circle_radius_next);
+				Quaternion rotateAboutBy = IKLimitCone::quaternion_set_axis_angle(planeNormal, tangent_circle_radius_next);
 				return rotateAboutBy.xform(tangent_circle_center_next_1);
 			} else {
 				return input;
@@ -310,7 +310,7 @@ Vector3 IKLimitCone::get_on_great_tangent_triangle(Ref<IKLimitCone> next, Vector
 			if (input.dot(tangent_circle_center_next_2) > tangent_circle_radius_next_cos) {
 				Vector3 planeNormal = tangent_circle_center_next_2.cross(input);
 				planeNormal.normalize();
-				Quaternion rotateAboutBy = Quaternion(planeNormal, tangent_circle_radius_next);
+				Quaternion rotateAboutBy = IKLimitCone::quaternion_set_axis_angle(planeNormal, tangent_circle_radius_next);
 				return rotateAboutBy.xform(tangent_circle_center_next_2);
 			} else {
 				return input;
@@ -354,7 +354,7 @@ Vector3 IKLimitCone::closest_to_cone(Vector3 input, Vector<double> &in_bounds) c
 		return Vector3(NAN, NAN, NAN);
 	}
 	Vector3 axis = this->get_control_point().cross(input).normalized();
-	Quaternion rotTo = Quaternion(axis.normalized(), this->get_radius()).normalized();
+	Quaternion rotTo = IKLimitCone::quaternion_set_axis_angle(axis.normalized(), this->get_radius()).normalized();
 	Vector3 axis_control_point = this->get_control_point();
 	Vector3 result = rotTo.xform(axis_control_point);
 	in_bounds.write[0] = -1;

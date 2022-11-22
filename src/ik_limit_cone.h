@@ -42,7 +42,6 @@ class IKKusudama;
 class IKLimitCone : public Resource {
 	GDCLASS(IKLimitCone, Resource);
 	void compute_triangles(Ref<IKLimitCone> p_next);
-	static Quaternion quaternion_set_axis_angle(Vector3 axis, real_t angle);
 
 	Vector3 control_point;
 	Vector3 radial_point;
@@ -137,6 +136,7 @@ public:
 	virtual double get_radius() const;
 	virtual double get_radius_cosine() const;
 	virtual void set_radius(double radius);
+	static Quaternion quaternion_set_axis_angle(Vector3 axis, real_t angle);
 };
 
 #endif // IK_LIMIT_CONE_H
