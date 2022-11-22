@@ -48,13 +48,6 @@ void IKKusudama::update_tangent_radii() {
 	}
 }
 
-/**
- * Basic idea:
- * On every kusudama call, we store the previous value of d.
- * If the new d is  greater than the old d, our result is the weighted average of these
- * (with the weight determining the resistance of the boundary). This result is stored for reference by future calls.
- * If the new d is less than the old d, we return the input orientation, and set the new d to this lower value for reference by future calls.
- */
 IKKusudama::IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, real_t cos_half_angle_dampen) {
 	Vector<real_t> in_bounds = { 1 };
 }
