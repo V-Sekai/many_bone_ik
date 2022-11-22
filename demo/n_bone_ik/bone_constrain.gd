@@ -46,25 +46,25 @@ func _run():
 				continue
 			if bone_name == "LeftEye":
 				continue
-#			if bone_name.ends_with("UpperArm"):
-#				continue
-#			if bone_name.ends_with("LowerArm"):
-#				continue
-#			if bone_name.ends_with("Proximal"):
-#				continue
-#			if bone_name.ends_with("Proximal2"):
-#				continue
-#			if bone_name.ends_with("Metacarpal"):
-#				continue
-#			if bone_name.ends_with("Metacarpal2"):
-#				continue
-#			if bone_name.ends_with("Distal"):
-#				continue
-#			if bone_name.ends_with("Intermediate"):
-#				continue
+			if bone_name.ends_with("Proximal"):
+				continue
+			if bone_name.ends_with("Proximal2"):
+				continue
+			if bone_name.ends_with("Metacarpal"):
+				continue
+			if bone_name.ends_with("Metacarpal2"):
+				continue
+			if bone_name.ends_with("Distal"):
+				continue
+			if bone_name.ends_with("Intermediate"):
+				continue
 #			if bone_name.ends_with("Toes"):
 #				continue
 #			if bone_name.ends_with("UpperChest"):
+#				continue
+#			if bone_name.ends_with("UpperArm"):
+#				continue
+#			if bone_name.ends_with("LowerArm"):
 #				continue
 #			if bone_name.ends_with("UpperLeg"):
 #				continue
@@ -259,9 +259,9 @@ func _run():
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
 				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(5))
 			elif bone_name.ends_with("Foot"):
-				new_ik.set_kusudama_limit_cone_count(constraint_i, 2)
+				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(90))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(180))
 			elif bone_name.ends_with("Toes"):
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
