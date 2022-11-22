@@ -376,7 +376,7 @@ real_t IKKusudama::get_current_twist_rotation() {
 	if (range_angle == 0.0) {
 		return 0;
 	}
-	return _to_tau(signed_angle_difference(angle, min_axial_angle)) / range_angle;
+	return CLAMP(_to_tau(signed_angle_difference(angle, min_axial_angle)) / range_angle, 0, 1);
 }
 
 void IKKusudama::set_current_twist_rotation(real_t p_rotation) {

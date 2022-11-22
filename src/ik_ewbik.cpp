@@ -175,7 +175,8 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
-			if (!get_edit_constraint_mode()) {
+			Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
+			if (get_edit_constraint_mode() != NBONE_IK_EDIT_CONSTRAIN_MODE_OFF) {
 				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
 					String name = get_skeleton()->get_bone_name(bone_i);
 					if (existing_constraints.has(name)) {
@@ -187,6 +188,9 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
 					String name = get_skeleton()->get_bone_name(bone_i);
 					if (existing_constraints.has(name)) {
+						continue;
+					}
+					if (root_bones.find(bone_i) != -1) {
 						continue;
 					}
 					name += ",";
@@ -204,7 +208,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,720,0.1,radians,or_lesser,or_greater", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0.1,359.99.0,0.1,radians", constraint_usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0.1,359.9.0,0.1,radians", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001", constraint_usage));
 		p_list->push_back(
@@ -414,7 +418,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		} else if (what == "twist_range") {
 			Vector2 twist_range = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
+			set_kusudama_twist(index, Vector2(twist_range.x, IKKusudama::_to_tau(p_value)));
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
@@ -677,6 +681,11 @@ Vector2 NBoneIK::get_kusudama_twist(int32_t p_index) const {
 
 void NBoneIK::set_constraint_name(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	if (get_skeleton()) {
+		Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
+		BoneId bone_id = get_skeleton()->find_bone(p_name);
+		ERR_FAIL_COND_MSG(root_bones.find(bone_id) != -1, "The root bone cannot be constraint.");
+	}
 	constraint_names.write[p_index] = p_name;
 	set_dirty();
 }
@@ -949,7 +958,7 @@ real_t NBoneIK::get_kusudama_twist_current(int32_t p_index) {
 	if (ik_bone->get_constraint().is_null()) {
 		return 0;
 	}
-	return ik_bone->get_constraint()->get_current_twist_rotation();
+	return CLAMP(ik_bone->get_constraint()->get_current_twist_rotation(), 0, 1);
 }
 
 void NBoneIK::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {

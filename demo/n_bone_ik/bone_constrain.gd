@@ -34,51 +34,51 @@ func _run():
 				continue
 			if pins.has(bone_name):
 				continue
-#			if bone_name.find("_HoodString") != -1:
-#				continue
-#			if bone_name.find("HairJoint-") != -1:
-#				continue
-#			if bone_name.ends_with("C_Hood"):
-#				continue
-#			if bone_name.ends_with("_end"):
-#				continue
-#			if bone_name == "RightEye":
-#				continue
-#			if bone_name == "LeftEye":
-#				continue
-#			if bone_name.ends_with("Proximal"):
-#				continue
-#			if bone_name.ends_with("Proximal2"):
-#				continue
-#			if bone_name.ends_with("Metacarpal"):
-#				continue
-#			if bone_name.ends_with("Metacarpal2"):
-#				continue
-#			if bone_name.ends_with("Distal"):
-#				continue
-#			if bone_name.ends_with("Intermediate"):
-#				continue
-#			if bone_name.ends_with("Chest"):
-#				continue
-#			if bone_name.ends_with("UpperChest"):
-#				continue
-#			if bone_name.ends_with("Neck"):
-#				continue
-#			if bone_name.ends_with("Shoulder"):
-#				continue
-#			if bone_name.ends_with("UpperArm"):
-#				continue
-#			if bone_name.ends_with("LowerArm"):
-#				continue
-#			if false:
-#				if bone_name.ends_with("UpperLeg"):
-#					continue
-#			if bone_name.ends_with("LowerLeg"):
-#				continue
-#			if bone_name.ends_with("Spine"):
-#				continue
-#			if bone_name.ends_with("Toes"):
-#				continue
+			if bone_name.find("_HoodString") != -1:
+				continue
+			if bone_name.find("HairJoint-") != -1:
+				continue
+			if bone_name.ends_with("C_Hood"):
+				continue
+			if bone_name.ends_with("_end"):
+				continue
+			if bone_name == "RightEye":
+				continue
+			if bone_name == "LeftEye":
+				continue
+			if bone_name.ends_with("Proximal"):
+				continue
+			if bone_name.ends_with("Proximal2"):
+				continue
+			if bone_name.ends_with("Metacarpal"):
+				continue
+			if bone_name.ends_with("Metacarpal2"):
+				continue
+			if bone_name.ends_with("Distal"):
+				continue
+			if bone_name.ends_with("Intermediate"):
+				continue
+			if bone_name.ends_with("Chest"):
+				continue
+			if bone_name.ends_with("UpperChest"):
+				continue
+			if bone_name.ends_with("Neck"):
+				continue
+			if bone_name.ends_with("Shoulder"):
+				continue
+			if bone_name.ends_with("UpperArm"):
+				continue
+			if bone_name.ends_with("LowerArm"):
+				continue
+			if false:
+				if bone_name.ends_with("UpperLeg"):
+					continue
+			if bone_name.ends_with("LowerLeg"):
+				continue
+			if bone_name.ends_with("Spine"):
+				continue
+			if bone_name.ends_with("Toes"):
+				continue
 			pins.push_back(bone_name)
 		for pin in pins:
 			var node = root.find_child(pin)

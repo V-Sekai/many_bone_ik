@@ -50,7 +50,6 @@ class IKKusudama : public Resource {
 	GDCLASS(IKKusudama, Resource);
 
 	static real_t _mod(real_t x, real_t y);
-	static real_t _to_tau(real_t angle);
 
 
 	/**
@@ -218,6 +217,7 @@ public:
 	virtual void update_rotational_freedom();
 	virtual TypedArray<IKLimitCone> get_limit_cones() const;
 	virtual void set_limit_cones(TypedArray<IKLimitCone> p_cones);
+	static real_t _to_tau(real_t angle);
 };
 
 #endif // IK_KUSUDAMA_H
