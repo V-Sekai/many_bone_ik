@@ -78,10 +78,6 @@ func _run():
 				continue
 			if bone_name.ends_with("Shoulder"):
 				continue
-			if bone_name.ends_with("RightHand"): # TODO: Remove after testing.
-				continue
-			if bone_name.ends_with("Foot"): # TODO: Remove after testing.
-				continue
 			pins.push_back(bone_name)
 		for pin in pins:
 			var node = root.find_child(pin)
@@ -141,8 +137,6 @@ func _run():
 				new_ik.set_pin_passthrough_factor(pin_i, 0)
 				new_ik.set_pin_weight(pin_i, 0.3)
 				new_ik.set_pin_direction_priorities(pin_i, Vector3(0,0,0))
-			if bone_name in ["UpperChest"]:
-				new_ik.set_pin_weight(pin_i, 0.01)
 			
 		for constraint_i in constraints.size():
 			var bone_name = constraints[constraint_i]
@@ -167,18 +161,18 @@ func _run():
 			elif bone_name.ends_with("Neck"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(356), deg_to_rad(5)))
 			# ARMS ---------
-			elif bone_name.ends_with("RightUpperArm"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(95), deg_to_rad(20)))
-			elif bone_name.ends_with("LeftUpperArm"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(95), deg_to_rad(20)))
-			elif bone_name.ends_with("RightLowerArm"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(110), deg_to_rad(5)))
-			elif bone_name.ends_with("LeftLowerArm"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(250), deg_to_rad(5)))
 			elif bone_name.ends_with("RightShoulder"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(5)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(103), deg_to_rad(5)))
 			elif bone_name.ends_with("LeftShoulder"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(295.1), deg_to_rad(5)))
+			elif bone_name.ends_with("RightUpperArm"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(135.2), deg_to_rad(40)))
+			elif bone_name.ends_with("LeftUpperArm"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(95), deg_to_rad(40)))
+			elif bone_name.ends_with("RightLowerArm"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(77), deg_to_rad(20)))
+			elif bone_name.ends_with("LeftLowerArm"):
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(250), deg_to_rad(20)))
 			elif bone_name.ends_with("RightHand"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(78.6), deg_to_rad(5)))
 			elif bone_name.ends_with("LeftHand"):
@@ -225,7 +219,7 @@ func _run():
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(-1, 0, 0))
 				if bone_name.begins_with("Left"):
 					new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(1, 0, 0))
-				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(50))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(22.5))
 			elif bone_name.ends_with("UpperArm"):
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))

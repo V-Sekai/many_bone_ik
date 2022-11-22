@@ -163,7 +163,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
 	}
-	const uint32_t constraint_usage = get_constraint_edit_mode() ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_STORAGE;
+	const uint32_t constraint_usage = get_edit_constraint_mode() ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_STORAGE;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
 					PROPERTY_HINT_RANGE, "0,256,or_greater", constraint_usage | PROPERTY_USAGE_ARRAY,
@@ -175,7 +175,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
-			if (!get_constraint_edit_mode()) {
+			if (!get_edit_constraint_mode()) {
 				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
 					String name = get_skeleton()->get_bone_name(bone_i);
 					if (existing_constraints.has(name)) {
@@ -223,7 +223,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
-	const uint32_t pin_usage = get_constraint_edit_mode() ? PROPERTY_USAGE_STORAGE : PROPERTY_USAGE_DEFAULT;
+	const uint32_t pin_usage = get_edit_constraint_mode() ? PROPERTY_USAGE_STORAGE : PROPERTY_USAGE_DEFAULT;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
 					PROPERTY_HINT_RANGE, "0,1024,or_greater", pin_usage | PROPERTY_USAGE_ARRAY,
@@ -439,8 +439,8 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void NBoneIK::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_constraint_edit_mode", "enable"), &NBoneIK::set_constraint_edit_mode);
-	ClassDB::bind_method(D_METHOD("get_constraint_edit_mode"), &NBoneIK::get_constraint_edit_mode);
+	ClassDB::bind_method(D_METHOD("set_edit_constraint_mode", "enable"), &NBoneIK::set_edit_constraint_mode);
+	ClassDB::bind_method(D_METHOD("get_edit_constraint_mode"), &NBoneIK::get_edit_constraint_mode);
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &NBoneIK::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "index", "rotation"), &NBoneIK::set_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &NBoneIK::remove_constraint);
@@ -492,7 +492,7 @@ void NBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "edit_constraints"), "set_constraint_edit_mode", "get_constraint_edit_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "edit_constraints"), "set_edit_constraint_mode", "get_edit_constraint_mode");
 }
 
 NBoneIK::NBoneIK() {
@@ -969,11 +969,11 @@ void NBoneIK::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
 	ik_bone->set_skeleton_bone_pose(get_skeleton());
 }
 
-bool NBoneIK::get_constraint_edit_mode() const {
+bool NBoneIK::get_edit_constraint_mode() const {
 	return constrain_mode;
 }
 
-void NBoneIK::set_constraint_edit_mode(bool p_enable) {
+void NBoneIK::set_edit_constraint_mode(bool p_enable) {
 	// TODO: Add tool tip to explain this disables. Or graphical widget.
 
 	// TODO: Toggle slider widget instead of checkbox?
