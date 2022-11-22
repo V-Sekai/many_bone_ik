@@ -308,16 +308,20 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 			String bone_name = constraint_names[index];
 			if (segmented_skeleton.is_null()) {
 				r_ret = 0;
-				return true;
+				return false;
+			}
+			if(!get_skeleton()) {
+				r_ret = 0;
+				return false;
 			}
 			Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
 			if (ik_bone.is_null()) {
 				r_ret = 0;
-				return true;
+				return false;
 			}
 			if (ik_bone->get_constraint().is_null()) {
 				r_ret = 0;
-				return true;
+				return false;
 			}
 			r_ret = ik_bone->get_constraint()->get_current_twist_rotation();
 			return true;
