@@ -31,7 +31,7 @@
 #include "ik_kusudama.h"
 #include "math/ik_node_3d.h"
 
-void IKKusudama::_update_constraint(Node3D *p_node) {
+void IKKusudama::_update_constraint() {
 	update_tangent_radii();
 	update_rotational_freedom();
 }
