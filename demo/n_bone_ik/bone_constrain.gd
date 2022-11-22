@@ -125,7 +125,7 @@ func _run():
 			if bone_i == -1:
 				continue
 			if bone_name in ["Hips"]:
-				new_ik.set_pin_passthrough_factor(pin_i, 0.1)
+				new_ik.set_pin_passthrough_factor(pin_i, 0)
 			new_ik.set_pin_bone_name(pin_i, bone_name)
 			new_ik.set_pin_passthrough_factor(pin_i, 0.8)
 			if bone_name in ["Root"]:
@@ -136,9 +136,9 @@ func _run():
 				new_ik.set_pin_passthrough_factor(pin_i, 0)
 				new_ik.set_pin_weight(pin_i, 0.3)
 				new_ik.set_pin_direction_priorities(pin_i, Vector3(0,0,0))
-			if bone_name.ends_with("LowerLeg"):
-				new_ik.set_pin_weight(pin_i, 0.3)
 			if bone_name.ends_with("Foot"):
+				new_ik.set_pin_weight(pin_i, 0.3)
+			if bone_name.ends_with("Head"):
 				new_ik.set_pin_weight(pin_i, 0.3)
 			
 		for constraint_i in constraints.size():

@@ -95,8 +95,8 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, NBoneI
 			is_ewbik_node = false;
 		}
 	}
-	if (!is_ewbik_node && !changed_transform.is_equal_approx(target_relative_to_skeleton_origin)) {
-		p_ewbik->set_edit_constraint_mode(false);
+	if (!is_ewbik_node && !changed_transform.is_equal_approx(target_relative_to_skeleton_origin) && p_ewbik->get_edit_constraint_mode() == NBoneIK::NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK) {
+		p_ewbik->set_edit_constraint_mode(NBoneIK::NBONE_IK_EDIT_CONSTRAIN_MODE_OFF);
 	}
 #endif
 	target_relative_to_skeleton_origin = changed_transform;

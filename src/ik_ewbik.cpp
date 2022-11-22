@@ -492,7 +492,7 @@ void NBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "edit_constraints"), "set_edit_constraint_mode", "get_edit_constraint_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off, Automatic Unlock, Lock"), "set_edit_constraint_mode", "get_edit_constraint_mode");
 }
 
 NBoneIK::NBoneIK() {
@@ -969,11 +969,11 @@ void NBoneIK::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
 	ik_bone->set_skeleton_bone_pose(get_skeleton());
 }
 
-bool NBoneIK::get_edit_constraint_mode() const {
+int NBoneIK::get_edit_constraint_mode() const {
 	return constrain_mode;
 }
 
-void NBoneIK::set_edit_constraint_mode(bool p_enable) {
+void NBoneIK::set_edit_constraint_mode(int p_value) {
 	// TODO: Add tool tip to explain this disables. Or graphical widget.
 
 	// TODO: Toggle slider widget instead of checkbox?
@@ -982,6 +982,6 @@ void NBoneIK::set_edit_constraint_mode(bool p_enable) {
 	// and re-enables the solver when they say they are done editing constraints.
 	// Possibly with a visual hint to indicate that solver is on or off as a result of being in that mode
 
-	constrain_mode = p_enable;
+	constrain_mode = p_value;
 	notify_property_list_changed();
 }
