@@ -62,12 +62,12 @@ class IKKusudama : public Resource {
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
 	 * limiting_axes Z axis.
 	 */
-	real_t min_axial_angle = -Math_TAU;
+	real_t min_axial_angle = 0.0;
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
 	 * min_axial_angle
 	 */
-	real_t range_angle = Math_TAU * 2.0;
+	real_t range_angle = Math_TAU;
 
 	bool orientationally_constrained = false;
 	bool axially_constrained = false;
