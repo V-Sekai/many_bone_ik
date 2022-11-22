@@ -29,9 +29,14 @@
 /*************************************************************************/
 
 #include "ik_effector_3d.h"
+#include "ik_bone_3d.h"
 #include "ik_ewbik.h"
 #include "math/ik_node_3d.h"
-#include "ik_bone_3d.h"
+
+#ifdef TOOLS_ENABLED
+#include "editor/editor_data.h"
+#include "editor/editor_node.h"
+#endif
 
 void IKEffector3D::set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path) {
 	ERR_FAIL_NULL(p_skeleton);
@@ -58,7 +63,9 @@ bool IKEffector3D::is_following_translation_only() const {
 	return Math::is_zero_approx(direction_priorities.length_squared());
 }
 
-void IKEffector3D::set_direction_priorities(Vector3 p_direction_priorities) { direction_priorities = p_direction_priorities; }
+void IKEffector3D::set_direction_priorities(Vector3 p_direction_priorities) {
+	direction_priorities = p_direction_priorities;
+}
 
 Vector3 IKEffector3D::get_direction_priorities() const {
 	return direction_priorities;
@@ -75,7 +82,24 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, NBoneI
 	if (!current_target_node->is_visible_in_tree()) {
 		return;
 	}
-	target_relative_to_skeleton_origin = p_skeleton->get_global_transform().affine_inverse() * current_target_node->get_global_transform();
+	Transform3D changed_transform = p_skeleton->get_global_transform().affine_inverse() * current_target_node->get_global_transform();
+	bool is_ewbik_node = false;
+#ifdef TOOLS_ENABLED
+	// Solves a problem where moving the target nodes makes the constraint inspector fight the editor by disabliing edit mode.
+	EditorSelection *editor_selection = EditorNode::get_singleton()->get_editor_selection();
+	if (editor_selection) {
+		TypedArray<Node> selected_node_list = editor_selection->get_selected_nodes();
+		if (p_ewbik && selected_node_list.has(p_ewbik)) {
+			is_ewbik_node = true;
+		} else {
+			is_ewbik_node = false;
+		}
+	}
+	if (!is_ewbik_node && !changed_transform.is_equal_approx(target_relative_to_skeleton_origin)) {
+		p_ewbik->set_edit_constraint_mode(false);
+	}
+#endif
+	target_relative_to_skeleton_origin = changed_transform;
 }
 
 Transform3D IKEffector3D::get_target_global_transform() const {
