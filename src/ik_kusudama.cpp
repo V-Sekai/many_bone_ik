@@ -255,12 +255,12 @@ Vector3 IKKusudama::get_local_point_in_limits(Vector3 in_point, Vector<double> &
 	for (int i = 0; i < limit_cones.size(); i++) {
 		Ref<IKLimitCone> cone = limit_cones[i];
 		Vector3 collision_point = cone->closest_to_cone(point, in_bounds);
-		if (Math::is_nan(collision_point.x)) {
+		if (Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z)) {
 			in_bounds.write[0] = 1;
 			return point;
 		}
 		real_t this_cos = collision_point.dot(point);
-		if (Math::is_nan(closest_collision_point.x) || this_cos > closest_cos) {
+		if (Math::is_nan(closest_collision_point.x) || Math::is_nan(closest_collision_point.y) || Math::is_nan(closest_collision_point.z)|| this_cos > closest_cos) {
 			closest_collision_point = collision_point;
 			closest_cos = this_cos;
 		}
@@ -296,7 +296,7 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<
 	bone_ray->p2(bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
 	Vector3 in_limits = get_local_point_in_limits(bone_tip, in_bounds);
-	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x)) {
+	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x) && !Math::is_nan(in_limits.y) && !Math::is_nan(in_limits.z)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));
 		Quaternion rectified_rot = Quaternion(bone_ray->heading(), constrained_ray->heading());
