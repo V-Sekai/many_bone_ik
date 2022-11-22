@@ -93,7 +93,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	real_t angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
 	angle_delta_2 = _to_tau(angle_delta_2);
 	real_t from_min_to_angle_delta = _to_tau(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
-	if (!(from_min_to_angle_delta < Math_TAU - range_angle)) {
+	if (!(from_min_to_angle_delta <= Math_TAU - range_angle)) {
 		return;
 	}
 	real_t dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
