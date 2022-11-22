@@ -281,6 +281,8 @@ func _run():
 			new_ik.set_pin_nodepath(bone_i, NodePath(path_string))
 			var marker_3d : Marker3D = Marker3D.new()
 			marker_3d.name = bone_name
+			var chirality : float = node_global_transform.basis.x.dot(node_global_transform.basis.y.cross(node_global_transform.basis.z))
+			print("%s %f" % [bone_name, chirality])
 			marker_3d.global_transform = node_global_transform
 			node_3d.replace_by(marker_3d, true)
 		new_ik.visible = true
