@@ -51,7 +51,6 @@ class IKKusudama : public Resource {
 
 	static real_t _mod(real_t x, real_t y);
 
-
 	/**
 	 * An array containing all of the Kusudama's limit_cones. The kusudama is built up
 	 * with the expectation that any limitCone in the array is connected to the cone at the previous element in the array,
@@ -89,6 +88,7 @@ class IKKusudama : public Resource {
 			Quaternion &r_swing,
 			Quaternion &r_twist);
 	double rotational_freedom = 1;
+
 protected:
 	static void _bind_methods();
 
@@ -108,6 +108,7 @@ public:
 	Ref<IKRay3D> constrained_ray = Ref<IKRay3D>(memnew(IKRay3D()));
 	double unit_hyper_area = 2 * Math::pow(Math_PI, 2);
 	double unit_area = 4 * Math_PI;
+
 public:
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
