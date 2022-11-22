@@ -255,7 +255,7 @@ Vector3 IKKusudama::get_local_point_in_limits(Vector3 in_point, Vector<double> *
 			return point;
 		}
 		real_t this_cos = collision_point.dot(point);
-		if (Math::is_nan(closest_collision_point.x) || Math::is_nan(closest_collision_point.y) || Math::is_nan(closest_collision_point.z)|| this_cos > closest_cos) {
+		if (Math::is_nan(closest_collision_point.x) || Math::is_nan(closest_collision_point.y) || Math::is_nan(closest_collision_point.z) || this_cos > closest_cos) {
 			closest_collision_point = collision_point;
 			closest_cos = this_cos;
 		}

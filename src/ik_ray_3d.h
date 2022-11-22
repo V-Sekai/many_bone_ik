@@ -45,6 +45,7 @@ class IKRay3D : public RefCounted {
 	Vector3 point_1;
 	Vector3 point_2;
 	Vector3 working_vector;
+
 protected:
 	static void _bind_methods();
 

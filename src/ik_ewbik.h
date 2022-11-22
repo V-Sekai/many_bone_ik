@@ -40,12 +40,14 @@
 class IKBoneSegment;
 class NBoneIK : public Node3D {
 	GDCLASS(NBoneIK, Node3D);
+
 public:
 	enum {
 		NBONE_IK_EDIT_CONSTRAIN_MODE_OFF = 0,
 		NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK,
 		NBONE_IK_EDIT_CONSTRAIN_MODE_LOCK
 	};
+
 private:
 	int constrain_mode = NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK;
 	StringName root_bone;

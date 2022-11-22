@@ -310,7 +310,7 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 				r_ret = 0;
 				return false;
 			}
-			if(!get_skeleton()) {
+			if (!get_skeleton()) {
 				r_ret = 0;
 				return false;
 			}

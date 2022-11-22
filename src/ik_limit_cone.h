@@ -66,7 +66,6 @@ class IKLimitCone : public Resource {
 	Vector<Vector3> first_triangle_next = { Vector3(), Vector3(), Vector3() };
 	Vector<Vector3> second_triangle_next = { Vector3(), Vector3(), Vector3() };
 
-
 	/**
 	 *
 	 * @param next
@@ -100,6 +99,7 @@ class IKLimitCone : public Resource {
 
 	virtual double get_tangent_circle_radius_next_cos();
 	static Vector3 get_orthogonal(Vector3 p_in);
+
 protected:
 	virtual double _get_radius();
 
