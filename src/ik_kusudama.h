@@ -158,7 +158,7 @@ public:
 	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
 	 * @return the original point, if it's in limits, or the closest point which is in limits.
 	 */
-	Vector3 get_local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds);
+	Vector3 get_local_point_in_limits(Vector3 in_point, Vector<double> *in_bounds);
 
 	Vector3 local_point_on_path_sequence(Vector3 in_point, Ref<IKNode3D> limiting_axes);
 

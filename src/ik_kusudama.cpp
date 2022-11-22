@@ -246,17 +246,17 @@ Vector3 IKKusudama::local_point_on_path_sequence(Vector3 in_point, Ref<IKNode3D>
  * the point is outside of the boundary, but does not signify anything about how far from the boundary the point is.
  * @return the original point, if it's in limits, or the closest point which is in limits.
  */
-Vector3 IKKusudama::get_local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds) {
+Vector3 IKKusudama::get_local_point_in_limits(Vector3 in_point, Vector<double> *in_bounds) {
 	Vector3 point = in_point.normalized();
 	real_t closest_cos = -2.0;
-	in_bounds.write[0] = -1;
+	in_bounds->write[0] = -1;
 	Vector3 closest_collision_point = Vector3(NAN, NAN, NAN);
 	// This is an exact check for being inside the bounds of each individual cone.
 	for (int i = 0; i < limit_cones.size(); i++) {
 		Ref<IKLimitCone> cone = limit_cones[i];
 		Vector3 collision_point = cone->closest_to_cone(point, in_bounds);
 		if (Math::is_nan(collision_point.x) || Math::is_nan(collision_point.y) || Math::is_nan(collision_point.z)) {
-			in_bounds.write[0] = 1;
+			in_bounds->write[0] = 1;
 			return point;
 		}
 		real_t this_cos = collision_point.dot(point);
@@ -265,7 +265,7 @@ Vector3 IKKusudama::get_local_point_in_limits(Vector3 in_point, Vector<double> &
 			closest_cos = this_cos;
 		}
 	}
-	if (in_bounds[0] == -1) {
+	if ((*in_bounds)[0] == -1) {
 		// Case where there are multiple cones and we're out of bounds of all cones.
 		// Are we in the paths between the cones.
 		for (int i = 0; i < limit_cones.size() - 1; i++) {
@@ -277,7 +277,7 @@ Vector3 IKKusudama::get_local_point_in_limits(Vector3 in_point, Vector<double> &
 			}
 			real_t this_cos = collision_point.dot(point);
 			if (Math::is_equal_approx(this_cos, real_t(1.0))) {
-				in_bounds.write[0] = 1;
+				in_bounds->write[0] = 1;
 				return point;
 			}
 			if (this_cos > closest_cos) {
@@ -295,7 +295,7 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<
 	bone_ray->p1(limiting_axes->get_global_transform().origin);
 	bone_ray->p2(bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
 	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
-	Vector3 in_limits = get_local_point_in_limits(bone_tip, in_bounds);
+	Vector3 in_limits = get_local_point_in_limits(bone_tip, &in_bounds);
 	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x) && !Math::is_nan(in_limits.y) && !Math::is_nan(in_limits.z)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(limiting_axes->to_global(in_limits));

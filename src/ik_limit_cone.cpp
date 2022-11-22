@@ -253,7 +253,7 @@ Vector3 IKLimitCone::get_closest_collision(Ref<IKLimitCone> next, Vector3 input)
 	bool is_number = !(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z));
 	if (!is_number) {
 		Vector<double> in_bounds = { 0.0 };
-		result = closest_point_on_closest_cone(next, input, in_bounds);
+		result = closest_point_on_closest_cone(next, input, &in_bounds);
 	}
 	return result;
 }
@@ -329,13 +329,13 @@ Vector3 IKLimitCone::closest_cone(Ref<IKLimitCone> next, Vector3 input) const {
 	}
 }
 
-Vector3 IKLimitCone::closest_point_on_closest_cone(Ref<IKLimitCone> next, Vector3 input, Vector<double> &in_bounds) const {
+Vector3 IKLimitCone::closest_point_on_closest_cone(Ref<IKLimitCone> next, Vector3 input, Vector<double> *in_bounds) const {
 	Vector3 closestToFirst = this->closest_to_cone(input, in_bounds);
-	if (in_bounds[0] > 0.0) {
+	if ((*in_bounds)[0] > 0.0) {
 		return closestToFirst;
 	}
 	Vector3 closestToSecond = next->closest_to_cone(input, in_bounds);
-	if (in_bounds[0] > 0.0) {
+	if ((*in_bounds)[0] > 0.0) {
 		return closestToSecond;
 	}
 	double cosToFirst = input.dot(closestToFirst);
@@ -348,16 +348,16 @@ Vector3 IKLimitCone::closest_point_on_closest_cone(Ref<IKLimitCone> next, Vector
 	}
 }
 
-Vector3 IKLimitCone::closest_to_cone(Vector3 input, Vector<double> &in_bounds) const {
+Vector3 IKLimitCone::closest_to_cone(Vector3 input, Vector<double> *in_bounds) const {
 	if (input.dot(this->get_control_point()) > this->get_radius_cosine()) {
-		in_bounds.write[0] = 1.0;
+		in_bounds->write[0] = 1.0;
 		return Vector3(NAN, NAN, NAN);
 	}
 	Vector3 axis = this->get_control_point().cross(input).normalized();
 	Quaternion rotTo = IKLimitCone::quaternion_set_axis_angle(axis.normalized(), this->get_radius()).normalized();
 	Vector3 axis_control_point = this->get_control_point();
 	Vector3 result = rotTo.xform(axis_control_point);
-	in_bounds.write[0] = -1;
+	in_bounds->write[0] = -1;
 	return result;
 }
 

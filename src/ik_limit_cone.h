@@ -96,7 +96,7 @@ class IKLimitCone : public Resource {
 	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closest_point_on_closest_cone(Ref<IKLimitCone> next, Vector3 input, Vector<double> &in_bounds) const;
+	Vector3 closest_point_on_closest_cone(Ref<IKLimitCone> next, Vector3 input, Vector<double> *in_bounds) const;
 
 	virtual double get_tangent_circle_radius_next_cos();
 	static Vector3 get_orthogonal(Vector3 p_in);
@@ -129,7 +129,7 @@ public:
 	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closest_to_cone(Vector3 input, Vector<double> &in_bounds) const;
+	Vector3 closest_to_cone(Vector3 input, Vector<double> *in_bounds) const;
 	Vector3 get_closest_path_point(Ref<IKLimitCone> next, Vector3 input) const;
 	virtual Vector3 get_control_point() const;
 	virtual void set_control_point(Vector3 p_control_point);
