@@ -684,7 +684,7 @@ void NBoneIK::set_constraint_name(int32_t p_index, String p_name) {
 	if (get_skeleton()) {
 		Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
 		BoneId bone_id = get_skeleton()->find_bone(p_name);
-		ERR_FAIL_COND_MSG(root_bones.find(bone_id) != -1, "The root bone cannot be constraint.");
+		ERR_FAIL_COND_MSG(root_bones.find(bone_id) != -1, "The root bone cannot be constrained.");
 	}
 	constraint_names.write[p_index] = p_name;
 	set_dirty();
