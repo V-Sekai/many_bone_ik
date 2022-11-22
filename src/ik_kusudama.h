@@ -73,7 +73,6 @@ class IKKusudama : public Resource {
 	bool orientationally_constrained = false;
 	bool axially_constrained = false;
 
-	Ref<IKBone3D> bone_attached_to;
 	/**
 	 * Get the swing rotation and twist rotation for the specified axis. The twist rotation represents the rotation around the specified axis. The swing rotation represents the rotation of the specified
 	 * axis itself, which is the rotation around an axis perpendicular to the specified axis. The swing and twist rotation can be
@@ -97,9 +96,7 @@ public:
 	virtual ~IKKusudama() {
 	}
 
-	IKKusudama();
-
-	IKKusudama(Ref<IKBone3D> for_bone);
+	IKKusudama() {}
 
 	IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, real_t cos_half_angle_dampen);
 
@@ -142,8 +139,8 @@ public:
 	 */
 	virtual void set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen);
 
-	real_t get_current_twist_rotation();
-	void set_current_twist_rotation(real_t p_rotation);
+	real_t get_current_twist_rotation(Ref<IKBone3D> bone_attached_to);
+	void set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation);
 
 	/**
 	 * Given a point (in local coordinates), checks to see if a ray can be extended from the Kusudama's
@@ -163,10 +160,6 @@ public:
 	Vector3 get_local_point_in_limits(Vector3 in_point, Vector<double> &in_bounds);
 
 	Vector3 local_point_on_path_sequence(Vector3 in_point, Ref<IKNode3D> limiting_axes);
-
-	// public double softLimit
-
-	virtual Ref<IKBone3D> attached_to();
 
 	/**
 	 * Add a IKLimitCone to the Kusudama.

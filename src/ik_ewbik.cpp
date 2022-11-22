@@ -323,7 +323,7 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 				r_ret = 0;
 				return false;
 			}
-			r_ret = ik_bone->get_constraint()->get_current_twist_rotation();
+			r_ret = ik_bone->get_constraint()->get_current_twist_rotation(ik_bone);
 			return true;
 		} else if (what == "twist_from") {
 			r_ret = get_kusudama_twist(index).x;
@@ -407,7 +407,7 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			if (ik_bone->get_constraint().is_null()) {
 				return false;
 			}
-			ik_bone->get_constraint()->set_current_twist_rotation(p_value);
+			ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_value);
 			for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
 				if (segmented_skeleton.is_null()) {
 					break;
@@ -800,7 +800,7 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 			bone_direction_transform.instantiate();
 			bone_direction_transform->set_parent(ik_bone_3d->get_ik_transform());
 			bone_direction_transform->set_transform(Transform3D(Basis(), ik_bone_3d->get_bone_direction_transform()->get_transform().origin));
-			Ref<IKKusudama> constraint = Ref<IKKusudama>(memnew(IKKusudama(ik_bone_3d)));
+			Ref<IKKusudama> constraint = Ref<IKKusudama>(memnew(IKKusudama()));
 			const Vector2 axial_limit = get_kusudama_twist(constraint_i);
 			constraint->enable_orientational_limits();
 			for (int32_t cone_i = 0; cone_i < kusudama_limit_cone_count[constraint_i]; cone_i++) {
@@ -962,7 +962,7 @@ real_t NBoneIK::get_kusudama_twist_current(int32_t p_index) {
 	if (ik_bone->get_constraint().is_null()) {
 		return 0;
 	}
-	return CLAMP(ik_bone->get_constraint()->get_current_twist_rotation(), 0, 1);
+	return CLAMP(ik_bone->get_constraint()->get_current_twist_rotation(ik_bone), 0, 1);
 }
 
 void NBoneIK::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
@@ -978,7 +978,7 @@ void NBoneIK::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
 	if (ik_bone->get_constraint().is_null()) {
 		return;
 	}
-	ik_bone->get_constraint()->set_current_twist_rotation(p_rotation);
+	ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_rotation);
 	ik_bone->set_skeleton_bone_pose(get_skeleton());
 }
 

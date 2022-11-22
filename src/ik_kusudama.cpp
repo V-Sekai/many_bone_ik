@@ -31,15 +31,6 @@
 #include "ik_kusudama.h"
 #include "math/ik_node_3d.h"
 
-IKKusudama::IKKusudama() {
-}
-
-IKKusudama::IKKusudama(Ref<IKBone3D> for_bone) {
-	bone_attached_to = for_bone;
-	bone_attached_to->add_constraint(Ref<IKKusudama>(this));
-	enable();
-}
-
 void IKKusudama::_update_constraint(Node3D *p_node) {
 	update_tangent_radii();
 	update_rotational_freedom();
@@ -59,13 +50,6 @@ void IKKusudama::update_tangent_radii() {
 
 /**
  * Basic idea:
- * We treat our hard and soft boundaries as if they were two seperate kusudamas.
- * First we check if we have exceeded our soft boundaries, if so,
- * we find the closest point on the soft boundary and the closest point on the same segment
- * of the hard boundary.
- * let d be our orientation between these two points, represented as a ratio with 0 being right on the soft boundary
- * and 1 being right on the hard boundary.
- *
  * On every kusudama call, we store the previous value of d.
  * If the new d is  greater than the old d, our result is the weighted average of these
  * (with the weight determining the resistance of the boundary). This result is stored for reference by future calls.
@@ -129,10 +113,6 @@ real_t IKKusudama::_to_tau(real_t angle) {
 	}
 	result = _mod(result, (Math_PI * 2.0f));
 	return result;
-}
-
-Ref<IKBone3D> IKKusudama::attached_to() {
-	return this->bone_attached_to;
 }
 
 void IKKusudama::add_limit_cone(Vector3 new_cone_local_point, double radius) {
@@ -365,7 +345,7 @@ void IKKusudama::get_swing_twist(
 	r_swing.normalize();
 }
 
-real_t IKKusudama::get_current_twist_rotation() {
+real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) {
 	Quaternion inv_rot = bone_attached_to->get_constraint_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
 	Quaternion align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
 	Quaternion swing;
@@ -378,7 +358,7 @@ real_t IKKusudama::get_current_twist_rotation() {
 	return CLAMP(_to_tau(signed_angle_difference(angle, min_axial_angle)) / range_angle, 0, 1);
 }
 
-void IKKusudama::set_current_twist_rotation(real_t p_rotation) {
+void IKKusudama::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation) {
 	p_rotation = (p_rotation * range_angle) + min_axial_angle;
 	Quaternion inv_rot = bone_attached_to->get_constraint_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
 	Quaternion align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();

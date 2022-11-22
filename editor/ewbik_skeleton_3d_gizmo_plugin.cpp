@@ -448,7 +448,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		p_gizmo->add_handles(handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
 	{
-		float current_angle = kusudama->get_min_axial_angle() + (ik_kusudama->get_current_twist_rotation() * ik_kusudama->get_range_angle());
+		float current_angle = kusudama->get_min_axial_angle() + (ik_kusudama->get_current_twist_rotation(ik_bone) * ik_kusudama->get_range_angle());
 		const Point2 a = Vector2(Math::sin(current_angle), Math::cos(current_angle)) * w; // I see
 		Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
 		Transform3D axial_from_relative_to_mesh;

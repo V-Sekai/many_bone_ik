@@ -290,4 +290,5 @@ func _run():
 			marker_3d.global_transform = node_global_transform
 			node_3d.replace_by(marker_3d, true)
 		new_ik.visible = true
+		new_ik.queue_print_skeleton()
 		new_ik.edit_constraints = edit_mode
