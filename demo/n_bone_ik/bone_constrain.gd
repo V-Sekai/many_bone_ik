@@ -73,12 +73,12 @@ func _run():
 			if false:
 				if bone_name.ends_with("UpperLeg"):
 					continue
-				if bone_name.ends_with("LowerLeg"):
-					continue
-				if bone_name.ends_with("Spine"):
-					continue
-				if bone_name.ends_with("Toes"):
-					continue
+			if bone_name.ends_with("LowerLeg"):
+				continue
+			if bone_name.ends_with("Spine"):
+				continue
+			if bone_name.ends_with("Toes"):
+				continue
 			pins.push_back(bone_name)
 		for pin in pins:
 			var node = root.find_child(pin)
@@ -182,9 +182,9 @@ func _run():
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(78.6), deg_to_rad(5)))
 			# LEGS ---------
 			elif bone_name.ends_with("LeftUpperLeg"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(207.6), deg_to_rad(30)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(207.6), deg_to_rad(360)))
 			elif bone_name.ends_with("RightUpperLeg"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(19.2), deg_to_rad(30)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(19.2), deg_to_rad(360)))
 			elif bone_name.ends_with("LeftLowerLeg"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(180), deg_to_rad(5)))
 			elif bone_name.ends_with("RightLowerLeg"):
@@ -254,11 +254,11 @@ func _run():
 			elif bone_name.ends_with("LowerLeg"):
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 3)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(5))
-				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
-				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(5))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(45))
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, 1))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(45))
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
-				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(5))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(45))
 			elif bone_name.ends_with("Foot"):
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
