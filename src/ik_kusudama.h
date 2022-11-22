@@ -177,11 +177,6 @@ public:
 	virtual real_t get_min_axial_angle();
 	virtual real_t get_range_angle();
 
-	/**
-	 * the upper bound on the axial constraint in absolute terms
-	 * @return
-	 */
-	virtual real_t get_absolute_max_axial_angle();
 	virtual bool is_axially_constrained();
 	virtual bool is_orientationally_constrained();
 	virtual void disable_orientational_limits();

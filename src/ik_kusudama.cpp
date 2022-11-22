@@ -136,10 +136,6 @@ real_t IKKusudama::get_range_angle() {
 	return range_angle;
 }
 
-real_t IKKusudama::get_absolute_max_axial_angle() {
-	return Math::lerp_angle(range_angle + min_axial_angle, real_t(Math_TAU), real_t(1.0));
-}
-
 bool IKKusudama::is_axially_constrained() {
 	return axially_constrained;
 }
