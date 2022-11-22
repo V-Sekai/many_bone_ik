@@ -78,6 +78,10 @@ func _run():
 				continue
 			if bone_name.ends_with("Toes"):
 				continue
+			if bone_name.ends_with("UpperLeg"):
+				continue
+			if bone_name.ends_with("LowerLeg"):
+				continue
 			pins.push_back(bone_name)
 		for pin in pins:
 			var node = root.find_child(pin)
