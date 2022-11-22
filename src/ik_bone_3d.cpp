@@ -71,10 +71,10 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 	if (Math::is_zero_approx(child_centroid.length_squared()) && parent.is_valid()) {
 		Vector3 parent_y_direction = parent->get_ik_transform()->get_global_transform().xform(Vector3(0, 1, 0)) - parent->get_ik_transform()->get_global_transform().origin;
 		child_centroid = parent->get_bone_direction_transform()->get_global_transform().xform(Vector3(0, 1, 0)) - parent->get_bone_direction_transform()->get_global_transform().origin;
-	} else if(Math::is_zero_approx(child_centroid.length_squared()) && parent.is_null()) {
+	} else if (Math::is_zero_approx(child_centroid.length_squared()) && parent.is_null()) {
 		Vector3 y_direction = get_ik_transform()->get_global_transform().xform(Vector3(0, 1, 0)) - get_ik_transform()->get_global_transform().origin;
 		child_centroid = get_bone_direction_transform()->get_global_transform().xform(Vector3(0, 1, 0)) - get_bone_direction_transform()->get_global_transform().origin;
-	}	
+	}
 	if (!Math::is_zero_approx(child_centroid.length_squared()) && (children.size() || p_skeleton->get_bone_children(bone_id).size())) {
 		child_centroid.normalize();
 		Vector3 bone_direction = bone_direction_transform->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)) - godot_bone_origin;
@@ -86,10 +86,33 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 void IKBone3D::update_default_constraint_transform() {
 	Ref<IKBone3D> parent_bone = get_parent();
 	if (parent_bone.is_valid()) {
-		Transform3D parent_bone_direction = parent_bone->get_bone_direction_transform()->get_global_transform();
-		parent_bone_direction.origin = get_bone_direction_transform()->get_global_transform().origin;
-		constraint_transform->set_global_transform(parent_bone_direction);
+		Transform3D parent_bone_aligned_transform = parent_bone->get_ik_transform()->get_global_transform();
+		parent_bone_aligned_transform.origin = get_bone_direction_transform()->get_global_transform().origin;
+		constraint_transform->set_global_transform(parent_bone_aligned_transform);
 	}
+	Transform3D set_constraint_twist_transform = constraint_transform->get_global_transform();
+	constraint_twist_transform->set_global_transform(set_constraint_twist_transform);
+	// Orient the twist plane to the limit cone centroid (approximately).
+	if (constraint.is_null()) {
+		return;
+	}
+	TypedArray<IKLimitCone> cones = constraint->get_limit_cones();
+	if (cones.size() == 0) {
+		return;
+	}
+	Vector3 direction = Vector3(0, 0, 0);
+	for (int32_t cone_i = 0; cone_i < cones.size(); cone_i++) {
+		Ref<IKLimitCone> cone = cones[cone_i];
+		if (cone.is_null()) {
+			break;
+		}
+		float weight = cone->get_radius() / Math_PI;
+		direction += cone->get_control_point() * weight;
+	}
+	direction = direction.normalized();
+	Vector3 twist_y = constraint_twist_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+	Quaternion align_dir = Quaternion(twist_y, direction);
+	constraint_twist_transform->rotate_local_with_global(align_dir);
 }
 
 Ref<IKBone3D> IKBone3D::get_parent() const {
@@ -160,6 +183,7 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pinned);
 	ClassDB::bind_method(D_METHOD("get_constraint"), &IKBone3D::get_constraint);
 	ClassDB::bind_method(D_METHOD("get_constraint_transform"), &IKBone3D::get_constraint_transform);
+	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform"), &IKBone3D::get_constraint_twist_transform);
 }
 
 IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening) {
@@ -213,6 +237,10 @@ Ref<IKNode3D> IKBone3D::get_ik_transform() {
 
 Ref<IKNode3D> IKBone3D::get_constraint_transform() {
 	return constraint_transform;
+}
+
+Ref<IKNode3D> IKBone3D::get_constraint_twist_transform() {
+	return constraint_twist_transform;
 }
 
 void IKBone3D::set_constraint_transform(Ref<IKNode3D> p_transform) {

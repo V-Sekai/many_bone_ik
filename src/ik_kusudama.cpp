@@ -80,12 +80,12 @@ void IKKusudama::set_axial_limits(real_t min_angle, real_t in_range) {
 	range_angle = _to_tau(in_range);
 }
 
-void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_dampen) {
+void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> twist_axes, real_t p_dampening, real_t p_cos_half_dampen) {
 	if (!is_axially_constrained()) {
 		return;
 	}
-	// TODO: Asorb ik transform parameters
-	Quaternion inv_rot = limiting_axes->get_global_transform().basis.inverse().get_rotation_quaternion();
+	// TODO: Absorb ik transform parameters
+	Quaternion inv_rot = twist_axes->get_global_transform().basis.inverse().get_rotation_quaternion();
 	Quaternion align_rot = inv_rot * bone_direction->get_global_transform().basis.get_rotation_quaternion();
 	Quaternion swing;
 	Quaternion twist;
@@ -98,9 +98,8 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	}
 	real_t dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
 	real_t dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
-	Vector3 limiting_axes_origin = limiting_axes->get_global_transform().origin;
-	Vector3 bone_axis_y = bone_direction->get_global_transform().xform(Vector3(0, 1, 0));
-	Vector3 axis_y = bone_axis_y - limiting_axes_origin;
+	Vector3 twist_axes_origin = twist_axes->get_global_transform().origin;
+	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	if (Math::is_zero_approx(axis_y.length_squared())) {
 		axis_y = Vector3(0, 1, 0);
 	}
