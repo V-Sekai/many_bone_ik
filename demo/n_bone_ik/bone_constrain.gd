@@ -258,14 +258,14 @@ func _run():
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 3)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
 				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(45))
-				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, 1))
+				new_ik.set_kusudama_limit_cone_center(constraint_i, 1, Vector3(0, 0, -1))
 				new_ik.set_kusudama_limit_cone_radius(constraint_i, 1, deg_to_rad(45))
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 2, Vector3(0, -1, 0))
 				new_ik.set_kusudama_limit_cone_radius(constraint_i, 2, deg_to_rad(45))
 			elif bone_name.ends_with("Foot"):
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 1, 0))
-				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(180))
+				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(30))
 			elif bone_name.ends_with("Toes"):
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
