@@ -53,7 +53,7 @@ public:
 	virtual ~IKRay3D() {}
 	IKRay3D(Vector3 p_point_one, Vector3 p_point_two);
 	virtual Vector3 heading();
-	virtual void set_heading(Vector3 &p_new_head);
+	virtual void set_heading(const Vector3 &p_new_head);
 
 	/**
 	 * Returns the scalar projection of the input vector on this
@@ -79,7 +79,7 @@ public:
 	 *
 	 * @param p_input a vector to project onto this ray
 	 */
-	virtual real_t scaled_projection(const Vector3 &p_input);
+	virtual real_t scaled_projection(const Vector3 p_input);
 
 	/**
 	 * adds the specified length to the ray in both directions.
@@ -110,15 +110,15 @@ public:
 	 *
 	 * @return number of intersections found;
 	 */
-	virtual int intersects_sphere(Vector3 p_sphere_center, real_t p_radius, Vector3 &r_first_intersection, Vector3 &r_second_intersection);
+	virtual int intersects_sphere(Vector3 p_sphere_center, real_t p_radius, Vector3 *r_first_intersection, Vector3 *r_second_intersection);
 	virtual void p1(Vector3 p_point);
 	virtual void p2(Vector3 p_point);
 	virtual Vector3 p2();
 	virtual Vector3 p1();
-	virtual int intersects_sphere(Vector3 p_rp1, Vector3 p_rp2, float p_radius, Vector3 &r_first_intersection, Vector3 &r_second_intersection);
+	virtual int intersects_sphere(Vector3 p_rp1, Vector3 p_rp2, float p_radius, Vector3 *r_first_intersection, Vector3 *r_second_intersection);
 	float triangle_area_2d(float p_x1, float p_y1, float p_x2, float p_y2, float p_x3, float p_y3);
-	void barycentric(Vector3 p_a, Vector3 p_b, Vector3 p_c, Vector3 p_p, Vector3 &r_uvw);
-	virtual Vector3 plane_intersect_test(Vector3 p_vertex_a, Vector3 p_vertex_b, Vector3 p_vertex_c, Vector3 &uvw);
+	void barycentric(Vector3 p_a, Vector3 p_b, Vector3 p_c, Vector3 p_p, Vector3 *r_uvw);
+	virtual Vector3 plane_intersect_test(Vector3 p_vertex_a, Vector3 p_vertex_b, Vector3 p_vertex_c, Vector3 *uvw);
 	operator String() const {
 		return String(L"(") + this->point_1.x + L" ->  " + this->point_2.x + L") \n " + L"(" + this->point_1.y + L" ->  " + this->point_2.y + L") \n " + L"(" + this->point_1.z + L" ->  " + this->point_2.z + L") \n ";
 	}

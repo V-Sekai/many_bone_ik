@@ -106,7 +106,7 @@ void IKLimitCone::update_tangent_handles(Ref<IKLimitCone> p_next) {
 		Vector3 sphereIntersect1;
 		Vector3 sphereIntersect2;
 		Vector3 sphereCenter;
-		intersectionRay->intersects_sphere(sphereCenter, 1.0f, sphereIntersect1, sphereIntersect2);
+		intersectionRay->intersects_sphere(sphereCenter, 1.0f, &sphereIntersect1, &sphereIntersect2);
 
 		this->set_tangent_circle_center_next_1(sphereIntersect1);
 		this->set_tangent_circle_center_next_2(sphereIntersect2);
