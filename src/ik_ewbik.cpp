@@ -414,11 +414,11 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(p_value, twist_from.y));
+			set_kusudama_twist(index, Vector2(IKKusudama::_to_tau(p_value), IKKusudama::_to_tau(twist_from.y)));
 			return true;
 		} else if (what == "twist_range") {
 			Vector2 twist_range = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(twist_range.x, IKKusudama::_to_tau(p_value)));
+			set_kusudama_twist(index, Vector2(IKKusudama::_to_tau(twist_range.x), IKKusudama::_to_tau(p_value)));
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
@@ -496,7 +496,7 @@ void NBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off, Automatic Unlock, Lock"), "set_edit_constraint_mode", "get_edit_constraint_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off, Edit Automatic Unlock, Lock"), "set_edit_constraint_mode", "get_edit_constraint_mode");
 }
 
 NBoneIK::NBoneIK() {

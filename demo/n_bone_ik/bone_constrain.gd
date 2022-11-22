@@ -70,9 +70,8 @@ func _run():
 				continue
 			if bone_name.ends_with("LowerArm"):
 				continue
-			if false:
-				if bone_name.ends_with("UpperLeg"):
-					continue
+			if bone_name.ends_with("UpperLeg"):
+				continue
 			if bone_name.ends_with("LowerLeg"):
 				continue
 			if bone_name.ends_with("Spine"):
