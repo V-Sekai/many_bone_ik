@@ -58,26 +58,27 @@ func _run():
 				continue
 			if bone_name.ends_with("Intermediate"):
 				continue
-#			if bone_name.ends_with("Toes"):
-#				continue
-#			if bone_name.ends_with("UpperChest"):
-#				continue
-#			if bone_name.ends_with("UpperArm"):
-#				continue
-#			if bone_name.ends_with("LowerArm"):
-#				continue
-#			if bone_name.ends_with("UpperLeg"):
-#				continue
-#			if bone_name.ends_with("LowerLeg"):
-#				continue
-#			if bone_name.ends_with("Chest"):
-#				continue
-#			if bone_name.ends_with("Spine"):
-#				continue
-#			if bone_name.ends_with("Neck"):
-#				continue
-#			if bone_name.ends_with("Shoulder"):
-#				continue
+			if bone_name.ends_with("Chest"):
+				continue
+			if bone_name.ends_with("UpperChest"):
+				continue
+			if bone_name.ends_with("Neck"):
+				continue
+			if bone_name.ends_with("Shoulder"):
+				continue
+			if bone_name.ends_with("UpperArm"):
+				continue
+			if bone_name.ends_with("LowerArm"):
+				continue
+			if false:
+				if bone_name.ends_with("UpperLeg"):
+					continue
+				if bone_name.ends_with("LowerLeg"):
+					continue
+				if bone_name.ends_with("Spine"):
+					continue
+				if bone_name.ends_with("Toes"):
+					continue
 			pins.push_back(bone_name)
 		for pin in pins:
 			var node = root.find_child(pin)
@@ -176,9 +177,9 @@ func _run():
 			elif bone_name.ends_with("LeftLowerArm"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(250), deg_to_rad(20)))
 			elif bone_name.ends_with("RightHand"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(78.6), deg_to_rad(5)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(281), deg_to_rad(5)))
 			elif bone_name.ends_with("LeftHand"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(twist_min, deg_to_rad(5)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(78.6), deg_to_rad(5)))
 			# LEGS ---------
 			elif bone_name.ends_with("LeftUpperLeg"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(207.6), deg_to_rad(30)))
