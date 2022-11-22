@@ -1,477 +1,968 @@
-[gd_scene load_steps=4 format=3 uid="uid://xpbjgwnn3042"]
+[gd_scene load_steps=2 format=3 uid="uid://xpbjgwnn3042"]
 
-[ext_resource type="PackedScene" uid="uid://cafufvqxihty2" path="res://n_bone_ik/art/vroid/HairSample_Male.vrm" id="1_hl6tg"]
-[ext_resource type="Animation" uid="uid://b6leacbfnw503" path="res://new_animation.tres" id="2_kx5ng"]
+[ext_resource type="PackedScene" uid="uid://c4m3727uxaxiv" path="res://n_bone_ik/art/vroid/HairSample_Male.vrm" id="1_hl6tg"]
 
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_hlhxw"]
-_data = {
-"anim": ExtResource("2_kx5ng")
-}
+[node name="Node3D" type="Node3D"]
 
-[node name="HairSample_Male" instance=ExtResource("1_hl6tg")]
+[node name="HairSample_Male" parent="." instance=ExtResource("1_hl6tg")]
 
-[node name="GeneralSkeleton" parent="." index="0"]
-bones/0/position = Vector3(-0.00190577, -0.0144654, 0.00507917)
-bones/0/rotation = Quaternion(-0.0057289, -0.518632, 0.00662743, 0.854952)
-bones/0/scale = Vector3(1, 1, 1)
-bones/1/position = Vector3(0.000512059, 1.00833, -0.0101616)
-bones/1/rotation = Quaternion(0.0519758, 0.515663, -0.0291635, 0.854716)
+[node name="GeneralSkeleton" parent="HairSample_Male" index="0"]
+bones/0/rotation = Quaternion(4.96839e-05, 0.0984465, -0.00099217, 0.995142)
+bones/1/position = Vector3(-0.00050543, 1.00632, 0.0101528)
+bones/1/rotation = Quaternion(-0.0620566, 2.90313e-05, -0.000219833, 0.998073)
 bones/1/scale = Vector3(1, 1, 1)
-bones/2/position = Vector3(-2.0396e-07, 0.140518, -0.000737563)
-bones/2/rotation = Quaternion(-0.0462216, 0.0636391, -0.00801154, 0.99687)
+bones/2/position = Vector3(-1.74856e-07, 0.140589, 0.000745982)
+bones/2/rotation = Quaternion(0.046446, -0.0435171, -0.00311355, 0.997968)
 bones/2/scale = Vector3(1, 1, 1)
-bones/3/position = Vector3(4.8778e-08, 0.0790241, 0.00442005)
-bones/3/rotation = Quaternion(0.000853696, -0.0764092, -0.0271868, 0.996705)
+bones/3/position = Vector3(-1.42842e-07, 0.0791109, -0.00441557)
+bones/3/rotation = Quaternion(0.00925507, -0.0435267, -0.00287479, 0.999005)
 bones/3/scale = Vector3(1, 1, 1)
-bones/4/position = Vector3(8.9407e-08, 0.0773659, 0.00399541)
-bones/4/rotation = Quaternion(-0.0353979, 0.979744, -0.025722, -0.195417)
+bones/4/position = Vector3(2.99886e-07, 0.0770777, -0.00399461)
+bones/4/rotation = Quaternion(-0.00444444, -0.0214671, 0.0102535, 0.999707)
 bones/4/scale = Vector3(1, 1, 1)
-bones/13/position = Vector3(7.45058e-09, 0.151207, 0.0106692)
-bones/13/rotation = Quaternion(5.96047e-08, 2.13087e-06, -9.31336e-09, 1)
+bones/13/position = Vector3(-3.74392e-07, 0.151155, -0.0106658)
+bones/13/rotation = Quaternion(0.0922692, 0.00827719, -0.00857008, 0.995663)
 bones/13/scale = Vector3(1, 1, 1)
-bones/14/position = Vector3(-8.56817e-08, 0.089061, -0.0144517)
-bones/14/rotation = Quaternion(2.88711e-08, -4.54486e-06, -1.9092e-08, 1)
-bones/14/scale = Vector3(1, 1, 1)
-bones/33/position = Vector3(-0.0246267, 0.120889, 0.00517467)
-bones/33/rotation = Quaternion(0.225424, -0.461492, 0.655137, 0.55408)
-bones/33/scale = Vector3(0.999999, 1, 1)
-bones/34/position = Vector3(-0.00690848, -0.123165, -0.021425)
-bones/34/rotation = Quaternion(0.00917, 0.94909, -0.0610861, -0.308891)
-bones/34/scale = Vector3(1, 1, 1)
-bones/35/position = Vector3(0.00155222, -0.219567, 0.0101571)
-bones/35/rotation = Quaternion(-0.121913, -0.690108, -0.0865491, 0.708094)
-bones/35/scale = Vector3(1, 1, 1)
-bones/36/position = Vector3(0.000628471, -0.248119, -0.0205852)
-bones/36/rotation = Quaternion(0.669488, 0.151509, 0.711251, 0.151504)
-bones/36/scale = Vector3(1, 1, 1)
-bones/57/position = Vector3(0.0246267, 0.120912, 0.00517481)
-bones/57/rotation = Quaternion(0.63122, 0.705355, 0.30229, -0.112504)
+bones/14/position = Vector3(3.95812e-08, 0.0890633, 0.0144427)
+bones/14/rotation = Quaternion(-0.0814713, 0.00105195, 0.000112705, 0.996675)
+bones/14/scale = Vector3(0.999999, 1, 0.999999)
+bones/33/position = Vector3(0.0246226, 0.120892, -0.00517328)
+bones/33/rotation = Quaternion(-0.410871, -0.318449, -0.650941, 0.553219)
+bones/33/scale = Vector3(1, 1, 1)
+bones/34/position = Vector3(0.00689793, 0.123163, -0.0214626)
+bones/34/rotation = Quaternion(0.0206312, 0.921349, 0.0788134, 0.380103)
+bones/34/scale = Vector3(1, 0.999999, 1)
+bones/35/position = Vector3(-0.00154886, 0.219575, 0.0101451)
+bones/35/rotation = Quaternion(0.0104428, -0.818069, 0.0415592, 0.573522)
+bones/35/scale = Vector3(1, 0.999999, 0.999999)
+bones/36/position = Vector3(0.00061667, 0.24812, 0.020584)
+bones/36/rotation = Quaternion(-0.0146126, 0.999857, -0.00834086, -0.00152587)
+bones/36/scale = Vector3(1, 0.999998, 0.999999)
+bones/37/position = Vector3(-0.0238488, 0.070272, -0.00541556)
+bones/37/rotation = Quaternion(0.00880159, -0.436086, 0.0641511, 0.897573)
+bones/37/scale = Vector3(0.999999, 0.999998, 1)
+bones/38/position = Vector3(-0.00568686, 0.0361087, 0.000266314)
+bones/38/rotation = Quaternion(0.0153786, -0.00108471, -0.0218313, 0.999643)
+bones/38/scale = Vector3(1, 0.999998, 1.00001)
+bones/39/position = Vector3(-0.00252334, 0.0223413, 0.000766635)
+bones/39/rotation = Quaternion(0.00277296, -0.000290302, -0.0101605, 0.999945)
+bones/39/scale = Vector3(1, 0.999998, 1.00002)
+bones/40/position = Vector3(-0.00244952, 0.026522, 0.00107241)
+bones/40/rotation = Quaternion(-0.0193637, 3.82606e-05, -0.0458952, 0.998759)
+bones/40/scale = Vector3(0.999998, 0.999994, 1.00004)
+bones/41/position = Vector3(0.0292741, 0.0696017, -0.00475836)
+bones/41/rotation = Quaternion(0.0482713, -0.433958, -0.00407092, 0.89963)
+bones/41/scale = Vector3(0.999999, 0.999998, 1)
+bones/42/position = Vector3(-3.59211e-05, 0.0347282, 0.00022614)
+bones/42/rotation = Quaternion(-0.0264978, -0.000252502, -0.0247961, 0.999341)
+bones/42/scale = Vector3(1, 0.999998, 1.00001)
+bones/43/position = Vector3(0.00100039, 0.0198593, -0.000849605)
+bones/43/rotation = Quaternion(-0.0104043, -0.000480045, 0.0127247, 0.999865)
+bones/43/scale = Vector3(1, 0.999998, 1.00002)
+bones/44/position = Vector3(0.000535684, 0.0212959, -0.00103688)
+bones/44/rotation = Quaternion(0.0299367, 1.92376e-05, 0.0128293, 0.999469)
+bones/44/scale = Vector3(0.999998, 0.999994, 1.00004)
+bones/45/position = Vector3(-0.00565898, 0.0726972, -0.00920576)
+bones/45/rotation = Quaternion(0.0431265, -0.43514, 0.029683, 0.89884)
+bones/45/scale = Vector3(0.999999, 0.999998, 1)
+bones/46/position = Vector3(-0.00266148, 0.0405886, 0.00147212)
+bones/46/rotation = Quaternion(0.0346858, -0.00129582, -0.012924, 0.999314)
+bones/46/scale = Vector3(1, 0.999998, 1.00001)
+bones/47/position = Vector3(-0.000967273, 0.0249525, 0.00263608)
+bones/47/rotation = Quaternion(-0.0201126, 0.000275092, -0.00199018, 0.999796)
+bones/47/scale = Vector3(1, 0.999998, 1.00002)
+bones/48/position = Vector3(-0.000946406, 0.0274684, 0.00176167)
+bones/48/rotation = Quaternion(-0.0316281, -1.26072e-07, -0.0169552, 0.999356)
+bones/48/scale = Vector3(0.999998, 0.999994, 1.00004)
+bones/49/position = Vector3(0.0116545, 0.0733287, -0.00979489)
+bones/49/rotation = Quaternion(0.0485002, -0.434047, -0.00155306, 0.899582)
+bones/49/scale = Vector3(0.999999, 0.999998, 1)
+bones/50/position = Vector3(-0.00019405, 0.0377703, 0.000442028)
+bones/50/rotation = Quaternion(-0.0261643, 6.57176e-05, 0.00524706, 0.999644)
+bones/50/scale = Vector3(1, 0.999998, 1.00001)
+bones/51/position = Vector3(-0.000312701, 0.0217643, -0.000840545)
+bones/51/rotation = Quaternion(0.00921499, 0.000113881, -0.00972635, 0.99991)
+bones/51/scale = Vector3(1, 0.999998, 1.00002)
+bones/52/position = Vector3(0.000130881, 0.0235003, -0.000417471)
+bones/52/rotation = Quaternion(0.00867635, 2.95967e-06, 0.00307291, 0.999958)
+bones/52/scale = Vector3(0.999998, 0.999993, 1.00004)
+bones/53/position = Vector3(-0.0191957, 0.0022397, 0.00834072)
+bones/53/rotation = Quaternion(-0.0999848, -0.418288, 0.351101, 0.831725)
+bones/53/scale = Vector3(0.999999, 0.999998, 1)
+bones/54/position = Vector3(-0.0368862, 0.0353732, 0.0029341)
+bones/54/rotation = Quaternion(0.0177932, 0.713957, -0.0237, 0.699562)
+bones/54/scale = Vector3(1.00001, 0.999999, 0.999999)
+bones/55/position = Vector3(-0.00161684, 0.0312485, -0.00368786)
+bones/55/rotation = Quaternion(0.0563618, 3.56485e-05, -0.0244106, 0.998112)
+bones/55/scale = Vector3(1.00002, 0.999999, 0.999999)
+bones/56/position = Vector3(5.96046e-06, 0.023842, -2.08616e-07)
+bones/56/rotation = Quaternion(-0.000979175, 9.45992e-07, 0.000606415, 0.999999)
+bones/56/scale = Vector3(1.00004, 0.999996, 0.999995)
+bones/57/position = Vector3(-0.0246231, 0.120978, -0.00517346)
+bones/57/rotation = Quaternion(0.538417, -0.532643, -0.508656, -0.409472)
 bones/57/scale = Vector3(1, 1, 1)
-bones/58/position = Vector3(0.00685012, -0.123169, -0.0214847)
-bones/58/rotation = Quaternion(-0.0802226, -0.768538, 0.0252932, 0.634251)
+bones/58/position = Vector3(-0.00691499, 0.123166, -0.0213904)
+bones/58/rotation = Quaternion(0.0434459, 0.989465, 0.0650368, 0.121827)
 bones/58/scale = Vector3(1, 1, 1)
-bones/59/position = Vector3(-0.00154984, -0.219574, 0.010155)
-bones/59/rotation = Quaternion(0.0508355, 0.681602, -0.00546706, 0.729935)
-bones/59/scale = Vector3(1, 1, 1)
-bones/60/position = Vector3(-0.000614882, -0.248117, -0.0205908)
-bones/60/rotation = Quaternion(-0.66951, 0.151506, 0.71123, -0.151505)
-bones/60/scale = Vector3(0.999999, 1, 1)
-bones/81/position = Vector3(-0.0848469, -0.0439866, 0.00385141)
-bones/81/rotation = Quaternion(0.054928, 0.0506633, 0.997188, 0.00569151)
+bones/59/position = Vector3(0.00155025, 0.219582, 0.0101826)
+bones/59/rotation = Quaternion(0.0042638, 0.62122, -0.0378209, 0.782712)
+bones/59/scale = Vector3(1, 0.999999, 0.999999)
+bones/60/position = Vector3(-0.000588179, 0.248121, 0.0205832)
+bones/60/rotation = Quaternion(0.0429687, 0.623942, -0.149079, 0.765915)
+bones/60/scale = Vector3(0.999999, 0.999999, 1)
+bones/61/position = Vector3(0.0238529, 0.0702766, -0.00540715)
+bones/61/rotation = Quaternion(-0.113762, 0.947035, -0.162109, -0.252792)
+bones/61/scale = Vector3(0.999999, 0.999999, 1)
+bones/62/position = Vector3(0.0056861, 0.0361004, 0.000172138)
+bones/62/rotation = Quaternion(0.0124508, 0.00139137, 0.0246497, 0.999618)
+bones/62/scale = Vector3(1, 1, 1.00001)
+bones/63/position = Vector3(0.00252298, 0.0223489, 0.000800371)
+bones/63/rotation = Quaternion(0.00192494, 0.000343291, 0.0109898, 0.999938)
+bones/63/scale = Vector3(1, 1, 1.00002)
+bones/64/position = Vector3(0.00245085, 0.0265188, 0.00107467)
+bones/64/rotation = Quaternion(-0.0210014, 6.13249e-06, 0.0475356, 0.998649)
+bones/64/scale = Vector3(0.999999, 0.999997, 1.00004)
+bones/65/position = Vector3(-0.0292726, 0.0696114, -0.0047639)
+bones/65/rotation = Quaternion(-0.02643, 0.953952, -0.180718, -0.237946)
+bones/65/scale = Vector3(0.999999, 0.999999, 1)
+bones/66/position = Vector3(3.63439e-05, 0.0345471, 0.000195742)
+bones/66/rotation = Quaternion(-0.0240481, 0.0003281, 0.0209408, 0.999491)
+bones/66/scale = Vector3(1, 1, 1.00001)
+bones/67/position = Vector3(-0.00100034, 0.019864, -0.000857353)
+bones/67/rotation = Quaternion(-0.00966153, 0.000563167, -0.0139113, 0.999856)
+bones/67/scale = Vector3(1, 1, 1.00002)
+bones/68/position = Vector3(-0.000535883, 0.0212947, -0.00132418)
+bones/68/rotation = Quaternion(0.0310551, -6.00083e-05, -0.01453, 0.999412)
+bones/68/scale = Vector3(1, 0.999997, 1.00004)
+bones/69/position = Vector3(0.0056622, 0.0727096, -0.00921404)
+bones/69/rotation = Quaternion(-0.0700385, 0.949074, -0.185736, -0.244655)
+bones/69/scale = Vector3(0.999999, 0.999999, 1)
+bones/70/position = Vector3(0.00266069, 0.0406008, 0.00148344)
+bones/70/rotation = Quaternion(0.033892, 0.0014424, 0.0142302, 0.999323)
+bones/70/scale = Vector3(1, 1, 1.00001)
+bones/71/position = Vector3(0.000967057, 0.0249563, 0.00262952)
+bones/71/rotation = Quaternion(-0.0204008, -0.000308122, 0.00239382, 0.999789)
+bones/71/scale = Vector3(1, 1, 1.00002)
+bones/72/position = Vector3(0.00094608, 0.0274598, 0.00177181)
+bones/72/rotation = Quaternion(-0.0320504, -1.25094e-05, 0.0175953, 0.999331)
+bones/72/scale = Vector3(1, 0.999997, 1.00004)
+bones/73/position = Vector3(-0.0116452, 0.0733424, -0.00979799)
+bones/73/rotation = Quaternion(-0.0338658, 0.95313, -0.182337, -0.239061)
+bones/73/scale = Vector3(0.999999, 0.999999, 1)
+bones/74/position = Vector3(0.000194192, 0.0377651, 0.000494361)
+bones/74/rotation = Quaternion(-0.0249656, 2.06009e-05, -0.00640093, 0.999668)
+bones/74/scale = Vector3(1, 1, 1.00001)
+bones/75/position = Vector3(0.000312507, 0.0217742, -0.00082624)
+bones/75/rotation = Quaternion(0.00961849, -0.000142248, 0.0094038, 0.99991)
+bones/75/scale = Vector3(1, 1, 1.00002)
+bones/76/position = Vector3(-0.000130728, 0.0234905, -0.000444293)
+bones/76/rotation = Quaternion(0.00925058, -5.62077e-06, -0.00358326, 0.999951)
+bones/76/scale = Vector3(1, 0.999997, 1.00004)
+bones/77/position = Vector3(0.0192096, 0.00224876, 0.00834274)
+bones/77/rotation = Quaternion(-0.40257, 0.863681, -0.101149, -0.285941)
+bones/77/scale = Vector3(0.999999, 0.999999, 1)
+bones/78/position = Vector3(0.0368967, 0.0353604, 0.00309253)
+bones/78/rotation = Quaternion(0.0177341, -0.712101, 0.0223999, 0.701495)
+bones/78/scale = Vector3(1.00001, 1, 1)
+bones/79/position = Vector3(0.00159752, 0.0312502, -0.00369102)
+bones/79/rotation = Quaternion(0.0567271, 0.000188999, 0.0257746, 0.998057)
+bones/79/scale = Vector3(1.00002, 1, 1)
+bones/80/position = Vector3(-9.17912e-06, 0.0238357, -5.24521e-06)
+bones/80/rotation = Quaternion(-0.000670166, -1.57897e-06, 0.00066355, 1)
+bones/80/scale = Vector3(1.00004, 0.999997, 1)
+bones/81/position = Vector3(0.0848662, -0.044005, -0.00385888)
+bones/81/rotation = Quaternion(-0.114217, 0.0345854, 0.992826, 0.0074171)
 bones/81/scale = Vector3(1, 1, 1)
-bones/82/position = Vector3(-0.0222959, 0.387495, 0.00695907)
-bones/82/rotation = Quaternion(0.0107302, 0.998822, 0.0338697, -0.0330617)
+bones/82/position = Vector3(0.022288, 0.38736, -0.00695619)
+bones/82/rotation = Quaternion(0.0197351, 0.946558, -0.3217, 0.0121564)
 bones/82/scale = Vector3(1, 1, 1)
-bones/83/position = Vector3(0.0129716, 0.455541, -0.0314341)
-bones/83/rotation = Quaternion(-0.00901856, 0.922202, -0.386556, -0.00602183)
+bones/83/position = Vector3(-0.0129719, 0.455627, 0.0314403)
+bones/83/rotation = Quaternion(0.191629, 0.509957, 0.828795, -0.127753)
 bones/83/scale = Vector3(1, 1, 1)
-bones/84/position = Vector3(0.00139755, -0.136344, -0.0768658)
-bones/84/rotation = Quaternion(-0.0151311, 0.9219, 0.387132, 2.12626e-06)
-bones/84/scale = Vector3(1, 1, 1)
-bones/86/position = Vector3(0.0848471, -0.0439832, 0.00385208)
-bones/86/rotation = Quaternion(-0.120403, 0.0515953, 0.991381, 0.00198999)
+bones/84/position = Vector3(-0.00139736, 0.136323, -0.0768529)
+bones/84/rotation = Quaternion(0.0801872, 0.773575, -0.599485, -0.189129)
+bones/84/scale = Vector3(1, 1, 0.999999)
+bones/86/position = Vector3(-0.0848709, -0.043998, -0.00384906)
+bones/86/rotation = Quaternion(0.560498, -0.0400424, 0.826744, 0.0270706)
 bones/86/scale = Vector3(1, 1, 1)
-bones/87/position = Vector3(0.0222949, 0.387445, 0.00695839)
-bones/87/rotation = Quaternion(-0.0131124, 0.994031, 0.0362688, 0.102051)
-bones/87/scale = Vector3(1, 1, 1)
-bones/88/position = Vector3(-0.0129778, 0.45571, -0.0314465)
-bones/88/rotation = Quaternion(0.00902135, 0.922197, -0.386569, 0.00602938)
+bones/87/position = Vector3(-0.022294, 0.387396, -0.006956)
+bones/87/rotation = Quaternion(-0.0226723, 0.965021, -0.25603, -0.051657)
+bones/88/position = Vector3(0.0129739, 0.455614, 0.0314381)
+bones/88/rotation = Quaternion(0.225538, 0.54808, 0.80305, 0.0620693)
 bones/88/scale = Vector3(1, 1, 1)
-bones/89/position = Vector3(-0.00139686, -0.136312, -0.0768471)
-bones/89/rotation = Quaternion(0.015109, 0.921899, 0.387137, 3.00137e-06)
-bones/89/scale = Vector3(1, 1, 1)
+bones/89/position = Vector3(0.00139716, 0.136319, -0.0768538)
+bones/89/rotation = Quaternion(0.104389, 0.801249, -0.588641, -0.0245903)
+bones/89/scale = Vector3(1, 1, 0.999999)
 
-[node name="NBoneIK" type="NBoneIK" parent="GeneralSkeleton" index="3"]
+[node name="J_Sec_C_Hood" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000508842, 1.46551, -0.0909787)
+
+[node name="J_Sec_C_Hood_end" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000508828, 1.37999, -0.107542)
+
+[node name="J_Sec_L_HoodString1" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0371125, 1.43823, 0.0841725)
+
+[node name="J_Sec_L_HoodString2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0434711, 1.32037, 0.119735)
+
+[node name="J_Sec_L_HoodString2_end" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0478877, 1.19503, 0.144126)
+
+[node name="J_Sec_R_HoodString1" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0381302, 1.43823, 0.0841725)
+
+[node name="J_Sec_R_HoodString2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="9"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0444887, 1.32037, 0.119735)
+
+[node name="J_Sec_R_HoodString2_end" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="10"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0489053, 1.19503, 0.144126)
+
+[node name="LeftEye" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="11"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.0220992, 1.60795, 0.037074)
+
+[node name="RightEye" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="12"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.0231168, 1.60795, 0.037074)
+
+[node name="HairJoint-82c4c5e8-c368-4b6e-a504-480e4f60cb69" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="13"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0018691, 1.66631, 0.120334)
+
+[node name="HairJoint-6913a169-83d6-4677-bef5-9153b9d344b0" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="14"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000406175, 1.5931, 0.127063)
+
+[node name="HairJoint-bc61f9e8-5a12-490f-91d8-adc307a33d51" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="15"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0968546, 1.65819, 0.0391594)
+
+[node name="HairJoint-8f43ae4e-2d2a-4f61-a26c-6397e3169d38" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="16"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.111208, 1.58729, 0.0157973)
+
+[node name="HairJoint-49aba0e8-6a83-47ea-9815-8f6a5c5011f4" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="17"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0927879, 1.65452, 0.0388117)
+
+[node name="HairJoint-339a9df3-f3b7-4ac0-a2ac-4beee1db40bc" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="18"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.10737, 1.58166, 0.00859433)
+
+[node name="HairJoint-d0ad1cb1-a563-4a34-9909-75e7e2d389d4" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="19"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00036124, 1.7726, 0.0151621)
+
+[node name="HairJoint-a39a88ff-cc9b-490a-8c17-af03ede48e69" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="20"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0622692, 1.79828, 0.057576)
+
+[node name="HairJoint-ae3025ea-7a15-4b14-b090-b06fd78b1f63" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="21"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00423879, 1.73401, -0.099444)
+
+[node name="HairJoint-167fcdf0-79dc-43c6-8e43-5e998fa080f7" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="22"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00316915, 1.70376, -0.133907)
+
+[node name="HairJoint-6813f7c8-fd84-41ff-8372-ac83eaf2910c" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="23"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00449538, 1.62883, -0.0872377)
+
+[node name="HairJoint-1e5424e1-c68a-4f59-8efe-3c358d085041" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="24"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0062106, 1.56713, -0.0908974)
+
+[node name="HairJoint-e61a81b6-23bf-408c-b807-2ba06ec8435e" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="25"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0849094, 1.61427, 0.0347985)
+
+[node name="HairJoint-df0106a2-645a-4bf7-89e5-4d5b46ceadf8" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="26"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.079201, 1.57861, 0.027334)
+
+[node name="HairJoint-b527190d-90df-4e57-9a86-3b3808e32454" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="27"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0879116, 1.62494, 0.0372214)
+
+[node name="HairJoint-4f7293a0-9c06-4bdc-952a-52532b800cae" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="28"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0800794, 1.57861, 0.0273334)
+
+[node name="J_Bip_L_ToeBase_end" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="29"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.050903, 0.0409291, 0.160319)
+
+[node name="J_Bip_R_ToeBase_end" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="30"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.051918, 0.040929, 0.160319)
+
+[node name="NBoneIK" type="NBoneIK" parent="HairSample_Male/GeneralSkeleton" index="31"]
 root_bone = &"Root"
 constraint_count = 23
 constraints/0/bone_name = &"Root"
-constraints/0/twist_from = 3.14159
-constraints/0/twist_range = 6.28318
-constraints/0/twist_current = 0.326448
+constraints/0/twist_from = 6.48041
+constraints/0/twist_range = 0.58294
+constraints/0/twist_current = 0.0
 constraints/0/kusudama_limit_cone_count = 0
 constraints/1/bone_name = &"Hips"
-constraints/1/twist_from = 3.14159
-constraints/1/twist_range = 6.28318
-constraints/1/twist_current = 0.672768
+constraints/1/twist_from = 5.93586
+constraints/1/twist_range = 0.436332
+constraints/1/twist_current = 0.796
 constraints/1/kusudama_limit_cone_count = 1
 constraints/1/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/1/kusudama_limit_cone/0/radius = 0.0174533
 constraints/2/bone_name = &"Spine"
-constraints/2/twist_from = 3.14159
-constraints/2/twist_range = 6.28318
-constraints/2/twist_current = 0.520422
+constraints/2/twist_from = 6.19592
+constraints/2/twist_range = 0.523599
+constraints/2/twist_current = 0.0
 constraints/2/kusudama_limit_cone_count = 1
 constraints/2/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/2/kusudama_limit_cone/0/radius = 0.0174533
 constraints/3/bone_name = &"Chest"
-constraints/3/twist_from = 3.14159
-constraints/3/twist_range = 6.28318
-constraints/3/twist_current = 0.476145
+constraints/3/twist_from = 6.19592
+constraints/3/twist_range = 0.523599
+constraints/3/twist_current = 0.0
 constraints/3/kusudama_limit_cone_count = 1
 constraints/3/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/3/kusudama_limit_cone/0/radius = 0.0872665
 constraints/4/bone_name = &"UpperChest"
-constraints/4/twist_from = 3.14159
-constraints/4/twist_range = 6.28318
-constraints/4/twist_current = 0.0626771
+constraints/4/twist_from = 6.19592
+constraints/4/twist_range = 0.523599
+constraints/4/twist_current = 0.0868241
 constraints/4/kusudama_limit_cone_count = 1
 constraints/4/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/4/kusudama_limit_cone/0/radius = 0.0872665
 constraints/5/bone_name = &"Neck"
-constraints/5/twist_from = 3.14159
-constraints/5/twist_range = 6.28318
-constraints/5/twist_current = 0.499999
+constraints/5/twist_from = 6.21337
+constraints/5/twist_range = 0.0872665
+constraints/5/twist_current = 0.999998
 constraints/5/kusudama_limit_cone_count = 1
 constraints/5/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/5/kusudama_limit_cone/0/radius = 0.872665
 constraints/6/bone_name = &"Head"
-constraints/6/twist_from = 3.14159
-constraints/6/twist_range = 6.28318
-constraints/6/twist_current = 0.500005
+constraints/6/twist_from = 0.0
+constraints/6/twist_range = 0.0872665
+constraints/6/twist_current = 0.0
 constraints/6/kusudama_limit_cone_count = 1
 constraints/6/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/6/kusudama_limit_cone/0/radius = 0.174533
 constraints/7/bone_name = &"LeftShoulder"
-constraints/7/twist_from = 3.14159
-constraints/7/twist_range = 6.28318
-constraints/7/twist_current = 0.991087
+constraints/7/twist_from = 5.15047
+constraints/7/twist_range = 0.0872665
+constraints/7/twist_current = 0.0
 constraints/7/kusudama_limit_cone_count = 1
 constraints/7/kusudama_limit_cone/0/center = Vector3(1, 0, 0)
-constraints/7/kusudama_limit_cone/0/radius = 0.523599
+constraints/7/kusudama_limit_cone/0/radius = 0.392699
 constraints/8/bone_name = &"LeftUpperArm"
-constraints/8/twist_from = 3.14159
-constraints/8/twist_range = 6.28318
-constraints/8/twist_current = 0.950538
+constraints/8/twist_from = 1.65806
+constraints/8/twist_range = 0.698132
+constraints/8/twist_current = 1.0
 constraints/8/kusudama_limit_cone_count = 1
 constraints/8/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/8/kusudama_limit_cone/0/radius = 0.0174533
 constraints/9/bone_name = &"LeftLowerArm"
-constraints/9/twist_from = 3.14159
-constraints/9/twist_range = 6.28318
-constraints/9/twist_current = 0.805518
+constraints/9/twist_from = 4.36332
+constraints/9/twist_range = 0.349066
+constraints/9/twist_current = 0.0
 constraints/9/kusudama_limit_cone_count = 3
 constraints/9/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/9/kusudama_limit_cone/0/radius = 0.0174533
 constraints/9/kusudama_limit_cone/1/center = Vector3(-1, 0, 0)
-constraints/9/kusudama_limit_cone/1/radius = 0.0174533
+constraints/9/kusudama_limit_cone/1/radius = 0.349066
 constraints/9/kusudama_limit_cone/2/center = Vector3(0, -1, 0)
-constraints/9/kusudama_limit_cone/2/radius = 0.0174533
+constraints/9/kusudama_limit_cone/2/radius = 0.174533
 constraints/10/bone_name = &"LeftHand"
 constraints/10/twist_from = 3.14159
-constraints/10/twist_range = 6.28318
-constraints/10/twist_current = 0.750002
+constraints/10/twist_range = 0.0872665
+constraints/10/twist_current = 0.0
 constraints/10/kusudama_limit_cone_count = 1
 constraints/10/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/10/kusudama_limit_cone/0/radius = 0.349066
 constraints/11/bone_name = &"RightShoulder"
-constraints/11/twist_from = 3.14159
-constraints/11/twist_range = 6.28318
-constraints/11/twist_current = 0.422196
+constraints/11/twist_from = 1.79769
+constraints/11/twist_range = 0.0872665
+constraints/11/twist_current = 0.0
 constraints/11/kusudama_limit_cone_count = 1
 constraints/11/kusudama_limit_cone/0/center = Vector3(-1, 0, 0)
-constraints/11/kusudama_limit_cone/0/radius = 0.523599
+constraints/11/kusudama_limit_cone/0/radius = 0.392699
 constraints/12/bone_name = &"RightUpperArm"
-constraints/12/twist_from = 3.14159
-constraints/12/twist_range = 6.28318
-constraints/12/twist_current = 0.728894
+constraints/12/twist_from = 2.35969
+constraints/12/twist_range = 0.698132
+constraints/12/twist_current = 0.765517
 constraints/12/kusudama_limit_cone_count = 1
 constraints/12/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/12/kusudama_limit_cone/0/radius = 0.0174533
 constraints/13/bone_name = &"RightLowerArm"
-constraints/13/twist_from = 3.14159
-constraints/13/twist_range = 6.28318
-constraints/13/twist_current = 0.203547
+constraints/13/twist_from = 1.3439
+constraints/13/twist_range = 0.349066
+constraints/13/twist_current = 0.0
 constraints/13/kusudama_limit_cone_count = 3
 constraints/13/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/13/kusudama_limit_cone/0/radius = 0.0174533
 constraints/13/kusudama_limit_cone/1/center = Vector3(1, 0, 0)
-constraints/13/kusudama_limit_cone/1/radius = 0.0174533
+constraints/13/kusudama_limit_cone/1/radius = 0.349066
 constraints/13/kusudama_limit_cone/2/center = Vector3(0, -1, 0)
-constraints/13/kusudama_limit_cone/2/radius = 0.0174533
+constraints/13/kusudama_limit_cone/2/radius = 0.174533
 constraints/14/bone_name = &"RightHand"
-constraints/14/twist_from = 3.14159
-constraints/14/twist_range = 6.28318
-constraints/14/twist_current = 0.25
+constraints/14/twist_from = 1.37183
+constraints/14/twist_range = 0.0872665
+constraints/14/twist_current = 72.0
 constraints/14/kusudama_limit_cone_count = 1
 constraints/14/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
 constraints/14/kusudama_limit_cone/0/radius = 0.349066
 constraints/15/bone_name = &"LeftUpperLeg"
-constraints/15/twist_from = 3.14159
-constraints/15/twist_range = 6.28318
-constraints/15/twist_current = 0.302362
+constraints/15/twist_from = 3.6233
+constraints/15/twist_range = 0.523599
+constraints/15/twist_current = 0.0
 constraints/15/kusudama_limit_cone_count = 1
 constraints/15/kusudama_limit_cone/0/center = Vector3(0, -1, 0)
-constraints/15/kusudama_limit_cone/0/radius = 0.872665
+constraints/15/kusudama_limit_cone/0/radius = 1.39626
 constraints/16/bone_name = &"LeftLowerLeg"
 constraints/16/twist_from = 3.14159
-constraints/16/twist_range = 6.28318
-constraints/16/twist_current = 0.0108436
+constraints/16/twist_range = 0.0872665
+constraints/16/twist_current = 72.0
 constraints/16/kusudama_limit_cone_count = 3
 constraints/16/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/16/kusudama_limit_cone/0/radius = 0.0174533
+constraints/16/kusudama_limit_cone/0/radius = 0.0872665
 constraints/16/kusudama_limit_cone/1/center = Vector3(0, 0, -1)
-constraints/16/kusudama_limit_cone/1/radius = 0.0174533
+constraints/16/kusudama_limit_cone/1/radius = 0.0872665
 constraints/16/kusudama_limit_cone/2/center = Vector3(0, -1, 0)
-constraints/16/kusudama_limit_cone/2/radius = 0.0174533
+constraints/16/kusudama_limit_cone/2/radius = 0.0872665
 constraints/17/bone_name = &"LeftFoot"
 constraints/17/twist_from = 3.14159
-constraints/17/twist_range = 6.28318
-constraints/17/twist_current = 0.000352476
+constraints/17/twist_range = 0.523599
+constraints/17/twist_current = 1.0
 constraints/17/kusudama_limit_cone_count = 2
-constraints/17/kusudama_limit_cone/0/center = Vector3(0, -1, 0)
-constraints/17/kusudama_limit_cone/0/radius = 0.349066
-constraints/17/kusudama_limit_cone/1/center = Vector3(0, 0, -1)
-constraints/17/kusudama_limit_cone/1/radius = 0.349066
+constraints/17/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
+constraints/17/kusudama_limit_cone/0/radius = 1.5708
+constraints/17/kusudama_limit_cone/1/center = Vector3(0, 1, 0)
+constraints/17/kusudama_limit_cone/1/radius = 0.174533
 constraints/18/bone_name = &"LeftToes"
 constraints/18/twist_from = 3.14159
-constraints/18/twist_range = 6.28318
-constraints/18/twist_current = 0.00409148
+constraints/18/twist_range = 0.523599
+constraints/18/twist_current = 1.0
 constraints/18/kusudama_limit_cone_count = 1
 constraints/18/kusudama_limit_cone/0/center = Vector3(0, 0, -1)
 constraints/18/kusudama_limit_cone/0/radius = 0.261799
 constraints/19/bone_name = &"RightUpperLeg"
-constraints/19/twist_from = 3.14159
-constraints/19/twist_range = 6.28318
-constraints/19/twist_current = 0.745269
+constraints/19/twist_from = 0.335103
+constraints/19/twist_range = 0.523599
+constraints/19/twist_current = 1.0
 constraints/19/kusudama_limit_cone_count = 1
 constraints/19/kusudama_limit_cone/0/center = Vector3(0, -1, 0)
-constraints/19/kusudama_limit_cone/0/radius = 0.872665
+constraints/19/kusudama_limit_cone/0/radius = 1.39626
 constraints/20/bone_name = &"RightLowerLeg"
 constraints/20/twist_from = 3.14159
-constraints/20/twist_range = 6.28318
-constraints/20/twist_current = 0.967115
+constraints/20/twist_range = 0.0872665
+constraints/20/twist_current = 1.00001
 constraints/20/kusudama_limit_cone_count = 3
 constraints/20/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
-constraints/20/kusudama_limit_cone/0/radius = 0.0174533
+constraints/20/kusudama_limit_cone/0/radius = 0.0872665
 constraints/20/kusudama_limit_cone/1/center = Vector3(0, 0, -1)
-constraints/20/kusudama_limit_cone/1/radius = 0.0174533
+constraints/20/kusudama_limit_cone/1/radius = 0.0872665
 constraints/20/kusudama_limit_cone/2/center = Vector3(0, -1, 0)
-constraints/20/kusudama_limit_cone/2/radius = 0.0174533
+constraints/20/kusudama_limit_cone/2/radius = 0.0872665
 constraints/21/bone_name = &"RightFoot"
 constraints/21/twist_from = 3.14159
-constraints/21/twist_range = 6.28318
-constraints/21/twist_current = 0.999657
+constraints/21/twist_range = 0.523599
+constraints/21/twist_current = 12.0
 constraints/21/kusudama_limit_cone_count = 2
-constraints/21/kusudama_limit_cone/0/center = Vector3(0, -1, 0)
-constraints/21/kusudama_limit_cone/0/radius = 0.349066
-constraints/21/kusudama_limit_cone/1/center = Vector3(0, 0, -1)
-constraints/21/kusudama_limit_cone/1/radius = 0.349066
+constraints/21/kusudama_limit_cone/0/center = Vector3(0, 1, 0)
+constraints/21/kusudama_limit_cone/0/radius = 1.5708
+constraints/21/kusudama_limit_cone/1/center = Vector3(0, 1, 0)
+constraints/21/kusudama_limit_cone/1/radius = 0.174533
 constraints/22/bone_name = &"RightToes"
 constraints/22/twist_from = 3.14159
-constraints/22/twist_range = 6.28318
-constraints/22/twist_current = 0.995919
+constraints/22/twist_range = 0.523599
+constraints/22/twist_current = 0.0
 constraints/22/kusudama_limit_cone_count = 1
 constraints/22/kusudama_limit_cone/0/center = Vector3(0, 0, -1)
 constraints/22/kusudama_limit_cone/0/radius = 0.261799
-pin_count = 23
+pin_count = 63
 pins/0/bone_name = "Root"
 pins/0/target_node = NodePath("../Root")
-pins/0/passthrough_factor = 1.0
-pins/0/weight = 1.0
+pins/0/passthrough_factor = 0.0
+pins/0/weight = 0.3
 pins/0/direction_priorities = Vector3(0, 0, 0)
 pins/1/bone_name = "Hips"
 pins/1/target_node = NodePath("../Hips")
-pins/1/passthrough_factor = 1.0
-pins/1/weight = 1.0
+pins/1/passthrough_factor = 0.0
+pins/1/weight = 0.3
 pins/1/direction_priorities = Vector3(0, 0, 0)
 pins/2/bone_name = "Spine"
 pins/2/target_node = NodePath("../Spine")
-pins/2/passthrough_factor = 1.0
+pins/2/passthrough_factor = 0.8
 pins/2/weight = 1.0
-pins/2/direction_priorities = Vector3(0, 0, 0)
+pins/2/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/3/bone_name = "Chest"
 pins/3/target_node = NodePath("../Chest")
-pins/3/passthrough_factor = 1.0
+pins/3/passthrough_factor = 0.8
 pins/3/weight = 1.0
-pins/3/direction_priorities = Vector3(0, 0, 0)
+pins/3/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/4/bone_name = "UpperChest"
 pins/4/target_node = NodePath("../UpperChest")
-pins/4/passthrough_factor = 1.0
-pins/4/weight = 0.01
-pins/4/direction_priorities = Vector3(0, 0, 0)
+pins/4/passthrough_factor = 0.8
+pins/4/weight = 1.0
+pins/4/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/5/bone_name = "Neck"
 pins/5/target_node = NodePath("../Neck")
-pins/5/passthrough_factor = 1.0
+pins/5/passthrough_factor = 0.8
 pins/5/weight = 1.0
-pins/5/direction_priorities = Vector3(0, 0, 0)
+pins/5/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/6/bone_name = "Head"
 pins/6/target_node = NodePath("../Head")
-pins/6/passthrough_factor = 1.0
+pins/6/passthrough_factor = 0.8
 pins/6/weight = 1.0
-pins/6/direction_priorities = Vector3(0, 0, 0)
+pins/6/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/7/bone_name = "LeftShoulder"
 pins/7/target_node = NodePath("../LeftShoulder")
-pins/7/passthrough_factor = 1.0
+pins/7/passthrough_factor = 0.8
 pins/7/weight = 1.0
-pins/7/direction_priorities = Vector3(0, 0, 0)
+pins/7/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/8/bone_name = "LeftUpperArm"
 pins/8/target_node = NodePath("../LeftUpperArm")
-pins/8/passthrough_factor = 1.0
+pins/8/passthrough_factor = 0.8
 pins/8/weight = 1.0
-pins/8/direction_priorities = Vector3(0, 0, 0)
+pins/8/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/9/bone_name = "LeftLowerArm"
 pins/9/target_node = NodePath("../LeftLowerArm")
-pins/9/passthrough_factor = 1.0
+pins/9/passthrough_factor = 0.8
 pins/9/weight = 1.0
-pins/9/direction_priorities = Vector3(0, 0, 0)
+pins/9/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/10/bone_name = "LeftHand"
 pins/10/target_node = NodePath("../LeftHand")
-pins/10/passthrough_factor = 1.0
+pins/10/passthrough_factor = 0.8
 pins/10/weight = 1.0
-pins/10/direction_priorities = Vector3(0, 0, 0)
-pins/11/bone_name = "RightShoulder"
-pins/11/target_node = NodePath("../RightShoulder")
-pins/11/passthrough_factor = 1.0
+pins/10/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/11/bone_name = "LeftIndexProximal2"
+pins/11/target_node = NodePath("../LeftIndexProximal2")
+pins/11/passthrough_factor = 0.8
 pins/11/weight = 1.0
-pins/11/direction_priorities = Vector3(0, 0, 0)
-pins/12/bone_name = "RightUpperArm"
-pins/12/target_node = NodePath("../RightUpperArm")
-pins/12/passthrough_factor = 1.0
+pins/11/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/12/bone_name = "LeftIndexProximal"
+pins/12/target_node = NodePath("../LeftIndexProximal")
+pins/12/passthrough_factor = 0.8
 pins/12/weight = 1.0
-pins/12/direction_priorities = Vector3(0, 0, 0)
-pins/13/bone_name = "RightLowerArm"
-pins/13/target_node = NodePath("../RightLowerArm")
-pins/13/passthrough_factor = 1.0
+pins/12/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/13/bone_name = "LeftIndexIntermediate"
+pins/13/target_node = NodePath("../LeftIndexIntermediate")
+pins/13/passthrough_factor = 0.8
 pins/13/weight = 1.0
-pins/13/direction_priorities = Vector3(0, 0, 0)
-pins/14/bone_name = "RightHand"
-pins/14/target_node = NodePath("../RightHand")
-pins/14/passthrough_factor = 1.0
+pins/13/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/14/bone_name = "LeftIndexDistal"
+pins/14/target_node = NodePath("../LeftIndexDistal")
+pins/14/passthrough_factor = 0.8
 pins/14/weight = 1.0
-pins/14/direction_priorities = Vector3(0, 0, 0)
-pins/15/bone_name = "LeftUpperLeg"
-pins/15/target_node = NodePath("../LeftUpperLeg")
-pins/15/passthrough_factor = 1.0
+pins/14/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/15/bone_name = "LeftLittleProximal2"
+pins/15/target_node = NodePath("../LeftLittleProximal2")
+pins/15/passthrough_factor = 0.8
 pins/15/weight = 1.0
-pins/15/direction_priorities = Vector3(0, 0, 0)
-pins/16/bone_name = "LeftLowerLeg"
-pins/16/target_node = NodePath("../LeftLowerLeg")
-pins/16/passthrough_factor = 1.0
+pins/15/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/16/bone_name = "LeftLittleProximal"
+pins/16/target_node = NodePath("../LeftLittleProximal")
+pins/16/passthrough_factor = 0.8
 pins/16/weight = 1.0
-pins/16/direction_priorities = Vector3(0, 0, 0)
-pins/17/bone_name = "LeftFoot"
-pins/17/target_node = NodePath("../LeftFoot")
-pins/17/passthrough_factor = 1.0
+pins/16/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/17/bone_name = "LeftLittleIntermediate"
+pins/17/target_node = NodePath("../LeftLittleIntermediate")
+pins/17/passthrough_factor = 0.8
 pins/17/weight = 1.0
-pins/17/direction_priorities = Vector3(0, 0, 0)
-pins/18/bone_name = "LeftToes"
-pins/18/target_node = NodePath("../LeftToes")
-pins/18/passthrough_factor = 1.0
+pins/17/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/18/bone_name = "LeftLittleDistal"
+pins/18/target_node = NodePath("../LeftLittleDistal")
+pins/18/passthrough_factor = 0.8
 pins/18/weight = 1.0
-pins/18/direction_priorities = Vector3(0, 0, 0)
-pins/19/bone_name = "RightUpperLeg"
-pins/19/target_node = NodePath("../RightUpperLeg")
-pins/19/passthrough_factor = 1.0
+pins/18/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/19/bone_name = "LeftMiddleProximal2"
+pins/19/target_node = NodePath("../LeftMiddleProximal2")
+pins/19/passthrough_factor = 0.8
 pins/19/weight = 1.0
-pins/19/direction_priorities = Vector3(0, 0, 0)
-pins/20/bone_name = "RightLowerLeg"
-pins/20/target_node = NodePath("../RightLowerLeg")
-pins/20/passthrough_factor = 1.0
+pins/19/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/20/bone_name = "LeftMiddleProximal"
+pins/20/target_node = NodePath("../LeftMiddleProximal")
+pins/20/passthrough_factor = 0.8
 pins/20/weight = 1.0
-pins/20/direction_priorities = Vector3(0, 0, 0)
-pins/21/bone_name = "RightFoot"
-pins/21/target_node = NodePath("../RightFoot")
-pins/21/passthrough_factor = 1.0
+pins/20/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/21/bone_name = "LeftMiddleIntermediate"
+pins/21/target_node = NodePath("../LeftMiddleIntermediate")
+pins/21/passthrough_factor = 0.8
 pins/21/weight = 1.0
-pins/21/direction_priorities = Vector3(0, 0, 0)
-pins/22/bone_name = "RightToes"
-pins/22/target_node = NodePath("../RightToes")
-pins/22/passthrough_factor = 1.0
+pins/21/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/22/bone_name = "LeftMiddleDistal"
+pins/22/target_node = NodePath("../LeftMiddleDistal")
+pins/22/passthrough_factor = 0.8
 pins/22/weight = 1.0
-pins/22/direction_priorities = Vector3(0, 0, 0)
+pins/22/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/23/bone_name = "LeftRingProximal2"
+pins/23/target_node = NodePath("../LeftRingProximal2")
+pins/23/passthrough_factor = 0.8
+pins/23/weight = 1.0
+pins/23/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/24/bone_name = "LeftRingProximal"
+pins/24/target_node = NodePath("../LeftRingProximal")
+pins/24/passthrough_factor = 0.8
+pins/24/weight = 1.0
+pins/24/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/25/bone_name = "LeftRingIntermediate"
+pins/25/target_node = NodePath("../LeftRingIntermediate")
+pins/25/passthrough_factor = 0.8
+pins/25/weight = 1.0
+pins/25/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/26/bone_name = "LeftRingDistal"
+pins/26/target_node = NodePath("../LeftRingDistal")
+pins/26/passthrough_factor = 0.8
+pins/26/weight = 1.0
+pins/26/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/27/bone_name = "LeftThumbMetacarpal2"
+pins/27/target_node = NodePath("../LeftThumbMetacarpal2")
+pins/27/passthrough_factor = 0.8
+pins/27/weight = 1.0
+pins/27/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/28/bone_name = "LeftThumbMetacarpal"
+pins/28/target_node = NodePath("../LeftThumbMetacarpal")
+pins/28/passthrough_factor = 0.8
+pins/28/weight = 1.0
+pins/28/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/29/bone_name = "LeftThumbProximal"
+pins/29/target_node = NodePath("../LeftThumbProximal")
+pins/29/passthrough_factor = 0.8
+pins/29/weight = 1.0
+pins/29/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/30/bone_name = "LeftThumbDistal"
+pins/30/target_node = NodePath("../LeftThumbDistal")
+pins/30/passthrough_factor = 0.8
+pins/30/weight = 1.0
+pins/30/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/31/bone_name = "RightShoulder"
+pins/31/target_node = NodePath("../RightShoulder")
+pins/31/passthrough_factor = 0.8
+pins/31/weight = 1.0
+pins/31/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/32/bone_name = "RightUpperArm"
+pins/32/target_node = NodePath("../RightUpperArm")
+pins/32/passthrough_factor = 0.8
+pins/32/weight = 1.0
+pins/32/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/33/bone_name = "RightLowerArm"
+pins/33/target_node = NodePath("../RightLowerArm")
+pins/33/passthrough_factor = 0.8
+pins/33/weight = 1.0
+pins/33/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/34/bone_name = "RightHand"
+pins/34/target_node = NodePath("../RightHand")
+pins/34/passthrough_factor = 0.8
+pins/34/weight = 1.0
+pins/34/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/35/bone_name = "RightIndexProximal2"
+pins/35/target_node = NodePath("../RightIndexProximal2")
+pins/35/passthrough_factor = 0.8
+pins/35/weight = 1.0
+pins/35/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/36/bone_name = "RightIndexProximal"
+pins/36/target_node = NodePath("../RightIndexProximal")
+pins/36/passthrough_factor = 0.8
+pins/36/weight = 1.0
+pins/36/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/37/bone_name = "RightIndexIntermediate"
+pins/37/target_node = NodePath("../RightIndexIntermediate")
+pins/37/passthrough_factor = 0.8
+pins/37/weight = 1.0
+pins/37/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/38/bone_name = "RightIndexDistal"
+pins/38/target_node = NodePath("../RightIndexDistal")
+pins/38/passthrough_factor = 0.8
+pins/38/weight = 1.0
+pins/38/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/39/bone_name = "RightLittleProximal2"
+pins/39/target_node = NodePath("../RightLittleProximal2")
+pins/39/passthrough_factor = 0.8
+pins/39/weight = 1.0
+pins/39/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/40/bone_name = "RightLittleProximal"
+pins/40/target_node = NodePath("../RightLittleProximal")
+pins/40/passthrough_factor = 0.8
+pins/40/weight = 1.0
+pins/40/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/41/bone_name = "RightLittleIntermediate"
+pins/41/target_node = NodePath("../RightLittleIntermediate")
+pins/41/passthrough_factor = 0.8
+pins/41/weight = 1.0
+pins/41/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/42/bone_name = "RightLittleDistal"
+pins/42/target_node = NodePath("../RightLittleDistal")
+pins/42/passthrough_factor = 0.8
+pins/42/weight = 1.0
+pins/42/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/43/bone_name = "RightMiddleProximal2"
+pins/43/target_node = NodePath("../RightMiddleProximal2")
+pins/43/passthrough_factor = 0.8
+pins/43/weight = 1.0
+pins/43/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/44/bone_name = "RightMiddleProximal"
+pins/44/target_node = NodePath("../RightMiddleProximal")
+pins/44/passthrough_factor = 0.8
+pins/44/weight = 1.0
+pins/44/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/45/bone_name = "RightMiddleIntermediate"
+pins/45/target_node = NodePath("../RightMiddleIntermediate")
+pins/45/passthrough_factor = 0.8
+pins/45/weight = 1.0
+pins/45/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/46/bone_name = "RightMiddleDistal"
+pins/46/target_node = NodePath("../RightMiddleDistal")
+pins/46/passthrough_factor = 0.8
+pins/46/weight = 1.0
+pins/46/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/47/bone_name = "RightRingProximal2"
+pins/47/target_node = NodePath("../RightRingProximal2")
+pins/47/passthrough_factor = 0.8
+pins/47/weight = 1.0
+pins/47/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/48/bone_name = "RightRingProximal"
+pins/48/target_node = NodePath("../RightRingProximal")
+pins/48/passthrough_factor = 0.8
+pins/48/weight = 1.0
+pins/48/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/49/bone_name = "RightRingIntermediate"
+pins/49/target_node = NodePath("../RightRingIntermediate")
+pins/49/passthrough_factor = 0.8
+pins/49/weight = 1.0
+pins/49/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/50/bone_name = "RightRingDistal"
+pins/50/target_node = NodePath("../RightRingDistal")
+pins/50/passthrough_factor = 0.8
+pins/50/weight = 1.0
+pins/50/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/51/bone_name = "RightThumbMetacarpal2"
+pins/51/target_node = NodePath("../RightThumbMetacarpal2")
+pins/51/passthrough_factor = 0.8
+pins/51/weight = 1.0
+pins/51/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/52/bone_name = "RightThumbMetacarpal"
+pins/52/target_node = NodePath("../RightThumbMetacarpal")
+pins/52/passthrough_factor = 0.8
+pins/52/weight = 1.0
+pins/52/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/53/bone_name = "RightThumbProximal"
+pins/53/target_node = NodePath("../RightThumbProximal")
+pins/53/passthrough_factor = 0.8
+pins/53/weight = 1.0
+pins/53/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/54/bone_name = "RightThumbDistal"
+pins/54/target_node = NodePath("../RightThumbDistal")
+pins/54/passthrough_factor = 0.8
+pins/54/weight = 1.0
+pins/54/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/55/bone_name = "LeftUpperLeg"
+pins/55/target_node = NodePath("../LeftUpperLeg")
+pins/55/passthrough_factor = 0.8
+pins/55/weight = 1.0
+pins/55/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/56/bone_name = "LeftLowerLeg"
+pins/56/target_node = NodePath("../LeftLowerLeg")
+pins/56/passthrough_factor = 0.8
+pins/56/weight = 0.3
+pins/56/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/57/bone_name = "LeftFoot"
+pins/57/target_node = NodePath("../LeftFoot")
+pins/57/passthrough_factor = 0.8
+pins/57/weight = 0.3
+pins/57/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/58/bone_name = "LeftToes"
+pins/58/target_node = NodePath("../LeftToes")
+pins/58/passthrough_factor = 0.8
+pins/58/weight = 1.0
+pins/58/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/59/bone_name = "RightUpperLeg"
+pins/59/target_node = NodePath("../RightUpperLeg")
+pins/59/passthrough_factor = 0.8
+pins/59/weight = 1.0
+pins/59/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/60/bone_name = "RightLowerLeg"
+pins/60/target_node = NodePath("../RightLowerLeg")
+pins/60/passthrough_factor = 0.8
+pins/60/weight = 0.3
+pins/60/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/61/bone_name = "RightFoot"
+pins/61/target_node = NodePath("../RightFoot")
+pins/61/passthrough_factor = 0.8
+pins/61/weight = 0.3
+pins/61/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/62/bone_name = "RightToes"
+pins/62/target_node = NodePath("../RightToes")
+pins/62/passthrough_factor = 0.8
+pins/62/weight = 1.0
+pins/62/direction_priorities = Vector3(0.2, 0, 0.2)
 
-[node name="Root" type="Marker3D" parent="GeneralSkeleton" index="4"]
-gizmo_extents = 0.1
+[node name="Root" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="32"]
 
-[node name="Hips" type="Marker3D" parent="GeneralSkeleton" index="5"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000508843, 1.00826, -0.0101615)
-gizmo_extents = 0.1
+[node name="Hips" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="33"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000508843, 1.00826, 0.0101615)
 
-[node name="Spine" type="Marker3D" parent="GeneralSkeleton" index="6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000508822, 1.14879, -0.0109004)
-gizmo_extents = 0.1
+[node name="Spine" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="34"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000508822, 1.14879, 0.0109004)
 
-[node name="Chest" type="Marker3D" parent="GeneralSkeleton" index="7"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00050881, 1.22777, -0.00648073)
-gizmo_extents = 0.1
+[node name="Chest" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="35"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00050881, 1.22777, 0.00648073)
 
-[node name="UpperChest" type="Marker3D" parent="GeneralSkeleton" index="8"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000508822, 1.30513, -0.0024859)
-gizmo_extents = 0.1
+[node name="UpperChest" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="36"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000508822, 1.30513, 0.0024859)
 
-[node name="Neck" type="Marker3D" parent="GeneralSkeleton" index="9"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000508844, 1.45634, 0.0081826)
-gizmo_extents = 0.1
+[node name="Neck" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="37"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000508844, 1.45634, -0.0081826)
 
-[node name="Head" type="Marker3D" parent="GeneralSkeleton" index="10"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000508817, 1.5454, -0.00626793)
-gizmo_extents = 0.1
+[node name="Head" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="38"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000508817, 1.5454, 0.00626793)
 
-[node name="LeftShoulder" type="Marker3D" parent="GeneralSkeleton" index="11"]
-transform = Transform3D(0, 1, 0, 0, 0, 1, 1, 0, 0, -0.0241154, 1.42604, 0.00268848)
-gizmo_extents = 0.1
+[node name="LeftShoulder" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="39"]
+transform = Transform3D(0, 1, 0, 0, 0, 1, 1, 0, 0, 0.0241154, 1.42604, -0.00268848)
 
-[node name="LeftUpperArm" type="Marker3D" parent="GeneralSkeleton" index="12"]
-transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, -0.147266, 1.40457, -0.00422089)
-gizmo_extents = 0.1
+[node name="LeftUpperArm" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="40"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.147266, 1.40457, 0.00422089)
 
-[node name="LeftLowerArm" type="Marker3D" parent="GeneralSkeleton" index="13"]
-transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, -0.366807, 1.3944, -0.00577103)
-gizmo_extents = 0.1
+[node name="LeftLowerArm" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="41"]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 0.366807, 1.3944, 0.00577103)
 
-[node name="LeftHand" type="Marker3D" parent="GeneralSkeleton" index="14"]
-transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, -0.614895, 1.39378, -0.026354)
-gizmo_extents = 0.1
+[node name="LeftHand" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="42"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.614895, 1.39378, 0.026354)
 
-[node name="RightShoulder" type="Marker3D" parent="GeneralSkeleton" index="15"]
-transform = Transform3D(0, -1, 0, 0, 0, 1, -1, 0, 0, 0.025133, 1.42604, 0.00268848)
-gizmo_extents = 0.1
+[node name="LeftIndexProximal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="43"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.68516, 1.39919, 0.0502055)
 
-[node name="RightUpperArm" type="Marker3D" parent="GeneralSkeleton" index="16"]
-transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, 0.148284, 1.40457, -0.00422088)
-gizmo_extents = 0.1
+[node name="LeftIndexProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="44"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.721258, 1.39892, 0.0558909)
 
-[node name="RightLowerArm" type="Marker3D" parent="GeneralSkeleton" index="17"]
-transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.367825, 1.3944, -0.00577076)
-gizmo_extents = 0.1
+[node name="LeftIndexIntermediate" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="45"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.743602, 1.39811, 0.0584137)
 
-[node name="RightHand" type="Marker3D" parent="GeneralSkeleton" index="18"]
-transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, 0.615912, 1.39378, -0.0263531)
-gizmo_extents = 0.1
+[node name="LeftIndexDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="46"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.77012, 1.39704, 0.0608633)
 
-[node name="LeftUpperLeg" type="Marker3D" parent="GeneralSkeleton" index="19"]
-transform = Transform3D(-1, 0, 0, 0, -1, 0, 0, 0, 1, -0.0843258, 0.964307, -0.00631006)
-gizmo_extents = 0.1
+[node name="LeftLittleProximal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="47"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.684489, 1.39854, -0.00291826)
 
-[node name="LeftLowerLeg" type="Marker3D" parent="GeneralSkeleton" index="20"]
-transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, -0.062033, 0.576898, 0.000647958)
-gizmo_extents = 0.1
+[node name="LeftLittleProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="48"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.719028, 1.39833, -0.00288239)
 
-[node name="LeftFoot" type="Marker3D" parent="GeneralSkeleton" index="21"]
-transform = Transform3D(-1, 0, 0, 0, 0, 1, 0, 1, 0, -0.0490604, 0.121321, 0.0320855)
-gizmo_extents = 0.1
+[node name="LeftLittleIntermediate" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="49"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.738891, 1.39917, -0.00388227)
 
-[node name="LeftToes" type="Marker3D" parent="GeneralSkeleton" index="22"]
-transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.0504577, 0.0444729, -0.104228)
-gizmo_extents = 0.1
+[node name="LeftLittleDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="50"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.760187, 1.4005, -0.00441818)
 
-[node name="RightUpperLeg" type="Marker3D" parent="GeneralSkeleton" index="23"]
-transform = Transform3D(-1, 0, 0, 0, -1, 0, 0, 0, 1, 0.0853435, 0.964307, -0.00631006)
-gizmo_extents = 0.1
+[node name="LeftMiddleProximal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="51"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.687588, 1.40299, 0.0320099)
 
-[node name="RightLowerLeg" type="Marker3D" parent="GeneralSkeleton" index="24"]
-transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, 0.0630502, 0.576898, 0.000647783)
-gizmo_extents = 0.1
+[node name="LeftMiddleProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="52"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.72818, 1.4015, 0.0346701)
 
-[node name="RightFoot" type="Marker3D" parent="GeneralSkeleton" index="25"]
-transform = Transform3D(-1, 0, 0, 0, 0, 1, 0, 1, 0, 0.0500763, 0.121322, 0.0320855)
-gizmo_extents = 0.1
+[node name="LeftMiddleIntermediate" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="53"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.753135, 1.39886, 0.0356375)
 
-[node name="RightToes" type="Marker3D" parent="GeneralSkeleton" index="26"]
-transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.0514729, 0.0444733, -0.104228)
-gizmo_extents = 0.1
+[node name="LeftMiddleDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="54"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.780594, 1.3971, 0.0365838)
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="3"]
-libraries = {
-"AAChan": SubResource("AnimationLibrary_hlhxw")
-}
+[node name="LeftRingProximal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="55"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.688224, 1.40358, 0.0147051)
+
+[node name="LeftRingProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="56"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.725981, 1.40308, 0.0148991)
+
+[node name="LeftRingIntermediate" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="57"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.747755, 1.40389, 0.0152115)
+
+[node name="LeftRingDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="58"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.771241, 1.40432, 0.0150806)
+
+[node name="LeftThumbMetacarpal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="59"]
+transform = Transform3D(0, 1, 0, 0, 0, -1, -1, 0, 0, 0.61714, 1.38544, 0.0455579)
+
+[node name="LeftThumbMetacarpal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="60"]
+transform = Transform3D(0, 0.816, 0.577, 1, 0, 0, 0, 0.577, -0.816, 0.652505, 1.38246, 0.0824431)
+
+[node name="LeftThumbProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="61"]
+transform = Transform3D(0, 0.816, 0.577, 1, 0, 0, 0, 0.577, -0.816, 0.675875, 1.38085, 0.103481)
+
+[node name="LeftThumbDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="62"]
+transform = Transform3D(0, 0.816, 0.577, 1, 0, 0, 0, 0.577, -0.816, 0.695328, 1.38085, 0.117236)
+
+[node name="RightShoulder" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="63"]
+transform = Transform3D(0, -1, 0, 0, 0, 1, -1, 0, 0, -0.025133, 1.42604, -0.00268848)
+
+[node name="RightUpperArm" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="64"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.148284, 1.40457, 0.00422088)
+
+[node name="RightLowerArm" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="65"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.367825, 1.3944, 0.00577076)
+
+[node name="RightHand" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="66"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.615912, 1.39378, 0.0263531)
+
+[node name="RightIndexProximal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="67"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.686177, 1.39919, 0.0502043)
+
+[node name="RightIndexProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="68"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.722276, 1.39892, 0.0558899)
+
+[node name="RightIndexIntermediate" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="69"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.74462, 1.39811, 0.0584129)
+
+[node name="RightIndexDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="70"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.771138, 1.39704, 0.0608626)
+
+[node name="RightLittleProximal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="71"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.685507, 1.39854, -0.00291943)
+
+[node name="RightLittleProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="72"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.720045, 1.39833, -0.0028829)
+
+[node name="RightLittleIntermediate" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="73"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.739908, 1.39918, -0.00388239)
+
+[node name="RightLittleDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="74"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.761204, 1.4005, -0.00441786)
+
+[node name="RightMiddleProximal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="75"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.688606, 1.40299, 0.0320087)
+
+[node name="RightMiddleProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="76"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.729198, 1.4015, 0.0346688)
+
+[node name="RightMiddleIntermediate" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="77"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.754153, 1.39886, 0.0356361)
+
+[node name="RightMiddleDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="78"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.781612, 1.3971, 0.0365824)
+
+[node name="RightRingProximal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="79"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.689242, 1.40358, 0.0147039)
+
+[node name="RightRingProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="80"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.726998, 1.40308, 0.014898)
+
+[node name="RightRingIntermediate" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="81"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.748772, 1.40389, 0.0152105)
+
+[node name="RightRingDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="82"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.772259, 1.40432, 0.0150797)
+
+[node name="RightThumbMetacarpal2" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="83"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, -0.618158, 1.38544, 0.0455569)
+
+[node name="RightThumbMetacarpal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="84"]
+transform = Transform3D(0, -0.816, -0.577, -1, 0, 0, 0, 0.577, -0.816, -0.653512, 1.38248, 0.0824547)
+
+[node name="RightThumbProximal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="85"]
+transform = Transform3D(0, -0.816, -0.577, -1, 0, 0, 0, 0.577, -0.816, -0.676877, 1.38089, 0.103499)
+
+[node name="RightThumbDistal" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="86"]
+transform = Transform3D(0, -0.816, -0.577, -1, 0, 0, 0, 0.577, -0.816, -0.69633, 1.38089, 0.117254)
+
+[node name="LeftUpperLeg" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="87"]
+transform = Transform3D(-1, 0, 0, 0, -1, 0, 0, 0, 1, 0.0843258, 0.964307, 0.00631006)
+
+[node name="LeftLowerLeg" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="88"]
+transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, 0.062033, 0.576898, -0.000647958)
+
+[node name="LeftFoot" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="89"]
+transform = Transform3D(-1, 0, 0, 0, 0, 1, 0, 1, 0, 0.0490604, 0.121321, -0.0320855)
+
+[node name="LeftToes" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="90"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.0504577, 0.0444729, 0.104228)
+
+[node name="RightUpperLeg" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="91"]
+transform = Transform3D(-1, 0, 0, 0, -1, 0, 0, 0, 1, -0.0853435, 0.964307, 0.00631006)
+
+[node name="RightLowerLeg" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="92"]
+transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, -0.0630502, 0.576898, -0.000647783)
+
+[node name="RightFoot" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="93"]
+transform = Transform3D(-1, 0, 0, 0, 0, 1, 0, 1, 0, -0.0500763, 0.121322, -0.0320855)
+
+[node name="RightToes" type="Marker3D" parent="HairSample_Male/GeneralSkeleton" index="94"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.0514729, 0.0444733, 0.104228)
+
+[editable path="HairSample_Male"]
