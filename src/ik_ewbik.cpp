@@ -579,7 +579,7 @@ void NBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off,Auto-unlock constrains,Lock constraints,Edit bone damp"), "set_edit_constraint_mode", "get_edit_constraint_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off,Constraints auto-unlock,Lock constraints,Edit bone damp"), "set_edit_constraint_mode", "get_edit_constraint_mode");
 }
 
 NBoneIK::NBoneIK() {
