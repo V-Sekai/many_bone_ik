@@ -184,15 +184,15 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 				Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
 				if (get_edit_constraint_mode() != NBONE_IK_EDIT_CONSTRAIN_MODE_OFF) {
 					for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-						StringName name = get_skeleton()->get_bone_name(bone_i);
+						String name = get_skeleton()->get_bone_name(bone_i);
 						if (existing_bones.has(name)) {
 							names = name;
 							break;
 						}
 					}
 				} else {
-					for (int bone_i = 0; bone_i < get_bone_count(); bone_i++) {
-						String name = get_bone_damp_bone_name(bone_i);
+					for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+						String name = get_skeleton()->get_bone_name(bone_i);
 						if (root_bones.find(bone_i) != -1) {
 							continue;
 						}
