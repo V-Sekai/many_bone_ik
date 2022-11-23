@@ -182,7 +182,7 @@ Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_c
 	double newCoeff = 1.0f - (p_cos_half_angle * p_cos_half_angle);
 	Quaternion rot = p_quat;
 	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
-	if (newCoeff > currentCoeff) {
+	if (newCoeff >= currentCoeff) {
 		return rot;
 	} else {
 		rot.w = rot.w < 0.0f ? -p_cos_half_angle : p_cos_half_angle;
