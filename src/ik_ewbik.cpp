@@ -579,7 +579,7 @@ void NBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off,Constraints auto-unlock,Lock constraints,Edit bone damp"), "set_edit_constraint_mode", "get_edit_constraint_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off,Constraints auto-unlock,Constraints lock,Bone damp edit"), "set_edit_constraint_mode", "get_edit_constraint_mode");
 }
 
 NBoneIK::NBoneIK() {
@@ -1131,6 +1131,7 @@ real_t NBoneIK::get_bone_damp(int32_t p_index) const {
 void NBoneIK::set_bone_damp(int32_t p_index, real_t p_damp) {
 	ERR_FAIL_INDEX(p_index, bone_damp.size());
 	bone_damp.write[p_index]["damp"] = p_damp;
+	notify_property_list_changed();
 }
 
 StringName NBoneIK::get_bone_damp_bone_name(int32_t p_index) const {
@@ -1150,4 +1151,5 @@ void NBoneIK::set_bone_damp_bone_name(int32_t p_index, StringName p_name) {
 		}
 	}
 	bone_damp.write[p_index]["bone_name"] = p_name;
+	notify_property_list_changed();
 }
