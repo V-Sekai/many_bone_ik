@@ -860,10 +860,6 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	ERR_FAIL_COND(!root_bone);
 	BoneId root_bone_index = p_skeleton->find_bone(root_bone);
 	set_bone_count(p_skeleton->get_bone_count());
-	for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
-		set_bone_damp_bone_name(bone_i, p_skeleton->get_bone_name(bone_i));
-		set_bone_damp(bone_i, get_default_damp());
-	}
 	BoneId tip_bone_index = p_skeleton->find_bone(tip_bone);
 	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, root_bone, pins, nullptr, root_bone_index, tip_bone_index)));
 	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
