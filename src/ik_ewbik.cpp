@@ -322,6 +322,9 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 	} else if (name == "pin_count") {
 		r_ret = get_pin_count();
 		return true;
+	} else if (name == "bone_count") {
+		r_ret = get_bone_count();
+		return true;
 	} else if (name.begins_with("pins/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
