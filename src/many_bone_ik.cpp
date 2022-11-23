@@ -220,7 +220,7 @@ void ManyBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,360,0.1,radians,or_lesser,or_greater", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0,360,0.1,radians", constraint_usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "-360,360,0.1,radians", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001", constraint_usage));
 		p_list->push_back(
@@ -467,11 +467,11 @@ bool ManyBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			return false;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(IKKusudama::_to_tau(p_value), IKKusudama::_to_tau(twist_from.y)));
+			set_kusudama_twist(index, Vector2(p_value, twist_from.y));
 			return true;
 		} else if (what == "twist_range") {
 			Vector2 twist_range = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(IKKusudama::_to_tau(twist_range.x), IKKusudama::_to_tau(p_value)));
+			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
@@ -729,14 +729,6 @@ Vector2 ManyBoneIK::get_kusudama_twist(int32_t p_index) const {
 
 void ManyBoneIK::set_constraint_name(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
-	if (get_skeleton()) {
-		Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
-		BoneId bone_id = get_skeleton()->find_bone(p_name);
-		if (root_bones.find(bone_id) != -1) {
-			print_error("The root bone cannot be constrained.");
-			p_name = "";
-		}
-	}
 	constraint_names.write[p_index] = p_name;
 	set_dirty();
 }
@@ -1095,14 +1087,6 @@ StringName ManyBoneIK::get_bone_damp_bone_name(int32_t p_index) const {
 
 void ManyBoneIK::set_bone_damp_bone_name(int32_t p_index, StringName p_name) {
 	ERR_FAIL_INDEX(p_index, bone_damp.size());
-	if (get_skeleton()) {
-		Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
-		BoneId bone_id = get_skeleton()->find_bone(p_name);
-		if (unlikely(root_bones.find(bone_id) != -1)) {
-			print_error("The root bone cannot be constrained.");
-			p_name = StringName();
-		}
-	}
 	bone_damp.write[p_index]["bone_name"] = p_name;
 	notify_property_list_changed();
 }

@@ -87,6 +87,7 @@ void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTem
 	set_name(vformat("IKBoneSegment%sRoot%sTip", root->get_name(), tip->get_name()));
 	bones.clear();
 	create_bone_list(bones, false);
+	
 }
 
 void IKBoneSegment::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
