@@ -307,6 +307,13 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	bones[0] = parent_idx;
 	weights[0] = 1;
 	Transform3D constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ewbik_skeleton->get_global_transform() * ik_bone->get_constraint_transform()->get_global_transform();
+	Transform3D handle_transform = p_gizmo->get_node_3d()->get_global_transform().affine_inverse();
+	if (p_gizmo->get_node_3d()->get_parent()) {
+		Node3D *node = cast_to<Node3D>(p_gizmo->get_node_3d()->get_parent());
+		if (node) {
+			handle_transform = node->get_global_transform();
+		}
+	}
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
 	if (current_bone_idx >= ewbik_skeleton->get_bone_count()) {
@@ -376,7 +383,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		{
 			Transform3D handle_relative_to_mesh;
 			handle_relative_to_mesh.origin = center * radius;
-			Transform3D handle_relative_to_universe = constraint_relative_to_the_universe * handle_relative_to_mesh;
+			Transform3D handle_relative_to_universe = handle_transform.affine_inverse() * constraint_relative_to_the_universe * handle_relative_to_mesh;
 			center_handles.push_back(handle_relative_to_universe.origin);
 		}
 		{
@@ -388,7 +395,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 			Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), center)) * mesh_orientation;
 			handle_border_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 			Transform3D handle_border_relative_to_universe = constraint_relative_to_the_universe * handle_border_relative_to_mesh;
-			radius_handles.push_back(handle_border_relative_to_universe.origin);
+			radius_handles.push_back((handle_transform.affine_inverse() * handle_border_relative_to_universe).origin);
 		}
 	}
 
@@ -404,7 +411,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
-		axial_from_handles.push_back(axial_relative_to_universe.origin);
+		axial_from_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
 	}
 	if (center_handles.size() && radius_handles.size()) {
 		p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, true);
@@ -423,7 +430,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 
 		Transform3D current_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
-		axial_middle_handles.push_back(axial_relative_to_universe.origin);
+		axial_middle_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
 	}
 	axial_middle_handles.pop_front();
 	axial_middle_handles.pop_back();
@@ -434,7 +441,7 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
-		axial_to_handles.push_back(axial_relative_to_universe.origin);
+		axial_to_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
 	}
 	if (axial_from_handles.size() && axial_to_handles.size()) {
 		p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), true, false);
@@ -449,12 +456,12 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 	}
 	{
 		float current_angle = kusudama->get_min_axial_angle() + (ik_kusudama->get_current_twist_rotation(ik_bone) * ik_kusudama->get_range_angle());
-		const Point2 a = Vector2(Math::sin(current_angle), Math::cos(current_angle)) * w; // I see
+		const Point2 a = Vector2(Math::sin(current_angle), Math::cos(current_angle)) * w;
 		Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), axial_center)) * mesh_orientation;
 		Transform3D axial_from_relative_to_mesh;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
-		Vector3 handle_position = axial_relative_to_universe.origin;
+		Vector3 handle_position = (handle_transform.affine_inverse() * axial_relative_to_universe).origin;
 		handles_current.push_back(handle_position);
 	}
 	if (handles_current.size()) {
