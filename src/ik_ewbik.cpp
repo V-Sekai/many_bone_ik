@@ -163,7 +163,56 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
 	}
-	const uint32_t constraint_usage = get_edit_constraint_mode() ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_STORAGE;
+	RBSet<StringName> existing_bones;
+	for (int32_t bone_i = 0; bone_i < get_bone_count(); bone_i++) {
+		const StringName name = get_bone_damp_bone_name(bone_i);
+		existing_bones.insert(name);
+	}
+	{
+		const uint32_t damp_usage = get_edit_constraint_mode() == NBONE_IK_EDIT_CONSTRAIN_MODE_DAMP ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_STORAGE;
+		p_list->push_back(
+				PropertyInfo(Variant::INT, "bone_count",
+						PROPERTY_HINT_RANGE, "0,256,or_greater", damp_usage | PROPERTY_USAGE_ARRAY,
+						"Kusudama Constraints,bone/"));
+		for (int bone_i = 0; bone_i < get_bone_count(); bone_i++) {
+			PropertyInfo bone_name;
+			bone_name.type = Variant::STRING_NAME;
+			bone_name.usage = damp_usage;
+			bone_name.name = "bone/" + itos(bone_i) + "/bone_name";
+			if (get_skeleton()) {
+				String names;
+				Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
+				if (get_edit_constraint_mode() != NBONE_IK_EDIT_CONSTRAIN_MODE_OFF) {
+					for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+						StringName name = get_skeleton()->get_bone_name(bone_i);
+						if (existing_bones.has(name)) {
+							names = name;
+							break;
+						}
+					}
+				} else {
+					for (int bone_i = 0; bone_i < get_bone_count(); bone_i++) {
+						String name = get_bone_damp_bone_name(bone_i);
+						if (root_bones.find(bone_i) != -1) {
+							continue;
+						}
+						name += ",";
+						names += name;
+						existing_bones.insert(name);
+					}
+				}
+				bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
+				bone_name.hint_string = names;
+			} else {
+				bone_name.hint = PROPERTY_HINT_NONE;
+				bone_name.hint_string = "";
+			}
+			p_list->push_back(bone_name);
+			p_list->push_back(
+					PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
+		}
+	}
+	const uint32_t constraint_usage = get_edit_constraint_mode() == NBONE_IK_EDIT_CONSTRAIN_MODE_LOCK || get_edit_constraint_mode() == NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_STORAGE;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
 					PROPERTY_HINT_RANGE, "0,256,or_greater", constraint_usage | PROPERTY_USAGE_ARRAY,
@@ -227,7 +276,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
-	const uint32_t pin_usage = get_edit_constraint_mode() ? PROPERTY_USAGE_STORAGE : PROPERTY_USAGE_DEFAULT;
+	const uint32_t pin_usage = get_edit_constraint_mode() != NBONE_IK_EDIT_CONSTRAIN_MODE_OFF ? PROPERTY_USAGE_STORAGE : PROPERTY_USAGE_DEFAULT;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
 					PROPERTY_HINT_RANGE, "0,1024,or_greater", pin_usage | PROPERTY_USAGE_ARRAY,
@@ -295,6 +344,17 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 			r_ret = get_pin_direction_priorities(index);
 			return true;
 		}
+	} else if (name.begins_with("bone/")) {
+		int index = name.get_slicec('/', 1).to_int();
+		String what = name.get_slicec('/', 2);
+		ERR_FAIL_INDEX_V(index, bone_count, false);
+		if (what == "bone_name") {
+			r_ret = get_bone_damp_bone_name(index);
+			return true;
+		} else if (what == "damp") {
+			r_ret = get_bone_damp(index);
+			return true;
+		}
 	} else if (name.begins_with("constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
@@ -357,6 +417,9 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 	} else if (name == "pin_count") {
 		set_pin_count(p_value);
 		return true;
+	} else if (name == "bone_count") {
+		set_bone_count(p_value);
+		return true;
 	} else if (name.begins_with("pins/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
@@ -379,6 +442,19 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		} else if (what == "direction_priorities") {
 			set_pin_direction_priorities(index, p_value);
+			return true;
+		}
+	} else if (name.begins_with("bone/")) {
+		int index = name.get_slicec('/', 1).to_int();
+		String what = name.get_slicec('/', 2);
+		if (what == "bone_name") {
+			if (index >= bone_damp.size()) {
+				set_bone_count(bone_count);
+			}
+			set_bone_damp_bone_name(index, p_value);
+			return true;
+		} else if (what == "damp") {
+			set_bone_damp(index, p_value);
 			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
@@ -494,13 +570,16 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &NBoneIK::set_default_damp);
 	ClassDB::bind_method(D_METHOD("get_pin_nodepath", "index"), &NBoneIK::get_pin_nodepath);
 	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &NBoneIK::set_pin_nodepath);
+	ClassDB::bind_method(D_METHOD("get_bone_count"), &NBoneIK::get_bone_count);
+	ClassDB::bind_method(D_METHOD("set_bone_count", "count"), &NBoneIK::set_bone_count);
 
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "bone_count"), "set_bone_count", "get_bone_count");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off,Unlock Automatically,Lock"), "set_edit_constraint_mode", "get_edit_constraint_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off,Auto-unlock constrains,Lock constraints,Edit bone damp"), "set_edit_constraint_mode", "get_edit_constraint_mode");
 }
 
 NBoneIK::NBoneIK() {
@@ -688,7 +767,10 @@ void NBoneIK::set_constraint_name(int32_t p_index, String p_name) {
 	if (get_skeleton()) {
 		Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
 		BoneId bone_id = get_skeleton()->find_bone(p_name);
-		ERR_FAIL_COND_MSG(root_bones.find(bone_id) != -1, "The root bone cannot be constrained.");
+		if (root_bones.find(bone_id) != -1) {
+			print_error("The root bone cannot be constrained.");
+			p_name = "";
+		}
 	}
 	constraint_names.write[p_index] = p_name;
 	set_dirty();
@@ -753,12 +835,13 @@ void NBoneIK::execute(real_t delta) {
 		}
 		root_ik_parent_transform->set_global_transform(Transform3D());
 	}
+
 	update_ik_bones_transform();
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
 		if (segmented_skeleton.is_null()) {
 			break;
 		}
-		segmented_skeleton->segment_solver(get_default_damp(), constrain_mode);
+		segmented_skeleton->segment_solver(bone_damp_cache, constrain_mode);
 	}
 	update_skeleton_bones_transform();
 }
@@ -776,6 +859,11 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	}
 	ERR_FAIL_COND(!root_bone);
 	BoneId root_bone_index = p_skeleton->find_bone(root_bone);
+	set_bone_count(p_skeleton->get_bone_count());
+	for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
+		set_bone_damp_bone_name(bone_i, p_skeleton->get_bone_name(bone_i));
+		set_bone_damp(bone_i, get_default_damp());
+	}
 	BoneId tip_bone_index = p_skeleton->find_bone(tip_bone);
 	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, root_bone, pins, nullptr, root_bone_index, tip_bone_index)));
 	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
@@ -790,6 +878,9 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 		ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
 	}
 	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
+		if (unlikely((constraint_i) < 0 || (constraint_i) >= (constraint_names.size()))) {
+			break;
+		}
 		String bone = constraint_names[constraint_i];
 		BoneId bone_id = p_skeleton->find_bone(bone);
 		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
@@ -801,16 +892,26 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 			bone_direction_transform->set_parent(ik_bone_3d->get_ik_transform());
 			bone_direction_transform->set_transform(Transform3D(Basis(), ik_bone_3d->get_bone_direction_transform()->get_transform().origin));
 			Ref<IKKusudama> constraint = Ref<IKKusudama>(memnew(IKKusudama()));
-			const Vector2 axial_limit = get_kusudama_twist(constraint_i);
 			constraint->enable_orientational_limits();
-			for (int32_t cone_i = 0; cone_i < kusudama_limit_cone_count[constraint_i]; cone_i++) {
-				Ref<IKLimitCone> previous_cone;
-				if (cone_i > 0) {
-					previous_cone = constraint->get_limit_cones()[cone_i - 1];
+
+			if (!(unlikely((constraint_i) < 0 || (constraint_i) >= (kusudama_limit_cone_count.size())))) {
+				for (int32_t cone_i = 0; cone_i < kusudama_limit_cone_count[constraint_i]; cone_i++) {
+					Ref<IKLimitCone> previous_cone;
+					if (cone_i > 0) {
+						previous_cone = constraint->get_limit_cones()[cone_i - 1];
+					}
+					if (unlikely((constraint_i) < 0 || (constraint_i) >= (kusudama_limit_cones.size()))) {
+						break;
+					}
+					const Vector<Vector4> &cones = kusudama_limit_cones[constraint_i];
+					if (unlikely((cone_i) < 0 || (cone_i) >= (cones.size()))) {
+						break;
+					}
+					const Vector4 &cone = cones[cone_i];
+					constraint->add_limit_cone(Vector3(cone.x, cone.y, cone.z), cone.w);
 				}
-				Vector4 cone = kusudama_limit_cones[constraint_i][cone_i];
-				constraint->add_limit_cone(Vector3(cone.x, cone.y, cone.z), cone.w);
 			}
+			const Vector2 axial_limit = get_kusudama_twist(constraint_i);
 			constraint->enable_axial_limits();
 			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
 			ik_bone_3d->add_constraint(constraint);
@@ -820,6 +921,21 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	}
 	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
 		ik_bone_3d->update_default_constraint_transform();
+	}
+	bone_damp_cache.clear();
+	int32_t bone_damp_count = 0;
+	while (bone_damp_count < bone_damp.size()) {
+		bone_damp_count++;
+		if (unlikely((bone_damp_count) < 0 || (bone_damp_count) >= (bone_damp.size()))) {
+			continue;
+		}
+		Dictionary bone = bone_damp[bone_damp_count];
+		if (!bone.has("bone_name") || bone.has("damp")) {
+			continue;
+		}
+		StringName bone_name = bone["bone_name"];
+		BoneId bone_id = p_skeleton->find_bone(bone_name);
+		bone_damp_cache.insert(bone_id, bone["damp"]);
 	}
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
@@ -988,13 +1104,50 @@ int NBoneIK::get_edit_constraint_mode() const {
 
 void NBoneIK::set_edit_constraint_mode(int p_value) {
 	// TODO: Add tool tip to explain this disables. Or graphical widget.
-
 	// TODO: Toggle slider widget instead of checkbox?
-
 	// Anything which will automatically disable the solver when the user is trying to edit constraints,
 	// and re-enables the solver when they say they are done editing constraints.
 	// Possibly with a visual hint to indicate that solver is on or off as a result of being in that mode
-
 	constrain_mode = p_value;
 	notify_property_list_changed();
+}
+
+void NBoneIK::set_bone_count(int32_t p_count) {
+	bone_count = p_count;
+	bone_damp.resize(p_count);
+	notify_property_list_changed();
+}
+
+int32_t NBoneIK::get_bone_count() const {
+	return bone_count;
+}
+
+real_t NBoneIK::get_bone_damp(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, bone_damp.size(), get_default_damp());
+	ERR_FAIL_COND_V(!bone_damp[p_index].keys().has("damp"), get_default_damp());
+	return bone_damp[p_index]["damp"];
+}
+
+void NBoneIK::set_bone_damp(int32_t p_index, real_t p_damp) {
+	ERR_FAIL_INDEX(p_index, bone_damp.size());
+	bone_damp.write[p_index]["damp"] = p_damp;
+}
+
+StringName NBoneIK::get_bone_damp_bone_name(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, bone_damp.size(), StringName());
+	ERR_FAIL_COND_V(!bone_damp[p_index].keys().has("bone_name"), StringName());
+	return bone_damp[p_index]["bone_name"];
+}
+
+void NBoneIK::set_bone_damp_bone_name(int32_t p_index, StringName p_name) {
+	ERR_FAIL_INDEX(p_index, bone_damp.size());
+	if (get_skeleton()) {
+		Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
+		BoneId bone_id = get_skeleton()->find_bone(p_name);
+		if (unlikely(root_bones.find(bone_id) != -1)) {
+			print_error("The root bone cannot be constrained.");
+			p_name = StringName();
+		}
+	}
+	bone_damp.write[p_index]["bone_name"] = p_name;
 }

@@ -45,7 +45,8 @@ public:
 	enum {
 		NBONE_IK_EDIT_CONSTRAIN_MODE_OFF = 0,
 		NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK,
-		NBONE_IK_EDIT_CONSTRAIN_MODE_LOCK
+		NBONE_IK_EDIT_CONSTRAIN_MODE_LOCK,
+		NBONE_IK_EDIT_CONSTRAIN_MODE_DAMP,
 	};
 
 private:
@@ -57,9 +58,12 @@ private:
 	int32_t constraint_count = 0;
 	Vector<StringName> constraint_names;
 	int32_t pin_count = 0;
+	int32_t bone_count = -1;
 	Vector<Ref<IKEffectorTemplate>> pins;
 	Vector<Ref<IKBone3D>> bone_list;
 	Vector<Vector2> kusudama_twist;
+	Vector<Dictionary> bone_damp;	
+	HashMap<BoneId, real_t> bone_damp_cache;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
@@ -135,6 +139,12 @@ public:
 	void set_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index, float p_radius);
 	int32_t get_kusudama_limit_cone_count(int32_t p_contraint_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
+	void set_bone_count(int32_t p_count);
+	int32_t get_bone_count() const;
+	void set_bone_damp(int32_t p_index, real_t p_damp);
+	real_t get_bone_damp(int32_t p_index) const;
+	StringName get_bone_damp_bone_name(int32_t p_index) const;
+	void set_bone_damp_bone_name(int32_t p_index, StringName p_name);
 	NBoneIK();
 	~NBoneIK();
 	void set_dirty();
