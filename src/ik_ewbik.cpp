@@ -173,7 +173,7 @@ void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "bone_count",
 						PROPERTY_HINT_RANGE, "0,256,or_greater", damp_usage | PROPERTY_USAGE_ARRAY,
-						"Kusudama Constraints,bone/"));
+						"Bone,bone/"));
 		for (int bone_i = 0; bone_i < get_bone_count(); bone_i++) {
 			PropertyInfo bone_name;
 			bone_name.type = Variant::STRING_NAME;
