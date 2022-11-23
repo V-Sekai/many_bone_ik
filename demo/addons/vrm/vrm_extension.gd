@@ -1,11 +1,11 @@
 extends GLTFDocumentExtension
 
-const vrm_constants_class = preload("./vrm_constants.gd")
-const vrm_meta_class = preload("./vrm_meta.gd")
-const vrm_secondary = preload("./vrm_secondary.gd")
-const vrm_collidergroup = preload("./vrm_collidergroup.gd")
-const vrm_springbone = preload("./vrm_springbone.gd")
-const vrm_top_level = preload("./vrm_toplevel.gd")
+const vrm_constants_class = preload("res://addons/vrm/vrm_constants.gd")
+const vrm_meta_class = preload("res://addons/vrm/vrm_meta.gd")
+const vrm_secondary = preload("res://addons/vrm/vrm_secondary.gd")
+const vrm_collidergroup = preload("res://addons/vrm/vrm_collidergroup.gd")
+const vrm_springbone = preload("res://addons/vrm/vrm_springbone.gd")
+const vrm_top_level = preload("res://addons/vrm/vrm_toplevel.gd")
 
 var vrm_meta: Resource = null
 
@@ -88,6 +88,13 @@ func skeleton_rename(gstate : GLTFState, p_base_scene: Node, p_skeleton: Skeleto
 		if bn != StringName():
 			p_skeleton.set_bone_name(i, bn)
 	var gnodes = gstate.nodes
+	var hip_bone_id = p_skeleton.find_bone("Hips")
+	if hip_bone_id != -1 and p_skeleton.find_bone("Root") == -1:
+		var root_bone_id = p_skeleton.get_parentless_bones()[0]
+		if root_bone_id == hip_bone_id:
+			p_skeleton.add_bone("Root")
+			var new_root_bone_id = p_skeleton.find_bone("Root")
+			p_skeleton.set_bone_parent(hip_bone_id, new_root_bone_id)
 	for gnode in gnodes:
 		var bn: StringName = p_bone_map.find_profile_bone_name(gnode.resource_name)
 		if bn != StringName():
@@ -968,7 +975,6 @@ func _import_preflight(gstate : GLTFState, psa=PackedStringArray(), psa2: Varian
 
 func apply_retarget(gstate : GLTFState, root_node: Node, skeleton: Skeleton3D, bone_map: BoneMap) -> Array[Basis]:
 	var skeletonPath: NodePath = root_node.get_path_to(skeleton)
-
 	skeleton_rename(gstate, root_node, skeleton, bone_map)
 	var hips_bone_idx = skeleton.find_bone("Hips")
 	if hips_bone_idx != -1:
