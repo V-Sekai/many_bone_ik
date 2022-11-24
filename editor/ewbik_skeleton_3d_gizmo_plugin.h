@@ -67,7 +67,7 @@ public:
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	EWBIK3DGizmoPlugin();
-	int32_t get_priority() const {
+	int32_t get_priority() const override {
 		return -1;
 	}
 	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton, NBoneIK *p_ewbik);
