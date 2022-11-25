@@ -1,11 +1,11 @@
 extends GLTFDocumentExtension
 
-const vrm_constants_class = preload("res://addons/vrm/vrm_constants.gd")
-const vrm_meta_class = preload("res://addons/vrm/vrm_meta.gd")
-const vrm_secondary = preload("res://addons/vrm/vrm_secondary.gd")
-const vrm_collidergroup = preload("res://addons/vrm/vrm_collidergroup.gd")
-const vrm_springbone = preload("res://addons/vrm/vrm_springbone.gd")
-const vrm_top_level = preload("res://addons/vrm/vrm_toplevel.gd")
+const vrm_constants_class = preload("./vrm_constants.gd")
+const vrm_meta_class = preload("./vrm_meta.gd")
+const vrm_secondary = preload("./vrm_secondary.gd")
+const vrm_collidergroup = preload("./vrm_collidergroup.gd")
+const vrm_springbone = preload("./vrm_springbone.gd")
+const vrm_top_level = preload("./vrm_toplevel.gd")
 
 var vrm_meta: Resource = null
 
@@ -88,13 +88,12 @@ func skeleton_rename(gstate : GLTFState, p_base_scene: Node, p_skeleton: Skeleto
 		if bn != StringName():
 			p_skeleton.set_bone_name(i, bn)
 	var gnodes = gstate.nodes
-	var hip_bone_id = p_skeleton.find_bone("Hips")
-	if hip_bone_id != -1 and p_skeleton.find_bone("Root") == -1:
-		var root_bone_id = p_skeleton.get_parentless_bones()[0]
-		if root_bone_id == hip_bone_id:
-			p_skeleton.add_bone("Root")
-			var new_root_bone_id = p_skeleton.find_bone("Root")
-			p_skeleton.set_bone_parent(hip_bone_id, new_root_bone_id)
+	var root_bone_name = "Root"
+	if p_skeleton.find_bone(root_bone_name) == -1:
+		p_skeleton.add_bone(root_bone_name)
+		var new_root_bone_id = p_skeleton.find_bone(root_bone_name)
+		for root_bone_id in p_skeleton.get_parentless_bones():
+			p_skeleton.set_bone_parent(root_bone_id, new_root_bone_id)
 	for gnode in gnodes:
 		var bn: StringName = p_bone_map.find_profile_bone_name(gnode.resource_name)
 		if bn != StringName():
@@ -317,7 +316,7 @@ func _vrm_get_float(vrm_mat_props: Dictionary, key: String, def: float) -> float
 	return vrm_mat_props["floatProperties"].get(key, def)
 
 
-func _process_vrm_material(orig_mat: StandardMaterial3D, gltf_images: Array, vrm_mat_props: Dictionary) -> Material:
+func _process_vrm_material(orig_mat: Material, gltf_images: Array, vrm_mat_props: Dictionary) -> Material:
 	var vrm_shader_name:String = vrm_mat_props["shader"]
 	if vrm_shader_name == "VRM_USE_GLTFSHADER":
 		return orig_mat # It's already correct!
