@@ -163,14 +163,14 @@ func _run():
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(355), deg_to_rad(30)))
 			# HEAD ---------
 			elif bone_name.ends_with("Head"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(5)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(10)))
 			elif bone_name.ends_with("Neck"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(356), deg_to_rad(5)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(356), deg_to_rad(10)))
 			# ARMS ---------
 			elif bone_name.ends_with("RightShoulder"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(103), deg_to_rad(5)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(103), deg_to_rad(10)))
 			elif bone_name.ends_with("LeftShoulder"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(295.1), deg_to_rad(5)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(295.1), deg_to_rad(10)))
 			elif bone_name.ends_with("RightUpperArm"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(135.2), deg_to_rad(40)))
 			elif bone_name.ends_with("LeftUpperArm"):
@@ -180,9 +180,9 @@ func _run():
 			elif bone_name.ends_with("LeftLowerArm"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(250), deg_to_rad(20)))
 			elif bone_name.ends_with("RightHand"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(281), deg_to_rad(5)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(281), deg_to_rad(10)))
 			elif bone_name.ends_with("LeftHand"):
-				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(78.6), deg_to_rad(5)))
+				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(78.6), deg_to_rad(10)))
 			# LEGS ---------
 			elif bone_name.ends_with("LeftUpperLeg"):
 				new_ik.set_kusudama_twist(constraint_i, Vector2(deg_to_rad(0), deg_to_rad(358)))
@@ -270,7 +270,7 @@ func _run():
 				new_ik.set_kusudama_limit_cone_count(constraint_i, 1)
 				new_ik.set_kusudama_limit_cone_center(constraint_i, 0, Vector3(0, 0, -1))
 				new_ik.set_kusudama_limit_cone_radius(constraint_i, 0, deg_to_rad(15))
-				
+
 		for bone_i in new_ik.get_pin_count():
 			var bone_name : String = new_ik.get_pin_bone_name(bone_i)
 			var node_3d : BoneAttachment3D = BoneAttachment3D.new()
@@ -284,9 +284,6 @@ func _run():
 			new_ik.set_pin_nodepath(bone_i, NodePath(path_string))
 			var marker_3d : Marker3D = Marker3D.new()
 			marker_3d.name = bone_name
-			if false:
-				var chirality : float = node_global_transform.basis.x.dot(node_global_transform.basis.y.cross(node_global_transform.basis.z))
-				print("%s %f" % [bone_name, chirality])
 			marker_3d.global_transform = node_global_transform
 			node_3d.replace_by(marker_3d, true)
 		new_ik.visible = true
