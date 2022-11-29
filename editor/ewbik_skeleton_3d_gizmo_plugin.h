@@ -231,6 +231,10 @@ vec4 color_allowed(in vec3 normal_dir,  in int cone_counts, in float boundary_wi
 void vertex() {
 	normal_model_dir = CUSTOM0.rgb;
 	vert_model_color.rgb = kusudama_color.rgb;
+	// Draw the spheres in front of the background.
+	VERTEX = VERTEX;
+    POSITION = PROJECTION_MATRIX * VIEW_MATRIX * MODEL_MATRIX * vec4(VERTEX.xyz, 1.0);
+    POSITION.z = mix(POSITION.z, 0, 0.95);
 }
 
 void fragment() {
