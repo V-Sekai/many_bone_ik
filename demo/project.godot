@@ -39,7 +39,6 @@ _global_script_class_icons={
 [application]
 
 config/name="NBoneIK Game Project"
-run/main_scene="res://sci_fi_girl_v_02_walkcycle_test.tscn"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
 
