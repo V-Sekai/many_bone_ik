@@ -291,6 +291,8 @@ EWBIK3DGizmoPlugin::EWBIK3DGizmoPlugin() {
 }
 
 void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton, NBoneIK *p_ewbik) {
+	// TEST PLAN:
+	// You will also want to make sure it's robust to translations of the skeleton node and root bone
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
