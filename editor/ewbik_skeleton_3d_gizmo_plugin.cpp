@@ -107,12 +107,14 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			bones_to_process_i++;
 		}
 		Color current_bone_color = bone_color;
-		Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
-		if (ik_bone.is_null()) {
-			continue;
+		for (BoneId bone_i : bones_to_process) {
+			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
+			if (ik_bone.is_null()) {
+				continue;
+			}
+			create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+			create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
 		}
-		create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
-		create_gizmo_handles(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
 	}
 }
 
