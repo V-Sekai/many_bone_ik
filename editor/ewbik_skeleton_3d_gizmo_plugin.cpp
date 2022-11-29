@@ -91,8 +91,6 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			ewbik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
 		}
 		Vector<int> bones_to_process = ewbik_skeleton->get_parentless_bones();
-		kusudama_shader.instantiate();
-		kusudama_shader->set_code(EWBIK_KUSUDAMA_SHADER);
 		int bones_to_process_i = 0;
 		Vector<BoneId> processing_bones;
 		Ref<IKBoneSegment> bone_segment = ewbik->get_segmented_skeleton();
@@ -109,14 +107,12 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			bones_to_process_i++;
 		}
 		Color current_bone_color = bone_color;
-		for (BoneId current_bone_idx : processing_bones) {
-			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
-			if (ik_bone.is_null() || ik_bone->get_bone_id() != current_bone_idx) {
-				continue;
-			}
-			create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
-			create_gizmo_handles(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+		Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(current_bone_idx);
+		if (ik_bone.is_null()) {
+			continue;
 		}
+		create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+		create_gizmo_handles(current_bone_idx, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
 	}
 }
 
@@ -288,6 +284,8 @@ EWBIK3DGizmoPlugin::EWBIK3DGizmoPlugin() {
 	create_handle_material("handles_axial_to", false, handle_axial_to);
 	Ref<Texture2D> handle_axial_current = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node2D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_current", false, handle_axial_current);
+	kusudama_shader.instantiate();
+	kusudama_shader->set_code(EWBIK_KUSUDAMA_SHADER);
 }
 
 void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton, NBoneIK *p_ewbik) {

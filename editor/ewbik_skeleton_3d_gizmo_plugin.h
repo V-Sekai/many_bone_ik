@@ -73,20 +73,7 @@ public:
 	}
 	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton, NBoneIK *p_ewbik);
 	void create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ewbik_skeleton, NBoneIK *p_ewbik);
-};
-
-class EditorPluginEWBIK : public EditorPlugin {
-	GDCLASS(EditorPluginEWBIK, EditorPlugin);
-
-public:
-	EditorPluginEWBIK() {
-		Ref<EWBIK3DGizmoPlugin> ewbik_gizmo_plugin;
-		ewbik_gizmo_plugin.instantiate();
-		Node3DEditor::get_singleton()->add_gizmo_plugin(ewbik_gizmo_plugin);
-	}
-};
-
-static String EWBIK_KUSUDAMA_SHADER = R"(
+	static constexpr char EWBIK_KUSUDAMA_SHADER[] = R"(
 // Skeleton 3D gizmo kusudama constraint shader.
 shader_type spatial;
 render_mode depth_prepass_alpha, cull_disabled;
@@ -259,5 +246,17 @@ void fragment() {
 	ALPHA = result_color_allowed.a;
 }
 )";
+
+};
+
+class EditorPluginEWBIK : public EditorPlugin {
+	GDCLASS(EditorPluginEWBIK, EditorPlugin);
+public:
+	EditorPluginEWBIK() {
+		Ref<EWBIK3DGizmoPlugin> ewbik_gizmo_plugin;
+		ewbik_gizmo_plugin.instantiate();
+		Node3DEditor::get_singleton()->add_gizmo_plugin(ewbik_gizmo_plugin);
+	}
+};
 
 #endif // EWBIK_SKELETON_3D_GIZMO_PLUGIN_H
