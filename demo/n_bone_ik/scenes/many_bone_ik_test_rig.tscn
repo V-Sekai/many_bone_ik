@@ -4,4 +4,32 @@
 
 [node name="many_bone_ik_test_rig" instance=ExtResource("1_bmrba")]
 
-[node name="ManyBoneIK3D" type="ManyBoneIK3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]
+[node name="Skeleton3D" parent="Simple_Test_Rig_Armature" index="0"]
+bones/0/rotation = Quaternion(0, 0, 8.47032e-21, 1)
+bones/1/position = Vector3(-1.01644e-20, 0.600001, 0)
+bones/1/rotation = Quaternion(-1.36517e-10, -6.12435e-10, -0.217545, 0.97605)
+bones/2/position = Vector3(-1.10269e-06, 0.600041, 1.99285e-14)
+bones/2/rotation = Quaternion(-1.50489e-10, 6.14361e-10, -0.22201, 0.975044)
+
+[node name="Bone1" type="Node3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="0"]
+transform = Transform3D(0.632246, 0.774768, 0, -0.774768, 0.632246, 0, 0, 0, 1, 0.213959, 1.05614, 0)
+
+[node name="ManyBoneIK3D" type="ManyBoneIK3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="2"]
+edit_constraints = 0
+constraint_count = 1
+constraints/0/bone_name = &""
+constraints/0/twist_from = 3.14159
+constraints/0/twist_range = 6.28318
+constraints/0/twist_current = null
+constraints/0/kusudama_limit_cone_count = 0
+pin_count = 2
+pins/0/bone_name = "Bone_01"
+pins/0/target_node = NodePath("../../..")
+pins/0/passthrough_factor = 0.0
+pins/0/weight = 1.0
+pins/0/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/1/bone_name = "Bone_03"
+pins/1/target_node = NodePath("../Bone1")
+pins/1/passthrough_factor = 0.0
+pins/1/weight = 1.0
+pins/1/direction_priorities = Vector3(0.2, 0, 0.2)
