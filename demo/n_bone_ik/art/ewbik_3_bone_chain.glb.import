@@ -25,5 +25,6 @@ meshes/lightmap_texel_size=0.1
 skins/use_named_skins=true
 animation/import=true
 animation/fps=15
+animation/trimming=false
 import_script/path="res://addons/catboost/correct_bone_dir_post_scene_import.gd"
 _subresources={}

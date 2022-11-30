@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EWBIK_REGISTER_TYPES_H
-#define EWBIK_REGISTER_TYPES_H
+#ifndef MANY_BONE_IKREGISTER_TYPES_H
+#define MANY_BONE_IKREGISTER_TYPES_H
 
 #include "modules/register_module_types.h"
 
-void initialize_ewbik_module(ModuleInitializationLevel p_level);
-void uninitialize_ewbik_module(ModuleInitializationLevel p_level);
+void initialize_many_bone_ik_module(ModuleInitializationLevel p_level);
+void uninitialize_many_bone_ik_module(ModuleInitializationLevel p_level);
 
-#endif // EWBIK_REGISTER_TYPES_H
+#endif // MANY_BONE_IKREGISTER_TYPES_H

@@ -33,25 +33,25 @@
 #include "src/ik_bone_3d.h"
 #include "src/ik_effector_3d.h"
 #include "src/ik_effector_template.h"
-#include "src/ik_ewbik.h"
+#include "src/many_bone_ik.h"
 #include "src/ik_kusudama.h"
 
 #ifdef TOOLS_ENABLED
-#include "editor/ewbik_skeleton_3d_gizmo_plugin.h"
+#include "editor/many_bone_ik_3d_gizmo_plugin.h"
 #endif
 
-void initialize_ewbik_module(ModuleInitializationLevel p_level) {
+void initialize_many_bone_ik_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
 	}
 #ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
-		EditorPlugins::add_by_type<EditorPluginEWBIK>();
-		EditorPlugins::add_by_type<EWBIK3DEditorPlugin>();
+		EditorPlugins::add_by_type<EditorPluginManyBoneIK>();
+		EditorPlugins::add_by_type<ManyBoneIK3DEditorPlugin>();
 	}
 #endif
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
 		GDREGISTER_CLASS(IKEffectorTemplate);
-		GDREGISTER_CLASS(NBoneIK);
+		GDREGISTER_CLASS(ManyBoneIK);
 		GDREGISTER_CLASS(IKBone3D);
 		GDREGISTER_CLASS(IKNode3D);
 		GDREGISTER_CLASS(IKEffector3D);
@@ -63,7 +63,7 @@ void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 	
 }
 
-void uninitialize_ewbik_module(ModuleInitializationLevel p_level) {
+void uninitialize_many_bone_ik_module(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}

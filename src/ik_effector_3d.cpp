@@ -30,7 +30,7 @@
 
 #include "ik_effector_3d.h"
 #include "ik_bone_3d.h"
-#include "ik_ewbik.h"
+#include "many_bone_ik.h"
 #include "math/ik_node_3d.h"
 
 #ifdef TOOLS_ENABLED
@@ -71,11 +71,11 @@ Vector3 IKEffector3D::get_direction_priorities() const {
 	return direction_priorities;
 }
 
-void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, NBoneIK *p_ewbik) {
+void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK *p_many_bone_ik) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
 	target_relative_to_skeleton_origin = p_skeleton->get_global_transform().affine_inverse() * for_bone->get_ik_transform()->get_global_transform();
-	Node3D *current_target_node = cast_to<Node3D>(p_ewbik->get_node_or_null(target_node_path));
+	Node3D *current_target_node = cast_to<Node3D>(p_many_bone_ik->get_node_or_null(target_node_path));
 	if (!current_target_node) {
 		return;
 	}
@@ -83,20 +83,20 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, NBoneI
 		return;
 	}
 	Transform3D changed_transform = p_skeleton->get_global_transform().affine_inverse() * current_target_node->get_global_transform();
-	bool is_ewbik_node = false;
+	bool is_many_bone_ik_node = false;
 #ifdef TOOLS_ENABLED
 	// Solves a problem where moving the target nodes makes the constraint inspector fight the editor by disabliing edit mode.
 	EditorSelection *editor_selection = EditorNode::get_singleton()->get_editor_selection();
 	if (editor_selection) {
 		TypedArray<Node> selected_node_list = editor_selection->get_selected_nodes();
-		if (p_ewbik && selected_node_list.has(p_ewbik)) {
-			is_ewbik_node = true;
+		if (p_many_bone_ik && selected_node_list.has(p_many_bone_ik)) {
+			is_many_bone_ik_node = true;
 		} else {
-			is_ewbik_node = false;
+			is_many_bone_ik_node = false;
 		}
 	}
-	if (!is_ewbik_node && !changed_transform.is_equal_approx(target_relative_to_skeleton_origin) && p_ewbik->get_edit_constraint_mode() == NBoneIK::NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK) {
-		p_ewbik->set_edit_constraint_mode(NBoneIK::NBONE_IK_EDIT_CONSTRAIN_MODE_OFF);
+	if (!is_many_bone_ik_node && !changed_transform.is_equal_approx(target_relative_to_skeleton_origin) && p_many_bone_ik->get_edit_constraint_mode() == ManyBoneIK::NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK) {
+		p_many_bone_ik->set_edit_constraint_mode(ManyBoneIK::NBONE_IK_EDIT_CONSTRAIN_MODE_OFF);
 	}
 #endif
 	target_relative_to_skeleton_origin = changed_transform;

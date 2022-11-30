@@ -1,4 +1,4 @@
-# Godot Engine EWBIK authors
+# Godot Engine Many Bone IK authors
 
 GitHub usernames are indicated in parentheses.
 

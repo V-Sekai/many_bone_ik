@@ -24,6 +24,6 @@ scoop install sudo
 1. `scoop bucket add dorado https://github.com/chawyehsu/dorado`
 1. `scoop install llvm-mingw`
 1. git clone godot
-1. git clone ewbik
-1. put ewbik beside godot
-1. scons custom_modules=../ewbik
+1. git clone many_bone_ik
+1. put many_bone_ik beside godot
+1. scons custom_modules=../many_bone_ik

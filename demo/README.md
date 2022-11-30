@@ -24,7 +24,7 @@ Do you know what the physical quanity where the larger the bone the less movemen
 
 because currently larger bones can move more and they do
 
-You mean the IRL physical quantity or the parameter a user should change in ewbik?
+You mean the IRL physical quantity or the parameter a user should change in many_bone_ik?
 
 in the can't reach case it explodes
 
@@ -34,7 +34,7 @@ You should fix it instead of trying to work around it.
 
 You're probably thinking of angular momentum and/or torque.
 
-In terms of making bones less likely to move in ewbik, you would lower their dampening parameter.
+In terms of making bones less likely to move in many_bone_ik, you would lower their dampening parameter.
 
 But the human body doesn't care about this that much. Your legs are much larger than any of the bones in your spine, but move around much more
 Anyway, the situations where you will encounter actual non-convergence are pretty rare, and the way to handle them is by ensuring that an iteration after each constraint decreases target deviation, and skipping the iteration if it doesn't

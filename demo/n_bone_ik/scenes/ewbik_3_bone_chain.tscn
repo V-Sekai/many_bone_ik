@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3 uid="uid://c4uoqujqycdgj"]
 
-[ext_resource type="PackedScene" uid="uid://cr48tqlh6y3jy" path="res://n_bone_ik/art/ewbik_3_bone_chain.glb" id="1_linp6"]
+[ext_resource type="PackedScene" uid="uid://cr48tqlh6y3jy" path="res://n_bone_ik/art/many_bone_ik_3_bone_chain.glb" id="1_linp6"]
 
-[node name="ewbik_3_bone_chain" instance=ExtResource("1_linp6")]
+[node name="many_bone_ik_3_bone_chain" instance=ExtResource("1_linp6")]
 
 [node name="Skeleton3D" parent="Armature" index="0"]
 bones/0/rotation = Quaternion(0.00742721, 0.0304333, -0.0141106, 0.99941)
@@ -19,7 +19,7 @@ bones/7/rotation = Quaternion(-3.45941e-09, 2.85493e-07, 0.00958545, 0.999954)
 bones/8/rotation = Quaternion(-4.67909e-07, -6.25651e-08, 0.550628, 0.834751)
 bones/11/rotation = Quaternion(1.33279e-13, 3.71461e-16, 1.49012e-07, 1)
 
-[node name="NBoneIK" type="NBoneIK" parent="Armature/Skeleton3D" index="1"]
+[node name="ManyBoneIK" type="ManyBoneIK" parent="Armature/Skeleton3D" index="1"]
 root_bone = &"A0"
 constraint_count = 12
 constraints/0/bone_name = &""
