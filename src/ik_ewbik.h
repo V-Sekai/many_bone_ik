@@ -51,7 +51,6 @@ public:
 
 private:
 	int constrain_mode = NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK;
-	StringName tip_bone;
 	NodePath skeleton_path;
 	Vector<Ref<IKBoneSegment>> segmented_skeletons;
 	int32_t constraint_count = 0;
@@ -77,7 +76,6 @@ private:
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
 
 protected:
-	void _validate_property(PropertyInfo &property) const;
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
@@ -93,8 +91,6 @@ public:
 	Vector<Ref<IKBone3D>> get_bone_list();
 	int get_edit_constraint_mode() const;
 	void set_edit_constraint_mode(int p_enable);
-	StringName get_tip_bone() const;
-	void set_tip_bone(StringName p_bone);
 	Vector<Ref<IKBoneSegment>> get_segmented_skeletons();
 	float get_iterations_per_frame() const;
 	void set_iterations_per_frame(const float &p_iterations_per_frame);

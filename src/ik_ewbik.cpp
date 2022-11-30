@@ -120,24 +120,6 @@ void NBoneIK::update_skeleton_bones_transform() {
 	}
 }
 
-void NBoneIK::_validate_property(PropertyInfo &property) const {
-	if (property.name == "tip_bone") {
-		if (get_skeleton()) {
-			String names;
-			for (int i = 0; i < get_skeleton()->get_bone_count(); i++) {
-				String name = get_skeleton()->get_bone_name(i);
-				name += ",";
-				names += name;
-			}
-			property.hint = PROPERTY_HINT_ENUM_SUGGESTION;
-			property.hint_string = names;
-		} else {
-			property.hint = PROPERTY_HINT_NONE;
-			property.hint_string = "";
-		}
-	}
-}
-
 void NBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
@@ -524,8 +506,6 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &NBoneIK::set_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &NBoneIK::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &NBoneIK::set_dirty);
-	ClassDB::bind_method(D_METHOD("set_tip_bone", "tip_bone"), &NBoneIK::set_tip_bone);
-	ClassDB::bind_method(D_METHOD("get_tip_bone"), &NBoneIK::get_tip_bone);
 	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_radius", "index", "cone_index", "radius"), &NBoneIK::set_kusudama_limit_cone_radius);
 	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_radius", "index", "cone_index"), &NBoneIK::get_kusudama_limit_cone_radius);
 	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_center", "index", "cone_index", "center"), &NBoneIK::set_kusudama_limit_cone_center);
@@ -562,7 +542,6 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_bone_count", "count"), &NBoneIK::set_bone_count);
 
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
-	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "edit_constraints", PROPERTY_HINT_ENUM, "Off,Constraints auto-unlock,Constraints lock,Bone damp edit"), "set_edit_constraint_mode", "get_edit_constraint_mode");
@@ -846,10 +825,9 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	segmented_skeletons.clear();
 	for (BoneId root_bone_index : roots) {
 		StringName parentless_bone = p_skeleton->get_bone_name(root_bone_index);
-		BoneId tip_bone_index = p_skeleton->find_bone(tip_bone);
-		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, nullptr, root_bone_index, tip_bone_index)));
+		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, nullptr, root_bone_index, -1)));
 		segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
-		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
+		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, -1);
 		Vector<Ref<IKBone3D>> new_bone_list;
 		segmented_skeleton->create_bone_list(new_bone_list, true, queue_debug_skeleton);
 		bone_list.append_array(new_bone_list);
@@ -925,15 +903,6 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
 	}
-}
-
-StringName NBoneIK::get_tip_bone() const {
-	return tip_bone;
-}
-
-void NBoneIK::set_tip_bone(StringName p_bone) {
-	tip_bone = p_bone;
-	set_dirty();
 }
 
 real_t NBoneIK::get_pin_weight(int32_t p_pin_index) const {
