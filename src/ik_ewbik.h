@@ -66,7 +66,7 @@ private:
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
-	int32_t iterations_per_frame = 10;
+	int32_t iterations_per_frame = 20;
 	float default_damp = Math::deg_to_rad(10.0f);
 	bool queue_debug_skeleton = false;
 	Ref<IKNode3D> root_transform = Ref<IKNode3D>(memnew(IKNode3D));
