@@ -30,7 +30,7 @@
 
 #include "ik_effector_3d.h"
 #include "ik_bone_3d.h"
-#include "many_bone_ik.h"
+#include "many_bone_ik_3d.h"
 #include "math/ik_node_3d.h"
 
 #ifdef TOOLS_ENABLED

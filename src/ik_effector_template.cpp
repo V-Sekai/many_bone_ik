@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "many_bone_ik.h"
+#include "many_bone_ik_3d.h"
 
 #include "ik_effector_template.h"
 
