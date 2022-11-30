@@ -51,10 +51,9 @@ public:
 
 private:
 	int constrain_mode = NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK;
-	StringName root_bone;
 	StringName tip_bone;
 	NodePath skeleton_path;
-	Ref<IKBoneSegment> segmented_skeleton;
+	Vector<Ref<IKBoneSegment>> segmented_skeletons;
 	int32_t constraint_count = 0;
 	Vector<StringName> constraint_names;
 	int32_t pin_count = 0;
@@ -94,11 +93,9 @@ public:
 	Vector<Ref<IKBone3D>> get_bone_list();
 	int get_edit_constraint_mode() const;
 	void set_edit_constraint_mode(int p_enable);
-	StringName get_root_bone() const;
-	void set_root_bone(const StringName &p_root_bone);
 	StringName get_tip_bone() const;
 	void set_tip_bone(StringName p_bone);
-	Ref<IKBoneSegment> get_segmented_skeleton();
+	Vector<Ref<IKBoneSegment>> get_segmented_skeletons();
 	float get_iterations_per_frame() const;
 	void set_iterations_per_frame(const float &p_iterations_per_frame);
 	void remove_pin(int32_t p_index);

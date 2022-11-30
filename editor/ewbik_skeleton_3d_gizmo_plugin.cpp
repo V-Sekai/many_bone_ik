@@ -93,27 +93,29 @@ void EWBIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		Vector<int> bones_to_process = ewbik_skeleton->get_parentless_bones();
 		int bones_to_process_i = 0;
 		Vector<BoneId> processing_bones;
-		Ref<IKBoneSegment> bone_segment = ewbik->get_segmented_skeleton();
-		if (bone_segment.is_null()) {
-			return;
-		}
-		while (bones_to_process_i < bones_to_process.size()) {
-			int current_bone_idx = bones_to_process[bones_to_process_i];
-			processing_bones.push_back(current_bone_idx);
-			Vector<int> child_bones_vector = ewbik_skeleton->get_bone_children(current_bone_idx);
-			for (int child_bone_idx : child_bones_vector) {
-				bones_to_process.push_back(child_bone_idx);
-			}
-			bones_to_process_i++;
-		}
-		Color current_bone_color = bone_color;
-		for (BoneId bone_i : bones_to_process) {
-			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
-			if (ik_bone.is_null()) {
+		Vector<Ref<IKBoneSegment>> bone_segments = ewbik->get_segmented_skeletons();
+		for (Ref<IKBoneSegment> bone_segment : bone_segments) {
+			if (bone_segment.is_null()) {
 				continue;
 			}
-			create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
-			create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+			while (bones_to_process_i < bones_to_process.size()) {
+				int current_bone_idx = bones_to_process[bones_to_process_i];
+				processing_bones.push_back(current_bone_idx);
+				Vector<int> child_bones_vector = ewbik_skeleton->get_bone_children(current_bone_idx);
+				for (int child_bone_idx : child_bones_vector) {
+					bones_to_process.push_back(child_bone_idx);
+				}
+				bones_to_process_i++;
+			}
+			Color current_bone_color = bone_color;
+			for (BoneId bone_i : bones_to_process) {
+				Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
+				if (ik_bone.is_null()) {
+					continue;
+				}
+				create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+				create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, ewbik_skeleton, ewbik);
+			}
 		}
 	}
 }
@@ -543,34 +545,32 @@ void EWBIK3DEditor::update_joint_tree() {
 	if (!skeleton) {
 		return;
 	}
-
 	TreeItem *root = joint_tree->create_item();
-
 	HashMap<int, TreeItem *> items;
-
 	items.insert(-1, root);
-
 	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
-
-	Ref<IKBoneSegment> bone_segment = ik->get_segmented_skeleton();
-	ERR_FAIL_NULL(bone_segment);
-	Vector<Ref<IKBone3D>> bone_list = ik->get_bone_list();
-	bone_list.reverse();
-	ERR_FAIL_NULL(ik->get_skeleton());
-	for (Ref<IKBone3D> bone : bone_list) {
-		int current_bone_idx = bone->get_bone_id();
-		Ref<IKBone3D> parent = bone->get_parent();
-		int parent_idx = -1;
-		if (parent.is_valid()) {
-			parent_idx = parent->get_bone_id();
+	Vector<Ref<IKBoneSegment>> bone_segments = ik->get_segmented_skeletons();
+	for (Ref<IKBoneSegment> bone_segment : bone_segments) {
+		if (bone_segment.is_null()) {
+			continue;
 		}
-		TreeItem *parent_item = items.find(parent_idx)->value;
-		TreeItem *joint_item = joint_tree->create_item(parent_item);
-		items.insert(current_bone_idx, joint_item);
-		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
-		joint_item->set_icon(0, bone_icon);
-		joint_item->set_selectable(0, true);
-		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
+		Vector<Ref<IKBone3D>> bone_list = ik->get_bone_list();
+		bone_list.reverse();
+		for (Ref<IKBone3D> bone : bone_list) {
+			int current_bone_idx = bone->get_bone_id();
+			Ref<IKBone3D> parent = bone->get_parent();
+			int parent_idx = -1;
+			if (parent.is_valid()) {
+				parent_idx = parent->get_bone_id();
+			}
+			TreeItem *parent_item = items.find(parent_idx)->value;
+			TreeItem *joint_item = joint_tree->create_item(parent_item);
+			items.insert(current_bone_idx, joint_item);
+			joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
+			joint_item->set_icon(0, bone_icon);
+			joint_item->set_selectable(0, true);
+			joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
+		}
 	}
 }
 

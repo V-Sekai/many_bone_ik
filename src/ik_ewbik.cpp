@@ -121,29 +121,10 @@ void NBoneIK::update_skeleton_bones_transform() {
 }
 
 void NBoneIK::_validate_property(PropertyInfo &property) const {
-	if (property.name == "root_bone") {
-		if (get_skeleton()) {
-			String names;
-			for (int i = 0; i < get_skeleton()->get_bone_count(); i++) {
-				String name = get_skeleton()->get_bone_name(i);
-				name += ",";
-				names += name;
-			}
-			property.hint = PROPERTY_HINT_ENUM_SUGGESTION;
-			property.hint_string = names;
-		} else {
-			property.hint = PROPERTY_HINT_NONE;
-			property.hint_string = "";
-		}
-	}
 	if (property.name == "tip_bone") {
 		if (get_skeleton()) {
 			String names;
-			BoneId root_bone_id = get_skeleton()->find_bone(root_bone);
 			for (int i = 0; i < get_skeleton()->get_bone_count(); i++) {
-				if (i <= root_bone_id || root_bone_id == -1) {
-					continue;
-				}
 				String name = get_skeleton()->get_bone_name(i);
 				name += ",";
 				names += name;
@@ -369,25 +350,29 @@ bool NBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 			return true;
 		} else if (what == "twist_current") {
 			String bone_name = constraint_names[index];
-			if (segmented_skeleton.is_null()) {
-				r_ret = 0;
-				return false;
+			for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+				if (segmented_skeleton.is_null()) {
+					r_ret = 0;
+					continue;
+				}
+				if (!get_skeleton()) {
+					r_ret = 0;
+					continue;
+				}
+				Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+				if (ik_bone.is_null()) {
+					r_ret = 0;
+					continue;
+				}
+				if (ik_bone->get_constraint().is_null()) {
+					r_ret = 0;
+					continue;
+				}
+				r_ret = ik_bone->get_constraint()->get_current_twist_rotation(ik_bone);
+				return true;
 			}
-			if (!get_skeleton()) {
-				r_ret = 0;
-				return false;
-			}
-			Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
-			if (ik_bone.is_null()) {
-				r_ret = 0;
-				return false;
-			}
-			if (ik_bone->get_constraint().is_null()) {
-				r_ret = 0;
-				return false;
-			}
-			r_ret = ik_bone->get_constraint()->get_current_twist_rotation(ik_bone);
-			return true;
+			r_ret = 0;
+			return false;
 		} else if (what == "twist_from") {
 			r_ret = get_kusudama_twist(index).x;
 			return true;
@@ -472,29 +457,32 @@ bool NBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		} else if (what == "twist_current") {
 			Vector2 twist_from = get_kusudama_twist(index);
-			if (segmented_skeleton.is_null()) {
-				return false;
-			}
-			if (!get_skeleton()) {
-				return false;
-			}
-			String bone_name = constraint_names[index];
-			Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
-			if (ik_bone.is_null()) {
-				return false;
-			}
-			if (ik_bone->get_constraint().is_null()) {
-				return false;
-			}
-			ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_value);
-			for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
+			for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 				if (segmented_skeleton.is_null()) {
-					break;
+					continue;
 				}
-				segmented_skeleton->segment_solver(get_default_damp(), constrain_mode);
+				if (!get_skeleton()) {
+					continue;
+				}
+				String bone_name = constraint_names[index];
+				Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+				if (ik_bone.is_null()) {
+					continue;
+				}
+				if (ik_bone->get_constraint().is_null()) {
+					continue;
+				}
+				ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_value);
+				for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
+					if (segmented_skeleton.is_null()) {
+						break;
+					}
+					segmented_skeleton->segment_solver(get_default_damp(), constrain_mode);
+				}
+				update_skeleton_bones_transform();
+				return true;
 			}
-			update_skeleton_bones_transform();
-			return true;
+			return false;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
 			set_kusudama_twist(index, Vector2(IKKusudama::_to_tau(p_value), IKKusudama::_to_tau(twist_from.y)));
@@ -536,8 +524,6 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &NBoneIK::set_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &NBoneIK::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &NBoneIK::set_dirty);
-	ClassDB::bind_method(D_METHOD("set_root_bone", "root_bone"), &NBoneIK::set_root_bone);
-	ClassDB::bind_method(D_METHOD("get_root_bone"), &NBoneIK::get_root_bone);
 	ClassDB::bind_method(D_METHOD("set_tip_bone", "tip_bone"), &NBoneIK::set_tip_bone);
 	ClassDB::bind_method(D_METHOD("get_tip_bone"), &NBoneIK::get_tip_bone);
 	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_radius", "index", "cone_index", "radius"), &NBoneIK::set_kusudama_limit_cone_radius);
@@ -552,7 +538,6 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_pin_passthrough_factor", "index"), &NBoneIK::get_pin_passthrough_factor);
 	ClassDB::bind_method(D_METHOD("set_constraint_name", "index", "name"), &NBoneIK::set_constraint_name);
 	ClassDB::bind_method(D_METHOD("get_constraint_name", "index"), &NBoneIK::get_constraint_name);
-	ClassDB::bind_method(D_METHOD("get_segmented_skeleton"), &NBoneIK::get_segmented_skeleton);
 	ClassDB::bind_method(D_METHOD("get_iterations_per_frame"), &NBoneIK::get_iterations_per_frame);
 	ClassDB::bind_method(D_METHOD("set_iterations_per_frame", "count"), &NBoneIK::set_iterations_per_frame);
 	ClassDB::bind_method(D_METHOD("find_constraint", "name"), &NBoneIK::find_constraint);
@@ -577,7 +562,6 @@ void NBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_bone_count", "count"), &NBoneIK::set_bone_count);
 
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
-	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_root_bone", "get_root_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "tip_bone", PROPERTY_HINT_ENUM_SUGGESTION), "set_tip_bone", "get_tip_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
@@ -778,8 +762,8 @@ void NBoneIK::set_constraint_name(int32_t p_index, String p_name) {
 	set_dirty();
 }
 
-Ref<IKBoneSegment> NBoneIK::get_segmented_skeleton() {
-	return segmented_skeleton;
+Vector<Ref<IKBoneSegment>> NBoneIK::get_segmented_skeletons() {
+	return segmented_skeletons;
 }
 float NBoneIK::get_iterations_per_frame() const {
 	return iterations_per_frame;
@@ -818,7 +802,7 @@ void NBoneIK::execute(real_t delta) {
 	if (get_pin_count() == 0) {
 		return;
 	}
-	if (segmented_skeleton.is_null()) {
+	if (!segmented_skeletons.size()) {
 		set_dirty();
 	}
 	if (is_dirty) {
@@ -840,10 +824,12 @@ void NBoneIK::execute(real_t delta) {
 
 	update_ik_bones_transform();
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
-		if (segmented_skeleton.is_null()) {
-			break;
+		for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+			if (segmented_skeleton.is_null()) {
+				continue;
+			}
+			segmented_skeleton->segment_solver(bone_damp_cache, constrain_mode);
 		}
-		segmented_skeleton->segment_solver(bone_damp_cache, constrain_mode);
 	}
 	update_skeleton_bones_transform();
 }
@@ -852,24 +838,26 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	if (!p_skeleton) {
 		return;
 	}
-	if (!root_bone) {
-		Vector<int32_t> roots = p_skeleton->get_parentless_bones();
-		if (roots.size()) {
-			StringName parentless_bone = p_skeleton->get_bone_name(roots[0]);
-			set_root_bone(parentless_bone);
-		}
+	Vector<int32_t> roots = p_skeleton->get_parentless_bones();
+	if (!roots.size()) {
+		return;
 	}
-	ERR_FAIL_COND(!root_bone);
-	BoneId root_bone_index = p_skeleton->find_bone(root_bone);
-	BoneId tip_bone_index = p_skeleton->find_bone(tip_bone);
-	segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, root_bone, pins, nullptr, root_bone_index, tip_bone_index)));
-	segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
-	segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
 	bone_list.clear();
-	segmented_skeleton->create_bone_list(bone_list, true, queue_debug_skeleton);
-	Vector<Vector<real_t>> weight_array;
-	segmented_skeleton->update_pinned_list(weight_array);
-	segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
+	segmented_skeletons.clear();
+	for (BoneId root_bone_index : roots) {
+		StringName parentless_bone = p_skeleton->get_bone_name(root_bone_index);
+		BoneId tip_bone_index = p_skeleton->find_bone(tip_bone);
+		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, nullptr, root_bone_index, tip_bone_index)));
+		segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
+		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, tip_bone_index);
+		Vector<Ref<IKBone3D>> new_bone_list;
+		segmented_skeleton->create_bone_list(new_bone_list, true, queue_debug_skeleton);
+		bone_list.append_array(new_bone_list);
+		Vector<Vector<real_t>> weight_array;
+		segmented_skeleton->update_pinned_list(weight_array);
+		segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
+		segmented_skeletons.push_back(segmented_skeleton);
+	}
 	update_ik_bones_transform();
 	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
 		ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
@@ -937,15 +925,6 @@ void NBoneIK::skeleton_changed(Skeleton3D *p_skeleton) {
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
 	}
-}
-
-StringName NBoneIK::get_root_bone() const {
-	return root_bone;
-}
-
-void NBoneIK::set_root_bone(const StringName &p_root_bone) {
-	root_bone = p_root_bone;
-	set_dirty();
 }
 
 StringName NBoneIK::get_tip_bone() const {
@@ -1065,34 +1044,42 @@ void NBoneIK::remove_constraint(int32_t p_index) {
 real_t NBoneIK::get_kusudama_twist_current(int32_t p_index) {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
 	String bone_name = constraint_names[p_index];
-	if (segmented_skeleton.is_null()) {
+	if (!segmented_skeletons.size()) {
 		return 0;
 	}
-	Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
-	if (ik_bone.is_null()) {
-		return 0;
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		return CLAMP(ik_bone->get_constraint()->get_current_twist_rotation(ik_bone), 0, 1);
 	}
-	if (ik_bone->get_constraint().is_null()) {
-		return 0;
-	}
-	return CLAMP(ik_bone->get_constraint()->get_current_twist_rotation(ik_bone), 0, 1);
+	return 0;
 }
 
 void NBoneIK::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
-	if (segmented_skeleton.is_null()) {
-		return;
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_rotation);
+		ik_bone->set_skeleton_bone_pose(get_skeleton());
 	}
-	Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
-	if (ik_bone.is_null()) {
-		return;
-	}
-	if (ik_bone->get_constraint().is_null()) {
-		return;
-	}
-	ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_rotation);
-	ik_bone->set_skeleton_bone_pose(get_skeleton());
 }
 
 int NBoneIK::get_edit_constraint_mode() const {
