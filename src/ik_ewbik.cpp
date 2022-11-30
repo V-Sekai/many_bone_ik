@@ -1150,3 +1150,6 @@ void NBoneIK::set_bone_damp_bone_name(int32_t p_index, StringName p_name) {
 	bone_damp.write[p_index]["bone_name"] = p_name;
 	notify_property_list_changed();
 }
+Vector<Ref<IKBone3D>> NBoneIK::get_bone_list() {
+	return bone_list;
+}
