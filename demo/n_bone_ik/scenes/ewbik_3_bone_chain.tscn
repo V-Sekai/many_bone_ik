@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c4uoqujqycdgj"]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="PackedScene" uid="uid://cr48tqlh6y3jy" path="res://n_bone_ik/art/many_bone_ik_3_bone_chain.glb" id="1_linp6"]
+
 
 [node name="many_bone_ik_3_bone_chain" instance=ExtResource("1_linp6")]
 
