@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://by3tpfqcwykd3"]
+
+[ext_resource type="PackedScene" uid="uid://bg2xa815rbama" path="res://n_bone_ik/art/many_bone_ik_test_rig.glb" id="1_bmrba"]
+
+[node name="many_bone_ik_test_rig" instance=ExtResource("1_bmrba")]
+
+[node name="ManyBoneIK3D" type="ManyBoneIK3D" parent="Simple_Test_Rig_Armature/Skeleton3D" index="1"]

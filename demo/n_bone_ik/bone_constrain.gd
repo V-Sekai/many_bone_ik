@@ -1,7 +1,7 @@
 @tool
 extends EditorScript
 
-func enable_debug_pins(pins, new_ik : ManyBoneIK) -> void:
+func enable_debug_pins(pins, new_ik : ManyBoneIK3D) -> void:
 	for pin_i in range(pins.size()):
 		new_ik.set_pin_weight(pin_i, 0)
 		if str(pins[pin_i]) == "Root":
@@ -16,12 +16,12 @@ func _run():
 	for skeleton in skeletons:
 		if not skeleton.get_bone_count():
 			continue
-		var iks : Array[Node] = skeleton.find_children("*", "ManyBoneIK")
+		var iks : Array[Node] = skeleton.find_children("*", "ManyBoneIK3D")
 		var edit_mode = false
 		for ik in iks:
 			edit_mode = ik.edit_constraints
 			ik.free()
-		var new_ik : ManyBoneIK = ManyBoneIK.new()
+		var new_ik : ManyBoneIK3D = ManyBoneIK3D.new()
 		skeleton.add_child(new_ik, true)
 		new_ik.owner = root
 		new_ik.visible = false

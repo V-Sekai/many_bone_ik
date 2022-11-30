@@ -73,8 +73,8 @@ public:
 	int32_t get_priority() const override {
 		return -1;
 	}
-	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK *p_many_bone_ik);
-	void create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK *p_many_bone_ik);
+	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
+	void create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
 	static constexpr char MANY_BONE_IKKUSUDAMA_SHADER[] = R"(
 // Skeleton 3D gizmo kusudama constraint shader.
 shader_type spatial;
@@ -275,11 +275,11 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 
 protected:
 	void _notification(int p_what);
-	ManyBoneIK *ik = nullptr;
+	ManyBoneIK3D *ik = nullptr;
 	BoneId select_bone = -1;
 
 public:
-	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK *p_ik) {
+	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik) {
 		ik = p_ik;
 		create_editors();
 	}
@@ -307,10 +307,10 @@ public:
 
 	bool has_main_screen() const override { return false; }
 	virtual bool handles(Object *p_object) const override {
-		return p_object->is_class("ManyBoneIK");
+		return p_object->is_class("ManyBoneIK3D");
 	}
 
-	virtual String get_name() const override { return "ManyBoneIK"; }
+	virtual String get_name() const override { return "ManyBoneIK3D"; }
 
 	ManyBoneIK3DEditorPlugin() {
 		skeleton_plugin = memnew(EditorInspectorPluginManyBoneIK);

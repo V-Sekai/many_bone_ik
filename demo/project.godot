@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="ManyBoneIK Game Project"
+config/name="ManyBoneIK3D Game Project"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
 

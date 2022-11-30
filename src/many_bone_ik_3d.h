@@ -38,8 +38,8 @@
 #include "math/ik_node_3d.h"
 
 class IKBoneSegment;
-class ManyBoneIK : public Node3D {
-	GDCLASS(ManyBoneIK, Node3D);
+class ManyBoneIK3D : public Node3D {
+	GDCLASS(ManyBoneIK3D, Node3D);
 
 public:
 	enum {
@@ -138,8 +138,8 @@ public:
 	real_t get_bone_damp(int32_t p_index) const;
 	StringName get_bone_damp_bone_name(int32_t p_index) const;
 	void set_bone_damp_bone_name(int32_t p_index, StringName p_name);
-	ManyBoneIK();
-	~ManyBoneIK();
+	ManyBoneIK3D();
+	~ManyBoneIK3D();
 	void set_dirty();
 };
 

@@ -58,7 +58,7 @@ bool ManyBoneIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
 }
 
 String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
-	return "ManyBoneIK";
+	return "ManyBoneIK3D";
 }
 
 void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
@@ -77,9 +77,9 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		return;
 	}
 	Node *root = node_3d->get_tree()->get_edited_scene_root();
-	TypedArray<Node> nodes = root->find_children("*", "ManyBoneIK");
+	TypedArray<Node> nodes = root->find_children("*", "ManyBoneIK3D");
 	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
-		ManyBoneIK *many_bone_ik = cast_to<ManyBoneIK>(nodes[node_i]);
+		ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(nodes[node_i]);
 		if (!many_bone_ik) {
 			return;
 		}
@@ -120,7 +120,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	}
 }
 
-void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK *p_many_bone_ik) {
+void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
@@ -292,7 +292,7 @@ ManyBoneIK3DGizmoPlugin::ManyBoneIK3DGizmoPlugin() {
 	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
 }
 
-void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK *p_many_bone_ik) {
+void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
 	// TEST PLAN:
 	// You will also want to make sure it's robust to translations of the skeleton node and root bone
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
@@ -491,11 +491,11 @@ EditorPlugin::AfterGUIInput ManyBoneIK3DEditorPlugin::forward_3d_gui_input(Camer
 }
 
 bool EditorInspectorPluginManyBoneIK::can_handle(Object *p_object) {
-	return Object::cast_to<ManyBoneIK>(p_object) != nullptr;
+	return Object::cast_to<ManyBoneIK3D>(p_object) != nullptr;
 }
 
 void EditorInspectorPluginManyBoneIK::parse_begin(Object *p_object) {
-	ManyBoneIK *ik = Object::cast_to<ManyBoneIK>(p_object);
+	ManyBoneIK3D *ik = Object::cast_to<ManyBoneIK3D>(p_object);
 	ERR_FAIL_COND(!ik);
 
 	skel_editor = memnew(ManyBoneIK3DEditor(this, ik));

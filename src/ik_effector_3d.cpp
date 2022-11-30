@@ -71,7 +71,7 @@ Vector3 IKEffector3D::get_direction_priorities() const {
 	return direction_priorities;
 }
 
-void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK *p_many_bone_ik) {
+void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK3D *p_many_bone_ik) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
 	target_relative_to_skeleton_origin = p_skeleton->get_global_transform().affine_inverse() * for_bone->get_ik_transform()->get_global_transform();
@@ -95,8 +95,8 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBo
 			is_many_bone_ik_node = false;
 		}
 	}
-	if (!is_many_bone_ik_node && !changed_transform.is_equal_approx(target_relative_to_skeleton_origin) && p_many_bone_ik->get_edit_constraint_mode() == ManyBoneIK::NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK) {
-		p_many_bone_ik->set_edit_constraint_mode(ManyBoneIK::NBONE_IK_EDIT_CONSTRAIN_MODE_OFF);
+	if (!is_many_bone_ik_node && !changed_transform.is_equal_approx(target_relative_to_skeleton_origin) && p_many_bone_ik->get_edit_constraint_mode() == ManyBoneIK3D::NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK) {
+		p_many_bone_ik->set_edit_constraint_mode(ManyBoneIK3D::NBONE_IK_EDIT_CONSTRAIN_MODE_OFF);
 	}
 #endif
 	target_relative_to_skeleton_origin = changed_transform;
