@@ -34,10 +34,12 @@
 #include "../src/ik_bone_3d.h"
 #include "core/templates/hash_map.h"
 #include "core/templates/local_vector.h"
+#include "editor/editor_inspector.h"
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
 #include "editor/editor_settings.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
+#include "editor/plugins/skeleton_3d_editor_plugin.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/label_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
@@ -250,7 +252,64 @@ void fragment() {
 	ALPHA = result_color_allowed.a;
 }
 )";
+};
 
+class EWBIK3DEditorPlugin;
+class EWBIK3DEditor;
+class EditorInspectorPluginEWBIK : public EditorInspectorPlugin {
+	GDCLASS(EditorInspectorPluginEWBIK, EditorInspectorPlugin);
+
+	friend class EWBIK3DEditorPlugin;
+
+	EWBIK3DEditor *skel_editor = nullptr;
+
+public:
+	virtual bool can_handle(Object *p_object) override;
+	virtual void parse_begin(Object *p_object) override;
+};
+
+class EWBIK3DEditor : public VBoxContainer {
+	GDCLASS(EWBIK3DEditor, VBoxContainer);
+
+	Tree *joint_tree = nullptr;
+
+protected:
+	void _notification(int p_what);
+	Skeleton3D *skeleton = nullptr;
+	BoneId select_bone = -1;
+public:
+	EWBIK3DEditor(EditorInspectorPluginEWBIK *e_plugin, Skeleton3D *p_skeleton) {
+		skeleton = p_skeleton;
+		create_editors();
+	}
+	void _update_properties();
+	void update_joint_tree();
+	void create_editors();
+};
+
+class EWBIK3DEditorPlugin : public EditorPlugin {
+	GDCLASS(EWBIK3DEditorPlugin, EditorPlugin);
+
+	EditorInspectorPluginEWBIK *skeleton_plugin = nullptr;
+
+public:
+	virtual EditorPlugin::AfterGUIInput forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) override;
+
+	bool has_main_screen() const override { return false; }
+	virtual bool handles(Object *p_object) const override {
+		return p_object->is_class("NBoneIK");
+	}
+
+	virtual String get_name() const override { return "NBoneIK"; }
+
+	EWBIK3DEditorPlugin() {
+		skeleton_plugin = memnew(EditorInspectorPluginEWBIK);
+
+		EditorInspector::add_inspector_plugin(skeleton_plugin);
+
+		Ref<Skeleton3DGizmoPlugin> gizmo_plugin = Ref<Skeleton3DGizmoPlugin>(memnew(Skeleton3DGizmoPlugin));
+		Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
+	}
 };
 
 class EditorPluginEWBIK : public EditorPlugin {

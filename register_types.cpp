@@ -46,6 +46,7 @@ void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 #ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 		EditorPlugins::add_by_type<EditorPluginEWBIK>();
+		EditorPlugins::add_by_type<EWBIK3DEditorPlugin>();
 	}
 #endif
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
@@ -59,6 +60,7 @@ void initialize_ewbik_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(IKRay3D);
 		GDREGISTER_CLASS(IKLimitCone);
 	}
+	
 }
 
 void uninitialize_ewbik_module(ModuleInitializationLevel p_level) {

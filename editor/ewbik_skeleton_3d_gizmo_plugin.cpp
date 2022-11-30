@@ -467,3 +467,141 @@ void EWBIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBon
 		p_gizmo->add_handles(handles_current, get_material("handles_axial_current"), Vector<int>(), true, true);
 	}
 }
+
+EditorPlugin::AfterGUIInput EWBIK3DEditorPlugin::forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
+	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();
+	Node3DEditor *ne = Node3DEditor::get_singleton();
+	if (se && se->is_edit_mode()) {
+		const Ref<InputEventMouseButton> mb = p_event;
+		if (mb.is_valid() && mb->get_button_index() == MouseButton::LEFT) {
+			if (ne->get_tool_mode() != Node3DEditor::TOOL_MODE_SELECT) {
+				if (!ne->is_gizmo_visible()) {
+					return EditorPlugin::AFTER_GUI_INPUT_STOP;
+				}
+			}
+			if (mb->is_pressed()) {
+				se->update_bone_original();
+			}
+		}
+		return EditorPlugin::AFTER_GUI_INPUT_CUSTOM;
+	}
+	return EditorPlugin::AFTER_GUI_INPUT_PASS;
+}
+
+bool EditorInspectorPluginEWBIK::can_handle(Object *p_object) {
+	return Object::cast_to<NBoneIK>(p_object) != nullptr;
+}
+
+void EditorInspectorPluginEWBIK::parse_begin(Object *p_object) {
+	NBoneIK *ik = Object::cast_to<NBoneIK>(p_object);
+	ERR_FAIL_COND(!ik);
+
+	skel_editor = memnew(EWBIK3DEditor(this, ik->get_skeleton()));
+	add_custom_control(skel_editor);
+}
+
+void EWBIK3DEditor::_notification(int p_what) {
+	switch (p_what) {
+		case NOTIFICATION_ENTER_TREE: {
+			update_joint_tree();
+
+			// joint_tree->connect("item_selected", callable_mp(this, &Skeleton3DEditor::_joint_tree_selection_changed));
+			// joint_tree->connect("item_mouse_selected", callable_mp(this, &Skeleton3DEditor::_joint_tree_rmb_select));
+			// #ifdef TOOLS_ENABLED
+			// 				skeleton->connect("pose_updated", callable_mp(this, &Skeleton3DEditor::_draw_gizmo));
+			// 				skeleton->connect("pose_updated", callable_mp(this, &Skeleton3DEditor::_update_properties));
+			// 				skeleton->connect("bone_enabled_changed", callable_mp(this, &Skeleton3DEditor::_bone_enabled_changed));
+			// 				skeleton->connect("show_rest_only_changed", callable_mp(this, &Skeleton3DEditor::_update_gizmo_visible));
+			// #endif
+			// get_tree()->connect("node_removed", callable_mp(this, &Skeleton3DEditor::_node_removed), Object::CONNECT_ONE_SHOT);
+		} break;
+		case NOTIFICATION_THEME_CHANGED: {
+			update_joint_tree();
+		} break;
+		case NOTIFICATION_PREDELETE: {
+			if (skeleton) {
+				// select_bone(-1); // Requires that the joint_tree has not been deleted.
+				// #ifdef TOOLS_ENABLED
+				// 					skeleton->disconnect("show_rest_only_changed", callable_mp(this, &Skeleton3DEditor::_update_gizmo_visible));
+				// 					skeleton->disconnect("bone_enabled_changed", callable_mp(this, &Skeleton3DEditor::_bone_enabled_changed));
+				// 					skeleton->disconnect("pose_updated", callable_mp(this, &Skeleton3DEditor::_draw_gizmo));
+				// 					skeleton->disconnect("pose_updated", callable_mp(this, &Skeleton3DEditor::_update_properties));
+				// 					skeleton->set_transform_gizmo_visible(true);
+				// #endif
+			}
+		} break;
+	}
+}
+
+void EWBIK3DEditor::_update_properties() {
+	Node3DEditor::get_singleton()->update_transform_gizmo();
+}
+
+void EWBIK3DEditor::update_joint_tree() {
+	joint_tree->clear();
+
+	if (!skeleton) {
+		return;
+	}
+
+	TreeItem *root = joint_tree->create_item();
+
+	HashMap<int, TreeItem *> items;
+
+	items.insert(-1, root);
+
+	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
+
+	Vector<int> bones_to_process = skeleton->get_parentless_bones();
+	while (bones_to_process.size() > 0) {
+		int current_bone_idx = bones_to_process[0];
+		bones_to_process.erase(current_bone_idx);
+
+		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
+		TreeItem *parent_item = items.find(parent_idx)->value;
+
+		TreeItem *joint_item = joint_tree->create_item(parent_item);
+		items.insert(current_bone_idx, joint_item);
+
+		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
+		joint_item->set_icon(0, bone_icon);
+		joint_item->set_selectable(0, true);
+		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
+
+		// Add the bone's children to the list of bones to be processed.
+		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
+		int child_bone_size = current_bone_child_bones.size();
+		for (int i = 0; i < child_bone_size; i++) {
+			bones_to_process.push_back(current_bone_child_bones[i]);
+		}
+	}
+}
+
+void EWBIK3DEditor::create_editors() {
+	set_h_size_flags(SIZE_EXPAND_FILL);
+	set_focus_mode(FOCUS_ALL);
+
+	// Bone tree.
+	const Color section_color = get_theme_color(SNAME("prop_subsection"), SNAME("Editor"));
+
+	EditorInspectorSection *bones_section = memnew(EditorInspectorSection);
+	bones_section->setup("bones", "Bones", skeleton, section_color, true);
+	add_child(bones_section);
+	bones_section->unfold();
+
+	ScrollContainer *s_con = memnew(ScrollContainer);
+	s_con->set_h_size_flags(SIZE_EXPAND_FILL);
+	s_con->set_custom_minimum_size(Size2(1, 350) * EDSCALE);
+	bones_section->get_vbox()->add_child(s_con);
+
+	joint_tree = memnew(Tree);
+	joint_tree->set_columns(1);
+	joint_tree->set_focus_mode(Control::FOCUS_NONE);
+	joint_tree->set_select_mode(Tree::SELECT_SINGLE);
+	joint_tree->set_hide_root(true);
+	joint_tree->set_v_size_flags(SIZE_EXPAND_FILL);
+	joint_tree->set_h_size_flags(SIZE_EXPAND_FILL);
+	joint_tree->set_allow_rmb_select(true);
+	joint_tree->set_drag_forwarding(this);
+	s_con->add_child(joint_tree);
+}
