@@ -91,7 +91,9 @@ public:
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;
-
+	Vector<Ref<IKBone3D>> get_bone_list() {
+		return bone_list;
+	}
 	int get_edit_constraint_mode() const;
 	void set_edit_constraint_mode(int p_enable);
 	StringName get_root_bone() const;

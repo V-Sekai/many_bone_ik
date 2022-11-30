@@ -496,7 +496,7 @@ void EditorInspectorPluginEWBIK::parse_begin(Object *p_object) {
 	NBoneIK *ik = Object::cast_to<NBoneIK>(p_object);
 	ERR_FAIL_COND(!ik);
 
-	skel_editor = memnew(EWBIK3DEditor(this, ik->get_skeleton()));
+	skel_editor = memnew(EWBIK3DEditor(this, ik));
 	add_custom_control(skel_editor);
 }
 
@@ -519,7 +519,7 @@ void EWBIK3DEditor::_notification(int p_what) {
 			update_joint_tree();
 		} break;
 		case NOTIFICATION_PREDELETE: {
-			if (skeleton) {
+			if (ik->get_skeleton()) {
 				// select_bone(-1); // Requires that the joint_tree has not been deleted.
 				// #ifdef TOOLS_ENABLED
 				// 					skeleton->disconnect("show_rest_only_changed", callable_mp(this, &Skeleton3DEditor::_update_gizmo_visible));
@@ -539,7 +539,7 @@ void EWBIK3DEditor::_update_properties() {
 
 void EWBIK3DEditor::update_joint_tree() {
 	joint_tree->clear();
-
+	Skeleton3D *skeleton = ik->get_skeleton();
 	if (!skeleton) {
 		return;
 	}
@@ -552,28 +552,25 @@ void EWBIK3DEditor::update_joint_tree() {
 
 	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
 
-	Vector<int> bones_to_process = skeleton->get_parentless_bones();
-	while (bones_to_process.size() > 0) {
-		int current_bone_idx = bones_to_process[0];
-		bones_to_process.erase(current_bone_idx);
-
-		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
+	Ref<IKBoneSegment> bone_segment = ik->get_segmented_skeleton();
+	ERR_FAIL_NULL(bone_segment);
+	Vector<Ref<IKBone3D>> bone_list = ik->get_bone_list();
+	bone_list.reverse();
+	ERR_FAIL_NULL(ik->get_skeleton());
+	for (Ref<IKBone3D> bone : bone_list) {
+		int current_bone_idx = bone->get_bone_id();
+		Ref<IKBone3D> parent = bone->get_parent();
+		int parent_idx = -1;
+		if (parent.is_valid()) {
+			parent_idx = parent->get_bone_id();
+		}
 		TreeItem *parent_item = items.find(parent_idx)->value;
-
 		TreeItem *joint_item = joint_tree->create_item(parent_item);
 		items.insert(current_bone_idx, joint_item);
-
 		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
 		joint_item->set_icon(0, bone_icon);
 		joint_item->set_selectable(0, true);
 		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
-
-		// Add the bone's children to the list of bones to be processed.
-		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
-		int child_bone_size = current_bone_child_bones.size();
-		for (int i = 0; i < child_bone_size; i++) {
-			bones_to_process.push_back(current_bone_child_bones[i]);
-		}
 	}
 }
 
@@ -585,7 +582,8 @@ void EWBIK3DEditor::create_editors() {
 	const Color section_color = get_theme_color(SNAME("prop_subsection"), SNAME("Editor"));
 
 	EditorInspectorSection *bones_section = memnew(EditorInspectorSection);
-	bones_section->setup("bones", "Bones", skeleton, section_color, true);
+	ERR_FAIL_NULL(ik->get_skeleton());
+	bones_section->setup("bones", "Bones", ik->get_skeleton(), section_color, true);
 	add_child(bones_section);
 	bones_section->unfold();
 

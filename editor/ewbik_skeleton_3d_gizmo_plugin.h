@@ -275,11 +275,11 @@ class EWBIK3DEditor : public VBoxContainer {
 
 protected:
 	void _notification(int p_what);
-	Skeleton3D *skeleton = nullptr;
+	NBoneIK *ik = nullptr;
 	BoneId select_bone = -1;
 public:
-	EWBIK3DEditor(EditorInspectorPluginEWBIK *e_plugin, Skeleton3D *p_skeleton) {
-		skeleton = p_skeleton;
+	EWBIK3DEditor(EditorInspectorPluginEWBIK *e_plugin, NBoneIK *p_ik) {
+		ik = p_ik;
 		create_editors();
 	}
 	void _update_properties();
