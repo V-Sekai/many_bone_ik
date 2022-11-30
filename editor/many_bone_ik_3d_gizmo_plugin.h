@@ -47,7 +47,7 @@
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/immediate_mesh.h"
 
-#include "../src/many_bone_ik.h"
+#include "../src/many_bone_ik_3d.h"
 
 class Joint;
 class PhysicalBone3D;
