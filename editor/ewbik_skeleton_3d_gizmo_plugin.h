@@ -277,6 +277,7 @@ protected:
 	void _notification(int p_what);
 	NBoneIK *ik = nullptr;
 	BoneId select_bone = -1;
+
 public:
 	EWBIK3DEditor(EditorInspectorPluginEWBIK *e_plugin, NBoneIK *p_ik) {
 		ik = p_ik;
@@ -291,15 +292,15 @@ class EWBIK3DEditorPlugin : public EditorPlugin {
 	GDCLASS(EWBIK3DEditorPlugin, EditorPlugin);
 
 	EditorInspectorPluginEWBIK *skeleton_plugin = nullptr;
-// For each bone show the widget for kusudamas
-// Show one transform editor widget 
-// twist basis
-// orientation basis
-// directional basis
-// Find special storage for the basis above.
-// Beside the limit cone 
-// Add a coloured (blue?) indicator for pinned bones
-// 
+	// For each bone show the widget for kusudamas
+	// Show one transform editor widget
+	// twist basis
+	// orientation basis
+	// directional basis
+	// Find special storage for the basis above.
+	// Beside the limit cone
+	// Add a coloured (blue?) indicator for pinned bones
+	//
 
 public:
 	virtual EditorPlugin::AfterGUIInput forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) override;
@@ -323,6 +324,7 @@ public:
 
 class EditorPluginEWBIK : public EditorPlugin {
 	GDCLASS(EditorPluginEWBIK, EditorPlugin);
+
 public:
 	EditorPluginEWBIK() {
 		Ref<EWBIK3DGizmoPlugin> ewbik_gizmo_plugin;
