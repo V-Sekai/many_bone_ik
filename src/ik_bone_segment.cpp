@@ -132,7 +132,7 @@ void IKBoneSegment::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
 		Ref<IKBoneSegment> chain = child_segments[chain_i];
 		chain->update_pinned_list(r_weights);
 	}
-	if (is_pinned()) {
+	if (is_pinned() && tip->get_pin().is_valid() && !tip->get_pin()->get_name().is_empty()) {
 		effector_list.push_back(tip->get_pin());
 	}
 	if (passthrough_factor > 0.0) {
