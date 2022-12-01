@@ -829,7 +829,7 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 		if (!has_pinned_effectors) {
 			Ref<IKEffectorTemplate> effector;
 			effector.instantiate();
-			effector->set_name(parentless_bone);
+			effector->set_target_node(NodePath(".."));
 			pins.push_back(effector);
 		}
 		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, nullptr, root_bone_index, -1)));
