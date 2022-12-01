@@ -55,7 +55,7 @@ bool IKEffector3D::get_target_node_rotation() const {
 	return use_target_node_rotation;
 }
 
-Ref<IKBone3D> IKEffector3D::get_ik_node_3d_bone() const {
+Ref<IKBone3D> IKEffector3D::get_ik_bone_3d()() const {
 	return for_bone;
 }
 
