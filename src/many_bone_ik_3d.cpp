@@ -823,15 +823,18 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	}
 	bone_list.clear();
 	segmented_skeletons.clear();
-	bool has_pinned_effectors = pins.size();
+	bool has_pins = false;
+	for (Ref<IKEffectorTemplate> pin : pins) {
+		if (pin.is_valid() && !pin->get_name().is_empty()) {
+			has_pins = true;
+			break;
+		}
+	}
+	if (!has_pins) {
+		return;
+	}
 	for (BoneId root_bone_index : roots) {
 		StringName parentless_bone = p_skeleton->get_bone_name(root_bone_index);
-		if (!has_pinned_effectors) {
-			Ref<IKEffectorTemplate> effector;
-			effector.instantiate();
-			effector->set_target_node(NodePath(".."));
-			pins.push_back(effector);
-		}
 		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, nullptr, root_bone_index, -1)));
 		segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
 		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, -1);
