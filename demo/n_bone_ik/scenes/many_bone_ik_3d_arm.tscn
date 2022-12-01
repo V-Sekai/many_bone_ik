@@ -18,19 +18,12 @@ bones/8/rotation = Quaternion(0.0214336, -0.0214337, -0.706782, 0.706782)
 
 [node name="ManyBoneIK3D" type="ManyBoneIK3D" parent="Robotic_Arm_Armature/Skeleton3D" index="1"]
 edit_constraints = 0
-pin_count = 2
+pin_count = 1
 pins/0/bone_name = "Root"
 pins/0/target_node = NodePath("")
 pins/0/passthrough_factor = 0.0
 pins/0/weight = 1.0
 pins/0/direction_priorities = Vector3(0.2, 0, 0.2)
-pins/1/bone_name = ""
-pins/1/target_node = NodePath("")
-pins/1/passthrough_factor = 0.0
-pins/1/weight = 1.0
-pins/1/direction_priorities = Vector3(0.2, 0, 0.2)
-
-[node name="Target" type="Node3D" parent="Robotic_Arm_Armature/Skeleton3D" index="2"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Robotic_Arm_Armature" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.433747, 0.112861, 0.376353)
