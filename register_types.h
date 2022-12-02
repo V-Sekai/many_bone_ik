@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VOXEL_MESH_H
-#define VOXEL_MESH_H
+#ifndef VOXEL_MESH_REGISTER_TYPES_H
+#define VOXEL_MESH_REGISTER_TYPES_H
 
 #include "modules/register_module_types.h"
 
-void initialize_many_bone_ik_module(ModuleInitializationLevel p_level);
-void uninitialize_many_bone_ik_module(ModuleInitializationLevel p_level);
+void initialize_voxel_mesh_module(ModuleInitializationLevel p_level);
+void uninitialize_voxel_mesh_module(ModuleInitializationLevel p_level);
 
-#endif // VOXEL_MESH_H
+#endif // VOXEL_MESH_REGISTER_TYPES_H
