@@ -1003,8 +1003,6 @@ void ManyBoneIK3D::_notification(int p_what) {
 void ManyBoneIK3D::remove_constraint(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 
-	int32_t old_count = constraint_count;
-
 	constraint_names.remove_at(p_index);
 	kusudama_limit_cone_count.remove_at(p_index);
 	kusudama_limit_cones.remove_at(p_index);

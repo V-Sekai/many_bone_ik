@@ -75,7 +75,6 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	}
 	real_t dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
 	real_t dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
-	Vector3 twist_axes_origin = twist_axes->get_global_transform().origin;
 	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	if (Math::is_zero_approx(axis_y.length_squared())) {
 		axis_y = Vector3(0, 1, 0);
