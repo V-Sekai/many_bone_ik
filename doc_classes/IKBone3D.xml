@@ -17,6 +17,11 @@
 			<description>
 			</description>
 		</method>
+		<method name="get_constraint_twist_transform">
+			<return type="IKNode3D" />
+			<description>
+			</description>
+		</method>
 		<method name="get_pin" qualifiers="const">
 			<return type="IKEffector3D" />
 			<description>

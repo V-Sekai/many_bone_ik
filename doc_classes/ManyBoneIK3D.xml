@@ -19,6 +19,11 @@
 			<description>
 			</description>
 		</method>
+		<method name="get_bone_count" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="get_constraint_count" qualifiers="const">
 			<return type="int" />
 			<description>
@@ -97,11 +102,6 @@
 			<description>
 			</description>
 		</method>
-		<method name="get_segmented_skeleton">
-			<return type="IKBoneSegment" />
-			<description>
-			</description>
-		</method>
 		<method name="queue_print_skeleton">
 			<return type="void" />
 			<description>
@@ -116,6 +116,12 @@
 		<method name="remove_pin">
 			<return type="void" />
 			<param index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="set_bone_count">
+			<return type="void" />
+			<param index="0" name="count" type="int" />
 			<description>
 			</description>
 		</method>
@@ -220,11 +226,11 @@
 		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.174533">
 			The default maximum number of radians a bone is allowed to rotate per solver iteration. The lower this value, the more natural the pose results. However, this will increase the number of iterations_per_frame the solver requires to converge.
 		</member>
-		<member name="iterations_per_frame" type="float" setter="set_iterations_per_frame" getter="get_iterations_per_frame" default="10.0">
+		<member name="edit_constraints" type="int" setter="set_edit_constraint_mode" getter="get_edit_constraint_mode" default="1">
+		</member>
+		<member name="iterations_per_frame" type="float" setter="set_iterations_per_frame" getter="get_iterations_per_frame" default="20.0">
 		</member>
 		<member name="skeleton_node_path" type="NodePath" setter="set_skeleton_node_path" getter="get_skeleton_node_path" default="NodePath(&quot;..&quot;)">
-		</member>
-		<member name="tip_bone" type="StringName" setter="set_tip_bone" getter="get_tip_bone" default="&amp;&quot;&quot;">
 		</member>
 	</members>
 </class>
