@@ -75,7 +75,7 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 	}
 	if (!Math::is_zero_approx(child_centroid.length_squared()) && (children.size() || p_skeleton->get_bone_children(bone_id).size())) {
 		child_centroid.normalize();
-		Vector3 bone_direction = bone_direction_transform->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)) - godot_bone_origin;
+		Vector3 bone_direction = bone_direction_transform->get_global_transform().xform(Vector3(0.0, 1.0, 0.0));
 		bone_direction.normalize();
 		bone_direction_transform->rotate_local_with_global(Quaternion(child_centroid, bone_direction));
 	}
