@@ -96,7 +96,7 @@ public:
 	void create_headings_arrays();
 	void recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_segment, Vector<Vector<real_t>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, real_t p_falloff);
 	Ref<IKBoneSegment> get_parent_segment();
-	void segment_solver(const HashMap<BoneId, real_t>& p_damp, bool p_constraint_mode);
+	void segment_solver(const HashMap<BoneId, real_t> &p_damp, bool p_constraint_mode);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_pinned() const;

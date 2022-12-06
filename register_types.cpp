@@ -33,8 +33,8 @@
 #include "src/ik_bone_3d.h"
 #include "src/ik_effector_3d.h"
 #include "src/ik_effector_template.h"
-#include "src/many_bone_ik_3d.h"
 #include "src/ik_kusudama.h"
+#include "src/many_bone_ik_3d.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/many_bone_ik_3d_gizmo_plugin.h"
