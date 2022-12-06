@@ -334,9 +334,6 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 	}
 	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
-	real_t dist = v0.distance_to(v1);
-	float radius = dist / 5.0;
-	float r = radius;
 	Vector<Vector3> center_handles;
 	Vector<Vector3> radius_handles;
 	Vector<Vector3> handles_current;

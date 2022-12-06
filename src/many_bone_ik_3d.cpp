@@ -137,11 +137,11 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 				PropertyInfo(Variant::INT, "bone_count",
 						PROPERTY_HINT_RANGE, "0,256,or_greater", damp_usage | PROPERTY_USAGE_ARRAY,
 						"Bone,bone/"));
-		for (int bone_i = 0; bone_i < get_bone_count(); bone_i++) {
+		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
 			PropertyInfo bone_name;
 			bone_name.type = Variant::STRING_NAME;
 			bone_name.usage = damp_usage;
-			bone_name.name = "bone/" + itos(bone_i) + "/bone_name";
+			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
 			if (get_skeleton()) {
 				String names;
 				Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
@@ -438,7 +438,6 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			set_constraint_name(index, p_value);
 			return true;
 		} else if (what == "twist_current") {
-			Vector2 twist_from = get_kusudama_twist(index);
 			for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 				if (segmented_skeleton.is_null()) {
 					continue;
