@@ -60,7 +60,6 @@ void initialize_many_bone_ik_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(IKRay3D);
 		GDREGISTER_CLASS(IKLimitCone);
 	}
-	
 }
 
 void uninitialize_many_bone_ik_module(ModuleInitializationLevel p_level) {

@@ -42,7 +42,7 @@ func _run():
 				node.free()
 		skeleton.reset_bone_poses()
 		new_ik.set_pin_count(pins.size())
-		
+
 		var constraints : Array
 		for bone_i in skeleton.get_bone_count():
 			var bone_name = skeleton.get_bone_name(bone_i)
@@ -50,7 +50,7 @@ func _run():
 				continue
 			constraints.push_back(bone_name)
 		new_ik.set_constraint_count(constraints.size())
-			
+
 		for constraint_i in constraints.size():
 			var bone_name = constraints[constraint_i]
 			new_ik.set_constraint_name(constraint_i, bone_name)
