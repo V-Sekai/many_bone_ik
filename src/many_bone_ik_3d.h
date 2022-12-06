@@ -60,7 +60,7 @@ private:
 	Vector<Ref<IKEffectorTemplate>> pins;
 	Vector<Ref<IKBone3D>> bone_list;
 	Vector<Vector2> kusudama_twist;
-	Vector<Dictionary> bone_damp;	
+	Vector<Dictionary> bone_damp;
 	HashMap<BoneId, real_t> bone_damp_cache;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
