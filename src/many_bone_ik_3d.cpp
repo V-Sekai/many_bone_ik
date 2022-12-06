@@ -172,7 +172,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			}
 			p_list->push_back(bone_name);
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "bone/" + itos(bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
+					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
 		}
 	}
 	const uint32_t constraint_usage = get_edit_constraint_mode() == NBONE_IK_EDIT_CONSTRAIN_MODE_LOCK || get_edit_constraint_mode() == NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_STORAGE;

@@ -382,13 +382,13 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 		}
 		{
 			Transform3D handle_relative_to_mesh;
-			handle_relative_to_mesh.origin = center * radius;
+			handle_relative_to_mesh.origin = center * cone_radius;
 			Transform3D handle_relative_to_universe = handle_transform.affine_inverse() * constraint_relative_to_the_universe * handle_relative_to_mesh;
 			center_handles.push_back(handle_relative_to_universe.origin);
 		}
 		{
-			float w = r * Math::sin(cone_radius);
-			float d = r * Math::cos(cone_radius);
+			float w = cone_radius * Math::sin(cone_radius);
+			float d = cone_radius * Math::cos(cone_radius);
 			const float ra = (float)(0 * 3);
 			const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 			Transform3D handle_border_relative_to_mesh;
@@ -402,8 +402,8 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 	Transform3D twist_constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * many_bone_ik_skeleton->get_global_transform() * ik_bone->get_constraint_twist_transform()->get_global_transform();
 	const Vector3 axial_center = Vector3(0, 1, 0);
 	float cone_radius = Math::deg_to_rad(90.0f);
-	float w = r * Math::sin(cone_radius);
-	float d = r * Math::cos(cone_radius);
+	float w = cone_radius * Math::sin(cone_radius);
+	float d = cone_radius * Math::cos(cone_radius);
 	{
 		const float ra = (float)kusudama->get_min_axial_angle();
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
