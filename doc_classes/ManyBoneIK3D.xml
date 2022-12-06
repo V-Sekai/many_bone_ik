@@ -5,9 +5,10 @@
 	</brief_description>
 	<description>
 		A full body inverse kinematics system.
-		An inverse kinematic system useful for scenes like a tiny virtual reality man scampering on top of two giant dancing virtual reality vagabonds, jumping onto a moving train.
-		Useful for concert level dance motion capture and the 3 sensors case with position / orientation and 1 sensor for the ground.
-		Can also support as many end effector pins tracking targets as the performance allows.
+		An inverse kinematic system useful for scenes like a tiny man scampering on top of two giant dancing virtual reality vagabonds, jumping onto a moving train.
+		Useful for concert level dance motion capture.
+		Can solve the 4 sensors with position / orientation for the head, the left and right hands, and 1 sensor for the ground.
+		Can also support as many end effector tracking targets as the performance allows.
 	</description>
 	<tutorials>
 		<link title="Everything will be IK">https://github.com/EGjoni/Everything-Will-Be-IK</link>
