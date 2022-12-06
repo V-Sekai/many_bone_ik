@@ -280,7 +280,7 @@ IKLimitCone::IKLimitCone(Vector3 &direction, double rad, Ref<IKKusudama> attache
 	parent_kusudama = attached_to;
 	tangent_circle_center_next_1 = Vector3(0.0f, -1.0f, 0.0f);
 	tangent_circle_center_next_2 = Vector3(0.0f, 1.0f, 0.0f);
-	set_radius(MAX(DBL_TRUE_MIN, rad));
+	set_radius(MAX(1.0e-38, rad));
 	this->control_point = direction.normalized();
 }
 
