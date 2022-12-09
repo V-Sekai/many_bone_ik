@@ -65,7 +65,7 @@ func _run():
 			node_3d.name = bone_name
 			node_3d.bone_name = bone_name
 			node_3d.bone_idx = skeleton.find_bone(bone_name)
-			skeleton.add_child(node_3d)
+			skeleton.add_child(node_3d, true)
 			node_3d.owner = root
 			var node_global_transform = node_3d.global_transform
 			var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
