@@ -41,7 +41,6 @@ func _run():
 			if node != null:
 				node.free()
 		skeleton.reset_bone_poses()
-		new_ik.set_pin_count(pins.size())
 
 		var constraints : Array
 		for bone_i in skeleton.get_bone_count():
@@ -55,12 +54,12 @@ func _run():
 			var bone_name = constraints[constraint_i]
 			new_ik.set_constraint_name(constraint_i, bone_name)
 
-		for constraint_i in new_ik.get_constraint_count():
-			var bone_name : String = new_ik.get_constraint_name(constraint_i)
-			var twist_min = new_ik.get_kusudama_twist(constraint_i).x
-
+		new_ik.set_pin_count(pins.size())
 		for bone_i in new_ik.get_pin_count():
-			var bone_name : String = new_ik.get_pin_bone_name(bone_i)
+			var bone_name : String = pins[bone_i]
+			if bone_name.is_empty():
+				print("Can't find bone id %s" % bone_i)
+				continue
 			var node_3d : BoneAttachment3D = BoneAttachment3D.new()
 			node_3d.name = bone_name
 			node_3d.bone_name = bone_name
@@ -69,6 +68,7 @@ func _run():
 			node_3d.owner = root
 			var node_global_transform = node_3d.global_transform
 			var path_string : String = "../" + str(skeleton.get_path_to(node_3d))
+			new_ik.set_pin_bone_name(bone_i, bone_name)
 			new_ik.set_pin_nodepath(bone_i, NodePath(path_string))
 			var marker_3d : Marker3D = Marker3D.new()
 			marker_3d.name = bone_name
