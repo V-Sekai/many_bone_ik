@@ -309,3 +309,15 @@ TreeItem *ManyBoneIK3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
 
 	return nullptr;
 }
+void ManyBoneIK3DEditor::_value_changed(const String &p_property, Variant p_value, const String &p_name, bool p_changing) {
+	if (!is_visible()) {
+		return;
+	}
+	if (ik) {
+		Ref<EditorUndoRedoManager> &undo_redo = EditorNode::get_undo_redo();
+		undo_redo->create_action(TTR("Set ManyBoneIK Property"), UndoRedo::MERGE_ENDS);
+		undo_redo->add_undo_property(ik, p_property, ik->get(p_property));
+		undo_redo->add_do_property(ik, p_property, p_value);
+		undo_redo->commit_action();
+	}
+}

@@ -145,15 +145,15 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			if (get_skeleton()) {
 				String names;
 				Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
-					for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-						String name = get_skeleton()->get_bone_name(bone_i);
-						if (root_bones.find(bone_i) != -1) {
-							continue;
-						}
-						name += ",";
-						names += name;
-						existing_bones.insert(name);
+				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+					String name = get_skeleton()->get_bone_name(bone_i);
+					if (root_bones.find(bone_i) != -1) {
+						continue;
 					}
+					name += ",";
+					names += name;
+					existing_bones.insert(name);
+				}
 				bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 				bone_name.hint_string = names;
 			} else {
@@ -178,18 +178,18 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		if (get_skeleton()) {
 			String names;
 			Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
-				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-					String name = get_skeleton()->get_bone_name(bone_i);
-					if (existing_constraints.has(name)) {
-						continue;
-					}
-					if (root_bones.find(bone_i) != -1) {
-						continue;
-					}
-					name += ",";
-					names += name;
-					existing_constraints.insert(name);
+			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+				String name = get_skeleton()->get_bone_name(bone_i);
+				if (existing_constraints.has(name)) {
+					continue;
 				}
+				if (root_bones.find(bone_i) != -1) {
+					continue;
+				}
+				name += ",";
+				names += name;
+				existing_constraints.insert(name);
+			}
 			bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			bone_name.hint_string = names;
 		} else {
@@ -769,7 +769,6 @@ void ManyBoneIK3D::execute(real_t delta) {
 		}
 		root_ik_parent_transform->set_global_transform(Transform3D());
 	}
-
 	update_ik_bones_transform();
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
 		for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
