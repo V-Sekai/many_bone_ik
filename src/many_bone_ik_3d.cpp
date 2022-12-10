@@ -791,10 +791,10 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	}
 	bone_list.clear();
 	segmented_skeletons.clear();
-	if (pins.is_empty() || pins.size() < p_skeleton->get_bone_count()) {
+	if (pins.size() < p_skeleton->get_bone_count()) {
 		set_pin_count(p_skeleton->get_bone_count());
 	}
-	if (constraint_count == 0 || constraint_count < p_skeleton->get_bone_count()) {
+	if (constraint_count < p_skeleton->get_bone_count()) {
 		set_constraint_count(p_skeleton->get_bone_count());
 	}
 	for (BoneId root_bone_index : roots) {
