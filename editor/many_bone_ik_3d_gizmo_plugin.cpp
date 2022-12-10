@@ -119,6 +119,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				}
 				create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 				create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+				create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 			}
 		}
 	}
@@ -342,11 +343,6 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 	}
 	Vector<Vector3> center_handles;
 	Vector<Vector3> radius_handles;
-	Vector<Vector3> handles_current;
-	Vector<Vector3> axial_from_handles;
-	TypedArray<Vector3> axial_middle_handles;
-	TypedArray<Vector3> axial_current_handles;
-	Vector<Vector3> axial_to_handles;
 	kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 	kusudama_limit_cones.fill(0.0f);
 	int out_idx = 0;
@@ -379,6 +375,11 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 	Ref<SurfaceTool> surface_tool;
 	surface_tool.instantiate();
 	surface_tool->begin(Mesh::PRIMITIVE_LINES);
+
+	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
+	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
+	real_t dist = v0.distance_to(v1);
+	float radius = dist / 5.0;
 	for (int32_t cone_i = 0; cone_i < kusudama->get_limit_cones().size() * (3 * 4); cone_i = cone_i + (3 * 4)) {
 		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
 		float cone_radius = kusudama_limit_cones[cone_i + 3];
@@ -393,8 +394,8 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 			center_handles.push_back(handle_relative_to_universe.origin);
 		}
 		{
-			float w = cone_radius * Math::sin(cone_radius);
-			float d = cone_radius * Math::cos(cone_radius);
+			float w = radius * Math::sin(cone_radius);
+			float d = radius * Math::cos(cone_radius);
 			const float ra = (float)(0 * 3);
 			const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 			Transform3D handle_border_relative_to_mesh;
@@ -404,12 +405,70 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 			radius_handles.push_back((handle_transform.affine_inverse() * handle_border_relative_to_universe).origin);
 		}
 	}
+	if (center_handles.size()) {
+		p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, true);
+	}
+	if (radius_handles.size()) {
+		p_gizmo->add_handles(radius_handles, get_material("handles_radius"), Vector<int>(), false, true);
+	}
+}
+
+void ManyBoneIK3DGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
+	// TEST PLAN:
+	// You will also want to make sure it's robust to translations of the skeleton node and root bone
+	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
+	if (ik_kusudama.is_null()) {
+		return;
+	}
+	BoneId parent_idx = many_bone_ik_skeleton->get_bone_parent(current_bone_idx);
+	LocalVector<int> bones;
+	LocalVector<float> weights;
+	bones.resize(4);
+	weights.resize(4);
+	for (int i = 0; i < 4; i++) {
+		bones[i] = 0;
+		weights[i] = 0;
+	}
+	bones[0] = parent_idx;
+	weights[0] = 1;
+	Transform3D constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * many_bone_ik_skeleton->get_global_transform() * ik_bone->get_constraint_transform()->get_global_transform();
+	Transform3D handle_transform;
+	if (p_gizmo->get_node_3d()->get_parent()) {
+		Node3D *node = cast_to<Node3D>(p_gizmo->get_node_3d()->get_parent());
+		if (node) {
+			handle_transform = node->get_global_transform();
+		}
+	}
+	PackedFloat32Array kusudama_limit_cones;
+	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
+	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
+		return;
+	}
+	if (current_bone_idx <= -1) {
+		return;
+	}
+	if (parent_idx >= many_bone_ik_skeleton->get_bone_count()) {
+		return;
+	}
+	if (parent_idx <= -1) {
+		return;
+	}
+	Vector<Vector3> handles_current;
+	Vector<Vector3> axial_from_handles;
+	TypedArray<Vector3> axial_middle_handles;
+	TypedArray<Vector3> axial_current_handles;
+	Vector<Vector3> axial_to_handles;
+	int out_idx = 0;
 
 	Transform3D twist_constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * many_bone_ik_skeleton->get_global_transform() * ik_bone->get_constraint_twist_transform()->get_global_transform();
 	const Vector3 axial_center = Vector3(0, 1, 0);
 	float cone_radius = Math::deg_to_rad(90.0f);
-	float w = cone_radius * Math::sin(cone_radius);
-	float d = cone_radius * Math::cos(cone_radius);
+	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
+	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
+	real_t dist = v0.distance_to(v1);
+	float radius = dist / 5.0;
+	float w = radius * Math::sin(cone_radius);
+	float d = radius * Math::cos(cone_radius);
 	{
 		const float ra = (float)kusudama->get_min_axial_angle();
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
@@ -418,10 +477,6 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
 		axial_from_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
-	}
-	if (center_handles.size() && radius_handles.size()) {
-		p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, true);
-		p_gizmo->add_handles(radius_handles, get_material("handles_radius"), Vector<int>(), false, true);
 	}
 	float start_angle = kusudama->get_min_axial_angle();
 	float end_angle = start_angle + kusudama->get_range_angle();
