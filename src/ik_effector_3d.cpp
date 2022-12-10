@@ -84,21 +84,6 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBo
 	}
 	Transform3D changed_transform = p_skeleton->get_global_transform().affine_inverse() * current_target_node->get_global_transform();
 	bool is_many_bone_ik_node = false;
-#ifdef TOOLS_ENABLED
-	// Solves a problem where moving the target nodes makes the constraint inspector fight the editor by disabliing edit mode.
-	EditorSelection *editor_selection = EditorNode::get_singleton()->get_editor_selection();
-	if (editor_selection) {
-		TypedArray<Node> selected_node_list = editor_selection->get_selected_nodes();
-		if (p_many_bone_ik && selected_node_list.has(p_many_bone_ik)) {
-			is_many_bone_ik_node = true;
-		} else {
-			is_many_bone_ik_node = false;
-		}
-	}
-	if (!is_many_bone_ik_node && !changed_transform.is_equal_approx(target_relative_to_skeleton_origin) && p_many_bone_ik->get_edit_constraint_mode() == ManyBoneIK3D::NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK) {
-		p_many_bone_ik->set_edit_constraint_mode(ManyBoneIK3D::NBONE_IK_EDIT_CONSTRAIN_MODE_OFF);
-	}
-#endif
 	target_relative_to_skeleton_origin = changed_transform;
 }
 

@@ -1,11 +1,11 @@
 #ifndef MANY_BONE_IK_PLUGIN_H
 #define MANY_BONE_IK_PLUGIN_H
 
-#include "editor/plugins/node_3d_editor_gizmos.h"
 #include "editor/editor_inspector.h"
+#include "editor/plugins/node_3d_editor_gizmos.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
-#include "modules/many_bone_ik/src/many_bone_ik_3d.h"
 #include "editor/plugins/skeleton_3d_editor_plugin.h"
+#include "modules/many_bone_ik/src/many_bone_ik_3d.h"
 
 class ManyBoneIK3DEditorPlugin;
 class ManyBoneIK3DEditor;
@@ -25,28 +25,19 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 
 	Tree *joint_tree = nullptr;
 	ManyBoneIK3D *ik = nullptr;
-	BoneId select_bone = -1;
-	
-	EditorInspectorSection *bone_pinning_section = nullptr;
-	EditorPropertyCheck *pin_checkbox = nullptr;
-	EditorPropertyNodePath *target_nodepath= nullptr;
+	BoneId selected_bone = -1;
 
-	EditorInspectorSection *kusudama_twist_constraint_section = nullptr;
+	EditorInspectorSection *constraint_bone_section = nullptr;
+	EditorPropertyCheck *pin_checkbox = nullptr;
+	EditorPropertyNodePath *target_nodepath = nullptr;
 	EditorPropertyFloat *twist_from_float = nullptr;
 	EditorPropertyFloat *twist_range_float = nullptr;
 	EditorPropertyFloat *twist_current_float = nullptr;
-
-	EditorInspectorSection *kusudama_orientation_constraint_section = nullptr;
-	EditorPropertyVector3 *center_vector3 = nullptr;
-	EditorPropertyFloat *radius_float = nullptr;
-
-	EditorInspectorSection *twist_constraint_basis_section = nullptr;
+	static const int32_t MAX_KUSUDAMA_CONES = 30;
+	EditorPropertyVector3 *center_vector3[MAX_KUSUDAMA_CONES] = {};
+	EditorPropertyFloat *radius_float[MAX_KUSUDAMA_CONES] = {};
 	EditorPropertyBasis *twist_constraint_basis = nullptr;
-
-	EditorInspectorSection *orientation_constraint_basis_section = nullptr;
 	EditorPropertyBasis *orientation_constraint_basis = nullptr;
-
-	EditorInspectorSection *bone_direction_transform_section = nullptr;
 	EditorPropertyTransform3D *bone_direction_transform = nullptr;
 
 protected:
@@ -57,6 +48,21 @@ public:
 	void _update_properties();
 	void update_joint_tree();
 	void create_editors();
+	void _value_changed(const String &p_property, Variant p_value, const String &p_name, bool p_changing) {
+		if (!is_visible()) {
+			return;
+		}
+		if (ik) {
+			Ref<EditorUndoRedoManager> &undo_redo = EditorNode::get_undo_redo();
+			undo_redo->create_action(TTR("Set ManyBoneIK Property"), UndoRedo::MERGE_ENDS);
+			undo_redo->add_undo_property(ik, p_property, ik->get(p_property));
+			undo_redo->add_do_property(ik, p_property, p_value);
+			undo_redo->commit_action();
+		}
+	}
+	void select_bone(int p_idx);
+	void _joint_tree_selection_changed();
+	TreeItem *_find(TreeItem *p_node, const NodePath &p_path);
 };
 
 class ManyBoneIK3DEditorPlugin : public EditorPlugin {

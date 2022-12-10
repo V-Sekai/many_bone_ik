@@ -33,6 +33,8 @@
 
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
+#include "editor/editor_node.h"
+#include "editor/editor_undo_redo_manager.h"
 #include "ik_bone_3d.h"
 #include "ik_effector_template.h"
 #include "math/ik_node_3d.h"
@@ -40,17 +42,7 @@
 class IKBoneSegment;
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
-
-public:
-	enum {
-		NBONE_IK_EDIT_CONSTRAIN_MODE_OFF = 0,
-		NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK,
-		NBONE_IK_EDIT_CONSTRAIN_MODE_LOCK,
-		NBONE_IK_EDIT_CONSTRAIN_MODE_DAMP,
-	};
-
 private:
-	int constrain_mode = NBONE_IK_EDIT_CONSTRAIN_MODE_AUTOMATIC_UNLOCK;
 	NodePath skeleton_path;
 	Vector<Ref<IKBoneSegment>> segmented_skeletons;
 	int32_t constraint_count = 0;
@@ -89,8 +81,6 @@ public:
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;
 	Vector<Ref<IKBone3D>> get_bone_list();
-	int get_edit_constraint_mode() const;
-	void set_edit_constraint_mode(int p_enable);
 	Vector<Ref<IKBoneSegment>> get_segmented_skeletons();
 	float get_iterations_per_frame() const;
 	void set_iterations_per_frame(const float &p_iterations_per_frame);

@@ -87,7 +87,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	real_t turn_back_angle = turn_back.get_angle() * turn_back.get_axis().y;
 	Vector3 axis_y_col = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	Vector3 axis_y = bone_direction->get_global_transform().basis.xform(Vector3(0, 1, 0));
-	Basis rot = Basis(axis_y, turn_back_angle).orthonormalized();
+	Basis rot = Basis(axis_y.normalized(), turn_back_angle).orthonormalized();
 	to_set->rotate_local_with_global(rot);
 }
 
