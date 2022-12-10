@@ -1,0 +1,96 @@
+[gd_scene load_steps=2 format=3 uid="uid://bf73owhwv3ae8"]
+
+[ext_resource type="PackedScene" uid="uid://dwx87oc3a41md" path="res://n_bone_ik/art/many_bone_ik_3d_arm.glb" id="1_5uyx7"]
+
+[node name="many_bone_ik_3d_arm" instance=ExtResource("1_5uyx7")]
+
+[node name="Skeleton3D" parent="Robotic_Arm_Armature" index="0"]
+bones/1/rotation = Quaternion(-0.279146, -0.019514, 0.0504037, 0.958726)
+bones/2/position = Vector3(-2.76277e-06, 0.0886527, -2.72933e-05)
+bones/2/rotation = Quaternion(-0.0001007, 0.0357038, 3.90739e-05, 0.999362)
+bones/2/scale = Vector3(1, 1, 1)
+bones/3/position = Vector3(1.61603e-05, 0.257501, -2.59802e-05)
+bones/3/rotation = Quaternion(-3.57954e-05, 0.00151066, -7.99722e-06, 0.999999)
+bones/3/scale = Vector3(1, 1, 1)
+bones/4/position = Vector3(1.14869e-05, 0.257607, -7.40588e-06)
+bones/4/rotation = Quaternion(-0.000176856, -0.574093, -7.32818e-05, 0.81879)
+bones/4/scale = Vector3(1, 1, 1)
+bones/5/position = Vector3(3.18885e-06, 0.0503109, 1.62348e-05)
+bones/5/rotation = Quaternion(3.02237e-06, -0.495516, 0.000193041, 0.868599)
+bones/5/scale = Vector3(1, 1, 1)
+bones/6/position = Vector3(4.01288e-05, 0.0629432, -5.73695e-06)
+bones/6/rotation = Quaternion(0.673615, 0.257243, -0.634999, 0.277207)
+bones/6/scale = Vector3(1, 1, 1)
+bones/7/position = Vector3(0.0116693, 0.0528818, 0.0161327)
+bones/7/rotation = Quaternion(-0.0224684, 0.0201436, -0.625469, 0.779665)
+bones/7/scale = Vector3(1, 1, 1)
+bones/8/position = Vector3(0.0116645, 0.0525429, -0.0166668)
+bones/8/rotation = Quaternion(0.129666, 0.087528, -0.623561, 0.765962)
+bones/8/scale = Vector3(1, 1, 1)
+
+[node name="ManyBoneIK3D" type="ManyBoneIK3D" parent="Robotic_Arm_Armature/Skeleton3D" index="1"]
+default_damp = 4.71239
+edit_constraints = 0
+constraint_count = 9
+constraints/0/bone_name = &""
+constraints/0/twist_from = 3.14159
+constraints/0/twist_range = 6.28318
+constraints/0/twist_current = null
+constraints/0/kusudama_limit_cone_count = 0
+constraints/1/bone_name = &"Joint_00"
+constraints/1/twist_from = 3.14159
+constraints/1/twist_range = 6.28318
+constraints/1/twist_current = 0.493523
+constraints/1/kusudama_limit_cone_count = 0
+constraints/2/bone_name = &"Joint_01"
+constraints/2/twist_from = 3.14159
+constraints/2/twist_range = 6.28318
+constraints/2/twist_current = 0.511368
+constraints/2/kusudama_limit_cone_count = 0
+constraints/3/bone_name = &"Joint_02"
+constraints/3/twist_from = 3.14159
+constraints/3/twist_range = 6.28318
+constraints/3/twist_current = 0.500001
+constraints/3/kusudama_limit_cone_count = 0
+constraints/4/bone_name = &"Joint_03"
+constraints/4/twist_from = 3.14159
+constraints/4/twist_range = 6.28318
+constraints/4/twist_current = 0.305355
+constraints/4/kusudama_limit_cone_count = 0
+constraints/5/bone_name = &"Joint_04"
+constraints/5/twist_from = 3.14159
+constraints/5/twist_range = 6.28318
+constraints/5/twist_current = 0.334979
+constraints/5/kusudama_limit_cone_count = 0
+constraints/6/bone_name = &"Joint_05"
+constraints/6/twist_from = 3.14159
+constraints/6/twist_range = 6.28318
+constraints/6/twist_current = 0.854318
+constraints/6/kusudama_limit_cone_count = 0
+constraints/7/bone_name = &"Joint_05_Jaw_Right"
+constraints/7/twist_from = 3.14159
+constraints/7/twist_range = 6.28318
+constraints/7/twist_current = null
+constraints/7/kusudama_limit_cone_count = 0
+constraints/8/bone_name = &"Joint_05_Jaw_Left"
+constraints/8/twist_from = 3.14159
+constraints/8/twist_range = 6.28318
+constraints/8/twist_current = null
+constraints/8/kusudama_limit_cone_count = 0
+pin_count = 2
+pins/0/bone_name = "Root"
+pins/0/target_node = NodePath("../Root")
+pins/0/passthrough_factor = 0.0
+pins/0/weight = 1.0
+pins/0/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/1/bone_name = "Joint_05"
+pins/1/target_node = NodePath("../Joint_05")
+pins/1/passthrough_factor = 0.0
+pins/1/weight = 1.0
+pins/1/direction_priorities = Vector3(0.2, 0, 0.2)
+
+[node name="Root" type="Marker3D" parent="Robotic_Arm_Armature/Skeleton3D" index="2"]
+transform = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, -6.57523e-05, 0)
+
+[node name="Joint_05" type="Marker3D" parent="Robotic_Arm_Armature/Skeleton3D" index="3"]
+transform = Transform3D(1, -2.98023e-08, -2.78181e-08, 5.96046e-08, 1, 1.053e-07, 5.76205e-08, -7.54979e-08, 1, -0.0626219, 0.668353, -0.392447)

@@ -37,6 +37,7 @@
 #include "src/many_bone_ik_3d.h"
 
 #ifdef TOOLS_ENABLED
+#include "editor/many_bone_ik_plugin.h"
 #include "editor/many_bone_ik_3d_gizmo_plugin.h"
 #endif
 
