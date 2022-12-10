@@ -329,6 +329,9 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 	}
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
+	if (kusudama.is_null()) {
+		return;
+	}
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
 		return;
 	}
@@ -441,6 +444,9 @@ void ManyBoneIK3DGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx
 	}
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
+	if (kusudama.is_null()) {
+		return;
+	}
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
 		return;
 	}
