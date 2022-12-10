@@ -13,7 +13,6 @@ class EditorInspectorPluginManyBoneIK : public EditorInspectorPlugin {
 	GDCLASS(EditorInspectorPluginManyBoneIK, EditorInspectorPlugin);
 
 	friend class ManyBoneIK3DEditorPlugin;
-
 	ManyBoneIK3DEditor *skel_editor = nullptr;
 
 public:
@@ -25,11 +24,11 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 	GDCLASS(ManyBoneIK3DEditor, VBoxContainer);
 
 	Tree *joint_tree = nullptr;
+	ManyBoneIK3D *ik = nullptr;
+	BoneId select_bone = -1;
 
 protected:
 	void _notification(int p_what);
-	ManyBoneIK3D *ik = nullptr;
-	BoneId select_bone = -1;
 
 public:
 	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik);
@@ -38,14 +37,6 @@ public:
 	void create_editors();
 };
 
-// For each bone show the widget for kusudamas
-// Show one transform editor widget
-// twist basis
-// orientation basis
-// directional basis
-// Find special storage for the basis above.
-// Beside the limit cone
-// Add a coloured (blue?) indicator for pinned bones
 class ManyBoneIK3DEditorPlugin : public EditorPlugin {
 	GDCLASS(ManyBoneIK3DEditorPlugin, EditorPlugin);
 	EditorInspectorPluginManyBoneIK *skeleton_plugin = nullptr;
