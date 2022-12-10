@@ -791,15 +791,11 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	}
 	bone_list.clear();
 	segmented_skeletons.clear();
-	bool has_pins = false;
-	for (Ref<IKEffectorTemplate> pin : pins) {
-		if (pin.is_valid() && !pin->get_name().is_empty()) {
-			has_pins = true;
-			break;
-		}
+	if (pins.is_empty() || pins.size() < p_skeleton->get_bone_count()) {
+		set_pin_count(p_skeleton->get_bone_count());
 	}
-	if (!has_pins) {
-		return;
+	if (constraint_count == 0 || constraint_count < p_skeleton->get_bone_count()) {
+		set_constraint_count(p_skeleton->get_bone_count());
 	}
 	for (BoneId root_bone_index : roots) {
 		StringName parentless_bone = p_skeleton->get_bone_name(root_bone_index);

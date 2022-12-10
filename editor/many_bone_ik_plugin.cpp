@@ -78,48 +78,42 @@ void ManyBoneIK3DEditor::_update_properties() {
 }
 
 void ManyBoneIK3DEditor::update_joint_tree() {
-	if (!joint_tree) {
-		return;
-	}
 	joint_tree->clear();
+
+	if (!ik->get_skeleton()) {
+		return;
+	}
 	Skeleton3D *skeleton = ik->get_skeleton();
-	if (!skeleton) {
-		return;
-	}
+
 	TreeItem *root = joint_tree->create_item();
+
 	HashMap<int, TreeItem *> items;
+
 	items.insert(-1, root);
+
 	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
-	if (!ik) {
-		return;
-	}
-	Vector<Ref<IKBoneSegment>> bone_segments = ik->get_segmented_skeletons();
-	for (Ref<IKBoneSegment> bone_segment : bone_segments) {
-		if (bone_segment.is_null()) {
-			continue;
-		}
-		Vector<Ref<IKBone3D>> bone_list = ik->get_bone_list();
-		bone_list.reverse();
-		for (Ref<IKBone3D> bone : bone_list) {
-			int current_bone_idx = bone->get_bone_id();
-			Ref<IKBone3D> parent = bone->get_parent();
-			int parent_idx = -1;
-			if (parent.is_valid()) {
-				parent_idx = parent->get_bone_id();
-			}
-			TreeItem *parent_item = items.find(parent_idx)->value;
-			if (!parent_item) {
-				continue;
-			}
-			TreeItem *joint_item = joint_tree->create_item(parent_item);
-			if (!joint_item) {
-				continue;
-			}
-			items.insert(current_bone_idx, joint_item);
-			joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
-			joint_item->set_icon(0, bone_icon);
-			joint_item->set_selectable(0, true);
-			joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
+
+	Vector<int> bones_to_process = skeleton->get_parentless_bones();
+	while (bones_to_process.size() > 0) {
+		int current_bone_idx = bones_to_process[0];
+		bones_to_process.erase(current_bone_idx);
+
+		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
+		TreeItem *parent_item = items.find(parent_idx)->value;
+
+		TreeItem *joint_item = joint_tree->create_item(parent_item);
+		items.insert(current_bone_idx, joint_item);
+
+		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
+		joint_item->set_icon(0, bone_icon);
+		joint_item->set_selectable(0, true);
+		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
+
+		// Add the bone's children to the list of bones to be processed.
+		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
+		int child_bone_size = current_bone_child_bones.size();
+		for (int i = 0; i < child_bone_size; i++) {
+			bones_to_process.push_back(current_bone_child_bones[i]);
 		}
 	}
 }
@@ -262,8 +256,8 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		return;
 	}
 	int32_t pin_i = ik->find_effector_id(bone_name);
-	if (pin_i == -1) {
-		ik->set_pin_count(ik->get_pin_count() + 1);
+	if (pin_i == -1 || ik->get_pin_bone_name(pin_i) == StringName()) {
+		return;
 	}
 	// Enable pin button.
 	target_nodepath->set_object_and_property(ik, vformat("pins/%d/target_node", pin_i));
