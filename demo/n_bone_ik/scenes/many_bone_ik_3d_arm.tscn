@@ -6,24 +6,25 @@
 
 [node name="Skeleton3D" parent="Robotic_Arm_Armature" index="0"]
 bones/0/position = Vector3(7.74947e-15, -6.57523e-05, 4.96705e-09)
-bones/0/rotation = Quaternion(3.47197e-06, 1.34111e-07, 1.57822e-05, 1)
+bones/0/rotation = Quaternion(3.46686e-06, 1.1921e-07, 1.60009e-05, 1)
 bones/1/position = Vector3(-1.78814e-06, 0.0558763, 3.8743e-07)
-bones/1/rotation = Quaternion(0.461691, 0.809453, -0.318276, -0.174147)
-bones/1/scale = Vector3(1, 1, 1)
-bones/2/position = Vector3(1.94944e-05, 0.0886212, 7.34311e-05)
-bones/2/rotation = Quaternion(-0.433302, -0.577877, -0.409148, 0.557589)
-bones/3/position = Vector3(0.000115022, 0.25863, -1.16974e-05)
-bones/3/rotation = Quaternion(-0.0965912, 0.130678, 0.15387, 0.974637)
+bones/1/rotation = Quaternion(-0.0657799, -0.497667, 0.105429, 0.85842)
+bones/1/scale = Vector3(1, 0.999999, 1)
+bones/2/position = Vector3(1.25766e-05, 0.0884511, 0.000114975)
+bones/2/rotation = Quaternion(-0.138501, 0.98254, 0.0282381, -0.120975)
+bones/2/scale = Vector3(1, 1, 1)
+bones/3/position = Vector3(0.000136651, 0.25907, -1.97468e-05)
+bones/3/rotation = Quaternion(0.522567, -0.419147, 0.311663, 0.673874)
 bones/3/scale = Vector3(1, 1, 1)
-bones/4/position = Vector3(1.60187e-06, 0.258607, 6.9499e-05)
-bones/4/rotation = Quaternion(0.41269, 0.771388, -0.254881, -0.411927)
-bones/4/scale = Vector3(1, 1, 1)
-bones/5/position = Vector3(2.08616e-06, 0.0504766, 2.21878e-05)
-bones/5/rotation = Quaternion(-0.366336, -0.29736, 0.786081, -0.399315)
-bones/5/scale = Vector3(1, 1, 1)
-bones/6/position = Vector3(4.72069e-05, 0.0632379, 3.016e-05)
-bones/6/rotation = Quaternion(-0.259781, -0.686872, 0.383155, 0.560279)
-bones/6/scale = Vector3(1, 1, 1)
+bones/4/position = Vector3(2.87592e-05, 0.259132, 8.09729e-05)
+bones/4/rotation = Quaternion(-0.493292, 0.799092, 0.0518775, -0.339741)
+bones/4/scale = Vector3(1.00014, 1.00055, 1.00027)
+bones/5/position = Vector3(-4.98295e-05, 0.050567, 2.23517e-05)
+bones/5/rotation = Quaternion(-0.616916, 0.0823141, 0.625398, -0.470655)
+bones/5/scale = Vector3(1.00002, 0.999894, 1.00005)
+bones/6/position = Vector3(5.48661e-05, 0.0633554, 3.1516e-05)
+bones/6/rotation = Quaternion(-0.501259, 0.834343, -0.181664, 0.140029)
+bones/6/scale = Vector3(0.999979, 0.999949, 0.99996)
 bones/7/position = Vector3(0.0116693, 0.0528818, 0.0161327)
 bones/7/rotation = Quaternion(-0.0224684, 0.0201436, -0.625469, 0.779665)
 bones/8/position = Vector3(0.0116645, 0.0525429, -0.0166668)
@@ -32,7 +33,7 @@ bones/8/rotation = Quaternion(0.129666, 0.087528, -0.623561, 0.765962)
 [node name="ManyBoneIK3D" type="ManyBoneIK3D" parent="Robotic_Arm_Armature/Skeleton3D" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0901043, 0, 0)
 default_damp = 4.71239
-edit_constraints = 0
+edit_constraints = 2
 bone_count = 1
 bone/0/bone_name = &""
 bone/0/damp = 4.71239
@@ -68,4 +69,4 @@ pins/1/direction_priorities = Vector3(0.2, 0, 0.2)
 transform = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, -6.57523e-05, 0)
 
 [node name="Joint_05" type="Marker3D" parent="Robotic_Arm_Armature/Skeleton3D" index="3"]
-transform = Transform3D(1, 4.24585e-08, -5.21283e-08, -4.78826e-08, 0.894942, -0.446181, 6.76763e-08, 0.446181, 0.894942, -0.0822385, 0.636445, -0.0756851)
+transform = Transform3D(1, 4.24585e-08, -5.21283e-08, -4.78826e-08, 0.894942, -0.446181, 6.76763e-08, 0.446181, 0.894942, -0.0324574, 0.660054, -0.12304)

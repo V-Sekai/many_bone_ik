@@ -136,4 +136,94 @@ void ManyBoneIK3DEditor::create_editors() {
 	joint_tree->set_allow_rmb_select(true);
 	joint_tree->set_drag_forwarding(this);
 	s_con->add_child(joint_tree);
+
+	bone_pinning_section = memnew(EditorInspectorSection);
+	bone_pinning_section->setup("bone_pinning_properties", TTR("Bone Pinning"), this, section_color, true);
+	bone_pinning_section->unfold();
+	add_child(bone_pinning_section);
+
+	pin_checkbox = memnew(EditorPropertyCheck());
+	pin_checkbox->set_label(TTR("Pin Enabled"));
+	pin_checkbox->set_selectable(false);
+	// pin_checkbox->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	bone_pinning_section->get_vbox()->add_child(pin_checkbox);
+
+	target_nodepath = memnew(EditorPropertyNodePath());
+	target_nodepath->set_label(TTR("Target NodePath"));
+	target_nodepath->set_selectable(false);
+	// pin_checkbox->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	bone_pinning_section->get_vbox()->add_child(target_nodepath);
+
+	kusudama_twist_constraint_section = memnew(EditorInspectorSection);
+	kusudama_twist_constraint_section->setup("kusudama_twist_constraint_properties", TTR("Kusudama Twist Constraint (Twist Basis)"), this, section_color, true);
+	kusudama_twist_constraint_section->unfold();
+	add_child(kusudama_twist_constraint_section);
+
+	twist_from_float = memnew(EditorPropertyFloat());
+	twist_from_float->set_label(TTR("Twist From"));
+	twist_from_float->set_selectable(false);
+	// twist_from_float->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	kusudama_twist_constraint_section->get_vbox()->add_child(twist_from_float);
+
+	twist_range_float = memnew(EditorPropertyFloat());
+	twist_range_float->set_label(TTR("Twist Range"));
+	twist_range_float->set_selectable(false);
+	// twist_from_float->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	kusudama_twist_constraint_section->get_vbox()->add_child(twist_range_float);
+
+	twist_current_float = memnew(EditorPropertyFloat());
+	twist_current_float->set_label(TTR("Twist Current"));
+	twist_current_float->set_selectable(false);
+	// twist_current_float->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	kusudama_twist_constraint_section->get_vbox()->add_child(twist_current_float);
+
+	kusudama_orientation_constraint_section = memnew(EditorInspectorSection);
+	kusudama_orientation_constraint_section->setup("kusudama_orientation_constraint_properties", TTR("Kusudama Orientation Constraint (Orientation Basis)"), this, section_color, true);
+	kusudama_orientation_constraint_section->unfold();
+	add_child(kusudama_orientation_constraint_section);
+
+	center_vector3 = memnew(EditorPropertyVector3());
+	center_vector3->set_label(TTR("Cone Center Point"));
+	center_vector3->set_selectable(false);
+	// center_vector3->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	kusudama_orientation_constraint_section->get_vbox()->add_child(center_vector3);
+
+	radius_float = memnew(EditorPropertyFloat());
+	radius_float->set_label(TTR("Cone Radius"));
+	radius_float->set_selectable(false);
+	// radius_float->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	kusudama_orientation_constraint_section->get_vbox()->add_child(radius_float);
+
+	twist_constraint_basis_section = memnew(EditorInspectorSection);
+	twist_constraint_basis_section->setup("twist_constraint_basis_properties", TTR("Twist Constraint Basis"), this, section_color, true);
+	twist_constraint_basis_section->unfold();
+	add_child(twist_constraint_basis_section);
+
+	twist_constraint_basis = memnew(EditorPropertyBasis());
+	twist_constraint_basis->set_label(TTR("Twist Constraint Basis"));
+	twist_constraint_basis->set_selectable(false);
+	// radius_float->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	twist_constraint_basis_section->get_vbox()->add_child(twist_constraint_basis);
+
+	orientation_constraint_basis_section = memnew(EditorInspectorSection);
+	orientation_constraint_basis_section->setup("orientation_constraint_basis_properties", TTR("Orientation Constraint Basis"), this, section_color, true);
+	orientation_constraint_basis_section->unfold();
+	add_child(orientation_constraint_basis_section);
+
+	orientation_constraint_basis = memnew(EditorPropertyBasis());
+	orientation_constraint_basis->set_label(TTR("Twist Constraint Basis"));
+	orientation_constraint_basis->set_selectable(false);
+	// radius_float->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	orientation_constraint_basis_section->get_vbox()->add_child(orientation_constraint_basis);
+
+	bone_direction_transform_section = memnew(EditorInspectorSection);
+	bone_direction_transform_section->setup("bone_direction_transform_properties", TTR("Bone Direction Transform"), this, section_color, true);
+	bone_direction_transform_section->unfold();
+	add_child(bone_direction_transform_section);
+
+	bone_direction_transform = memnew(EditorPropertyTransform3D());
+	bone_direction_transform->set_label(TTR("Bone Direction Transform3D"));
+	bone_direction_transform->set_selectable(false);
+	// radius_float->connect("property_changed", callable_mp(this, &BoneTransformEditor::_value_changed));
+	bone_direction_transform_section->get_vbox()->add_child(bone_direction_transform);
 }
