@@ -79,16 +79,13 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	real_t dist_to_min = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - min_axial_angle));
 	real_t dist_to_max = Math::abs(signed_angle_difference(angle_delta_2, Math_TAU - (min_axial_angle + range_angle)));
 	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
-	if (Math::is_zero_approx(axis_y.length_squared())) {
-		axis_y = Vector3(0, 1, 0);
-	}
 	real_t turn_diff = 0;
 	if (dist_to_min < dist_to_max) {
 		turn_diff = (from_min_to_angle_delta);
 	} else {
 		turn_diff = (range_angle - (Math_TAU - from_min_to_angle_delta));
 	}
-	Basis rot = Basis(axis_y.normalized(), turn_diff).orthonormalized();
+	Basis rot = IKLimitCone::quaternion_set_axis_angle(axis_y, turn_diff);
 	to_set->rotate_local_with_global(rot);
 }
 
@@ -361,10 +358,7 @@ void IKKusudama::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real
 	Vector3 limiting_axes_origin = bone_attached_to->get_constraint_transform()->get_global_transform().origin;
 	Vector3 bone_axis_y = bone_attached_to->get_bone_direction_transform()->get_global_transform().xform(Vector3(0, 1, 0));
 	Vector3 axis_y = bone_axis_y - limiting_axes_origin;
-	if (Math::is_zero_approx(axis_y.length_squared())) {
-		axis_y = Vector3(0, 1, 0);
-	}
 	real_t turn_diff = dist_to_target_rotation;
-	Basis rot = Basis(axis_y.normalized(), turn_diff).orthonormalized();
+	Basis rot = IKLimitCone::quaternion_set_axis_angle(axis_y, turn_diff);
 	bone_attached_to->get_ik_transform()->rotate_local_with_global(rot);
 }
