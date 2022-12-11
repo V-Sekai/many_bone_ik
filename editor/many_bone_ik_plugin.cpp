@@ -183,7 +183,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	twist_current_float = memnew(EditorPropertyFloat());
 	twist_current_float->hide();
-	twist_current_float->setup(0, 360, 0.01, false, false, false, false, "", true);
+	twist_current_float->setup(0, 360, 0.01, false, false, false, false, "", false);
 	twist_current_float->set_label(TTR("Twist Current"));
 	twist_current_float->set_selectable(false);
 	twist_current_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -224,7 +224,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	orientation_constraint_transform = memnew(EditorPropertyTransform3D());
 	orientation_constraint_transform->hide();
-	orientation_constraint_transform->set_label(TTR("Twist Constraint"));
+	orientation_constraint_transform->set_label(TTR("Orientation Constraint"));
 	orientation_constraint_transform->set_selectable(false);
 	orientation_constraint_transform->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(orientation_constraint_transform);
@@ -363,11 +363,11 @@ void ManyBoneIK3DEditor::_value_changed(const String &p_property, Variant p_valu
 	if (!is_visible()) {
 		return;
 	}
-	if (ik) {
-		Ref<EditorUndoRedoManager> &undo_redo = EditorNode::get_undo_redo();
-		undo_redo->create_action(TTR("Set ManyBoneIK Property"), UndoRedo::MERGE_ENDS);
-		undo_redo->add_undo_property(ik, p_property, ik->get(p_property));
-		undo_redo->add_do_property(ik, p_property, p_value);
-		undo_redo->commit_action();
+	if (!ik) {
 	}
+	Ref<EditorUndoRedoManager> &undo_redo = EditorNode::get_undo_redo();
+	undo_redo->create_action(TTR("Set ManyBoneIK Property"), UndoRedo::MERGE_ENDS);
+	undo_redo->add_undo_property(ik, p_property, ik->get(p_property));
+	undo_redo->add_do_property(ik, p_property, p_value);
+	undo_redo->commit_action();
 }
