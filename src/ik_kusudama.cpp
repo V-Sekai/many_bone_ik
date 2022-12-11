@@ -61,7 +61,10 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	if (!is_axially_constrained()) {
 		return;
 	}
-	Quaternion inv_rot = twist_axes->get_global_transform().basis.inverse().get_rotation_quaternion();
+	Quaternion inv_rot;
+	if (inv_rot.is_finite() && !inv_rot.is_equal_approx(Quaternion())) {
+		inv_rot = twist_axes->get_global_transform().basis.inverse().get_rotation_quaternion();
+	}
 	Quaternion align_rot;
 	if (!inv_rot.is_equal_approx(Quaternion())) {
 		inv_rot * bone_direction->get_global_transform().basis.get_rotation_quaternion();
@@ -332,7 +335,10 @@ void IKKusudama::get_swing_twist(
 }
 
 real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) {
-	Quaternion inv_rot = bone_attached_to->get_constraint_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
+	Quaternion inv_rot;
+	if (inv_rot.is_finite() && !inv_rot.is_equal_approx(Quaternion())) {
+		inv_rot = bone_attached_to->get_constraint_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
+	}
 	Quaternion align_rot;
 	if (!inv_rot.is_equal_approx(Quaternion())) {
 		align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
@@ -349,7 +355,10 @@ real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) {
 
 void IKKusudama::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation) {
 	p_rotation = (p_rotation * range_angle) + min_axial_angle;
-	Quaternion inv_rot = bone_attached_to->get_constraint_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
+	Quaternion inv_rot;
+	if (inv_rot.is_finite() && !inv_rot.is_equal_approx(Quaternion())) {
+		inv_rot = bone_attached_to->get_constraint_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
+	}
 	Quaternion align_rot;
 	if (!inv_rot.is_equal_approx(Quaternion())) {
 		align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
