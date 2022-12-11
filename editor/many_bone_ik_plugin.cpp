@@ -330,7 +330,7 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	if (pin_i == -1 || ik->get_pin_bone_name(pin_i) == StringName()) {
 		return;
 	}
-	bone_damp_float->set_object_and_property(ik, vformat("bone/%d/bone_damp", pin_i));
+	bone_damp_float->set_object_and_property(ik, vformat("bone/%d/damp", pin_i));
 	bone_damp_float->update_property();
 	bone_damp_float->show();
 	pin_checkbox->set_object_and_property(ik, vformat("pins/%d/enabled", pin_i));
