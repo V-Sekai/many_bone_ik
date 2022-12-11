@@ -262,7 +262,7 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	if (pin_i == -1 || ik->get_pin_bone_name(pin_i) == StringName()) {
 		return;
 	}
-	target_nodepath->set_object_and_property(ik, vformat("pins/%d/enabled", pin_i));
+	pin_checkbox->set_object_and_property(ik, vformat("pins/%d/enabled", pin_i));
 	target_nodepath->set_object_and_property(ik, vformat("pins/%d/target_node", pin_i));
 	target_nodepath->update_property();
 
