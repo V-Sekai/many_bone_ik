@@ -77,6 +77,8 @@ protected:
 	static void _bind_methods();
 
 public:
+	const double evec_prec = static_cast<double>(1E-6);
+	const double eval_prec = static_cast<double>(1E-11);
 	static Quaternion clamp_to_angle(Quaternion p_quat, real_t p_angle);
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle);
 	_FORCE_INLINE_ static real_t cos(real_t p_angle) {

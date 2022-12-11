@@ -207,7 +207,7 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	if (!p_constraint_mode) {
 		// Solved ik transform and apply it.
-		QCP qcp = QCP(FLT_EPSILON, FLT_EPSILON);
+		QCP qcp = QCP(evec_prec, eval_prec);
 		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 		Vector3 translation = qcp.get_translation();
 		if (p_dampening != -1.0f) {
