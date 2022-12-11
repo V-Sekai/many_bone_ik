@@ -366,7 +366,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 				return true;
 			}
 		} else if (what == "bone_direction") {
-			r_ret = get_constraint_twist_transform(index);
+			r_ret = get_bone_direction_transform(index);
 			return true;
 		} else if (what == "kusudama_orientation") {
 			r_ret = get_constraint_orientation_transform(index);
@@ -493,7 +493,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 				return true;
 			}
 		} else if (what == "bone_direction") {
-			set_constraint_twist_transform(index, p_value);
+			set_bone_direction_transform(index, p_value);
 			return true;
 		} else if (what == "kusudama_orientation") {
 			set_constraint_orientation_transform(index, p_value);
