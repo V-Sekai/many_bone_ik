@@ -152,6 +152,14 @@ void ManyBoneIK3DEditor::create_editors() {
 	constraint_bone_section->unfold();
 	add_child(constraint_bone_section);
 
+	bone_damp_float = memnew(EditorPropertyFloat());
+	bone_damp_float->hide();
+	bone_damp_float->setup(0, 360, 0.01, false, false, false, false, "", true);
+	bone_damp_float->set_label(TTR("Bone Damp"));
+	bone_damp_float->set_selectable(false);
+	bone_damp_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
+	constraint_bone_section->get_vbox()->add_child(bone_damp_float);
+
 	pin_checkbox = memnew(EditorPropertyCheck());
 	pin_checkbox->hide();
 	pin_checkbox->set_label(TTR("Pin Enabled"));
@@ -164,6 +172,27 @@ void ManyBoneIK3DEditor::create_editors() {
 	target_nodepath->set_label(TTR("Target NodePath"));
 	target_nodepath->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(target_nodepath);
+
+	passthrough_float = memnew(EditorPropertyFloat());
+	passthrough_float->hide();
+	passthrough_float->setup(0, 1, 0.01, false, false, false, false, "", false);
+	passthrough_float->set_label(TTR("Passthrough Factor"));
+	passthrough_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
+	constraint_bone_section->get_vbox()->add_child(passthrough_float);
+
+	weight_float = memnew(EditorPropertyFloat());
+	weight_float->hide();
+	weight_float->setup(0, 1, 0.01, false, false, false, false, "", false);
+	weight_float->set_label(TTR("Weight"));
+	weight_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
+	constraint_bone_section->get_vbox()->add_child(weight_float);
+
+	direction_priorities_vector3 = memnew(EditorPropertyVector3());
+	direction_priorities_vector3->setup(0, 1, 0.01, false, false, "", false);
+	direction_priorities_vector3->hide();
+	direction_priorities_vector3->set_label(TTR("Direction Priorities"));
+	direction_priorities_vector3->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
+	constraint_bone_section->get_vbox()->add_child(direction_priorities_vector3);
 
 	twist_from_float = memnew(EditorPropertyFloat());
 	twist_from_float->hide();
@@ -258,6 +287,7 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		_joint_tree_selection_changed();
 		return;
 	}
+	bone_damp_float->hide();
 	pin_checkbox->hide();
 	target_nodepath->hide();
 	twist_from_float->hide();
@@ -271,7 +301,10 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	twist_constraint_transform->hide();
 	orientation_constraint_transform->hide();
 	bone_direction_transform->hide();
-	
+	passthrough_float->hide();
+	weight_float->hide();
+	direction_priorities_vector3->hide();
+
 	TreeItem *ti = _find(joint_tree->get_root(), "bones/" + itos(p_idx));
 	if (!ti) {
 		return;
@@ -297,12 +330,24 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	if (pin_i == -1 || ik->get_pin_bone_name(pin_i) == StringName()) {
 		return;
 	}
+	bone_damp_float->set_object_and_property(ik, vformat("bone/%d/bone_damp", pin_i));
+	bone_damp_float->update_property();
+	bone_damp_float->show();
 	pin_checkbox->set_object_and_property(ik, vformat("pins/%d/enabled", pin_i));
 	pin_checkbox->update_property();
 	pin_checkbox->show();
 	target_nodepath->set_object_and_property(ik, vformat("pins/%d/target_node", pin_i));
 	target_nodepath->update_property();
 	target_nodepath->show();
+	passthrough_float->set_object_and_property(ik, vformat("pins/%d/passthrough_factor", pin_i));
+	passthrough_float->update_property();
+	passthrough_float->show();
+	weight_float->set_object_and_property(ik, vformat("pins/%d/weight", pin_i));
+	weight_float->update_property();
+	weight_float->show();
+	direction_priorities_vector3->set_object_and_property(ik, vformat("pins/%d/direction_priorities", pin_i));
+	direction_priorities_vector3->update_property();
+	direction_priorities_vector3->show();
 	int32_t constraint_i = ik->find_constraint(bone_name);
 	if (constraint_i == -1) {
 		return;

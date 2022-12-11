@@ -132,10 +132,10 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		existing_bones.insert(name);
 	}
 	{
-		const uint32_t damp_usage = PROPERTY_USAGE_DEFAULT;
+		const uint32_t damp_usage = PROPERTY_USAGE_NO_EDITOR;
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "bone_count",
-						PROPERTY_HINT_RANGE, "0,256,or_greater", damp_usage | PROPERTY_USAGE_ARRAY,
+						PROPERTY_HINT_RANGE, "0,256,or_greater", damp_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 						"Bone,bone/"));
 		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
 			PropertyInfo bone_name;
@@ -168,7 +168,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	const uint32_t constraint_usage = PROPERTY_USAGE_NO_EDITOR;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
-					PROPERTY_HINT_RANGE, "0,256,or_greater", constraint_usage | PROPERTY_USAGE_ARRAY,
+					PROPERTY_HINT_RANGE, "0,256,or_greater", constraint_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Kusudama Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
@@ -225,10 +225,10 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
-	const uint32_t pin_usage = PROPERTY_USAGE_DEFAULT;
+	const uint32_t pin_usage = PROPERTY_USAGE_NO_EDITOR;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
-					PROPERTY_HINT_RANGE, "0,1024,or_greater", pin_usage | PROPERTY_USAGE_ARRAY,
+					PROPERTY_HINT_RANGE, "0,1024,or_greater", pin_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
@@ -253,7 +253,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(effector_name);
 		p_list->push_back(
-				PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/enabled"));
+				PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/enabled", PROPERTY_HINT_NONE, "", pin_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D", pin_usage));
 		p_list->push_back(
@@ -979,9 +979,11 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 	if (skeleton && !get_pin_count() && !get_constraint_count()) {
 		_set_pin_count(skeleton->get_bone_count());
 		_set_constraint_count(skeleton->get_bone_count());
+		_set_bone_count(skeleton->get_bone_count());
 		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 			_set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
 			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
+			_set_bone_damp_bone_name(bone_i, skeleton->get_bone_name(bone_i));
 		}
 		for (int32_t bone_i : skeleton->get_parentless_bones()) {
 			set_pin_enabled(bone_i, true);
