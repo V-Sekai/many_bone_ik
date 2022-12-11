@@ -305,6 +305,7 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	twist_current_float->show();
 	cone_count_float->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone_count", constraint_i));
 	cone_count_float->update_property();
+	cone_count_float->show();
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i]->hide();
 		radius_float[cone_i]->hide();
