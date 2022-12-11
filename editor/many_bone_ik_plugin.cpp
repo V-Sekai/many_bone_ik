@@ -59,8 +59,10 @@ void EditorInspectorPluginManyBoneIK::parse_begin(Object *p_object) {
 void ManyBoneIK3DEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE: {
-			update_joint_tree();
-			joint_tree->connect("item_selected", callable_mp(this, &ManyBoneIK3DEditor::_joint_tree_selection_changed));
+			if (joint_tree) {
+				update_joint_tree();
+				joint_tree->connect("item_selected", callable_mp(this, &ManyBoneIK3DEditor::_joint_tree_selection_changed));
+			}
 		} break;
 		case NOTIFICATION_THEME_CHANGED: {
 			update_joint_tree();
@@ -78,11 +80,11 @@ void ManyBoneIK3DEditor::_update_properties() {
 }
 
 void ManyBoneIK3DEditor::update_joint_tree() {
-	joint_tree->clear();
-
-	if (!ik->get_skeleton()) {
+	if (!ik || !ik->get_skeleton() || !joint_tree) {
 		return;
 	}
+	joint_tree->clear();
+
 	Skeleton3D *skeleton = ik->get_skeleton();
 
 	TreeItem *root = joint_tree->create_item();
@@ -119,14 +121,13 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 }
 
 void ManyBoneIK3DEditor::create_editors() {
+	if (!ik || !ik->get_skeleton()) {
+		return;
+	}
 	set_h_size_flags(SIZE_EXPAND_FILL);
 	set_focus_mode(FOCUS_ALL);
-
-	// Bone tree.
 	const Color section_color = get_theme_color(SNAME("prop_subsection"), SNAME("Editor"));
-
 	EditorInspectorSection *bones_section = memnew(EditorInspectorSection);
-	ERR_FAIL_NULL(ik->get_skeleton());
 	bones_section->setup("bones", "Bones", ik->get_skeleton(), section_color, true);
 	add_child(bones_section);
 	bones_section->unfold();
@@ -182,12 +183,14 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i] = memnew(EditorPropertyVector3());
+		center_vector3[cone_i]->hide();
 		center_vector3[cone_i]->set_label(TTR(vformat("Cone Center Point %d", cone_i + 1)));
 		center_vector3[cone_i]->set_selectable(false);
 		center_vector3[cone_i]->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 		constraint_bone_section->get_vbox()->add_child(center_vector3[cone_i]);
 
 		radius_float[cone_i] = memnew(EditorPropertyFloat());
+		radius_float[cone_i]->hide();
 		radius_float[cone_i]->set_label(TTR(vformat("Cone Radius %d", cone_i + 1)));
 		radius_float[cone_i]->set_selectable(false);
 		radius_float[cone_i]->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -274,7 +277,7 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i]->hide();
 		radius_float[cone_i]->hide();
-	}	
+	}
 	for (int32_t cone_i = 0; cone_i < ik->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 		center_vector3[cone_i]->show();
 		radius_float[cone_i]->show();
