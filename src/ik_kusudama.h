@@ -58,13 +58,6 @@ class IKKusudama : public Resource {
 	 */
 	TypedArray<IKLimitCone> limit_cones;
 
-	Vector3 twist_min_vec;
-	Vector3 twist_center_vec;
-	real_t twist_half_range_cos = 0; 
-	Vector3 twist_tan;
-	Vector3 twist_max_vec;
-	bool flipped_bounds = false;
-
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
 	 * limiting_axes Z axis.
