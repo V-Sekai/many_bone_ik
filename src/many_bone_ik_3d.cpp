@@ -520,6 +520,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &ManyBoneIK3D::remove_constraint);
 	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &ManyBoneIK3D::set_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &ManyBoneIK3D::get_skeleton_node_path);
+	ClassDB::bind_method(D_METHOD("register_skeleton"), &ManyBoneIK3D::register_skeleton);
 	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &ManyBoneIK3D::set_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &ManyBoneIK3D::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &ManyBoneIK3D::set_dirty);
@@ -975,22 +976,8 @@ NodePath ManyBoneIK3D::get_skeleton_node_path() {
 
 void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 	skeleton_node_path = p_skeleton_node_path;
-	Skeleton3D *skeleton = get_skeleton();
-	if (skeleton && !get_pin_count() && !get_constraint_count()) {
-		_set_pin_count(skeleton->get_bone_count());
-		_set_constraint_count(skeleton->get_bone_count());
-		_set_bone_count(skeleton->get_bone_count());
-		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-			_set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
-			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
-			_set_bone_damp_bone_name(bone_i, skeleton->get_bone_name(bone_i));
-		}
-		for (int32_t bone_i : skeleton->get_parentless_bones()) {
-			set_pin_enabled(bone_i, true);
-			set_pin_passthrough_factor(bone_i, 0.0f);
-		}
-	}
-	set_dirty();
+	register_skeleton();
+	set_dirty(); // Duplicated for ease of verification.
 }
 
 void ManyBoneIK3D::_notification(int p_what) {
@@ -1231,6 +1218,7 @@ void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p
 		break;
 	}
 }
+
 bool ManyBoneIK3D::get_pin_enabled(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
@@ -1241,5 +1229,24 @@ void ManyBoneIK3D::set_pin_enabled(int32_t p_effector_index, bool p_enabled) {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	effector_template->set_enabled(p_enabled);
+	set_dirty();
+}
+
+void ManyBoneIK3D::register_skeleton() {
+	Skeleton3D *skeleton = get_skeleton();
+	if (skeleton && !get_pin_count() && !get_constraint_count()) {
+		_set_pin_count(skeleton->get_bone_count());
+		_set_constraint_count(skeleton->get_bone_count());
+		_set_bone_count(skeleton->get_bone_count());
+		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
+			_set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
+			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
+			_set_bone_damp_bone_name(bone_i, skeleton->get_bone_name(bone_i));
+		}
+		for (int32_t bone_i : skeleton->get_parentless_bones()) {
+			set_pin_enabled(bone_i, true);
+			set_pin_passthrough_factor(bone_i, 0.0f);
+		}
+	}
 	set_dirty();
 }
