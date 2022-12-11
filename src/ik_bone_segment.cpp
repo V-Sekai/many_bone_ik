@@ -288,7 +288,7 @@ void IKBoneSegment::qcp_solver(const Vector<float> &p_damp, float p_default_damp
 		if (is_valid_access) {
 			damp = p_damp[current_bone->get_bone_id()];
 		}
-		bool is_non_default_damp = damp >= p_default_damp;
+		bool is_non_default_damp = p_default_damp < damp;
 		if (is_non_default_damp) {
 			damp = p_default_damp;
 		}
