@@ -258,6 +258,20 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		_joint_tree_selection_changed();
 		return;
 	}
+	pin_checkbox->hide();
+	target_nodepath->hide();
+	twist_from_float->hide();
+	twist_range_float->hide();
+	twist_current_float->hide();
+	cone_count_float->hide();
+	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
+		center_vector3[cone_i]->hide();
+		radius_float[cone_i]->hide();
+	}
+	twist_constraint_transform->hide();
+	orientation_constraint_transform->hide();
+	bone_direction_transform->hide();
+	
 	TreeItem *ti = _find(joint_tree->get_root(), "bones/" + itos(p_idx));
 	if (!ti) {
 		return;
@@ -289,7 +303,6 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	target_nodepath->set_object_and_property(ik, vformat("pins/%d/target_node", pin_i));
 	target_nodepath->update_property();
 	target_nodepath->show();
-
 	int32_t constraint_i = ik->find_constraint(bone_name);
 	if (constraint_i == -1) {
 		return;
@@ -306,10 +319,6 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	cone_count_float->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone_count", constraint_i));
 	cone_count_float->update_property();
 	cone_count_float->show();
-	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
-		center_vector3[cone_i]->hide();
-		radius_float[cone_i]->hide();
-	}
 	for (int32_t cone_i = 0; cone_i < ik->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 		center_vector3[cone_i]->show();
 		center_vector3[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/center", constraint_i, cone_i));

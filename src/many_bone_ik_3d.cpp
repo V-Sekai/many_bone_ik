@@ -214,11 +214,11 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians", constraint_usage));
 		}
 		p_list->push_back(
-				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/bone_direction"));
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_twist"));
 		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_orientation"));
 		p_list->push_back(
-				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_twist"));
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/bone_direction"));
 	}
 	RBSet<String> existing_pins;
 	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
