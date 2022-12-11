@@ -189,6 +189,14 @@ void ManyBoneIK3DEditor::create_editors() {
 	twist_current_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(twist_current_float);
 
+	cone_count_float = memnew(EditorPropertyFloat());
+	cone_count_float->hide();
+	cone_count_float->setup(0, 30, 1, false, false, "", false);
+	cone_count_float->set_label(TTR("Limit Cone Count"));
+	cone_count_float->set_selectable(false);
+	cone_count_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
+	constraint_bone_section->get_vbox()->add_child(cone_count_float);
+
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i] = memnew(EditorPropertyVector3());
 		center_vector3[cone_i]->hide();
@@ -295,6 +303,8 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	twist_current_float->set_object_and_property(ik, vformat("constraints/%d/twist_current", constraint_i));
 	twist_current_float->update_property();
 	twist_current_float->show();
+	cone_count_float->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone_count", constraint_i));
+	cone_count_float->update_property();
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i]->hide();
 		radius_float[cone_i]->hide();
