@@ -192,7 +192,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i] = memnew(EditorPropertyVector3());
 		center_vector3[cone_i]->hide();
-		center_vector3[cone_i]->setup(0, 1, 0.01);
+		center_vector3[cone_i]->setup(0, 1, 0.01, false, false, "", false);
 		center_vector3[cone_i]->set_label(TTR(vformat("Cone Center Point %d", cone_i + 1)));
 		center_vector3[cone_i]->set_selectable(false);
 		center_vector3[cone_i]->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
