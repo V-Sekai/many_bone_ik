@@ -5,24 +5,198 @@
 [node name="many_bone_ik_3d_arm" instance=ExtResource("1_5uyx7")]
 
 [node name="Skeleton3D" parent="Robotic_Arm_Armature" index="0"]
-bones/0/position = Vector3(0, -6.57523e-05, 0)
-bones/0/rotation = Quaternion(0, 1.1921e-07, 0, 1)
-bones/1/rotation = Quaternion(-0.179364, 0.942001, -0.283658, -0.000729652)
+bones/1/rotation = Quaternion(0.145, 0.972936, -0.179918, 0.000490233)
 bones/1/scale = Vector3(1, 1, 1)
-bones/2/position = Vector3(1.56723e-05, 0.0890069, -0.000198813)
-bones/2/rotation = Quaternion(0.264791, -0.000609757, 0.887687, -0.376693)
-bones/2/scale = Vector3(1, 1, 1)
-bones/3/position = Vector3(8.79094e-05, 0.257905, -0.000125971)
-bones/3/rotation = Quaternion(-0.0357897, -0.521314, -0.331437, 0.785558)
+bones/2/position = Vector3(3.76254e-07, 0.0885392, -1.02259e-06)
+bones/2/rotation = Quaternion(-0.15196, 0.0391963, 0.0837322, 0.984053)
+bones/3/position = Vector3(-4.13507e-07, 0.257009, 1.67638e-08)
+bones/3/rotation = Quaternion(-0.0466167, 0.00177566, -0.40701, 0.912232)
 bones/3/scale = Vector3(1, 1, 1)
-bones/4/position = Vector3(-7.62194e-05, 0.261153, -0.000648141)
-bones/4/rotation = Quaternion(0.128856, 0.20046, 0.66038, 0.712117)
+bones/4/position = Vector3(3.45707e-06, 0.257307, 3.72529e-07)
+bones/4/rotation = Quaternion(-0.551551, -0.111336, 0.2992, 0.770633)
 bones/4/scale = Vector3(1, 1, 1)
-bones/5/position = Vector3(8.00788e-05, 0.0509118, -3.67463e-05)
-bones/5/rotation = Quaternion(-0.0601912, 0.584504, -0.062698, 0.806722)
+bones/5/position = Vector3(-2.23517e-08, 0.0502362, 4.76837e-06)
+bones/5/rotation = Quaternion(0.267048, 0.456637, -0.11461, 0.840852)
 bones/5/scale = Vector3(1, 1, 1)
-bones/6/position = Vector3(-1.77771e-05, 0.0635091, 8.56221e-05)
-bones/6/rotation = Quaternion(0.590981, 0.614167, -0.522915, 0.0100577)
-bones/6/scale = Vector3(1, 1, 1)
+bones/6/position = Vector3(3.8743e-07, 0.0626326, 2.02656e-06)
+bones/6/rotation = Quaternion(0.0800247, 0.841715, -0.352452, 0.40111)
+bones/6/scale = Vector3(0.999999, 1, 0.999999)
 bones/7/rotation = Quaternion(-0.0214338, 0.0214338, -0.706782, 0.706782)
 bones/8/rotation = Quaternion(0.0214336, -0.0214337, -0.706782, 0.706782)
+
+[node name="ManyBoneIK3D" type="ManyBoneIK3D" parent="." index="1"]
+skeleton_node_path = NodePath("../Robotic_Arm_Armature/Skeleton3D")
+bone_count = 9
+bone/0/bone_name = &"Root"
+bone/0/damp = 0.174533
+bone/1/bone_name = &"Joint_00"
+bone/1/damp = 0.0
+bone/2/bone_name = &"Joint_01"
+bone/2/damp = 0.0
+bone/3/bone_name = &"Joint_02"
+bone/3/damp = 0.0
+bone/4/bone_name = &"Joint_03"
+bone/4/damp = 0.0
+bone/5/bone_name = &"Joint_04"
+bone/5/damp = 0.0
+bone/6/bone_name = &"Joint_05"
+bone/6/damp = 0.0
+bone/7/bone_name = &"Joint_05_Jaw_Right"
+bone/7/damp = 0.0
+bone/8/bone_name = &"Joint_05_Jaw_Left"
+bone/8/damp = 0.0
+constraint_count = 9
+constraints/0/bone_name = &"Root"
+constraints/0/twist_from = 3.14159
+constraints/0/twist_range = 6.28318
+constraints/0/twist_current = 1.0
+constraints/0/kusudama_limit_cone_count = 0
+constraints/0/kusudama_twist = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+constraints/0/kusudama_orientation = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -6.57523e-05, 0)
+constraints/0/bone_direction = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, -6.57523e-05, 0)
+constraints/1/bone_name = &"Joint_00"
+constraints/1/twist_from = 3.14159
+constraints/1/twist_range = 6.28318
+constraints/1/twist_current = 1.0
+constraints/1/kusudama_limit_cone_count = 0
+constraints/1/kusudama_twist = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, 0.0558072, 0)
+constraints/1/kusudama_orientation = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, 0.0558072, 0)
+constraints/1/bone_direction = Transform3D(-0.957949, 0.282328, -0.0512225, 0.281975, 0.893209, -0.350239, -0.0531299, -0.349955, -0.935259, 0, 0.0558072, 0)
+constraints/2/bone_name = &"Joint_01"
+constraints/2/twist_from = 3.14159
+constraints/2/twist_range = 6.28318
+constraints/2/twist_current = 1.0
+constraints/2/kusudama_limit_cone_count = 0
+constraints/2/kusudama_twist = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.144347, 0)
+constraints/2/kusudama_orientation = Transform3D(-0.957949, 0.282328, -0.0512225, 0.281975, 0.893209, -0.350239, -0.0531299, -0.349955, -0.935259, 0.0249968, 0.134892, -0.0309838)
+constraints/2/bone_direction = Transform3D(-0.893156, 0.449589, -0.0119304, 0.449641, 0.892054, -0.0454131, -0.00977468, -0.0459255, -0.998897, 0.0249968, 0.134892, -0.0309838)
+constraints/3/bone_name = &"Joint_02"
+constraints/3/twist_from = 3.14159
+constraints/3/twist_range = 6.28318
+constraints/3/twist_current = 1.0
+constraints/3/kusudama_limit_cone_count = 0
+constraints/3/kusudama_twist = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.401344, 0)
+constraints/3/kusudama_orientation = Transform3D(-0.893156, 0.449589, -0.0119304, 0.449641, 0.892054, -0.0454131, -0.00977468, -0.0459255, -0.998897, 0.140546, 0.364157, -0.0427871)
+constraints/3/bone_direction = Transform3D(-0.931576, -0.363376, -0.0110766, -0.363475, 0.930372, 0.0478839, -0.00709444, 0.0486336, -0.998791, 0.140546, 0.364157, -0.0427871)
+constraints/4/bone_name = &"Joint_03"
+constraints/4/twist_from = 3.14159
+constraints/4/twist_range = 6.28318
+constraints/4/twist_current = 1.0
+constraints/4/kusudama_limit_cone_count = 0
+constraints/4/kusudama_twist = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.658643, 0)
+constraints/4/kusudama_orientation = Transform3D(-0.931576, -0.363376, -0.0110766, -0.363475, 0.930372, 0.0478839, -0.00709444, 0.0486336, -0.998791, 0.0470431, 0.603547, -0.0302737)
+constraints/4/bone_direction = Transform3D(-0.952134, 0.248103, 0.178567, 0.246327, 0.276822, 0.928812, 0.18101, 0.92834, -0.324686, 0.0470431, 0.603547, -0.0302737)
+constraints/5/bone_name = &"Joint_04"
+constraints/5/twist_from = 3.14159
+constraints/5/twist_range = 6.28318
+constraints/5/twist_current = 1.0
+constraints/5/kusudama_limit_cone_count = 0
+constraints/5/kusudama_twist = Transform3D(5.96046e-08, 1, -2.98023e-08, 1.49012e-07, 5.96046e-08, 1, 1, -2.98023e-08, -1.19209e-07, 0.0502351, 0.658643, -1.49712e-09)
+constraints/5/kusudama_orientation = Transform3D(-0.952134, 0.248103, 0.178567, 0.246327, 0.276822, 0.928812, 0.18101, 0.92834, -0.324686, 0.0595077, 0.617458, 0.016361)
+constraints/5/bone_direction = Transform3D(-0.665414, -0.148027, -0.73165, -0.618829, 0.657526, 0.429778, 0.41746, 0.738747, -0.529131, 0.0595077, 0.617458, 0.016361)
+constraints/6/bone_name = &"Joint_05"
+constraints/6/twist_from = 3.14159
+constraints/6/twist_range = 6.28318
+constraints/6/twist_current = 1.0
+constraints/6/kusudama_limit_cone_count = 0
+constraints/6/kusudama_twist = Transform3D(-1, 5.96046e-08, -2.98023e-08, -5.96046e-08, 1.053e-07, 1, 2.98023e-08, 1, -7.54979e-08, 0.0502351, 0.658643, 0.0626298)
+constraints/6/kusudama_orientation = Transform3D(-0.665414, -0.148027, -0.73165, -0.618829, 0.657526, 0.429778, 0.41746, 0.738747, -0.529131, 0.0502346, 0.658642, 0.0626298)
+constraints/6/bone_direction = Transform3D(0.999999, -6.53667e-07, 6.57635e-07, -1.34309e-06, 0.999998, 4.61936e-07, -9.13912e-08, -2.38419e-07, 1, 0.0502346, 0.658642, 0.0626298)
+constraints/7/bone_name = &"Joint_05_Jaw_Right"
+constraints/7/twist_from = 3.14159
+constraints/7/twist_range = 6.28318
+constraints/7/twist_current = null
+constraints/7/kusudama_limit_cone_count = 0
+constraints/7/kusudama_twist = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+constraints/7/kusudama_orientation = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+constraints/7/bone_direction = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+constraints/8/bone_name = &"Joint_05_Jaw_Left"
+constraints/8/twist_from = 3.14159
+constraints/8/twist_range = 6.28318
+constraints/8/twist_current = null
+constraints/8/kusudama_limit_cone_count = 0
+constraints/8/kusudama_twist = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+constraints/8/kusudama_orientation = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+constraints/8/bone_direction = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+pin_count = 9
+pins/0/bone_name = "Root"
+pins/0/enabled = true
+pins/0/target_node = NodePath("../Root")
+pins/0/passthrough_factor = 0.0
+pins/0/weight = 1.0
+pins/0/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/1/bone_name = "Joint_00"
+pins/1/enabled = false
+pins/1/target_node = NodePath("../Joint_00")
+pins/1/passthrough_factor = 0.0
+pins/1/weight = 1.0
+pins/1/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/2/bone_name = "Joint_01"
+pins/2/enabled = false
+pins/2/target_node = NodePath("../Joint_01")
+pins/2/passthrough_factor = 0.0
+pins/2/weight = 1.0
+pins/2/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/3/bone_name = "Joint_02"
+pins/3/enabled = false
+pins/3/target_node = NodePath("../Joint_02")
+pins/3/passthrough_factor = 0.0
+pins/3/weight = 1.0
+pins/3/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/4/bone_name = "Joint_03"
+pins/4/enabled = false
+pins/4/target_node = NodePath("../Joint_03")
+pins/4/passthrough_factor = 0.0
+pins/4/weight = 1.0
+pins/4/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/5/bone_name = "Joint_04"
+pins/5/enabled = false
+pins/5/target_node = NodePath("../Joint_04")
+pins/5/passthrough_factor = 0.0
+pins/5/weight = 1.0
+pins/5/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/6/bone_name = "Joint_05"
+pins/6/enabled = true
+pins/6/target_node = NodePath("../Joint_05")
+pins/6/passthrough_factor = 0.0
+pins/6/weight = 1.0
+pins/6/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/7/bone_name = "Joint_05_Jaw_Right"
+pins/7/enabled = false
+pins/7/target_node = NodePath("../Joint_05_Jaw_Right")
+pins/7/passthrough_factor = 0.0
+pins/7/weight = 1.0
+pins/7/direction_priorities = Vector3(0.2, 0, 0.2)
+pins/8/bone_name = "Joint_05_Jaw_Left"
+pins/8/enabled = false
+pins/8/target_node = NodePath("../Joint_05_Jaw_Left")
+pins/8/passthrough_factor = 0.0
+pins/8/weight = 1.0
+pins/8/direction_priorities = Vector3(0.2, 0, 0.2)
+
+[node name="Root" type="Marker3D" parent="." index="2"]
+transform = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, -6.57523e-05, 0)
+
+[node name="Joint_00" type="Marker3D" parent="." index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0558072, 0)
+
+[node name="Joint_01" type="Marker3D" parent="." index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.144347, 0)
+
+[node name="Joint_02" type="Marker3D" parent="." index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.401344, 0)
+
+[node name="Joint_03" type="Marker3D" parent="." index="6"]
+transform = Transform3D(5.96046e-08, 1, -2.98023e-08, 1.49012e-07, 5.96046e-08, 1, 1, -2.98023e-08, -1.19209e-07, 0, 0.658643, 0)
+
+[node name="Joint_04" type="Marker3D" parent="." index="7"]
+transform = Transform3D(-1, 5.96046e-08, -2.98023e-08, -5.96046e-08, 1.053e-07, 1, 2.98023e-08, 1, -7.54979e-08, 0.0502351, 0.658643, -1.49712e-09)
+
+[node name="Joint_05" type="Marker3D" parent="." index="8"]
+transform = Transform3D(1, -2.98023e-08, -2.78181e-08, 5.96046e-08, 1, 1.053e-07, 5.76205e-08, -7.54979e-08, 1, 0.0502351, 0.658643, 0.0626298)
+
+[node name="Joint_05_Jaw_Right" type="Marker3D" parent="." index="9"]
+transform = Transform3D(-2.08616e-07, 0.998162, 0.060596, -1, -1.85304e-07, 1.70186e-07, 1.46278e-07, -0.060596, 0.998162, 0.0618595, 0.710994, 0.0788259)
+
+[node name="Joint_05_Jaw_Left" type="Marker3D" parent="." index="10"]
+transform = Transform3D(-8.9407e-08, 0.998162, -0.0605956, -1, -5.33334e-08, 1.83451e-07, 1.46278e-07, 0.0605956, 0.998162, 0.0618595, 0.710994, 0.0460793)

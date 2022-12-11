@@ -85,17 +85,8 @@ protected:
 	void _notification(int p_what);
 
 public:
-	void set_pin_enabled(int32_t p_effector_index, bool p_enabled) {
-		ERR_FAIL_INDEX(p_effector_index, pins.size());
-		Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
-		effector_template->set_enabled(p_enabled);
-		set_dirty();
-	}
-	bool get_pin_enabled(int32_t p_effector_index) const {
-		ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
-		Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
-		return effector_template->is_enabled();
-	}
+	void set_pin_enabled(int32_t p_effector_index, bool p_enabled);
+	bool get_pin_enabled(int32_t p_effector_index) const;
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;

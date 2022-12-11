@@ -987,6 +987,7 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 		}
 		for (int32_t bone_i : skeleton->get_parentless_bones()) {
 			set_pin_enabled(bone_i, true);
+			set_pin_passthrough_factor(bone_i, 0.0f);
 		}
 	}
 	set_dirty();
@@ -1229,4 +1230,16 @@ void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p
 		ik_bone->get_constraint_twist_transform()->set_global_transform(p_transform);
 		break;
 	}
+}
+bool ManyBoneIK3D::get_pin_enabled(int32_t p_effector_index) const {
+	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
+	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
+	return effector_template->is_enabled();
+}
+
+void ManyBoneIK3D::set_pin_enabled(int32_t p_effector_index, bool p_enabled) {
+	ERR_FAIL_INDEX(p_effector_index, pins.size());
+	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
+	effector_template->set_enabled(p_enabled);
+	set_dirty();
 }

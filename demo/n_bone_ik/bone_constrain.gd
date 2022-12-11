@@ -14,7 +14,6 @@ func _run():
 	root.add_child(new_ik, true)
 	new_ik.skeleton_node_path = "../" + str(root.get_path_to(skeleton))
 	new_ik.owner = root
-	new_ik.default_damp = deg_to_rad(5)
 
 	new_ik.visible = false
 	skeleton.reset_bone_poses()
