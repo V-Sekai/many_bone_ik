@@ -255,9 +255,3 @@ void IKBone3D::set_bone_direction_transform(Ref<IKNode3D> p_bone_direction) {
 Ref<IKNode3D> IKBone3D::get_bone_direction_transform() {
 	return bone_direction_transform;
 }
-void IKBone3D::set_stiffness(float p_stiffness) {
-	stiffness = p_stiffness;
-}
-float IKBone3D::get_stiffness() const {
-	return stiffness;
-}

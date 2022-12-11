@@ -54,7 +54,6 @@ class IKBone3D : public Resource {
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
-	float stiffness = 1.0f;
 	Ref<IKKusudama> constraint;
 	// In the space of the local parent bone transform.
 	// The origin is the origin of the bone direction transform
@@ -79,8 +78,6 @@ public:
 	void update_default_constraint_transform();
 	void add_constraint(Ref<IKKusudama> p_constraint);
 	Ref<IKKusudama> get_constraint() const;
-	void set_stiffness(float p_stiffness);
-	float get_stiffness() const;
 	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
