@@ -44,6 +44,7 @@ class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
 
 private:
+	bool is_constraint_mode = false;
 	NodePath skeleton_path;
 	Vector<Ref<IKBoneSegment>> segmented_skeletons;
 	int32_t constraint_count = 0;
@@ -83,6 +84,8 @@ protected:
 	void _notification(int p_what);
 
 public:
+	void set_constraint_mode(bool p_enabled);
+	bool get_constraint_mode() const;
 	void set_pin_enabled(int32_t p_effector_index, bool p_enabled);
 	bool get_pin_enabled(int32_t p_effector_index) const;
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
