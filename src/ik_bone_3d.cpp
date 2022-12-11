@@ -199,6 +199,9 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			continue;
 		}
 		if (elem->get_name() == p_bone) {
+			if (!elem->is_enabled()) {
+				break;
+			}
 			create_pin();
 			Ref<IKEffector3D> effector = get_pin();
 			effector->set_target_node(p_skeleton, elem->get_target_node());

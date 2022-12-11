@@ -33,6 +33,9 @@
 #include "ik_effector_template.h"
 
 void IKEffectorTemplate::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("is_enabled"), &IKEffectorTemplate::is_enabled);
+	ClassDB::bind_method(D_METHOD("set_enabled", "enabled"), &IKEffectorTemplate::set_enabled);
+
 	ClassDB::bind_method(D_METHOD("get_target_node"), &IKEffectorTemplate::get_target_node);
 	ClassDB::bind_method(D_METHOD("set_target_node", "target_node"), &IKEffectorTemplate::set_target_node);
 

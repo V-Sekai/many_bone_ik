@@ -41,11 +41,17 @@ class IKEffectorTemplate : public Resource {
 	real_t passthrough_factor = 0.0f;
 	real_t weight = 1.0f;
 	Vector3 priority_direction = Vector3(0.2f, 0.0f, 0.2f); // Purported ideal values are 1.0 / 3.0 for one direction, 1.0 / 5.0 for two directions and 1.0 / 7.0 for three directions.
-
+	bool enabled = false;
 protected:
 	static void _bind_methods();
 
 public:
+	bool is_enabled() const {
+		return enabled;
+	}
+	void set_enabled(bool p_enabled) {
+		enabled = p_enabled;
+	}
 	NodePath get_target_node() const;
 	void set_target_node(NodePath p_node_path);
 	float get_passthrough_factor() const;

@@ -247,6 +247,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(effector_name);
 		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/enabled"));
+		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D", pin_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
@@ -276,6 +278,9 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		ERR_FAIL_NULL_V(effector_template, false);
 		if (what == "bone_name") {
 			r_ret = effector_template->get_name();
+			return true;
+		} else if (what == "enabled") {
+			r_ret = effector_template->is_enabled();
 			return true;
 		} else if (what == "target_node") {
 			r_ret = effector_template->get_target_node();
@@ -377,6 +382,9 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 		if (what == "bone_name") {
 			set_pin_bone(index, p_value);
 			return true;
+		} else if (what == "enabled") {
+			set_pin_enabled(index, p_value);
+			return true;
 		} else if (what == "target_node") {
 			set_pin_target_nodepath(index, p_value);
 			String existing_bone = get_pin_bone_name(index);
@@ -475,6 +483,8 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void ManyBoneIK3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_pin_enabled", "index", "enabled"), &ManyBoneIK3D::set_pin_enabled);
+	ClassDB::bind_method(D_METHOD("get_pin_enabled", "index"), &ManyBoneIK3D::get_pin_enabled);
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &ManyBoneIK3D::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "index", "rotation"), &ManyBoneIK3D::set_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &ManyBoneIK3D::remove_constraint);
@@ -760,6 +770,16 @@ void ManyBoneIK3D::execute(real_t delta) {
 		}
 		root_ik_parent_transform->set_global_transform(Transform3D());
 	}
+	bool has_pins = false;
+	for (Ref<IKEffectorTemplate> pin : pins) {
+		if (pin.is_valid() && !pin->get_name().is_empty()) {
+			has_pins = true;
+			break;
+		}
+	}
+	if (!has_pins) {
+		return;
+	}
 	update_ik_bones_transform();
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
 		for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
@@ -778,22 +798,6 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	}
 	Vector<int32_t> roots = p_skeleton->get_parentless_bones();
 	if (!roots.size()) {
-		return;
-	}
-	_set_pin_count(p_skeleton->get_bone_count());
-	_set_constraint_count(p_skeleton->get_bone_count());
-	for (int32_t bone_i = 0; bone_i < p_skeleton->get_bone_count(); bone_i++) {
-		_set_pin_bone_name(bone_i, p_skeleton->get_bone_name(bone_i));
-		_set_constraint_name(bone_i, p_skeleton->get_bone_name(bone_i));
-	}
-	bool has_pins = false;
-	for (Ref<IKEffectorTemplate> pin : pins) {
-		if (pin.is_valid() && !pin->get_name().is_empty()) {
-			has_pins = true;
-			break;
-		}
-	}
-	if (!has_pins) {
 		return;
 	}
 	bone_list.clear();
@@ -941,6 +945,15 @@ NodePath ManyBoneIK3D::get_skeleton_node_path() {
 
 void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 	skeleton_node_path = p_skeleton_node_path;
+	Skeleton3D *skeleton = get_skeleton();
+	if (skeleton) {
+		_set_pin_count(skeleton->get_bone_count());
+		_set_constraint_count(skeleton->get_bone_count());
+		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
+			_set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
+			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
+		}
+	}
 	set_dirty();
 }
 
@@ -951,13 +964,12 @@ void ManyBoneIK3D::_notification(int p_what) {
 			set_notify_transform(true);
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (!is_visible_in_tree()) {
-				return;
-			}
 			if (is_dirty) {
 				skeleton_changed(get_skeleton());
 			}
-			execute(get_process_delta_time());
+			if (is_visible_in_tree()) {
+				execute(get_process_delta_time());
+			}
 		} break;
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			update_gizmos();

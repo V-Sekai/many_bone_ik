@@ -6,20 +6,21 @@
 
 [node name="Skeleton3D" parent="Robotic_Arm_Armature" index="0"]
 bones/2/position = Vector3(0, 0.0885402, 0)
-bones/3/position = Vector3(0, 0.256996, 0)
-bones/4/position = Vector3(0, 0.2573, 0)
-bones/4/rotation = Quaternion(0.5, 0.5, 0.5, -0.5)
+bones/2/rotation = Quaternion(-0.153592, 0.986654, 0.0540512, 0.00134882)
+bones/3/position = Vector3(9.0152e-06, 0.257009, 4.25614e-07)
+bones/3/rotation = Quaternion(0.000414229, -0.0230465, 0.427351, 0.903792)
+bones/3/scale = Vector3(1, 1, 1)
+bones/4/position = Vector3(1.48714e-05, 0.257322, 1.65775e-07)
+bones/4/rotation = Quaternion(0.000247088, -0.00620616, 0.137928, 0.990423)
 bones/4/scale = Vector3(1, 1, 1)
-bones/5/rotation = Quaternion(1.8593e-05, -1.85932e-05, -0.707107, 0.707107)
-bones/6/position = Vector3(0, 0.0626307, 0)
-bones/6/rotation = Quaternion(0.880319, -0.328071, -0.340763, -0.0358855)
+bones/5/position = Vector3(-8.49366e-06, 0.0502535, 7.7486e-07)
+bones/5/rotation = Quaternion(-0.141592, 0.86258, 0.07708, 0.479548)
+bones/5/scale = Vector3(1, 1, 1)
+bones/6/position = Vector3(-1.99676e-06, 0.0626429, 1.90735e-06)
+bones/6/rotation = Quaternion(0.675186, 0.640735, 0.0799686, 0.356634)
 bones/6/scale = Vector3(1, 1, 1)
-bones/7/position = Vector3(0.011625, 0.0523572, 0.0162014)
-bones/7/rotation = Quaternion(0.404343, -0.419406, 0.111026, 0.805158)
-bones/7/scale = Vector3(1, 1, 1)
-bones/8/position = Vector3(0.0116274, 0.0523646, -0.0165664)
-bones/8/rotation = Quaternion(0.45239, -0.411906, 0.136238, 0.779176)
-bones/8/scale = Vector3(1, 1, 1)
+bones/7/rotation = Quaternion(-0.0214338, 0.0214338, -0.706782, 0.706782)
+bones/8/rotation = Quaternion(0.0214336, -0.0214337, -0.706782, 0.706782)
 
 [node name="ManyBoneIK3D" type="ManyBoneIK3D" parent="." index="1"]
 skeleton_node_path = NodePath("../Robotic_Arm_Armature/Skeleton3D")
@@ -63,56 +64,92 @@ constraints/6/kusudama_limit_cone_count = 0
 constraints/7/bone_name = &"Joint_05_Jaw_Right"
 constraints/7/twist_from = 3.14159
 constraints/7/twist_range = 6.28318
-constraints/7/twist_current = 1.0
+constraints/7/twist_current = null
 constraints/7/kusudama_limit_cone_count = 0
 constraints/8/bone_name = &"Joint_05_Jaw_Left"
 constraints/8/twist_from = 3.14159
 constraints/8/twist_range = 6.28318
-constraints/8/twist_current = 1.0
+constraints/8/twist_current = null
 constraints/8/kusudama_limit_cone_count = 0
 pin_count = 9
 pins/0/bone_name = "Root"
-pins/0/target_node = NodePath("")
+pins/0/enabled = false
+pins/0/target_node = NodePath("../Root")
 pins/0/passthrough_factor = 0.0
 pins/0/weight = 1.0
 pins/0/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/1/bone_name = "Joint_00"
-pins/1/target_node = NodePath("")
+pins/1/enabled = true
+pins/1/target_node = NodePath("../Joint_00")
 pins/1/passthrough_factor = 0.0
 pins/1/weight = 1.0
 pins/1/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/2/bone_name = "Joint_01"
-pins/2/target_node = NodePath("")
+pins/2/enabled = false
+pins/2/target_node = NodePath("../Joint_01")
 pins/2/passthrough_factor = 0.0
 pins/2/weight = 1.0
 pins/2/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/3/bone_name = "Joint_02"
-pins/3/target_node = NodePath("")
+pins/3/enabled = false
+pins/3/target_node = NodePath("../Joint_02")
 pins/3/passthrough_factor = 0.0
 pins/3/weight = 1.0
 pins/3/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/4/bone_name = "Joint_03"
-pins/4/target_node = NodePath("")
+pins/4/enabled = false
+pins/4/target_node = NodePath("../Joint_03")
 pins/4/passthrough_factor = 0.0
 pins/4/weight = 1.0
 pins/4/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/5/bone_name = "Joint_04"
-pins/5/target_node = NodePath("")
+pins/5/enabled = false
+pins/5/target_node = NodePath("../Joint_04")
 pins/5/passthrough_factor = 0.0
 pins/5/weight = 1.0
 pins/5/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/6/bone_name = "Joint_05"
-pins/6/target_node = NodePath("")
+pins/6/enabled = true
+pins/6/target_node = NodePath("../Joint_05")
 pins/6/passthrough_factor = 0.0
 pins/6/weight = 1.0
 pins/6/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/7/bone_name = "Joint_05_Jaw_Right"
-pins/7/target_node = NodePath("")
+pins/7/enabled = false
+pins/7/target_node = NodePath("../Joint_05_Jaw_Right")
 pins/7/passthrough_factor = 0.0
 pins/7/weight = 1.0
 pins/7/direction_priorities = Vector3(0.2, 0, 0.2)
 pins/8/bone_name = "Joint_05_Jaw_Left"
-pins/8/target_node = NodePath("")
+pins/8/enabled = false
+pins/8/target_node = NodePath("../Joint_05_Jaw_Left")
 pins/8/passthrough_factor = 0.0
 pins/8/weight = 1.0
 pins/8/direction_priorities = Vector3(0.2, 0, 0.2)
+
+[node name="Root" type="Marker3D" parent="." index="2"]
+transform = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, -6.57523e-05, 0)
+
+[node name="Joint_00" type="Marker3D" parent="." index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0558072, 0)
+
+[node name="Joint_01" type="Marker3D" parent="." index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.144347, 0)
+
+[node name="Joint_02" type="Marker3D" parent="." index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.401344, 0)
+
+[node name="Joint_03" type="Marker3D" parent="." index="6"]
+transform = Transform3D(5.96046e-08, 1, -2.98023e-08, 1.49012e-07, 5.96046e-08, 1, 1, -2.98023e-08, -1.19209e-07, 0, 0.658643, 0)
+
+[node name="Joint_04" type="Marker3D" parent="." index="7"]
+transform = Transform3D(-1, 5.96046e-08, -2.98023e-08, -5.96046e-08, 1.053e-07, 1, 2.98023e-08, 1, -7.54979e-08, 0.0502351, 0.658643, -1.49712e-09)
+
+[node name="Joint_05" type="Marker3D" parent="." index="8"]
+transform = Transform3D(1, -2.98023e-08, -2.78181e-08, 5.96046e-08, 1, 1.053e-07, 5.76205e-08, -7.54979e-08, 1, 0.157567, 0.658643, 0.0626298)
+
+[node name="Joint_05_Jaw_Right" type="Marker3D" parent="." index="9"]
+transform = Transform3D(-2.08616e-07, 0.998162, 0.060596, -1, -1.85304e-07, 1.70186e-07, 1.46278e-07, -0.060596, 0.998162, 0.0618595, 0.710994, 0.0788259)
+
+[node name="Joint_05_Jaw_Left" type="Marker3D" parent="." index="10"]
+transform = Transform3D(-8.9407e-08, 0.998162, -0.0605956, -1, -5.33334e-08, 1.83451e-07, 1.46278e-07, 0.0605956, 0.998162, 0.0618595, 0.710994, 0.0460793)
