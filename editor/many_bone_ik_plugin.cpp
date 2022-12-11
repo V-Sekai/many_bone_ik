@@ -207,21 +207,21 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	twist_constraint_transform = memnew(EditorPropertyTransform3D());
 	twist_constraint_transform->hide();
-	twist_constraint_transform->set_label(TTR("Twist Constraint Transform3D"));
+	twist_constraint_transform->set_label(TTR("Twist Constraint"));
 	twist_constraint_transform->set_selectable(false);
 	twist_constraint_transform->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(twist_constraint_transform);
 
 	orientation_constraint_transform = memnew(EditorPropertyTransform3D());
 	orientation_constraint_transform->hide();
-	orientation_constraint_transform->set_label(TTR("Twist Constraint Transform3D"));
+	orientation_constraint_transform->set_label(TTR("Twist Constraint"));
 	orientation_constraint_transform->set_selectable(false);
 	orientation_constraint_transform->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(orientation_constraint_transform);
 
 	bone_direction_transform = memnew(EditorPropertyTransform3D());
 	bone_direction_transform->hide();
-	bone_direction_transform->set_label(TTR("Bone Direction Transform3D"));
+	bone_direction_transform->set_label(TTR("Bone Direction"));
 	bone_direction_transform->set_selectable(false);
 	bone_direction_transform->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(bone_direction_transform);
