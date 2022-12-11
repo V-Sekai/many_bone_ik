@@ -521,6 +521,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &ManyBoneIK3D::set_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &ManyBoneIK3D::get_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("register_skeleton"), &ManyBoneIK3D::register_skeleton);
+	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK3D::register_skeleton);
 	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &ManyBoneIK3D::set_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &ManyBoneIK3D::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &ManyBoneIK3D::set_dirty);
@@ -1233,8 +1234,15 @@ void ManyBoneIK3D::set_pin_enabled(int32_t p_effector_index, bool p_enabled) {
 }
 
 void ManyBoneIK3D::register_skeleton() {
+	if (!get_pin_count() && !get_constraint_count()) {
+		reset_constraints();
+	}
+	set_dirty();
+}
+
+void ManyBoneIK3D::reset_constraints() {
 	Skeleton3D *skeleton = get_skeleton();
-	if (skeleton && !get_pin_count() && !get_constraint_count()) {
+	if (skeleton) {
 		_set_pin_count(skeleton->get_bone_count());
 		_set_constraint_count(skeleton->get_bone_count());
 		_set_bone_count(skeleton->get_bone_count());
@@ -1242,6 +1250,7 @@ void ManyBoneIK3D::register_skeleton() {
 			_set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
 			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
 			_set_bone_damp_bone_name(bone_i, skeleton->get_bone_name(bone_i));
+			set_bone_damp(bone_i, get_default_damp());
 		}
 		for (int32_t bone_i : skeleton->get_parentless_bones()) {
 			set_pin_enabled(bone_i, true);

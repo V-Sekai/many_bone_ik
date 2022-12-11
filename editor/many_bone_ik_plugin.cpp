@@ -154,7 +154,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	bone_damp_float = memnew(EditorPropertyFloat());
 	bone_damp_float->hide();
-	bone_damp_float->setup(0, 360, 0.01, false, false, false, false, "", true);
+	bone_damp_float->setup(0, 180, 0.01, false, false, false, false, "", true);
 	bone_damp_float->set_label(TTR("Bone Damp"));
 	bone_damp_float->set_selectable(false);
 	bone_damp_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));

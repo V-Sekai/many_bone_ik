@@ -89,6 +89,8 @@ public:
 	bool get_pin_enabled(int32_t p_effector_index) const;
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	void register_skeleton();
+	void reset_constraints();
+
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;
 	Vector<Ref<IKBone3D>> get_bone_list();
