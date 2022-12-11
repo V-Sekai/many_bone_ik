@@ -58,7 +58,7 @@ void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<Node3D>(p_spatial) && !cast_to<Skeleton3D>(p_spatial);
+	return cast_to<ManyBoneIK3D>(p_spatial);
 }
 
 String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
