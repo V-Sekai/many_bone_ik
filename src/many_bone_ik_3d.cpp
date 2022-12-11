@@ -946,14 +946,14 @@ NodePath ManyBoneIK3D::get_skeleton_node_path() {
 void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 	skeleton_node_path = p_skeleton_node_path;
 	Skeleton3D *skeleton = get_skeleton();
-	if (skeleton) {
+	if (skeleton && !get_pin_count() && !get_constraint_count()) {
 		_set_pin_count(skeleton->get_bone_count());
 		_set_constraint_count(skeleton->get_bone_count());
 		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 			_set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
 			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
 		}
-		for (int32_t bone_i = 0; bone_i < skeleton->get_parentless_bones(); bone_i++) {
+		for (int32_t bone_i : skeleton->get_parentless_bones()) {
 			set_pin_enabled(bone_i, true);
 		}
 	}

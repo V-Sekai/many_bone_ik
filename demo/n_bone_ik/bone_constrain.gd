@@ -29,9 +29,7 @@ func _run():
 		node_3d.set_external_skeleton("../" + str(root.get_path_to(skeleton)))
 		root.add_child(node_3d, true)
 		node_3d.owner = root
-		if bone_name == "Joint_00":
-			new_ik.set_pin_enabled(bone_i, true)
-		elif bone_name == "Joint_05":
+		if bone_name == "Joint_05":
 			new_ik.set_pin_enabled(bone_i, true)
 		new_ik.set_pin_nodepath(bone_i, "../" + str(bone_name))
 		var node_global_transform = node_3d.global_transform
