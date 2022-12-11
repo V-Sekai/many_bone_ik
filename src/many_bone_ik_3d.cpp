@@ -953,6 +953,9 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 			_set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
 			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
 		}
+		for (int32_t bone_i = 0; bone_i < skeleton->get_parentless_bones(); bone_i++) {
+			set_pin_enabled(bone_i, true);
+		}
 	}
 	set_dirty();
 }
