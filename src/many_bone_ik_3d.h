@@ -49,12 +49,11 @@ private:
 	int32_t constraint_count = 0;
 	Vector<StringName> constraint_names;
 	int32_t pin_count = 0;
-	int32_t bone_count = -1;
+	int32_t bone_count = 0;
 	Vector<Ref<IKEffectorTemplate>> pins;
 	Vector<Ref<IKBone3D>> bone_list;
 	Vector<Vector2> kusudama_twist;
-	Vector<Dictionary> bone_damp;
-	HashMap<BoneId, real_t> bone_damp_cache;
+	Vector<float> bone_damp;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
@@ -72,7 +71,6 @@ private:
 	void _set_pin_count(int32_t p_value);
 	void _set_constraint_count(int32_t p_count);
 	void _remove_pin(int32_t p_index);
-	void _set_bone_damp_bone_name(int32_t p_index, StringName p_name);
 	void _set_bone_count(int32_t p_count);
 
 protected:
@@ -141,7 +139,6 @@ public:
 	int32_t get_bone_count() const;
 	void set_bone_damp(int32_t p_index, real_t p_damp);
 	real_t get_bone_damp(int32_t p_index) const;
-	StringName get_bone_damp_bone_name(int32_t p_index) const;
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();

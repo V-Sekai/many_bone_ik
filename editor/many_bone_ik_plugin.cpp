@@ -326,59 +326,51 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	if (bone_name.is_empty()) {
 		return;
 	}
-	int32_t pin_i = ik->find_effector_id(bone_name);
-	if (pin_i == -1 || ik->get_pin_bone_name(pin_i) == StringName()) {
-		return;
-	}
-	bone_damp_float->set_object_and_property(ik, vformat("bone/%d/damp", pin_i));
+	bone_damp_float->set_object_and_property(ik, vformat("bone/%d/damp", p_idx));
 	bone_damp_float->update_property();
 	bone_damp_float->show();
-	pin_checkbox->set_object_and_property(ik, vformat("pins/%d/enabled", pin_i));
+	pin_checkbox->set_object_and_property(ik, vformat("pins/%d/enabled", p_idx));
 	pin_checkbox->update_property();
 	pin_checkbox->show();
-	target_nodepath->set_object_and_property(ik, vformat("pins/%d/target_node", pin_i));
+	target_nodepath->set_object_and_property(ik, vformat("pins/%d/target_node", p_idx));
 	target_nodepath->update_property();
 	target_nodepath->show();
-	passthrough_float->set_object_and_property(ik, vformat("pins/%d/passthrough_factor", pin_i));
+	passthrough_float->set_object_and_property(ik, vformat("pins/%d/passthrough_factor", p_idx));
 	passthrough_float->update_property();
 	passthrough_float->show();
-	weight_float->set_object_and_property(ik, vformat("pins/%d/weight", pin_i));
+	weight_float->set_object_and_property(ik, vformat("pins/%d/weight", p_idx));
 	weight_float->update_property();
 	weight_float->show();
-	direction_priorities_vector3->set_object_and_property(ik, vformat("pins/%d/direction_priorities", pin_i));
+	direction_priorities_vector3->set_object_and_property(ik, vformat("pins/%d/direction_priorities", p_idx));
 	direction_priorities_vector3->update_property();
 	direction_priorities_vector3->show();
-	int32_t constraint_i = ik->find_constraint(bone_name);
-	if (constraint_i == -1) {
-		return;
-	}
-	twist_from_float->set_object_and_property(ik, vformat("constraints/%d/twist_from", constraint_i));
+	twist_from_float->set_object_and_property(ik, vformat("constraints/%d/twist_from", p_idx));
 	twist_from_float->update_property();
 	twist_from_float->show();
-	twist_range_float->set_object_and_property(ik, vformat("constraints/%d/twist_range", constraint_i));
+	twist_range_float->set_object_and_property(ik, vformat("constraints/%d/twist_range", p_idx));
 	twist_range_float->update_property();
 	twist_range_float->show();
-	twist_current_float->set_object_and_property(ik, vformat("constraints/%d/twist_current", constraint_i));
+	twist_current_float->set_object_and_property(ik, vformat("constraints/%d/twist_current", p_idx));
 	twist_current_float->update_property();
 	twist_current_float->show();
-	cone_count_float->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone_count", constraint_i));
+	cone_count_float->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone_count", p_idx));
 	cone_count_float->update_property();
 	cone_count_float->show();
-	for (int32_t cone_i = 0; cone_i < ik->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+	for (int32_t cone_i = 0; cone_i < ik->get_kusudama_limit_cone_count(p_idx); cone_i++) {
 		center_vector3[cone_i]->show();
-		center_vector3[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/center", constraint_i, cone_i));
+		center_vector3[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/center", p_idx, cone_i));
 		center_vector3[cone_i]->update_property();
 		radius_float[cone_i]->show();
-		radius_float[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/radius", constraint_i, cone_i));
+		radius_float[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/radius", p_idx, cone_i));
 		radius_float[cone_i]->update_property();
 	}
-	twist_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_twist", constraint_i));
+	twist_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_twist", p_idx));
 	twist_constraint_transform->update_property();
 	twist_constraint_transform->show();
-	orientation_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_orientation", constraint_i));
+	orientation_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_orientation", p_idx));
 	orientation_constraint_transform->update_property();
 	orientation_constraint_transform->show();
-	bone_direction_transform->set_object_and_property(ik, vformat("constraints/%d/bone_direction", constraint_i));
+	bone_direction_transform->set_object_and_property(ik, vformat("constraints/%d/bone_direction", p_idx));
 	bone_direction_transform->update_property();
 	bone_direction_transform->show();
 }

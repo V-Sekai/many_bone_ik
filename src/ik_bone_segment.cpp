@@ -265,25 +265,32 @@ void IKBoneSegment::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3A
 	}
 }
 
-void IKBoneSegment::segment_solver(const HashMap<BoneId, real_t> &p_damp, bool p_constraint_mode) {
+void IKBoneSegment::segment_solver(const Vector<float> &p_damp, float p_default_damp, bool p_constraint_mode) {
 	for (Ref<IKBoneSegment> child : child_segments) {
 		if (child.is_null()) {
 			continue;
 		}
-		child->segment_solver(p_damp, p_constraint_mode);
+		child->segment_solver(p_damp, p_default_damp, p_constraint_mode);
 	}
 	bool is_translate = parent_segment.is_null();
 	if (is_translate) {
-		qcp_solver(empty_damp_map, is_translate, p_constraint_mode);
+		Vector<float> damp = p_damp;
+		damp.fill(Math_PI);
+		qcp_solver(damp, Math_PI, is_translate, p_constraint_mode);
 	}
-	qcp_solver(p_damp, is_translate, p_constraint_mode);
+	qcp_solver(p_damp, p_default_damp, is_translate, p_constraint_mode);
 }
 
-void IKBoneSegment::qcp_solver(const HashMap<BoneId, real_t> &p_damp, bool p_translate, bool p_constraint_mode) {
+void IKBoneSegment::qcp_solver(const Vector<float> &p_damp, float p_default_damp, bool p_translate, bool p_constraint_mode) {
 	for (Ref<IKBone3D> current_bone : bones) {
-		float damp = Math_PI;
-		if (p_damp.has(current_bone->get_bone_id())) {
+		float damp = p_default_damp;
+		bool is_valid_access = !(unlikely((p_damp.size()) < 0 || (current_bone->get_bone_id()) >= (p_damp.size())));
+		if (is_valid_access) {
 			damp = p_damp[current_bone->get_bone_id()];
+		}
+		bool is_non_default_damp = damp >= p_default_damp;
+		if (is_non_default_damp) {
+			damp = p_default_damp;
 		}
 		update_optimal_rotation(current_bone, damp, p_translate && current_bone == root, p_constraint_mode);
 	}

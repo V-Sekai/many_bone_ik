@@ -126,11 +126,6 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
 	}
-	RBSet<StringName> existing_bones;
-	for (int32_t bone_i = 0; bone_i < get_bone_count(); bone_i++) {
-		const StringName name = get_bone_damp_bone_name(bone_i);
-		existing_bones.insert(name);
-	}
 	{
 		const uint32_t damp_usage = PROPERTY_USAGE_NO_EDITOR;
 		p_list->push_back(
@@ -144,15 +139,10 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
 			if (get_skeleton()) {
 				String names;
-				Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
 				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
 					String name = get_skeleton()->get_bone_name(bone_i);
-					if (root_bones.find(bone_i) != -1) {
-						continue;
-					}
 					name += ",";
 					names += name;
-					existing_bones.insert(name);
 				}
 				bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 				bone_name.hint_string = names;
@@ -177,13 +167,9 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
-			Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
 			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
 				String name = get_skeleton()->get_bone_name(bone_i);
 				if (existing_constraints.has(name)) {
-					continue;
-				}
-				if (root_bones.find(bone_i) != -1) {
 					continue;
 				}
 				name += ",";
@@ -200,7 +186,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,360,0.1,radians,or_lesser,or_greater", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "0,360,0.1,radians", constraint_usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "-360,360,0.1,radians", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001", constraint_usage));
 		p_list->push_back(
@@ -305,10 +291,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, bone_count, false);
-		if (what == "bone_name") {
-			r_ret = get_bone_damp_bone_name(index);
-			return true;
-		} else if (what == "damp") {
+		if (what == "damp") {
 			r_ret = get_bone_damp(index);
 			return true;
 		}
@@ -420,13 +403,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 	} else if (name.begins_with("bone/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
-		if (what == "bone_name") {
-			if (index >= bone_damp.size()) {
-				_set_bone_count(bone_count);
-			}
-			_set_bone_damp_bone_name(index, p_value);
-			return true;
-		} else if (what == "damp") {
+		if (what == "damp") {
 			set_bone_damp(index, p_value);
 			return true;
 		}
@@ -461,7 +438,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 					if (segmented_skeleton.is_null()) {
 						break;
 					}
-					segmented_skeleton->segment_solver(get_default_damp(), false);
+					segmented_skeleton->segment_solver(bone_damp, get_default_damp(), false);
 				}
 				update_skeleton_bones_transform();
 				return true;
@@ -469,11 +446,11 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			return false;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(IKKusudama::_to_tau(p_value), IKKusudama::_to_tau(twist_from.y)));
+			set_kusudama_twist(index, Vector2(p_value, twist_from.y));
 			return true;
 		} else if (what == "twist_range") {
 			Vector2 twist_range = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(IKKusudama::_to_tau(twist_range.x), IKKusudama::_to_tau(p_value)));
+			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
@@ -739,14 +716,6 @@ Vector2 ManyBoneIK3D::get_kusudama_twist(int32_t p_index) const {
 
 void ManyBoneIK3D::_set_constraint_name(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
-	if (get_skeleton()) {
-		Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
-		BoneId bone_id = get_skeleton()->find_bone(p_name);
-		if (root_bones.find(bone_id) != -1) {
-			print_error("The root bone cannot be constrained.");
-			p_name = "";
-		}
-	}
 	constraint_names.write[p_index] = p_name;
 	set_dirty();
 }
@@ -826,7 +795,7 @@ void ManyBoneIK3D::execute(real_t delta) {
 			if (segmented_skeleton.is_null()) {
 				continue;
 			}
-			segmented_skeleton->segment_solver(bone_damp_cache, false);
+			segmented_skeleton->segment_solver(bone_damp, get_default_damp(), false);
 		}
 	}
 	update_skeleton_bones_transform();
@@ -903,21 +872,6 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	}
 	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
 		ik_bone_3d->update_default_constraint_transform();
-	}
-	bone_damp_cache.clear();
-	int32_t bone_damp_count = 0;
-	while (bone_damp_count < bone_damp.size()) {
-		bone_damp_count++;
-		if (unlikely((bone_damp_count) < 0 || (bone_damp_count) >= (bone_damp.size()))) {
-			continue;
-		}
-		Dictionary bone = bone_damp[bone_damp_count];
-		if (!bone.has("bone_name") || bone.has("damp")) {
-			continue;
-		}
-		StringName bone_name = bone["bone_name"];
-		BoneId bone_id = p_skeleton->find_bone(bone_name);
-		bone_damp_cache.insert(bone_id, bone["damp"]);
 	}
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
@@ -1069,8 +1023,11 @@ void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation
 }
 
 void ManyBoneIK3D::_set_bone_count(int32_t p_count) {
-	bone_count = p_count;
 	bone_damp.resize(p_count);
+	for (int32_t bone_i = p_count; bone_i-- > bone_count;) {
+		bone_damp.write[bone_i] = Math_PI;
+	}
+	bone_count = p_count;
 	notify_property_list_changed();
 }
 
@@ -1079,36 +1036,16 @@ int32_t ManyBoneIK3D::get_bone_count() const {
 }
 
 real_t ManyBoneIK3D::get_bone_damp(int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_index, bone_damp.size(), get_default_damp());
-	ERR_FAIL_COND_V(!bone_damp[p_index].keys().has("damp"), get_default_damp());
-	return bone_damp[p_index]["damp"];
+	ERR_FAIL_INDEX_V(p_index, bone_damp.size(), Math_PI);
+	return bone_damp[p_index];
 }
 
 void ManyBoneIK3D::set_bone_damp(int32_t p_index, real_t p_damp) {
 	ERR_FAIL_INDEX(p_index, bone_damp.size());
-	bone_damp.write[p_index]["damp"] = p_damp;
+	bone_damp.write[p_index] = p_damp;
 	notify_property_list_changed();
 }
 
-StringName ManyBoneIK3D::get_bone_damp_bone_name(int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_index, bone_damp.size(), StringName());
-	ERR_FAIL_COND_V(!bone_damp[p_index].keys().has("bone_name"), StringName());
-	return bone_damp[p_index]["bone_name"];
-}
-
-void ManyBoneIK3D::_set_bone_damp_bone_name(int32_t p_index, StringName p_name) {
-	ERR_FAIL_INDEX(p_index, bone_damp.size());
-	if (get_skeleton()) {
-		Vector<BoneId> root_bones = get_skeleton()->get_parentless_bones();
-		BoneId bone_id = get_skeleton()->find_bone(p_name);
-		if (unlikely(root_bones.find(bone_id) != -1)) {
-			print_error("The root bone cannot be constrained.");
-			p_name = StringName();
-		}
-	}
-	bone_damp.write[p_index]["bone_name"] = p_name;
-	notify_property_list_changed();
-}
 Vector<Ref<IKBone3D>> ManyBoneIK3D::get_bone_list() {
 	return bone_list;
 }
@@ -1265,8 +1202,6 @@ void ManyBoneIK3D::reset_constraints() {
 		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 			_set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
 			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
-			_set_bone_damp_bone_name(bone_i, skeleton->get_bone_name(bone_i));
-			set_bone_damp(bone_i, get_default_damp());
 		}
 		for (int32_t bone_i : skeleton->get_parentless_bones()) {
 			set_pin_enabled(bone_i, true);
