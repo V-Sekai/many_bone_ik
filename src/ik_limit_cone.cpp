@@ -402,12 +402,12 @@ Quaternion IKLimitCone::quaternion_set_axis_angle(Vector3 axis, real_t angle) {
 		return Quaternion();
 	}
 
-	real_t halfAngle = -0.5 * angle;
-	real_t coeff = sin(halfAngle) / norm;
+	real_t half_angle = -0.5 * angle;
+	real_t coeff = sin(half_angle) / norm;
 
 	real_t x = coeff * axis.x;
 	real_t y = coeff * axis.y;
 	real_t z = coeff * axis.z;
-	real_t w = cos(halfAngle);
+	real_t w = cos(half_angle);
 	return Quaternion(x * -1, y * -1, z * -1, w);
 }
