@@ -192,6 +192,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i] = memnew(EditorPropertyVector3());
 		center_vector3[cone_i]->hide();
+		center_vector3[cone_i]->setup(0, 1, 0.01);
 		center_vector3[cone_i]->set_label(TTR(vformat("Cone Center Point %d", cone_i + 1)));
 		center_vector3[cone_i]->set_selectable(false);
 		center_vector3[cone_i]->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -199,6 +200,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 		radius_float[cone_i] = memnew(EditorPropertyFloat());
 		radius_float[cone_i]->hide();
+		radius_float[cone_i]->setup(0, 180, 0.01, false, false, false, false, "", true);
 		radius_float[cone_i]->set_label(TTR(vformat("Cone Radius %d", cone_i + 1)));
 		radius_float[cone_i]->set_selectable(false);
 		radius_float[cone_i]->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -299,11 +301,11 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	}
 	for (int32_t cone_i = 0; cone_i < ik->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 		center_vector3[cone_i]->show();
-		radius_float[cone_i]->show();
 		center_vector3[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/center", constraint_i, cone_i));
 		center_vector3[cone_i]->update_property();
+		radius_float[cone_i]->show();
 		radius_float[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/radius", constraint_i, cone_i));
-		center_vector3[cone_i]->update_property();
+		radius_float[cone_i]->update_property();
 	}
 	twist_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/bone_direction", constraint_i));
 	twist_constraint_transform->update_property();
