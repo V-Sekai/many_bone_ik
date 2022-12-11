@@ -573,7 +573,7 @@ void ManyBoneIK3D::_set_constraint_count(int32_t p_count) {
 		constraint_names.write[constraint_i] = String();
 		kusudama_limit_cone_count.write[constraint_i] = 0;
 		kusudama_limit_cones.write[constraint_i].resize(0);
-		kusudama_twist.write[constraint_i] = Vector2();
+		kusudama_twist.write[constraint_i] = Vector2(0, Math_TAU - CMP_EPSILON);
 	}
 	set_dirty();
 	notify_property_list_changed();

@@ -85,7 +85,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	} else {
 		turn_diff = (range_angle - (Math_TAU - from_min_to_angle_delta));
 	}
-	Basis rot = Basis(axis_y, turn_diff).orthonormalized();
+	Basis rot = Basis(axis_y.normalized(), turn_diff).orthonormalized();
 	to_set->rotate_local_with_global(rot);
 }
 
@@ -362,6 +362,6 @@ void IKKusudama::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real
 		axis_y = Vector3(0, 1, 0);
 	}
 	real_t turn_diff = dist_to_target_rotation;
-	Basis rot = Basis(axis_y, turn_diff).orthonormalized();
+	Basis rot = Basis(axis_y.normalized(), turn_diff).orthonormalized();
 	bone_attached_to->get_ik_transform()->rotate_local_with_global(rot);
 }
