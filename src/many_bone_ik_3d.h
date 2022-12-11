@@ -66,7 +66,14 @@ private:
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
-
+	void _set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
+	void _set_constraint_name(int32_t p_index, String p_name);
+	void _set_pin_count(int32_t p_value);
+	void _set_constraint_count(int32_t p_count);
+	void _remove_pin(int32_t p_index);
+	void _set_bone_damp_bone_name(int32_t p_index, StringName p_name);
+	void _set_bone_count(int32_t p_count);
+	
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -84,14 +91,11 @@ public:
 	Vector<Ref<IKBoneSegment>> get_segmented_skeletons();
 	float get_iterations_per_frame() const;
 	void set_iterations_per_frame(const float &p_iterations_per_frame);
-	void remove_pin(int32_t p_index);
 	void queue_print_skeleton();
-	void set_pin_count(int32_t p_value);
 	int32_t get_pin_count() const;
 	void remove_constraint(int32_t p_index);
 	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
 	StringName get_pin_bone_name(int32_t p_effector_index) const;
-	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
 	void set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path);
 	NodePath get_pin_nodepath(int32_t p_effector_index) const;
 	int32_t find_effector_id(StringName p_bone_name);
@@ -105,11 +109,9 @@ public:
 	float get_pin_passthrough_factor(int32_t p_effector_index) const;
 	real_t get_default_damp() const;
 	void set_default_damp(float p_default_damp);
-	void set_constraint_count(int32_t p_count);
 	int32_t find_constraint(String p_string) const;
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
-	void set_constraint_name(int32_t p_index, String p_name);
 	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
 	real_t get_kusudama_twist_current(int32_t p_index);
 	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
@@ -122,12 +124,10 @@ public:
 	void set_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index, float p_radius);
 	int32_t get_kusudama_limit_cone_count(int32_t p_contraint_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
-	void set_bone_count(int32_t p_count);
 	int32_t get_bone_count() const;
 	void set_bone_damp(int32_t p_index, real_t p_damp);
 	real_t get_bone_damp(int32_t p_index) const;
 	StringName get_bone_damp_bone_name(int32_t p_index) const;
-	void set_bone_damp_bone_name(int32_t p_index, StringName p_name);
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();

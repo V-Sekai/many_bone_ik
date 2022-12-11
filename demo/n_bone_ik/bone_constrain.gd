@@ -17,17 +17,13 @@ func _run():
 		if not skeleton.get_bone_count():
 			continue
 		var iks : Array[Node] = skeleton.find_children("*", "ManyBoneIK3D")
-		var edit_mode = false
 		for ik in iks:
-			edit_mode = ik.edit_constraints
 			ik.free()
 		var new_ik : ManyBoneIK3D = ManyBoneIK3D.new()
 		skeleton.add_child(new_ik, true)
 		new_ik.owner = root
 		new_ik.visible = false
 		new_ik.default_damp = deg_to_rad(270)
-		new_ik.set_pin_count(0)
-		new_ik.set_constraint_count(0)
 		var pins : Array
 		for bone_i in skeleton.get_bone_count():
 			var bone_name = skeleton.get_bone_name(bone_i)
@@ -48,13 +44,7 @@ func _run():
 			if bone_i == -1:
 				continue
 			constraints.push_back(bone_name)
-		new_ik.set_constraint_count(constraints.size())
 
-		for constraint_i in constraints.size():
-			var bone_name = constraints[constraint_i]
-			new_ik.set_constraint_name(constraint_i, bone_name)
-
-		new_ik.set_pin_count(pins.size())
 		for bone_i in new_ik.get_pin_count():
 			var bone_name : String = pins[bone_i]
 			if bone_name.is_empty():
@@ -75,4 +65,3 @@ func _run():
 			marker_3d.global_transform = node_global_transform
 			node_3d.replace_by(marker_3d, true)
 		new_ik.visible = true
-		new_ik.edit_constraints = edit_mode

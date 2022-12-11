@@ -265,13 +265,19 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 
 	int32_t constraint_i = ik->find_constraint(bone_name);
 	if (constraint_i == -1) {
-		ik->set_constraint_count(ik->get_constraint_count() + 1);
+		return;
 	}
 	twist_from_float->set_object_and_property(ik, vformat("constraints/%d/twist_from", constraint_i));
 	twist_from_float->update_property();
 	twist_range_float->set_object_and_property(ik, vformat("constraints/%d/twist_range", constraint_i));
 	twist_current_float->set_object_and_property(ik, vformat("constraints/%d/twist_current", constraint_i));
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
+		center_vector3[cone_i]->hide();
+		radius_float[cone_i]->hide();
+	}	
+	for (int32_t cone_i = 0; cone_i < ik->get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+		center_vector3[cone_i]->show();
+		radius_float[cone_i]->show();
 		center_vector3[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/center", constraint_i, cone_i));
 		center_vector3[cone_i]->update_property();
 		radius_float[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/radius", constraint_i, cone_i));
