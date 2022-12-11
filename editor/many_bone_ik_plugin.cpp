@@ -164,18 +164,21 @@ void ManyBoneIK3DEditor::create_editors() {
 	constraint_bone_section->get_vbox()->add_child(target_nodepath);
 
 	twist_from_float = memnew(EditorPropertyFloat());
+	twist_from_float->setup(0, 360, 0.01, false, false, false, false, "", true);
 	twist_from_float->set_label(TTR("Twist From"));
 	twist_from_float->set_selectable(false);
 	twist_from_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(twist_from_float);
 
 	twist_range_float = memnew(EditorPropertyFloat());
+	twist_range_float->setup(-360, 360, 0.01, false, false, false, false, "", true);
 	twist_range_float->set_label(TTR("Twist Range"));
 	twist_range_float->set_selectable(false);
 	twist_range_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(twist_range_float);
 
 	twist_current_float = memnew(EditorPropertyFloat());
+	twist_current_float->setup(0, 360, 0.01, false, false, false, false, "", true);
 	twist_current_float->set_label(TTR("Twist Current"));
 	twist_current_float->set_selectable(false);
 	twist_current_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -274,7 +277,9 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	twist_from_float->set_object_and_property(ik, vformat("constraints/%d/twist_from", constraint_i));
 	twist_from_float->update_property();
 	twist_range_float->set_object_and_property(ik, vformat("constraints/%d/twist_range", constraint_i));
+	twist_range_float->update_property();
 	twist_current_float->set_object_and_property(ik, vformat("constraints/%d/twist_current", constraint_i));
+	twist_current_float->update_property();
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i]->hide();
 		radius_float[cone_i]->hide();
