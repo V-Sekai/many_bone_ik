@@ -163,7 +163,12 @@ void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
 	Transform3D bone_to_parent = get_pose();
 	p_skeleton->set_bone_pose_position(bone_id, bone_to_parent.origin);
-	p_skeleton->set_bone_pose_rotation(bone_id, bone_to_parent.basis.get_rotation_quaternion());
+	Basis pose_output = bone_to_parent.basis;
+	Quaternion pose_rotation;
+	if (pose_output.is_finite() && !pose_output.is_equal_approx(Basis())) {
+		pose_rotation = pose_output.get_rotation_quaternion();
+	}
+	p_skeleton->set_bone_pose_rotation(bone_id, pose_rotation);
 	p_skeleton->set_bone_pose_scale(bone_id, bone_to_parent.basis.get_scale());
 }
 
