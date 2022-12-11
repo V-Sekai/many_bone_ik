@@ -318,13 +318,13 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		radius_float[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/radius", constraint_i, cone_i));
 		radius_float[cone_i]->update_property();
 	}
-	twist_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/bone_direction", constraint_i));
+	twist_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_twist", constraint_i));
 	twist_constraint_transform->update_property();
 	twist_constraint_transform->show();
 	orientation_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_orientation", constraint_i));
 	orientation_constraint_transform->update_property();
 	orientation_constraint_transform->show();
-	bone_direction_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_twist", constraint_i));
+	bone_direction_transform->set_object_and_property(ik, vformat("constraints/%d/bone_direction", constraint_i));
 	bone_direction_transform->update_property();
 	bone_direction_transform->show();
 }
