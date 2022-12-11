@@ -780,6 +780,16 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	if (!roots.size()) {
 		return;
 	}
+	bool has_pins = false;
+	for (Ref<IKEffectorTemplate> pin : pins) {
+		if (pin.is_valid() && !pin->get_name().is_empty()) {
+			has_pins = true;
+			break;
+		}
+	}
+	if (!has_pins) {
+		return;
+	}
 	bone_list.clear();
 	segmented_skeletons.clear();
 	_set_pin_count(p_skeleton->get_bone_count());
