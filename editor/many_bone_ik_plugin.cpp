@@ -154,7 +154,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	bone_damp_float = memnew(EditorPropertyFloat());
 	bone_damp_float->hide();
-	bone_damp_float->setup(0, 180, 0.01, false, false, false, false, "", true);
+	bone_damp_float->setup(0, 180, 0.01, false, false, false, false, "°", true);
 	bone_damp_float->set_label(TTR("Bone Damp"));
 	bone_damp_float->set_selectable(false);
 	bone_damp_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -196,7 +196,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	twist_from_float = memnew(EditorPropertyFloat());
 	twist_from_float->hide();
-	twist_from_float->setup(0, 360, 0.01, false, false, false, false, "", true);
+	twist_from_float->setup(0, 360, 0.01, false, false, false, false, "°", true);
 	twist_from_float->set_label(TTR("Twist From"));
 	twist_from_float->set_selectable(false);
 	twist_from_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -204,7 +204,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	twist_range_float = memnew(EditorPropertyFloat());
 	twist_range_float->hide();
-	twist_range_float->setup(-360, 360, 0.01, false, false, false, false, "", true);
+	twist_range_float->setup(-360, 360, 0.01, false, false, false, false, "°", true);
 	twist_range_float->set_label(TTR("Twist Range"));
 	twist_range_float->set_selectable(false);
 	twist_range_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -237,7 +237,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 		radius_float[cone_i] = memnew(EditorPropertyFloat());
 		radius_float[cone_i]->hide();
-		radius_float[cone_i]->setup(0, 180, 0.01, false, false, false, false, "", true);
+		radius_float[cone_i]->setup(0, 180, 0.01, false, false, false, false, "°", true);
 		radius_float[cone_i]->set_label(TTR(vformat("Cone Radius %d", cone_i + 1)));
 		radius_float[cone_i]->set_selectable(false);
 		radius_float[cone_i]->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
