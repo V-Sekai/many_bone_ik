@@ -36,8 +36,8 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 	static const int32_t MAX_KUSUDAMA_CONES = 30;
 	EditorPropertyVector3 *center_vector3[MAX_KUSUDAMA_CONES] = {};
 	EditorPropertyFloat *radius_float[MAX_KUSUDAMA_CONES] = {};
-	EditorPropertyBasis *twist_constraint_basis = nullptr;
-	EditorPropertyBasis *orientation_constraint_basis = nullptr;
+	EditorPropertyTransform3D *twist_constraint_transform = nullptr;
+	EditorPropertyTransform3D *orientation_constraint_transform = nullptr;
 	EditorPropertyTransform3D *bone_direction_transform = nullptr;
 
 protected:

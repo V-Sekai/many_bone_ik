@@ -42,6 +42,7 @@
 class IKBoneSegment;
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
+
 private:
 	NodePath skeleton_path;
 	Vector<Ref<IKBoneSegment>> segmented_skeletons;
@@ -126,6 +127,14 @@ public:
 	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
 	real_t get_kusudama_twist_current(int32_t p_index);
 	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
+
+	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);
+	Transform3D get_constraint_twist_transform(int32_t p_index) const;
+	void set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform);
+	Transform3D get_constraint_orientation_transform(int32_t p_index) const;
+	void set_bone_direction_transform(int32_t p_index, Transform3D p_transform);
+	Transform3D get_bone_direction_transform(int32_t p_index) const;
+ 
 	Vector2 get_kusudama_twist(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);

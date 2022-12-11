@@ -213,6 +213,12 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			p_list->push_back(
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians", constraint_usage));
 		}
+		p_list->push_back(
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/bone_direction"));
+		p_list->push_back(
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_orientation"));
+		p_list->push_back(
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_twist"));
 	}
 	RBSet<String> existing_pins;
 	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
@@ -359,6 +365,15 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 				r_ret = get_kusudama_limit_cone_radius(index, cone_index);
 				return true;
 			}
+		} else if (what == "bone_direction") {
+			r_ret = get_constraint_twist_transform(index);
+			return true;
+		} else if (what == "kusudama_orientation") {
+			r_ret = get_constraint_orientation_transform(index);
+			return true;
+		} else if (what == "kusudama_twist") {
+			r_ret = get_constraint_twist_transform(index);
+			return true;
 		}
 	}
 	return false;
@@ -477,12 +492,27 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 				set_kusudama_limit_cone_radius(index, cone_index, p_value);
 				return true;
 			}
+		} else if (what == "bone_direction") {
+			set_constraint_twist_transform(index, p_value);
+			return true;
+		} else if (what == "kusudama_orientation") {
+			set_constraint_orientation_transform(index, p_value);
+			return true;
+		} else if (what == "kusudama_twist") {
+			set_constraint_twist_transform(index, p_value);
+			return true;
 		}
 	}
 	return false;
 }
 
 void ManyBoneIK3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
+	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_twist_transform);
+	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform", "index"), &ManyBoneIK3D::get_constraint_orientation_transform);
+	ClassDB::bind_method(D_METHOD("set_constraint_orientation_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_orientation_transform);
+	ClassDB::bind_method(D_METHOD("get_bone_direction_transform", "index"), &ManyBoneIK3D::get_bone_direction_transform);
+	ClassDB::bind_method(D_METHOD("set_bone_direction_transform", "index", "transform"), &ManyBoneIK3D::set_bone_direction_transform);
 	ClassDB::bind_method(D_METHOD("set_pin_enabled", "index", "enabled"), &ManyBoneIK3D::set_pin_enabled);
 	ClassDB::bind_method(D_METHOD("get_pin_enabled", "index"), &ManyBoneIK3D::get_pin_enabled);
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &ManyBoneIK3D::get_kusudama_twist_current);
@@ -1074,4 +1104,127 @@ void ManyBoneIK3D::_set_bone_damp_bone_name(int32_t p_index, StringName p_name) 
 }
 Vector<Ref<IKBone3D>> ManyBoneIK3D::get_bone_list() {
 	return bone_list;
+}
+
+void ManyBoneIK3D::set_bone_direction_transform(int32_t p_index, Transform3D p_transform) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_bone_direction_transform()->set_global_transform(p_transform);
+		break;
+	}
+}
+
+Transform3D ManyBoneIK3D::get_bone_direction_transform(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
+	String bone_name = constraint_names[p_index];
+	if (!segmented_skeletons.size()) {
+		return Transform3D();
+	}
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		return ik_bone->get_bone_direction_transform()->get_global_transform();
+	}
+	return Transform3D();
+}
+
+Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
+	String bone_name = constraint_names[p_index];
+	if (!segmented_skeletons.size()) {
+		return Transform3D();
+	}
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		return ik_bone->get_constraint_transform()->get_global_transform();
+	}
+	return Transform3D();
+}
+
+void ManyBoneIK3D::set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_constraint_transform()->set_global_transform(p_transform);
+		break;
+	}
+}
+
+Transform3D ManyBoneIK3D::get_constraint_twist_transform(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
+	String bone_name = constraint_names[p_index];
+	if (!segmented_skeletons.size()) {
+		return Transform3D();
+	}
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		return ik_bone->get_constraint_twist_transform()->get_global_transform();
+	}
+	return Transform3D();
+}
+
+void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p_transform) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_constraint_twist_transform()->set_global_transform(p_transform);
+		break;
+	}
 }

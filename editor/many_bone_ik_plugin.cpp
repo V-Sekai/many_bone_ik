@@ -153,17 +153,20 @@ void ManyBoneIK3DEditor::create_editors() {
 	add_child(constraint_bone_section);
 
 	pin_checkbox = memnew(EditorPropertyCheck());
+	pin_checkbox->hide();
 	pin_checkbox->set_label(TTR("Pin Enabled"));
 	pin_checkbox->set_selectable(false);
 	pin_checkbox->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(pin_checkbox);
 
 	target_nodepath = memnew(EditorPropertyNodePath());
+	target_nodepath->hide();
 	target_nodepath->set_label(TTR("Target NodePath"));
 	target_nodepath->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(target_nodepath);
 
 	twist_from_float = memnew(EditorPropertyFloat());
+	twist_from_float->hide();
 	twist_from_float->setup(0, 360, 0.01, false, false, false, false, "", true);
 	twist_from_float->set_label(TTR("Twist From"));
 	twist_from_float->set_selectable(false);
@@ -171,6 +174,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	constraint_bone_section->get_vbox()->add_child(twist_from_float);
 
 	twist_range_float = memnew(EditorPropertyFloat());
+	twist_range_float->hide();
 	twist_range_float->setup(-360, 360, 0.01, false, false, false, false, "", true);
 	twist_range_float->set_label(TTR("Twist Range"));
 	twist_range_float->set_selectable(false);
@@ -178,6 +182,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	constraint_bone_section->get_vbox()->add_child(twist_range_float);
 
 	twist_current_float = memnew(EditorPropertyFloat());
+	twist_current_float->hide();
 	twist_current_float->setup(0, 360, 0.01, false, false, false, false, "", true);
 	twist_current_float->set_label(TTR("Twist Current"));
 	twist_current_float->set_selectable(false);
@@ -200,19 +205,22 @@ void ManyBoneIK3DEditor::create_editors() {
 		constraint_bone_section->get_vbox()->add_child(radius_float[cone_i]);
 	}
 
-	twist_constraint_basis = memnew(EditorPropertyBasis());
-	twist_constraint_basis->set_label(TTR("Twist Constraint Basis"));
-	twist_constraint_basis->set_selectable(false);
-	twist_constraint_basis->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
-	constraint_bone_section->get_vbox()->add_child(twist_constraint_basis);
+	twist_constraint_transform = memnew(EditorPropertyTransform3D());
+	twist_constraint_transform->hide();
+	twist_constraint_transform->set_label(TTR("Twist Constraint Transform3D"));
+	twist_constraint_transform->set_selectable(false);
+	twist_constraint_transform->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
+	constraint_bone_section->get_vbox()->add_child(twist_constraint_transform);
 
-	orientation_constraint_basis = memnew(EditorPropertyBasis());
-	orientation_constraint_basis->set_label(TTR("Twist Constraint Basis"));
-	orientation_constraint_basis->set_selectable(false);
-	orientation_constraint_basis->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
-	constraint_bone_section->get_vbox()->add_child(orientation_constraint_basis);
+	orientation_constraint_transform = memnew(EditorPropertyTransform3D());
+	orientation_constraint_transform->hide();
+	orientation_constraint_transform->set_label(TTR("Twist Constraint Transform3D"));
+	orientation_constraint_transform->set_selectable(false);
+	orientation_constraint_transform->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
+	constraint_bone_section->get_vbox()->add_child(orientation_constraint_transform);
 
 	bone_direction_transform = memnew(EditorPropertyTransform3D());
+	bone_direction_transform->hide();
 	bone_direction_transform->set_label(TTR("Bone Direction Transform3D"));
 	bone_direction_transform->set_selectable(false);
 	bone_direction_transform->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -267,8 +275,10 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	}
 	pin_checkbox->set_object_and_property(ik, vformat("pins/%d/enabled", pin_i));
 	pin_checkbox->update_property();
+	pin_checkbox->show();
 	target_nodepath->set_object_and_property(ik, vformat("pins/%d/target_node", pin_i));
 	target_nodepath->update_property();
+	target_nodepath->show();
 
 	int32_t constraint_i = ik->find_constraint(bone_name);
 	if (constraint_i == -1) {
@@ -276,10 +286,13 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	}
 	twist_from_float->set_object_and_property(ik, vformat("constraints/%d/twist_from", constraint_i));
 	twist_from_float->update_property();
+	twist_from_float->show();
 	twist_range_float->set_object_and_property(ik, vformat("constraints/%d/twist_range", constraint_i));
 	twist_range_float->update_property();
+	twist_range_float->show();
 	twist_current_float->set_object_and_property(ik, vformat("constraints/%d/twist_current", constraint_i));
 	twist_current_float->update_property();
+	twist_current_float->show();
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i]->hide();
 		radius_float[cone_i]->hide();
@@ -292,9 +305,15 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		radius_float[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/radius", constraint_i, cone_i));
 		center_vector3[cone_i]->update_property();
 	}
-	// twist_constraint_basis->set_value(ik->get_kusudama_limit_cone_radius(constraint_i, cone_i));
-	// orientation_constraint_basis->set_value(ik->get_kusudama_limit_cone_radius(constraint_i, cone_i));
-	// bone_direction_transform->set_value(ik->get_kusudama_limit_cone_radius(constraint_i, cone_i));
+	twist_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/bone_direction", constraint_i));
+	twist_constraint_transform->update_property();
+	twist_constraint_transform->show();
+	orientation_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_orientation", constraint_i));
+	orientation_constraint_transform->update_property();
+	orientation_constraint_transform->show();
+	bone_direction_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_twist", constraint_i));
+	bone_direction_transform->update_property();
+	bone_direction_transform->show();
 }
 
 TreeItem *ManyBoneIK3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
