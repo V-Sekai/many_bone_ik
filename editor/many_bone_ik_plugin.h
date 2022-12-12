@@ -5,7 +5,7 @@
 #include "editor/plugins/node_3d_editor_gizmos.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/plugins/skeleton_3d_editor_plugin.h"
-#include "modules/many_bone_ik/src/many_bone_ik_3d.h"
+#include "../src/many_bone_ik_3d.h"
 
 class ManyBoneIK3DEditorPlugin;
 class ManyBoneIK3DEditor;

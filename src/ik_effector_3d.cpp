@@ -83,7 +83,6 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBo
 		return;
 	}
 	Transform3D changed_transform = p_skeleton->get_global_transform().affine_inverse() * current_target_node->get_global_transform();
-	bool is_many_bone_ik_node = false;
 	target_relative_to_skeleton_origin = changed_transform;
 }
 
