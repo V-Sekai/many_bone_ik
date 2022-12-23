@@ -85,10 +85,8 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 		turn_back = Quaternion(twisted_dir, flipped_bounds ? twist_min_vec : twist_max_vec).normalized();
 	}
 	real_t turn_back_angle = turn_back.get_angle() * turn_back.get_axis().y;
-	Vector3 axis_y_col = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
-	Vector3 axis_y = bone_direction->get_global_transform().basis.xform(Vector3(0, 1, 0));
-	// Do not need to normalize the axis_y. The Godot Engine Basis set axis angle is poor with axis_y that are not normalized.
-	Basis rot = Basis(axis_y, turn_back_angle).orthonormalized();
+	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+	Basis rot = IKLimitCone::quaternion_set_axis_angle(axis_y, turn_back_angle);
 	to_set->rotate_local_with_global(rot);
 }
 
@@ -336,7 +334,7 @@ void IKKusudama::get_swing_twist(
 }
 
 real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) {
-	return 1.0;
+	return 1.0f;
 }
 
 void IKKusudama::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation) {
