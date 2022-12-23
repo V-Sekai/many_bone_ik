@@ -67,7 +67,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	}
 	Quaternion align_rot;
 	if (!inv_rot.is_equal_approx(Quaternion())) {
-		inv_rot * bone_direction->get_global_transform().basis.get_rotation_quaternion();
+		align_rot = inv_rot * bone_direction->get_global_transform().basis.get_rotation_quaternion();
 	}
 	Quaternion swing;
 	Quaternion twist;
