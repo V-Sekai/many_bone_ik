@@ -70,13 +70,13 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 	Vector3 godot_bone_origin = godot_skeleton_aligned_transform->get_global_transform().origin;
 	child_centroid -= godot_bone_origin;
 	if (Math::is_zero_approx(child_centroid.length_squared()) && parent.is_valid()) {
-		child_centroid = parent->get_bone_direction_transform()->get_global_transform().xform(Vector3(0.0f, 1.0f, 0.0f)) - parent->get_bone_direction_transform()->get_global_transform().origin;
+		child_centroid = parent->get_bone_direction_transform()->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	} else if (Math::is_zero_approx(child_centroid.length_squared()) && parent.is_null()) {
-		child_centroid = get_bone_direction_transform()->get_global_transform().xform(Vector3(0.0f, 1.0f, 0.0f)) - get_bone_direction_transform()->get_global_transform().origin;
+		child_centroid = get_bone_direction_transform()->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	}
 	if (!Math::is_zero_approx(child_centroid.length_squared()) && (children.size() || p_skeleton->get_bone_children(bone_id).size())) {
 		child_centroid.normalize();
-		Vector3 bone_direction = bone_direction_transform->get_global_transform().xform(Vector3(0.0f, 1.0f, 0.0f));
+		Vector3 bone_direction = bone_direction_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 		bone_direction.normalize();
 		bone_direction_transform->rotate_local_with_global(Quaternion(child_centroid, bone_direction));
 	}
@@ -113,7 +113,7 @@ void IKBone3D::update_default_constraint_transform() {
 		direction = constraint_transform->get_global_transform().xform(direction);
 		direction -= constraint_transform->get_global_transform().origin;
 	}
-	Vector3 twist_axis = constraint_twist_transform->get_global_transform().basis.xform(Vector3(0.0f, 1.0f, 0.0f));
+	Vector3 twist_axis = constraint_twist_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	Quaternion align_dir = Quaternion(twist_axis, direction);
 	constraint_twist_transform->rotate_local_with_global(align_dir);
 }
