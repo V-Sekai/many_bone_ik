@@ -390,6 +390,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);
 	float radius = dist / 5.0;
+	int32_t current_cone = 0;
 	for (int32_t cone_i = 0; cone_i < kusudama->get_limit_cones().size() * (3 * 4); cone_i = cone_i + (3 * 4)) {
 		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
 		float cone_radius = kusudama_limit_cones[cone_i + 3];
@@ -399,21 +400,18 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 		}
 		{
 			Transform3D handle_relative_to_mesh;
-			handle_relative_to_mesh.origin = center * cone_radius;
+			handle_relative_to_mesh.origin = center * radius;
 			Transform3D handle_relative_to_universe = handle_transform.affine_inverse() * constraint_relative_to_the_universe * handle_relative_to_mesh;
 			center_handles.push_back(handle_relative_to_universe.origin);
 		}
 		{
-			float w = radius * Math::sin(cone_radius);
-			float d = radius * Math::cos(cone_radius);
-			const float ra = (float)(0 * 3);
-			const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
-			Transform3D handle_border_relative_to_mesh;
-			Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0.0f, 1.0f, 0.0f), center));
-			handle_border_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
-			Transform3D handle_border_relative_to_universe = constraint_relative_to_the_universe * handle_border_relative_to_mesh;
-			radius_handles.push_back((handle_transform.affine_inverse() * handle_border_relative_to_universe).origin);
+			Ref<IKLimitCone> limit_cone = kusudama->get_limit_cones()[current_cone];
+			Vector3 perpendicular = limit_cone->get_tangent_circle_center_next_1();
+			Vector3 maw_axis = center.cross(perpendicular);
+			Quaternion maw_rotation = IKLimitCone::quaternion_set_axis_angle(maw_axis, cone_radius).normalized();
+			radius_handles.push_back((handle_transform.affine_inverse() * constraint_relative_to_the_universe).xform(maw_rotation.xform(center) * radius));
 		}
+		current_cone++;
 	}
 	if (center_handles.size()) {
 		p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, true);
@@ -486,7 +484,7 @@ void ManyBoneIK3DGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
 		axial_from_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
 	}
@@ -498,9 +496,9 @@ void ManyBoneIK3DGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		axial_middle_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
 	}
 	axial_middle_handles.pop_front();
@@ -510,7 +508,7 @@ void ManyBoneIK3DGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
 		axial_to_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
 	}
@@ -530,7 +528,7 @@ void ManyBoneIK3DGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx
 		const Point2 a = Vector2(Math::sin(current_angle), Math::cos(current_angle)) * w;
 		Transform3D center_relative_to_mesh;
 		Transform3D axial_from_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
 		Vector3 handle_position = (handle_transform.affine_inverse() * axial_relative_to_universe).origin;
 		handles_current.push_back(handle_position);
