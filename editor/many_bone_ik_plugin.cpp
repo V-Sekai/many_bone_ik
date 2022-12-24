@@ -160,7 +160,18 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 		selected_bone = b_idx;
 	}
 	select_bone(selected_bone);
-	_update_properties();
+	TreeItem *ti = _find(joint_tree->get_root(), "bones/" + itos(p_idx));
+	if (!ti) {
+		return;
+	}
+	// Make visible when it's collapsed.
+	TreeItem *node = ti->get_parent();
+	while (node && node != joint_tree->get_root()) {
+		node->set_collapsed(false);
+		node = node->get_parent();
+	}
+	ti->select(0);
+	joint_tree->scroll_to_item(ti);
 }
 
 void ManyBoneIK3DEditor::select_bone(int p_idx) {
@@ -173,6 +184,7 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		_joint_tree_selection_changed();
 		return;
 	}
+	selected_bone = p_idx;
 	ik->set_ui_selected_bone(p_idx);
 }
 
