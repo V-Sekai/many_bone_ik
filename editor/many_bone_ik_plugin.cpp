@@ -182,7 +182,8 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		node->set_collapsed(false);
 		node = node->get_parent();
 	}
-	ti->select(p_idx);
+	ti->select(0);
+	joint_tree->scroll_to_item(ti);
 	ik->set_ui_selected_bone(p_idx);
 }
 
