@@ -27,24 +27,6 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 	ManyBoneIK3D *ik = nullptr;
 	BoneId selected_bone = -1;
 
-	EditorInspectorSection *constraint_bone_section = nullptr;
-	EditorPropertyFloat *bone_damp_float = nullptr;
-	EditorPropertyCheck *pin_checkbox = nullptr;
-	EditorPropertyNodePath *target_nodepath = nullptr;
-	EditorPropertyFloat *twist_from_float = nullptr;
-	EditorPropertyFloat *twist_range_float = nullptr;
-	EditorPropertyFloat *twist_current_float = nullptr;
-	static const int32_t MAX_KUSUDAMA_CONES = 30;
-	EditorPropertyFloat *cone_count_float = nullptr;
-	EditorPropertyVector3 *center_vector3[MAX_KUSUDAMA_CONES] = {};
-	EditorPropertyFloat *radius_float[MAX_KUSUDAMA_CONES] = {};
-	EditorPropertyTransform3D *twist_constraint_transform = nullptr;
-	EditorPropertyTransform3D *orientation_constraint_transform = nullptr;
-	EditorPropertyTransform3D *bone_direction_transform = nullptr;
-	EditorPropertyFloat *passthrough_float = nullptr;
-	EditorPropertyFloat *weight_float = nullptr;
-	EditorPropertyVector3 *direction_priorities_vector3 = nullptr;
-
 protected:
 	void _notification(int p_what);
 
@@ -53,7 +35,6 @@ public:
 	void _update_properties();
 	void update_joint_tree();
 	void create_editors();
-	void _value_changed(const String &p_property, Variant p_value, const String &p_name, bool p_changing);
 	void select_bone(int p_idx);
 	void _joint_tree_selection_changed();
 	TreeItem *_find(TreeItem *p_node, const NodePath &p_path);
