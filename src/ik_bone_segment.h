@@ -81,18 +81,6 @@ public:
 	const double eval_prec = static_cast<double>(1E-11);
 	static Quaternion clamp_to_angle(Quaternion p_quat, real_t p_angle);
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle);
-	_FORCE_INLINE_ static real_t cos(real_t p_angle) {
-		// https://stackoverflow.com/questions/18662261/fastest-implementation-of-sine-cosine-and-square-root-in-c-doesnt-need-to-b/28050328#28050328
-		real_t x = real_t(0.5) * p_angle;
-		constexpr real_t tp = 1. / (2. * Math_PI);
-		x *= tp;
-		x -= real_t(.25) + Math::floor(x + real_t(.25));
-		x *= real_t(16.) * (Math::abs(x) - real_t(.5));
-		// BEGIN EXTRA_PRECISION
-		x += real_t(.225) * x * (Math::abs(x) - real_t(1.));
-		// END EXTRA_PRECISION
-		return x;
-	}
 	static void recursive_create_headings_arrays_for(Ref<IKBoneSegment> p_bone_segment);
 	void create_headings_arrays();
 	void recursive_create_penalty_array(Ref<IKBoneSegment> p_bone_segment, Vector<Vector<real_t>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, real_t p_falloff);

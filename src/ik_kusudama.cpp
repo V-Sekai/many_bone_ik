@@ -59,7 +59,7 @@ void IKKusudama::set_axial_limits(real_t min_angle, real_t in_range) {
 	twist_min_vec = Quaternion(y_axis, min_axial_angle).xform(Vector3(0, 0, 1));
 	twist_center_vec = Quaternion(y_axis, range_angle / 2.0).xform(twist_min_vec);
 	twist_tan = twist_center_vec.cross(y_axis);
-	twist_half_range_cos = IKBoneSegment::cos(in_range / 2.0);
+	twist_half_range_cos = cos(range_angle / 2.0);
 	twist_max_vec = Quaternion(y_axis, range_angle).xform(twist_min_vec);
 	Vector3 max_cross = twist_max_vec.cross(y_axis);
 	flipped_bounds = twist_tan.cross(max_cross).y < 0.0;
