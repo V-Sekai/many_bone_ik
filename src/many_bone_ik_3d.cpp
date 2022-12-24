@@ -1070,7 +1070,7 @@ void ManyBoneIK3D::set_bone_direction_transform(int32_t p_index, Transform3D p_t
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		ik_bone->get_bone_direction_transform()->set_global_transform(p_transform);
+		ik_bone->get_bone_direction_transform()->set_transform(p_transform);
 		break;
 	}
 }
@@ -1092,7 +1092,7 @@ Transform3D ManyBoneIK3D::get_bone_direction_transform(int32_t p_index) const {
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		return ik_bone->get_bone_direction_transform()->get_global_transform();
+		return ik_bone->get_bone_direction_transform()->get_transform();
 	}
 	return Transform3D();
 }
@@ -1114,7 +1114,7 @@ Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) 
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		return ik_bone->get_constraint_transform()->get_global_transform();
+		return ik_bone->get_constraint_transform()->get_transform();
 	}
 	return Transform3D();
 }
@@ -1133,7 +1133,7 @@ void ManyBoneIK3D::set_constraint_orientation_transform(int32_t p_index, Transfo
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		ik_bone->get_constraint_transform()->set_global_transform(p_transform);
+		ik_bone->get_constraint_transform()->set_transform(p_transform);
 		break;
 	}
 }
@@ -1155,7 +1155,7 @@ Transform3D ManyBoneIK3D::get_constraint_twist_transform(int32_t p_index) const 
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		return ik_bone->get_constraint_twist_transform()->get_global_transform();
+		return ik_bone->get_constraint_twist_transform()->get_transform();
 	}
 	return Transform3D();
 }
@@ -1174,7 +1174,7 @@ void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		ik_bone->get_constraint_twist_transform()->set_global_transform(p_transform);
+		ik_bone->get_constraint_twist_transform()->set_transform(p_transform);
 		break;
 	}
 }
