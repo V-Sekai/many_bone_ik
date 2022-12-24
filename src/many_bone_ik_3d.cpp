@@ -365,8 +365,6 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 
 bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 	String name = p_name;
-	set_constraint_mode(true);
-	call_deferred("set_constraint_mode", false);
 	if (name == "constraint_count") {
 		_set_constraint_count(p_value);
 		return true;
