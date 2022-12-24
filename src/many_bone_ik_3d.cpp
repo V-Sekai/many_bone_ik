@@ -301,6 +301,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 			r_ret = bone_name;
 			return true;
 		} else if (what == "damp") {
+			r_ret = get_bone_damp(index);
 			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
