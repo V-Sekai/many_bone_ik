@@ -783,7 +783,8 @@ void ManyBoneIK3D::execute(real_t delta) {
 		if (root_ik_parent_transform.is_null()) {
 			return;
 		}
-		root_ik_parent_transform->set_global_transform(Transform3D());
+		Skeleton3D *skeleton = get_skeleton();
+		root_ik_parent_transform->set_global_transform(skeleton->get_global_transform());
 	}
 	bool has_pins = false;
 	for (Ref<IKEffectorTemplate> pin : pins) {
