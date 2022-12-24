@@ -391,7 +391,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
 		float cone_radius = kusudama_limit_cones[cone_i + 3];
 		if (Math::is_zero_approx(center.length_squared())) {
-			center = Vector3(0, 1, 0);
+			center = Vector3(0.0f, 1.0f, 0.0f);
 			cone_radius = 0.0;
 		}
 		{
@@ -406,7 +406,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 			const float ra = (float)(0 * 3);
 			const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 			Transform3D handle_border_relative_to_mesh;
-			Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0, 1, 0), center));
+			Transform3D center_relative_to_mesh = Transform3D(Quaternion(Vector3(0.0f, 1.0f, 0.0f), center));
 			handle_border_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, a.y, -d));
 			Transform3D handle_border_relative_to_universe = constraint_relative_to_the_universe * handle_border_relative_to_mesh;
 			radius_handles.push_back((handle_transform.affine_inverse() * handle_border_relative_to_universe).origin);

@@ -611,7 +611,7 @@ void ManyBoneIK3D::set_kusudama_limit_cone(int32_t p_contraint_index, int32_t p_
 	ERR_FAIL_INDEX(p_contraint_index, kusudama_limit_cones.size());
 	Vector<Vector4> cones = kusudama_limit_cones.write[p_contraint_index];
 	if (Math::is_zero_approx(p_center.length_squared())) {
-		p_center = Vector3(0, 1, 0);
+		p_center = Vector3(0.0f, 1.0f, 0.0f);
 	}
 	Vector3 center = p_center.normalized();
 	Vector4 cone;
