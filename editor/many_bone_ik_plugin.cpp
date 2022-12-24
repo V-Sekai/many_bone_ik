@@ -87,6 +87,9 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 	joint_tree->clear();
 
 	Skeleton3D *skeleton = ik->get_skeleton();
+	if (!skeleton) {
+		return;
+	}
 
 	TreeItem *root = joint_tree->create_item();
 
@@ -113,6 +116,9 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 			continue;
 		}
 		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
+		if (!items.find(parent_idx)) {
+			continue;
+		}
 		TreeItem *parent_item = items.find(parent_idx)->value;
 
 		TreeItem *joint_item = joint_tree->create_item(parent_item);
