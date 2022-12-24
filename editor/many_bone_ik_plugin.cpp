@@ -166,14 +166,12 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	if (p_idx < 0) {
 		selected_bone = -1;
-		joint_tree->deselect_all();
 		if (ik) {
 			ik->set_ui_selected_bone(-1);
 		}
 		_joint_tree_selection_changed();
 		return;
 	}
-	selected_bone = p_idx;
 	TreeItem *ti = _find(joint_tree->get_root(), "bones/" + itos(p_idx));
 	if (!ti) {
 		return;
@@ -184,8 +182,7 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		node->set_collapsed(false);
 		node = node->get_parent();
 	}
-	ti->select(0);
-	joint_tree->scroll_to_item(ti);
+	ti->select(p_idx);
 	ik->set_ui_selected_bone(p_idx);
 }
 
