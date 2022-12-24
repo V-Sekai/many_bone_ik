@@ -94,36 +94,22 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
 			many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
 		}
-		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
-		int bones_to_process_i = 0;
-		Vector<BoneId> processing_bones;
 		Vector<Ref<IKBoneSegment>> bone_segments = many_bone_ik->get_segmented_skeletons();
+		BoneId bone_i = many_bone_ik->get_ui_selected_bone();
 		for (Ref<IKBoneSegment> bone_segment : bone_segments) {
 			if (bone_segment.is_null()) {
 				continue;
 			}
-			while (bones_to_process_i < bones_to_process.size()) {
-				int current_bone_idx = bones_to_process[bones_to_process_i];
-				processing_bones.push_back(current_bone_idx);
-				Vector<int> child_bones_vector = many_bone_ik_skeleton->get_bone_children(current_bone_idx);
-				for (int child_bone_idx : child_bones_vector) {
-					bones_to_process.push_back(child_bone_idx);
-				}
-				bones_to_process_i++;
+			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
+			if (ik_bone.is_null()) {
+				continue;
 			}
-			Color current_bone_color = bone_color;
-			for (BoneId bone_i : bones_to_process) {
-				Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
-				if (ik_bone.is_null()) {
-					continue;
-				}
-				if (ik_bone->get_constraint().is_valid() && ik_bone->get_constraint()->is_orientationally_constrained()) {
-					create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
-				}
-				if (ik_bone->get_constraint().is_valid() && ik_bone->get_constraint()->is_axially_constrained()) {
-					create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
-					create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
-				}
+			if (ik_bone->get_constraint().is_valid() && ik_bone->get_constraint()->is_orientationally_constrained()) {
+				create_gizmo_mesh(bone_i, ik_bone, p_gizmo, bone_color, many_bone_ik_skeleton, many_bone_ik);
+			}
+			if (ik_bone->get_constraint().is_valid() && ik_bone->get_constraint()->is_axially_constrained()) {
+				create_gizmo_handles(bone_i, ik_bone, p_gizmo, bone_color, many_bone_ik_skeleton, many_bone_ik);
+				create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, bone_color, many_bone_ik_skeleton, many_bone_ik);
 			}
 		}
 	}
