@@ -86,12 +86,8 @@ protected:
 	void _notification(int p_what);
 
 public:
-	void set_filter_bones(TypedArray<StringName> p_filter_bones) {
-		filter_bones = p_filter_bones;
-	}
-	TypedArray<StringName> get_filter_bones() {
-		return filter_bones;
-	}
+	void set_filter_bones(TypedArray<StringName> p_filter_bones);
+	TypedArray<StringName> get_filter_bones();
 	void set_ui_selected_bone(int32_t p_ui_selected_bone);
 	int32_t get_ui_selected_bone() const;
 	void set_constraint_mode(bool p_enabled);

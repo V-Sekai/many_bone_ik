@@ -1244,3 +1244,10 @@ void ManyBoneIK3D::set_ui_selected_bone(int32_t p_ui_selected_bone) {
 	ui_selected_bone = p_ui_selected_bone;
 	notify_property_list_changed();
 }
+TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
+	return filter_bones;
+}
+void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
+	filter_bones = p_filter_bones;
+	notify_property_list_changed();
+}
