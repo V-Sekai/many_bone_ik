@@ -57,7 +57,7 @@ private:
 	Vector<float> bone_damp;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
-	TypedArray<StringName> hide_bones;
+	TypedArray<StringName> filter_bones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	int32_t iterations_per_frame = 20;
 	float default_damp = Math::deg_to_rad(10.0f);
@@ -86,11 +86,11 @@ protected:
 	void _notification(int p_what);
 
 public:
-	void set_hide_bones(TypedArray<StringName> p_hide_bones) {
-		hide_bones = p_hide_bones;
+	void set_filter_bones(TypedArray<StringName> p_filter_bones) {
+		filter_bones = p_filter_bones;
 	}
-	TypedArray<StringName> get_hide_bones() {
-		return hide_bones;
+	TypedArray<StringName> get_filter_bones() {
+		return filter_bones;
 	}
 	void set_ui_selected_bone(int32_t p_ui_selected_bone);
 	int32_t get_ui_selected_bone() const;
