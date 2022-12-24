@@ -177,7 +177,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		bone_name.usage = PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_READ_ONLY;
+		const uint32_t constraint_usage = get_ui_selected_bone() == constraint_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
+		bone_name.usage = constraint_usage | PROPERTY_USAGE_READ_ONLY;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
@@ -196,7 +197,6 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			bone_name.hint = PROPERTY_HINT_NONE;
 			bone_name.hint_string = "";
 		}
-		const uint32_t constraint_usage = get_ui_selected_bone() == constraint_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 		p_list->push_back(bone_name);
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,360,0.1,radians,or_lesser,or_greater", constraint_usage));
@@ -229,7 +229,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
 			PropertyInfo bone_name;
 			bone_name.type = Variant::STRING_NAME;
-			bone_name.usage = PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_READ_ONLY;
+			const uint32_t damp_usage = get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
+			bone_name.usage = damp_usage | PROPERTY_USAGE_READ_ONLY;
 			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
 			if (get_skeleton()) {
 				String names;
@@ -246,7 +247,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			}
 			p_list->push_back(bone_name);
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR));
+					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
 		}
 	}
 }
