@@ -96,10 +96,10 @@ void IKBone3D::update_default_constraint_transform() {
 		return;
 	}
 	TypedArray<IKLimitCone> cones = constraint->get_limit_cones();
-	if (cones.size() == 0) { //if there are no limit cones, set the default twist orientation to align with the bone_direction
+	Vector3 direction;
+	if (cones.size() == 0) { // if there are no limit cones, set the default twist orientation to align with the bone_direction
 		direction = bone_direction_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	} else {
-		Vector3 direction = Vector3(0, 0, 0);
 		for (int32_t cone_i = 0; cone_i < cones.size(); cone_i++) {
 			Ref<IKLimitCone> cone = cones[cone_i];
 			if (cone.is_null()) {
@@ -109,8 +109,8 @@ void IKBone3D::update_default_constraint_transform() {
 			direction += cone->get_control_point() * weight;
 		}
 		direction = direction.normalized();
-		Vector3 twist_y = constraint_twist_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	}
+	Vector3 twist_y = constraint_twist_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	Quaternion align_dir = Quaternion(twist_y, direction);
 	constraint_twist_transform->rotate_local_with_global(align_dir);
 }
