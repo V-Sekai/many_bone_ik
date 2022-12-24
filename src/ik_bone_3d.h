@@ -64,6 +64,10 @@ class IKBone3D : public Resource {
 	Ref<IKNode3D> constraint_twist_transform = Ref<IKNode3D>(memnew(IKNode3D()));
 	Ref<IKNode3D> godot_skeleton_aligned_transform = Ref<IKNode3D>(memnew(IKNode3D())); // The bone's actual transform.
 	Ref<IKNode3D> bone_direction_transform = Ref<IKNode3D>(memnew(IKNode3D())); // Physical direction of the bone. Calculate Y is the bone up.
+
+	/*Ref<IKNode3D> __default_constraint_transform = Ref<IKNode3D>(memnew(IKNode3D()));
+	Ref<IKNode3D> __default_constraint_twist_transform = Ref<IKNode3D>(memnew(IKNode3D()));
+	Ref<IKNode3D> __default_bone_direction_transform = Ref<IKNode3D>(memnew(IKNode3D())); // Physical direction of the bone. Calculate Y is the bone up.*/
 protected:
 	static void _bind_methods();
 
