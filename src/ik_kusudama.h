@@ -214,6 +214,7 @@ public:
 	virtual TypedArray<IKLimitCone> get_limit_cones() const;
 	virtual void set_limit_cones(TypedArray<IKLimitCone> p_cones);
 	static real_t _to_tau(real_t angle);
+	void optimize_limiting_axes(Ref<IKBone3D> bone_attached_to);
 };
 
 #endif // IK_KUSUDAMA_H
