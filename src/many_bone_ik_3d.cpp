@@ -134,7 +134,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
-		effector_name.usage = PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_READ_ONLY;
+		effector_name.usage = PROPERTY_USAGE_NO_EDITOR;
 		const uint32_t pin_usage = get_ui_selected_bone() == pin_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 		if (get_skeleton()) {
 			String names;
