@@ -64,6 +64,7 @@ private:
 	Ref<IKNode3D> root_transform = Ref<IKNode3D>(memnew(IKNode3D));
 	bool is_dirty = true;
 	NodePath skeleton_node_path = NodePath("..");
+	int32_t ui_selected_bone = -1;
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
 	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
@@ -84,6 +85,8 @@ protected:
 	void _notification(int p_what);
 
 public:
+	void set_ui_selected_bone(int32_t p_ui_selected_bone);
+	int32_t get_ui_selected_bone() const;
 	void set_constraint_mode(bool p_enabled);
 	bool get_constraint_mode() const;
 	void set_pin_enabled(int32_t p_effector_index, bool p_enabled);

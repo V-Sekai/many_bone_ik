@@ -127,15 +127,14 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		existing_constraints.insert(name);
 	}
 	{
-		const uint32_t damp_usage = PROPERTY_USAGE_NO_EDITOR;
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "bone_count",
-						PROPERTY_HINT_RANGE, "0,256,or_greater", damp_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 						"Bone,bone/"));
 		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
 			PropertyInfo bone_name;
 			bone_name.type = Variant::STRING_NAME;
-			bone_name.usage = damp_usage;
+			bone_name.usage = PROPERTY_USAGE_NO_EDITOR;
 			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
 			if (get_skeleton()) {
 				String names;
@@ -152,18 +151,17 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			}
 			p_list->push_back(bone_name);
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
+					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR));
 		}
 	}
-	const uint32_t constraint_usage = PROPERTY_USAGE_NO_EDITOR;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
-					PROPERTY_HINT_RANGE, "0,256,or_greater", constraint_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Kusudama Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		bone_name.usage = constraint_usage;
+		bone_name.usage = PROPERTY_USAGE_NO_EDITOR;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
@@ -182,6 +180,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			bone_name.hint = PROPERTY_HINT_NONE;
 			bone_name.hint_string = "";
 		}
+		const uint32_t constraint_usage = get_ui_selected_bone() == constraint_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 		p_list->push_back(bone_name);
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "0,360,0.1,radians,or_lesser,or_greater", constraint_usage));
@@ -211,16 +210,16 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
-	const uint32_t pin_usage = PROPERTY_USAGE_NO_EDITOR;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
-					PROPERTY_HINT_RANGE, "0,1024,or_greater", pin_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
-		effector_name.usage = pin_usage;
+		effector_name.usage = PROPERTY_USAGE_NO_EDITOR;
+		const uint32_t pin_usage = get_ui_selected_bone() == pin_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 		if (get_skeleton()) {
 			String names;
 			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
@@ -531,11 +530,14 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_count"), &ManyBoneIK3D::get_bone_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enabled"), &ManyBoneIK3D::set_constraint_mode);
 	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &ManyBoneIK3D::get_constraint_mode);
+	ClassDB::bind_method(D_METHOD("set_ui_selected_bone", "bone"), &ManyBoneIK3D::set_ui_selected_bone);
+	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
 
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "constraint_mode"), "set_constraint_mode", "get_constraint_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "ui_selected_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_ui_selected_bone", "get_ui_selected_bone");
 }
 
 ManyBoneIK3D::ManyBoneIK3D() {
@@ -1214,9 +1216,20 @@ void ManyBoneIK3D::reset_constraints() {
 	}
 	set_dirty();
 }
+
 bool ManyBoneIK3D::get_constraint_mode() const {
 	return is_constraint_mode;
 }
+
 void ManyBoneIK3D::set_constraint_mode(bool p_enabled) {
 	is_constraint_mode = p_enabled;
+}
+
+int32_t ManyBoneIK3D::get_ui_selected_bone() const {
+	return ui_selected_bone;
+}
+
+void ManyBoneIK3D::set_ui_selected_bone(int32_t p_ui_selected_bone) {
+	ui_selected_bone = p_ui_selected_bone;
+	notify_property_list_changed();
 }
