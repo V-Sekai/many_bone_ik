@@ -121,38 +121,54 @@ void ManyBoneIK3D::update_skeleton_bones_transform() {
 }
 
 void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
+	RBSet<String> existing_pins;
+	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
+		const String name = get_pin_bone_name(pin_i);
+		existing_pins.insert(name);
+	}
+	p_list->push_back(
+			PropertyInfo(Variant::INT, "pin_count",
+					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+					"Pins,pins/"));
+	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
+		PropertyInfo effector_name;
+		effector_name.type = Variant::STRING_NAME;
+		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
+		effector_name.usage = PROPERTY_USAGE_NO_EDITOR;
+		const uint32_t pin_usage = get_ui_selected_bone() == pin_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
+		if (get_skeleton()) {
+			String names;
+			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+				String name = get_skeleton()->get_bone_name(bone_i);
+				if (existing_pins.has(name)) {
+					continue;
+				}
+				name += ",";
+				names += name;
+			}
+			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
+			effector_name.hint_string = names;
+		} else {
+			effector_name.hint = PROPERTY_HINT_NONE;
+			effector_name.hint_string = "";
+		}
+		p_list->push_back(effector_name);
+		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/enabled", PROPERTY_HINT_NONE, "", pin_usage));
+		p_list->push_back(
+				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D", pin_usage));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
+		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
+		p_list->push_back(
+				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
+	}
+
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
-	}
-	{
-		p_list->push_back(
-				PropertyInfo(Variant::INT, "bone_count",
-						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
-						"Bone,bone/"));
-		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
-			PropertyInfo bone_name;
-			bone_name.type = Variant::STRING_NAME;
-			bone_name.usage = PROPERTY_USAGE_NO_EDITOR;
-			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
-			if (get_skeleton()) {
-				String names;
-				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-					String name = get_skeleton()->get_bone_name(bone_i);
-					name += ",";
-					names += name;
-				}
-				bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
-				bone_name.hint_string = names;
-			} else {
-				bone_name.hint = PROPERTY_HINT_NONE;
-				bone_name.hint_string = "";
-			}
-			p_list->push_back(bone_name);
-			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR));
-		}
 	}
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
@@ -205,48 +221,33 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/bone_direction", PROPERTY_HINT_NONE, "", constraint_usage));
 	}
-	RBSet<String> existing_pins;
-	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
-		const String name = get_pin_bone_name(pin_i);
-		existing_pins.insert(name);
-	}
-	p_list->push_back(
-			PropertyInfo(Variant::INT, "pin_count",
-					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
-					"Pins,pins/"));
-	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
-		PropertyInfo effector_name;
-		effector_name.type = Variant::STRING_NAME;
-		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
-		effector_name.usage = PROPERTY_USAGE_NO_EDITOR;
-		const uint32_t pin_usage = get_ui_selected_bone() == pin_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
-		if (get_skeleton()) {
-			String names;
-			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-				String name = get_skeleton()->get_bone_name(bone_i);
-				if (existing_pins.has(name)) {
-					continue;
+	{
+		p_list->push_back(
+				PropertyInfo(Variant::INT, "bone_count",
+						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+						"Bone,bone/"));
+		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
+			PropertyInfo bone_name;
+			bone_name.type = Variant::STRING_NAME;
+			bone_name.usage = PROPERTY_USAGE_NO_EDITOR;
+			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
+			if (get_skeleton()) {
+				String names;
+				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+					String name = get_skeleton()->get_bone_name(bone_i);
+					name += ",";
+					names += name;
 				}
-				name += ",";
-				names += name;
+				bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
+				bone_name.hint_string = names;
+			} else {
+				bone_name.hint = PROPERTY_HINT_NONE;
+				bone_name.hint_string = "";
 			}
-			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
-			effector_name.hint_string = names;
-		} else {
-			effector_name.hint = PROPERTY_HINT_NONE;
-			effector_name.hint_string = "";
+			p_list->push_back(bone_name);
+			p_list->push_back(
+					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR));
 		}
-		p_list->push_back(effector_name);
-		p_list->push_back(
-				PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/enabled", PROPERTY_HINT_NONE, "", pin_usage));
-		p_list->push_back(
-				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D", pin_usage));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
-		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
-		p_list->push_back(
-				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
 	}
 }
 
