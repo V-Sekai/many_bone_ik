@@ -292,8 +292,15 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, bone_count, false);
-		if (what == "damp") {
-			r_ret = get_bone_damp(index);
+		if (what == "bone_name") {
+			Skeleton3D *skeleton = get_skeleton();
+			if (!skeleton) {
+				return false;
+			}
+			String bone_name = skeleton->get_bone_name(index);
+			r_ret = bone_name;
+			return true;
+		} else if (what == "damp") {
 			return true;
 		}
 	} else if (name.begins_with("constraints/")) {
