@@ -83,6 +83,7 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 }
 
 void IKBone3D::update_default_constraint_transform() {
+	// TODO: If the user hasn't specified constraint transform, create it with a good guess.
 	Ref<IKBone3D> parent_bone = get_parent();
 	if (parent_bone.is_valid()) {
 		Transform3D parent_bone_aligned_transform = parent_bone->get_ik_transform()->get_global_transform();
