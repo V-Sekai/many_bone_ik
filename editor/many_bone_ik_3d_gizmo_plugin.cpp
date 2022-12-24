@@ -117,9 +117,13 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				if (ik_bone.is_null()) {
 					continue;
 				}
-				create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
-				create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
-				create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+				if (ik_bone->get_constraint().is_valid() && ik_bone->get_constraint()->is_orientationally_constrained()) {
+					create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+				}
+				if (ik_bone->get_constraint().is_valid() && ik_bone->get_constraint()->is_axially_constrained()) {
+					create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+					create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+				}
 			}
 		}
 	}
