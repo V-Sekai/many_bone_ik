@@ -96,28 +96,26 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 
 	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
 
-	TypedArray<StringName> hidden_bones = ik->get_hide_bones();
+	TypedArray<StringName> filter_bones = ik->get_filter_bones();
 
 	Vector<int> bones_to_process = skeleton->get_parentless_bones();
 	while (bones_to_process.size() > 0) {
 		int current_bone_idx = bones_to_process[0];
 		bones_to_process.erase(current_bone_idx);
 		StringName bone_name = skeleton->get_bone_name(current_bone_idx);
-		if (hidden_bones.has(bone_name)) {
-			continue;
+		if (!filter_bones.has(bone_name)) {
+			const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
+			TreeItem *parent_item = items.find(parent_idx)->value;
+
+			TreeItem *joint_item = joint_tree->create_item(parent_item);
+			items.insert(current_bone_idx, joint_item);
+
+			joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
+			joint_item->set_icon(0, bone_icon);
+			joint_item->set_selectable(0, true);
+			joint_tree->set_allow_rmb_select(true);
+			joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
 		}
-		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
-		TreeItem *parent_item = items.find(parent_idx)->value;
-
-		TreeItem *joint_item = joint_tree->create_item(parent_item);
-		items.insert(current_bone_idx, joint_item);
-
-		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
-		joint_item->set_icon(0, bone_icon);
-		joint_item->set_selectable(0, true);
-		joint_tree->set_allow_rmb_select(true);
-		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
-
 		// Add the bone's children to the list of bones to be processed.
 		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
 		int child_bone_size = current_bone_child_bones.size();
