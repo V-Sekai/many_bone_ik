@@ -134,6 +134,10 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	if (ik_kusudama.is_null()) {
 		return;
 	}
+	const TypedArray<IKLimitCone> &limit_cones = ik_kusudama->get_limit_cones();
+	if (!limit_cones.size()) {
+		return;
+	}
 	BoneId parent_idx = many_bone_ik_skeleton->get_bone_parent(current_bone_idx);
 	Vector<Vector3> handles;
 	LocalVector<int> bones;
@@ -153,7 +157,6 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
 	kusudama_limit_cones.fill(0.0f);
 	int out_idx = 0;
-	const TypedArray<IKLimitCone> &limit_cones = ik_kusudama->get_limit_cones();
 	for (int32_t cone_i = 0; cone_i < limit_cones.size(); cone_i++) {
 		Ref<IKLimitCone> limit_cone = limit_cones[cone_i];
 		Vector3 control_point = limit_cone->get_control_point();
