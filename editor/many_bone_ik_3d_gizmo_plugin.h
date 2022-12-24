@@ -63,6 +63,7 @@ protected:
 	static void _bind_methods();
 
 public:
+
 	const Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
 	const int32_t KUSUDAMA_MAX_CONES = 30;
 	bool has_gizmo(Node3D *p_spatial) override;

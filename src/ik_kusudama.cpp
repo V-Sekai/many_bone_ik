@@ -74,6 +74,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	Quaternion swing;
 	Quaternion twist;
 	get_swing_twist(align_rot, Vector3(0.0f, 1.0f, 0.0f), swing, twist);
+	twist.normalize();
 	Vector3 twisted_dir = twist.xform(Vector3(0.0f, 0.0f, 1.0f));
 	if (twisted_dir.dot(twist_center_vec) > twist_half_range_cos) {
 		return;

@@ -1,11 +1,12 @@
 #ifndef MANY_BONE_IK_PLUGIN_H
 #define MANY_BONE_IK_PLUGIN_H
 
+#include "../src/many_bone_ik_3d.h"
 #include "editor/editor_inspector.h"
 #include "editor/plugins/node_3d_editor_gizmos.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/plugins/skeleton_3d_editor_plugin.h"
-#include "../src/many_bone_ik_3d.h"
+
 
 class ManyBoneIK3DEditorPlugin;
 class ManyBoneIK3DEditor;
@@ -29,6 +30,9 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 
 protected:
 	void _notification(int p_what);
+	static void _bind_methods() {
+		ClassDB::bind_method(D_METHOD("_joint_tree_rmb_select"), &ManyBoneIK3DEditor::_joint_tree_rmb_select);
+	}
 
 public:
 	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik);
@@ -37,6 +41,8 @@ public:
 	void create_editors();
 	void select_bone(int p_idx);
 	void _joint_tree_selection_changed();
+	void _joint_tree_rmb_select(const Vector2 &p_pos, MouseButton p_button) {
+	}
 	TreeItem *_find(TreeItem *p_node, const NodePath &p_path);
 };
 

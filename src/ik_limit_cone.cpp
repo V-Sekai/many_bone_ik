@@ -396,9 +396,8 @@ Vector3 IKLimitCone::get_on_path_sequence(Ref<IKLimitCone> next, Vector3 input) 
 	return Vector3(NAN, NAN, NAN);
 }
 Quaternion IKLimitCone::quaternion_set_axis_angle(Vector3 axis, real_t angle) {
-	real_t norm = axis.length();
+	real_t norm = axis.length_squared();
 	if (norm == 0) {
-		ERR_PRINT_ONCE("Axis doesn't have a direction.");
 		return Quaternion();
 	}
 
@@ -409,5 +408,6 @@ Quaternion IKLimitCone::quaternion_set_axis_angle(Vector3 axis, real_t angle) {
 	real_t y = coeff * axis.y;
 	real_t z = coeff * axis.z;
 	real_t w = cos(half_angle);
+	// Convert Hamilton to JPL quaternion convention using axis * -1.
 	return Quaternion(x * -1, y * -1, z * -1, w);
 }

@@ -62,6 +62,7 @@ void ManyBoneIK3DEditor::_notification(int p_what) {
 			if (joint_tree) {
 				update_joint_tree();
 				joint_tree->connect("item_selected", callable_mp(this, &ManyBoneIK3DEditor::_joint_tree_selection_changed));
+				joint_tree->connect("item_mouse_selected", callable_mp(this, &ManyBoneIK3DEditor::_joint_tree_rmb_select));
 			}
 		} break;
 		case NOTIFICATION_THEME_CHANGED: {
@@ -95,11 +96,16 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 
 	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
 
+	TypedArray<StringName> hidden_bones = ik->get_hide_bones();
+
 	Vector<int> bones_to_process = skeleton->get_parentless_bones();
 	while (bones_to_process.size() > 0) {
 		int current_bone_idx = bones_to_process[0];
 		bones_to_process.erase(current_bone_idx);
-
+		StringName bone_name = skeleton->get_bone_name(current_bone_idx);
+		if (hidden_bones.has(bone_name)) {
+			continue;
+		}
 		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
 		TreeItem *parent_item = items.find(parent_idx)->value;
 
@@ -109,6 +115,7 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
 		joint_item->set_icon(0, bone_icon);
 		joint_item->set_selectable(0, true);
+		joint_tree->set_allow_rmb_select(true);
 		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
 
 		// Add the bone's children to the list of bones to be processed.
@@ -164,27 +171,24 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 }
 
 void ManyBoneIK3DEditor::select_bone(int p_idx) {
-	if (p_idx < 0) {
-		selected_bone = -1;
-		if (ik) {
-			ik->set_ui_selected_bone(-1);
+	if (p_idx >= 0) {
+		TreeItem *ti = _find(joint_tree->get_root(), "bones/" + itos(p_idx));
+		if (ti) {
+			// Make visible when it's collapsed.
+			TreeItem *node = ti->get_parent();
+			while (node && node != joint_tree->get_root()) {
+				node->set_collapsed(false);
+				node = node->get_parent();
+			}
+			joint_tree->set_selected(node, 0);
+			joint_tree->scroll_to_item(ti);
+			ik->set_ui_selected_bone(p_idx);
 		}
-		_joint_tree_selection_changed();
 		return;
 	}
-	TreeItem *ti = _find(joint_tree->get_root(), "bones/" + itos(p_idx));
-	if (!ti) {
-		return;
-	}
-	// Make visible when it's collapsed.
-	TreeItem *node = ti->get_parent();
-	while (node && node != joint_tree->get_root()) {
-		node->set_collapsed(false);
-		node = node->get_parent();
-	}
-	ti->select(0);
-	joint_tree->scroll_to_item(ti);
-	ik->set_ui_selected_bone(p_idx);
+	selected_bone = -1;
+	joint_tree->deselect_all();
+	_joint_tree_selection_changed();
 }
 
 TreeItem *ManyBoneIK3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
