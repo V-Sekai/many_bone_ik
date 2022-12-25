@@ -62,7 +62,9 @@ private:
 	int32_t iterations_per_frame = 20;
 	float default_damp = Math::deg_to_rad(10.0f);
 	bool queue_debug_skeleton = false;
-	Ref<IKNode3D> root_transform = Ref<IKNode3D>(memnew(IKNode3D));
+	Ref<IKNode3D> godot_skeleton_transform = Ref<IKNode3D>(memnew(IKNode3D));
+	Transform3D godot_skeleton_transform_inverse;
+	Ref<IKNode3D> ik_origin = Ref<IKNode3D>(memnew(IKNode3D)); 
 	bool is_dirty = true;
 	NodePath skeleton_node_path = NodePath("..");
 	int32_t ui_selected_bone = -1;
@@ -86,6 +88,9 @@ protected:
 	void _notification(int p_what);
 
 public:
+	Transform3D get_godot_skeleton_transform_inverse() {
+		return godot_skeleton_transform_inverse;
+	}
 	void set_filter_bones(TypedArray<StringName> p_filter_bones);
 	TypedArray<StringName> get_filter_bones();
 	void set_ui_selected_bone(int32_t p_ui_selected_bone);

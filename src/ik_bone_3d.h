@@ -33,8 +33,9 @@
 
 #include "ik_bone_3d.h"
 #include "ik_effector_template.h"
-#include "ik_kusudama.h"
+#include "ik_limit_cone.h"
 #include "math/ik_node_3d.h"
+
 
 #include "core/io/resource.h"
 #include "core/object/ref_counted.h"
@@ -72,6 +73,8 @@ protected:
 	static void _bind_methods();
 
 public:
+	bool is_axially_constrained();
+	bool is_orientationally_constrained();
 	Transform3D get_bone_direction_global_pose() const;
 	Ref<IKNode3D> get_bone_direction_transform();
 	void set_bone_direction_transform(Ref<IKNode3D> p_bone_direction);

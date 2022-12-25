@@ -117,10 +117,10 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				if (ik_bone.is_null()) {
 					continue;
 				}
-				if (ik_bone->get_constraint().is_valid() && ik_bone->get_constraint()->is_orientationally_constrained()) {
+				if (ik_bone->is_orientationally_constrained()) {
 					create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 				}
-				if (ik_bone->get_constraint().is_valid() && ik_bone->get_constraint()->is_axially_constrained()) {
+				if (ik_bone->is_axially_constrained()) {
 					create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 					create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 				}
@@ -408,7 +408,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 			Ref<IKLimitCone> limit_cone = kusudama->get_limit_cones()[current_cone];
 			Vector3 perpendicular = limit_cone->get_tangent_circle_center_next_1();
 			Vector3 maw_axis = center.cross(perpendicular);
-			Quaternion maw_rotation = IKLimitCone::quaternion_set_axis_angle(maw_axis, cone_radius).normalized();
+			Quaternion maw_rotation = Quaternion(maw_axis, cone_radius).normalized();
 			radius_handles.push_back((handle_transform.affine_inverse() * constraint_relative_to_the_universe).xform(maw_rotation.xform(center) * radius));
 		}
 		current_cone++;

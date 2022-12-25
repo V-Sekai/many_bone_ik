@@ -53,8 +53,8 @@ IKKusudama::IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<I
 }
 
 void IKKusudama::set_axial_limits(real_t min_angle, real_t in_range) {
-	min_axial_angle = min_angle;
-	range_angle = in_range;
+	min_axial_angle = fmod(min_angle, Math_TAU);
+	range_angle = fmod(in_range, Math_TAU);
 	Vector3 y_axis = Vector3(0.0f, 1.0f, 0.0f);
 	twist_min_vec = Quaternion(y_axis, min_axial_angle).xform(Vector3(0.0f, 0.0f, 1.0f));
 	twist_center_vec = Quaternion(y_axis, range_angle / 2.0).xform(twist_min_vec);
@@ -87,7 +87,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	}
 	real_t turn_back_angle = turn_back.get_angle() * turn_back.get_axis().y;
 	Vector3 axis_y = bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y);
-	Basis rot = IKLimitCone::quaternion_set_axis_angle(axis_y, turn_back_angle);
+	Basis rot = Quaternion(axis_y, turn_back_angle);
 	to_set->rotate_local_with_global(rot);
 }
 

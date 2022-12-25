@@ -136,7 +136,6 @@ public:
 	virtual double get_radius() const;
 	virtual double get_radius_cosine() const;
 	virtual void set_radius(double radius);
-	static Quaternion quaternion_set_axis_angle(Vector3 axis, real_t angle);
 };
 
 #endif // IK_LIMIT_CONE_H

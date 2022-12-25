@@ -100,6 +100,7 @@ void ManyBoneIK3D::update_ik_bones_transform() {
 		if (bone.is_null()) {
 			continue;
 		}
+		BoneId bone_id = bone->get_bone_id();
 		bone->set_initial_pose(get_skeleton());
 		if (bone->is_pinned()) {
 			bone->get_pin()->update_target_global_transform(get_skeleton(), this);
@@ -427,31 +428,6 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			_set_constraint_name(index, p_value);
 			return true;
 		} else if (what == "twist_current") {
-			for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
-				if (segmented_skeleton.is_null()) {
-					continue;
-				}
-				if (!get_skeleton()) {
-					continue;
-				}
-				String bone_name = constraint_names[index];
-				Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
-				if (ik_bone.is_null()) {
-					continue;
-				}
-				if (ik_bone->get_constraint().is_null()) {
-					continue;
-				}
-				ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_value);
-				for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
-					if (segmented_skeleton.is_null()) {
-						break;
-					}
-					segmented_skeleton->segment_solver(bone_damp, get_default_damp(), get_constraint_mode());
-				}
-				update_skeleton_bones_transform();
-				return true;
-			}
 			return false;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
@@ -790,12 +766,9 @@ void ManyBoneIK3D::execute(real_t delta) {
 		if (root_ik_bone.is_null()) {
 			return;
 		}
-		Ref<IKNode3D> root_ik_parent_transform = root_ik_bone->get_parent();
-		if (root_ik_parent_transform.is_null()) {
-			return;
-		}
 		Skeleton3D *skeleton = get_skeleton();
-		root_ik_parent_transform->set_global_transform(skeleton->get_global_transform());
+		godot_skeleton_transform->set_transform(skeleton->get_transform());
+		godot_skeleton_transform_inverse = skeleton->get_transform().affine_inverse();
 	}
 	bool has_pins = false;
 	for (Ref<IKEffectorTemplate> pin : pins) {
@@ -832,7 +805,7 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	for (BoneId root_bone_index : roots) {
 		StringName parentless_bone = p_skeleton->get_bone_name(root_bone_index);
 		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, nullptr, root_bone_index, -1)));
-		segmented_skeleton->get_root()->get_ik_transform()->set_parent(root_transform);
+		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
 		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, -1);
 		Vector<Ref<IKBone3D>> new_bone_list;
 		segmented_skeleton->create_bone_list(new_bone_list, true, queue_debug_skeleton);

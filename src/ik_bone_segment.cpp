@@ -30,6 +30,7 @@
 
 #include "ik_bone_segment.h"
 #include "ik_effector_3d.h"
+#include "ik_kusudama.h"
 #include "ik_limit_cone.h"
 #include "math/ik_node_3d.h"
 #include "scene/3d/skeleton_3d.h"
@@ -144,6 +145,7 @@ void IKBoneSegment::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
 
 void IKBoneSegment::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode) {
 	ERR_FAIL_NULL(p_for_bone);
+	BoneId bone_id = p_for_bone->get_bone_id();
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
 	update_tip_headings(p_for_bone, &tip_headings);
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
@@ -204,6 +206,8 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	ERR_FAIL_NULL(r_htip);
 	ERR_FAIL_NULL(r_htarget);
 	ERR_FAIL_NULL(r_weights);
+	//TODO:remove debug code
+	BoneId bone_id = p_for_bone->get_bone_id();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	if (!p_constraint_mode) {
 		// Solved ik transform and apply it.
@@ -220,27 +224,12 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 		p_for_bone->set_global_pose(result.orthonormalized());
 	}
-
-	// If the solved transform is outside the hard constraints, move it back into range.
-	if (p_for_bone->get_constraint().is_valid() && p_for_bone->get_constraint_transform().is_valid()) {
-		if (!p_for_bone->get_constraint()->get_limit_cones().is_empty()) {
-			TypedArray<IKLimitCone> limit_cones = p_for_bone->get_constraint()->get_limit_cones();
-			if (limit_cones.size()) {
-				Ref<IKLimitCone> cone = limit_cones[0];
-				if (cone.is_valid()) {
-					Vector3 control_point = p_for_bone->get_constraint_transform()->to_global(cone->get_control_point());
-					control_point -= p_for_bone->get_constraint_transform()->get_global_transform().origin;
-				}
-			}
-		}
-
-		// Calculate orientation before twist to avoid exceding the twist bound when updating the rotation.
-		if (p_for_bone->get_constraint()->is_orientationally_constrained()) {
-			p_for_bone->get_constraint()->set_axes_to_orientation_snap(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
-		}
-		if (p_for_bone->get_constraint()->is_axially_constrained()) {
-			p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_twist_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
-		}
+	// Calculate orientation before twist to avoid exceding the twist bound when updating the rotation.
+	if (p_for_bone->is_orientationally_constrained() && p_for_bone->get_parent().is_valid()) {
+		p_for_bone->get_constraint()->set_axes_to_orientation_snap(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+	}
+	if (p_for_bone->is_axially_constrained() && p_for_bone->get_parent().is_valid()) {
+		p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_twist_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 	}
 }
 

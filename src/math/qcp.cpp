@@ -171,7 +171,6 @@ Quaternion QCP::calculate_rotation() {
 		min = q2 < min ? q2 : min;
 		min = q3 < min ? q3 : min;
 		min = q4 < min ? q4 : min;
-		;
 		q1 /= min;
 		q2 /= min;
 		q3 /= min;
@@ -197,21 +196,25 @@ Vector3 QCP::get_translation() {
 
 Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<real_t> &r_weight) {
 	Vector3 center;
-	if (!r_weight.is_empty()) {
+	bool weight_is_empty = r_weight.is_empty();
+	if (!weight_is_empty) {
+		for (int i = 0; i < r_to_center.size(); i++) {
+			w_sum += weight[i];
+		}
+	}
+	if (!weight_is_empty && w_sum > 0) {
 		for (int i = 0; i < r_to_center.size(); i++) {
 			center += r_to_center[i] * r_weight[i];
-			w_sum += r_weight[i];
 		}
-
-		center /= Vector3(w_sum, w_sum, w_sum);
+		center /= w_sum;
 	} else {
+		w_sum = 0;
 		for (int i = 0; i < r_to_center.size(); i++) {
 			center += r_to_center[i];
 			w_sum++;
 		}
-		center /= Vector3(w_sum, w_sum, w_sum);
+		center /= w_sum;
 	}
-
 	return center;
 }
 
