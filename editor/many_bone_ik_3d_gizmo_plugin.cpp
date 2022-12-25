@@ -387,7 +387,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 	real_t dist = v0.distance_to(v1);
 	float radius = dist / 5.0;
 	int32_t current_cone = 0;
-	for (int32_t cone_i = 0; cone_i < kusudama->get_limit_cones().size() * (3 * 4); cone_i = cone_i + (3 * 4)) {
+	for (int32_t cone_i = 0; cone_i < ik_kusudama->get_limit_cones().size() * (3 * 4); cone_i = cone_i + (3 * 4)) {
 		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
 		float cone_radius = kusudama_limit_cones[cone_i + 3];
 		if (Math::is_zero_approx(center.length_squared())) {
@@ -401,7 +401,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 			center_handles.push_back(handle_relative_to_universe.origin);
 		}
 		{
-			Ref<IKLimitCone> limit_cone = kusudama->get_limit_cones()[current_cone];
+			Ref<IKLimitCone> limit_cone = ik_kusudama->get_limit_cones()[current_cone];
 			Vector3 perpendicular = limit_cone->get_tangent_circle_center_next_1();
 			Vector3 maw_axis = center.cross(perpendicular);
 			Quaternion maw_rotation = Quaternion(maw_axis, cone_radius).normalized();
