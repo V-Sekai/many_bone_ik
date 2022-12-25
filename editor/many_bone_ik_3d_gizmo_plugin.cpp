@@ -309,8 +309,7 @@ int32_t ManyBoneIK3DGizmoPlugin::get_priority() const {
 }
 
 void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
-	// TEST PLAN:
-	// You will also want to make sure it's robust to translations of the skeleton node and root bone
+	// TEST PLAN: You will also want to make sure it's robust to translations of the skeleton node and root bone
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
@@ -378,10 +377,6 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 		kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
 		out_idx += 4;
 	}
-	Ref<SurfaceTool> surface_tool;
-	surface_tool.instantiate();
-	surface_tool->begin(Mesh::PRIMITIVE_LINES);
-
 	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);
