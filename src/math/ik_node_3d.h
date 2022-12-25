@@ -81,7 +81,7 @@ public:
 
 	Vector3 to_local(const Vector3 &p_global) const;
 	Vector3 to_global(const Vector3 &p_local) const;
-	void rotate_local_with_global(const Basis &p_basis, bool p_propagate = true);
+	void rotate_local_with_global(const Basis &p_basis, bool p_propagate = false);
 };
 
 #endif // IK_NODE_3D_H
