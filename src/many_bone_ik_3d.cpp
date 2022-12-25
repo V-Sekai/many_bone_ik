@@ -155,8 +155,6 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(effector_name);
 		p_list->push_back(
-				PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/enabled", PROPERTY_HINT_NONE, "", pin_usage));
-		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D", pin_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
@@ -273,9 +271,6 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		if (what == "bone_name") {
 			r_ret = effector_template->get_name();
 			return true;
-		} else if (what == "enabled") {
-			r_ret = effector_template->is_enabled();
-			return true;
 		} else if (what == "target_node") {
 			r_ret = effector_template->get_target_node();
 			return true;
@@ -390,9 +385,6 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 		if (what == "bone_name") {
 			set_pin_bone(index, p_value);
 			return true;
-		} else if (what == "enabled") {
-			set_pin_enabled(index, p_value);
-			return true;
 		} else if (what == "target_node") {
 			set_pin_target_nodepath(index, p_value);
 			String existing_bone = get_pin_bone_name(index);
@@ -475,7 +467,6 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constraint_orientation_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_orientation_transform);
 	ClassDB::bind_method(D_METHOD("get_bone_direction_transform", "index"), &ManyBoneIK3D::get_bone_direction_transform);
 	ClassDB::bind_method(D_METHOD("set_bone_direction_transform", "index", "transform"), &ManyBoneIK3D::set_bone_direction_transform);
-	ClassDB::bind_method(D_METHOD("set_pin_enabled", "index", "enabled"), &ManyBoneIK3D::set_pin_enabled);
 	ClassDB::bind_method(D_METHOD("get_pin_enabled", "index"), &ManyBoneIK3D::get_pin_enabled);
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &ManyBoneIK3D::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "index", "rotation"), &ManyBoneIK3D::set_kusudama_twist_current);
@@ -1167,14 +1158,7 @@ void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p
 bool ManyBoneIK3D::get_pin_enabled(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
-	return effector_template->is_enabled();
-}
-
-void ManyBoneIK3D::set_pin_enabled(int32_t p_effector_index, bool p_enabled) {
-	ERR_FAIL_INDEX(p_effector_index, pins.size());
-	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
-	effector_template->set_enabled(p_enabled);
-	set_dirty();
+	return !effector_template->get_target_node().is_empty();
 }
 
 void ManyBoneIK3D::register_skeleton() {
@@ -1195,7 +1179,6 @@ void ManyBoneIK3D::reset_constraints() {
 			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
 		}
 		for (int32_t bone_i : skeleton->get_parentless_bones()) {
-			set_pin_enabled(bone_i, true);
 			set_pin_passthrough_factor(bone_i, 0.0f);
 		}
 	}

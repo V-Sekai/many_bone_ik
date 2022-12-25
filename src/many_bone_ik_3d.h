@@ -97,7 +97,6 @@ public:
 	int32_t get_ui_selected_bone() const;
 	void set_constraint_mode(bool p_enabled);
 	bool get_constraint_mode() const;
-	void set_pin_enabled(int32_t p_effector_index, bool p_enabled);
 	bool get_pin_enabled(int32_t p_effector_index) const;
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	void register_skeleton();
