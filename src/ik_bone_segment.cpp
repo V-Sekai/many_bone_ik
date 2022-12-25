@@ -36,7 +36,6 @@
 #include "math/ik_node_3d.h"
 #include "scene/3d/skeleton_3d.h"
 
-
 Ref<IKBone3D> IKBoneSegment::get_root() const {
 	return root;
 }
