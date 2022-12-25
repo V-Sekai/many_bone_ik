@@ -399,8 +399,11 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 			Ref<IKLimitCone> limit_cone = ik_kusudama->get_limit_cones()[current_cone];
 			Vector3 perpendicular = limit_cone->get_tangent_circle_center_next_1();
 			Vector3 maw_axis = center.cross(perpendicular);
-			Quaternion maw_rotation = IKKusudama::quaternion_axis_angle(maw_axis, cone_radius).normalized();
-			radius_handles.push_back((handle_transform.affine_inverse() * constraint_relative_to_the_universe).xform(maw_rotation.xform(center) * radius));
+			Quaternion maw_rotation = IKKusudama::quaternion_axis_angle(maw_axis, cone_radius);
+			Transform3D handle_relative_to_mesh;
+			handle_relative_to_mesh.origin = maw_rotation.xform(center) * radius;
+			Transform3D handle_relative_to_universe = handle_transform.affine_inverse() * constraint_relative_to_the_universe * handle_relative_to_mesh;
+			radius_handles.push_back(handle_relative_to_universe.origin);
 		}
 		current_cone++;
 	}
