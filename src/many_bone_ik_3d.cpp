@@ -100,7 +100,6 @@ void ManyBoneIK3D::update_ik_bones_transform() {
 		if (bone.is_null()) {
 			continue;
 		}
-		BoneId bone_id = bone->get_bone_id();
 		bone->set_initial_pose(get_skeleton());
 		if (bone->is_pinned()) {
 			bone->get_pin()->update_target_global_transform(get_skeleton(), this);

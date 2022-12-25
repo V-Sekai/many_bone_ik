@@ -291,12 +291,12 @@ Vector3 IKLimitCone::get_on_great_tangent_triangle(Ref<IKLimitCone> next, Vector
 		Vector3 c1xt1 = control_point.cross(tangent_circle_center_next_1);
 		Vector3 t1xc2 = tangent_circle_center_next_1.cross(next->control_point);
 		if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
-			double toNextCos = input.dot(tangent_circle_center_next_1);
-			if (toNextCos > tangent_circle_radius_next_cos) {
-				Vector3 planeNormal = tangent_circle_center_next_1.cross(input);
-				planeNormal.normalize();
-				Quaternion rotateAboutBy = Quaternion(planeNormal, tangent_circle_radius_next);
-				return rotateAboutBy.xform(tangent_circle_center_next_1);
+			double to_next_cos = input.dot(tangent_circle_center_next_1);
+			if (to_next_cos > tangent_circle_radius_next_cos) {
+				Vector3 plane_normal = tangent_circle_center_next_1.cross(input);
+				plane_normal.normalize();
+				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next);
+				return rotate_about_by.xform(tangent_circle_center_next_1);
 			} else {
 				return input;
 			}
@@ -308,10 +308,10 @@ Vector3 IKLimitCone::get_on_great_tangent_triangle(Ref<IKLimitCone> next, Vector
 		Vector3 c2xt2 = next->control_point.cross(tangent_circle_center_next_2);
 		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
 			if (input.dot(tangent_circle_center_next_2) > tangent_circle_radius_next_cos) {
-				Vector3 planeNormal = tangent_circle_center_next_2.cross(input);
-				planeNormal.normalize();
-				Quaternion rotateAboutBy = Quaternion(planeNormal, tangent_circle_radius_next);
-				return rotateAboutBy.xform(tangent_circle_center_next_2);
+				Vector3 plane_normal = tangent_circle_center_next_2.cross(input);
+				plane_normal.normalize();
+				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next);
+				return rotate_about_by.xform(tangent_circle_center_next_2);
 			} else {
 				return input;
 			}
@@ -354,9 +354,9 @@ Vector3 IKLimitCone::closest_to_cone(Vector3 input, Vector<double> *in_bounds) c
 		return Vector3(NAN, NAN, NAN);
 	}
 	Vector3 axis = this->get_control_point().cross(input);
-	Quaternion rotTo = Quaternion(axis.normalized(), this->get_radius());
+	Quaternion rot_to = Quaternion(axis.normalized(), this->get_radius());
 	Vector3 axis_control_point = this->get_control_point();
-	Vector3 result = rotTo.xform(axis_control_point);
+	Vector3 result = rot_to.xform(axis_control_point);
 	in_bounds->write[0] = -1;
 	return result;
 }
