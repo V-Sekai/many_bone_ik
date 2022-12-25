@@ -740,6 +740,9 @@ void ManyBoneIK3D::execute(real_t delta) {
 	if (!is_visible_in_tree()) {
 		return;
 	}
+	if (!get_skeleton()) {
+		return;
+	}
 	if (get_pin_count() == 0) {
 		return;
 	}
