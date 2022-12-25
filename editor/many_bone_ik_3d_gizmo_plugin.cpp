@@ -183,7 +183,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);
-	float radius = dist / 5.0;
+	float radius = dist / 4.0;
 	// Code copied from the SphereMesh.
 	float height = dist / 2.5;
 	int rings = 32;
@@ -375,7 +375,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<
 	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);
-	float radius = dist / 5.0;
+	float radius = dist / 4.0;
 	int32_t current_cone = 0;
 	for (int32_t cone_i = 0; cone_i < kusudama->get_limit_cones().size() * (3 * 4); cone_i = cone_i + (3 * 4)) {
 		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
@@ -462,7 +462,7 @@ void ManyBoneIK3DGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx
 	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);
-	float radius = dist / 5.0;
+	float radius = dist / 4.0;
 	float w = radius * Math::sin(cone_radius);
 	float d = radius * Math::cos(cone_radius);
 	{
