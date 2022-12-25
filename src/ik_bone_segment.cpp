@@ -32,9 +32,10 @@
 #include "ik_effector_3d.h"
 #include "ik_kusudama.h"
 #include "ik_limit_cone.h"
-#include "math/ik_node_3d.h"
 #include "many_bone_ik_3d.h"
+#include "math/ik_node_3d.h"
 #include "scene/3d/skeleton_3d.h"
+
 
 Ref<IKBone3D> IKBoneSegment::get_root() const {
 	return root;

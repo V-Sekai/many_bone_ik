@@ -7,7 +7,6 @@
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/plugins/skeleton_3d_editor_plugin.h"
 
-
 class ManyBoneIK3DEditorPlugin;
 class ManyBoneIK3DEditor;
 class EditorInspectorPluginManyBoneIK : public EditorInspectorPlugin {

@@ -4,7 +4,7 @@ Our system attempts to infer some sane default transforms and parameters when th
 
 Add handles.
 
-Kusuduama cone radius is bugged. 
+Kusuduama cone radius is bugged.
 
 Overlapping limit cones don't visualize.
 

@@ -142,7 +142,7 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	int32_t index = p_index;
 	p_headings->write[index] = tip_xform_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
-	double scale_by = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin); //MAX(1.0, distance);
+	double scale_by = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin); // MAX(1.0, distance);
 	const Vector3 priority = get_direction_priorities();
 	if (priority.x > 0.0) {
 		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_X) * scale_by) + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;

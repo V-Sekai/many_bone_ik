@@ -24,7 +24,7 @@ name: "Dagger Export"
 
 on:
   push:
-    branches: [ main, dagger ]
+    branches: [main, dagger]
 
 env:
   REPO_NAME: ${{ github.event.repository.name }}
@@ -50,7 +50,7 @@ jobs:
         with:
           workdir: demo
           cmds: |
-             do build
+            do build
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
