@@ -155,7 +155,7 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual void set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float p_dampening, float p_cos_half_dampen);
+	virtual void set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_dampen);
 
 	real_t get_current_twist_rotation(Ref<IKBone3D> bone_attached_to);
 	void set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation);
