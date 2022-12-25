@@ -795,9 +795,9 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	segmented_skeletons.clear();
 	for (BoneId root_bone_index : roots) {
 		StringName parentless_bone = p_skeleton->get_bone_name(root_bone_index);
-		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, nullptr, root_bone_index, -1)));
+		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1)));
 		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
-		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, -1);
+		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, -1, this);
 		Vector<Ref<IKBone3D>> new_bone_list;
 		segmented_skeleton->create_bone_list(new_bone_list, true, queue_debug_skeleton);
 		bone_list.append_array(new_bone_list);
@@ -1057,6 +1057,9 @@ Transform3D ManyBoneIK3D::get_bone_direction_transform(int32_t p_index) const {
 	if (!segmented_skeletons.size()) {
 		return Transform3D();
 	}
+	if (!get_skeleton()) {
+		return Transform3D();
+	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
@@ -1079,6 +1082,9 @@ Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) 
 	if (!segmented_skeletons.size()) {
 		return Transform3D();
 	}
+	if (!get_skeleton()) {
+		return Transform3D();
+	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
@@ -1098,6 +1104,9 @@ Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) 
 void ManyBoneIK3D::set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
+	if (!get_skeleton()) {
+		return;
+	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
@@ -1120,6 +1129,9 @@ Transform3D ManyBoneIK3D::get_constraint_twist_transform(int32_t p_index) const 
 	if (!segmented_skeletons.size()) {
 		return Transform3D();
 	}
+	if (!get_skeleton()) {
+		return Transform3D();
+	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
@@ -1139,6 +1151,9 @@ Transform3D ManyBoneIK3D::get_constraint_twist_transform(int32_t p_index) const 
 void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
+	if (!get_skeleton()) {
+		return;
+	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
@@ -1201,9 +1216,11 @@ void ManyBoneIK3D::set_ui_selected_bone(int32_t p_ui_selected_bone) {
 	ui_selected_bone = p_ui_selected_bone;
 	notify_property_list_changed();
 }
+
 TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 	return filter_bones;
 }
+
 void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
 	notify_property_list_changed();

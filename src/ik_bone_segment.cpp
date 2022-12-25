@@ -33,6 +33,7 @@
 #include "ik_kusudama.h"
 #include "ik_limit_cone.h"
 #include "math/ik_node_3d.h"
+#include "many_bone_ik_3d.h"
 #include "scene/3d/skeleton_3d.h"
 
 Ref<IKBone3D> IKBoneSegment::get_root() const {
@@ -51,7 +52,7 @@ Vector<Ref<IKBoneSegment>> IKBoneSegment::get_child_segments() const {
 	return child_segments;
 }
 
-void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone) {
+void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
 		if (skeleton->get_bone_parent(temp_tip->get_bone_id()) >= p_tip_bone && p_tip_bone != -1) {
@@ -64,8 +65,8 @@ void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTem
 			for (int32_t child_i = 0; child_i < children.size(); child_i++) {
 				BoneId child_bone = children[child_i];
 				String child_name = skeleton->get_bone_name(child_bone);
-				Ref<IKBoneSegment> child_segment = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, child_name, p_pins, parent, p_root_bone, p_tip_bone)));
-				child_segment->generate_default_segments_from_root(p_pins, p_root_bone, p_tip_bone);
+				Ref<IKBoneSegment> child_segment = Ref<IKBoneSegment>(memnew(IKBoneSegment(skeleton, child_name, p_pins, p_many_bone_ik, parent, p_root_bone, p_tip_bone)));
+				child_segment->generate_default_segments_from_root(p_pins, p_root_bone, p_tip_bone, p_many_bone_ik);
 				if (child_segment->has_pinned_descendants()) {
 					enable_pinned_descendants();
 					child_segments.push_back(child_segment);
@@ -74,7 +75,7 @@ void IKBoneSegment::generate_default_segments_from_root(Vector<Ref<IKEffectorTem
 			break;
 		} else if (children.size() == 1) {
 			BoneId bone_id = children[0];
-			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip, p_pins)));
+			Ref<IKBone3D> next = Ref<IKBone3D>(memnew(IKBone3D(skeleton->get_bone_name(bone_id), skeleton, temp_tip, p_pins, p_many_bone_ik->get_default_damp(), p_many_bone_ik)));
 			root_segment->bone_map[bone_id] = next;
 			temp_tip = next;
 		} else {
@@ -206,7 +207,7 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	ERR_FAIL_NULL(r_htip);
 	ERR_FAIL_NULL(r_htarget);
 	ERR_FAIL_NULL(r_weights);
-	//TODO:remove debug code
+	// TODO:remove debug code
 	BoneId bone_id = p_for_bone->get_bone_id();
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	if (!p_constraint_mode) {
@@ -294,12 +295,12 @@ Ref<IKBoneSegment> IKBoneSegment::get_parent_segment() {
 	return parent_segment;
 }
 
-IKBoneSegment::IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, const Ref<IKBoneSegment> &p_parent,
+IKBoneSegment::IKBoneSegment(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment> &p_parent,
 		BoneId p_root, BoneId p_tip) {
 	root = p_root;
 	tip = p_tip;
 	skeleton = p_skeleton;
-	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, Math_PI)));
+	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, Math_PI, p_many_bone_ik)));
 	if (p_parent.is_valid()) {
 		root_segment = p_parent->root_segment;
 	} else {

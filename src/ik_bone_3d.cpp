@@ -190,7 +190,8 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform"), &IKBone3D::get_constraint_twist_transform);
 }
 
-IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening) {
+IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening,
+	ManyBoneIK3D *p_many_bone_ik) {
 	ERR_FAIL_NULL(p_skeleton);
 
 	default_dampening = p_default_dampening;
@@ -204,10 +205,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 		if (elem.is_null()) {
 			continue;
 		}
-		if (elem->get_name() == p_bone) {
-			if (!elem->is_enabled()) {
-				break;
-			}
+		if (elem->get_name() == p_bone && !elem->get_target_node().is_empty() && p_many_bone_ik && p_many_bone_ik->get_node_or_null(elem->get_target_node())) {
 			create_pin();
 			Ref<IKEffector3D> effector = get_pin();
 			effector->set_target_node(p_skeleton, elem->get_target_node());
