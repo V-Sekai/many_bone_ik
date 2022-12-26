@@ -32,6 +32,7 @@
 #include "ik_bone_3d.h"
 #include "many_bone_ik_3d.h"
 #include "math/ik_node_3d.h"
+#include "scene/3d/node_3d.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_data.h"
@@ -78,7 +79,8 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBo
 	if (!current_target_node || !current_target_node->is_visible_in_tree()) {
 		return;
 	}
-	target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * current_target_node->get_global_transform();
+	Node3D *root = cast_to<Node3D>(current_target_node->get_owner());
+	target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * current_target_node->get_relative_transform(root);
 }
 
 Transform3D IKEffector3D::get_target_global_transform() const {
