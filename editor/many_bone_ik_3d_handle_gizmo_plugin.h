@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  many_bone_ik_skeleton_3d_gizmo_plugin.h                                     */
+/*  many_bone_ik_skeleton_3d_handle_gizmo_plugin.h                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MANY_BONE_IKSKELETON_3D_GIZMO_PLUGIN_H
-#define MANY_BONE_IKSKELETON_3D_GIZMO_PLUGIN_H
+#ifndef MANY_BONE_IKSKELETON_3D_HANDLE_GIZMO_PLUGIN_H
+#define MANY_BONE_IKSKELETON_3D_HANDLE_GIZMO_PLUGIN_H
 
 #include "../src/ik_bone_3d.h"
 #include "core/templates/hash_map.h"
@@ -55,8 +55,8 @@ class PhysicalBone3D;
 class ManyBoneIKEditorPlugin;
 class Button;
 
-class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
-	GDCLASS(ManyBoneIK3DGizmoPlugin, EditorNode3DGizmoPlugin);
+class ManyBoneIK3DHandleGizmoPlugin : public EditorNode3DGizmoPlugin {
+	GDCLASS(ManyBoneIK3DHandleGizmoPlugin, EditorNode3DGizmoPlugin);
 	Ref<Shader> kusudama_shader;
 
 protected:
@@ -68,16 +68,17 @@ public:
 	bool has_gizmo(Node3D *p_spatial) override;
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
-	ManyBoneIK3DGizmoPlugin();
+	ManyBoneIK3DHandleGizmoPlugin();
 	int32_t get_priority() const override;
-	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
+	void create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
+	void create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
 };
 
-class EditorPluginManyBoneIK : public EditorPlugin {
-	GDCLASS(EditorPluginManyBoneIK, EditorPlugin);
+class EditorPluginManyBoneIKHandle : public EditorPlugin {
+	GDCLASS(EditorPluginManyBoneIKHandle, EditorPlugin);
 
 public:
-	EditorPluginManyBoneIK();
+	EditorPluginManyBoneIKHandle();
 };
 
-#endif // MANY_BONE_IKSKELETON_3D_GIZMO_PLUGIN_H
+#endif // MANY_BONE_IKSKELETON_3D_HANDLE_GIZMO_PLUGIN_H
