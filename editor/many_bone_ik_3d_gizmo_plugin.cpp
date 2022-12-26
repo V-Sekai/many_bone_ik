@@ -198,7 +198,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	float height = dist / 2.5;
 	int rings = 8;
 
-	int i, j, prevrow, thisrow, point;
+	int i = 0, j = 0, prevrow = 0, thisrow = 0, point = 0;
 	float x, y, z;
 
 	float scale = height * 0.5;
