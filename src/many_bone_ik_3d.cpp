@@ -822,10 +822,6 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 			if (ik_bone_3d->get_bone_id() != bone_id) {
 				continue;
 			}
-			// Ref<IKNode3D> bone_direction_transform;
-			// bone_direction_transform.instantiate();
-			// bone_direction_transform->set_parent(ik_bone_3d->get_ik_transform());
-			// bone_direction_transform->set_transform(Transform3D(Basis(), ik_bone_3d->get_bone_direction_transform()->get_transform().origin));
 			Ref<IKKusudama> constraint = Ref<IKKusudama>(memnew(IKKusudama()));
 			constraint->enable_orientational_limits();
 

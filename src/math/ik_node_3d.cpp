@@ -32,6 +32,10 @@
 
 void IKNode3D::_propagate_transform_changed() {
 	for (Ref<IKNode3D> transform : children) {
+		if (transform.is_null()) {
+			children.erase(transform);
+			continue;
+		}
 		transform->_propagate_transform_changed();
 	}
 
@@ -116,7 +120,9 @@ bool IKNode3D::is_scale_disabled() const {
 
 void IKNode3D::set_parent(Ref<IKNode3D> p_parent) {
 	parent = p_parent;
-	parent->children.push_back(this);
+	if (p_parent.is_valid()) {
+		parent->children.push_back(this);
+	}
 	_propagate_transform_changed();
 }
 
