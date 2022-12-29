@@ -75,14 +75,9 @@ Vector3 IKEffector3D::get_direction_priorities() const {
 void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK3D *p_many_bone_ik) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
-	Node3D *current_target_node = cast_to<Node3D>(p_many_bone_ik->get_node_or_null(target_node_path));
-	if (!current_target_node) {
-		return;
-	}
-	if (!current_target_node->is_visible_in_tree()) {
-		return;
-	}
-	if (!current_target_node->is_visible()) {
+	Node3D *current_target_node = _get_target_node(p_many_bone_ik);
+	if (current_target_node) {
+		target_relative_to_skeleton_origin.origin = Vector3(INFINITY, INFINITY, INFINITY);
 		return;
 	}
 	Node3D *root = cast_to<Node3D>(current_target_node->get_owner());
@@ -100,6 +95,9 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	ERR_FAIL_COND_V(p_index == -1, -1);
 	ERR_FAIL_NULL_V(p_headings, -1);
 	ERR_FAIL_NULL_V(p_for_bone, -1);
+	if (!target_relative_to_skeleton_origin.is_finite()) {
+		return p_index + 1;
+	}
 	int32_t index = p_index;
 	const Transform3D target = target_relative_to_skeleton_origin;
 	Vector3 bone_origin_relative_to_skeleton_origin = p_for_bone->get_bone_direction_global_pose().origin;
@@ -208,4 +206,18 @@ void IKEffector3D::set_passthrough_factor(float p_passthrough_factor) {
 
 float IKEffector3D::get_passthrough_factor() const {
 	return passthrough_factor;
+}
+
+Node3D *IKEffector3D::_get_target_node(ManyBoneIK3D *p_many_bone_ik) const {
+	Node3D *current_target_node = cast_to<Node3D>(p_many_bone_ik->get_node_or_null(target_node_path));
+	if (!current_target_node) {
+		return nullptr;
+	}
+	if (!current_target_node->is_visible_in_tree()) {
+		return nullptr;
+	}
+	if (!current_target_node->is_visible()) {
+		return nullptr;
+	}
+	return current_target_node;
 }

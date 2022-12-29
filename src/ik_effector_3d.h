@@ -76,6 +76,7 @@ public:
 	void set_passthrough_factor(float p_passthrough_factor);
 	void set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path);
 	NodePath get_target_node() const;
+	Node3D *_get_target_node(ManyBoneIK3D *p_many_bone_ik) const;
 	Transform3D get_target_global_transform() const;
 	void set_target_node_rotation(bool p_use);
 	bool get_target_node_rotation() const;
