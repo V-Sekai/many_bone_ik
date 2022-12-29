@@ -53,8 +53,8 @@ IKKusudama::IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<I
 }
 
 void IKKusudama::set_axial_limits(real_t min_angle, real_t in_range) {
-	min_axial_angle = min_angle;//fmod(min_angle, Math_TAU);
-	range_angle = in_range; //fmod(in_range, Math_TAU);
+	min_axial_angle = min_angle; // fmod(min_angle, Math_TAU);
+	range_angle = in_range; // fmod(in_range, Math_TAU);
 	Vector3 y_axis = Vector3(0.0f, 1.0f, 0.0f);
 	Vector3 z_axis = Vector3(0.0f, 0.0f, 1.0f);
 	twist_min_vec = IKKusudama::quaternion_axis_angle(y_axis, min_axial_angle).xform(z_axis);
