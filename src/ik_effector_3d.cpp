@@ -76,7 +76,7 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBo
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
 	Node3D *current_target_node = cast_to<Node3D>(p_many_bone_ik->get_node_or_null(target_node_path));
-	if (!current_target_node || !current_target_node->is_visible_in_tree()) {
+	if (!current_target_node || !current_target_node->is_visible_in_tree() || !current_target_node->is_visible()) {
 		return;
 	}
 	Node3D *root = cast_to<Node3D>(current_target_node->get_owner());
