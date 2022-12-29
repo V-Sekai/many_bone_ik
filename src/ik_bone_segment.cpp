@@ -171,19 +171,18 @@ Quaternion IKBoneSegment::clamp_to_angle(Quaternion p_quat, real_t p_angle) {
 }
 
 Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) {
-	double newCoeff = 1.0 - (p_cos_half_angle * Math::abs(p_cos_half_angle));
-	Quaternion rot = p_quat;
-	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
+	real_t newCoeff = 1.0 - (p_cos_half_angle * Math::abs(p_cos_half_angle));
+	real_t currentCoeff = p_quat.x * p_quat.x + p_quat.y * p_quat.y + p_quat.z * p_quat.z;
 	if (newCoeff >= currentCoeff) {
-		return rot;
+		return p_quat;
 	} else {
-		rot.w = rot.w < 0.0f ? -p_cos_half_angle : p_cos_half_angle;
-		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
-		rot.x *= compositeCoeff;
-		rot.y *= compositeCoeff;
-		rot.z *= compositeCoeff;
+		p_quat.w = p_quat.w < 0 ? -p_cos_half_angle : p_cos_half_angle;
+		real_t compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
+		p_quat.x *= compositeCoeff;
+		p_quat.y *= compositeCoeff;
+		p_quat.z *= compositeCoeff;
 	}
-	return rot;
+	return p_quat;
 }
 
 float IKBoneSegment::get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights) {
