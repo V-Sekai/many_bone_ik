@@ -324,7 +324,11 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		axial_from_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
 	}
 	float start_angle = kusudama->get_min_axial_angle();
-	float end_angle = start_angle + kusudama->get_range_angle();
+	bool negative_range = kusudama->get_range_angle() < real_t(0.0);
+	if (negative_range) {
+		start_angle = start_angle + kusudama->get_range_angle();
+	}
+	float end_angle = start_angle + Math::abs(kusudama->get_range_angle());
 	float gaps = Math::deg_to_rad(15.0f);
 	for (float theta = start_angle; theta < end_angle; theta += gaps) {
 		const float ra = theta;
