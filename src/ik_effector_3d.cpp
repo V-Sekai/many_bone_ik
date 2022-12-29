@@ -76,12 +76,13 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBo
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
 	Node3D *current_target_node = _get_target_node(p_many_bone_ik);
-	if (current_target_node) {
+	if (!current_target_node) {
 		target_relative_to_skeleton_origin.origin = Vector3(INFINITY, INFINITY, INFINITY);
 		return;
 	}
 	Node3D *root = cast_to<Node3D>(current_target_node->get_owner());
 	if (!root) {
+		target_relative_to_skeleton_origin.origin = Vector3(INFINITY, INFINITY, INFINITY);
 		return;
 	}
 	target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * current_target_node->get_relative_transform(root);
