@@ -115,8 +115,6 @@ public:
 
 	IKKusudama() {}
 
-	IKKusudama(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, real_t cos_half_angle_dampen);
-
 	virtual void _update_constraint();
 
 	virtual void update_tangent_radii();
@@ -133,7 +131,7 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampen, real_t p_cos_half_angle_dampen);
+	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> p_ik_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_dampen, real_t p_cos_half_angle_dampen);
 
 	real_t signed_angle_difference(real_t min_angle, real_t p_super);
 	/**
@@ -155,10 +153,10 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual void set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_dampen);
+	virtual void set_snap_to_twist_limit(Ref<IKNode3D> p_ik_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_dampening, real_t p_cos_half_dampen);
 
-	real_t get_current_twist_rotation(Ref<IKBone3D> bone_attached_to);
-	void set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation);
+	real_t get_current_twist_rotation(Ref<IKBone3D> p_bone_attached_to);
+	void set_current_twist_rotation(Ref<IKBone3D> p_bone_attached_to, real_t p_rotation);
 
 	/**
 	 * Given a point (in local coordinates), checks to see if a ray can be extended from the Kusudama's
