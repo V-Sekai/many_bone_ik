@@ -328,7 +328,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 					r_ret = 0;
 					continue;
 				}
-				r_ret = ik_bone->get_constraint()->get_current_twist_rotation(ik_bone);
+				r_ret = ik_bone->get_constraint()->get_current_twist_rotation(ik_bone->get_godot_skeleton_aligned_transform(), ik_bone->get_bone_direction_transform(), ik_bone->get_constraint_twist_transform());
 				return true;
 			}
 			r_ret = 0;
@@ -756,7 +756,7 @@ void ManyBoneIK3D::execute(real_t delta) {
 		update_gizmos();
 	}
 	if (bone_list.size()) {
-		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
+		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_godot_skeleton_aligned_transform();
 		if (root_ik_bone.is_null()) {
 			return;
 		}
@@ -799,7 +799,7 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	for (BoneId root_bone_index : roots) {
 		StringName parentless_bone = p_skeleton->get_bone_name(root_bone_index);
 		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1)));
-		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
+		segmented_skeleton->get_root()->get_godot_skeleton_aligned_transform()->set_parent(ik_origin);
 		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, -1, this);
 		Vector<Ref<IKBone3D>> new_bone_list;
 		segmented_skeleton->create_bone_list(new_bone_list, true, queue_debug_skeleton);
@@ -979,7 +979,7 @@ real_t ManyBoneIK3D::get_kusudama_twist_current(int32_t p_index) {
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		return ik_bone->get_constraint()->get_current_twist_rotation(ik_bone);
+		return ik_bone->get_constraint()->get_current_twist_rotation(ik_bone->get_godot_skeleton_aligned_transform(), ik_bone->get_bone_direction_transform(), ik_bone->get_constraint_twist_transform());
 	}
 	return 0;
 }
@@ -998,7 +998,7 @@ void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_rotation);
+		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone->get_godot_skeleton_aligned_transform(), ik_bone->get_bone_direction_transform(), ik_bone->get_constraint_twist_transform(), p_rotation);
 		ik_bone->set_skeleton_bone_pose(get_skeleton());
 		notify_property_list_changed();
 	}

@@ -63,7 +63,7 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 		child_centroid /= bone_children.size();
 	} else {
 		for (Ref<IKBone3D> ik_bone : children) {
-			child_centroid += ik_bone->get_ik_transform()->get_global_transform().origin;
+			child_centroid += ik_bone->get_godot_skeleton_aligned_transform()->get_global_transform().origin;
 		}
 		child_centroid /= children.size();
 	}
@@ -86,7 +86,7 @@ void IKBone3D::update_default_constraint_transform() {
 	// TODO: If the user hasn't specified constraint transform, create it with a good guess.
 	Ref<IKBone3D> parent_bone = get_parent();
 	if (parent_bone.is_valid()) {
-		Transform3D parent_bone_aligned_transform = parent_bone->get_ik_transform()->get_global_transform();
+		Transform3D parent_bone_aligned_transform = parent_bone->get_godot_skeleton_aligned_transform()->get_global_transform();
 		parent_bone_aligned_transform.origin = get_bone_direction_transform()->get_global_transform().origin;
 		constraint_transform->set_global_transform(parent_bone_aligned_transform);
 	}
@@ -236,7 +236,11 @@ void IKBone3D::add_constraint(Ref<IKKusudama> p_constraint) {
 	constraint = p_constraint;
 }
 
-Ref<IKNode3D> IKBone3D::get_ik_transform() {
+Ref<IKNode3D> IKBone3D::get_bone_direction_transform() {
+	return bone_direction_transform;
+}
+
+Ref<IKNode3D> IKBone3D::get_godot_skeleton_aligned_transform() {
 	return godot_skeleton_aligned_transform;
 }
 
@@ -246,18 +250,6 @@ Ref<IKNode3D> IKBone3D::get_constraint_transform() {
 
 Ref<IKNode3D> IKBone3D::get_constraint_twist_transform() {
 	return constraint_twist_transform;
-}
-
-void IKBone3D::set_constraint_transform(Ref<IKNode3D> p_transform) {
-	constraint_transform = p_transform;
-}
-
-void IKBone3D::set_bone_direction_transform(Ref<IKNode3D> p_bone_direction) {
-	bone_direction_transform = p_bone_direction;
-}
-
-Ref<IKNode3D> IKBone3D::get_bone_direction_transform() {
-	return bone_direction_transform;
 }
 
 bool IKBone3D::is_orientationally_constrained() {

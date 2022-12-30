@@ -103,15 +103,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	static Quaternion quaternion_axis_angle(const Vector3 &p_axis, real_t p_angle) {
-		real_t norm = p_axis.length_squared();
-		if (norm == 0) {
-			return Quaternion();
-		}
-		real_t half_angle = -0.5 * p_angle;
-		real_t coeff = -sin(half_angle) / sqrt(norm);
-		return Quaternion(coeff * p_axis.x, coeff * p_axis.y, coeff * p_axis.z, cos(half_angle));
-	}
+	static Quaternion quaternion_axis_angle(const Vector3 &p_axis, real_t p_angle);
 
 	virtual ~IKKusudama() {
 	}
@@ -134,9 +126,8 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> p_ik_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_dampen, real_t p_cos_half_angle_dampen);
+	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_dampen, real_t p_cos_half_angle_dampen);
 
-	real_t signed_angle_difference(real_t min_angle, real_t p_super);
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
 	 * The "Swing" component is the final direction of the bone. The "Twist" component represents how much
@@ -156,10 +147,10 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual void set_snap_to_twist_limit(Ref<IKNode3D> p_ik_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_dampening, real_t p_cos_half_dampen);
+	virtual void set_snap_to_twist_limit(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_dampening, real_t p_cos_half_dampen);
 
-	real_t get_current_twist_rotation(Ref<IKBone3D> p_bone_attached_to);
-	void set_current_twist_rotation(Ref<IKBone3D> p_bone_attached_to, real_t p_rotation);
+	real_t get_current_twist_rotation(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform);
+	void set_current_twist_rotation(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_rotation);
 
 	/**
 	 * Given a point (in local coordinates), checks to see if a ray can be extended from the Kusudama's
@@ -224,7 +215,6 @@ public:
 	virtual void update_rotational_freedom();
 	virtual TypedArray<IKLimitCone> get_limit_cones() const;
 	virtual void set_limit_cones(TypedArray<IKLimitCone> p_cones);
-	static real_t _to_tau(real_t angle);
 };
 
 #endif // IK_KUSUDAMA_H
