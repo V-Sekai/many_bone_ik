@@ -71,9 +71,9 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> p_ik_transform, Ref<IKNod
 	get_swing_twist(align_rot, p_bone_direction->get_global_transform().basis.get_column(Vector3::AXIS_Y), swing_rotation, twist_rotation);
 	twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
 	Transform3D ik_transform = p_ik_transform->get_transform();
-	Quaternion parent_global_inverse = p_ik_transform->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
-	Quaternion recomposition = twist_rotation * swing_rotation;
-	Basis rotation_basis = Basis(parent_global_inverse * (global_twist_center * recomposition));
+	Quaternion parent_global_inverse = p_ik_transform->get_parent()->get_global_transform().basis.inverse().get_rotation_quaternion();
+	Quaternion recomposition = swing_rotation * twist_rotation;
+	Basis rotation_basis = parent_global_inverse * global_twist_center * recomposition;
 	p_ik_transform->set_transform(Transform3D(rotation_basis, ik_transform.origin));
 }
 
