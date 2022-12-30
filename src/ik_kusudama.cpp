@@ -305,26 +305,14 @@ void IKKusudama::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
-	Vector3 r = Vector3(p_rotation.x, p_rotation.y, p_rotation.z);
-	// https://allenchou.net/2018/05/game-math-swing-twist-interpolation-sterp/
-	// In a singularity, rotate by 180 degrees.
-	if (Math::is_zero_approx(r.length_squared())) {
-		Vector3 rotated_twist_axis = p_rotation.xform(p_axis);
-		Vector3 swing_axis = p_axis.cross(rotated_twist_axis);
-		if (!Math::is_zero_approx(swing_axis.length_squared())) {
-			float swing_angle = p_axis.angle_to(rotated_twist_axis);
-			r_swing = quaternion_axis_angle(swing_axis, swing_angle);
-		} else {
-			// In a singularity, the rotation axis is parallel to twist axis.
-			r_swing = Quaternion();
-		}
-		// Always twist 180 degrees on the singularity.
-		r_twist = quaternion_axis_angle(p_axis, 180.0f);
-		return;
-	}
-	Vector3 p = r.project(p_axis);
-	r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w).normalized();
-	r_swing = p_rotation * r_twist.inverse();
+    r_twist = p_rotation;
+    real_t d = p_axis.dot(Vector3(r_twist.x, r_twist.y, r_twist.z));
+    r_twist = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, r_twist.w).normalized();
+    if (d < 0.0)  {
+        r_twist *= -1.0;
+    }
+    r_swing = r_twist.inverse();
+    r_swing = r_swing * p_rotation;
 }
 
 real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> p_bone_attached_to) {
