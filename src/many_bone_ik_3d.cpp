@@ -1001,7 +1001,6 @@ void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation
 		}
 		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone->get_godot_skeleton_aligned_transform(), ik_bone->get_bone_direction_transform(), ik_bone->get_constraint_twist_transform(), p_rotation);
 		ik_bone->set_skeleton_bone_pose(get_skeleton());
-		notify_property_list_changed();
 	}
 }
 
