@@ -997,6 +997,7 @@ void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
+		real_t rotation = ik_bone->get_constraint()->get_current_twist_rotation(ik_bone);
 		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_rotation);
 		ik_bone->set_skeleton_bone_pose(get_skeleton());
 	}
