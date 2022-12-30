@@ -335,7 +335,6 @@ real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> p_bone_attached_to) 
 	if (range_angle == 0.0) {
 		return 0;
 	}
-	Vector3 y_axis = Vector3(0.0f, 1.0f, 0.0f);
 	Vector3 z_axis = Vector3(0.0f, 0.0f, 1.0f);
 	Vector3 twist_vec = twist_rotation.xform(z_axis);
 	real_t min_angle = twist_vec.angle_to(twist_min_vec);
