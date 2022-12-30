@@ -133,6 +133,7 @@ Ref<IKEffector3D> IKBone3D::get_pin() const {
 
 void IKBone3D::set_pose(const Transform3D &p_transform) {
 	godot_skeleton_aligned_transform->set_transform(p_transform);
+	godot_skeleton_aligned_transform->_propagate_transform_changed();
 }
 
 Transform3D IKBone3D::get_pose() const {

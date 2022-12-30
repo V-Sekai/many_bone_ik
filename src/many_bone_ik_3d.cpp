@@ -762,6 +762,7 @@ void ManyBoneIK3D::execute(real_t delta) {
 		}
 		Skeleton3D *skeleton = get_skeleton();
 		godot_skeleton_transform->set_transform(skeleton->get_transform());
+		godot_skeleton_transform->_propagate_transform_changed();
 		godot_skeleton_transform_inverse = skeleton->get_transform().affine_inverse();
 	}
 	bool has_pins = false;
@@ -1047,6 +1048,7 @@ void ManyBoneIK3D::set_bone_direction_transform(int32_t p_index, Transform3D p_t
 			continue;
 		}
 		ik_bone->get_bone_direction_transform()->set_transform(p_transform);
+		ik_bone->get_bone_direction_transform()->_propagate_transform_changed();
 		break;
 	}
 }
@@ -1119,6 +1121,7 @@ void ManyBoneIK3D::set_constraint_orientation_transform(int32_t p_index, Transfo
 			continue;
 		}
 		ik_bone->get_constraint_transform()->set_transform(p_transform);
+		ik_bone->get_constraint_transform()->_propagate_transform_changed();
 		break;
 	}
 }
@@ -1166,6 +1169,7 @@ void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p
 			continue;
 		}
 		ik_bone->get_constraint_twist_transform()->set_transform(p_transform);
+		ik_bone->get_constraint_twist_transform()->_propagate_transform_changed();
 		break;
 	}
 }

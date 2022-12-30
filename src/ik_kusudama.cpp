@@ -79,6 +79,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> p_godot_skeleton_aligned_
 	Basis rotation_basis = parent_global_inverse * (global_twist_center.inverse() * recomposition);
 	Transform3D ik_transform = p_godot_skeleton_aligned_transform->get_transform();
 	p_godot_skeleton_aligned_transform->set_transform(Transform3D(rotation_basis, ik_transform.origin));
+	p_godot_skeleton_aligned_transform->_propagate_transform_changed();
 }
 
 real_t IKKusudama::get_current_twist_rotation(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform) {
@@ -110,6 +111,7 @@ void IKKusudama::set_current_twist_rotation(Ref<IKNode3D> p_godot_skeleton_align
 	Basis rotation_basis = parent_global_inverse * (recomposition);
 	Transform3D ik_transform = p_godot_skeleton_aligned_transform->get_transform();
 	p_godot_skeleton_aligned_transform->set_transform(Transform3D(rotation_basis, ik_transform.origin));
+	p_godot_skeleton_aligned_transform->_propagate_transform_changed();
 }
 
 void IKKusudama::add_limit_cone(Vector3 new_cone_local_point, double radius) {
