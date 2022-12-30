@@ -83,7 +83,6 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 }
 
 void IKBone3D::update_default_constraint_transform() {
-	// If the user hasn't specified a constraint transform, create it with a good guess.
 	Ref<IKBone3D> parent_bone = get_parent();
 	if (parent_bone.is_valid()) {
 		Transform3D parent_bone_aligned_transform = parent_bone->get_godot_skeleton_aligned_transform()->get_global_transform();
@@ -196,7 +195,6 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_constraint_transform"), &IKBone3D::get_constraint_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform"), &IKBone3D::get_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("get_bone_direction_transform"), &IKBone3D::get_constraint_twist_transform);
-	ClassDB::bind_method(D_METHOD("get_constraint_transform"), &IKBone3D::get_constraint_transform);
 }
 
 IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening,
