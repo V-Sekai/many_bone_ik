@@ -419,6 +419,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			_set_constraint_name(index, p_value);
 			return true;
 		} else if (what == "twist_current") {
+			set_kusudama_twist_current(index, p_value);
 			return false;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
@@ -997,7 +998,6 @@ void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		real_t rotation = ik_bone->get_constraint()->get_current_twist_rotation(ik_bone);
 		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_rotation);
 		ik_bone->set_skeleton_bone_pose(get_skeleton());
 	}
