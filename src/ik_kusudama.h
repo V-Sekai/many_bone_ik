@@ -64,7 +64,6 @@ class IKKusudama : public Resource {
 	Quaternion twist_center_rot;
 	real_t twist_half_range_half_cos = 0;
 	Vector3 twist_tan;
-	bool flipped_bounds = false;
 
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
