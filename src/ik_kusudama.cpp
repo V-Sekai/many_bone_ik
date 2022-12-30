@@ -72,7 +72,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	Quaternion global_twist_center = twist_axes->get_global_transform().basis.get_rotation_quaternion() * twist_center_rot;
 	Quaternion align_rot = global_twist_center.inverse() * to_set->get_global_transform().basis.get_rotation_quaternion();
 	Quaternion twist_rotation, swing_rotation; // Hold to_set's decomposed swing and twist away from global_twist_centers's global basis.
-	IKKusudama::get_swing_twist(align_rot, Vector3(0.0, 1.0, 0.0), swing_rotation, twist_rotation);
+	get_swing_twist(align_rot, Vector3(0.0, 1.0, 0.0), swing_rotation, twist_rotation);
 	twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
 	Transform3D to_set_transform = to_set->get_transform();
 	Quaternion parent_global_inverse = to_set->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
