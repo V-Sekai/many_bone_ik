@@ -310,7 +310,7 @@ Vector3 IKLimitCone::get_on_great_tangent_triangle(Ref<IKLimitCone> next, Vector
 			if (input.dot(tangent_circle_center_next_2) > tangent_circle_radius_next_cos) {
 				Vector3 plane_normal = tangent_circle_center_next_2.cross(input);
 				plane_normal.normalize();
-				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next).normalized();
+				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next);
 				return rotate_about_by.xform(tangent_circle_center_next_2);
 			} else {
 				return input;

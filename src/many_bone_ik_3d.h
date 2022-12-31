@@ -65,8 +65,7 @@ private:
 	Ref<IKNode3D> godot_skeleton_transform = Ref<IKNode3D>(memnew(IKNode3D));
 	Transform3D godot_skeleton_transform_inverse;
 	Ref<IKNode3D> ik_origin = Ref<IKNode3D>(memnew(IKNode3D));
-	bool is_dirty = false;
-	bool constraints_initialized = false;
+	bool is_dirty = true;
 	NodePath skeleton_node_path = NodePath("..");
 	int32_t ui_selected_bone = -1;
 	void update_ik_bones_transform();
@@ -89,13 +88,9 @@ protected:
 	void _notification(int p_what);
 
 public:
-	bool is_constraints_initialized() {
-		return constraints_initialized;
+	Transform3D get_godot_skeleton_transform_inverse() {
+		return godot_skeleton_transform_inverse;
 	}
-	void set_constraints_initialized(bool p_enabled) {
-		constraints_initialized = p_enabled;
-	}
-	Transform3D get_godot_skeleton_transform_inverse();
 	void set_filter_bones(TypedArray<StringName> p_filter_bones);
 	TypedArray<StringName> get_filter_bones();
 	void set_ui_selected_bone(int32_t p_ui_selected_bone);

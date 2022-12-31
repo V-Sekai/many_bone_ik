@@ -146,7 +146,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	ScrollContainer *s_con = memnew(ScrollContainer);
 	s_con->set_h_size_flags(SIZE_EXPAND_FILL);
-	s_con->set_custom_minimum_size(Size2(1, 350) * EDSCALE);
+	s_con->set_custom_minimum_size(Size2(1, 700) * EDSCALE);
 	bones_section->get_vbox()->add_child(s_con);
 
 	joint_tree = memnew(Tree);
