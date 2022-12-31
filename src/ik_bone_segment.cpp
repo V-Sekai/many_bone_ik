@@ -171,9 +171,15 @@ Quaternion IKBoneSegment::clamp_to_angle(Quaternion p_quat, real_t p_angle) {
 }
 
 Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) {
+	if (!p_quat.is_equal_approx(Quaternion())) {
+		p_quat = p_quat.inverse();
+	}
 	real_t newCoeff = 1.0 - (p_cos_half_angle * Math::abs(p_cos_half_angle));
 	real_t currentCoeff = p_quat.x * p_quat.x + p_quat.y * p_quat.y + p_quat.z * p_quat.z;
 	if (newCoeff >= currentCoeff) {
+		if (!p_quat.is_equal_approx(Quaternion())) {
+			p_quat = p_quat.inverse();
+		}
 		return p_quat;
 	} else {
 		p_quat.w = p_quat.w < 0 ? -p_cos_half_angle : p_cos_half_angle;
@@ -181,6 +187,9 @@ Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_c
 		p_quat.x *= compositeCoeff;
 		p_quat.y *= compositeCoeff;
 		p_quat.z *= compositeCoeff;
+	}
+	if (!p_quat.is_equal_approx(Quaternion())) {
+		p_quat = p_quat.inverse();
 	}
 	return p_quat;
 }
