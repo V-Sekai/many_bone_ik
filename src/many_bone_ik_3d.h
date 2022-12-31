@@ -88,7 +88,9 @@ protected:
 	void _notification(int p_what);
 
 public:
-	Transform3D get_godot_skeleton_transform_inverse();
+	Transform3D get_godot_skeleton_transform_inverse() {
+		return godot_skeleton_transform_inverse;
+	}
 	void set_filter_bones(TypedArray<StringName> p_filter_bones);
 	TypedArray<StringName> get_filter_bones();
 	void set_ui_selected_bone(int32_t p_ui_selected_bone);
@@ -137,12 +139,7 @@ public:
 	Transform3D get_constraint_orientation_transform(int32_t p_index) const;
 	void set_bone_direction_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_bone_direction_transform(int32_t p_index) const;
-	void set_constraint_orientation_transform_reset(int32_t p_index, Transform3D p_transform);
-	Transform3D get_constraint_twist_transform_reset(int32_t p_index) const;
-	void set_constraint_twist_transform_reset(int32_t p_index, Transform3D p_transform);
-	Transform3D get_constraint_orientation_transform_reset(int32_t p_index) const;
-	void set_bone_direction_transform_reset(int32_t p_index, Transform3D p_transform);
-	Transform3D get_bone_direction_transform_reset(int32_t p_index) const;
+
 	Vector2 get_kusudama_twist(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
