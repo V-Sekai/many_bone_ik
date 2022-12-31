@@ -86,10 +86,11 @@ protected:
 	virtual void skeleton_changed(Skeleton3D *skeleton);
 	virtual void execute(real_t delta);
 	void _notification(int p_what);
-	virtual bool _property_get_revert(const StringName &p_name, Variant &r_property) const;
 
 public:
-	Transform3D get_godot_skeleton_transform_inverse();
+	Transform3D get_godot_skeleton_transform_inverse() {
+		return godot_skeleton_transform_inverse;
+	}
 	void set_filter_bones(TypedArray<StringName> p_filter_bones);
 	TypedArray<StringName> get_filter_bones();
 	void set_ui_selected_bone(int32_t p_ui_selected_bone);

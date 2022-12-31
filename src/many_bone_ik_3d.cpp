@@ -162,35 +162,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
 	}
-	{
-		p_list->push_back(
-				PropertyInfo(Variant::INT, "bone_count",
-						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
-						"Bone,bone/"));
-		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
-			PropertyInfo bone_name;
-			bone_name.type = Variant::STRING_NAME;
-			const uint32_t damp_usage = get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
-			bone_name.usage = damp_usage | PROPERTY_USAGE_READ_ONLY;
-			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
-			if (get_skeleton()) {
-				String names;
-				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-					String name = get_skeleton()->get_bone_name(bone_i);
-					name += ",";
-					names += name;
-				}
-				bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
-				bone_name.hint_string = names;
-			} else {
-				bone_name.hint = PROPERTY_HINT_NONE;
-				bone_name.hint_string = "";
-			}
-			p_list->push_back(bone_name);
-			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
-		}
-	}
+
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		const String name = get_constraint_name(constraint_i);
@@ -246,6 +218,35 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_orientation", PROPERTY_HINT_NONE, "", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/bone_direction", PROPERTY_HINT_NONE, "", constraint_usage));
+	}
+	{
+		p_list->push_back(
+				PropertyInfo(Variant::INT, "bone_count",
+						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+						"Bone,bone/"));
+		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
+			PropertyInfo bone_name;
+			bone_name.type = Variant::STRING_NAME;
+			const uint32_t damp_usage = get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
+			bone_name.usage = damp_usage | PROPERTY_USAGE_READ_ONLY;
+			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
+			if (get_skeleton()) {
+				String names;
+				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+					String name = get_skeleton()->get_bone_name(bone_i);
+					name += ",";
+					names += name;
+				}
+				bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
+				bone_name.hint_string = names;
+			} else {
+				bone_name.hint = PROPERTY_HINT_NONE;
+				bone_name.hint_string = "";
+			}
+			p_list->push_back(bone_name);
+			p_list->push_back(
+					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
+		}
 	}
 }
 
@@ -508,6 +509,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("set_filter_bones", "bones"), &ManyBoneIK3D::set_filter_bones);
 	ClassDB::bind_method(D_METHOD("get_filter_bones"), &ManyBoneIK3D::get_filter_bones);
+
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
@@ -850,6 +852,9 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 			break;
 		}
 	}
+	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+		ik_bone_3d->update_default_constraint_transform();
+	}
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
 	}
@@ -927,10 +932,10 @@ void ManyBoneIK3D::_notification(int p_what) {
 			set_notify_transform(true);
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
+			if (is_dirty) {
+				skeleton_changed(get_skeleton());
+			}
 			if (is_visible_in_tree()) {
-				if (is_dirty) {
-					skeleton_changed(get_skeleton());
-				}
 				execute(get_process_delta_time());
 			}
 		} break;
@@ -1222,26 +1227,4 @@ TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
 	notify_property_list_changed();
-}
-
-Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
-	return godot_skeleton_transform_inverse;
-}
-
-bool ManyBoneIK3D::_property_get_revert(const StringName &p_name, Variant &r_property) const {
-	String name = String(p_name);
-	if (name.begins_with("constraints/")) {
-		int index = name.get_slicec('/', 1).to_int();
-		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, constraint_count, false);
-		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone";
-		if (what == "bone_direction") {
-			r_property = get_bone_direction_transform(index);
-		} else if (what == "kusudama_orientation") {
-			r_property = get_constraint_orientation_transform(index);
-		} else if (what == "kusudama_twist") {
-			r_property = get_constraint_twist_transform(index);
-		}
-	}
-	return Variant();
 }
