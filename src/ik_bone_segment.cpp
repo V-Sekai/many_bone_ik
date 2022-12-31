@@ -171,18 +171,17 @@ Quaternion IKBoneSegment::clamp_to_angle(Quaternion p_quat, real_t p_angle) {
 }
 
 Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) {
-	double newCoeff = 1.0 - (p_cos_half_angle * Math::abs(p_cos_half_angle));
+	real_t newCoeff = real_t(1.0) - (p_cos_half_angle * Math::abs(p_cos_half_angle));
 	Quaternion rot = p_quat;
-	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
+	real_t currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
 	if (newCoeff >= currentCoeff) {
 		return rot;
-	} else {
-		rot.w = rot.w < 0.0f ? -p_cos_half_angle : p_cos_half_angle;
-		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
-		rot.x *= compositeCoeff;
-		rot.y *= compositeCoeff;
-		rot.z *= compositeCoeff;
 	}
+	rot.w = rot.w < real_t(0.0) ? -p_cos_half_angle : p_cos_half_angle;
+	real_t compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
+	rot.x *= compositeCoeff;
+	rot.y *= compositeCoeff;
+	rot.z *= compositeCoeff;
 	return rot;
 }
 
@@ -210,24 +209,26 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	if (!p_constraint_mode) {
 		// Solved ik transform and apply it.
 		QCP qcp = QCP(evec_prec, eval_prec);
-		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate).normalized();
 		Vector3 translation = qcp.get_translation();
-		if (p_dampening != -1.0f) {
-			bone_damp = p_dampening;
-			rot = clamp_to_angle(rot, bone_damp).normalized();
-		} else {
-			rot = clamp_to_quadrance_angle(rot, bone_damp).normalized();
+		if (!rot.is_equal_approx(Quaternion())) {
+			if (p_dampening != -1.0f) {
+				bone_damp = p_dampening;
+				rot = clamp_to_angle(rot, bone_damp).normalized();
+			} else {
+				rot = clamp_to_quadrance_angle(rot, bone_damp).normalized();
+			}
+			p_for_bone->get_godot_skeleton_aligned_transform()->rotate_local_with_global(rot);
 		}
-		p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
 		Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 		p_for_bone->set_global_pose(result.orthonormalized());
 	}
-	// Calculate orientation before twist to avoid exceding the twist bound when updating the rotation.
+	// Calculate orientation before twist to avoid exceeding the twist bound when updating the rotation.
 	if (p_for_bone->is_orientationally_constrained() && p_for_bone->get_parent().is_valid()) {
-		p_for_bone->get_constraint()->set_axes_to_orientation_snap(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+		p_for_bone->get_constraint()->set_axes_to_orientation_snap(p_for_bone->get_bone_direction_transform(), p_for_bone->get_godot_skeleton_aligned_transform(), p_for_bone->get_constraint_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 	}
 	if (p_for_bone->is_axially_constrained() && p_for_bone->get_parent().is_valid()) {
-		p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_twist_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+		p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_godot_skeleton_aligned_transform(), p_for_bone->get_bone_direction_transform(), p_for_bone->get_constraint_twist_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 	}
 }
 

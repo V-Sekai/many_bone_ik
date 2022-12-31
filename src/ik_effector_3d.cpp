@@ -75,11 +75,16 @@ Vector3 IKEffector3D::get_direction_priorities() const {
 void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK3D *p_many_bone_ik) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
-	Node3D *current_target_node = cast_to<Node3D>(p_many_bone_ik->get_node_or_null(target_node_path));
-	if (!current_target_node || !current_target_node->is_visible_in_tree()) {
+	Node3D *current_target_node = _get_target_node(p_many_bone_ik);
+	if (!current_target_node) {
+		target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * for_bone->get_bone_direction_global_pose();
 		return;
 	}
 	Node3D *root = cast_to<Node3D>(current_target_node->get_owner());
+	if (!root) {
+		target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * for_bone->get_bone_direction_global_pose();
+		return;
+	}
 	target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * current_target_node->get_relative_transform(root);
 }
 
@@ -91,42 +96,41 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	ERR_FAIL_COND_V(p_index == -1, -1);
 	ERR_FAIL_NULL_V(p_headings, -1);
 	ERR_FAIL_NULL_V(p_for_bone, -1);
-
 	int32_t index = p_index;
+	const Transform3D target = target_relative_to_skeleton_origin;
 	Vector3 bone_origin_relative_to_skeleton_origin = p_for_bone->get_bone_direction_global_pose().origin;
-	p_headings->write[index] = target_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
 	Vector3 priority = get_direction_priorities();
 	if (priority.x > 0.0) {
 		real_t w = (*p_weights)[index];
 		w = MAX(w, 1.0f);
-		p_headings->write[index] = (target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_X) + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = (target.basis.get_column(Vector3::AXIS_X) + target.origin) - bone_origin_relative_to_skeleton_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 
-		p_headings->write[index] = (target_relative_to_skeleton_origin.origin - target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_X)) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = (target.origin - target.basis.get_column(Vector3::AXIS_X)) - bone_origin_relative_to_skeleton_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 	}
 	if (priority.y > 0.0) {
 		real_t w = (*p_weights)[index];
 		w = MAX(w, 1.0f);
-		p_headings->write[index] = (target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_Y) + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = (target.basis.get_column(Vector3::AXIS_Y) + target.origin) - bone_origin_relative_to_skeleton_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 
-		p_headings->write[index] = (target_relative_to_skeleton_origin.origin - target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_Y)) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = (target.origin - target.basis.get_column(Vector3::AXIS_Y)) - bone_origin_relative_to_skeleton_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 	}
 	if (priority.z > 0.0) {
 		real_t w = (*p_weights)[index];
 		w = MAX(w, 1.0f);
-		p_headings->write[index] = (target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_Z) + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = (target.basis.get_column(Vector3::AXIS_Z) + target.origin) - bone_origin_relative_to_skeleton_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 
-		p_headings->write[index] = (target_relative_to_skeleton_origin.origin - target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_Z)) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = (target.origin - target.basis.get_column(Vector3::AXIS_Z)) - bone_origin_relative_to_skeleton_origin;
 		p_headings->write[index] *= Vector3(w, w, w);
 		index++;
 	}
@@ -144,7 +148,7 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	int32_t index = p_index;
 	p_headings->write[index] = tip_xform_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
-	double scale_by = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin); // MAX(1.0, distance);
+	double scale_by = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
 	const Vector3 priority = get_direction_priorities();
 	if (priority.x > 0.0) {
 		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_X) * scale_by) + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
@@ -199,4 +203,18 @@ void IKEffector3D::set_passthrough_factor(float p_passthrough_factor) {
 
 float IKEffector3D::get_passthrough_factor() const {
 	return passthrough_factor;
+}
+
+Node3D *IKEffector3D::_get_target_node(ManyBoneIK3D *p_many_bone_ik) const {
+	Node3D *current_target_node = cast_to<Node3D>(p_many_bone_ik->get_node_or_null(target_node_path));
+	if (!current_target_node) {
+		return nullptr;
+	}
+	if (!current_target_node->is_visible_in_tree()) {
+		return nullptr;
+	}
+	if (!current_target_node->is_visible()) {
+		return nullptr;
+	}
+	return current_target_node;
 }
