@@ -72,9 +72,9 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> p_godot_skeleton_aligned_
 	Quaternion global_twist_center = p_twist_transform->get_global_transform().basis.get_rotation_quaternion() * twist_center_rot;
 	Quaternion align_rot = global_twist_center.inverse() * p_godot_skeleton_aligned_transform->get_global_transform().basis.get_rotation_quaternion();
 	Quaternion twist_rotation, swing_rotation; // Hold the ik transform's decomposed swing and twist away from global_twist_centers's global basis.
-	//get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
-	//twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
-	Quaternion recomposition = align_rot; //swing_rotation * twist_rotation;	
+	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
+	// twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
+	Quaternion recomposition = swing_rotation * twist_rotation;
 	Quaternion parent_global_inverse = p_godot_skeleton_aligned_transform->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
 	Quaternion rotation = parent_global_inverse * (global_twist_center * recomposition);
 	Transform3D ik_transform = p_godot_skeleton_aligned_transform->get_transform();
@@ -320,26 +320,28 @@ void IKKusudama::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
-	Vector3 r = Vector3(p_rotation.x, p_rotation.y, p_rotation.z);
-	// https://allenchou.net/2018/05/game-math-swing-twist-interpolation-sterp/
-	// In a singularity, rotate by 180 degrees.
-	if (Math::is_zero_approx(r.length_squared())) {
-		Vector3 rotated_twist_axis = p_rotation.xform(p_axis);
-		Vector3 swing_axis = p_axis.cross(rotated_twist_axis);
-		if (!Math::is_zero_approx(swing_axis.length_squared())) {
-			float swing_angle = p_axis.angle_to(rotated_twist_axis);
-			r_swing = quaternion_axis_angle(swing_axis, swing_angle);
-		} else {
-			// In a singularity, the rotation axis is parallel to twist axis.
-			r_swing = Quaternion();
-		}
-		// Always twist 180 degrees on the singularity.
-		r_twist = quaternion_axis_angle(p_axis, 180.0f);
-		return;
+	if (!p_rotation.is_equal_approx(Quaternion())) {
+		p_rotation = p_rotation.inverse();
 	}
-	Vector3 p = r.project(p_axis);
-	r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w).normalized();
-	r_swing = r_twist.inverse() * p_rotation;
+	r_twist = p_rotation;
+	real_t twist_angle;
+	Vector3 twist_axis;
+	r_twist.get_axis_angle(twist_axis, twist_angle);
+	real_t d = twist_axis.dot(p_axis);
+	r_twist = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, p_rotation.w).normalized();
+	if (d < 0) {
+		r_twist *= real_t(-1);
+	}
+	r_swing = r_twist;
+	r_swing = r_swing.inverse();
+	r_swing = r_swing * p_rotation;
+	r_swing.normalize();
+	if (!r_twist.is_equal_approx(Quaternion())) {
+		r_twist = r_twist.inverse();
+	}
+	if (!r_swing.is_equal_approx(Quaternion())) {
+		r_swing = r_swing.inverse();
+	}
 }
 
 Quaternion IKKusudama::quaternion_axis_angle(const Vector3 &p_axis, real_t p_angle) {

@@ -116,8 +116,8 @@ public:
 
 	Ref<IKRay3D> bone_ray = Ref<IKRay3D>(memnew(IKRay3D()));
 	Ref<IKRay3D> constrained_ray = Ref<IKRay3D>(memnew(IKRay3D()));
-	double unit_hyper_area = 2 * Math::pow(Math_PI, 2);
-	double unit_area = 4 * Math_PI;
+	real_t unit_hyper_area = 2 * Math::pow(Math_PI, 2);
+	real_t unit_area = 4 * Math_PI;
 
 public:
 	/**
@@ -211,7 +211,7 @@ public:
 	 * the orientations a bone can be in between two limit cones in a sequence if those limit
 	 * cones intersect with a previous sequence.
 	 */
-	double get_rotational_freedom();
+	real_t get_rotational_freedom();
 	virtual void update_rotational_freedom();
 	virtual TypedArray<IKLimitCone> get_limit_cones() const;
 	virtual void set_limit_cones(TypedArray<IKLimitCone> p_cones);
