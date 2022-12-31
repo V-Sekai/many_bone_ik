@@ -12,7 +12,7 @@
 			<description>
 			</description>
 		</method>
-		<method name="get_constraint_transform">
+		<method name="get_constraint_orientation_transform">
 			<return type="IKNode3D" />
 			<description>
 			</description>

@@ -166,7 +166,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_transform()->get_global_transform();
+	Transform3D constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 	Transform3D handle_transform;
 	if (p_gizmo->get_node_3d()->get_parent()) {
 		Node3D *node = cast_to<Node3D>(p_gizmo->get_node_3d()->get_parent());
@@ -274,7 +274,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_transform()->get_global_transform();
+	Transform3D constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 	Transform3D handle_transform;
 	if (p_gizmo->get_node_3d()->get_parent()) {
 		Node3D *node = cast_to<Node3D>(p_gizmo->get_node_3d()->get_parent());

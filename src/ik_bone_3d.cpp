@@ -188,7 +188,7 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_pin", "pin"), &IKBone3D::set_pin);
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pinned);
 	ClassDB::bind_method(D_METHOD("get_constraint"), &IKBone3D::get_constraint);
-	ClassDB::bind_method(D_METHOD("get_constraint_transform"), &IKBone3D::get_constraint_transform);
+	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform"), &IKBone3D::get_constraint_orientation_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform"), &IKBone3D::get_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("get_bone_direction_transform"), &IKBone3D::get_constraint_twist_transform);
 }
@@ -247,7 +247,7 @@ Ref<IKNode3D> IKBone3D::get_godot_skeleton_aligned_transform() {
 	return godot_skeleton_aligned_transform;
 }
 
-Ref<IKNode3D> IKBone3D::get_constraint_transform() {
+Ref<IKNode3D> IKBone3D::get_constraint_orientation_transform() {
 	return constraint_transform;
 }
 
