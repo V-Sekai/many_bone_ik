@@ -171,18 +171,7 @@ Quaternion IKBoneSegment::clamp_to_angle(Quaternion p_quat, real_t p_angle) {
 }
 
 Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) {
-	real_t newCoeff = real_t(1.0) - (p_cos_half_angle * Math::abs(p_cos_half_angle));
-	Quaternion rot = p_quat;
-	real_t currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
-	if (newCoeff >= currentCoeff) {
-		return rot;
-	}
-	rot.w = rot.w < real_t(0.0) ? -p_cos_half_angle : p_cos_half_angle;
-	real_t compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
-	rot.x *= compositeCoeff;
-	rot.y *= compositeCoeff;
-	rot.z *= compositeCoeff;
-	return rot.normalized();
+	return rot;
 }
 
 float IKBoneSegment::get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights) {
