@@ -162,7 +162,35 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
 	}
-
+	{
+		p_list->push_back(
+				PropertyInfo(Variant::INT, "bone_count",
+						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+						"Bone,bone/"));
+		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
+			PropertyInfo bone_name;
+			bone_name.type = Variant::STRING_NAME;
+			const uint32_t damp_usage = get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
+			bone_name.usage = damp_usage | PROPERTY_USAGE_READ_ONLY;
+			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
+			if (get_skeleton()) {
+				String names;
+				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+					String name = get_skeleton()->get_bone_name(bone_i);
+					name += ",";
+					names += name;
+				}
+				bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
+				bone_name.hint_string = names;
+			} else {
+				bone_name.hint = PROPERTY_HINT_NONE;
+				bone_name.hint_string = "";
+			}
+			p_list->push_back(bone_name);
+			p_list->push_back(
+					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
+		}
+	}
 	RBSet<String> existing_constraints;
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		const String name = get_constraint_name(constraint_i);
@@ -213,40 +241,17 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians", constraint_usage));
 		}
 		p_list->push_back(
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_twist_reset", PROPERTY_HINT_NONE, "", constraint_usage));
+		p_list->push_back(
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_orientation_reset", PROPERTY_HINT_NONE, "", constraint_usage));
+		p_list->push_back(
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/bone_direction_reset", PROPERTY_HINT_NONE, "", constraint_usage));
+		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_NONE, "", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_orientation", PROPERTY_HINT_NONE, "", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/bone_direction", PROPERTY_HINT_NONE, "", constraint_usage));
-	}
-	{
-		p_list->push_back(
-				PropertyInfo(Variant::INT, "bone_count",
-						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
-						"Bone,bone/"));
-		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
-			PropertyInfo bone_name;
-			bone_name.type = Variant::STRING_NAME;
-			const uint32_t damp_usage = get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
-			bone_name.usage = damp_usage | PROPERTY_USAGE_READ_ONLY;
-			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
-			if (get_skeleton()) {
-				String names;
-				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-					String name = get_skeleton()->get_bone_name(bone_i);
-					name += ",";
-					names += name;
-				}
-				bone_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
-				bone_name.hint_string = names;
-			} else {
-				bone_name.hint = PROPERTY_HINT_NONE;
-				bone_name.hint_string = "";
-			}
-			p_list->push_back(bone_name);
-			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
-		}
 	}
 }
 
@@ -361,6 +366,15 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		} else if (what == "kusudama_twist") {
 			r_ret = get_constraint_twist_transform(index);
 			return true;
+		} else if (what == "bone_direction_reset") {
+			r_ret = get_bone_direction_transform_reset(index);
+			return true;
+		} else if (what == "kusudama_orientation_reset") {
+			r_ret = get_constraint_orientation_transform_reset(index);
+			return true;
+		} else if (what == "kusudama_twist_reset") {
+			r_ret = get_constraint_twist_transform_reset(index);
+			return true;
 		}
 	}
 	return false;
@@ -446,6 +460,15 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 				set_kusudama_limit_cone_radius(index, cone_index, p_value);
 				return true;
 			}
+		} else if (what == "bone_direction_reset") {
+			set_bone_direction_transform_reset(index, p_value);
+			return true;
+		} else if (what == "kusudama_orientation_reset") {
+			set_constraint_orientation_transform_reset(index, p_value);
+			return true;
+		} else if (what == "kusudama_twist_reset") {
+			set_constraint_twist_transform_reset(index, p_value);
+			return true;
 		} else if (what == "bone_direction") {
 			set_bone_direction_transform(index, p_value);
 			return true;
@@ -752,8 +775,8 @@ void ManyBoneIK3D::execute(real_t delta) {
 	}
 	if (is_dirty) {
 		skeleton_changed(get_skeleton());
-		is_dirty = false;
 		update_gizmos();
+		is_dirty = false;
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_godot_skeleton_aligned_transform();
@@ -1227,4 +1250,143 @@ TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
 	notify_property_list_changed();
+}
+
+Transform3D ManyBoneIK3D::get_bone_direction_transform_reset(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
+	String bone_name = constraint_names[p_index];
+	if (!segmented_skeletons.size()) {
+		return Transform3D();
+	}
+	if (!get_skeleton()) {
+		return Transform3D();
+	}
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		return ik_bone->get_bone_direction_transform_reset()->get_transform();
+	}
+	return Transform3D();
+}
+
+void ManyBoneIK3D::set_bone_direction_transform_reset(int32_t p_index, Transform3D p_transform) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_bone_direction_transform_reset()->set_transform(p_transform);
+		ik_bone->get_bone_direction_transform_reset()->_propagate_transform_changed();
+		break;
+	}
+}
+
+Transform3D ManyBoneIK3D::get_constraint_orientation_transform_reset(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
+	String bone_name = constraint_names[p_index];
+	if (!segmented_skeletons.size()) {
+		return Transform3D();
+	}
+	if (!get_skeleton()) {
+		return Transform3D();
+	}
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		return ik_bone->get_constraint_transform_reset()->get_transform();
+	}
+	return Transform3D();
+}
+
+void ManyBoneIK3D::set_constraint_twist_transform_reset(int32_t p_index, Transform3D p_transform) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_constraint_twist_transform_reset()->set_transform(p_transform);
+		ik_bone->get_constraint_twist_transform_reset()->_propagate_transform_changed();
+		break;
+	}
+}
+
+Transform3D ManyBoneIK3D::get_constraint_twist_transform_reset(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
+	String bone_name = constraint_names[p_index];
+	if (!segmented_skeletons.size()) {
+		return Transform3D();
+	}
+	if (!get_skeleton()) {
+		return Transform3D();
+	}
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		return ik_bone->get_constraint_twist_transform_reset()->get_transform();
+	}
+	return Transform3D();
+}
+
+void ManyBoneIK3D::set_constraint_orientation_transform_reset(int32_t p_index, Transform3D p_transform) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_constraint_transform_reset()->set_transform(p_transform);
+		ik_bone->get_constraint_transform_reset()->_propagate_transform_changed();
+		break;
+	}
+}
+
+Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
+	return godot_skeleton_transform_inverse;
 }
