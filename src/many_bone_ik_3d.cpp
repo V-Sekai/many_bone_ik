@@ -948,10 +948,10 @@ void ManyBoneIK3D::_notification(int p_what) {
 			set_process_internal(true);
 			set_notify_transform(true);
 		} break;
+		case NOTIFICATION_ENTER_TREE: {
+			skeleton_changed(get_skeleton());
+		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (is_dirty) {
-				skeleton_changed(get_skeleton());
-			}
 			if (is_visible_in_tree()) {
 				execute(get_process_delta_time());
 			}

@@ -65,7 +65,7 @@ private:
 	Ref<IKNode3D> godot_skeleton_transform = Ref<IKNode3D>(memnew(IKNode3D));
 	Transform3D godot_skeleton_transform_inverse;
 	Ref<IKNode3D> ik_origin = Ref<IKNode3D>(memnew(IKNode3D));
-	bool is_dirty = true;
+	bool is_dirty = false;
 	bool constraints_initialized = false;
 	NodePath skeleton_node_path = NodePath("..");
 	int32_t ui_selected_bone = -1;
