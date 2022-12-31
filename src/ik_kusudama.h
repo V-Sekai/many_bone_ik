@@ -59,13 +59,13 @@ class IKKusudama : public Resource {
 	TypedArray<IKLimitCone> limit_cones;
 
 	Quaternion twist_min_rot;
-	Vector3 twist_min_vec;
-	Vector3 twist_max_vec;
-	Vector3 twist_center_vec;
+	Vector3 twist_min_vec = Vector3(0, 0, 1);
+	Vector3 twist_max_vec = Vector3(0, 0, 1);
+	Vector3 twist_center_vec = Vector3(0, 0, 1);
 	Quaternion twist_center_rot;
 	Quaternion twist_max_rot;
 	real_t twist_half_range_half_cos = 0;
-	Vector3 twist_tan;
+	Vector3 twist_tan = Vector3(0, 1, 0);
 	bool flipped_bounds = false;
 
 	/**

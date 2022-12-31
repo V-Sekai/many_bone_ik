@@ -58,31 +58,29 @@ void IKKusudama::set_axial_limits(real_t min_angle, real_t in_range) {
 	twist_center_vec = twist_min_rot.xform(twist_min_vec).normalized();
 	twist_center_rot = Quaternion(z_axis, twist_center_vec).normalized();
 	twist_tan = twist_center_vec.cross(y_axis);
-	twist_half_range_half_cos = Math::cos(in_range / real_t(4.0)); // For the quadrance angle. We need half the range angle since starting from the center, and half of that since quadrance takes cos(angle/2).
+	real_t cos_half_angle = in_range / real_t(4.0);
+	twist_half_range_half_cos = cos(cos_half_angle); // For the quadrance angle. We need half the range angle since starting from the center, and half of that since quadrance takes cos(angle/2).
 	twist_max_vec = quaternion_axis_angle(y_axis, in_range).xform(twist_min_vec).normalized();
 	twist_max_rot = Quaternion(z_axis, twist_max_vec).normalized();
 	Vector3 max_cross = twist_max_vec.cross(y_axis).normalized();
 	flipped_bounds = twist_tan.cross(max_cross).y < real_t(0.0);
 }
 
-void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_dampening, real_t p_cos_half_dampen) {
+void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_dampening, real_t _p_cos_half_dampen) {
 	if (!is_axially_constrained()) {
 		return;
 	}
 	Quaternion global_twist_center = p_twist_transform->get_global_transform().basis.get_rotation_quaternion() * twist_center_rot;
 	Quaternion align_rot = global_twist_center.inverse() * p_godot_skeleton_aligned_transform->get_global_transform().basis.get_rotation_quaternion();
 	align_rot.normalize();
-	if (align_rot.is_equal_approx(Quaternion())) {
-		return;
-	}
+	Quaternion parent_global_inverse = p_godot_skeleton_aligned_transform->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
 	Quaternion twist_rotation, swing_rotation; // Hold the ik transform's decomposed swing and twist away from global_twist_centers's global basis.
 	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
 	swing_rotation.normalize();
 	twist_rotation.normalize();
-	twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos).normalized();
-	Quaternion recomposition = (swing_rotation * twist_rotation).normalized();
-	Quaternion parent_global_inverse = p_godot_skeleton_aligned_transform->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
-	Quaternion rotation = parent_global_inverse * (global_twist_center * recomposition);
+	// twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos).normalized();
+	Quaternion recomposition = global_twist_center * (swing_rotation * twist_rotation).normalized();
+	Quaternion rotation = parent_global_inverse * recomposition;
 	Transform3D ik_transform = p_godot_skeleton_aligned_transform->get_transform();
 	p_godot_skeleton_aligned_transform->set_transform(Transform3D(rotation, ik_transform.origin));
 	p_godot_skeleton_aligned_transform->_propagate_transform_changed();
@@ -326,7 +324,6 @@ void IKKusudama::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
-	p_rotation = p_rotation.inverse();
 	r_twist = p_rotation;
 	real_t twist_angle;
 	Vector3 twist_axis;
@@ -340,8 +337,6 @@ void IKKusudama::get_swing_twist(
 	r_swing = r_swing.inverse();
 	r_swing = r_swing * p_rotation;
 	r_swing.normalize();
-	r_twist = r_twist.inverse();
-	r_swing = r_swing.inverse();
 }
 
 Quaternion IKKusudama::quaternion_axis_angle(const Vector3 &p_axis, real_t p_angle) {
