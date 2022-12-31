@@ -130,9 +130,6 @@ public:
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
 	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
-	real_t get_kusudama_twist_current(int32_t p_index);
-	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
-
 	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_constraint_twist_transform(int32_t p_index) const;
 	void set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform);
