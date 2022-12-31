@@ -509,7 +509,6 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("set_filter_bones", "bones"), &ManyBoneIK3D::set_filter_bones);
 	ClassDB::bind_method(D_METHOD("get_filter_bones"), &ManyBoneIK3D::get_filter_bones);
-
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
@@ -932,10 +931,10 @@ void ManyBoneIK3D::_notification(int p_what) {
 			set_notify_transform(true);
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (is_dirty) {
-				skeleton_changed(get_skeleton());
-			}
 			if (is_visible_in_tree()) {
+				if (is_dirty) {
+					skeleton_changed(get_skeleton());
+				}
 				execute(get_process_delta_time());
 			}
 		} break;
@@ -1227,4 +1226,8 @@ TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
 	notify_property_list_changed();
+}
+
+Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
+	return godot_skeleton_transform_inverse;
 }
