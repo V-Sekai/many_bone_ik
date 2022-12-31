@@ -204,13 +204,6 @@
 			<description>
 			</description>
 		</method>
-		<method name="set_kusudama_twist_current">
-			<return type="void" />
-			<param index="0" name="index" type="int" />
-			<param index="1" name="rotation" type="float" />
-			<description>
-			</description>
-		</method>
 		<method name="set_pin_direction_priorities">
 			<return type="void" />
 			<param index="0" name="index" type="int" />

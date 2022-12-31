@@ -90,25 +90,6 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	Basis rot = IKKusudama::quaternion_axis_angle(axis_y, turn_back_angle);
 	to_set->rotate_local_with_global(rot);
 }
-
-real_t IKKusudama::signed_angle_difference(real_t min_angle, real_t p_super) {
-	real_t d = Math::fmod(Math::abs(min_angle - p_super), real_t(Math_TAU));
-	real_t r = d > Math_PI ? Math_TAU - d : d;
-
-	real_t sign = (min_angle - p_super >= 0 && min_angle - p_super <= real_t(Math_PI)) || (min_angle - p_super <= -real_t(Math_PI) && min_angle - p_super >= -real_t(Math_TAU)) ? real_t(1.0) : real_t(-1.0);
-	r *= sign;
-	return r;
-}
-
-real_t IKKusudama::_to_tau(real_t angle) {
-	real_t result = angle;
-	if (angle < 0) {
-		result = (2 * Math_PI) + angle;
-	}
-	result = _mod(result, (Math_PI * 2.0f));
-	return result;
-}
-
 void IKKusudama::add_limit_cone(Vector3 new_cone_local_point, double radius) {
 	Ref<IKLimitCone> cone = Ref<IKLimitCone>(memnew(IKLimitCone(new_cone_local_point, radius, Ref<IKKusudama>(this))));
 	limit_cones.push_back(cone);
