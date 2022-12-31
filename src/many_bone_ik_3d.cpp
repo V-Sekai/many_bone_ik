@@ -509,6 +509,10 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("set_filter_bones", "bones"), &ManyBoneIK3D::set_filter_bones);
 	ClassDB::bind_method(D_METHOD("get_filter_bones"), &ManyBoneIK3D::get_filter_bones);
+	ClassDB::bind_method(D_METHOD("set_constraints_initialized", "bones"), &ManyBoneIK3D::set_constraints_initialized);
+	ClassDB::bind_method(D_METHOD("is_constraints_initialized"), &ManyBoneIK3D::is_constraints_initialized);
+
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "constraints_intialized"), "set_constraints_initialized", "is_constraints_initialized");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
@@ -856,6 +860,20 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	}
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
+	}
+	if (!is_constraints_initialized()) {
+		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+			ik_bone_3d->update_default_constraint_transform();
+		}
+		update_ik_bones_transform();
+		for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
+			if (segmented_skeleton.is_null()) {
+				continue;
+			}
+			segmented_skeleton->segment_solver(bone_damp, get_default_damp(), get_constraint_mode());
+		}
+		update_skeleton_bones_transform();
+		set_constraints_initialized(true);
 	}
 }
 
