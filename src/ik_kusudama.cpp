@@ -76,9 +76,9 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> p_godot_skeleton_aligned_
 	twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
 	Quaternion recomposition = swing_rotation * twist_rotation;
 	Quaternion parent_global_inverse = p_godot_skeleton_aligned_transform->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
-	Quaternion rotation_basis = parent_global_inverse * (global_twist_center * recomposition);
+	Quaternion rotation = parent_global_inverse * (global_twist_center * recomposition);
 	Transform3D ik_transform = p_godot_skeleton_aligned_transform->get_transform();
-	p_godot_skeleton_aligned_transform->set_transform(Transform3D(rotation_basis, ik_transform.origin));
+	p_godot_skeleton_aligned_transform->set_transform(Transform3D(rotation, ik_transform.origin));
 	p_godot_skeleton_aligned_transform->_propagate_transform_changed();
 }
 
@@ -107,11 +107,11 @@ void IKKusudama::set_current_twist_rotation(Ref<IKNode3D> p_godot_skeleton_align
 	Quaternion twist_rotation, swing_rotation; // Hold the ik transform's decomposed swing and twist away from global_twist_centers's global basis.
 	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
 	twist_rotation = twist_min_rot.slerp(twist_max_rot, p_rotation);
-	Quaternion recomposition = swing_rotation * twist_rotation;
+	Quaternion recomposition = (swing_rotation * twist_rotation).normalized();
 	Quaternion parent_global_inverse = p_godot_skeleton_aligned_transform->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
-	Quaternion rotation_basis = parent_global_inverse * recomposition;
+	Quaternion rotation = parent_global_inverse * recomposition;
 	Transform3D ik_transform = p_godot_skeleton_aligned_transform->get_transform();
-	p_godot_skeleton_aligned_transform->set_transform(Transform3D(rotation_basis, ik_transform.origin));
+	p_godot_skeleton_aligned_transform->set_transform(Transform3D(rotation, ik_transform.origin));
 	p_godot_skeleton_aligned_transform->_propagate_transform_changed();
 }
 
@@ -189,16 +189,16 @@ void IKKusudama::enable() {
 	this->orientationally_constrained = true;
 }
 
-double IKKusudama::get_rotational_freedom() {
+real_t IKKusudama::get_rotational_freedom() {
 	// Computation is cached from the update_rotational_freedom function.
 	// Please contribute back a better solution if you write a better way to calculate rotational freedom.
 	return rotational_freedom;
 }
 
 void IKKusudama::update_rotational_freedom() {
-	double axial_constrained_hyper_area = is_axially_constrained() ? (range_angle / Math_TAU) : 1;
+	real_t axial_constrained_hyper_area = is_axially_constrained() ? (range_angle / Math_TAU) : 1;
 	// A quick and dirty solution (should revisit).
-	double total_limit_cone_surface_area_ratio = 0;
+	real_t total_limit_cone_surface_area_ratio = 0;
 	for (int32_t cone_i = 0; cone_i < limit_cones.size(); cone_i++) {
 		Ref<IKLimitCone> l = limit_cones[cone_i];
 		total_limit_cone_surface_area_ratio += (l->get_radius() * 2) / Math_TAU;
@@ -301,8 +301,8 @@ void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> p_godot_skeleton_ali
 	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x) && !Math::is_nan(in_limits.y) && !Math::is_nan(in_limits.z)) {
 		constrained_ray->p1(bone_ray->p1());
 		constrained_ray->p2(p_twist_transform->to_global(in_limits));
-		Quaternion rectified_rot = Quaternion(bone_ray->heading(), constrained_ray->heading());
-		p_godot_skeleton_aligned_transform->rotate_local_with_global(Basis(rectified_rot).orthonormalized());
+		Quaternion rectified_rot = Quaternion(bone_ray->heading(), constrained_ray->heading()).normalized();
+		p_godot_skeleton_aligned_transform->rotate_local_with_global(rectified_rot);
 	}
 }
 
