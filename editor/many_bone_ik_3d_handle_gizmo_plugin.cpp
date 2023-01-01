@@ -58,7 +58,7 @@ void ManyBoneIK3DHandleGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DHandleGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<ManyBoneIK3D>(p_spatial);
+	return cast_to<Skeleton3D>(p_spatial);
 }
 
 String ManyBoneIK3DHandleGizmoPlugin::get_gizmo_name() const {
@@ -73,26 +73,23 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!p_gizmo->is_selected()) {
 		return;
 	}
-	Node3D *node_3d = p_gizmo->get_node_3d();
-	if (!node_3d) {
+	Skeleton3D  *skeleton_3d = cast_to<Skeleton3D>(p_gizmo->get_node_3d());
+	if (!skeleton_3d) {
 		return;
 	}
-	if (!node_3d->is_visible_in_tree()) {
+	if (!skeleton_3d->is_visible_in_tree()) {
 		return;
 	}
-	Node *root = node_3d->get_tree()->get_edited_scene_root();
+	Node *root = skeleton_3d->get_tree()->get_edited_scene_root();
 	TypedArray<Node> nodes = root->find_children("*", "ManyBoneIK3D");
 	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
 		ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(nodes[node_i]);
 		if (!many_bone_ik) {
-			return;
+			continue;
 		}
 		Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
-		if (!many_bone_ik_skeleton) {
-			return;
-		}
-		if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
-			many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
+		if (many_bone_ik_skeleton != skeleton_3d) {
+			continue;
 		}
 		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
 		int bones_to_process_i = 0;

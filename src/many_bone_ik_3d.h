@@ -40,8 +40,8 @@
 #include "math/ik_node_3d.h"
 
 class IKBoneSegment;
-class ManyBoneIK3D : public Node3D {
-	GDCLASS(ManyBoneIK3D, Node3D);
+class ManyBoneIK3D : public Node {
+	GDCLASS(ManyBoneIK3D, Node);
 
 private:
 	bool is_constraint_mode = false;
