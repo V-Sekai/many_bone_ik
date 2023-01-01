@@ -55,12 +55,12 @@ void EditorInspectorPluginManyBoneIK::parse_begin(Object *p_object) {
 	TypedArray<Node> nodes = root->find_children("*", "ManyBoneIK3D");
 	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
 		ManyBoneIK3D *ik = cast_to<ManyBoneIK3D>(nodes[node_i]);
-		if(!ik) {
+		if (!ik) {
 			continue;
 		}
 		if (skeleton != ik->get_skeleton()) {
 			continue;
-		}		
+		}
 		skel_editor = memnew(ManyBoneIK3DEditor(this, ik));
 		add_custom_control(skel_editor);
 	}
@@ -107,13 +107,20 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 	items.insert(-1, root);
 
 	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
+	TypedArray<StringName> filter_bones = ik->get_filter_bones();
 
 	Vector<int> bones_to_process = skeleton->get_parentless_bones();
 	while (bones_to_process.size() > 0) {
 		int current_bone_idx = bones_to_process[0];
 		bones_to_process.erase(current_bone_idx);
-
+		StringName bone_name = skeleton->get_bone_name(current_bone_idx);
+		if (filter_bones.has(bone_name)) {
+			continue;
+		}
 		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
+		if (!items.find(parent_idx)) {
+			continue;
+		}
 		TreeItem *parent_item = items.find(parent_idx)->value;
 
 		TreeItem *joint_item = joint_tree->create_item(parent_item);
