@@ -785,15 +785,15 @@ void SkeletonModification3DManyBoneIK::_execute(real_t delta) {
 }
 
 void SkeletonModification3DManyBoneIK::_setup_modification(SkeletonModificationStack3D *p_stack) {
-	if (!is_setup) {
-		return;
-	}
-	if (!stack) {
+	stack = p_stack;
+	if (stack == nullptr) {
 		return;
 	}
 	if (!stack->skeleton) {
 		return;
 	}
+	is_setup = true;
+	execution_error_found = false;
 	Vector<int32_t> roots = stack->skeleton->get_parentless_bones();
 	if (!roots.size()) {
 		return;

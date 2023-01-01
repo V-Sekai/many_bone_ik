@@ -81,7 +81,7 @@ void ManyBoneIK3DEditor::_update_properties() {
 }
 
 void ManyBoneIK3DEditor::update_joint_tree() {
-	if (!ik || !ik->get_modification_stack()->get_skeleton() || !joint_tree) {
+	if (!ik || ik->get_modification_stack().is_null() || !ik->get_modification_stack()->get_skeleton() || !joint_tree) {
 		return;
 	}
 	joint_tree->clear();
@@ -133,7 +133,7 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 }
 
 void ManyBoneIK3DEditor::create_editors() {
-	if (!ik || !ik->get_modification_stack()->get_skeleton()) {
+	if (!ik || ik->get_modification_stack().is_null() || !ik->get_modification_stack()->get_is_setup() || !ik->get_modification_stack()->get_skeleton()) {
 		return;
 	}
 	set_h_size_flags(SIZE_EXPAND_FILL);
