@@ -165,20 +165,20 @@ Quaternion IKBoneSegment::set_quadrance_angle(Quaternion p_quat, real_t p_cos_ha
 }
 
 Quaternion IKBoneSegment::clamp_to_angle(Quaternion p_quat, real_t p_angle) {
-	real_t x = cos(p_angle);
+	real_t x = cos(p_angle / real_t(2.0));
 	real_t cos_half_angle = x;
 	return clamp_to_quadrance_angle(p_quat, cos_half_angle);
 }
 
 Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) {
-	double newCoeff = 1.0 - (p_cos_half_angle * Math::abs(p_cos_half_angle));
+	real_t newCoeff = real_t(1.0) - (p_cos_half_angle * Math::abs(p_cos_half_angle));
 	Quaternion rot = p_quat;
-	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
+	real_t currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
 	if (newCoeff >= currentCoeff) {
 		return rot;
 	} else {
-		rot.w = rot.w < 0.0f ? -p_cos_half_angle : p_cos_half_angle;
-		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
+		rot.w = rot.w < real_t(0.0) ? -p_cos_half_angle : p_cos_half_angle;
+		real_t compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
 		rot.x *= compositeCoeff;
 		rot.y *= compositeCoeff;
 		rot.z *= compositeCoeff;
@@ -227,7 +227,7 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		p_for_bone->get_constraint()->set_axes_to_orientation_snap(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 	}
 	if (p_for_bone->is_axially_constrained() && p_for_bone->get_parent().is_valid()) {
-		p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+		p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_twist_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 	}
 }
 
