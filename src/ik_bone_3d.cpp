@@ -48,7 +48,7 @@ void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 	if (parent.is_valid()) {
 		parent->children.push_back(this);
 		godot_skeleton_aligned_transform->set_parent(parent->godot_skeleton_aligned_transform);
-		constraint_transform->set_parent(godot_skeleton_aligned_transform->get_parent());
+		constraint_orientation_transform->set_parent(godot_skeleton_aligned_transform->get_parent());
 		constraint_twist_transform->set_parent(godot_skeleton_aligned_transform->get_parent());
 	}
 }
@@ -88,9 +88,9 @@ void IKBone3D::update_default_constraint_transform() {
 	if (parent_bone.is_valid()) {
 		Transform3D parent_bone_aligned_transform = parent_bone->get_ik_transform()->get_global_transform();
 		parent_bone_aligned_transform.origin = get_bone_direction_transform()->get_global_transform().origin;
-		constraint_transform->set_global_transform(parent_bone_aligned_transform);
+		constraint_orientation_transform->set_global_transform(parent_bone_aligned_transform);
 	}
-	Transform3D set_constraint_twist_transform = constraint_transform->get_global_transform();
+	Transform3D set_constraint_twist_transform = constraint_orientation_transform->get_global_transform();
 	constraint_twist_transform->set_global_transform(set_constraint_twist_transform);
 	// Orient the twist plane to the limit cone centroid (approximately).
 	if (constraint.is_null()) {
@@ -110,8 +110,8 @@ void IKBone3D::update_default_constraint_transform() {
 			direction += cone->get_control_point() * weight;
 		}
 		direction = direction.normalized();
-		direction = constraint_transform->get_global_transform().xform(direction);
-		direction -= constraint_transform->get_global_transform().origin;
+		direction = constraint_orientation_transform->get_global_transform().xform(direction);
+		direction -= constraint_orientation_transform->get_global_transform().origin;
 	}
 	Vector3 twist_axis = constraint_twist_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	Quaternion align_dir = Quaternion(twist_axis, direction);
@@ -141,10 +141,10 @@ Transform3D IKBone3D::get_pose() const {
 
 void IKBone3D::set_global_pose(const Transform3D &p_transform) {
 	godot_skeleton_aligned_transform->set_global_transform(p_transform);
-	Transform3D transform = constraint_transform->get_transform();
+	Transform3D transform = constraint_orientation_transform->get_transform();
 	transform.origin = godot_skeleton_aligned_transform->get_transform().origin;
-	constraint_transform->set_transform(transform);
-	constraint_transform->_propagate_transform_changed();
+	constraint_orientation_transform->set_transform(transform);
+	constraint_orientation_transform->_propagate_transform_changed();
 }
 
 Transform3D IKBone3D::get_global_pose() const {
@@ -186,7 +186,7 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_pin", "pin"), &IKBone3D::set_pin);
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pinned);
 	ClassDB::bind_method(D_METHOD("get_constraint"), &IKBone3D::get_constraint);
-	ClassDB::bind_method(D_METHOD("get_constraint_transform"), &IKBone3D::get_constraint_transform);
+	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform"), &IKBone3D::get_constraint_orientation_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform"), &IKBone3D::get_constraint_twist_transform);
 }
 
@@ -240,16 +240,16 @@ Ref<IKNode3D> IKBone3D::get_ik_transform() {
 	return godot_skeleton_aligned_transform;
 }
 
-Ref<IKNode3D> IKBone3D::get_constraint_transform() {
-	return constraint_transform;
+Ref<IKNode3D> IKBone3D::get_constraint_orientation_transform() {
+	return constraint_orientation_transform;
 }
 
 Ref<IKNode3D> IKBone3D::get_constraint_twist_transform() {
 	return constraint_twist_transform;
 }
 
-void IKBone3D::set_constraint_transform(Ref<IKNode3D> p_transform) {
-	constraint_transform = p_transform;
+void IKBone3D::set_constraint_orientation_transform(Ref<IKNode3D> p_transform) {
+	constraint_orientation_transform = p_transform;
 }
 
 void IKBone3D::set_bone_direction_transform(Ref<IKNode3D> p_bone_direction) {

@@ -1098,7 +1098,7 @@ Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) 
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		return ik_bone->get_constraint_transform()->get_transform();
+		return ik_bone->get_constraint_orientation_transform()->get_transform();
 	}
 	return Transform3D();
 }
@@ -1120,7 +1120,7 @@ void ManyBoneIK3D::set_constraint_orientation_transform(int32_t p_index, Transfo
 		if (ik_bone->get_constraint().is_null()) {
 			continue;
 		}
-		ik_bone->get_constraint_transform()->set_transform(p_transform);
+		ik_bone->get_constraint_orientation_transform()->set_transform(p_transform);
 		break;
 	}
 }
