@@ -166,7 +166,7 @@ Quaternion IKBoneSegment::set_quadrance_angle(Quaternion p_quat, real_t p_cos_ha
 
 Quaternion IKBoneSegment::clamp_to_angle(Quaternion p_quat, real_t p_angle) {
 #ifdef MATH_CHECKS
-	ERR_FAIL_COND_V_MSG(!p_quat.is_normalized(), p_quat, "The clamp_to_quadrance_angle input quaternion must be normalized.");
+	ERR_FAIL_COND_V_MSG(!p_quat.is_normalized(), Quaternion(), "The clamp_to_quadrance_angle input quaternion must be normalized.");
 #endif
 	real_t x = cos(p_angle);
 	real_t cos_half_angle = x;
@@ -175,7 +175,7 @@ Quaternion IKBoneSegment::clamp_to_angle(Quaternion p_quat, real_t p_angle) {
 
 Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) {
 #ifdef MATH_CHECKS
-	ERR_FAIL_COND_V_MSG(!p_quat.is_normalized(), p_quat, "The clamp_to_quadrance_angle input quaternion must be normalized.");
+	ERR_FAIL_COND_V_MSG(!p_quat.is_normalized(), Quaternion(), "The clamp_to_quadrance_angle input quaternion must be normalized.");
 #endif
 	real_t newCoeff = real_t(1.0) - (p_cos_half_angle * Math::abs(p_cos_half_angle));
 	Quaternion rot = p_quat;
