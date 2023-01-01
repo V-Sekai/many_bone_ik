@@ -936,11 +936,6 @@ void ManyBoneIK3D::_notification(int p_what) {
 			if (get_skeleton() && get_skeleton()->is_visible_in_tree()) {
 				execute(get_process_delta_time());
 			}
-			case NOTIFICATION_TRANSFORM_CHANGED: {
-				if (get_skeleton() && get_skeleton()->is_visible_in_tree()) {
-					get_skeleton()->update_gizmos();
-				}
-			} break;
 		} break;
 	}
 }

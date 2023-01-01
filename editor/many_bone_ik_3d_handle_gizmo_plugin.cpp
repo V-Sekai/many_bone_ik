@@ -265,7 +265,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_relative_to_the_skeleton = cast_to<Node3D>(p_gizmo->get_node_3d())->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+	Transform3D constraint_relative_to_the_skeleton = cast_to<Node3D>(p_gizmo->get_node_3d())->get_global_transform().affine_inverse()* many_bone_ik_skeleton ->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
@@ -291,7 +291,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	Vector<Vector3> axial_to_handles;
 	int out_idx = 0;
 
-	Transform3D twist_constraint_relative_to_the_skeleton =  cast_to<Node3D>(p_gizmo->get_node_3d())->get_global_transform().affine_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
+	Transform3D twist_constraint_relative_to_the_skeleton =  cast_to<Node3D>(p_gizmo->get_node_3d())->get_global_transform().affine_inverse() * many_bone_ik_skeleton ->get_global_transform().affine_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
 	float cone_radius = Math::deg_to_rad(90.0f);
 	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
