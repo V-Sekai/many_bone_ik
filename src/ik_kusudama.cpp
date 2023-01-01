@@ -53,16 +53,16 @@ void IKKusudama::set_axial_limits(real_t min_angle, real_t in_range) {
 	range_angle = in_range;
 	Vector3 y_axis = Vector3(0.0f, 1.0f, 0.0f);
 	Vector3 z_axis = Vector3(0.0f, 0.0f, 1.0f);
-	twist_min_rot = quaternion_axis_angle(y_axis, min_axial_angle).normalized();
-	twist_min_vec = twist_min_rot.xform(z_axis).normalized();
-	twist_center_vec = twist_min_rot.xform(twist_min_vec).normalized();
-	twist_center_rot = Quaternion(z_axis, twist_center_vec).normalized();
+	twist_min_rot = quaternion_axis_angle(y_axis, min_axial_angle);
+	twist_min_vec = twist_min_rot.xform(z_axis);
+	twist_center_vec = twist_min_rot.xform(twist_min_vec);
+	twist_center_rot = Quaternion(z_axis, twist_center_vec);
 	twist_tan = twist_center_vec.cross(y_axis);
 	real_t cos_half_angle = in_range / real_t(4.0);
 	twist_half_range_half_cos = cos(cos_half_angle); // For the quadrance angle. We need half the range angle since starting from the center, and half of that since quadrance takes cos(angle/2).
-	twist_max_vec = quaternion_axis_angle(y_axis, in_range).xform(twist_min_vec).normalized();
-	twist_max_rot = Quaternion(z_axis, twist_max_vec).normalized();
-	Vector3 max_cross = twist_max_vec.cross(y_axis).normalized();
+	twist_max_vec = quaternion_axis_angle(y_axis, in_range).xform(twist_min_vec);
+	twist_max_rot = Quaternion(z_axis, twist_max_vec);
+	Vector3 max_cross = twist_max_vec.cross(y_axis);
 	flipped_bounds = twist_tan.cross(max_cross).y < real_t(0.0);
 }
 
@@ -78,7 +78,6 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> p_godot_skeleton_aligned_
 	twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
 	Basis recomposition = global_twist_center * (swing_rotation * twist_rotation);
 	Basis rotation = parent_global_inverse * recomposition;
-	rotation.orthonormalize();
 	Transform3D ik_transform = p_godot_skeleton_aligned_transform->get_transform();
 	p_godot_skeleton_aligned_transform->set_transform(Transform3D(rotation, ik_transform.origin));
 	p_godot_skeleton_aligned_transform->_propagate_transform_changed();
@@ -89,8 +88,8 @@ real_t IKKusudama::get_current_twist_rotation(Ref<IKNode3D> p_godot_skeleton_ali
 	Quaternion swing, twist;
 	get_swing_twist(alignRot, Vector3(0, 1, 0), swing, twist);
 	Vector3 twistZ = twist.xform(Vector3(0, 0, 1));
-	Quaternion minToZ = Quaternion(twist_min_vec, twistZ).normalized();
-	Quaternion minToMax = Quaternion(twist_min_vec, twist_max_vec).normalized();
+	Quaternion minToZ = Quaternion(twist_min_vec, twistZ);
+	Quaternion minToMax = Quaternion(twist_min_vec, twist_max_vec);
 	real_t minToZAngle = 0;
 	Vector3 minToZAxis;
 	minToZ.get_axis_angle(minToZAxis, minToZAngle);
@@ -328,14 +327,13 @@ void IKKusudama::get_swing_twist(
 	Vector3 twist_axis;
 	r_twist.get_axis_angle(twist_axis, twist_angle);
 	real_t d = twist_axis.dot(p_axis);
-	r_twist = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, p_rotation.w).normalized();
+	r_twist = Quaternion(p_axis.x * d, p_axis.y * d, p_axis.z * d, p_rotation.w);
 	if (d < 0) {
 		r_twist *= real_t(-1);
 	}
 	r_swing = r_twist;
 	r_swing = r_swing.inverse();
 	r_swing = r_swing * p_rotation;
-	r_swing.normalize();
 	r_twist = r_twist.inverse();
 	r_swing = r_swing.inverse();
 }
