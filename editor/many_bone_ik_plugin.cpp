@@ -152,7 +152,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	s_con->add_child(joint_tree);
 	constraint_bone_section = memnew(EditorInspectorSection);
 	constraint_bone_section->setup("constraint_bone_properties", TTR("Constraint"), this, section_color, true);
-	add_child(constraint_bone_section);
+	s_con->add_child(constraint_bone_section);
 	constraint_bone_section->unfold();
 
 	bone_damp_float = memnew(EditorPropertyFloat());
