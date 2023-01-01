@@ -296,10 +296,6 @@ void IKKusudama::get_swing_twist(
 	// https://arxiv.org/abs/1506.05481
 	Vector3 p = p_axis * (p_rotation.x * p_axis.x + p_rotation.y * p_axis.y + p_rotation.z * p_axis.z);
 	r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w);
-	const real_t d = Vector3(p_rotation.x, p_rotation.y, p_rotation.z).dot(p_axis);
-	if (d < 0) {
-		r_twist *= -1;
-	}
 	r_twist = r_twist.normalized();
 	r_swing = p_rotation * r_twist.inverse();
 }
