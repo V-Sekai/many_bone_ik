@@ -70,17 +70,15 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> p_godot_skeleton_aligned_
 	if (!is_axially_constrained()) {
 		return;
 	}
-	Quaternion global_twist_center = p_twist_transform->get_global_transform().basis.get_rotation_quaternion() * twist_center_rot;
-	Quaternion align_rot = global_twist_center.inverse() * p_godot_skeleton_aligned_transform->get_global_transform().basis.get_rotation_quaternion();
-	align_rot.normalize();
-	Quaternion parent_global_inverse = p_godot_skeleton_aligned_transform->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
+	Basis global_twist_center = p_twist_transform->get_global_transform().basis * twist_center_rot;
+	Basis align_rot = global_twist_center.get_rotation_quaternion().inverse() * p_godot_skeleton_aligned_transform->get_global_transform().basis;
+	Basis parent_global_inverse = p_godot_skeleton_aligned_transform->get_parent()->get_global_transform().basis.inverse();
 	Quaternion twist_rotation, swing_rotation; // Hold the ik transform's decomposed swing and twist away from global_twist_centers's global basis.
-	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
-	swing_rotation.normalize();
-	twist_rotation.normalize();
-	twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos).normalized();
-	Quaternion recomposition = global_twist_center * (swing_rotation * twist_rotation).normalized();
-	Quaternion rotation = parent_global_inverse * recomposition;
+	get_swing_twist(align_rot.get_rotation_quaternion(), Vector3(0, 1, 0), swing_rotation, twist_rotation);
+	twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
+	Basis recomposition = global_twist_center * (swing_rotation * twist_rotation);
+	Basis rotation = parent_global_inverse * recomposition;
+	rotation.orthonormalize();
 	Transform3D ik_transform = p_godot_skeleton_aligned_transform->get_transform();
 	p_godot_skeleton_aligned_transform->set_transform(Transform3D(rotation, ik_transform.origin));
 	p_godot_skeleton_aligned_transform->_propagate_transform_changed();
