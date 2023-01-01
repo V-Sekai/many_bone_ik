@@ -58,11 +58,14 @@ class IKKusudama : public Resource {
 	 */
 	TypedArray<IKLimitCone> limit_cones;
 
+	Quaternion twist_min_rot;
 	Vector3 twist_min_vec;
-	Vector3 twist_center_vec;
-	real_t twist_half_range_cos = 0;
-	Vector3 twist_tan;
 	Vector3 twist_max_vec;
+	Vector3 twist_center_vec;
+	Quaternion twist_center_rot;
+	Quaternion twist_max_rot;
+	real_t twist_half_range_half_cos = 0;
+	Vector3 twist_tan;
 	bool flipped_bounds = false;
 
 	/**
@@ -135,7 +138,6 @@ public:
 	 */
 	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampen, real_t p_cos_half_angle_dampen);
 
-	real_t signed_angle_difference(real_t min_angle, real_t p_super);
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
 	 * The "Swing" component is the final direction of the bone. The "Twist" component represents how much
@@ -223,7 +225,6 @@ public:
 	virtual void update_rotational_freedom();
 	virtual TypedArray<IKLimitCone> get_limit_cones() const;
 	virtual void set_limit_cones(TypedArray<IKLimitCone> p_cones);
-	static real_t _to_tau(real_t angle);
 };
 
 #endif // IK_KUSUDAMA_H
