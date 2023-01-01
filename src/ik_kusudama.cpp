@@ -335,14 +335,8 @@ void IKKusudama::get_swing_twist(
 }
 
 real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) {
-	Quaternion inv_rot;
-	if (inv_rot.is_finite() && !inv_rot.is_equal_approx(Quaternion())) {
-		inv_rot = bone_attached_to->get_constraint_orientation_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
-	}
-	Quaternion align_rot;
-	if (!inv_rot.is_equal_approx(Quaternion())) {
-		align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
-	}
+	Quaternion inv_rot = bone_attached_to->get_constraint_orientation_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
+	Quaternion align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
 	Quaternion swing;
 	Quaternion twist;
 	get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
@@ -350,7 +344,7 @@ real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) {
 	if (range_angle == 0.0) {
 		return 0;
 	}
-	return CLAMP(_to_tau(signed_angle_difference(angle, min_axial_angle)) / range_angle, 0, 1);
+	return _to_tau(signed_angle_difference(angle, min_axial_angle)) / range_angle;
 }
 
 void IKKusudama::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation) {
