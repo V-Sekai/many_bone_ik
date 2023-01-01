@@ -29,9 +29,7 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 
 protected:
 	void _notification(int p_what);
-	static void _bind_methods() {
-		ClassDB::bind_method(D_METHOD("_joint_tree_rmb_select"), &ManyBoneIK3DEditor::_joint_tree_rmb_select);
-	}
+	static void _bind_methods();
 
 public:
 	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, SkeletonModification3DManyBoneIK *p_ik);

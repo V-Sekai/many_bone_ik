@@ -217,3 +217,7 @@ TreeItem *ManyBoneIK3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
 
 	return nullptr;
 }
+
+void ManyBoneIK3DEditor::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("_joint_tree_rmb_select"), &ManyBoneIK3DEditor::_joint_tree_rmb_select);
+}

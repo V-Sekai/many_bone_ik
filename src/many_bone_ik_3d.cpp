@@ -95,6 +95,12 @@ void SkeletonModification3DManyBoneIK::_remove_pin(int32_t p_index) {
 }
 
 void SkeletonModification3DManyBoneIK::update_ik_bones_transform() {
+	if (!stack) {
+		return;
+	}
+	if (!stack->skeleton) {
+		return;
+	}
 	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {
@@ -1070,6 +1076,9 @@ Transform3D SkeletonModification3DManyBoneIK::get_constraint_orientation_transfo
 void SkeletonModification3DManyBoneIK::set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
+	if (!stack) {
+		return;
+	}
 	if (!stack->skeleton) {
 		return;
 	}
@@ -1117,6 +1126,9 @@ Transform3D SkeletonModification3DManyBoneIK::get_constraint_twist_transform(int
 void SkeletonModification3DManyBoneIK::set_constraint_twist_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
+	if (!stack) {
+		return;
+	}
 	if (!stack->skeleton) {
 		return;
 	}
