@@ -137,7 +137,6 @@ void ManyBoneIK3DEditor::create_editors() {
 		return;
 	}
 	set_h_size_flags(SIZE_EXPAND_FILL);
-	set_focus_mode(FOCUS_ALL);
 	const Color section_color = get_theme_color(SNAME("prop_subsection"), SNAME("Editor"));
 	EditorInspectorSection *bones_section = memnew(EditorInspectorSection);
 	bones_section->setup("bones", "Bones", ik->get_skeleton(), section_color, true);
@@ -187,7 +186,6 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 			}
 			joint_tree->set_selected(node, 0);
 			joint_tree->scroll_to_item(ti);
-			ik->set_ui_selected_bone(p_idx);
 		}
 		return;
 	}
