@@ -28,11 +28,11 @@ bool ManyBoneIK3DEditorPlugin::has_main_screen() const {
 }
 
 bool ManyBoneIK3DEditorPlugin::handles(Object *p_object) const {
-	return p_object->is_class("ManyBoneIK3D");
+	return p_object->is_class("SkeletonModification3DManyBoneIK");
 }
 
 String ManyBoneIK3DEditorPlugin::get_name() const {
-	return "ManyBoneIK3D";
+	return "SkeletonModification3DManyBoneIK";
 }
 
 ManyBoneIK3DEditorPlugin::ManyBoneIK3DEditorPlugin() {
@@ -45,11 +45,11 @@ ManyBoneIK3DEditorPlugin::ManyBoneIK3DEditorPlugin() {
 }
 
 bool EditorInspectorPluginManyBoneIK::can_handle(Object *p_object) {
-	return Object::cast_to<ManyBoneIK3D>(p_object) != nullptr;
+	return Object::cast_to<SkeletonModification3DManyBoneIK>(p_object) != nullptr;
 }
 
 void EditorInspectorPluginManyBoneIK::parse_begin(Object *p_object) {
-	ManyBoneIK3D *ik = Object::cast_to<ManyBoneIK3D>(p_object);
+	SkeletonModification3DManyBoneIK *ik = Object::cast_to<SkeletonModification3DManyBoneIK>(p_object);
 	ERR_FAIL_COND(!ik);
 
 	skel_editor = memnew(ManyBoneIK3DEditor(this, ik));
@@ -71,7 +71,7 @@ void ManyBoneIK3DEditor::_notification(int p_what) {
 	}
 }
 
-inline ManyBoneIK3DEditor::ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik) {
+inline ManyBoneIK3DEditor::ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, SkeletonModification3DManyBoneIK *p_ik) {
 	ik = p_ik;
 	create_editors();
 }

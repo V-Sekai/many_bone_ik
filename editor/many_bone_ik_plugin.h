@@ -24,7 +24,7 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 	GDCLASS(ManyBoneIK3DEditor, VBoxContainer);
 
 	Tree *joint_tree = nullptr;
-	ManyBoneIK3D *ik = nullptr;
+	SkeletonModification3DManyBoneIK *ik = nullptr;
 	BoneId selected_bone = -1;
 
 protected:
@@ -34,7 +34,7 @@ protected:
 	}
 
 public:
-	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik);
+	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, SkeletonModification3DManyBoneIK *p_ik);
 	void _update_properties();
 	void update_joint_tree();
 	void create_editors();
