@@ -60,7 +60,7 @@ private:
 	TypedArray<StringName> filter_bones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	int32_t iterations_per_frame = 20;
-	float default_damp = Math::deg_to_rad(10.0f);
+	float default_damp = -1.0f;
 	bool queue_debug_skeleton = false;
 	Ref<IKNode3D> godot_skeleton_transform = Ref<IKNode3D>(memnew(IKNode3D));
 	Transform3D godot_skeleton_transform_inverse;
