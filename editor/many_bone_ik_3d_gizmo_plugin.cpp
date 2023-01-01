@@ -58,7 +58,7 @@ void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<ManyBoneIK3D>(p_spatial);
+	return !cast_to<Skeleton3D>(p_spatial);
 }
 
 String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
@@ -68,16 +68,16 @@ String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
 void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!p_gizmo) {
 		return;
-	}
-	p_gizmo->clear();
-	if (!p_gizmo->is_selected()) {
-		return;
-	}
+	}	
 	Node3D *node_3d = p_gizmo->get_node_3d();
 	if (!node_3d) {
 		return;
 	}
 	if (!node_3d->is_visible_in_tree()) {
+		return;
+	}
+	p_gizmo->clear();
+	if (!p_gizmo->is_selected()) {
 		return;
 	}
 	Node *root = node_3d->get_tree()->get_edited_scene_root();
