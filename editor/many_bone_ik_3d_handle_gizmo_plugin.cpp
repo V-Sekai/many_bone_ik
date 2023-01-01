@@ -73,7 +73,7 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!p_gizmo->is_selected()) {
 		return;
 	}
-	Skeleton3D  *skeleton_3d = cast_to<Skeleton3D>(p_gizmo->get_node_3d());
+	Skeleton3D *skeleton_3d = cast_to<Skeleton3D>(p_gizmo->get_node_3d());
 	if (!skeleton_3d) {
 		return;
 	}
@@ -89,34 +89,41 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		}
 		Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
 		if (many_bone_ik_skeleton != skeleton_3d) {
-			continue;
-		}
-		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
-		int bones_to_process_i = 0;
-		Vector<BoneId> processing_bones;
-		Vector<Ref<IKBoneSegment>> bone_segments = many_bone_ik->get_segmented_skeletons();
-		for (Ref<IKBoneSegment> bone_segment : bone_segments) {
-			if (bone_segment.is_null()) {
+			ManyBoneIK3D *ik = cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
+			if (!ik) {
+				return;
+			}
+			Skeleton3D *ik_skeleton = ik->get_skeleton();
+			if (!ik_skeleton) {
 				continue;
 			}
-			while (bones_to_process_i < bones_to_process.size()) {
-				int current_bone_idx = bones_to_process[bones_to_process_i];
-				processing_bones.push_back(current_bone_idx);
-				Vector<int> child_bones_vector = many_bone_ik_skeleton->get_bone_children(current_bone_idx);
-				for (int child_bone_idx : child_bones_vector) {
-					bones_to_process.push_back(child_bone_idx);
-				}
-				bones_to_process_i++;
-			}
-			Color current_bone_color = bone_color;
-			for (BoneId bone_i : bones_to_process) {
-				Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
-				if (ik_bone.is_null()) {
+			Vector<int> bones_to_process = ik_skeleton->get_parentless_bones();
+			int bones_to_process_i = 0;
+			Vector<BoneId> processing_bones;
+			Vector<Ref<IKBoneSegment>> bone_segments = ik->get_segmented_skeletons();
+			for (Ref<IKBoneSegment> bone_segment : bone_segments) {
+				if (bone_segment.is_null()) {
 					continue;
 				}
-				if (ik_bone->is_axially_constrained()) {
-					create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
-					create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+				while (bones_to_process_i < bones_to_process.size()) {
+					int current_bone_idx = bones_to_process[bones_to_process_i];
+					processing_bones.push_back(current_bone_idx);
+					Vector<int> child_bones_vector = ik_skeleton->get_bone_children(current_bone_idx);
+					for (int child_bone_idx : child_bones_vector) {
+						bones_to_process.push_back(child_bone_idx);
+					}
+					bones_to_process_i++;
+				}
+				Color current_bone_color = bone_color;
+				for (BoneId bone_i : bones_to_process) {
+					Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
+					if (ik_bone.is_null()) {
+						continue;
+					}
+					if (ik_bone->is_axially_constrained()) {
+						create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, ik_skeleton, ik);
+						create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, ik_skeleton, ik);
+					}
 				}
 			}
 		}
@@ -146,13 +153,13 @@ int32_t ManyBoneIK3DHandleGizmoPlugin::get_priority() const {
 	return -1;
 }
 
-void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
+void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ik_skeleton, ManyBoneIK3D *p_ik) {
 	// TEST PLAN: You will also want to make sure it's robust to translations of the skeleton node and root bone
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
 	}
-	BoneId parent_idx = many_bone_ik_skeleton->get_bone_parent(current_bone_idx);
+	BoneId parent_idx = ik_skeleton->get_bone_parent(current_bone_idx);
 	LocalVector<int> bones;
 	LocalVector<float> weights;
 	bones.resize(4);
@@ -172,13 +179,13 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 		}
 	}
 	PackedFloat32Array kusudama_limit_cones;
-	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
+	if (current_bone_idx >= ik_skeleton->get_bone_count()) {
 		return;
 	}
 	if (current_bone_idx <= -1) {
 		return;
 	}
-	if (parent_idx >= many_bone_ik_skeleton->get_bone_count()) {
+	if (parent_idx >= ik_skeleton->get_bone_count()) {
 		return;
 	}
 	if (parent_idx <= -1) {
@@ -215,8 +222,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 		kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
 		out_idx += 4;
 	}
-	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
-	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
+	Vector3 v0 = ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
+	Vector3 v1 = ik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);
 	float radius = dist / 5.0;
 	int32_t current_cone = 0;
@@ -253,14 +260,14 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 	}
 }
 
-void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
+void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *ik_skeleton, ManyBoneIK3D *p_ik) {
 	// TEST PLAN:
 	// You will also want to make sure it's robust to translations of the skeleton node and root bone
 	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
 	}
-	BoneId parent_idx = many_bone_ik_skeleton->get_bone_parent(current_bone_idx);
+	BoneId parent_idx = ik_skeleton->get_bone_parent(current_bone_idx);
 	LocalVector<int> bones;
 	LocalVector<float> weights;
 	bones.resize(4);
@@ -284,13 +291,13 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	if (kusudama.is_null()) {
 		return;
 	}
-	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
+	if (current_bone_idx >= ik_skeleton->get_bone_count()) {
 		return;
 	}
 	if (current_bone_idx <= -1) {
 		return;
 	}
-	if (parent_idx >= many_bone_ik_skeleton->get_bone_count()) {
+	if (parent_idx >= ik_skeleton->get_bone_count()) {
 		return;
 	}
 	if (parent_idx <= -1) {
@@ -305,8 +312,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 
 	Transform3D twist_constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
 	float cone_radius = Math::deg_to_rad(90.0f);
-	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
-	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
+	Vector3 v0 = ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
+	Vector3 v1 = ik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);
 	float radius = dist / 5.0;
 	float w = radius * Math::sin(cone_radius);
@@ -375,7 +382,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 }
 
 EditorPluginManyBoneIKHandle::EditorPluginManyBoneIKHandle() {
-	Ref<ManyBoneIK3DHandleGizmoPlugin> many_bone_ik_gizmo_plugin;
-	many_bone_ik_gizmo_plugin.instantiate();
-	Node3DEditor::get_singleton()->add_gizmo_plugin(many_bone_ik_gizmo_plugin);
+	Ref<ManyBoneIK3DHandleGizmoPlugin> ik_gizmo_plugin;
+	ik_gizmo_plugin.instantiate();
+	Node3DEditor::get_singleton()->add_gizmo_plugin(ik_gizmo_plugin);
 }

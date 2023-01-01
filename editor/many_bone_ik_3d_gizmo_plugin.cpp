@@ -58,7 +58,7 @@ void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<Skeleton3D>(p_spatial);
+	return cast_to<ManyBoneIK3D>(p_spatial);
 }
 
 String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
@@ -87,7 +87,11 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		if (!many_bone_ik) {
 			continue;
 		}
-		Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
+		ManyBoneIK3D *ik = cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
+		if (!ik) {
+			continue;
+		}
+		Skeleton3D *many_bone_ik_skeleton = ik->get_skeleton();
 		if (many_bone_ik_skeleton != skeleton_3d) {
 			continue;
 		}
@@ -115,7 +119,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					continue;
 				}
 				if (ik_bone->is_orientationally_constrained()) {
-					create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+					create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, ik);
 				}
 			}
 		}

@@ -28,7 +28,7 @@ bool ManyBoneIK3DEditorPlugin::has_main_screen() const {
 }
 
 bool ManyBoneIK3DEditorPlugin::handles(Object *p_object) const {
-	return cast_to<Skeleton3D>(p_object);
+	return cast_to<ManyBoneIK3D>(p_object);
 }
 
 String ManyBoneIK3DEditorPlugin::get_name() const {
@@ -49,21 +49,10 @@ bool EditorInspectorPluginManyBoneIK::can_handle(Object *p_object) {
 }
 
 void EditorInspectorPluginManyBoneIK::parse_begin(Object *p_object) {
-	ManyBoneIK3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_object);
-	ERR_FAIL_COND(!skeleton);
-	Node *root = skeleton->get_tree()->get_edited_scene_root();
-	TypedArray<Node> nodes = root->find_children("*", "ManyBoneIK3D");
-	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
-		ManyBoneIK3D *ik = cast_to<ManyBoneIK3D>(nodes[node_i]);
-		if(!ik) {
-			continue;
-		}
-		if (skeleton != ik->get_skeleton()) {
-			continue;
-		}		
-		skel_editor = memnew(ManyBoneIK3DEditor(this, ik));
-		add_custom_control(skel_editor);
-	}
+	ManyBoneIK3D *ik = Object::cast_to<ManyBoneIK3D>(p_object);
+	ERR_FAIL_COND(!ik);
+	skel_editor = memnew(ManyBoneIK3DEditor(this, ik));
+	add_custom_control(skel_editor);
 }
 
 void ManyBoneIK3DEditor::_notification(int p_what) {
