@@ -85,13 +85,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
 		SkeletonModification3DManyBoneIK *many_bone_ik = cast_to<SkeletonModification3DManyBoneIK>(nodes[node_i]);
 		if (!many_bone_ik) {
-			continue;
-		}
-		if (many_bone_ik->get_modification_stack().is_null()) {
-			continue;
-		}
-		if (!many_bone_ik->get_modification_stack()->get_is_setup()) {
-			continue;
+			return;
 		}
 		Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_modification_stack()->get_skeleton();
 		if (!many_bone_ik_skeleton) {
