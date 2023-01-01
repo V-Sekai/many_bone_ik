@@ -151,7 +151,6 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	joint_tree = memnew(Tree);
 	joint_tree->set_columns(1);
-	joint_tree->set_focus_mode(Control::FOCUS_NONE);
 	joint_tree->set_select_mode(Tree::SELECT_SINGLE);
 	joint_tree->set_hide_root(true);
 	joint_tree->set_v_size_flags(SIZE_EXPAND_FILL);
