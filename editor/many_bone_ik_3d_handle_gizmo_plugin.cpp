@@ -324,7 +324,11 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		axial_from_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
 	}
 	float start_angle = kusudama->get_min_axial_angle();
-	float end_angle = start_angle + kusudama->get_range_angle();
+	bool negative_range = kusudama->get_range_angle() < real_t(0.0);
+	if (negative_range) {
+		start_angle = start_angle + kusudama->get_range_angle();
+	}
+	float end_angle = start_angle + Math::abs(kusudama->get_range_angle());
 	float gaps = Math::deg_to_rad(15.0f);
 	for (float theta = start_angle; theta < end_angle; theta += gaps) {
 		const float ra = theta;
@@ -359,7 +363,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		p_gizmo->add_handles(handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
 	{
-		float current_angle = kusudama->get_min_axial_angle() + (ik_kusudama->get_current_twist_rotation(ik_bone) * ik_kusudama->get_range_angle());
+		float current_angle = kusudama->get_min_axial_angle() + Math::abs(ik_kusudama->get_current_twist_rotation(ik_bone->get_godot_skeleton_aligned_transform(), ik_bone->get_bone_direction_transform(), ik_bone->get_constraint_twist_transform()) * ik_kusudama->get_range_angle());
 		const Point2 a = Vector2(Math::sin(current_angle), Math::cos(current_angle)) * w;
 		Transform3D center_relative_to_mesh;
 		Transform3D axial_from_relative_to_mesh;
