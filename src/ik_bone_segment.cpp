@@ -217,15 +217,13 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 		QCP qcp = QCP(evec_prec, eval_prec);
 		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate).normalized();
 		Vector3 translation = qcp.get_translation();
-		if (!rot.is_equal_approx(Quaternion())) {
-			if (p_dampening != -1.0f) {
-				bone_damp = p_dampening;
-				rot = clamp_to_angle(rot, bone_damp).normalized();
-			} else {
-				rot = clamp_to_quadrance_angle(rot, bone_damp).normalized();
-			}
-			p_for_bone->get_godot_skeleton_aligned_transform()->rotate_local_with_global(rot);
+		if (p_dampening != -1.0f) {
+			bone_damp = p_dampening;
+			rot = clamp_to_angle(rot, bone_damp).normalized();
+		} else {
+			rot = clamp_to_quadrance_angle(rot, bone_damp).normalized();
 		}
+		p_for_bone->get_godot_skeleton_aligned_transform()->rotate_local_with_global(rot);
 		Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 		p_for_bone->set_global_pose(result.orthonormalized());
 	}
