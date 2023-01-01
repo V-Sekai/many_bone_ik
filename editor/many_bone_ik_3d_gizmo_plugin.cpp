@@ -70,6 +70,9 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		return;
 	}
 	p_gizmo->clear();
+	if (!p_gizmo->is_selected()) {
+		return;
+	}
 	Skeleton3D *skeleton_3d = cast_to<Skeleton3D>(p_gizmo->get_node_3d());
 	if (!skeleton_3d) {
 		return;
@@ -77,10 +80,6 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!skeleton_3d->is_visible_in_tree()) {
 		return;
 	}
-	if (!skeleton_3d->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(this, &ManyBoneIK3DGizmoPlugin::redraw).bind(p_gizmo))) {
-		skeleton_3d->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(this, &ManyBoneIK3DGizmoPlugin::redraw).bind(p_gizmo));
-	}
-
 	Node *root = skeleton_3d->get_tree()->get_edited_scene_root();
 	TypedArray<Node> nodes = root->find_children("*", "ManyBoneIK3D");
 	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
@@ -145,7 +144,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	bones[0] = parent_idx;
 	weights[0] = 1;
 
-	Transform3D constraint_relative_to_the_skeleton = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * many_bone_ik_skeleton->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+	Transform3D constraint_relative_to_the_skeleton = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
 	kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
