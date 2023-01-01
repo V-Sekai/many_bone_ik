@@ -75,8 +75,8 @@ Vector3 IKEffector3D::get_direction_priorities() const {
 void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK3D *p_many_bone_ik) {
 	ERR_FAIL_NULL(p_skeleton);
 	ERR_FAIL_NULL(for_bone);
-	Node3D *current_target_node = cast_to<Node3D>(p_many_bone_ik->get_node_or_null(target_node_path));
-	if (!current_target_node || !current_target_node->is_visible_in_tree()) {
+	Node3D *current_target_node = cast_to<Node3D>(p_skeleton->get_node_or_null(target_node_path));
+	if (!current_target_node || !p_skeleton->is_visible_in_tree()) {
 		target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * for_bone->get_ik_transform()->get_global_transform();
 		return;
 	}

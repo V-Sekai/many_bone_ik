@@ -100,9 +100,9 @@ void ManyBoneIK3D::update_ik_bones_transform() {
 		if (bone.is_null()) {
 			continue;
 		}
-		bone->set_initial_pose(get_skeleton());
+		bone->set_initial_pose(stack->skeleton);
 		if (bone->is_pinned()) {
-			bone->get_pin()->update_target_global_transform(get_skeleton(), this);
+			bone->get_pin()->update_target_global_transform(stack->skeleton, this);
 		}
 	}
 }
@@ -116,7 +116,7 @@ void ManyBoneIK3D::update_skeleton_bones_transform() {
 		if (bone->get_bone_id() == -1) {
 			continue;
 		}
-		bone->set_skeleton_bone_pose(get_skeleton());
+		bone->set_skeleton_bone_pose(stack->skeleton);
 	}
 }
 
@@ -136,10 +136,10 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
 		const uint32_t pin_usage = get_ui_selected_bone() == pin_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 		effector_name.usage = pin_usage | PROPERTY_USAGE_READ_ONLY;
-		if (get_skeleton()) {
+		if (stack->skeleton) {
 			String names;
-			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-				String name = get_skeleton()->get_bone_name(bone_i);
+			for (int bone_i = 0; bone_i < stack->skeleton->get_bone_count(); bone_i++) {
+				String name = stack->skeleton->get_bone_name(bone_i);
 				if (existing_pins.has(name)) {
 					continue;
 				}
@@ -178,10 +178,10 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		const uint32_t constraint_usage = get_ui_selected_bone() == constraint_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 		bone_name.usage = constraint_usage | PROPERTY_USAGE_READ_ONLY;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
-		if (get_skeleton()) {
+		if (stack->skeleton) {
 			String names;
-			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-				String name = get_skeleton()->get_bone_name(bone_i);
+			for (int bone_i = 0; bone_i < stack->skeleton->get_bone_count(); bone_i++) {
+				String name = stack->skeleton->get_bone_name(bone_i);
 				if (existing_constraints.has(name)) {
 					continue;
 				}
@@ -230,10 +230,10 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			const uint32_t damp_usage = get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 			bone_name.usage = damp_usage | PROPERTY_USAGE_READ_ONLY;
 			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
-			if (get_skeleton()) {
+			if (stack->skeleton) {
 				String names;
-				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-					String name = get_skeleton()->get_bone_name(bone_i);
+				for (int bone_i = 0; bone_i < stack->skeleton->get_bone_count(); bone_i++) {
+					String name = stack->skeleton->get_bone_name(bone_i);
 					name += ",";
 					names += name;
 				}
@@ -288,7 +288,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, bone_count, false);
 		if (what == "bone_name") {
-			Skeleton3D *skeleton = get_skeleton();
+			Skeleton3D *skeleton = stack->skeleton;
 			if (!skeleton) {
 				return false;
 			}
@@ -315,11 +315,11 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 					r_ret = 0;
 					continue;
 				}
-				if (!get_skeleton()) {
+				if (!stack->skeleton) {
 					r_ret = 0;
 					continue;
 				}
-				Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+				Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(stack->skeleton->find_bone(bone_name));
 				if (ik_bone.is_null()) {
 					r_ret = 0;
 					continue;
@@ -471,10 +471,8 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &ManyBoneIK3D::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "index", "rotation"), &ManyBoneIK3D::set_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &ManyBoneIK3D::remove_constraint);
-	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &ManyBoneIK3D::set_skeleton_node_path);
-	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &ManyBoneIK3D::get_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("register_skeleton"), &ManyBoneIK3D::register_skeleton);
-	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK3D::register_skeleton);
+	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK3D::reset_constraints);
 	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &ManyBoneIK3D::set_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &ManyBoneIK3D::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &ManyBoneIK3D::set_dirty);
@@ -723,7 +721,8 @@ void ManyBoneIK3D::_set_pin_bone_name(int32_t p_effector_index, StringName p_nam
 
 void ManyBoneIK3D::set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path) {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
-	Node *node = get_node_or_null(p_node_path);
+	ERR_FAIL_INDEX(!stack->skeleton, pins.size());
+	Node *node = stack->skeleton->get_node_or_null(p_node_path);
 	if (!node) {
 		return;
 	}
@@ -737,11 +736,10 @@ NodePath ManyBoneIK3D::get_pin_nodepath(int32_t p_effector_index) const {
 	return effector_template->get_target_node();
 }
 
-void ManyBoneIK3D::execute(real_t delta) {
-	if (!is_visible_in_tree()) {
-		return;
-	}
-	if (!get_skeleton()) {
+void ManyBoneIK3D::_execute(real_t delta) {
+	ERR_FAIL_COND_MSG(!stack || !is_setup || stack->skeleton == nullptr,
+			"Modification is not setup and therefore cannot execute!");
+	if (!enabled) {
 		return;
 	}
 	if (get_pin_count() == 0) {
@@ -751,16 +749,16 @@ void ManyBoneIK3D::execute(real_t delta) {
 		set_dirty();
 	}
 	if (is_dirty) {
-		skeleton_changed(get_skeleton());
+		_setup_modification(stack);
 		is_dirty = false;
-		update_gizmos();
+		stack->skeleton->update_gizmos();
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
 		if (root_ik_bone.is_null()) {
 			return;
 		}
-		Skeleton3D *skeleton = get_skeleton();
+		Skeleton3D *skeleton = stack->skeleton;
 		godot_skeleton_transform->set_transform(skeleton->get_transform());
 		godot_skeleton_transform_inverse = skeleton->get_transform().affine_inverse();
 	}
@@ -786,19 +784,26 @@ void ManyBoneIK3D::execute(real_t delta) {
 	update_skeleton_bones_transform();
 }
 
-void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
-	if (!p_skeleton) {
+void ManyBoneIK3D::_setup_modification(SkeletonModificationStack3D *p_stack) {
+	if (!is_setup) {
 		return;
 	}
-	Vector<int32_t> roots = p_skeleton->get_parentless_bones();
+	if (!stack) {
+		return;
+	}
+	if (!stack->skeleton) {
+		return;
+	}
+	Vector<int32_t> roots = stack->skeleton->get_parentless_bones();
 	if (!roots.size()) {
 		return;
 	}
+	register_skeleton();
 	bone_list.clear();
 	segmented_skeletons.clear();
 	for (BoneId root_bone_index : roots) {
-		StringName parentless_bone = p_skeleton->get_bone_name(root_bone_index);
-		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(p_skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1)));
+		StringName parentless_bone = stack->skeleton->get_bone_name(root_bone_index);
+		Ref<IKBoneSegment> segmented_skeleton = Ref<IKBoneSegment>(memnew(IKBoneSegment(stack->skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1)));
 		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
 		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, -1, this);
 		Vector<Ref<IKBone3D>> new_bone_list;
@@ -811,14 +816,14 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	}
 	update_ik_bones_transform();
 	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-		ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
+		ik_bone_3d->update_default_bone_direction_transform(stack->skeleton);
 	}
 	for (int constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		if (unlikely((constraint_i) < 0 || (constraint_i) >= (constraint_names.size()))) {
 			break;
 		}
 		String bone = constraint_names[constraint_i];
-		BoneId bone_id = p_skeleton->find_bone(bone);
+		BoneId bone_id = stack->skeleton->find_bone(bone);
 		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
 			if (ik_bone_3d->get_bone_id() != bone_id) {
 				continue;
@@ -906,44 +911,6 @@ int32_t ManyBoneIK3D::find_constraint(String p_string) const {
 	return -1;
 }
 
-Skeleton3D *ManyBoneIK3D::get_skeleton() const {
-	Node *node = get_node_or_null(skeleton_node_path);
-	if (!node) {
-		return nullptr;
-	}
-	return cast_to<Skeleton3D>(node);
-}
-
-NodePath ManyBoneIK3D::get_skeleton_node_path() {
-	return skeleton_node_path;
-}
-
-void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
-	skeleton_node_path = p_skeleton_node_path;
-	register_skeleton();
-	set_dirty(); // Duplicated for ease of verification.
-}
-
-void ManyBoneIK3D::_notification(int p_what) {
-	switch (p_what) {
-		case NOTIFICATION_READY: {
-			set_process_internal(true);
-			set_notify_transform(true);
-		} break;
-		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (is_dirty) {
-				skeleton_changed(get_skeleton());
-			}
-			if (is_visible_in_tree()) {
-				execute(get_process_delta_time());
-			}
-		} break;
-		case NOTIFICATION_TRANSFORM_CHANGED: {
-			update_gizmos();
-		} break;
-	}
-}
-
 void ManyBoneIK3D::remove_constraint(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 
@@ -972,7 +939,7 @@ real_t ManyBoneIK3D::get_kusudama_twist_current(int32_t p_index) {
 		if (segmented_skeleton.is_null()) {
 			continue;
 		}
-		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(stack->skeleton->find_bone(bone_name));
 		if (ik_bone.is_null()) {
 			continue;
 		}
@@ -991,7 +958,7 @@ void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation
 		if (segmented_skeleton.is_null()) {
 			continue;
 		}
-		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(stack->skeleton->find_bone(bone_name));
 		if (ik_bone.is_null()) {
 			continue;
 		}
@@ -999,7 +966,7 @@ void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation
 			continue;
 		}
 		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_rotation);
-		ik_bone->set_skeleton_bone_pose(get_skeleton());
+		ik_bone->set_skeleton_bone_pose(stack->skeleton);
 	}
 }
 
@@ -1038,7 +1005,7 @@ void ManyBoneIK3D::set_bone_direction_transform(int32_t p_index, Transform3D p_t
 		if (segmented_skeleton.is_null()) {
 			continue;
 		}
-		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(stack->skeleton->find_bone(bone_name));
 		if (ik_bone.is_null()) {
 			continue;
 		}
@@ -1056,14 +1023,14 @@ Transform3D ManyBoneIK3D::get_bone_direction_transform(int32_t p_index) const {
 	if (!segmented_skeletons.size()) {
 		return Transform3D();
 	}
-	if (!get_skeleton()) {
+	if (!stack->skeleton) {
 		return Transform3D();
 	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
 		}
-		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(stack->skeleton->find_bone(bone_name));
 		if (ik_bone.is_null()) {
 			continue;
 		}
@@ -1081,14 +1048,14 @@ Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) 
 	if (!segmented_skeletons.size()) {
 		return Transform3D();
 	}
-	if (!get_skeleton()) {
+	if (!stack->skeleton) {
 		return Transform3D();
 	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
 		}
-		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(stack->skeleton->find_bone(bone_name));
 		if (ik_bone.is_null()) {
 			continue;
 		}
@@ -1103,14 +1070,14 @@ Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) 
 void ManyBoneIK3D::set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
-	if (!get_skeleton()) {
+	if (!stack->skeleton) {
 		return;
 	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
 		}
-		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(stack->skeleton->find_bone(bone_name));
 		if (ik_bone.is_null()) {
 			continue;
 		}
@@ -1128,14 +1095,14 @@ Transform3D ManyBoneIK3D::get_constraint_twist_transform(int32_t p_index) const 
 	if (!segmented_skeletons.size()) {
 		return Transform3D();
 	}
-	if (!get_skeleton()) {
+	if (!stack->skeleton) {
 		return Transform3D();
 	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
 		}
-		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(stack->skeleton->find_bone(bone_name));
 		if (ik_bone.is_null()) {
 			continue;
 		}
@@ -1150,14 +1117,14 @@ Transform3D ManyBoneIK3D::get_constraint_twist_transform(int32_t p_index) const 
 void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
-	if (!get_skeleton()) {
+	if (!stack->skeleton) {
 		return;
 	}
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
 		}
-		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(stack->skeleton->find_bone(bone_name));
 		if (ik_bone.is_null()) {
 			continue;
 		}
@@ -1183,7 +1150,7 @@ void ManyBoneIK3D::register_skeleton() {
 }
 
 void ManyBoneIK3D::reset_constraints() {
-	Skeleton3D *skeleton = get_skeleton();
+	Skeleton3D *skeleton = stack->skeleton;
 	if (skeleton) {
 		_set_pin_count(skeleton->get_bone_count());
 		_set_constraint_count(skeleton->get_bone_count());
@@ -1223,4 +1190,7 @@ TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
 	notify_property_list_changed();
+}
+Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
+	return godot_skeleton_transform_inverse;
 }

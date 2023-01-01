@@ -38,10 +38,11 @@
 #include "ik_bone_3d.h"
 #include "ik_effector_template.h"
 #include "math/ik_node_3d.h"
+#include "scene/resources/skeleton_modification_3d.h"
 
 class IKBoneSegment;
-class ManyBoneIK3D : public Node3D {
-	GDCLASS(ManyBoneIK3D, Node3D);
+class ManyBoneIK3D : public SkeletonModification3D {
+	GDCLASS(ManyBoneIK3D, SkeletonModification3D);
 
 private:
 	bool is_constraint_mode = false;
@@ -83,14 +84,12 @@ protected:
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
-	virtual void skeleton_changed(Skeleton3D *skeleton);
-	virtual void execute(real_t delta);
-	void _notification(int p_what);
 
 public:
-	Transform3D get_godot_skeleton_transform_inverse() {
-		return godot_skeleton_transform_inverse;
-	}
+	virtual void _execute(real_t p_delta) override;
+	virtual void _setup_modification(SkeletonModificationStack3D *p_stack) override;
+
+	Transform3D get_godot_skeleton_transform_inverse();
 	void set_filter_bones(TypedArray<StringName> p_filter_bones);
 	TypedArray<StringName> get_filter_bones();
 	void set_ui_selected_bone(int32_t p_ui_selected_bone);
@@ -103,7 +102,6 @@ public:
 	void reset_constraints();
 
 	NodePath get_skeleton_node_path();
-	Skeleton3D *get_skeleton() const;
 	Vector<Ref<IKBone3D>> get_bone_list();
 	Vector<Ref<IKBoneSegment>> get_segmented_skeletons();
 	float get_iterations_per_frame() const;

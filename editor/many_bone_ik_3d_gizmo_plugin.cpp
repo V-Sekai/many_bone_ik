@@ -87,7 +87,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		if (!many_bone_ik) {
 			return;
 		}
-		Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
+		Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_modification_stack()->get_skeleton();
 		if (!many_bone_ik_skeleton) {
 			return;
 		}
