@@ -152,8 +152,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	s_con->add_child(joint_tree);
 	constraint_bone_section = memnew(EditorInspectorSection);
 	constraint_bone_section->setup("constraint_bone_properties", TTR("Constraint"), this, section_color, true);
-	bones_section->add_child(constraint_bone_section);
-	constraint_bone_section->unfold();
+	add_child(constraint_bone_section);
 
 	bone_damp_float = memnew(EditorPropertyFloat());
 	bone_damp_float->hide();
@@ -260,6 +259,8 @@ void ManyBoneIK3DEditor::create_editors() {
 	bone_direction_transform->set_selectable(false);
 	bone_direction_transform->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(bone_direction_transform);
+	
+	constraint_bone_section->unfold();
 }
 
 void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
