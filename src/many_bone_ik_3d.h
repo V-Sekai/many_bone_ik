@@ -41,8 +41,8 @@
 #include "scene/resources/skeleton_modification_3d.h"
 
 class IKBoneSegment;
-class SkeletonModification3DManyBoneIK : public SkeletonModification3D {
-	GDCLASS(SkeletonModification3DManyBoneIK, SkeletonModification3D);
+class ManyBoneIK3D : public SkeletonModification3D {
+	GDCLASS(ManyBoneIK3D, SkeletonModification3D);
 
 private:
 	bool is_constraint_mode = false;
@@ -150,8 +150,8 @@ public:
 	int32_t get_bone_count() const;
 	void set_bone_damp(int32_t p_index, real_t p_damp);
 	real_t get_bone_damp(int32_t p_index) const;
-	SkeletonModification3DManyBoneIK();
-	~SkeletonModification3DManyBoneIK();
+	ManyBoneIK3D();
+	~ManyBoneIK3D();
 	void set_dirty();
 };
 

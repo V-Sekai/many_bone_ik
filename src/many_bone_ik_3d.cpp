@@ -38,7 +38,7 @@
 #include "editor/editor_node.h"
 #endif
 
-void SkeletonModification3DManyBoneIK::_set_pin_count(int32_t p_value) {
+void ManyBoneIK3D::_set_pin_count(int32_t p_value) {
 	int32_t old_count = pins.size();
 	pin_count = p_value;
 	pins.resize(p_value);
@@ -49,11 +49,11 @@ void SkeletonModification3DManyBoneIK::_set_pin_count(int32_t p_value) {
 	notify_property_list_changed();
 }
 
-int32_t SkeletonModification3DManyBoneIK::get_pin_count() const {
+int32_t ManyBoneIK3D::get_pin_count() const {
 	return pin_count;
 }
 
-void SkeletonModification3DManyBoneIK::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
+void ManyBoneIK3D::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
 	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate> effector_template = pins[p_pin_index];
 	if (effector_template.is_null()) {
@@ -64,7 +64,7 @@ void SkeletonModification3DManyBoneIK::set_pin_bone(int32_t p_pin_index, const S
 	set_dirty();
 }
 
-void SkeletonModification3DManyBoneIK::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_target_node) {
+void ManyBoneIK3D::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_target_node) {
 	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate> effector_template = pins[p_pin_index];
 	if (effector_template.is_null()) {
@@ -75,17 +75,17 @@ void SkeletonModification3DManyBoneIK::set_pin_target_nodepath(int32_t p_pin_ind
 	set_dirty();
 }
 
-NodePath SkeletonModification3DManyBoneIK::get_pin_target_nodepath(int32_t p_pin_index) {
+NodePath ManyBoneIK3D::get_pin_target_nodepath(int32_t p_pin_index) {
 	ERR_FAIL_INDEX_V(p_pin_index, pins.size(), NodePath());
 	const Ref<IKEffectorTemplate> effector_template = pins[p_pin_index];
 	return effector_template->get_target_node();
 }
 
-Vector<Ref<IKEffectorTemplate>> SkeletonModification3DManyBoneIK::get_bone_effectors() const {
+Vector<Ref<IKEffectorTemplate>> ManyBoneIK3D::get_bone_effectors() const {
 	return pins;
 }
 
-void SkeletonModification3DManyBoneIK::_remove_pin(int32_t p_index) {
+void ManyBoneIK3D::_remove_pin(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, pins.size());
 	pins.remove_at(p_index);
 	pin_count--;
@@ -94,7 +94,7 @@ void SkeletonModification3DManyBoneIK::_remove_pin(int32_t p_index) {
 	notify_property_list_changed();
 }
 
-void SkeletonModification3DManyBoneIK::update_ik_bones_transform() {
+void ManyBoneIK3D::update_ik_bones_transform() {
 	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {
@@ -107,7 +107,7 @@ void SkeletonModification3DManyBoneIK::update_ik_bones_transform() {
 	}
 }
 
-void SkeletonModification3DManyBoneIK::update_skeleton_bones_transform() {
+void ManyBoneIK3D::update_skeleton_bones_transform() {
 	for (int32_t bone_i = bone_list.size(); bone_i-- > 0;) {
 		Ref<IKBone3D> bone = bone_list[bone_i];
 		if (bone.is_null()) {
@@ -120,7 +120,7 @@ void SkeletonModification3DManyBoneIK::update_skeleton_bones_transform() {
 	}
 }
 
-void SkeletonModification3DManyBoneIK::_get_property_list(List<PropertyInfo> *p_list) const {
+void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	RBSet<String> existing_pins;
 	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
 		const String name = get_pin_bone_name(pin_i);
@@ -250,7 +250,7 @@ void SkeletonModification3DManyBoneIK::_get_property_list(List<PropertyInfo> *p_
 	}
 }
 
-bool SkeletonModification3DManyBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
+bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 	String name = p_name;
 	if (name == "constraint_count") {
 		r_ret = get_constraint_count();
@@ -366,7 +366,7 @@ bool SkeletonModification3DManyBoneIK::_get(const StringName &p_name, Variant &r
 	return false;
 }
 
-bool SkeletonModification3DManyBoneIK::_set(const StringName &p_name, const Variant &p_value) {
+bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 	String name = p_name;
 	if (name == "constraint_count") {
 		_set_constraint_count(p_value);
@@ -460,53 +460,53 @@ bool SkeletonModification3DManyBoneIK::_set(const StringName &p_name, const Vari
 	return false;
 }
 
-void SkeletonModification3DManyBoneIK::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &SkeletonModification3DManyBoneIK::get_constraint_twist_transform);
-	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "index", "transform"), &SkeletonModification3DManyBoneIK::set_constraint_twist_transform);
-	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform", "index"), &SkeletonModification3DManyBoneIK::get_constraint_orientation_transform);
-	ClassDB::bind_method(D_METHOD("set_constraint_orientation_transform", "index", "transform"), &SkeletonModification3DManyBoneIK::set_constraint_orientation_transform);
-	ClassDB::bind_method(D_METHOD("get_bone_direction_transform", "index"), &SkeletonModification3DManyBoneIK::get_bone_direction_transform);
-	ClassDB::bind_method(D_METHOD("set_bone_direction_transform", "index", "transform"), &SkeletonModification3DManyBoneIK::set_bone_direction_transform);
-	ClassDB::bind_method(D_METHOD("get_pin_enabled", "index"), &SkeletonModification3DManyBoneIK::get_pin_enabled);
-	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &SkeletonModification3DManyBoneIK::get_kusudama_twist_current);
-	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "index", "rotation"), &SkeletonModification3DManyBoneIK::set_kusudama_twist_current);
-	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &SkeletonModification3DManyBoneIK::remove_constraint);
-	ClassDB::bind_method(D_METHOD("register_skeleton"), &SkeletonModification3DManyBoneIK::register_skeleton);
-	ClassDB::bind_method(D_METHOD("reset_constraints"), &SkeletonModification3DManyBoneIK::reset_constraints);
-	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &SkeletonModification3DManyBoneIK::set_pin_weight);
-	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &SkeletonModification3DManyBoneIK::get_pin_weight);
-	ClassDB::bind_method(D_METHOD("set_dirty"), &SkeletonModification3DManyBoneIK::set_dirty);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_radius", "index", "cone_index", "radius"), &SkeletonModification3DManyBoneIK::set_kusudama_limit_cone_radius);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_radius", "index", "cone_index"), &SkeletonModification3DManyBoneIK::get_kusudama_limit_cone_radius);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_center", "index", "cone_index", "center"), &SkeletonModification3DManyBoneIK::set_kusudama_limit_cone_center);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_center", "index", "cone_index"), &SkeletonModification3DManyBoneIK::get_kusudama_limit_cone_center);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_count", "index", "count"), &SkeletonModification3DManyBoneIK::set_kusudama_limit_cone_count);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_count", "index"), &SkeletonModification3DManyBoneIK::get_kusudama_limit_cone_count);
-	ClassDB::bind_method(D_METHOD("set_kusudama_twist", "index", "limit"), &SkeletonModification3DManyBoneIK::set_kusudama_twist);
-	ClassDB::bind_method(D_METHOD("get_kusudama_twist", "index"), &SkeletonModification3DManyBoneIK::get_kusudama_twist);
-	ClassDB::bind_method(D_METHOD("set_pin_passthrough_factor", "index", "falloff"), &SkeletonModification3DManyBoneIK::set_pin_passthrough_factor);
-	ClassDB::bind_method(D_METHOD("get_pin_passthrough_factor", "index"), &SkeletonModification3DManyBoneIK::get_pin_passthrough_factor);
-	ClassDB::bind_method(D_METHOD("get_constraint_name", "index"), &SkeletonModification3DManyBoneIK::get_constraint_name);
-	ClassDB::bind_method(D_METHOD("get_iterations_per_frame"), &SkeletonModification3DManyBoneIK::get_iterations_per_frame);
-	ClassDB::bind_method(D_METHOD("set_iterations_per_frame", "count"), &SkeletonModification3DManyBoneIK::set_iterations_per_frame);
-	ClassDB::bind_method(D_METHOD("find_constraint", "name"), &SkeletonModification3DManyBoneIK::find_constraint);
-	ClassDB::bind_method(D_METHOD("get_constraint_count"), &SkeletonModification3DManyBoneIK::get_constraint_count);
-	ClassDB::bind_method(D_METHOD("get_pin_count"), &SkeletonModification3DManyBoneIK::get_pin_count);
-	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &SkeletonModification3DManyBoneIK::get_pin_bone_name);
-	ClassDB::bind_method(D_METHOD("get_pin_direction_priorities", "index"), &SkeletonModification3DManyBoneIK::get_pin_direction_priorities);
-	ClassDB::bind_method(D_METHOD("set_pin_direction_priorities", "index", "priority"), &SkeletonModification3DManyBoneIK::set_pin_direction_priorities);
-	ClassDB::bind_method(D_METHOD("queue_print_skeleton"), &SkeletonModification3DManyBoneIK::queue_print_skeleton);
-	ClassDB::bind_method(D_METHOD("get_default_damp"), &SkeletonModification3DManyBoneIK::get_default_damp);
-	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &SkeletonModification3DManyBoneIK::set_default_damp);
-	ClassDB::bind_method(D_METHOD("get_pin_nodepath", "index"), &SkeletonModification3DManyBoneIK::get_pin_nodepath);
-	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &SkeletonModification3DManyBoneIK::set_pin_nodepath);
-	ClassDB::bind_method(D_METHOD("get_bone_count"), &SkeletonModification3DManyBoneIK::get_bone_count);
-	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enabled"), &SkeletonModification3DManyBoneIK::set_constraint_mode);
-	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &SkeletonModification3DManyBoneIK::get_constraint_mode);
-	ClassDB::bind_method(D_METHOD("set_ui_selected_bone", "bone"), &SkeletonModification3DManyBoneIK::set_ui_selected_bone);
-	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &SkeletonModification3DManyBoneIK::get_ui_selected_bone);
-	ClassDB::bind_method(D_METHOD("set_filter_bones", "bones"), &SkeletonModification3DManyBoneIK::set_filter_bones);
-	ClassDB::bind_method(D_METHOD("get_filter_bones"), &SkeletonModification3DManyBoneIK::get_filter_bones);
+void ManyBoneIK3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
+	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_twist_transform);
+	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform", "index"), &ManyBoneIK3D::get_constraint_orientation_transform);
+	ClassDB::bind_method(D_METHOD("set_constraint_orientation_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_orientation_transform);
+	ClassDB::bind_method(D_METHOD("get_bone_direction_transform", "index"), &ManyBoneIK3D::get_bone_direction_transform);
+	ClassDB::bind_method(D_METHOD("set_bone_direction_transform", "index", "transform"), &ManyBoneIK3D::set_bone_direction_transform);
+	ClassDB::bind_method(D_METHOD("get_pin_enabled", "index"), &ManyBoneIK3D::get_pin_enabled);
+	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &ManyBoneIK3D::get_kusudama_twist_current);
+	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "index", "rotation"), &ManyBoneIK3D::set_kusudama_twist_current);
+	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &ManyBoneIK3D::remove_constraint);
+	ClassDB::bind_method(D_METHOD("register_skeleton"), &ManyBoneIK3D::register_skeleton);
+	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK3D::reset_constraints);
+	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &ManyBoneIK3D::set_pin_weight);
+	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &ManyBoneIK3D::get_pin_weight);
+	ClassDB::bind_method(D_METHOD("set_dirty"), &ManyBoneIK3D::set_dirty);
+	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_radius", "index", "cone_index", "radius"), &ManyBoneIK3D::set_kusudama_limit_cone_radius);
+	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_radius", "index", "cone_index"), &ManyBoneIK3D::get_kusudama_limit_cone_radius);
+	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_center", "index", "cone_index", "center"), &ManyBoneIK3D::set_kusudama_limit_cone_center);
+	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_center", "index", "cone_index"), &ManyBoneIK3D::get_kusudama_limit_cone_center);
+	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_count", "index", "count"), &ManyBoneIK3D::set_kusudama_limit_cone_count);
+	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_count", "index"), &ManyBoneIK3D::get_kusudama_limit_cone_count);
+	ClassDB::bind_method(D_METHOD("set_kusudama_twist", "index", "limit"), &ManyBoneIK3D::set_kusudama_twist);
+	ClassDB::bind_method(D_METHOD("get_kusudama_twist", "index"), &ManyBoneIK3D::get_kusudama_twist);
+	ClassDB::bind_method(D_METHOD("set_pin_passthrough_factor", "index", "falloff"), &ManyBoneIK3D::set_pin_passthrough_factor);
+	ClassDB::bind_method(D_METHOD("get_pin_passthrough_factor", "index"), &ManyBoneIK3D::get_pin_passthrough_factor);
+	ClassDB::bind_method(D_METHOD("get_constraint_name", "index"), &ManyBoneIK3D::get_constraint_name);
+	ClassDB::bind_method(D_METHOD("get_iterations_per_frame"), &ManyBoneIK3D::get_iterations_per_frame);
+	ClassDB::bind_method(D_METHOD("set_iterations_per_frame", "count"), &ManyBoneIK3D::set_iterations_per_frame);
+	ClassDB::bind_method(D_METHOD("find_constraint", "name"), &ManyBoneIK3D::find_constraint);
+	ClassDB::bind_method(D_METHOD("get_constraint_count"), &ManyBoneIK3D::get_constraint_count);
+	ClassDB::bind_method(D_METHOD("get_pin_count"), &ManyBoneIK3D::get_pin_count);
+	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &ManyBoneIK3D::get_pin_bone_name);
+	ClassDB::bind_method(D_METHOD("get_pin_direction_priorities", "index"), &ManyBoneIK3D::get_pin_direction_priorities);
+	ClassDB::bind_method(D_METHOD("set_pin_direction_priorities", "index", "priority"), &ManyBoneIK3D::set_pin_direction_priorities);
+	ClassDB::bind_method(D_METHOD("queue_print_skeleton"), &ManyBoneIK3D::queue_print_skeleton);
+	ClassDB::bind_method(D_METHOD("get_default_damp"), &ManyBoneIK3D::get_default_damp);
+	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &ManyBoneIK3D::set_default_damp);
+	ClassDB::bind_method(D_METHOD("get_pin_nodepath", "index"), &ManyBoneIK3D::get_pin_nodepath);
+	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &ManyBoneIK3D::set_pin_nodepath);
+	ClassDB::bind_method(D_METHOD("get_bone_count"), &ManyBoneIK3D::get_bone_count);
+	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enabled"), &ManyBoneIK3D::set_constraint_mode);
+	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &ManyBoneIK3D::get_constraint_mode);
+	ClassDB::bind_method(D_METHOD("set_ui_selected_bone", "bone"), &ManyBoneIK3D::set_ui_selected_bone);
+	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
+	ClassDB::bind_method(D_METHOD("set_filter_bones", "bones"), &ManyBoneIK3D::set_filter_bones);
+	ClassDB::bind_method(D_METHOD("get_filter_bones"), &ManyBoneIK3D::get_filter_bones);
 
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
@@ -516,23 +516,23 @@ void SkeletonModification3DManyBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "filter_bones"), "set_filter_bones", "get_filter_bones");
 }
 
-SkeletonModification3DManyBoneIK::SkeletonModification3DManyBoneIK() {
+ManyBoneIK3D::ManyBoneIK3D() {
 }
 
-SkeletonModification3DManyBoneIK::~SkeletonModification3DManyBoneIK() {
+ManyBoneIK3D::~ManyBoneIK3D() {
 }
 
-void SkeletonModification3DManyBoneIK::queue_print_skeleton() {
+void ManyBoneIK3D::queue_print_skeleton() {
 	queue_debug_skeleton = true;
 }
 
-float SkeletonModification3DManyBoneIK::get_pin_passthrough_factor(int32_t p_effector_index) const {
+float ManyBoneIK3D::get_pin_passthrough_factor(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), 0.0f);
 	const Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	return effector_template->get_passthrough_factor();
 }
 
-void SkeletonModification3DManyBoneIK::set_pin_passthrough_factor(int32_t p_effector_index, const float p_passthrough_factor) {
+void ManyBoneIK3D::set_pin_passthrough_factor(int32_t p_effector_index, const float p_passthrough_factor) {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	ERR_FAIL_NULL(effector_template);
@@ -540,7 +540,7 @@ void SkeletonModification3DManyBoneIK::set_pin_passthrough_factor(int32_t p_effe
 	set_dirty();
 }
 
-void SkeletonModification3DManyBoneIK::_set_constraint_count(int32_t p_count) {
+void ManyBoneIK3D::_set_constraint_count(int32_t p_count) {
 	int32_t old_count = constraint_names.size();
 	constraint_count = p_count;
 	constraint_names.resize(p_count);
@@ -557,22 +557,22 @@ void SkeletonModification3DManyBoneIK::_set_constraint_count(int32_t p_count) {
 	notify_property_list_changed();
 }
 
-int32_t SkeletonModification3DManyBoneIK::get_constraint_count() const {
+int32_t ManyBoneIK3D::get_constraint_count() const {
 	return constraint_count;
 }
 
-inline StringName SkeletonModification3DManyBoneIK::get_constraint_name(int32_t p_index) const {
+inline StringName ManyBoneIK3D::get_constraint_name(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), StringName());
 	return constraint_names[p_index];
 }
 
-void SkeletonModification3DManyBoneIK::set_kusudama_twist(int32_t p_index, Vector2 p_to) {
+void ManyBoneIK3D::set_kusudama_twist(int32_t p_index, Vector2 p_to) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist.write[p_index] = p_to;
 	set_dirty();
 }
 
-int32_t SkeletonModification3DManyBoneIK::find_effector_id(StringName p_bone_name) {
+int32_t ManyBoneIK3D::find_effector_id(StringName p_bone_name) {
 	for (int32_t constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		if (constraint_names[constraint_i] == p_bone_name) {
 			return constraint_i;
@@ -581,7 +581,7 @@ int32_t SkeletonModification3DManyBoneIK::find_effector_id(StringName p_bone_nam
 	return -1;
 }
 
-void SkeletonModification3DManyBoneIK::set_kusudama_limit_cone(int32_t p_contraint_index, int32_t p_index,
+void ManyBoneIK3D::set_kusudama_limit_cone(int32_t p_contraint_index, int32_t p_index,
 		Vector3 p_center, float p_radius) {
 	ERR_FAIL_INDEX(p_contraint_index, kusudama_limit_cones.size());
 	Vector<Vector4> cones = kusudama_limit_cones.write[p_contraint_index];
@@ -599,7 +599,7 @@ void SkeletonModification3DManyBoneIK::set_kusudama_limit_cone(int32_t p_contrai
 	set_dirty();
 }
 
-Vector3 SkeletonModification3DManyBoneIK::get_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index) const {
+Vector3 ManyBoneIK3D::get_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index) const {
 	if (unlikely((p_contraint_index) < 0 || (p_contraint_index) >= (kusudama_limit_cone_count.size()))) {
 		ERR_PRINT_ONCE("Can't get limit cone center.");
 		return Vector3(0.0, 1.0, 0.0);
@@ -620,18 +620,18 @@ Vector3 SkeletonModification3DManyBoneIK::get_kusudama_limit_cone_center(int32_t
 	return ret;
 }
 
-float SkeletonModification3DManyBoneIK::get_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index) const {
+float ManyBoneIK3D::get_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cone_count.size(), Math_TAU);
 	ERR_FAIL_INDEX_V(p_contraint_index, kusudama_limit_cones.size(), Math_TAU);
 	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_contraint_index].size(), Math_TAU);
 	return kusudama_limit_cones[p_contraint_index][p_index].w;
 }
 
-int32_t SkeletonModification3DManyBoneIK::get_kusudama_limit_cone_count(int32_t p_contraint_index) const {
+int32_t ManyBoneIK3D::get_kusudama_limit_cone_count(int32_t p_contraint_index) const {
 	return kusudama_limit_cone_count[p_contraint_index];
 }
 
-void SkeletonModification3DManyBoneIK::set_kusudama_limit_cone_count(int32_t p_contraint_index, int32_t p_count) {
+void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_contraint_index, int32_t p_count) {
 	ERR_FAIL_INDEX(p_contraint_index, kusudama_limit_cone_count.size());
 	ERR_FAIL_INDEX(p_contraint_index, kusudama_limit_cones.size());
 	int32_t old_cone_count = kusudama_limit_cones[p_contraint_index].size();
@@ -649,22 +649,22 @@ void SkeletonModification3DManyBoneIK::set_kusudama_limit_cone_count(int32_t p_c
 	set_dirty();
 }
 
-real_t SkeletonModification3DManyBoneIK::get_default_damp() const {
+real_t ManyBoneIK3D::get_default_damp() const {
 	return default_damp;
 }
 
-void SkeletonModification3DManyBoneIK::set_default_damp(float p_default_damp) {
+void ManyBoneIK3D::set_default_damp(float p_default_damp) {
 	default_damp = p_default_damp;
 	set_dirty();
 }
 
-StringName SkeletonModification3DManyBoneIK::get_pin_bone_name(int32_t p_effector_index) const {
+StringName ManyBoneIK3D::get_pin_bone_name(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), "");
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	return effector_template->get_name();
 }
 
-void SkeletonModification3DManyBoneIK::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius) {
+void ManyBoneIK3D::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius) {
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cone_count.size());
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cone_count[p_effector_index]);
@@ -674,7 +674,7 @@ void SkeletonModification3DManyBoneIK::set_kusudama_limit_cone_radius(int32_t p_
 	set_dirty();
 }
 
-void SkeletonModification3DManyBoneIK::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
+void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cone_count.size());
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
@@ -691,35 +691,35 @@ void SkeletonModification3DManyBoneIK::set_kusudama_limit_cone_center(int32_t p_
 	set_dirty();
 }
 
-Vector2 SkeletonModification3DManyBoneIK::get_kusudama_twist(int32_t p_index) const {
+Vector2 ManyBoneIK3D::get_kusudama_twist(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, kusudama_twist.size(), Vector2());
 	return kusudama_twist[p_index];
 }
 
-void SkeletonModification3DManyBoneIK::_set_constraint_name(int32_t p_index, String p_name) {
+void ManyBoneIK3D::_set_constraint_name(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	constraint_names.write[p_index] = p_name;
 	set_dirty();
 }
 
-Vector<Ref<IKBoneSegment>> SkeletonModification3DManyBoneIK::get_segmented_skeletons() {
+Vector<Ref<IKBoneSegment>> ManyBoneIK3D::get_segmented_skeletons() {
 	return segmented_skeletons;
 }
-float SkeletonModification3DManyBoneIK::get_iterations_per_frame() const {
+float ManyBoneIK3D::get_iterations_per_frame() const {
 	return iterations_per_frame;
 }
 
-void SkeletonModification3DManyBoneIK::set_iterations_per_frame(const float &p_iterations_per_frame) {
+void ManyBoneIK3D::set_iterations_per_frame(const float &p_iterations_per_frame) {
 	iterations_per_frame = p_iterations_per_frame;
 }
 
-void SkeletonModification3DManyBoneIK::_set_pin_bone_name(int32_t p_effector_index, StringName p_name) const {
+void ManyBoneIK3D::_set_pin_bone_name(int32_t p_effector_index, StringName p_name) const {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	effector_template->set_name(p_name);
 }
 
-void SkeletonModification3DManyBoneIK::set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path) {
+void ManyBoneIK3D::set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path) {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
 	ERR_FAIL_INDEX(!stack->skeleton, pins.size());
 	Node *node = stack->skeleton->get_node_or_null(p_node_path);
@@ -730,13 +730,13 @@ void SkeletonModification3DManyBoneIK::set_pin_nodepath(int32_t p_effector_index
 	effector_template->set_target_node(p_node_path);
 }
 
-NodePath SkeletonModification3DManyBoneIK::get_pin_nodepath(int32_t p_effector_index) const {
+NodePath ManyBoneIK3D::get_pin_nodepath(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), NodePath());
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	return effector_template->get_target_node();
 }
 
-void SkeletonModification3DManyBoneIK::_execute(real_t delta) {
+void ManyBoneIK3D::_execute(real_t delta) {
 	ERR_FAIL_COND_MSG(!stack || !is_setup || stack->skeleton == nullptr,
 			"Modification is not setup and therefore cannot execute!");
 	if (!enabled) {
@@ -784,7 +784,7 @@ void SkeletonModification3DManyBoneIK::_execute(real_t delta) {
 	update_skeleton_bones_transform();
 }
 
-void SkeletonModification3DManyBoneIK::_setup_modification(SkeletonModificationStack3D *p_stack) {
+void ManyBoneIK3D::_setup_modification(SkeletonModificationStack3D *p_stack) {
 	if (!is_setup) {
 		return;
 	}
@@ -864,13 +864,13 @@ void SkeletonModification3DManyBoneIK::_setup_modification(SkeletonModificationS
 	}
 }
 
-real_t SkeletonModification3DManyBoneIK::get_pin_weight(int32_t p_pin_index) const {
+real_t ManyBoneIK3D::get_pin_weight(int32_t p_pin_index) const {
 	ERR_FAIL_INDEX_V(p_pin_index, pins.size(), 0.0);
 	const Ref<IKEffectorTemplate> effector_template = pins[p_pin_index];
 	return effector_template->get_weight();
 }
 
-void SkeletonModification3DManyBoneIK::set_pin_weight(int32_t p_pin_index, const real_t &p_weight) {
+void ManyBoneIK3D::set_pin_weight(int32_t p_pin_index, const real_t &p_weight) {
 	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate> effector_template = pins[p_pin_index];
 	if (effector_template.is_null()) {
@@ -881,13 +881,13 @@ void SkeletonModification3DManyBoneIK::set_pin_weight(int32_t p_pin_index, const
 	set_dirty();
 }
 
-Vector3 SkeletonModification3DManyBoneIK::get_pin_direction_priorities(int32_t p_pin_index) const {
+Vector3 ManyBoneIK3D::get_pin_direction_priorities(int32_t p_pin_index) const {
 	ERR_FAIL_INDEX_V(p_pin_index, pins.size(), Vector3(0, 0, 0));
 	const Ref<IKEffectorTemplate> effector_template = pins[p_pin_index];
 	return effector_template->get_direction_priorities();
 }
 
-void SkeletonModification3DManyBoneIK::set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p_priority_direction) {
+void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p_priority_direction) {
 	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate> effector_template = pins[p_pin_index];
 	if (effector_template.is_null()) {
@@ -898,11 +898,11 @@ void SkeletonModification3DManyBoneIK::set_pin_direction_priorities(int32_t p_pi
 	set_dirty();
 }
 
-void SkeletonModification3DManyBoneIK::set_dirty() {
+void ManyBoneIK3D::set_dirty() {
 	is_dirty = true;
 }
 
-int32_t SkeletonModification3DManyBoneIK::find_constraint(String p_string) const {
+int32_t ManyBoneIK3D::find_constraint(String p_string) const {
 	for (int32_t constraint_i = 0; constraint_i < constraint_count; constraint_i++) {
 		if (get_constraint_name(constraint_i) == p_string) {
 			return constraint_i;
@@ -911,7 +911,7 @@ int32_t SkeletonModification3DManyBoneIK::find_constraint(String p_string) const
 	return -1;
 }
 
-void SkeletonModification3DManyBoneIK::remove_constraint(int32_t p_index) {
+void ManyBoneIK3D::remove_constraint(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 
 	constraint_names.remove_at(p_index);
@@ -929,7 +929,7 @@ void SkeletonModification3DManyBoneIK::remove_constraint(int32_t p_index) {
 	notify_property_list_changed();
 }
 
-real_t SkeletonModification3DManyBoneIK::get_kusudama_twist_current(int32_t p_index) {
+real_t ManyBoneIK3D::get_kusudama_twist_current(int32_t p_index) {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
 	String bone_name = constraint_names[p_index];
 	if (!segmented_skeletons.size()) {
@@ -951,7 +951,7 @@ real_t SkeletonModification3DManyBoneIK::get_kusudama_twist_current(int32_t p_in
 	return 0;
 }
 
-void SkeletonModification3DManyBoneIK::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
+void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
@@ -970,7 +970,7 @@ void SkeletonModification3DManyBoneIK::set_kusudama_twist_current(int32_t p_inde
 	}
 }
 
-void SkeletonModification3DManyBoneIK::_set_bone_count(int32_t p_count) {
+void ManyBoneIK3D::_set_bone_count(int32_t p_count) {
 	bone_damp.resize(p_count);
 	for (int32_t bone_i = p_count; bone_i-- > bone_count;) {
 		bone_damp.write[bone_i] = Math_PI;
@@ -979,26 +979,26 @@ void SkeletonModification3DManyBoneIK::_set_bone_count(int32_t p_count) {
 	notify_property_list_changed();
 }
 
-int32_t SkeletonModification3DManyBoneIK::get_bone_count() const {
+int32_t ManyBoneIK3D::get_bone_count() const {
 	return bone_count;
 }
 
-real_t SkeletonModification3DManyBoneIK::get_bone_damp(int32_t p_index) const {
+real_t ManyBoneIK3D::get_bone_damp(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, bone_damp.size(), Math_PI);
 	return bone_damp[p_index];
 }
 
-void SkeletonModification3DManyBoneIK::set_bone_damp(int32_t p_index, real_t p_damp) {
+void ManyBoneIK3D::set_bone_damp(int32_t p_index, real_t p_damp) {
 	ERR_FAIL_INDEX(p_index, bone_damp.size());
 	bone_damp.write[p_index] = p_damp;
 	notify_property_list_changed();
 }
 
-Vector<Ref<IKBone3D>> SkeletonModification3DManyBoneIK::get_bone_list() {
+Vector<Ref<IKBone3D>> ManyBoneIK3D::get_bone_list() {
 	return bone_list;
 }
 
-void SkeletonModification3DManyBoneIK::set_bone_direction_transform(int32_t p_index, Transform3D p_transform) {
+void ManyBoneIK3D::set_bone_direction_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
 	for (Ref<IKBoneSegment> segmented_skeleton : segmented_skeletons) {
@@ -1017,7 +1017,7 @@ void SkeletonModification3DManyBoneIK::set_bone_direction_transform(int32_t p_in
 	}
 }
 
-Transform3D SkeletonModification3DManyBoneIK::get_bone_direction_transform(int32_t p_index) const {
+Transform3D ManyBoneIK3D::get_bone_direction_transform(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
 	String bone_name = constraint_names[p_index];
 	if (!segmented_skeletons.size()) {
@@ -1042,7 +1042,7 @@ Transform3D SkeletonModification3DManyBoneIK::get_bone_direction_transform(int32
 	return Transform3D();
 }
 
-Transform3D SkeletonModification3DManyBoneIK::get_constraint_orientation_transform(int32_t p_index) const {
+Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
 	String bone_name = constraint_names[p_index];
 	if (!segmented_skeletons.size()) {
@@ -1067,7 +1067,7 @@ Transform3D SkeletonModification3DManyBoneIK::get_constraint_orientation_transfo
 	return Transform3D();
 }
 
-void SkeletonModification3DManyBoneIK::set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform) {
+void ManyBoneIK3D::set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
 	if (!stack->skeleton) {
@@ -1089,7 +1089,7 @@ void SkeletonModification3DManyBoneIK::set_constraint_orientation_transform(int3
 	}
 }
 
-Transform3D SkeletonModification3DManyBoneIK::get_constraint_twist_transform(int32_t p_index) const {
+Transform3D ManyBoneIK3D::get_constraint_twist_transform(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
 	String bone_name = constraint_names[p_index];
 	if (!segmented_skeletons.size()) {
@@ -1114,7 +1114,7 @@ Transform3D SkeletonModification3DManyBoneIK::get_constraint_twist_transform(int
 	return Transform3D();
 }
 
-void SkeletonModification3DManyBoneIK::set_constraint_twist_transform(int32_t p_index, Transform3D p_transform) {
+void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
 	if (!stack->skeleton) {
@@ -1136,20 +1136,20 @@ void SkeletonModification3DManyBoneIK::set_constraint_twist_transform(int32_t p_
 	}
 }
 
-bool SkeletonModification3DManyBoneIK::get_pin_enabled(int32_t p_effector_index) const {
+bool ManyBoneIK3D::get_pin_enabled(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
 	Ref<IKEffectorTemplate> effector_template = pins[p_effector_index];
 	return !effector_template->get_target_node().is_empty();
 }
 
-void SkeletonModification3DManyBoneIK::register_skeleton() {
+void ManyBoneIK3D::register_skeleton() {
 	if (!get_pin_count() && !get_constraint_count()) {
 		reset_constraints();
 	}
 	set_dirty();
 }
 
-void SkeletonModification3DManyBoneIK::reset_constraints() {
+void ManyBoneIK3D::reset_constraints() {
 	Skeleton3D *skeleton = stack->skeleton;
 	if (skeleton) {
 		_set_pin_count(skeleton->get_bone_count());
@@ -1166,31 +1166,31 @@ void SkeletonModification3DManyBoneIK::reset_constraints() {
 	set_dirty();
 }
 
-bool SkeletonModification3DManyBoneIK::get_constraint_mode() const {
+bool ManyBoneIK3D::get_constraint_mode() const {
 	return is_constraint_mode;
 }
 
-void SkeletonModification3DManyBoneIK::set_constraint_mode(bool p_enabled) {
+void ManyBoneIK3D::set_constraint_mode(bool p_enabled) {
 	is_constraint_mode = p_enabled;
 }
 
-int32_t SkeletonModification3DManyBoneIK::get_ui_selected_bone() const {
+int32_t ManyBoneIK3D::get_ui_selected_bone() const {
 	return ui_selected_bone;
 }
 
-void SkeletonModification3DManyBoneIK::set_ui_selected_bone(int32_t p_ui_selected_bone) {
+void ManyBoneIK3D::set_ui_selected_bone(int32_t p_ui_selected_bone) {
 	ui_selected_bone = p_ui_selected_bone;
 	notify_property_list_changed();
 }
 
-TypedArray<StringName> SkeletonModification3DManyBoneIK::get_filter_bones() {
+TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 	return filter_bones;
 }
 
-void SkeletonModification3DManyBoneIK::set_filter_bones(TypedArray<StringName> p_filter_bones) {
+void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
 	notify_property_list_changed();
 }
-Transform3D SkeletonModification3DManyBoneIK::get_godot_skeleton_transform_inverse() {
+Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
 	return godot_skeleton_transform_inverse;
 }
