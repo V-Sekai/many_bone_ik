@@ -58,7 +58,7 @@ void ManyBoneIK3DHandleGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DHandleGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<Skeleton3D>(p_spatial);
+	return p_spatial;
 }
 
 String ManyBoneIK3DHandleGizmoPlugin::get_gizmo_name() const {
@@ -70,17 +70,14 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		return;
 	}
 	p_gizmo->clear();
-	if (!p_gizmo->is_selected()) {
+	Node3D *node_3d = cast_to<Node3D>(p_gizmo->get_node_3d());
+	if (!node_3d) {
 		return;
 	}
-	Skeleton3D  *skeleton_3d = cast_to<Skeleton3D>(p_gizmo->get_node_3d());
-	if (!skeleton_3d) {
+	if (!node_3d->is_visible_in_tree()) {
 		return;
 	}
-	if (!skeleton_3d->is_visible_in_tree()) {
-		return;
-	}
-	Node *root = skeleton_3d->get_tree()->get_edited_scene_root();
+	Node *root = node_3d->get_tree()->get_edited_scene_root();
 	TypedArray<Node> nodes = root->find_children("*", "ManyBoneIK3D");
 	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
 		ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(nodes[node_i]);
@@ -88,8 +85,11 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			continue;
 		}
 		Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
-		if (many_bone_ik_skeleton != skeleton_3d) {
+		if (!many_bone_ik_skeleton) {
 			continue;
+		}
+		if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(this, &ManyBoneIK3DHandleGizmoPlugin::redraw).bind(p_gizmo))) {
+			many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(this, &ManyBoneIK3DHandleGizmoPlugin::redraw).bind(p_gizmo));
 		}
 		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
 		int bones_to_process_i = 0;
@@ -163,14 +163,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
-	Transform3D handle_transform;
-	if (p_gizmo->get_node_3d()->get_parent()) {
-		Node3D *node = cast_to<Node3D>(p_gizmo->get_node_3d()->get_parent());
-		if (node) {
-			handle_transform = node->get_global_transform();
-		}
-	}
+	Transform3D constraint_relative_to_the_skeleton = cast_to<Node3D>(p_gizmo->get_node_3d())->get_global_transform().affine_inverse().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+
 	PackedFloat32Array kusudama_limit_cones;
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
 		return;
@@ -230,8 +224,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 		{
 			Transform3D handle_relative_to_mesh;
 			handle_relative_to_mesh.origin = center * radius;
-			Transform3D handle_relative_to_universe = handle_transform.affine_inverse() * constraint_relative_to_the_universe * handle_relative_to_mesh;
-			center_handles.push_back(handle_relative_to_universe.origin);
+			Transform3D handle_relative_to_skeleton = constraint_relative_to_the_skeleton * handle_relative_to_mesh;
+			center_handles.push_back(handle_relative_to_skeleton.origin);
 		}
 		{
 			Ref<IKLimitCone> limit_cone = ik_kusudama->get_limit_cones()[current_cone];
@@ -240,8 +234,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 			Quaternion maw_rotation = IKKusudama::quaternion_axis_angle(maw_axis, cone_radius);
 			Transform3D handle_relative_to_mesh;
 			handle_relative_to_mesh.origin = maw_rotation.xform(center) * radius;
-			Transform3D handle_relative_to_universe = handle_transform.affine_inverse() * constraint_relative_to_the_universe * handle_relative_to_mesh;
-			radius_handles.push_back(handle_relative_to_universe.origin);
+			Transform3D handle_relative_to_skeleton = constraint_relative_to_the_skeleton * handle_relative_to_mesh;
+			radius_handles.push_back(handle_relative_to_skeleton.origin);
 		}
 		current_cone++;
 	}
@@ -271,14 +265,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
-	Transform3D handle_transform;
-	if (p_gizmo->get_node_3d()->get_parent()) {
-		Node3D *node = cast_to<Node3D>(p_gizmo->get_node_3d()->get_parent());
-		if (node) {
-			handle_transform = node->get_global_transform();
-		}
-	}
+	Transform3D constraint_relative_to_the_skeleton = cast_to<Node3D>(p_gizmo->get_node_3d())->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
 	if (kusudama.is_null()) {
@@ -303,7 +291,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	Vector<Vector3> axial_to_handles;
 	int out_idx = 0;
 
-	Transform3D twist_constraint_relative_to_the_universe = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
+	Transform3D twist_constraint_relative_to_the_skeleton =  cast_to<Node3D>(p_gizmo->get_node_3d())->get_global_transform().affine_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
 	float cone_radius = Math::deg_to_rad(90.0f);
 	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
@@ -317,8 +305,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
-		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
-		axial_from_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
+		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_skeleton * axial_from_relative_to_mesh;
+		axial_from_handles.push_back((axial_relative_to_universe).origin);
 	}
 	float start_angle = kusudama->get_min_axial_angle();
 	bool negative_range = kusudama->get_range_angle() < real_t(0.0);
@@ -333,9 +321,9 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
-		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
+		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_skeleton * axial_from_relative_to_mesh;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
-		axial_middle_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
+		axial_middle_handles.push_back((axial_relative_to_universe).origin);
 	}
 	axial_middle_handles.pop_front();
 	axial_middle_handles.pop_back();
@@ -345,8 +333,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
-		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
-		axial_to_handles.push_back((handle_transform.affine_inverse() * axial_relative_to_universe).origin);
+		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_skeleton * axial_from_relative_to_mesh;
+		axial_to_handles.push_back((axial_relative_to_universe).origin);
 	}
 	if (axial_from_handles.size() && axial_to_handles.size()) {
 		p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), true, false);
@@ -365,8 +353,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		Transform3D center_relative_to_mesh;
 		Transform3D axial_from_relative_to_mesh;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
-		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_universe * axial_from_relative_to_mesh;
-		Vector3 handle_position = (handle_transform.affine_inverse() * axial_relative_to_universe).origin;
+		Transform3D axial_relative_to_universe = twist_constraint_relative_to_the_skeleton * axial_from_relative_to_mesh;
+		Vector3 handle_position = (axial_relative_to_universe).origin;
 		handles_current.push_back(handle_position);
 	}
 	if (handles_current.size()) {

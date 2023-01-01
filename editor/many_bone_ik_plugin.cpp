@@ -94,7 +94,6 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 		return;
 	}
 	joint_tree->clear();
-
 	Skeleton3D *skeleton = ik->get_skeleton();
 	if (!skeleton) {
 		return;
