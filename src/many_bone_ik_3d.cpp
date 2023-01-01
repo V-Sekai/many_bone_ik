@@ -419,7 +419,8 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			_set_constraint_name(index, p_value);
 			return true;
 		} else if (what == "twist_current") {
-			return false;
+			set_kusudama_twist_current(index, p_value);
+			return true;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
 			set_kusudama_twist(index, Vector2(p_value, twist_from.y));
