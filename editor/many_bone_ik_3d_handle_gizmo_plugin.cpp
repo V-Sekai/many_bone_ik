@@ -163,7 +163,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_relative_to_the_skeleton = cast_to<Node3D>(p_gizmo->get_node_3d())->get_global_transform().affine_inverse().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+	Transform3D constraint_relative_to_the_skeleton = cast_to<Node3D>(p_gizmo->get_node_3d())->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 
 	PackedFloat32Array kusudama_limit_cones;
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
