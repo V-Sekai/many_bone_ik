@@ -195,7 +195,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 	ERR_FAIL_NULL(p_skeleton);
 
 	default_dampening = p_default_dampening;
-	cos_half_dampen = default_dampening / real_t(2.0);
+	cos_half_dampen = cos(default_dampening / real_t(2.0));
 	set_name(p_bone);
 	bone_id = p_skeleton->find_bone(p_bone);
 	if (p_parent.is_valid()) {
