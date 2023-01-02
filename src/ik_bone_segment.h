@@ -56,15 +56,18 @@ class IKBoneSegment : public Resource {
 	Vector<Ref<IKEffector3D>> effector_list;
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
+	PackedVector3Array tip_headings_uniform;
 	Vector<real_t> heading_weights;
 	BoneId many_bone_ik_tip_bone = -1;
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
 	Skeleton3D *skeleton = nullptr;
-	bool pinned_descendants = false;
+	bool pinned_descendants = false;	
+	real_t previous_deviation = 0;	
+	int32_t default_stabilizing_pass_count = 1; // Move to the stabilizing pass to the ik solver.
 	bool has_pinned_descendants();
 	void enable_pinned_descendants();
 	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);
-	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip);
+	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip, bool p_uniform);
 	void set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_heading_tip, Vector<real_t> *r_weights, float p_dampening = -1, bool p_translate = false, bool p_constraint_mode = false);
 	void qcp_solver(const Vector<float> &p_damp, float p_default_damp, bool p_translate, bool p_constraint_mode);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode);

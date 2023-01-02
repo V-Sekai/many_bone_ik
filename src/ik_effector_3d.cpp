@@ -133,7 +133,7 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	return index;
 }
 
-int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone) const {
+int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone, bool p_is_uniform) const {
 	ERR_FAIL_COND_V(p_index == -1, -1);
 	ERR_FAIL_NULL_V(p_headings, -1);
 	ERR_FAIL_NULL_V(for_bone, -1);
@@ -144,8 +144,11 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	int32_t index = p_index;
 	p_headings->write[index] = tip_xform_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
-	double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin); 
-	double scale_by = MAX(1.0, distance);
+	double scale_by = 1.0f;
+	if (p_is_uniform) {
+		double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
+		scale_by = MAX(1.0, distance);
+	}
 	// Scale by means when two things that are very far away, they may close in physical space but they get a higher weighting.
 	// Tell the optimizer how decrease importance.
 	// Same rotational distane is not the same ecluidian distance.

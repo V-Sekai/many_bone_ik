@@ -147,7 +147,7 @@ void IKBoneSegment::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
 void IKBoneSegment::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode) {
 	ERR_FAIL_NULL(p_for_bone);
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
-	update_tip_headings(p_for_bone, &tip_headings);
+	update_tip_headings(p_for_bone, &tip_headings, false);
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
 }
 
@@ -178,7 +178,7 @@ float IKBoneSegment::get_manual_msd(const PackedVector3Array &r_htip, const Pack
 		manual_RMSD += mag_sq;
 		w_sum += p_weights[i];
 	}
-	manual_RMSD /= w_sum;
+	manual_RMSD /= w_sum * w_sum;
 	return manual_RMSD;
 }
 
@@ -187,27 +187,55 @@ void IKBoneSegment::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3
 	ERR_FAIL_NULL(r_htip);
 	ERR_FAIL_NULL(r_htarget);
 	ERR_FAIL_NULL(r_weights);
-	double bone_damp = p_for_bone->get_cos_half_dampen();
-	if (!p_constraint_mode) {
-		// Solved ik transform and apply it.
-		QCP qcp = QCP(evec_prec, eval_prec);
-		Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
-		Vector3 translation = qcp.get_translation();
-		if (p_dampening != -1.0f) {
-			rot = clamp_to_quadrance_angle(rot, cos(p_dampening / 2.0)).normalized();
-		} else {
-			rot = clamp_to_quadrance_angle(rot, bone_damp).normalized();
+
+	update_target_headings(p_for_bone, &heading_weights, &target_headings);
+	Transform3D prev_transform = p_for_bone->get_pose();
+	bool gotCloser = true;
+	real_t bone_damp = p_for_bone->get_cos_half_dampen();
+	for (int i = 0; i <= default_stabilizing_pass_count; i++) {
+		update_tip_headings(p_for_bone, &tip_headings, false);
+
+		if (!p_constraint_mode) {
+			// Solved ik transform and apply it.
+			QCP qcp = QCP(evec_prec, eval_prec);
+			Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+			Vector3 translation = qcp.get_translation();
+			if (p_dampening != real_t(-1.0)) {
+				rot = clamp_to_quadrance_angle(rot, cos(p_dampening / 2.0)).normalized();
+			} else {
+				rot = clamp_to_quadrance_angle(rot, bone_damp).normalized();
+			}
+			p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
+			Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
+			result.orthonormalize();
+			p_for_bone->set_global_pose(result);
 		}
-		p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
-		Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
-		p_for_bone->set_global_pose(result.orthonormalized());
+		// Calculate orientation before twist to avoid exceding the twist bound when updating the rotation.
+		if (p_for_bone->is_orientationally_constrained() && p_for_bone->get_parent().is_valid()) {
+			p_for_bone->get_constraint()->set_axes_to_orientation_snap(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+		}
+		if (p_for_bone->is_axially_constrained() && p_for_bone->get_parent().is_valid()) {
+			p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_twist_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+		}
+
+		if (default_stabilizing_pass_count > 0) {
+			update_tip_headings(p_for_bone, &tip_headings_uniform, true);
+			real_t currentmsd = get_manual_msd(tip_headings_uniform, target_headings, heading_weights);
+			if (currentmsd <= previous_deviation * 1.0001) {
+				previous_deviation = currentmsd;
+				gotCloser = true;
+				break;
+			} else {
+				gotCloser = false;
+			}
+		}
 	}
-	// Calculate orientation before twist to avoid exceding the twist bound when updating the rotation.
-	if (p_for_bone->is_orientationally_constrained() && p_for_bone->get_parent().is_valid()) {
-		p_for_bone->get_constraint()->set_axes_to_orientation_snap(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+	if (!gotCloser) {
+		p_for_bone->set_pose(prev_transform);
 	}
-	if (p_for_bone->is_axially_constrained() && p_for_bone->get_parent().is_valid()) {
-		p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_twist_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+
+	if (root == p_for_bone) {
+		previous_deviation = INFINITY;
 	}
 }
 
@@ -222,13 +250,13 @@ void IKBoneSegment::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real
 	}
 }
 
-void IKBoneSegment::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip) {
+void IKBoneSegment::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip, bool p_uniform) {
 	ERR_FAIL_NULL(r_heading_tip);
 	ERR_FAIL_NULL(p_for_bone);
 	int32_t last_index = 0;
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
-		last_index = effector->update_effector_tip_headings(r_heading_tip, last_index, p_for_bone);
+		last_index = effector->update_effector_tip_headings(r_heading_tip, last_index, p_for_bone, p_uniform);
 	}
 }
 
@@ -324,6 +352,7 @@ void IKBoneSegment::create_headings_arrays() {
 	}
 	target_headings.resize(total_headings);
 	tip_headings.resize(total_headings);
+	tip_headings_uniform.resize(total_headings);
 	heading_weights.resize(total_headings);
 	int currentHeading = 0;
 	for (const Vector<real_t> &current_penalty_array : penalty_array) {
@@ -331,6 +360,7 @@ void IKBoneSegment::create_headings_arrays() {
 			heading_weights.write[currentHeading] = ad;
 			target_headings.write[currentHeading] = Vector3();
 			tip_headings.write[currentHeading] = Vector3();
+			tip_headings_uniform.write[currentHeading] = Vector3();
 			currentHeading++;
 		}
 	}
