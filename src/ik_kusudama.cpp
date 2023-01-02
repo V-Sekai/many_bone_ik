@@ -86,6 +86,66 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	to_set->_propagate_transform_changed();
 }
 
+void IKKusudama::get_swing_twist(
+		Quaternion p_rotation,
+		Vector3 p_axis,
+		Quaternion &r_swing,
+		Quaternion &r_twist) {
+	// Swing-twist decomposition in Clifford algebra
+	// https://arxiv.org/abs/1506.05481
+	Vector3 p = p_axis * (p_rotation.x * p_axis.x + p_rotation.y * p_axis.y + p_rotation.z * p_axis.z);
+	r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w);
+	r_twist = r_twist.normalized();
+	r_swing = p_rotation * r_twist.inverse();
+}
+
+real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) {
+	Quaternion alignRot = bone_attached_to->get_constraint_twist_transform()->get_global_transform().basis.get_rotation_quaternion().inverse() * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
+	Quaternion swing, twist;
+	get_swing_twist(alignRot, Vector3(0, 1, 0), swing, twist);
+	Vector3 twistZ = twist.xform(Vector3(0, 0, 1));
+	Quaternion minToZ = Quaternion(twist_min_vec, twistZ).normalized();
+	Quaternion minToMax = Quaternion(twist_min_vec, twist_max_vec).normalized();
+	real_t minToZAngle = 0;
+	Vector3 minToZAxis;
+	minToZ.get_axis_angle(minToZAxis, minToZAngle);
+	real_t minToMaxAngle = 0;
+	Vector3 minToMaxAxis;
+	minToMax.get_axis_angle(minToMaxAxis, minToMaxAngle);
+	real_t flipper = minToMaxAxis.dot(minToZAxis) < 0 ? -1 : 1;
+	flipper *= (minToZAngle * minToMaxAngle) < 0 ? -1 : 1;
+	real_t result = (minToZAngle * flipper) / minToMaxAngle;
+	return result;
+}
+
+void IKKusudama::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation) {
+	Quaternion align_rot_inv = bone_attached_to->get_constraint_twist_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
+	Quaternion align_rot = align_rot_inv * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
+	Quaternion twist_rotation, swing_rotation; // Hold the ik transform's decomposed swing and twist away from global_twist_centers's global basis.
+	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
+	twist_rotation = twist_min_rot.slerp(twist_max_rot, p_rotation);
+	Quaternion recomposition = (swing_rotation * twist_rotation).normalized();
+	Quaternion parent_global_inverse = bone_attached_to->get_bone_direction_transform()->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
+	Quaternion rotation = parent_global_inverse * recomposition;
+	Transform3D ik_transform = bone_attached_to->get_ik_transform()->get_transform();
+	bone_attached_to->get_ik_transform()->set_transform(Transform3D(rotation, ik_transform.origin));
+	bone_attached_to->get_ik_transform()->_propagate_transform_changed();
+}
+
+void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen) {
+	Vector<double> in_bounds = { 1.0 };
+	bone_ray->p1(limiting_axes->get_global_transform().origin);
+	bone_ray->p2(bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
+	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
+	Vector3 in_limits = get_local_point_in_limits(bone_tip, &in_bounds);
+	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x) && !Math::is_nan(in_limits.y) && !Math::is_nan(in_limits.z)) {
+		constrained_ray->p1(bone_ray->p1());
+		constrained_ray->p2(limiting_axes->to_global(in_limits));
+		Quaternion rectified_rot = Quaternion(bone_ray->heading(), constrained_ray->heading());
+		to_set->rotate_local_with_global(rectified_rot);
+	}
+}
+
 void IKKusudama::add_limit_cone(Vector3 new_cone_local_point, double radius) {
 	Ref<IKLimitCone> cone = Ref<IKLimitCone>(memnew(IKLimitCone(new_cone_local_point, radius, Ref<IKKusudama>(this))));
 	limit_cones.push_back(cone);
@@ -263,20 +323,6 @@ Vector3 IKKusudama::get_local_point_in_limits(Vector3 in_point, Vector<double> *
 	return closest_collision_point;
 }
 
-void IKKusudama::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen) {
-	Vector<double> in_bounds = { 1.0 };
-	bone_ray->p1(limiting_axes->get_global_transform().origin);
-	bone_ray->p2(bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
-	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
-	Vector3 in_limits = get_local_point_in_limits(bone_tip, &in_bounds);
-	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x) && !Math::is_nan(in_limits.y) && !Math::is_nan(in_limits.z)) {
-		constrained_ray->p1(bone_ray->p1());
-		constrained_ray->p2(limiting_axes->to_global(in_limits));
-		Quaternion rectified_rot = Quaternion(bone_ray->heading(), constrained_ray->heading());
-		to_set->rotate_local_with_global(Basis(rectified_rot).orthonormalized());
-	}
-}
-
 void IKKusudama::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_limit_cones"), &IKKusudama::get_limit_cones);
 	ClassDB::bind_method(D_METHOD("set_limit_cones", "limit_cones"), &IKKusudama::set_limit_cones);
@@ -284,50 +330,4 @@ void IKKusudama::_bind_methods() {
 
 void IKKusudama::set_limit_cones(TypedArray<IKLimitCone> p_cones) {
 	limit_cones = p_cones;
-}
-
-void IKKusudama::get_swing_twist(
-		Quaternion p_rotation,
-		Vector3 p_axis,
-		Quaternion &r_swing,
-		Quaternion &r_twist) {
-	// Swing-twist decomposition in Clifford algebra
-	// https://arxiv.org/abs/1506.05481
-	Vector3 p = p_axis * (p_rotation.x * p_axis.x + p_rotation.y * p_axis.y + p_rotation.z * p_axis.z);
-	r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w);
-	r_twist = r_twist.normalized();
-	r_swing = p_rotation * r_twist.inverse();
-}
-
-real_t IKKusudama::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) {
-	Quaternion alignRot = bone_attached_to->get_constraint_twist_transform()->get_global_transform().basis.get_rotation_quaternion().inverse() * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
-	Quaternion swing, twist;
-	get_swing_twist(alignRot, Vector3(0, 1, 0), swing, twist);
-	Vector3 twistZ = twist.xform(Vector3(0, 0, 1));
-	Quaternion minToZ = Quaternion(twist_min_vec, twistZ).normalized();
-	Quaternion minToMax = Quaternion(twist_min_vec, twist_max_vec).normalized();
-	real_t minToZAngle = 0;
-	Vector3 minToZAxis;
-	minToZ.get_axis_angle(minToZAxis, minToZAngle);
-	real_t minToMaxAngle = 0;
-	Vector3 minToMaxAxis;
-	minToMax.get_axis_angle(minToMaxAxis, minToMaxAngle);
-	real_t flipper = minToMaxAxis.dot(minToZAxis) < 0 ? -1 : 1;
-	flipper *= (minToZAngle * minToMaxAngle) < 0 ? -1 : 1;
-	real_t result = (minToZAngle * flipper) / minToMaxAngle;
-	return result;
-}
-
-void IKKusudama::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation) {
-	Quaternion align_rot_inv = bone_attached_to->get_constraint_twist_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
-	Quaternion align_rot = align_rot_inv * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
-	Quaternion twist_rotation, swing_rotation; // Hold the ik transform's decomposed swing and twist away from global_twist_centers's global basis.
-	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
-	twist_rotation = twist_min_rot.slerp(twist_max_rot, p_rotation);
-	Quaternion recomposition = (swing_rotation * twist_rotation).normalized();
-	Quaternion parent_global_inverse = bone_attached_to->get_bone_direction_transform()->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
-	Quaternion rotation = parent_global_inverse * recomposition;
-	Transform3D ik_transform = bone_attached_to->get_ik_transform()->get_transform();
-	bone_attached_to->get_ik_transform()->set_transform(Transform3D(rotation, ik_transform.origin));
-	bone_attached_to->get_ik_transform()->_propagate_transform_changed();
 }
