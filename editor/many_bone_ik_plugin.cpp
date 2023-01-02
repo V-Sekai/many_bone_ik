@@ -168,6 +168,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	bone_damp_float->set_selectable(false);
 	bone_damp_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(bone_damp_float);
+	constraint_bone_section->unfold();
 
 	target_nodepath = memnew(EditorPropertyNodePath());
 	target_nodepath->hide();
@@ -266,8 +267,6 @@ void ManyBoneIK3DEditor::create_editors() {
 	bone_direction_transform->set_selectable(false);
 	bone_direction_transform->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(bone_direction_transform);
-	
-	constraint_bone_section->unfold();
 }
 
 void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
