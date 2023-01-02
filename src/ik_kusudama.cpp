@@ -57,13 +57,13 @@ void IKKusudama::set_axial_limits(real_t min_angle, real_t in_range) {
 	range_angle = in_range;
 	Vector3 y_axis = Vector3(0.0f, 1.0f, 0.0f);
 	Vector3 z_axis = Vector3(0.0f, 0.0f, 1.0f);
-	twist_min_rot = Quaternion(y_axis, min_axial_angle).normalized();
+	twist_min_rot = quaternion_axis_angle(y_axis, min_axial_angle);
 	twist_min_vec = twist_min_rot.xform(z_axis);
 	twist_center_vec = twist_min_rot.xform(twist_min_vec);
 	twist_center_rot = Quaternion(z_axis, twist_center_vec);
 	twist_tan = twist_center_vec.cross(y_axis);
 	twist_half_range_half_cos = cos(in_range / real_t(4.0)); // For the quadrance angle. We need half the range angle since starting from the center, and half of that since quadrance takes cos(angle/2).
-	twist_max_vec = Quaternion(y_axis, in_range).normalized().xform(twist_min_vec);
+	twist_max_vec = quaternion_axis_angle(y_axis, in_range).xform(twist_min_vec);
 	twist_max_rot = Quaternion(z_axis, twist_max_vec);
 	Vector3 max_cross = twist_max_vec.cross(y_axis);
 	flipped_bounds = twist_tan.cross(max_cross).y < real_t(0.0);
