@@ -91,9 +91,12 @@ void IKKusudama::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
+	real_t angle = = 2 * Math::acos(p_rotation.w);
+	real_t r = ((real_t)1) / Math::sqrt(1 - p_rotation.w * p_rotation.w);
 	Vector3 axis;
-	real_t angle = 0;
-	p_rotation.get_axis_angle(axis, angle);
+	axis.x = p_rotation.x * r;
+	axis.y = p_rotation.y * r;
+	axis.z = p_rotation.z * r;
 	// Swing-twist decomposition in Clifford algebra
 	// https://arxiv.org/abs/1506.05481
 	Vector3 p = p_axis * (axis.x * p_axis.x + axis.y * p_axis.y + axis.z * p_axis.z);
