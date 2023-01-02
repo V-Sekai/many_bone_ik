@@ -77,7 +77,7 @@ void IKKusudama::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNod
 	Quaternion align_rot = global_twist_center.inverse() * to_set->get_global_transform().basis.get_rotation_quaternion();
 	Quaternion parent_global_inverse = to_set->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
 	Quaternion twist_rotation, swing_rotation; // Hold the ik transform's decomposed swing and twist away from global_twist_centers's global basis.
-	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
+	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);	
 	twist_rotation = IKBoneSegment::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
 	Quaternion recomposition = global_twist_center * (swing_rotation * twist_rotation);
 	Quaternion rotation = parent_global_inverse * recomposition;
@@ -91,26 +91,18 @@ void IKKusudama::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
+	if (p_rotation.w < 0.0) {
+		p_rotation *= -1;
+	}
 	// Swing-twist decomposition in Clifford algebra
 	// https://arxiv.org/abs/1506.05481
 	Vector3 p = p_axis * (p_rotation.x * p_axis.x + p_rotation.y * p_axis.y + p_rotation.z * p_axis.z);
-	if (Math::is_zero_approx(p.length_squared())) {
-		// https://allenchou.net/2018/05/game-math-swing-twist-interpolation-sterp/
-		Vector3 rotated_twist_axis = p_rotation.xform(p_axis);
-		Vector3 swing_axis = p_axis.cross(rotated_twist_axis);
-		if (!Math::is_zero_approx(swing_axis.length_squared())) {
-			real_t swing_angle = p_axis.angle_to(rotated_twist_axis);
-			r_swing = quaternion_axis_angle(swing_axis, swing_angle);
-		} else {
-			// In a singularity, the rotation axis is parallel to twist axis.
-			r_swing = Quaternion();
-		}
-		// Always twist 180 degrees on the singularity.
-		r_twist = quaternion_axis_angle(p_axis, 180.0f);
-		return;
-	}
+	real_t d = p_axis.dot(Vector3(p.x, p.y, p.z));
 	r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w);
 	r_twist = r_twist.normalized();
+	if (d < real_t(0.0)) {
+		r_twist *= real_t(-1.0);
+	}
 	r_swing = p_rotation * r_twist.inverse();
 }
 
