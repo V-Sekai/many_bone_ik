@@ -244,6 +244,7 @@ void IKBoneSegment::segment_solver(const Vector<float> &p_damp, float p_default_
 		Vector<float> damp = p_damp;
 		damp.fill(Math_PI);
 		qcp_solver(damp, Math_PI, is_translate, p_constraint_mode);
+		return;
 	}
 	qcp_solver(p_damp, p_default_damp, is_translate, p_constraint_mode);
 }
