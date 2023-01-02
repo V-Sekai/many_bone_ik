@@ -17,3 +17,7 @@ Mirror button for kusudama cones.
 Make changing the skeleton not lose the set parameters. Don't rebuild the skeleton from scratch. Reuse the the parameters already set.
 
 Leave stabilizing pass counts off when developing. Add a ui for it.
+
+Soft constraints are not working since they're seen as merely suggestions to not rotate the should backwards.
+
+We don't like painfullness but it seems to work in the reference implementation.
