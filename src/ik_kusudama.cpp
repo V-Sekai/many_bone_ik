@@ -57,13 +57,13 @@ void IKKusudama::set_axial_limits(real_t min_angle, real_t in_range) {
 	range_angle = in_range;
 	Vector3 y_axis = Vector3(0.0f, 1.0f, 0.0f);
 	Vector3 z_axis = Vector3(0.0f, 0.0f, 1.0f);
-	twist_min_rot = quaternion_axis_angle(y_axis, min_axial_angle);
+	twist_min_rot = Quaternion(y_axis, min_axial_angle).normalized();
 	twist_min_vec = twist_min_rot.xform(z_axis);
 	twist_center_vec = twist_min_rot.xform(twist_min_vec);
 	twist_center_rot = Quaternion(z_axis, twist_center_vec);
 	twist_tan = twist_center_vec.cross(y_axis);
 	twist_half_range_half_cos = cos(in_range / real_t(4.0)); // For the quadrance angle. We need half the range angle since starting from the center, and half of that since quadrance takes cos(angle/2).
-	twist_max_vec = quaternion_axis_angle(y_axis, in_range).xform(twist_min_vec);
+	twist_max_vec = Quaternion(y_axis, in_range).normalized().xform(twist_min_vec);
 	twist_max_rot = Quaternion(z_axis, twist_max_vec);
 	Vector3 max_cross = twist_max_vec.cross(y_axis);
 	flipped_bounds = twist_tan.cross(max_cross).y < real_t(0.0);
@@ -91,9 +91,24 @@ void IKKusudama::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
-	// Swing-twist decomposition in Clifford algebra
-	// https://arxiv.org/abs/1506.05481
-	Vector3 p = p_axis * (p_rotation.x * p_axis.x + p_rotation.y * p_axis.y + p_rotation.z * p_axis.z);
+	Vector3 r = Vector3(p_rotation.x, p_rotation.y, p_rotation.z);
+	// https://allenchou.net/2018/05/game-math-swing-twist-interpolation-sterp/
+	// In a singularity, rotate by 180 degrees.
+	if (Math::is_zero_approx(r.length_squared())) {
+		Vector3 rotated_twist_axis = p_rotation.xform(p_axis);
+		Vector3 swing_axis = p_axis.cross(rotated_twist_axis);
+		if (!Math::is_zero_approx(swing_axis.length_squared())) {
+			real_t swing_angle = p_axis.angle_to(rotated_twist_axis);
+			r_swing = Quaternion(swing_axis, swing_angle).normalized();
+		} else {
+			// In a singularity, the rotation axis is parallel to twist axis.
+			r_swing = Quaternion();
+		}
+		// Always twist 180 degrees on the singularity.
+		r_twist = Quaternion(p_axis, 180.0f);
+		return;
+	}
+	Vector3 p = p_axis * (r.x * p_axis.x + r.y * p_axis.y + r.z * p_axis.z);
 	r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w);
 	r_twist = r_twist.normalized();
 	r_swing = p_rotation * r_twist.inverse();
