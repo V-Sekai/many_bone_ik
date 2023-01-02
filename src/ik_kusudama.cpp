@@ -91,7 +91,7 @@ void IKKusudama::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
-	real_t angle = = 2 * Math::acos(p_rotation.w);
+	real_t angle = 2 * Math::acos(p_rotation.w);
 	real_t r = ((real_t)1) / Math::sqrt(1 - p_rotation.w * p_rotation.w);
 	Vector3 axis;
 	axis.x = p_rotation.x * r;
