@@ -1193,7 +1193,7 @@ void ManyBoneIK3D::reset_constraints() {
 			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
 		}
 		for (int32_t bone_i : skeleton->get_parentless_bones()) {
-			set_pin_passthrough_factor(bone_i, 0.0f);
+			set_pin_passthrough_factor(bone_i, 1.0f);
 		}
 	}
 	set_dirty();
