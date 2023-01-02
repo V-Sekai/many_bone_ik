@@ -13,3 +13,7 @@ Overlapping limit cones don't visualize.
 3. for axial angle: intersect with xz plane, take arcosine of dot product with the z axis
 
 Mirror button for kusudama cones. 
+
+Make changing the skeleton not lose the set parameters. Don't rebuild the skeleton from scratch. Reuse the the parameters already set.
+
+Leave stabilizing pass counts off when developing. Add a ui for it.
