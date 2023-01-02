@@ -151,19 +151,6 @@ void IKBoneSegment::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_d
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
 }
 
-Quaternion IKBoneSegment::set_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) const {
-	double squared_sine = p_quat.get_axis().length_squared();
-	Quaternion rot = p_quat;
-	if (!Math::is_zero_approx(squared_sine)) {
-		double inverse_coeff = Math::sqrt(((1.0f - (p_cos_half_angle * p_cos_half_angle)) / squared_sine));
-		rot.x = inverse_coeff * p_quat.x;
-		rot.y = inverse_coeff * p_quat.y;
-		rot.z = inverse_coeff * p_quat.z;
-		rot.w = p_quat.w < 0 ? -p_cos_half_angle : p_cos_half_angle;
-	}
-	return rot;
-}
-
 Quaternion IKBoneSegment::clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle) {
 	real_t newCoeff = real_t(1.0) - (p_cos_half_angle * Math::abs(p_cos_half_angle));
 	Quaternion rot = p_quat;
