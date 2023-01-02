@@ -180,6 +180,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	passthrough_float->hide();
 	passthrough_float->setup(0, 1, 0.01, false, false, false, false, "", false);
 	passthrough_float->set_label(TTR("Passthrough Factor"));
+	passthrough_float->set_tooltip_text(TTR("Set to 0 to make this the exclusive target and set to 1 to have no more priority than any targets of any descendant bones."));
 	passthrough_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(passthrough_float);
 
