@@ -91,25 +91,13 @@ void IKKusudama::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
-	Vector3 r = Vector3(p_rotation.x, p_rotation.y, p_rotation.z);
-	// https://allenchou.net/2018/05/game-math-swing-twist-interpolation-sterp/
-	// In a singularity, rotate by 180 degrees.
-	if (Math::is_zero_approx(r.length_squared())) {
-		Vector3 rotated_twist_axis = p_rotation.xform(p_axis);
-		Vector3 swing_axis = p_axis.cross(rotated_twist_axis);
-		if (!Math::is_zero_approx(swing_axis.length_squared())) {
-			real_t swing_angle = p_axis.angle_to(rotated_twist_axis);
-			r_swing = Quaternion(swing_axis, swing_angle).normalized();
-		} else {
-			// In a singularity, the rotation axis is parallel to twist axis.
-			r_swing = Quaternion();
-		}
-		// Always twist 180 degrees on the singularity.
-		r_twist = Quaternion(p_axis, 180.0f);
-		return;
-	}
-	Vector3 p = p_axis * (r.x * p_axis.x + r.y * p_axis.y + r.z * p_axis.z);
-	r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w);
+	Vector3 axis;
+	real_t angle = 0;
+	p_rotation.get_axis_angle(axis, angle);
+	// Swing-twist decomposition in Clifford algebra
+	// https://arxiv.org/abs/1506.05481
+	Vector3 p = p_axis * (axis.x * p_axis.x + axis.y * p_axis.y + axis.z * p_axis.z);
+	r_twist = Quaternion(p.x, p.y, p.z, angle);
 	r_twist = r_twist.normalized();
 	r_swing = p_rotation * r_twist.inverse();
 }
