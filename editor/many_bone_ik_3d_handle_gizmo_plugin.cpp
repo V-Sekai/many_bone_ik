@@ -290,7 +290,6 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	TypedArray<Vector3> axial_middle_handles;
 	TypedArray<Vector3> axial_current_handles;
 	Vector<Vector3> axial_to_handles;
-	int out_idx = 0;
 
 	Transform3D constraint_twist_transform = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
 	float cone_radius = Math::deg_to_rad(90.0f);
