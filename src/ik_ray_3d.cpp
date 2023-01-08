@@ -1,32 +1,32 @@
-/*************************************************************************/
-/*  ik_ray_3d.cpp                                                        */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
+/**************************************************************************/
+/*  ik_ray_3d.cpp                                                         */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
 #include "ik_ray_3d.h"
 
@@ -39,7 +39,7 @@ IKRay3D::IKRay3D(Vector3 p_p1, Vector3 p_p2) {
 	point_2 = p_p2;
 }
 
-Vector3 IKRay3D::heading() {
+Vector3 IKRay3D::get_heading() {
 	working_vector = point_2;
 	return working_vector - point_1;
 }
@@ -49,10 +49,10 @@ void IKRay3D::set_heading(const Vector3 &p_new_head) {
 	point_2 = p_new_head;
 }
 
-real_t IKRay3D::scaled_projection(const Vector3 p_input) {
+real_t IKRay3D::get_scaled_projection(const Vector3 p_input) {
 	working_vector = p_input;
-	working_vector = working_vector - this->point_1;
-	Vector3 heading = this->heading();
+	working_vector = working_vector - point_1;
+	Vector3 heading = get_heading();
 	real_t headingMag = heading.length();
 	real_t workingVectorMag = working_vector.length();
 	if (workingVectorMag == 0 || headingMag == 0) {
@@ -68,11 +68,11 @@ void IKRay3D::elongate(real_t amt) {
 	Vector3 p1Add = p1Heading.normalized() * amt;
 	Vector3 p2Add = p2Heading.normalized() * amt;
 
-	this->point_1 = p1Heading + p1Add + midPoint;
-	this->point_2 = p2Heading + p2Add + midPoint;
+	point_1 = p1Heading + p1Add + midPoint;
+	point_2 = p2Heading + p2Add + midPoint;
 }
 
-Vector3 IKRay3D::intersects_plane(Vector3 ta, Vector3 tb, Vector3 tc) {
+Vector3 IKRay3D::get_intersects_plane(Vector3 ta, Vector3 tb, Vector3 tc) {
 	Vector3 uvw;
 	tta = ta;
 	ttb = tb;
@@ -94,11 +94,11 @@ int IKRay3D::intersects_sphere(Vector3 sphereCenter, real_t radius, Vector3 *S1,
 }
 
 void IKRay3D::p1(Vector3 in) {
-	this->point_1 = in;
+	point_1 = in;
 }
 
 void IKRay3D::p2(Vector3 in) {
-	this->point_2 = in;
+	point_2 = in;
 }
 
 Vector3 IKRay3D::p2() {
@@ -147,7 +147,7 @@ Vector3 IKRay3D::plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc, Vector
 	u = tb;
 	v = tc;
 	n = Vector3(0, 0, 0);
-	dir = this->heading();
+	dir = get_heading();
 	w0 = Vector3(0, 0, 0);
 	float r, a, b;
 	u -= ta;
@@ -206,7 +206,7 @@ void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 *u
 }
 
 void IKRay3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("heading"), &IKRay3D::heading);
-	ClassDB::bind_method(D_METHOD("scaled_projection", "input"), &IKRay3D::scaled_projection);
-	ClassDB::bind_method(D_METHOD("intersects_plane", "a", "b", "c"), &IKRay3D::intersects_plane);
+	ClassDB::bind_method(D_METHOD("get_heading"), &IKRay3D::get_heading);
+	ClassDB::bind_method(D_METHOD("get_scaled_projection", "input"), &IKRay3D::get_scaled_projection);
+	ClassDB::bind_method(D_METHOD("get_intersects_plane", "a", "b", "c"), &IKRay3D::get_intersects_plane);
 }

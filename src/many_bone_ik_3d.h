@@ -1,57 +1,60 @@
-/*************************************************************************/
-/*  ik_many_bone_ik.h                                                           */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
+/**************************************************************************/
+/*  many_bone_ik_3d.h                                                     */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
-#ifndef IK_MANY_BONE_IK_H
-#define IK_MANY_BONE_IK_H
+#ifndef MANY_BONE_IK_3D_H
+#define MANY_BONE_IK_3D_H
+
+#include "ik_bone_3d.h"
+#include "ik_effector_template_3d.h"
+#include "math/ik_node_3d.h"
 
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
+
+#ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
 #include "editor/editor_undo_redo_manager.h"
-#include "ik_bone_3d.h"
-#include "ik_effector_template.h"
-#include "math/ik_node_3d.h"
+#endif
 
-class IKBoneSegment;
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
 
 private:
 	bool is_constraint_mode = false;
 	NodePath skeleton_path;
-	Vector<Ref<IKBoneSegment>> segmented_skeletons;
+	Vector<Ref<IKBoneSegment3D>> segmented_skeletons;
 	int32_t constraint_count = 0;
 	Vector<StringName> constraint_names;
 	int32_t pin_count = 0;
 	int32_t bone_count = 0;
-	Vector<Ref<IKEffectorTemplate>> pins;
+	Vector<Ref<IKEffectorTemplate3D>> pins;
 	Vector<Ref<IKBone3D>> bone_list;
 	Vector<Vector2> kusudama_twist;
 	Vector<float> bone_damp;
@@ -70,7 +73,7 @@ private:
 	int32_t ui_selected_bone = -1;
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
-	Vector<Ref<IKEffectorTemplate>> get_bone_effectors() const;
+	Vector<Ref<IKEffectorTemplate3D>> get_bone_effectors() const;
 	void _set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
 	void _set_constraint_name(int32_t p_index, String p_name);
 	void _set_pin_count(int32_t p_value);
@@ -108,7 +111,7 @@ public:
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;
 	Vector<Ref<IKBone3D>> get_bone_list();
-	Vector<Ref<IKBoneSegment>> get_segmented_skeletons();
+	Vector<Ref<IKBoneSegment3D>> get_segmented_skeletons();
 	float get_iterations_per_frame() const;
 	void set_iterations_per_frame(const float &p_iterations_per_frame);
 	void queue_print_skeleton();
@@ -133,8 +136,6 @@ public:
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
 	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
-	real_t get_kusudama_twist_current(int32_t p_index);
-	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
 
 	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_constraint_twist_transform(int32_t p_index) const;
@@ -146,11 +147,11 @@ public:
 	Vector2 get_kusudama_twist(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
-	Vector3 get_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index) const;
-	float get_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index) const;
-	void set_kusudama_limit_cone_center(int32_t p_contraint_index, int32_t p_index, Vector3 p_center);
-	void set_kusudama_limit_cone_radius(int32_t p_contraint_index, int32_t p_index, float p_radius);
-	int32_t get_kusudama_limit_cone_count(int32_t p_contraint_index) const;
+	Vector3 get_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index) const;
+	float get_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index) const;
+	void set_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index, Vector3 p_center);
+	void set_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index, float p_radius);
+	int32_t get_kusudama_limit_cone_count(int32_t p_constraint_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	int32_t get_bone_count() const;
 	void set_bone_damp(int32_t p_index, real_t p_damp);
@@ -160,4 +161,4 @@ public:
 	void set_dirty();
 };
 
-#endif // IK_MANY_BONE_IK_H
+#endif // MANY_BONE_IK_3D_H

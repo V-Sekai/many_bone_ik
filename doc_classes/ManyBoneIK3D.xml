@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="ManyBoneIK3D" inherits="Node3D" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+<class name="ManyBoneIK3D" inherits="Node3D" is_experimental="true" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
-		A full body inverse kinematics system.
+		A general inverse kinematics system with constraints.
 	</brief_description>
 	<description>
-		A full body inverse kinematics system.
-		An inverse kinematic system useful for scenes like a tiny man scampering on top of two giant dancing virtual reality vagabonds, jumping onto a moving train.
-		Useful for concert level dance motion capture.
-		Can solve the 4 sensors with position / orientation for the head, the left and right hands, and 1 sensor for the ground.
+		An general inverse kinematic system useful for many purposes.
 		Can also support as many end effector tracking targets as the performance allows.
 	</description>
 	<tutorials>
-		<link title="Everything will be IK">https://github.com/EGjoni/Everything-Will-Be-IK</link>
 	</tutorials>
 	<methods>
 		<method name="find_constraint" qualifiers="const">
@@ -76,12 +72,6 @@
 		</method>
 		<method name="get_kusudama_twist" qualifiers="const">
 			<return type="Vector2" />
-			<param index="0" name="index" type="int" />
-			<description>
-			</description>
-		</method>
-		<method name="get_kusudama_twist_current">
-			<return type="float" />
 			<param index="0" name="index" type="int" />
 			<description>
 			</description>
@@ -204,13 +194,6 @@
 			<description>
 			</description>
 		</method>
-		<method name="set_kusudama_twist_current">
-			<return type="void" />
-			<param index="0" name="index" type="int" />
-			<param index="1" name="rotation" type="float" />
-			<description>
-			</description>
-		</method>
 		<method name="set_pin_direction_priorities">
 			<return type="void" />
 			<param index="0" name="index" type="int" />
@@ -243,7 +226,7 @@
 	<members>
 		<member name="constraint_mode" type="bool" setter="set_constraint_mode" getter="get_constraint_mode" default="false">
 		</member>
-		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.174533">
+		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="-1.0">
 			The default maximum number of radians a bone is allowed to rotate per solver iteration. The lower this value, the more natural the pose results. However, this will increase the number of iterations_per_frame the solver requires to converge.
 		</member>
 		<member name="filter_bones" type="StringName[]" setter="set_filter_bones" getter="get_filter_bones" default="[]">

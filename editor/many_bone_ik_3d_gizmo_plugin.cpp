@@ -1,34 +1,36 @@
-/*************************************************************************/
-/*  many_bone_ik_skeleton_3d_gizmo_plugin.cpp                            */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
+/**************************************************************************/
+/*  many_bone_ik_3d_gizmo_plugin.cpp                                      */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
 #include "many_bone_ik_3d_gizmo_plugin.h"
+
+#include "modules/many_bone_ik/src/ik_kusudama_3d.h"
 
 #include "core/io/resource_saver.h"
 #include "core/math/transform_3d.h"
@@ -51,8 +53,6 @@
 #include "scene/resources/surface_tool.h"
 #include "scene/scene_string_names.h"
 
-#include "../src/ik_kusudama.h"
-
 void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &ManyBoneIK3DGizmoPlugin::get_gizmo_name);
 }
@@ -68,7 +68,7 @@ String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
 void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!p_gizmo) {
 		return;
-	}	
+	}
 	Node3D *node_3d = p_gizmo->get_node_3d();
 	if (!node_3d) {
 		return;
@@ -97,8 +97,8 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
 		int bones_to_process_i = 0;
 		Vector<BoneId> processing_bones;
-		Vector<Ref<IKBoneSegment>> bone_segments = many_bone_ik->get_segmented_skeletons();
-		for (Ref<IKBoneSegment> bone_segment : bone_segments) {
+		Vector<Ref<IKBoneSegment3D>> bone_segments = many_bone_ik->get_segmented_skeletons();
+		for (Ref<IKBoneSegment3D> bone_segment : bone_segments) {
 			if (bone_segment.is_null()) {
 				continue;
 			}
@@ -126,11 +126,11 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 }
 
 void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
-	Ref<IKKusudama> ik_kusudama = ik_bone->get_constraint();
+	Ref<IKKusudama3D> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
 	}
-	const TypedArray<IKLimitCone> &limit_cones = ik_kusudama->get_limit_cones();
+	const TypedArray<IKLimitCone3D> &limit_cones = ik_kusudama->get_limit_cones();
 	if (!limit_cones.size()) {
 		return;
 	}
@@ -149,34 +149,33 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 
 	Transform3D constraint_relative_to_the_skeleton = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 	PackedFloat32Array kusudama_limit_cones;
-	Ref<IKKusudama> kusudama = ik_bone->get_constraint();
-	kusudama_limit_cones.resize(KUSUDAMA_MAX_CONES * 4);
-	kusudama_limit_cones.fill(0.0f);
-	int out_idx = 0;
+	Ref<IKKusudama3D> kusudama = ik_bone->get_constraint();
 	for (int32_t cone_i = 0; cone_i < limit_cones.size(); cone_i++) {
-		Ref<IKLimitCone> limit_cone = limit_cones[cone_i];
+		Ref<IKLimitCone3D> limit_cone = limit_cones[cone_i];
 		Vector3 control_point = limit_cone->get_control_point();
-		kusudama_limit_cones.write[out_idx + 0] = control_point.x;
-		kusudama_limit_cones.write[out_idx + 1] = control_point.y;
-		kusudama_limit_cones.write[out_idx + 2] = control_point.z;
+		PackedFloat32Array new_kusudama_limit_cones;
+		new_kusudama_limit_cones.resize(4 * 3);
+		new_kusudama_limit_cones.fill(0.0f);
+		new_kusudama_limit_cones.write[0] = control_point.x;
+		new_kusudama_limit_cones.write[1] = control_point.y;
+		new_kusudama_limit_cones.write[2] = control_point.z;
 		float radius = limit_cone->get_radius();
-		kusudama_limit_cones.write[out_idx + 3] = radius;
-		out_idx += 4;
+		new_kusudama_limit_cones.write[3] = radius;
 
 		Vector3 tangent_center_1 = limit_cone->get_tangent_circle_center_next_1();
-		kusudama_limit_cones.write[out_idx + 0] = tangent_center_1.x;
-		kusudama_limit_cones.write[out_idx + 1] = tangent_center_1.y;
-		kusudama_limit_cones.write[out_idx + 2] = tangent_center_1.z;
+		new_kusudama_limit_cones.write[4] = tangent_center_1.x;
+		new_kusudama_limit_cones.write[5] = tangent_center_1.y;
+		new_kusudama_limit_cones.write[6] = tangent_center_1.z;
 		float tangent_radius = limit_cone->get_tangent_circle_radius_next();
-		kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
-		out_idx += 4;
+		new_kusudama_limit_cones.write[7] = tangent_radius;
 
 		Vector3 tangent_center_2 = limit_cone->get_tangent_circle_center_next_2();
-		kusudama_limit_cones.write[out_idx + 0] = tangent_center_2.x;
-		kusudama_limit_cones.write[out_idx + 1] = tangent_center_2.y;
-		kusudama_limit_cones.write[out_idx + 2] = tangent_center_2.z;
-		kusudama_limit_cones.write[out_idx + 3] = tangent_radius;
-		out_idx += 4;
+		new_kusudama_limit_cones.write[8] = tangent_center_2.x;
+		new_kusudama_limit_cones.write[9] = tangent_center_2.y;
+		new_kusudama_limit_cones.write[10] = tangent_center_2.z;
+		new_kusudama_limit_cones.write[11] = tangent_radius;
+
+		kusudama_limit_cones.append_array(new_kusudama_limit_cones);
 	}
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
 		return;

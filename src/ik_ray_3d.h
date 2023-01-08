@@ -1,32 +1,32 @@
-/*************************************************************************/
-/*  ik_ray_3d.h                                                          */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
+/**************************************************************************/
+/*  ik_ray_3d.h                                                           */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
 #ifndef IK_RAY_3D_H
 #define IK_RAY_3D_H
@@ -53,7 +53,7 @@ public:
 	IKRay3D();
 	virtual ~IKRay3D() {}
 	IKRay3D(Vector3 p_point_one, Vector3 p_point_two);
-	virtual Vector3 heading();
+	virtual Vector3 get_heading();
 	virtual void set_heading(const Vector3 &p_new_head);
 
 	/**
@@ -71,16 +71,16 @@ public:
 	 * the intended properties
 	 * are listed for reference here (despite their being easily inferred).
 	 * <p>
-	 * 1. calling scaled_projection(someVector) should return the same value as
+	 * 1. calling get_scaled_projection(someVector) should return the same value as
 	 * calling
-	 * scaled_projection(closestPointTo(someVector).
-	 * 2. calling getMultipliedBy(scaled_projection(someVector)) should return the
+	 * get_scaled_projection(closestPointTo(someVector).
+	 * 2. calling getMultipliedBy(get_scaled_projection(someVector)) should return the
 	 * same
 	 * vector as calling closestPointTo(someVector)
 	 *
 	 * @param p_input a vector to project onto this ray
 	 */
-	virtual real_t scaled_projection(const Vector3 p_input);
+	virtual real_t get_scaled_projection(const Vector3 p_input);
 
 	/**
 	 * adds the specified length to the ray in both directions.
@@ -94,7 +94,7 @@ public:
 	 * @return the point where this ray intersects the plane specified by the
 	 *         triangle ta,tb,tc.
 	 */
-	virtual Vector3 intersects_plane(Vector3 p_vertex_a, Vector3 p_vertex_b, Vector3 p_vertex_c);
+	virtual Vector3 get_intersects_plane(Vector3 p_vertex_a, Vector3 p_vertex_b, Vector3 p_vertex_c);
 
 	/*
 	 * Find where this ray intersects a sphere
@@ -121,7 +121,7 @@ public:
 	void barycentric(Vector3 p_a, Vector3 p_b, Vector3 p_c, Vector3 p_p, Vector3 *r_uvw);
 	virtual Vector3 plane_intersect_test(Vector3 p_vertex_a, Vector3 p_vertex_b, Vector3 p_vertex_c, Vector3 *uvw);
 	operator String() const {
-		return String(L"(") + this->point_1.x + L" ->  " + this->point_2.x + L") \n " + L"(" + this->point_1.y + L" ->  " + this->point_2.y + L") \n " + L"(" + this->point_1.z + L" ->  " + this->point_2.z + L") \n ";
+		return String(L"(") + point_1.x + L" ->  " + point_2.x + L") \n " + L"(" + point_1.y + L" ->  " + point_2.y + L") \n " + L"(" + point_1.z + L" ->  " + point_2.z + L") \n ";
 	}
 };
 

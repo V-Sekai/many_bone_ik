@@ -1,37 +1,40 @@
-/*************************************************************************/
-/*  many_bone_ik_skeleton_3d_handle_gizmo_plugin.h                       */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
+/**************************************************************************/
+/*  many_bone_ik_3d_handle_gizmo_plugin.h                                 */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
-#ifndef MANY_BONE_IKSKELETON_3D_HANDLE_GIZMO_PLUGIN_H
-#define MANY_BONE_IKSKELETON_3D_HANDLE_GIZMO_PLUGIN_H
+#ifndef MANY_BONE_IK_3D_HANDLE_GIZMO_PLUGIN_H
+#define MANY_BONE_IK_3D_HANDLE_GIZMO_PLUGIN_H
 
-#include "../src/ik_bone_3d.h"
+#include "many_bone_ik_shader.h"
+#include "modules/many_bone_ik/src/ik_bone_3d.h"
+#include "modules/many_bone_ik/src/many_bone_ik_3d.h"
+
 #include "core/templates/hash_map.h"
 #include "core/templates/local_vector.h"
 #include "editor/editor_inspector.h"
@@ -47,9 +50,6 @@
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/immediate_mesh.h"
 
-#include "../src/many_bone_ik_3d.h"
-#include "many_bone_ik_shader.h"
-
 class Joint;
 class PhysicalBone3D;
 class ManyBoneIKEditorPlugin;
@@ -64,7 +64,7 @@ protected:
 
 public:
 	const Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
-	const int32_t KUSUDAMA_MAX_CONES = 30;
+	const int32_t KUSUDAMA_MAX_CONES = 10;
 	bool has_gizmo(Node3D *p_spatial) override;
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
@@ -78,7 +78,11 @@ class EditorPluginManyBoneIKHandle : public EditorPlugin {
 	GDCLASS(EditorPluginManyBoneIKHandle, EditorPlugin);
 
 public:
-	EditorPluginManyBoneIKHandle();
+	EditorPluginManyBoneIKHandle() {
+		Ref<ManyBoneIK3DHandleGizmoPlugin> many_bone_ik_gizmo_plugin;
+		many_bone_ik_gizmo_plugin.instantiate();
+		Node3DEditor::get_singleton()->add_gizmo_plugin(many_bone_ik_gizmo_plugin);
+	}
 };
 
-#endif // MANY_BONE_IKSKELETON_3D_HANDLE_GIZMO_PLUGIN_H
+#endif // MANY_BONE_IK_3D_HANDLE_GIZMO_PLUGIN_H

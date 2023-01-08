@@ -3,9 +3,9 @@
 Import("env")
 
 env_many_bone_ik = env.Clone()
-env_many_bone_ik.Prepend(CPPPATH=["."])
-env_many_bone_ik.Prepend(CPPPATH=["src/math"])
-env_many_bone_ik.Prepend(CPPPATH=["src"])
+env_many_bone_ik.Prepend(CPPPATH=["#modules/many_bone_ik"])
+env_many_bone_ik.Prepend(CPPPATH=["#modules/many_bone_ik/src/math"])
+env_many_bone_ik.Prepend(CPPPATH=["#modules/many_bone_ik/src"])
 env_many_bone_ik.add_source_files(env.modules_sources, "constraints/*.cpp")
 env_many_bone_ik.add_source_files(env.modules_sources, "src/math/*.cpp")
 env_many_bone_ik.add_source_files(env.modules_sources, "src/*.cpp")

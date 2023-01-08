@@ -1,39 +1,41 @@
-/*************************************************************************/
-/*  ik_bone_3d.h                                                         */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
+/**************************************************************************/
+/*  ik_bone_3d.h                                                          */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
 #ifndef IK_BONE_3D_H
 #define IK_BONE_3D_H
 
 #include "ik_bone_3d.h"
-#include "ik_effector_template.h"
-#include "ik_limit_cone.h"
+
+#include "ik_effector_template_3d.h"
+#include "ik_kusudama_3d.h"
+#include "ik_limit_cone_3d.h"
 #include "math/ik_node_3d.h"
 
 #include "core/io/resource.h"
@@ -41,8 +43,8 @@
 #include "scene/3d/skeleton_3d.h"
 
 class IKEffector3D;
-class IKKusudama;
 class ManyBoneIK3D;
+class IKBone3D;
 
 class IKBone3D : public Resource {
 	GDCLASS(IKBone3D, Resource);
@@ -55,7 +57,7 @@ class IKBone3D : public Resource {
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
-	Ref<IKKusudama> constraint;
+	Ref<IKKusudama3D> constraint;
 	// In the space of the local parent bone transform.
 	// The origin is the origin of the bone direction transform
 	// Can be independent and should be calculated
@@ -83,8 +85,8 @@ public:
 	Ref<IKNode3D> get_constraint_orientation_transform();
 	Ref<IKNode3D> get_constraint_twist_transform();
 	void update_default_constraint_transform();
-	void add_constraint(Ref<IKKusudama> p_constraint);
-	Ref<IKKusudama> get_constraint() const;
+	void add_constraint(Ref<IKKusudama3D> p_constraint);
+	Ref<IKKusudama3D> get_constraint() const;
 	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
 	BoneId get_bone_id() const;
 	void set_parent(const Ref<IKBone3D> &p_parent);
@@ -101,7 +103,7 @@ public:
 	bool is_pinned() const;
 	Ref<IKNode3D> get_ik_transform();
 	IKBone3D() {}
-	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate>> &p_pins, float p_default_dampening = Math_PI, ManyBoneIK3D *p_many_bone_ik = nullptr);
+	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate3D>> &p_pins, float p_default_dampening = Math_PI, ManyBoneIK3D *p_many_bone_ik = nullptr);
 	~IKBone3D() {}
 	float get_cos_half_dampen() const;
 	void set_cos_half_dampen(float p_cos_half_dampen);

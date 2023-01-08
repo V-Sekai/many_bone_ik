@@ -1,7 +1,37 @@
-#include "editor/plugins/node_3d_editor_plugin.h"
-#include "scene/gui/tree.h"
+/**************************************************************************/
+/*  many_bone_ik_plugin.cpp                                               */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
 #include "many_bone_ik_plugin.h"
+
+#include "editor/plugins/node_3d_editor_plugin.h"
+#include "scene/gui/tree.h"
 
 EditorPlugin::AfterGUIInput ManyBoneIK3DEditorPlugin::forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
 	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();
@@ -35,15 +65,6 @@ String ManyBoneIK3DEditorPlugin::get_name() const {
 	return "ManyBoneIK3D";
 }
 
-ManyBoneIK3DEditorPlugin::ManyBoneIK3DEditorPlugin() {
-	skeleton_plugin = memnew(EditorInspectorPluginManyBoneIK);
-
-	EditorInspector::add_inspector_plugin(skeleton_plugin);
-
-	Ref<Skeleton3DGizmoPlugin> gizmo_plugin = Ref<Skeleton3DGizmoPlugin>(memnew(Skeleton3DGizmoPlugin));
-	Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
-}
-
 bool EditorInspectorPluginManyBoneIK::can_handle(Object *p_object) {
 	return Object::cast_to<ManyBoneIK3D>(p_object) != nullptr;
 }
@@ -68,11 +89,6 @@ void ManyBoneIK3DEditor::_notification(int p_what) {
 			update_joint_tree();
 		} break;
 	}
-}
-
-inline ManyBoneIK3DEditor::ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik) {
-	ik = p_ik;
-	create_editors();
 }
 
 void ManyBoneIK3DEditor::_update_properties() {
@@ -214,14 +230,6 @@ void ManyBoneIK3DEditor::create_editors() {
 	twist_range_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(twist_range_float);
 
-	twist_current_float = memnew(EditorPropertyFloat());
-	twist_current_float->hide();
-	twist_current_float->setup(0, 1, 0.01, false, false, false, false, "", false);
-	twist_current_float->set_label(TTR("Twist Current"));
-	twist_current_float->set_selectable(false);
-	twist_current_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
-	constraint_bone_section->get_vbox()->add_child(twist_current_float);
-
 	cone_count_float = memnew(EditorPropertyFloat());
 	cone_count_float->hide();
 	cone_count_float->setup(0, 30, 1, false, false, "", false);
@@ -272,30 +280,20 @@ void ManyBoneIK3DEditor::create_editors() {
 
 void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 	TreeItem *selected = joint_tree->get_selected();
-	if (selected) {
-		const String path = selected->get_metadata(0);
-		if (!path.begins_with("bones/")) {
-			return;
-		}
-		const int b_idx = path.get_slicec('/', 1).to_int();
-		selected_bone = b_idx;
-	}
-	select_bone(selected_bone);
-	_update_properties();
-}
-
-void ManyBoneIK3DEditor::select_bone(int p_idx) {
-	if (p_idx < 0) {
-		selected_bone = -1;
-		joint_tree->deselect_all();
-		_joint_tree_selection_changed();
+	if (!selected) {
 		return;
 	}
+	const String path = selected->get_metadata(0);
+	if (!path.begins_with("bones/")) {
+		return;
+	}
+	const int b_idx = path.get_slicec('/', 1).to_int();
+	selected_bone = b_idx;
+
 	bone_damp_float->hide();
 	target_nodepath->hide();
 	twist_from_float->hide();
 	twist_range_float->hide();
-	twist_current_float->hide();
 	cone_count_float->hide();
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i]->hide();
@@ -308,19 +306,6 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	weight_float->hide();
 	direction_priorities_vector3->hide();
 
-	TreeItem *ti = _find(joint_tree->get_root(), "bones/" + itos(p_idx));
-	if (!ti) {
-		return;
-	}
-	// Make visible when it's collapsed.
-	TreeItem *node = ti->get_parent();
-	while (node && node != joint_tree->get_root()) {
-		node->set_collapsed(false);
-		node = node->get_parent();
-	}
-	ti->select(0);
-	joint_tree->scroll_to_item(ti);
-
 	Skeleton3D *skeleton = ik->get_skeleton();
 	if (!skeleton) {
 		return;
@@ -329,50 +314,61 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 	if (bone_name.is_empty()) {
 		return;
 	}
-	bone_damp_float->set_object_and_property(ik, vformat("bone/%d/damp", p_idx));
+	bone_damp_float->set_object_and_property(ik, vformat("bone/%d/damp", selected_bone));
 	bone_damp_float->update_property();
 	bone_damp_float->show();
-	target_nodepath->set_object_and_property(ik, vformat("pins/%d/target_node", p_idx));
+	target_nodepath->set_object_and_property(ik, vformat("pins/%d/target_node", selected_bone));
 	target_nodepath->update_property();
 	target_nodepath->show();
-	passthrough_float->set_object_and_property(ik, vformat("pins/%d/passthrough_factor", p_idx));
+	passthrough_float->set_object_and_property(ik, vformat("pins/%d/passthrough_factor", selected_bone));
 	passthrough_float->update_property();
 	passthrough_float->show();
-	weight_float->set_object_and_property(ik, vformat("pins/%d/weight", p_idx));
+	weight_float->set_object_and_property(ik, vformat("pins/%d/weight", selected_bone));
 	weight_float->update_property();
 	weight_float->show();
-	direction_priorities_vector3->set_object_and_property(ik, vformat("pins/%d/direction_priorities", p_idx));
+	direction_priorities_vector3->set_object_and_property(ik, vformat("pins/%d/direction_priorities", selected_bone));
 	direction_priorities_vector3->update_property();
 	direction_priorities_vector3->show();
-	twist_from_float->set_object_and_property(ik, vformat("constraints/%d/twist_from", p_idx));
+	twist_from_float->set_object_and_property(ik, vformat("constraints/%d/twist_from", selected_bone));
 	twist_from_float->update_property();
 	twist_from_float->show();
-	twist_range_float->set_object_and_property(ik, vformat("constraints/%d/twist_range", p_idx));
+	twist_range_float->set_object_and_property(ik, vformat("constraints/%d/twist_range", selected_bone));
 	twist_range_float->update_property();
 	twist_range_float->show();
-	twist_current_float->set_object_and_property(ik, vformat("constraints/%d/twist_current", p_idx));
-	twist_current_float->update_property();
-	twist_current_float->show();
-	cone_count_float->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone_count", p_idx));
+	cone_count_float->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone_count", selected_bone));
 	cone_count_float->update_property();
 	cone_count_float->show();
-	for (int32_t cone_i = 0; cone_i < ik->get_kusudama_limit_cone_count(p_idx); cone_i++) {
-		center_vector3[cone_i]->show();
-		center_vector3[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/center", p_idx, cone_i));
-		center_vector3[cone_i]->update_property();
-		radius_float[cone_i]->show();
-		radius_float[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/radius", p_idx, cone_i));
-		radius_float[cone_i]->update_property();
+	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
+		center_vector3[cone_i]->hide();
+		radius_float[cone_i]->hide();
 	}
-	twist_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_twist", p_idx));
+	for (int32_t cone_i = 0; cone_i < ik->get_kusudama_limit_cone_count(selected_bone); cone_i++) {
+		center_vector3[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/center", selected_bone, cone_i));
+		center_vector3[cone_i]->update_property();
+		center_vector3[cone_i]->show();
+		radius_float[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/radius", selected_bone, cone_i));
+		radius_float[cone_i]->update_property();
+		radius_float[cone_i]->show();
+	}
+	twist_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_twist", selected_bone));
 	twist_constraint_transform->update_property();
 	twist_constraint_transform->show();
-	orientation_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_orientation", p_idx));
+	orientation_constraint_transform->set_object_and_property(ik, vformat("constraints/%d/kusudama_orientation", selected_bone));
 	orientation_constraint_transform->update_property();
 	orientation_constraint_transform->show();
-	bone_direction_transform->set_object_and_property(ik, vformat("constraints/%d/bone_direction", p_idx));
+	bone_direction_transform->set_object_and_property(ik, vformat("constraints/%d/bone_direction", selected_bone));
 	bone_direction_transform->update_property();
 	bone_direction_transform->show();
+	_update_properties();
+}
+
+void ManyBoneIK3DEditor::select_bone(int p_idx) {
+	if (p_idx < 0) {
+		selected_bone = -1;
+		return;
+	}
+	selected_bone = p_idx;
+	_joint_tree_selection_changed();
 }
 
 TreeItem *ManyBoneIK3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
