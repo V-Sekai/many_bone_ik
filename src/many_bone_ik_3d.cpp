@@ -1169,6 +1169,7 @@ int32_t ManyBoneIK3D::get_ui_selected_bone() const {
 
 void ManyBoneIK3D::set_ui_selected_bone(int32_t p_ui_selected_bone) {
 	ui_selected_bone = p_ui_selected_bone;
+	notify_property_list_changed();
 }
 
 TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
