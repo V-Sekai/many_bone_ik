@@ -46,6 +46,7 @@ void ManyBoneIK3D::_set_pin_count(int32_t p_value) {
 		pins.write[pin_i].instantiate();
 	}
 	set_dirty();
+	notify_property_list_changed();
 }
 
 int32_t ManyBoneIK3D::get_pin_count() const {
@@ -90,6 +91,7 @@ void ManyBoneIK3D::_remove_pin(int32_t p_index) {
 	pin_count--;
 	pins.resize(pin_count);
 	set_dirty();
+	notify_property_list_changed();
 }
 
 void ManyBoneIK3D::update_ik_bones_transform() {
@@ -524,6 +526,7 @@ void ManyBoneIK3D::_set_constraint_count(int32_t p_count) {
 		kusudama_twist.write[constraint_i] = Vector2(0, Math_TAU - CMP_EPSILON);
 	}
 	set_dirty();
+	notify_property_list_changed();
 }
 
 int32_t ManyBoneIK3D::get_constraint_count() const {
@@ -615,6 +618,7 @@ void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_constraint_index, int
 		cone.z = 0.0f;
 		cone.w = Math::deg_to_rad(10.0f);
 	}
+	notify_property_list_changed();
 	set_dirty();
 }
 
@@ -948,6 +952,7 @@ real_t ManyBoneIK3D::get_bone_damp(int32_t p_index) const {
 void ManyBoneIK3D::set_bone_damp(int32_t p_index, real_t p_damp) {
 	ERR_FAIL_INDEX(p_index, bone_damp.size());
 	bone_damp.write[p_index] = p_damp;
+	notify_property_list_changed();
 }
 
 Vector<Ref<IKBone3D>> ManyBoneIK3D::get_bone_list() {
@@ -1145,4 +1150,5 @@ TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 
 void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
+	notify_property_list_changed();
 }
