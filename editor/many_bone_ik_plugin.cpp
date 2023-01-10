@@ -185,8 +185,9 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 		return;
 	}
 	const int b_idx = path.get_slicec('/', 1).to_int();
-	selected_bone = b_idx;
-	_update_properties();
+	select_bone(b_idx);
+	ik->set_ui_selected_bone(selected_bone);
+	ik->notify_property_list_changed();
 }
 
 void ManyBoneIK3DEditor::select_bone(int p_idx) {
@@ -195,8 +196,6 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		return;
 	}
 	selected_bone = p_idx;
-	_joint_tree_selection_changed();
-	ik->set_ui_selected_bone(selected_bone);
 }
 
 TreeItem *ManyBoneIK3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
