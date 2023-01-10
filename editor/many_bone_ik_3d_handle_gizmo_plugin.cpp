@@ -140,8 +140,6 @@ ManyBoneIK3DOrientationHandleGizmoPlugin::ManyBoneIK3DOrientationHandleGizmoPlug
 	create_handle_material("handles_axial_to", false, handle_axial_to);
 	Ref<Texture2D> handle_axial_current = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node2D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_current", false, handle_axial_current);
-	kusudama_shader.instantiate();
-	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
 }
 
 int32_t ManyBoneIK3DOrientationHandleGizmoPlugin::get_priority() const {

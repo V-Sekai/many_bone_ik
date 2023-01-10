@@ -57,7 +57,6 @@ class Button;
 
 class ManyBoneIK3DTwistHandleGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(ManyBoneIK3DTwistHandleGizmoPlugin, EditorNode3DGizmoPlugin);
-	Ref<Shader> kusudama_shader;
 
 protected:
 	static void _bind_methods();
