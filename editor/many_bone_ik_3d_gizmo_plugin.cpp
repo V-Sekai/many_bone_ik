@@ -58,7 +58,7 @@ void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<ManyBoneIK3D>(p_spatial);
+	return !cast_to<Skeleton3D>(p_spatial);
 }
 
 String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
@@ -147,7 +147,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	bones[0] = parent_idx;
 	weights[0] = 1;
 
-	Transform3D constraint_relative_to_the_skeleton = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+	Transform3D constraint_relative_to_the_skeleton = many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama3D> kusudama = ik_bone->get_constraint();
 	for (int32_t cone_i = 0; cone_i < limit_cones.size(); cone_i++) {

@@ -719,9 +719,6 @@ NodePath ManyBoneIK3D::get_pin_nodepath(int32_t p_effector_index) const {
 }
 
 void ManyBoneIK3D::execute(real_t delta) {
-	if (!is_visible_in_tree()) {
-		return;
-	}
 	if (!get_skeleton()) {
 		return;
 	}
@@ -730,11 +727,7 @@ void ManyBoneIK3D::execute(real_t delta) {
 	}
 	if (!segmented_skeletons.size()) {
 		set_dirty();
-	}
-	if (is_dirty) {
 		skeleton_changed(get_skeleton());
-		is_dirty = false;
-		update_gizmos();
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
@@ -909,15 +902,9 @@ void ManyBoneIK3D::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
 			set_process_internal(true);
-			set_notify_transform(true);
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (is_visible_in_tree()) {
-				execute(get_process_delta_time());
-			}
-		} break;
-		case NOTIFICATION_TRANSFORM_CHANGED: {
-			update_gizmos();
+			execute(get_process_delta_time());
 		} break;
 	}
 }
