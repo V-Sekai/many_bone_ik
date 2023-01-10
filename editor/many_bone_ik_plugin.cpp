@@ -187,16 +187,6 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 	const int b_idx = path.get_slicec('/', 1).to_int();
 	selected_bone = b_idx;
 	ik->set_ui_selected_bone(selected_bone);
-	ik->notify_property_list_changed();
-	selected->select(0);
-}
-
-void ManyBoneIK3DEditor::select_bone(int p_idx) {
-	if (p_idx < 0) {
-		selected_bone = -1;
-		return;
-	}
-	selected_bone = p_idx;
 }
 
 TreeItem *ManyBoneIK3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
