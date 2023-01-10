@@ -1145,15 +1145,3 @@ TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
 }
-Ref<IKNode3D> ManyBoneIK3D::get_godot_skeleton_transform() {
-	return godot_skeleton_transform;
-}
-Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
-	return godot_skeleton_transform_inverse;
-}
-TypedArray<IKBoneSegment3D> ManyBoneIK3D::get_child_segments() const {
-	return segmented_skeletons;
-}
-void ManyBoneIK3D::set_child_segments(TypedArray<IKBoneSegment3D> p_child_segments) {
-	segmented_skeletons = p_child_segments;
-}
