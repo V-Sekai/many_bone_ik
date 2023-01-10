@@ -128,7 +128,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
-					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
@@ -170,7 +170,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
-					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Kusudama Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
@@ -226,7 +226,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	{
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "bone_count",
-						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 						"Bone,bone/"));
 		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
 			PropertyInfo bone_name;
