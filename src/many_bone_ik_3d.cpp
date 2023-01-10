@@ -206,6 +206,10 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,10,1", constraint_usage | PROPERTY_USAGE_ARRAY,
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
+			p_list->push_back(
+					PropertyInfo(Variant::BOOL, "constraints/" + itos(constraint_i) + "/mirror_limit_cone_left_right", PROPERTY_HINT_NONE, "", constraint_usage));
+			p_list->push_back(
+					PropertyInfo(Variant::BOOL, "constraints/" + itos(constraint_i) + "/mirror_limit_cone_up_down", PROPERTY_HINT_NONE, "", constraint_usage));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
 					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater", constraint_usage));
@@ -317,6 +321,10 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		} else if (what == "kusudama_limit_cone_count") {
 			r_ret = get_kusudama_limit_cone_count(index);
 			return true;
+		} else if (what == "mirror_limit_cone_up_down") {
+			return true;
+		} else if (what == "mirror_limit_cone_up_down") {
+			return true;
 		} else if (name.begins_with(begins)) {
 			int32_t cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
@@ -400,6 +408,10 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 		} else if (what == "twist_range") {
 			Vector2 twist_range = get_kusudama_twist(index);
 			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
+			return true;
+		} else if (what == "mirror_limit_cone_left_right") {
+			return true;
+		} else if (what == "mirror_limit_cone_up_down") {
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
