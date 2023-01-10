@@ -46,8 +46,8 @@ class IKEffector3D;
 class ManyBoneIK3D;
 class IKBone3D;
 
-class IKBone3D : public RefCounted {
-	GDCLASS(IKBone3D, RefCounted);
+class IKBone3D : public Resource {
+	GDCLASS(IKBone3D, Resource);
 
 	BoneId bone_id = -1;
 	Ref<IKBone3D> parent;
@@ -105,11 +105,6 @@ public:
 	bool is_pinned() const;
 	Ref<IKNode3D> get_ik_transform();
 	IKBone3D() {
-		constraint_orientation_transform.instantiate();
-		constraint_twist_transform.instantiate();
-		godot_skeleton_aligned_transform.instantiate();
-		bone_direction_transform.instantiate();
-		constraint.instantiate();
 	}
 	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate3D>> &p_pins, float p_default_dampening = Math_PI, ManyBoneIK3D *p_many_bone_ik = nullptr);
 	~IKBone3D() {}

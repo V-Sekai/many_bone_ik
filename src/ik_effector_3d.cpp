@@ -184,6 +184,8 @@ void IKEffector3D::_bind_methods() {
 			&IKEffector3D::set_passthrough_factor);
 	ClassDB::bind_method(D_METHOD("get_passthrough_factor"),
 			&IKEffector3D::get_passthrough_factor);
+
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "passthrough_factor"), "set_passthrough_factor", "get_passthrough_factor");
 }
 
 void IKEffector3D::set_weight(real_t p_weight) {

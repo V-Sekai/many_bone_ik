@@ -133,7 +133,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
-		const uint32_t pin_usage = get_ui_selected_bone() == pin_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
+		const uint32_t pin_usage = PROPERTY_USAGE_NO_EDITOR;
 		effector_name.usage = pin_usage | PROPERTY_USAGE_READ_ONLY;
 		if (get_skeleton()) {
 			String names;
@@ -174,7 +174,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		const uint32_t constraint_usage = get_ui_selected_bone() == constraint_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
+		const uint32_t constraint_usage = PROPERTY_USAGE_NO_EDITOR;
 		bone_name.usage = constraint_usage | PROPERTY_USAGE_READ_ONLY;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
@@ -226,7 +226,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
 			PropertyInfo bone_name;
 			bone_name.type = Variant::STRING_NAME;
-			const uint32_t damp_usage = get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
+			const uint32_t damp_usage = PROPERTY_USAGE_NO_EDITOR;
 			bone_name.usage = damp_usage | PROPERTY_USAGE_READ_ONLY;
 			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
 			if (get_skeleton()) {
@@ -481,6 +481,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_child_segments", "segments"), &ManyBoneIK3D::set_child_segments);
 	ClassDB::bind_method(D_METHOD("get_child_segments"), &ManyBoneIK3D::get_child_segments);
 
+	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "child_segments", PROPERTY_HINT_ARRAY_TYPE, "IKBoneSegment3D"), "set_child_segments", "get_child_segments");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
@@ -775,7 +776,7 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 		for (int32_t bone_i = 0; bone_i < new_bone_list.size(); bone_i++) {
 			Ref<IKBone3D> bone = new_bone_list[bone_i];
 			bone_list.push_back(bone);
-		}
+		} 
 		Vector<Vector<real_t>> weight_array;
 		segmented_skeleton->update_pinned_list(weight_array);
 		segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
@@ -1177,16 +1178,4 @@ TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 
 void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
-}
-Ref<IKNode3D> ManyBoneIK3D::get_godot_skeleton_transform() {
-	return godot_skeleton_transform;
-}
-Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
-	return godot_skeleton_transform_inverse;
-}
-TypedArray<IKBoneSegment3D> ManyBoneIK3D::get_child_segments() const {
-	return segmented_skeletons;
-}
-void ManyBoneIK3D::set_child_segments(TypedArray<IKBoneSegment3D> p_child_segments) {
-	segmented_skeletons = p_child_segments;
 }

@@ -289,6 +289,13 @@ void IKKusudama3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_axially_constrained"), &IKKusudama3D::set_axially_constrained);
 	ClassDB::bind_method(D_METHOD("is_orientationally_constrained"), &IKKusudama3D::is_orientationally_constrained);
 	ClassDB::bind_method(D_METHOD("set_orientationally_constrained"), &IKKusudama3D::set_orientationally_constrained);
+	ClassDB::bind_method(D_METHOD("get_bones"), &IKBoneSegment3D::get_bones);
+	ClassDB::bind_method(D_METHOD("set_bones", "bones"), &IKBoneSegment3D::set_bones);
+
+	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "limit_cones", PROPERTY_HINT_ARRAY_TYPE, "IKLimitCone3D"), "set_limit_cones", "get_limit_cones");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "axially_constrained"), "set_axially_constrained", "is_axially_constrained");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "orientationally_constrained"), "set_orientationally_constrained", "is_orientationally_constrained");
+
 }
 
 void IKKusudama3D::set_limit_cones(TypedArray<IKLimitCone3D> p_cones) {
