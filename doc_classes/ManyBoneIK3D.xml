@@ -224,6 +224,8 @@
 		</method>
 	</methods>
 	<members>
+		<member name="child_segments" type="IKBoneSegment3D[]" setter="set_child_segments" getter="get_child_segments" default="[]">
+		</member>
 		<member name="constraint_mode" type="bool" setter="set_constraint_mode" getter="get_constraint_mode" default="false">
 		</member>
 		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="-1.0">

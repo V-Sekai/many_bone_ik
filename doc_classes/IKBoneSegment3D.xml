@@ -7,9 +7,14 @@
 	<tutorials>
 	</tutorials>
 	<methods>
-		<method name="get_ik_bone" qualifiers="const">
+		<method name="find_ik_bone" qualifiers="const">
 			<return type="IKBone3D" />
 			<param index="0" name="bone" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_root" qualifiers="const">
+			<return type="IKBone3D" />
 			<description>
 			</description>
 		</method>
@@ -19,4 +24,12 @@
 			</description>
 		</method>
 	</methods>
+	<members>
+		<member name="child_segments" type="IKBoneSegment3D[]" setter="set_child_segments" getter="get_child_segments" default="[]">
+		</member>
+		<member name="parent_segment" type="IKBoneSegment3D" setter="set_parent_segment" getter="get_parent_segment">
+		</member>
+		<member name="stabilizing_pass_count" type="int" setter="set_default_stabilizing_pass_count" getter="get_default_stabilizing_pass_count" default="1">
+		</member>
+	</members>
 </class>
