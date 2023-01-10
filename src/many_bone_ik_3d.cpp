@@ -725,11 +725,8 @@ void ManyBoneIK3D::execute(real_t delta) {
 	if (!get_skeleton()) {
 		return;
 	}
-	if (get_pin_count() == 0) {
+	if (!get_pin_count()) {
 		return;
-	}
-	if (!segmented_skeletons.size()) {
-		set_dirty();
 	}
 	if (is_dirty) {
 		skeleton_changed(get_skeleton());
@@ -912,9 +909,6 @@ void ManyBoneIK3D::_notification(int p_what) {
 			set_notify_transform(true);
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (is_dirty) {
-				skeleton_changed(get_skeleton());
-			}
 			if (is_visible_in_tree()) {
 				execute(get_process_delta_time());
 			}
