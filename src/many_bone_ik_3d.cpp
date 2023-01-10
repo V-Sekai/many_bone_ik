@@ -727,9 +727,6 @@ void ManyBoneIK3D::execute(real_t delta) {
 	if (!get_skeleton()) {
 		return;
 	}
-	if (!get_pin_count()) {
-		return;
-	}
 	if (is_dirty) {
 		skeleton_changed(get_skeleton());
 		is_dirty = false;
@@ -743,16 +740,6 @@ void ManyBoneIK3D::execute(real_t delta) {
 		Skeleton3D *skeleton = get_skeleton();
 		godot_skeleton_transform->set_transform(skeleton->get_transform());
 		godot_skeleton_transform_inverse = skeleton->get_transform().affine_inverse();
-	}
-	bool has_pins = false;
-	for (Ref<IKEffectorTemplate3D> pin : pins) {
-		if (pin.is_valid() && !pin->get_name().is_empty()) {
-			has_pins = true;
-			break;
-		}
-	}
-	if (!has_pins) {
-		return;
 	}
 	update_ik_bones_transform();
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
@@ -909,9 +896,11 @@ void ManyBoneIK3D::_notification(int p_what) {
 		case NOTIFICATION_READY: {
 			set_process_internal(true);
 			set_notify_transform(true);
+		} break;
+		case NOTIFICATION_ENTER_TREE: {
 			skeleton_changed(get_skeleton());
 			update_gizmos();
-		} break;
+		}
 		case NOTIFICATION_INTERNAL_PROCESS: {
 			if (is_visible_in_tree()) {
 				execute(get_process_delta_time());
