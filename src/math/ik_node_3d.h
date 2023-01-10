@@ -62,13 +62,8 @@ class IKNode3D : public RefCounted {
 
 protected:
 	static void _bind_methods() {
-		ClassDB::bind_method(D_METHOD("set_transform", "transform"), &IKNode3D::set_transform);
 		ClassDB::bind_method(D_METHOD("get_transform"), &IKNode3D::get_transform);
 		ClassDB::bind_method(D_METHOD("get_global_transform"), &IKNode3D::get_global_transform);
-		ClassDB::bind_method(D_METHOD("set_global_transform", "transform"), &IKNode3D::set_global_transform);
-
-		ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM3D, "transform"), "set_transform", "get_transform");
-		ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM3D, "global_transform"), "set_global_transform", "get_global_transform");
 	}
 
 public:

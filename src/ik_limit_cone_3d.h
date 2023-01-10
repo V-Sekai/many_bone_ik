@@ -40,21 +40,20 @@
 class IKKusudama3D;
 class IKLimitCone3D : public Resource {
 	GDCLASS(IKLimitCone3D, Resource);
-	Vector3 control_point;
-	double radius = 0;
-	Vector3 tangent_circle_center_next_1;
-	Vector3 tangent_circle_center_next_2;
-	Ref<WeakRef> parent_kusudama = Ref<WeakRef>(memnew(WeakRef));
-
 	void compute_triangles(Ref<IKLimitCone3D> p_next);
 
+	Vector3 control_point;
 	Vector3 radial_point;
 
 	// Radius stored as cosine to save on the acos call necessary for the angle between.
 	double radius_cosine = 0;
+	double radius = 0;
 	Vector3 closest_cone(Ref<IKLimitCone3D> next, Vector3 input) const;
 	void set_tangent_circle_radius_next(double rad);
+	Ref<IKKusudama3D> parent_kusudama;
 
+	Vector3 tangent_circle_center_next_1;
+	Vector3 tangent_circle_center_next_2;
 	double tangent_circle_radius_next = 0;
 	double tangent_circle_radius_next_cos = 0;
 
@@ -102,8 +101,8 @@ class IKLimitCone3D : public Resource {
 
 protected:
 	double _get_radius();
+
 	double _get_radius_cosine();
-	static void _bind_methods();
 
 public:
 	IKLimitCone3D() {}
@@ -136,13 +135,7 @@ public:
 	void set_control_point(Vector3 p_control_point);
 	double get_radius() const;
 	double get_radius_cosine() const;
-	void set_radius(real_t radius);
-	void set_parent_kusudama(Ref<IKKusudama3D> p_parent) {
-		parent_kusudama->set_ref(p_parent);
-	}
-	Ref<IKKusudama3D> get_parent_kusudama() {
-		return parent_kusudama->get_ref();
-	}
+	void set_radius(double radius);
 };
 
 #endif // IK_LIMIT_CONE_3D_H
