@@ -132,7 +132,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
-		const uint32_t pin_usage = PROPERTY_USAGE_NO_EDITOR;
+		const uint32_t pin_usage = get_ui_selected_bone() == pin_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 		effector_name.usage = pin_usage | PROPERTY_USAGE_READ_ONLY;
 		if (get_skeleton()) {
 			String names;
@@ -173,7 +173,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		const uint32_t constraint_usage = PROPERTY_USAGE_NO_EDITOR;
+		const uint32_t constraint_usage = get_ui_selected_bone() == constraint_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 		bone_name.usage = constraint_usage | PROPERTY_USAGE_READ_ONLY;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
@@ -225,7 +225,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
 			PropertyInfo bone_name;
 			bone_name.type = Variant::STRING_NAME;
-			const uint32_t damp_usage = PROPERTY_USAGE_NO_EDITOR;
+			const uint32_t damp_usage = get_ui_selected_bone() == property_bone_i ? PROPERTY_USAGE_DEFAULT : PROPERTY_USAGE_NO_EDITOR;
 			bone_name.usage = damp_usage | PROPERTY_USAGE_READ_ONLY;
 			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
 			if (get_skeleton()) {
@@ -1144,4 +1144,16 @@ TypedArray<StringName> ManyBoneIK3D::get_filter_bones() {
 
 void ManyBoneIK3D::set_filter_bones(TypedArray<StringName> p_filter_bones) {
 	filter_bones = p_filter_bones;
+}
+Ref<IKNode3D> ManyBoneIK3D::get_godot_skeleton_transform() {
+	return godot_skeleton_transform;
+}
+Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
+	return godot_skeleton_transform_inverse;
+}
+TypedArray<IKBoneSegment3D> ManyBoneIK3D::get_child_segments() const {
+	return segmented_skeletons;
+}
+void ManyBoneIK3D::set_child_segments(TypedArray<IKBoneSegment3D> p_child_segments) {
+	segmented_skeletons = p_child_segments;
 }
