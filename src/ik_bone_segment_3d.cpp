@@ -87,7 +87,6 @@ void IKBoneSegment3D::generate_default_segments_from_root(Vector<Ref<IKEffectorT
 	if (tip->is_pinned()) {
 		enable_pinned_descendants();
 	}
-	set_name(vformat("IKBoneSegment%sRoot%sTip", root->get_name(), tip->get_name()));
 	bones.clear();
 	create_bone_list(bones, false);
 }
