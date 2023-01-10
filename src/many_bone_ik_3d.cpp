@@ -204,10 +204,10 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,10,1", constraint_usage | PROPERTY_USAGE_ARRAY,
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
-			p_list->push_back(
-					PropertyInfo(Variant::BOOL, "constraints/" + itos(constraint_i) + "/mirror_limit_cone_left_right", PROPERTY_HINT_NONE, "", constraint_usage));
-			p_list->push_back(
-					PropertyInfo(Variant::BOOL, "constraints/" + itos(constraint_i) + "/mirror_limit_cone_up_down", PROPERTY_HINT_NONE, "", constraint_usage));
+		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "constraints/" + itos(constraint_i) + "/mirror_limit_cone_left_right", PROPERTY_HINT_NONE, "", constraint_usage));
+		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "constraints/" + itos(constraint_i) + "/mirror_limit_cone_up_down", PROPERTY_HINT_NONE, "", constraint_usage));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
 					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater", constraint_usage));
@@ -727,6 +727,9 @@ void ManyBoneIK3D::execute(real_t delta) {
 	}
 	if (!segmented_skeletons.size()) {
 		set_dirty();
+		skeleton_changed(get_skeleton());
+	}
+	if (is_dirty) {
 		skeleton_changed(get_skeleton());
 	}
 	if (bone_list.size()) {

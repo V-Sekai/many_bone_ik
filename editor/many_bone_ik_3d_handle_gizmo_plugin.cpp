@@ -163,7 +163,7 @@ void ManyBoneIK3DOrientationHandleGizmoPlugin::create_gizmo_handles(BoneId curre
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_transform = p_gizmo->get_node_3d()->get_relative_transform(many_bone_ik_skeleton->get_owner()).affine_inverse() * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+	Transform3D constraint_transform = p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 
 	PackedFloat32Array kusudama_limit_cones;
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
