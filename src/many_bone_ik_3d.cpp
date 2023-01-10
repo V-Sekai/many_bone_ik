@@ -909,6 +909,8 @@ void ManyBoneIK3D::_notification(int p_what) {
 		case NOTIFICATION_READY: {
 			set_process_internal(true);
 			set_notify_transform(true);
+			skeleton_changed(get_skeleton());
+			update_gizmos();
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
 			if (is_visible_in_tree()) {
