@@ -188,7 +188,6 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 	selected_bone = b_idx;
 	ik->set_ui_selected_bone(selected_bone);
 	ik->notify_property_list_changed();
-	selected->select(0);
 }
 
 void ManyBoneIK3DEditor::select_bone(int p_idx) {
