@@ -46,8 +46,8 @@ class IKEffector3D;
 class ManyBoneIK3D;
 class IKBone3D;
 
-class IKBone3D : public Resource {
-	GDCLASS(IKBone3D, Resource);
+class IKBone3D : public RefCounted {
+	GDCLASS(IKBone3D, RefCounted);
 
 	BoneId bone_id = -1;
 	Ref<IKBone3D> parent;
