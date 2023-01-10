@@ -43,8 +43,8 @@
 #include "editor/editor_undo_redo_manager.h"
 #endif
 
-class ManyBoneIK3D : public Node {
-	GDCLASS(ManyBoneIK3D, Node);
+class ManyBoneIK3D : public Node3D {
+	GDCLASS(ManyBoneIK3D, Node3D);
 
 private:
 	bool is_constraint_mode = false;

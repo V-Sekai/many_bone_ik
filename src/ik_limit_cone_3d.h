@@ -38,8 +38,8 @@
 #include "core/object/ref_counted.h"
 
 class IKKusudama3D;
-class IKLimitCone3D : public RefCounted {
-	GDCLASS(IKLimitCone3D, RefCounted);
+class IKLimitCone3D : public Resource {
+	GDCLASS(IKLimitCone3D, Resource);
 	void compute_triangles(Ref<IKLimitCone3D> p_next);
 
 	Vector3 control_point;

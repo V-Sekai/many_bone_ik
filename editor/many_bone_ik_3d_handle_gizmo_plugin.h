@@ -55,8 +55,9 @@ class PhysicalBone3D;
 class ManyBoneIKEditorPlugin;
 class Button;
 
-class ManyBoneIK3DOrientationHandleGizmoPlugin : public EditorNode3DGizmoPlugin {
-	GDCLASS(ManyBoneIK3DOrientationHandleGizmoPlugin, EditorNode3DGizmoPlugin);
+class ManyBoneIK3DHandleGizmoPlugin : public EditorNode3DGizmoPlugin {
+	GDCLASS(ManyBoneIK3DHandleGizmoPlugin, EditorNode3DGizmoPlugin);
+	Ref<Shader> kusudama_shader;
 
 protected:
 	static void _bind_methods();
@@ -67,17 +68,18 @@ public:
 	bool has_gizmo(Node3D *p_spatial) override;
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
-	ManyBoneIK3DOrientationHandleGizmoPlugin();
+	ManyBoneIK3DHandleGizmoPlugin();
 	int32_t get_priority() const override;
 	void create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
+	void create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
 };
 
-class EditorPluginManyBoneIKOrientationHandle : public EditorPlugin {
-	GDCLASS(EditorPluginManyBoneIKOrientationHandle, EditorPlugin);
+class EditorPluginManyBoneIKHandle : public EditorPlugin {
+	GDCLASS(EditorPluginManyBoneIKHandle, EditorPlugin);
 
 public:
-	EditorPluginManyBoneIKOrientationHandle() {
-		Ref<ManyBoneIK3DOrientationHandleGizmoPlugin> many_bone_ik_gizmo_plugin;
+	EditorPluginManyBoneIKHandle() {
+		Ref<ManyBoneIK3DHandleGizmoPlugin> many_bone_ik_gizmo_plugin;
 		many_bone_ik_gizmo_plugin.instantiate();
 		Node3DEditor::get_singleton()->add_gizmo_plugin(many_bone_ik_gizmo_plugin);
 	}

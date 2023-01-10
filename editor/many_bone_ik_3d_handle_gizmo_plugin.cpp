@@ -53,19 +53,19 @@
 #include "scene/resources/surface_tool.h"
 #include "scene/scene_string_names.h"
 
-void ManyBoneIK3DOrientationHandleGizmoPlugin::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &ManyBoneIK3DOrientationHandleGizmoPlugin::get_gizmo_name);
+void ManyBoneIK3DHandleGizmoPlugin::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &ManyBoneIK3DHandleGizmoPlugin::get_gizmo_name);
 }
 
-bool ManyBoneIK3DOrientationHandleGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return !cast_to<Skeleton3D>(p_spatial);
+bool ManyBoneIK3DHandleGizmoPlugin::has_gizmo(Node3D *p_spatial) {
+	return cast_to<ManyBoneIK3D>(p_spatial);
 }
 
-String ManyBoneIK3DOrientationHandleGizmoPlugin::get_gizmo_name() const {
-	return "ManyBoneIKOrientation3DHandle";
+String ManyBoneIK3DHandleGizmoPlugin::get_gizmo_name() const {
+	return "ManyBoneIK3DHandle";
 }
 
-void ManyBoneIK3DOrientationHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
+void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!p_gizmo) {
 		return;
 	}
@@ -119,13 +119,14 @@ void ManyBoneIK3DOrientationHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo
 				}
 				if (ik_bone->is_axially_constrained()) {
 					create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+					create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 				}
 			}
 		}
 	}
 }
 
-ManyBoneIK3DOrientationHandleGizmoPlugin::ManyBoneIK3DOrientationHandleGizmoPlugin() {
+ManyBoneIK3DHandleGizmoPlugin::ManyBoneIK3DHandleGizmoPlugin() {
 	create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
 	Ref<Texture2D> handle_center = Node3DEditor::get_singleton()->get_theme_icon(SNAME("EditorPivot"), SNAME("EditorIcons"));
 	create_handle_material("handles", false, handle_center);
@@ -140,13 +141,15 @@ ManyBoneIK3DOrientationHandleGizmoPlugin::ManyBoneIK3DOrientationHandleGizmoPlug
 	create_handle_material("handles_axial_to", false, handle_axial_to);
 	Ref<Texture2D> handle_axial_current = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node2D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_current", false, handle_axial_current);
+	kusudama_shader.instantiate();
+	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
 }
 
-int32_t ManyBoneIK3DOrientationHandleGizmoPlugin::get_priority() const {
+int32_t ManyBoneIK3DHandleGizmoPlugin::get_priority() const {
 	return -1;
 }
 
-void ManyBoneIK3DOrientationHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
+void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
 	// TEST PLAN: You will also want to make sure it's robust to translations of the skeleton node and root bone
 	Ref<IKKusudama3D> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
@@ -163,7 +166,7 @@ void ManyBoneIK3DOrientationHandleGizmoPlugin::create_gizmo_handles(BoneId curre
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_transform = p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+	Transform3D constraint_transform = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 
 	PackedFloat32Array kusudama_limit_cones;
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
@@ -243,5 +246,100 @@ void ManyBoneIK3DOrientationHandleGizmoPlugin::create_gizmo_handles(BoneId curre
 	}
 	if (radius_handles.size()) {
 		p_gizmo->add_handles(radius_handles, get_material("handles_radius"), Vector<int>(), false, true);
+	}
+}
+
+void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
+	Ref<IKKusudama3D> ik_kusudama = ik_bone->get_constraint();
+	if (ik_kusudama.is_null()) {
+		return;
+	}
+	BoneId parent_idx = many_bone_ik_skeleton->get_bone_parent(current_bone_idx);
+	LocalVector<int> bones;
+	LocalVector<float> weights;
+	bones.resize(4);
+	weights.resize(4);
+	for (int i = 0; i < 4; i++) {
+		bones[i] = 0;
+		weights[i] = 0;
+	}
+	bones[0] = parent_idx;
+	weights[0] = 1;
+	PackedFloat32Array kusudama_limit_cones;
+	Ref<IKKusudama3D> kusudama = ik_bone->get_constraint();
+	if (kusudama.is_null()) {
+		return;
+	}
+	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
+		return;
+	}
+	if (current_bone_idx <= -1) {
+		return;
+	}
+	if (parent_idx >= many_bone_ik_skeleton->get_bone_count()) {
+		return;
+	}
+	if (parent_idx <= -1) {
+		return;
+	}
+	Vector<Vector3> axial_from_handles;
+	TypedArray<Vector3> axial_middle_handles;
+	TypedArray<Vector3> axial_current_handles;
+	Vector<Vector3> axial_to_handles;
+
+	Transform3D constraint_twist_transform = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
+	float cone_radius = Math::deg_to_rad(90.0f);
+	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
+	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
+	real_t dist = v0.distance_to(v1);
+	float radius = dist / 5.0;
+	float w = radius * Math::sin(cone_radius);
+	float d = radius * Math::cos(cone_radius);
+	{
+		const float ra = (float)kusudama->get_min_axial_angle();
+		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
+		Transform3D axial_from_relative_to_mesh;
+		Transform3D center_relative_to_mesh;
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
+		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
+		axial_from_handles.push_back((axial_transform).origin);
+	}
+	float start_angle = kusudama->get_min_axial_angle();
+	bool negative_range = kusudama->get_range_angle() < real_t(0.0);
+	if (negative_range) {
+		start_angle = start_angle + kusudama->get_range_angle();
+	}
+	float end_angle = start_angle + Math::abs(kusudama->get_range_angle());
+	float gaps = Math::deg_to_rad(15.0f);
+	for (float theta = start_angle; theta < end_angle; theta += gaps) {
+		const float ra = theta;
+		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
+		Transform3D axial_from_relative_to_mesh;
+		Transform3D center_relative_to_mesh;
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
+		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
+		axial_middle_handles.push_back((axial_transform).origin);
+	}
+	axial_middle_handles.pop_front();
+	{
+		const float ra = kusudama->get_min_axial_angle() + (float)(kusudama->get_range_angle());
+		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
+		Transform3D axial_from_relative_to_mesh;
+		Transform3D center_relative_to_mesh;
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
+		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
+		axial_to_handles.push_back((axial_transform).origin);
+	}
+	if (axial_from_handles.size() && axial_to_handles.size()) {
+		p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), true, false);
+		p_gizmo->add_handles(axial_to_handles, get_material("handles_axial_to"), Vector<int>(), true, false);
+	}
+	if (axial_middle_handles.size()) {
+		Vector<Vector3> handles;
+		for (int32_t handle_i = 0; handle_i < axial_middle_handles.size(); handle_i++) {
+			handles.push_back(axial_middle_handles[handle_i]);
+		}
+		p_gizmo->add_handles(handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
 }
