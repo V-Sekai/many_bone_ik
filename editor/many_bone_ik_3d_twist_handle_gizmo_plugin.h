@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  register_types.cpp                                                    */
+/*  many_bone_ik_3d_handle_gizmo_plugin.h                                 */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,47 +28,60 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "register_types.h"
+#ifndef MANY_BONE_IK_3D_TWIST_HANDLE_GIZMO_PLUGIN_H
+#define MANY_BONE_IK_3D_TWIST_HANDLE_GIZMO_PLUGIN_H
 
-#include "src/ik_bone_3d.h"
-#include "src/ik_effector_3d.h"
-#include "src/ik_effector_template_3d.h"
-#include "src/ik_kusudama_3d.h"
-#include "src/many_bone_ik_3d.h"
+#include "many_bone_ik_shader.h"
+#include "modules/many_bone_ik/src/ik_bone_3d.h"
+#include "modules/many_bone_ik/src/many_bone_ik_3d.h"
 
-#ifdef TOOLS_ENABLED
-#include "editor/many_bone_ik_3d_gizmo_plugin.h"
-#include "editor/many_bone_ik_3d_handle_gizmo_plugin.h"
-#include "editor/many_bone_ik_3d_twist_handle_gizmo_plugin.h"
-#include "editor/many_bone_ik_plugin.h"
-#endif
+#include "core/templates/hash_map.h"
+#include "core/templates/local_vector.h"
+#include "editor/editor_inspector.h"
+#include "editor/editor_node.h"
+#include "editor/editor_properties.h"
+#include "editor/editor_settings.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
+#include "editor/plugins/skeleton_3d_editor_plugin.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/label_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/node_3d.h"
+#include "scene/3d/skeleton_3d.h"
+#include "scene/resources/immediate_mesh.h"
 
-void initialize_many_bone_ik_module(ModuleInitializationLevel p_level) {
-	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
-	}
-#ifdef TOOLS_ENABLED
-	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
-		EditorPlugins::add_by_type<EditorPluginManyBoneIK>();
-		EditorPlugins::add_by_type<EditorPluginManyBoneIKTwistHandle>();
-		EditorPlugins::add_by_type<EditorPluginManyBoneIKOrientationHandle>();
-		EditorPlugins::add_by_type<ManyBoneIK3DEditorPlugin>();
-	}
-#endif
-	if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
-		GDREGISTER_CLASS(IKEffectorTemplate3D);
-		GDREGISTER_CLASS(ManyBoneIK3D);
-		GDREGISTER_CLASS(IKBone3D);
-		GDREGISTER_CLASS(IKNode3D);
-		GDREGISTER_CLASS(IKEffector3D);
-		GDREGISTER_CLASS(IKBoneSegment3D);
-		GDREGISTER_CLASS(IKKusudama3D);
-		GDREGISTER_CLASS(IKRay3D);
-		GDREGISTER_CLASS(IKLimitCone3D);
-	}
-}
+class Joint;
+class PhysicalBone3D;
+class ManyBoneIKEditorPlugin;
+class Button;
 
-void uninitialize_many_bone_ik_module(ModuleInitializationLevel p_level) {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
+class ManyBoneIK3DTwistHandleGizmoPlugin : public EditorNode3DGizmoPlugin {
+	GDCLASS(ManyBoneIK3DTwistHandleGizmoPlugin, EditorNode3DGizmoPlugin);
+	Ref<Shader> kusudama_shader;
+
+protected:
+	static void _bind_methods();
+
+public:
+	const Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
+	const int32_t KUSUDAMA_MAX_CONES = 10;
+	bool has_gizmo(Node3D *p_spatial) override;
+	String get_gizmo_name() const override;
+	void redraw(EditorNode3DGizmo *p_gizmo) override;
+	ManyBoneIK3DTwistHandleGizmoPlugin();
+	int32_t get_priority() const override;
+	void create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
+};
+
+class EditorPluginManyBoneIKTwistHandle : public EditorPlugin {
+	GDCLASS(EditorPluginManyBoneIKTwistHandle, EditorPlugin);
+
+public:
+	EditorPluginManyBoneIKTwistHandle() {
+		Ref<ManyBoneIK3DTwistHandleGizmoPlugin> many_bone_ik_gizmo_plugin;
+		many_bone_ik_gizmo_plugin.instantiate();
+		Node3DEditor::get_singleton()->add_gizmo_plugin(many_bone_ik_gizmo_plugin);
 	}
-}
+};
+
+#endif // MANY_BONE_IK_3D_TWIST_HANDLE_GIZMO_PLUGIN_H
