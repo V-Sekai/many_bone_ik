@@ -48,7 +48,7 @@ class IKBoneSegment3D : public Resource {
 	GDCLASS(IKBoneSegment3D, Resource);
 	Ref<IKBone3D> root;
 	Ref<IKBone3D> tip;
-	Vector<Ref<IKBone3D>> bones;
+	TypedArray<IKBone3D> bones;
 	Vector<Ref<IKBone3D>> pinned_bones;
 	TypedArray<IKBoneSegment3D> child_segments; // Contains only direct child chains that end with effectors or have child that end with effectors
 	Ref<IKBoneSegment3D> parent_segment;
@@ -86,18 +86,15 @@ public:
 	void create_headings_arrays();
 	void recursive_create_penalty_array(Ref<IKBoneSegment3D> p_bone_segment, Vector<Vector<real_t>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, real_t p_falloff);
 	Ref<IKBoneSegment3D> get_parent_segment();
-	void set_parent_segment(Ref<IKBoneSegment3D> p_parent_segment);
 	void segment_solver(const Vector<float> &p_damp, float p_default_damp, bool p_constraint_mode);
 	Ref<IKBone3D> get_tip() const;
 	void set_tip(Ref<IKBone3D> p_tip);
 	bool is_pinned() const;
 	TypedArray<IKBoneSegment3D> get_child_segments() const;
 	void set_child_segments(TypedArray<IKBoneSegment3D> p_child_segments);
-	void create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
-	Vector<Ref<IKBone3D>> get_bone_list() const;
-	void set_bone_list(Vector<Ref<IKBone3D>> p_bone_list) {
-		bones = p_bone_list;
-	}
+	void create_bone_list(TypedArray<IKBone3D> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
+	TypedArray<IKBone3D> get_bones() const;
+	void set_bones(TypedArray<IKBone3D> p_bone_list);
 	Ref<IKBone3D> find_ik_bone(BoneId p_bone) const;
 	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
 	void update_pinned_list(Vector<Vector<real_t>> &r_weights);

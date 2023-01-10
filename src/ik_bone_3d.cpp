@@ -34,12 +34,12 @@
 #include "many_bone_ik_3d.h"
 #include "math/ik_node_3d.h"
 
-void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
+void IKBone3D::set_bone(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
 	bone_id = p_bone_id;
 }
 
-BoneId IKBone3D::get_bone_id() const {
+BoneId IKBone3D::get_bone() const {
 	return bone_id;
 }
 
@@ -133,6 +133,9 @@ Ref<IKEffector3D> IKBone3D::get_pin() const {
 }
 
 void IKBone3D::set_pose(const Transform3D &p_transform) {
+	if (godot_skeleton_aligned_transform.is_null()) {
+		godot_skeleton_aligned_transform.instantiate();
+	}
 	godot_skeleton_aligned_transform->set_transform(p_transform);
 }
 
@@ -141,6 +144,9 @@ Transform3D IKBone3D::get_pose() const {
 }
 
 void IKBone3D::set_global_pose(const Transform3D &p_transform) {
+	if (godot_skeleton_aligned_transform.is_null()) {
+		godot_skeleton_aligned_transform.instantiate();
+	}
 	godot_skeleton_aligned_transform->set_global_transform(p_transform);
 	Transform3D transform = constraint_orientation_transform->get_transform();
 	transform.origin = godot_skeleton_aligned_transform->get_transform().origin;
@@ -186,13 +192,33 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_pin"), &IKBone3D::get_pin);
 	ClassDB::bind_method(D_METHOD("set_pin", "pin"), &IKBone3D::set_pin);
 	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pinned);
-	ClassDB::bind_method(D_METHOD("get_constraint"), &IKBone3D::get_constraint);
+	ClassDB::bind_method(D_METHOD("get_bone"), &IKBone3D::get_bone);
+	ClassDB::bind_method(D_METHOD("set_bone", "bone"), &IKBone3D::set_bone);
+	ClassDB::bind_method(D_METHOD("get_pose"), &IKBone3D::get_pose);
+	ClassDB::bind_method(D_METHOD("set_pose", "pose"), &IKBone3D::set_pose);
+	ClassDB::bind_method(D_METHOD("get_global_pose"), &IKBone3D::get_global_pose);
+	ClassDB::bind_method(D_METHOD("set_global_pose", "transform"), &IKBone3D::set_global_pose);
+	ClassDB::bind_method(D_METHOD("get_bone_direction_transform"), &IKBone3D::get_bone_direction_transform);
+	ClassDB::bind_method(D_METHOD("set_bone_direction_transform", "transform"), &IKBone3D::set_bone_direction_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform"), &IKBone3D::get_constraint_orientation_transform);
+	ClassDB::bind_method(D_METHOD("set_constraint_orientation_transform", "transform"), &IKBone3D::set_constraint_orientation_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform"), &IKBone3D::get_constraint_twist_transform);
+	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "transform"), &IKBone3D::set_constraint_twist_transform);
+	ClassDB::bind_method(D_METHOD("get_constraint"), &IKBone3D::get_constraint);
+	ClassDB::bind_method(D_METHOD("set_constraint", "constraint"), &IKBone3D::set_constraint);
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "bone"), "set_bone", "get_bone");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "constraint_orientation_transform", PROPERTY_HINT_RESOURCE_TYPE, "IKNode3D", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_INSTANTIATE_OBJECT), "set_constraint_orientation_transform", "get_constraint_orientation_transform");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "constraint_twist_transform", PROPERTY_HINT_RESOURCE_TYPE, "IKNode3D", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_INSTANTIATE_OBJECT), "set_constraint_twist_transform", "get_constraint_twist_transform");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "constraint", PROPERTY_HINT_RESOURCE_TYPE, "IKKusudama3D", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_INSTANTIATE_OBJECT), "set_constraint", "get_constraint");
 }
 
 IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate3D>> &p_pins, float p_default_dampening,
 		ManyBoneIK3D *p_many_bone_ik) {
+	constraint_orientation_transform.instantiate();
+	constraint_twist_transform.instantiate();
+	godot_skeleton_aligned_transform.instantiate();
+	bone_direction_transform.instantiate();
 	ERR_FAIL_NULL(p_skeleton);
 
 	default_dampening = p_default_dampening;
@@ -231,7 +257,7 @@ Ref<IKKusudama3D> IKBone3D::get_constraint() const {
 	return constraint;
 }
 
-void IKBone3D::add_constraint(Ref<IKKusudama3D> p_constraint) {
+void IKBone3D::set_constraint(Ref<IKKusudama3D> p_constraint) {
 	constraint = p_constraint;
 }
 
@@ -271,4 +297,7 @@ bool IKBone3D::is_axially_constrained() {
 		return false;
 	}
 	return get_constraint()->is_axially_constrained();
+}
+void IKBone3D::set_constraint_twist_transform(Ref<IKNode3D> p_transform) {
+	constraint_twist_transform = p_transform;
 }
