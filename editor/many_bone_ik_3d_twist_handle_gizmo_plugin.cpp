@@ -218,7 +218,6 @@ void ManyBoneIK3DTwistHandleGizmoPlugin::create_twist_gizmo_handles(BoneId curre
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		axial_middle_handles.push_back((axial_transform).origin);
 	}
-	axial_middle_handles.pop_front();
 	{
 		const float ra = kusudama->get_min_axial_angle() + (float)(kusudama->get_range_angle());
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
