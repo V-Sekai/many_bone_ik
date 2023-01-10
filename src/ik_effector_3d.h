@@ -41,8 +41,8 @@
 class ManyBoneIK3D;
 class IKBone3D;
 
-class IKEffector3D : public Resource {
-	GDCLASS(IKEffector3D, Resource);
+class IKEffector3D : public RefCounted {
+	GDCLASS(IKEffector3D, RefCounted);
 	friend class IKBone3D;
 	friend class IKBoneSegment3D;
 
