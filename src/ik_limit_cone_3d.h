@@ -38,8 +38,8 @@
 #include "core/object/ref_counted.h"
 
 class IKKusudama3D;
-class IKLimitCone3D : public Resource {
-	GDCLASS(IKLimitCone3D, Resource);
+class IKLimitCone3D : public RefCounted {
+	GDCLASS(IKLimitCone3D, RefCounted);
 	Vector3 control_point;
 	double radius = 0;
 	Vector3 tangent_circle_center_next_1;

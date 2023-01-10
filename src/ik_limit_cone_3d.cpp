@@ -403,8 +403,4 @@ void IKLimitCone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_radius", "radius"), &IKLimitCone3D::set_radius);
 	ClassDB::bind_method(D_METHOD("get_parent_kusudama"), &IKLimitCone3D::get_parent_kusudama);
 	ClassDB::bind_method(D_METHOD("set_parent_kusudama", "parent_kusudama"), &IKLimitCone3D::set_parent_kusudama);
-
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "control_point"), "set_control_point", "get_control_point");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "radius"), "set_radius", "get_radius");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "parent_kusudama", PROPERTY_HINT_RESOURCE_TYPE, "IKKusudama3D"), "set_parent_kusudama", "get_parent_kusudama");
 }

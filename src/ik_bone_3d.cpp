@@ -206,11 +206,6 @@ void IKBone3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "transform"), &IKBone3D::set_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint"), &IKBone3D::get_constraint);
 	ClassDB::bind_method(D_METHOD("set_constraint", "constraint"), &IKBone3D::set_constraint);
-
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "bone"), "set_bone", "get_bone");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "constraint_orientation_transform", PROPERTY_HINT_RESOURCE_TYPE, "IKNode3D", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_INSTANTIATE_OBJECT), "set_constraint_orientation_transform", "get_constraint_orientation_transform");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "constraint_twist_transform", PROPERTY_HINT_RESOURCE_TYPE, "IKNode3D", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_INSTANTIATE_OBJECT), "set_constraint_twist_transform", "get_constraint_twist_transform");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "constraint", PROPERTY_HINT_RESOURCE_TYPE, "IKKusudama3D", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_INSTANTIATE_OBJECT), "set_constraint", "get_constraint");
 }
 
 IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate3D>> &p_pins, float p_default_dampening,
@@ -219,11 +214,11 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 	constraint_twist_transform.instantiate();
 	godot_skeleton_aligned_transform.instantiate();
 	bone_direction_transform.instantiate();
+	constraint.instantiate();
 	ERR_FAIL_NULL(p_skeleton);
 
 	default_dampening = p_default_dampening;
 	cos_half_dampen = cos(default_dampening / real_t(2.0));
-	set_name(p_bone);
 	bone_id = p_skeleton->find_bone(p_bone);
 	if (p_parent.is_valid()) {
 		set_parent(p_parent);

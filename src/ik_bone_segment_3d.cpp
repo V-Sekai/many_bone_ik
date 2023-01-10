@@ -49,10 +49,6 @@ bool IKBoneSegment3D::is_pinned() const {
 	return tip->is_pinned();
 }
 
-TypedArray<IKBoneSegment3D> IKBoneSegment3D::get_child_segments() const {
-	return child_segments;
-}
-
 void IKBoneSegment3D::generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
@@ -92,7 +88,6 @@ void IKBoneSegment3D::generate_default_segments_from_root(Vector<Ref<IKEffectorT
 	if (tip->is_pinned()) {
 		enable_pinned_descendants();
 	}
-	set_name(vformat("IKBoneSegment%sRoot%sTip", root->get_name(), tip->get_name()));
 	bones.clear();
 	create_bone_list(bones, false);
 }
@@ -312,13 +307,10 @@ void IKBoneSegment3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_default_stabilizing_pass_count", "count"), &IKBoneSegment3D::set_default_stabilizing_pass_count);
 	ClassDB::bind_method(D_METHOD("set_child_segments", "segment"), &IKBoneSegment3D::set_child_segments);
 	ClassDB::bind_method(D_METHOD("get_child_segments"), &IKBoneSegment3D::get_child_segments);
-	ClassDB::bind_method(D_METHOD("get_parent_segment"), &IKBoneSegment3D::get_parent_segment);
 	ClassDB::bind_method(D_METHOD("get_bones"), &IKBoneSegment3D::get_bones);
 	ClassDB::bind_method(D_METHOD("set_bones", "bones"), &IKBoneSegment3D::set_bones);
-
-	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "bones", PROPERTY_HINT_ARRAY_TYPE, "IKBone3D"), "set_bones", "get_bones");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "stabilizing_pass_count"), "set_default_stabilizing_pass_count", "get_default_stabilizing_pass_count");
-	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "child_segments", PROPERTY_HINT_ARRAY_TYPE, "IKBoneSegment3D"), "set_child_segments", "get_child_segments");
+	ClassDB::bind_method(D_METHOD("set_parent_segment", "segment"), &IKBoneSegment3D::set_parent_segment);
+	ClassDB::bind_method(D_METHOD("get_parent_segment"), &IKBoneSegment3D::get_parent_segment);
 }
 
 Ref<IKBoneSegment3D> IKBoneSegment3D::get_parent_segment() {
@@ -356,7 +348,7 @@ Ref<IKBone3D> IKBoneSegment3D::find_ik_bone(BoneId p_bone) const {
 		root_segment = current_segment;
 		current_segment = current_segment->get_parent_segment();
 	}
-	for (int32_t bone_i = 0; bone_i < root_segment->bones.size(); bone_i++) {		
+	for (int32_t bone_i = 0; bone_i < root_segment->bones.size(); bone_i++) {
 		Ref<IKBone3D> current_bone = root_segment->bones[bone_i];
 		if (current_bone->get_bone() == p_bone) {
 			return current_bone;
@@ -455,10 +447,6 @@ void IKBoneSegment3D::recursive_create_headings_arrays_for(Ref<IKBoneSegment3D> 
 	}
 }
 
-void IKBoneSegment3D::set_child_segments(TypedArray<IKBoneSegment3D> p_child_segments) {
-	child_segments = p_child_segments;
-}
-
 void IKBoneSegment3D::set_default_stabilizing_pass_count(int32_t p_count) {
 	default_stabilizing_pass_count = p_count;
 }
@@ -473,4 +461,7 @@ void IKBoneSegment3D::set_tip(Ref<IKBone3D> p_tip) {
 
 void IKBoneSegment3D::set_bones(TypedArray<IKBone3D> p_bone_list) {
 	bones = p_bone_list;
+}
+void IKBoneSegment3D::set_child_segments(TypedArray<IKBoneSegment3D> p_child_segments) {
+	child_segments = p_child_segments;
 }

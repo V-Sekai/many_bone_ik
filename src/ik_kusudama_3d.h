@@ -46,8 +46,8 @@
 
 class IKBone3D;
 class IKLimitCone3D;
-class IKKusudama3D : public Resource {
-	GDCLASS(IKKusudama3D, Resource);
+class IKKusudama3D : public RefCounted {
+	GDCLASS(IKKusudama3D, RefCounted);
 
 	static real_t _mod(real_t x, real_t y);
 
