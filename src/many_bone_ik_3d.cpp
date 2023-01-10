@@ -111,7 +111,7 @@ void ManyBoneIK3D::update_skeleton_bones_transform() {
 		if (bone.is_null()) {
 			continue;
 		}
-		if (bone->get_bone_id() == -1) {
+		if (bone->get_bone() == -1) {
 			continue;
 		}
 		bone->set_skeleton_bone_pose(get_skeleton());
@@ -768,9 +768,12 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 		Ref<IKBoneSegment3D> segmented_skeleton = Ref<IKBoneSegment3D>(memnew(IKBoneSegment3D(p_skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1)));
 		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
 		segmented_skeleton->generate_default_segments_from_root(pins, root_bone_index, -1, this);
-		Vector<Ref<IKBone3D>> new_bone_list;
+		TypedArray<IKBone3D> new_bone_list;
 		segmented_skeleton->create_bone_list(new_bone_list, true, queue_debug_skeleton);
-		bone_list.append_array(new_bone_list);
+		for (int32_t bone_i = 0; bone_i < new_bone_list.size(); bone_i++) {
+			Ref<IKBone3D> bone = new_bone_list[bone_i];
+			bone_list.push_back(bone);
+		} 
 		Vector<Vector<real_t>> weight_array;
 		segmented_skeleton->update_pinned_list(weight_array);
 		segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
@@ -787,11 +790,11 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 		String bone = constraint_names[constraint_i];
 		BoneId bone_id = p_skeleton->find_bone(bone);
 		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-			if (ik_bone_3d->get_bone_id() != bone_id) {
+			if (ik_bone_3d->get_bone() != bone_id) {
 				continue;
 			}
 			Ref<IKKusudama3D> constraint = Ref<IKKusudama3D>(memnew(IKKusudama3D()));
-			constraint->enable_orientational_limits();
+			ik_bone_3d->set_constraint(constraint);
 
 			if (!(unlikely((constraint_i) < 0 || (constraint_i) >= (kusudama_limit_cone_count.size())))) {
 				for (int32_t cone_i = 0; cone_i < kusudama_limit_cone_count[constraint_i]; cone_i++) {
@@ -811,9 +814,10 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 				}
 			}
 			const Vector2 axial_limit = get_kusudama_twist(constraint_i);
-			constraint->enable_axial_limits();
+			constraint->set_axially_constrained(true);
+			constraint->set_orientationally_constrained(true);
 			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
-			ik_bone_3d->add_constraint(constraint);
+			ik_bone_3d->set_constraint(constraint);
 			constraint->_update_constraint();
 			break;
 		}

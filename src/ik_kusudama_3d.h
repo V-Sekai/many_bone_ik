@@ -193,13 +193,15 @@ public:
 	virtual real_t get_min_axial_angle();
 	virtual real_t get_range_angle();
 
-	virtual bool is_axially_constrained();
-	virtual bool is_orientationally_constrained();
-	virtual void disable_orientational_limits();
-	virtual void enable_orientational_limits();
+	bool is_axially_constrained();
+	void set_axially_constrained(bool p_axially_constrained) {
+		axially_constrained = p_axially_constrained;
+	}
+	bool is_orientationally_constrained();
+	void set_orientationally_constrained(bool p_orientationally_constrained) {
+		orientationally_constrained = p_orientationally_constrained;
+	}
 	virtual void toggle_orientational_limits();
-	virtual void disable_axial_limits();
-	virtual void enable_axial_limits();
 	virtual void toggle_axial_limits();
 	bool is_enabled();
 	void disable();

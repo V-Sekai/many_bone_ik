@@ -56,10 +56,10 @@ Vector<Ref<IKBoneSegment3D>> IKBoneSegment3D::get_child_segments() const {
 void IKBoneSegment3D::generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
 	Ref<IKBone3D> temp_tip = root;
 	while (true) {
-		if (skeleton->get_bone_parent(temp_tip->get_bone_id()) >= p_tip_bone && p_tip_bone != -1) {
+		if (skeleton->get_bone_parent(temp_tip->get_bone()) >= p_tip_bone && p_tip_bone != -1) {
 			break;
 		}
-		Vector<BoneId> children = skeleton->get_bone_children(temp_tip->get_bone_id());
+		Vector<BoneId> children = skeleton->get_bone_children(temp_tip->get_bone());
 		if (children.size() > 1 || temp_tip->is_pinned()) {
 			tip = temp_tip;
 			Ref<IKBoneSegment3D> parent(this);
@@ -92,7 +92,7 @@ void IKBoneSegment3D::generate_default_segments_from_root(Vector<Ref<IKEffectorT
 	create_bone_list(bones, false);
 }
 
-void IKBoneSegment3D::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
+void IKBoneSegment3D::create_bone_list(TypedArray<IKBone3D> &p_list, bool p_recursive, bool p_debug_skeleton) const {
 	if (p_recursive) {
 		for (int32_t child_i = 0; child_i < child_segments.size(); child_i++) {
 			child_segments[child_i]->create_bone_list(p_list, p_recursive, p_debug_skeleton);
@@ -109,7 +109,7 @@ void IKBoneSegment3D::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_rec
 	}
 	if (p_debug_skeleton) {
 		for (int32_t name_i = 0; name_i < list.size(); name_i++) {
-			BoneId bone = list[name_i]->get_bone_id();
+			BoneId bone = list[name_i]->get_bone();
 
 			String bone_name = skeleton->get_bone_name(bone);
 			String effector;
@@ -126,7 +126,9 @@ void IKBoneSegment3D::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_rec
 			print_line(vformat("%s%s (%s)", prefix, bone_name, itos(bone)));
 		}
 	}
-	p_list.append_array(list);
+	for (int32_t list_i = 0; list_i < list.size(); list_i++) {
+		p_list.push_back(list[list_i]);
+	}
 }
 
 void IKBoneSegment3D::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
@@ -279,11 +281,12 @@ void IKBoneSegment3D::segment_solver(const Vector<float> &p_damp, float p_defaul
 }
 
 void IKBoneSegment3D::qcp_solver(const Vector<float> &p_damp, float p_default_damp, bool p_translate, bool p_constraint_mode) {
-	for (Ref<IKBone3D> current_bone : bones) {
+	for (int32_t bone_i = 0; bone_i < bones.size(); bone_i++) {
+		Ref<IKBone3D> current_bone = bones[bone_i];
 		float damp = p_default_damp;
-		bool is_valid_access = !(unlikely((p_damp.size()) < 0 || (current_bone->get_bone_id()) >= (p_damp.size())));
+		bool is_valid_access = !(unlikely((p_damp.size()) < 0 || (current_bone->get_bone()) >= (p_damp.size())));
 		if (is_valid_access) {
-			damp = p_damp[current_bone->get_bone_id()];
+			damp = p_damp[current_bone->get_bone()];
 		}
 		bool is_non_default_damp = p_default_damp < damp;
 		if (is_non_default_damp) {
@@ -328,7 +331,7 @@ bool IKBoneSegment3D::has_pinned_descendants() {
 	return pinned_descendants;
 }
 
-Vector<Ref<IKBone3D>> IKBoneSegment3D::get_bone_list() const {
+TypedArray<IKBone3D> IKBoneSegment3D::get_bones() const {
 	return bones;
 }
 

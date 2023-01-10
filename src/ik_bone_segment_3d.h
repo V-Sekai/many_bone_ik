@@ -48,7 +48,7 @@ class IKBoneSegment3D : public Resource {
 	GDCLASS(IKBoneSegment3D, Resource);
 	Ref<IKBone3D> root;
 	Ref<IKBone3D> tip;
-	Vector<Ref<IKBone3D>> bones;
+	TypedArray<IKBone3D> bones;
 	Vector<Ref<IKBone3D>> pinned_bones;
 	Vector<Ref<IKBoneSegment3D>> child_segments; // Contains only direct child chains that end with effectors or have child that end with effectors
 	Ref<IKBoneSegment3D> parent_segment;
