@@ -61,7 +61,7 @@ private:
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	TypedArray<StringName> filter_bones;
-	float MAX_KUSUDAMA_LIMIT_CONES = 10;
+	float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	int32_t iterations_per_frame = 20;
 	float default_damp = -1.0f;
 	bool queue_debug_skeleton = false;

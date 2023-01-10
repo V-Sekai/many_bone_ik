@@ -62,6 +62,22 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 	ManyBoneIK3D *ik = nullptr;
 	BoneId selected_bone = -1;
 
+	EditorInspectorSection *constraint_bone_section = nullptr;
+	EditorPropertyFloat *bone_damp_float = nullptr;
+	EditorPropertyNodePath *target_nodepath = nullptr;
+	EditorPropertyFloat *twist_from_float = nullptr;
+	EditorPropertyFloat *twist_range_float = nullptr;
+	static const int32_t MAX_KUSUDAMA_CONES = 10;
+	EditorPropertyFloat *cone_count_float = nullptr;
+	EditorPropertyVector3 *center_vector3[MAX_KUSUDAMA_CONES] = {};
+	EditorPropertyFloat *radius_float[MAX_KUSUDAMA_CONES] = {};
+	EditorPropertyTransform3D *twist_constraint_transform = nullptr;
+	EditorPropertyTransform3D *orientation_constraint_transform = nullptr;
+	EditorPropertyTransform3D *bone_direction_transform = nullptr;
+	EditorPropertyFloat *passthrough_float = nullptr;
+	EditorPropertyFloat *weight_float = nullptr;
+	EditorPropertyVector3 *direction_priorities_vector3 = nullptr;
+
 protected:
 	void _notification(int p_what);
 
