@@ -195,8 +195,8 @@ void ManyBoneIK3DEditor::select_bone(int p_idx) {
 		return;
 	}
 	selected_bone = p_idx;
-	ik->set_ui_selected_bone(selected_bone);
 	_joint_tree_selection_changed();
+	ik->set_ui_selected_bone(selected_bone);
 }
 
 TreeItem *ManyBoneIK3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
@@ -226,6 +226,7 @@ void ManyBoneIK3DEditor::_value_changed(const String &p_property, Variant p_valu
 		return;
 	}
 	if (!ik) {
+		return;
 	}
 	Ref<EditorUndoRedoManager> &undo_redo = EditorNode::get_undo_redo();
 	undo_redo->create_action(TTR("Set ManyBoneIK Property"), UndoRedo::MERGE_ENDS);
