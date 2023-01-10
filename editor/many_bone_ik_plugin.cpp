@@ -185,9 +185,10 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 		return;
 	}
 	const int b_idx = path.get_slicec('/', 1).to_int();
-	select_bone(b_idx);
+	selected_bone = b_idx;
 	ik->set_ui_selected_bone(selected_bone);
 	ik->notify_property_list_changed();
+	selected->select(0);
 }
 
 void ManyBoneIK3DEditor::select_bone(int p_idx) {
