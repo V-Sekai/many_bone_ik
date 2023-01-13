@@ -31,7 +31,7 @@
 #ifndef MANY_BONE_IK_PLUGIN_H
 #define MANY_BONE_IK_PLUGIN_H
 
-#include "modules/many_bone_ik/src/many_bone_ik_3d.h"
+#include "../src/many_bone_ik_3d.h"
 
 #include "editor/editor_inspector.h"
 #include "editor/plugins/node_3d_editor_gizmos.h"

@@ -32,8 +32,8 @@
 #define MANY_BONE_IK_3D_HANDLE_GIZMO_PLUGIN_H
 
 #include "many_bone_ik_shader.h"
-#include "modules/many_bone_ik/src/ik_bone_3d.h"
-#include "modules/many_bone_ik/src/many_bone_ik_3d.h"
+#include "../src/ik_bone_3d.h"
+#include "../src/many_bone_ik_3d.h"
 
 #include "core/templates/hash_map.h"
 #include "core/templates/local_vector.h"

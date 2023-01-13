@@ -30,7 +30,7 @@
 
 #include "many_bone_ik_3d_gizmo_plugin.h"
 
-#include "modules/many_bone_ik/src/ik_kusudama_3d.h"
+#include "../src/ik_kusudama_3d.h"
 
 #include "core/io/resource_saver.h"
 #include "core/math/transform_3d.h"
