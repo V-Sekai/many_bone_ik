@@ -171,7 +171,6 @@ void ManyBoneIK3DEditor::create_editors() {
 	joint_tree->set_v_size_flags(SIZE_EXPAND_FILL);
 	joint_tree->set_h_size_flags(SIZE_EXPAND_FILL);
 	joint_tree->set_allow_rmb_select(true);
-	joint_tree->set_drag_forwarding(this);
 	s_con->add_child(joint_tree);
 	constraint_bone_section = memnew(EditorInspectorSection);
 	constraint_bone_section->setup("constraint_bone_properties", TTR("Constraint"), this, section_color, true);
