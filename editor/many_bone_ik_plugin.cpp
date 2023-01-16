@@ -398,7 +398,7 @@ void ManyBoneIK3DEditor::_value_changed(const String &p_property, Variant p_valu
 	}
 	if (!ik) {
 	}
-	Ref<EditorUndoRedoManager> &undo_redo = EditorNode::get_undo_redo();
+	EditorUndoRedoManager *undo_redo = EditorUndoRedoManager::get_singleton();
 	undo_redo->create_action(TTR("Set ManyBoneIK Property"), UndoRedo::MERGE_ENDS);
 	undo_redo->add_undo_property(ik, p_property, ik->get(p_property));
 	undo_redo->add_do_property(ik, p_property, p_value);
