@@ -313,7 +313,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		start_angle = start_angle + kusudama->get_range_angle();
 	}
 	float end_angle = start_angle + Math::abs(kusudama->get_range_angle());
-	float gaps = Math::deg_to_rad(15.0f);
+	float gaps = Math::deg_to_rad(30.0f);
 	for (float theta = start_angle; theta < end_angle; theta += gaps) {
 		const float ra = theta;
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
