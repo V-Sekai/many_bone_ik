@@ -60,7 +60,6 @@ private:
 	Vector<float> bone_damp;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
-	TypedArray<StringName> filter_bones;
 	float MAX_KUSUDAMA_LIMIT_CONES = 10;
 	int32_t iterations_per_frame = 20;
 	float default_damp = -1.0f;
@@ -97,8 +96,6 @@ public:
 	Ref<IKNode3D> get_godot_skeleton_transform() {
 		return godot_skeleton_transform;
 	}
-	void set_filter_bones(TypedArray<StringName> p_filter_bones);
-	TypedArray<StringName> get_filter_bones();
 	void set_ui_selected_bone(int32_t p_ui_selected_bone);
 	int32_t get_ui_selected_bone() const;
 	void set_constraint_mode(bool p_enabled);
