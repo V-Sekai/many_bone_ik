@@ -130,7 +130,7 @@ void IKBoneSegment3D::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_rec
 }
 
 void IKBoneSegment3D::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
-	real_t passthrough_factor = is_pinned() ? tip->get_pin()->passthrough_factor : 0.0;
+	real_t passthrough_factor = is_pinned() ? tip->get_pin()->passthrough_factor : 1.0;
 	for (int32_t chain_i = 0; chain_i < child_segments.size(); chain_i++) {
 		Ref<IKBoneSegment3D> chain = child_segments[chain_i];
 		chain->update_pinned_list(r_weights);
