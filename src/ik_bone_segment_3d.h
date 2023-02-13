@@ -81,7 +81,7 @@ public:
 	const double evec_prec = static_cast<double>(1E-6);
 	const double eval_prec = static_cast<double>(1E-11);
 	void set_stabilization_passes(int32_t p_passes) {
-		default_stabilizing_pass_count = p_passes
+		default_stabilizing_pass_count = p_passes;
 	}
 	int32_t get_stabilization_passes() const {
 		return default_stabilizing_pass_count;
