@@ -100,6 +100,13 @@ public:
 			}
 		}
 	}
+	void get_stabilization_passes() {
+		for (Ref<IKBoneSegment3D> segment : segmented_skeletons) {
+			if (segment.is_valid()) {
+				return segment->get_stabilization_passes();
+			}
+		}
+	}
 	void set_twist_constraint_defaults(Dictionary p_defaults) {
 		twist_constraint_defaults = p_defaults;
 	}
