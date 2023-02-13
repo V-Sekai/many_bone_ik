@@ -93,6 +93,13 @@ protected:
 	void _notification(int p_what);
 
 public:
+	void set_stabilization_passes(int32_t p_passes) {
+		for (Ref<IKBoneSegment3D> segment : segmented_skeletons) {
+			if (segment.is_valid()) {
+				segment->set_stabilization_passes(p_passes);
+			}
+		}
+	}
 	void set_twist_constraint_defaults(Dictionary p_defaults) {
 		twist_constraint_defaults = p_defaults;
 	}
