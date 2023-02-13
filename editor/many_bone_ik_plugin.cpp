@@ -210,7 +210,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	twist_from_float = memnew(EditorPropertyFloat());
 	twist_from_float->hide();
-	twist_from_float->setup(0, 360, 0.01, false, false, false, false, String::utf8("°"), true);
+	twist_from_float->setup(-360, 360, 0.01, false, false, false, false, String::utf8("°"), true);
 	twist_from_float->set_label(TTR("Twist From"));
 	twist_from_float->set_selectable(false);
 	twist_from_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
