@@ -891,10 +891,11 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 void ManyBoneIK3D::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			set_process_internal(true);
+			set_physics_process_internal(true);
 			set_notify_transform(true);
+			set_process_priority(1);
 		} break;
-		case NOTIFICATION_INTERNAL_PROCESS: {
+		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
 			if (is_dirty) {
 				skeleton_changed(get_skeleton());
 			}
