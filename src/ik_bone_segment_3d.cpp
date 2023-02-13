@@ -147,8 +147,6 @@ void IKBoneSegment3D::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
 
 void IKBoneSegment3D::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode) {
 	ERR_FAIL_NULL(p_for_bone);
-	update_target_headings(p_for_bone, &heading_weights, &target_headings);
-	update_tip_headings(p_for_bone, &tip_headings, false);
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
 }
 
