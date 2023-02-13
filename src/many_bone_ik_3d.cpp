@@ -726,6 +726,12 @@ void ManyBoneIK3D::execute(real_t delta) {
 		skeleton_changed(get_skeleton());
 		is_dirty = false;
 		update_gizmos();
+		for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+			String constraint_name = get_constraint_name(constraint_i);
+			twist_constraint_defaults[constraint_name] = get_constraint_twist_transform(constraint_i);
+			orientation_constraint_defaults[constraint_name] = get_constraint_orientation_transform(constraint_i);
+			bone_direction_constraint_defaults[constraint_name] = get_bone_direction_transform(constraint_i);
+		}
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
@@ -756,12 +762,6 @@ void ManyBoneIK3D::execute(real_t delta) {
 		}
 	}
 	update_skeleton_bones_transform();
-	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
-		String constraint_name = get_constraint_name(constraint_i);
-		twist_constraint_defaults[constraint_name] = get_constraint_twist_transform(constraint_i);
-		orientation_constraint_defaults[constraint_name] = get_constraint_orientation_transform(constraint_i);
-		bone_direction_constraint_defaults[constraint_name] = get_bone_direction_transform(constraint_i);
-	}
 }
 
 void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
