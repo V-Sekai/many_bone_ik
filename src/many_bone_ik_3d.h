@@ -100,7 +100,7 @@ public:
 			}
 		}
 	}
-	void get_stabilization_passes() {
+	int32_t get_stabilization_passes() {
 		for (Ref<IKBoneSegment3D> segment : segmented_skeletons) {
 			if (segment.is_valid()) {
 				return segment->get_stabilization_passes();
