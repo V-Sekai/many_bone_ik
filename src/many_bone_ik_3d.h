@@ -47,6 +47,9 @@ class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
 
 private:
+	Dictionary twist_constraint_defaults;
+	Dictionary orientation_constraint_defaults;
+	Dictionary bone_direction_constraint_defaults;
 	bool is_constraint_mode = false;
 	NodePath skeleton_path;
 	Vector<Ref<IKBoneSegment3D>> segmented_skeletons;
@@ -90,6 +93,24 @@ protected:
 	void _notification(int p_what);
 
 public:
+	void set_twist_constraint_defaults(Dictionary p_defaults) {
+		twist_constraint_defaults = p_defaults;
+	}
+	Dictionary get_twist_constraint_defaults() {
+		return twist_constraint_defaults;
+	}
+	void set_orientation_constraint_defaults(Dictionary p_defaults) {
+		orientation_constraint_defaults = p_defaults;
+	}
+	Dictionary get_orientation_constraint_defaults() {
+		return orientation_constraint_defaults;
+	}
+	void set_bone_direction_constraint_defaults(Dictionary p_defaults) {
+		bone_direction_constraint_defaults = p_defaults;
+	}
+	Dictionary get_bone_direction_constraint_defaults() {
+		return bone_direction_constraint_defaults;
+	}
 	Transform3D get_godot_skeleton_transform_inverse() {
 		return godot_skeleton_transform_inverse;
 	}

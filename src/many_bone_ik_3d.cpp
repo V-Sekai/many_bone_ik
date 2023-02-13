@@ -475,12 +475,20 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &ManyBoneIK3D::get_constraint_mode);
 	ClassDB::bind_method(D_METHOD("set_ui_selected_bone", "bone"), &ManyBoneIK3D::set_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
-
+	ClassDB::bind_method(D_METHOD("set_twist_constraint_defaults", "defaults"), &ManyBoneIK3D::set_twist_constraint_defaults);
+	ClassDB::bind_method(D_METHOD("get_twist_constraint_defaults"), &ManyBoneIK3D::get_twist_constraint_defaults);
+	ClassDB::bind_method(D_METHOD("set_orientation_constraint_defaults", "defaults"), &ManyBoneIK3D::set_orientation_constraint_defaults);
+	ClassDB::bind_method(D_METHOD("get_orientation_constraint_defaults"), &ManyBoneIK3D::get_orientation_constraint_defaults);
+	ClassDB::bind_method(D_METHOD("set_bone_direction_constraint_defaults", "defaults"), &ManyBoneIK3D::set_bone_direction_constraint_defaults);
+	ClassDB::bind_method(D_METHOD("get_bone_direction_constraint_defaults"), &ManyBoneIK3D::get_bone_direction_constraint_defaults);
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "constraint_mode"), "set_constraint_mode", "get_constraint_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "ui_selected_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_ui_selected_bone", "get_ui_selected_bone");
+	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "twist_constraint_defaults"), "set_twist_constraint_defaults", "get_twist_constraint_defaults");
+	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "orientation_constraint_defaults"), "set_orientation_constraint_defaults", "get_orientation_constraint_defaults");
+	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "bone_direction_constraint_defaults"), "set_bone_direction_constraint_defaults", "get_bone_direction_constraint_defaults");
 }
 
 ManyBoneIK3D::ManyBoneIK3D() {
@@ -748,6 +756,12 @@ void ManyBoneIK3D::execute(real_t delta) {
 		}
 	}
 	update_skeleton_bones_transform();
+	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+		String constraint_name = get_constraint_name(constraint_i);
+		twist_constraint_defaults[constraint_name] = get_constraint_twist_transform(constraint_i);
+		orientation_constraint_defaults[constraint_name] = get_constraint_orientation_transform(constraint_i);
+		bone_direction_constraint_defaults[constraint_name] = get_bone_direction_transform(constraint_i);
+	}
 }
 
 void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
@@ -815,8 +829,16 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 			break;
 		}
 	}
-	for (Ref<IKBone3D> ik_bone_3d : bone_list) {
-		ik_bone_3d->update_default_constraint_transform();
+	if (!twist_constraint_defaults.size() && !orientation_constraint_defaults.size() && !bone_direction_constraint_defaults.size()) {
+		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
+			ik_bone_3d->update_default_constraint_transform();
+		}
+	}
+	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+		String constraint_name = get_constraint_name(constraint_i);
+		set_constraint_twist_transform(constraint_i, twist_constraint_defaults[constraint_name]);
+		set_constraint_orientation_transform(constraint_i, orientation_constraint_defaults[constraint_name]);
+		set_bone_direction_transform(constraint_i, bone_direction_constraint_defaults[constraint_name]);
 	}
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
@@ -896,9 +918,6 @@ void ManyBoneIK3D::_notification(int p_what) {
 			set_process_priority(1);
 		} break;
 		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
-			if (is_dirty) {
-				skeleton_changed(get_skeleton());
-			}
 			if (is_visible_in_tree()) {
 				execute(get_process_delta_time());
 			}
