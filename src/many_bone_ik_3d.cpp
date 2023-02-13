@@ -833,6 +833,12 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 		for (Ref<IKBone3D> ik_bone_3d : bone_list) {
 			ik_bone_3d->update_default_constraint_transform();
 		}
+		for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+			String constraint_name = get_constraint_name(constraint_i);
+			twist_constraint_defaults[constraint_name] = get_constraint_twist_transform(constraint_i);
+			orientation_constraint_defaults[constraint_name] = get_constraint_orientation_transform(constraint_i);
+			bone_direction_constraint_defaults[constraint_name] = get_bone_direction_transform(constraint_i);
+		}
 	}
 	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		String constraint_name = get_constraint_name(constraint_i);
