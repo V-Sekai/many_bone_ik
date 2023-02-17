@@ -34,7 +34,7 @@
 static constexpr char MANY_BONE_IKKUSUDAMA_SHADER[] = R"(
 // Skeleton 3D gizmo kusudama constraint shader.
 shader_type spatial;
-render_mode depth_prepass_alpha, cull_disabled;
+render_mode depth_draw_always;
 
 uniform vec4 kusudama_color : source_color = vec4(0.58039218187332, 0.27058824896812, 0.00784313771874, 1.0);
 uniform int cone_count = 0;
@@ -205,7 +205,7 @@ void fragment() {
 		discard;
 	}
 	ALBEDO = result_color_allowed.rgb;
-	ALPHA = result_color_allowed.a;
+	ALPHA = 0.8;
 }
 )";
 
