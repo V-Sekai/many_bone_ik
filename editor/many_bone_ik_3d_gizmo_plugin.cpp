@@ -207,7 +207,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	thisrow = 0;
 	prevrow = 0;
 	for (j = 0; j <= (rings + 1); j++) {
-		int radial_segments = 16;
+		int radial_segments = 8;
 		float v = j;
 		float w;
 
