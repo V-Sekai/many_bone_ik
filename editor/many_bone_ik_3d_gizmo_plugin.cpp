@@ -186,18 +186,16 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	if (parent_idx <= -1) {
 		return;
 	}
-	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
-	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
-	real_t dist = v0.distance_to(v1);
-	float radius = dist / 5.0;
+	real_t dist = 0.02f;
+	float radius = dist;
 	// Code copied from the SphereMesh.
-	float height = dist / 2.5;
+	float height = dist;
 	int rings = 8;
 
 	int i = 0, j = 0, prevrow = 0, thisrow = 0, point = 0;
 	float x, y, z;
 
-	float scale = height * 0.5;
+	float scale = height;
 
 	Vector<Vector3> points;
 	Vector<Vector3> normals;
