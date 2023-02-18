@@ -106,6 +106,7 @@ public:
 				return segment->get_stabilization_passes();
 			}
 		}
+		return 0;
 	}
 	void set_twist_constraint_defaults(Dictionary p_defaults) {
 		twist_constraint_defaults = p_defaults;
