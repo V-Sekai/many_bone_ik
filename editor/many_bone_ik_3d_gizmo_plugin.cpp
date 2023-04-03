@@ -186,7 +186,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	if (parent_idx <= -1) {
 		return;
 	}
-	real_t dist = 0.02f;
+	real_t dist = 0.04f;
 	float radius = dist;
 	// Code copied from the SphereMesh.
 	float height = dist;
