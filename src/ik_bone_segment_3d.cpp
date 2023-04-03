@@ -303,7 +303,7 @@ Ref<IKBoneSegment3D> IKBoneSegment3D::get_parent_segment() {
 }
 
 IKBoneSegment3D::IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent,
-		BoneId p_root, BoneId p_tip) {
+		BoneId p_root, BoneId p_tip, int32_t p_stabilizing_pass_count) {
 	root = p_root;
 	tip = p_tip;
 	skeleton = p_skeleton;
@@ -318,6 +318,7 @@ IKBoneSegment3D::IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_
 		parent_segment = p_parent;
 		root->set_parent(p_parent->get_tip());
 	}
+	default_stabilizing_pass_count = p_stabilizing_pass_count;
 }
 
 void IKBoneSegment3D::enable_pinned_descendants() {

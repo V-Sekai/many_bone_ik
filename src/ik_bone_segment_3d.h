@@ -63,7 +63,7 @@ class IKBoneSegment3D : public Resource {
 	Skeleton3D *skeleton = nullptr;
 	bool pinned_descendants = false;
 	real_t previous_deviation = INFINITY;
-	int32_t default_stabilizing_pass_count = 4; // Move to the stabilizing pass to the ik solver. Set it free.
+	int32_t default_stabilizing_pass_count = 0; // Move to the stabilizing pass to the ik solver. Set it free.
 	bool has_pinned_descendants();
 	void enable_pinned_descendants();
 	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);
@@ -103,7 +103,7 @@ public:
 	void update_pinned_list(Vector<Vector<real_t>> &r_weights);
 	IKBoneSegment3D() {}
 	IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent = nullptr,
-			BoneId root = -1, BoneId tip = -1);
+			BoneId root = -1, BoneId tip = -1, int32_t p_stabilizing_pass_count = 0);
 	~IKBoneSegment3D() {}
 };
 

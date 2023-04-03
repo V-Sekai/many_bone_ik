@@ -82,6 +82,7 @@ private:
 	void _set_constraint_count(int32_t p_count);
 	void _remove_pin(int32_t p_index);
 	void _set_bone_count(int32_t p_count);
+	int stabilize_passes = 4;
 
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -94,19 +95,11 @@ protected:
 
 public:
 	void set_stabilization_passes(int32_t p_passes) {
-		for (Ref<IKBoneSegment3D> segment : segmented_skeletons) {
-			if (segment.is_valid()) {
-				segment->set_stabilization_passes(p_passes);
-			}
-		}
+		stabilize_passes = p_passes;
+		set_dirty();
 	}
 	int32_t get_stabilization_passes() {
-		for (Ref<IKBoneSegment3D> segment : segmented_skeletons) {
-			if (segment.is_valid()) {
-				return segment->get_stabilization_passes();
-			}
-		}
-		return 0;
+		return stabilize_passes;
 	}
 	void set_twist_constraint_defaults(Dictionary p_defaults) {
 		twist_constraint_defaults = p_defaults;
