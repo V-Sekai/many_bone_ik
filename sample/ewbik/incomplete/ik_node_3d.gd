@@ -3,285 +3,142 @@ extends Object
 
 class_name IKNode3D
 
-public static final int NORMAL = 0, IGNORE = 1, FORWARD = 2;
-public static final int RIGHT = 1, LEFT = -1;
-public static final int X = 0, Y = 1, Z = 2;
-
-public static boolean debug = false;
-
-public IKBasis localMBasis;
-public IKBasis globalMBasis;
-private DependencyReference<IKNode3D> parent = null;
-
-private int slipType = 0;
-public boolean dirty = true;
-
-public WeakHashSet<IKNode3D> dependentsSet = new WeakHashSet<IKNode3D>();
-public WeakHashMap<IKNode3D, Boolean> dependentsMap = new WeakHashMap<IKNode3D, Boolean>();
-
-protected Vector3 workingVector;
-
-protected boolean areGlobal = true;
-public String tag = this.getIdentityHash() + "-Axes";
-
-public void createTempVars(Vector3 type) {
-	workingVector = type.copy();
-	tempOrigin = type.copy();
+enum AxisDirection {
+    NORMAL = 0,
+    IGNORE = 1,
+    FORWARD = 2
 }
 
-/**
-	* @param globalMBasis a Basis object for this Axes to adopt the vakues of
-	* @param customBases  set to true if you intend to use a custom Bases class, in
-	*                     which case, this constructor will not initialize them.
-	*/
-public Vector3 IKNode3D(IKBasis globalBasis, IKNode3D parent) {
-	this.globalMBasis = globalBasis.copy();
-	createTempVars(globalBasis.getOrigin());
-	if (this.getParentAxes() != null)
-		setParent(parent);
-	else {
-		this.areGlobal = true;
-		this.localMBasis = globalBasis.copy();
-	}
-
-	this.updateGlobal();
+enum Side {
+    RIGHT = 1,
+    LEFT = -1
 }
 
-/**
-	* meant to be overriden to initializes an empty vector of
-	* whatever type your extended library extends Vec3d into.
-	* 
-	* If not overriden, will create an empty SGVec3d
-	*/
-public Vector3 makeDefaultVec() {
-	return (Vector3) new Vector3();
+enum Axis {
+    X = 0,
+    Y = 1,
+    Z = 2
 }
 
-/**
-	* @param origin              the center of this axes basis. The basis vector
-	*                            parameters will be automatically ADDED to the
-	*                            origin in order to create this basis vector.
-	* @param inX                 the direction of the X basis vector in global
-	*                            coordinates, given as an offset from this base's
-	*                            origin in global coordinates.
-	* @param inY                 the direction of the Y basis vector in global
-	*                            coordinates, given as an offset from this base's
-	*                            origin in global coordinates.
-	* @param inZ                 the direction of the Z basis vector in global
-	*                            coordinates, given as an offset from this base's
-	*                            origin in global coordinates.
-	* @param forceOrthoNormality
-	* @param customBases         set to true if you intend to use a custom Bases
-	*                            class, in which case, this constructor will not
-	*                            initialize them.
-	*/
-public IKNode3D(Vector3 origin, Vector3 inX, Vector3 inY, Vector3 inZ, IKNode3D parent,
-		boolean customBases) {
-	if (!customBases) {
-		globalMBasis = parent != null ? parent.getGlobalMBasis().copy() : new AffineBasis(origin);
-		localMBasis = parent != null ? parent.getLocalMBasis().copy() : new AffineBasis(origin);
-		globalMBasis.setIdentity();
-		localMBasis.setIdentity();
-	}
-	if (parent == null)
-		this.areGlobal = true;
-}
+var debug: bool = false
 
-public IKNode3D getParentAxes() {
-	if (this.parent == null)
-		return null;
-	else
-		return this.parent.get();
-}
+var localMBasis: IKBasis
+var globalMBasis: IKBasis
+var parent: IKNode3D = null
 
-public void updateGlobal() {
-	updateGlobal(false);
-}
+var slipType: int = 0
+var dirty: bool = true
 
-/**
-	* Updates the global coordinates of this transform
-	* 
-	* @param The force boolean is to help you do things you really probably
-	*            shouldn't,
-	*            and will non-recursively update the global transformation cache
-	*            even if it isn't dirty.
-	*            (Meaning, the update won't also be forced on any ancestors.)
-	* 
-	*/
-public void updateGlobal(boolean force) {
-	if (this.dirty || force) {
-		if (this.areGlobal) {
-			globalMBasis.adoptValues(this.localMBasis);
-		} else {
-			getParentAxes().updateGlobal(false);
-			getParentAxes().getGlobalMBasis().setToGlobalOf(this.localMBasis, this.globalMBasis);
-		}
-	}
-	dirty = false;
-}
+var dependentsSet: WeakRefSet = WeakRefSet.new()
+var dependentsMap: Dictionary = {}
 
-public void debugCall() {
-};
+var workingVector: Vector3
 
-Vector3 tempOrigin;
+var areGlobal: bool = true
+var tag: String = str(hash(self)) + "-Axes"
 
-public Vector3 origin_() {
-	this.updateGlobal();
-	tempOrigin.set(this.getGlobalMBasis().getOrigin());
-	return tempOrigin;
-}
+func create_temp_vars(type: Vector3) -> void:
+	workingVector = type.copy()
 
-/**
-	* Sets the parentAxes for this axis globally.
-	* in other words, globalX, globalY, and globalZ remain unchanged, but lx, ly,
-	* and lz
-	* change.
-	* 
-	* @param par the new parent Axes
-	**/
-public void setParent(IKNode3D par) {
-	setParent(par, null);
-}
+func _init(globalBasis: IKBasis, parent: IKNode3D) -> void:
+	self.globalMBasis = globalBasis.copy()
+	create_temp_vars(globalBasis.get_origin())
+	
+	if parent != null:
+		set_parent(parent)
+	else:
+		self.areGlobal = true
+		self.localMBasis = globalBasis.copy()
 
-/**
-	* Sets the parentAxes for this axis globally.
-	* in other words, globalX, globalY, and globalZ remain unchanged, but lx, ly,
-	* and lz change.
-	*
-	* @param intendedParent the new parent Axes
-	* @param requestedBy    the object making thisRequest, will be passed on to
-	*                       parentChangeWarning
-	*                       for any AxisDependancy objects registered with this
-	*                       IKNode3D (can be null if not important)
-	**/
-public void setParent(IKNode3D intendedParent, Object requestedBy) {
-	this.updateGlobal();
-	IKNode3D oldParent = this.getParentAxes();
+	update_global()
 
-	forEachDependent(
-			(ad) -> ad.parentChangeWarning(this, oldParent, intendedParent, requestedBy));
+func make_default_vec() -> Vector3:
+	return Vector3()
 
-	if (intendedParent != null && intendedParent != this) {
-		intendedParent.updateGlobal();
-		intendedParent.getGlobalMBasis().setToLocalOf(globalMBasis, localMBasis);
 
-		if (oldParent != null) {
-			oldParent.disown(this);
-		}
-		this.parent = new DependencyReference<IKNode3D>(intendedParent);
+func _init(origin: Vector3, inX: Vector3, inY: Vector3, inZ: Vector3, parent: IKNode3D, customBases: bool = false) -> void:
+	if not customBases:
+		globalMBasis = parent.get_global_m_basis().copy() if parent != null else AffineBasis(origin)
+		localMBasis = parent.get_local_m_basis().copy() if parent != null else AffineBasis(origin)
+		globalMBasis.set_identity()
+		localMBasis.set_identity()
 
-		this.getParentAxes().registerDependent(this);
-		this.areGlobal = false;
-	} else {
-		if (oldParent != null) {
-			oldParent.disown(this);
-		}
-		this.parent = new DependencyReference<IKNode3D>(null);
-		this.areGlobal = true;
-	}
-	this.markDirty();
-	this.updateGlobal();
+	if parent == null:
+		self.areGlobal = true
 
-	forEachDependent(
-			(ad) -> ad.parentChangeCompletionNotice(this, oldParent, intendedParent, requestedBy));
-}
+	self.parent = parent
 
-/**
-	* runs the given runnable on each dependent axis,
-	* taking advantage of the call to remove entirely any
-	* weakreferences to elements that have been cleaned up by the garbage
-	* collector.
-	* 
-	* @param r
-	*/
-public void forEachDependent(Consumer<IKNode3D> action) {
-	Iterator i = dependentsSet.iterator();
-	while (i.hasNext()) {
-		IKNode3D dr = (IKNode3D) i.next();
-		if (dr != null) {
-			action.accept(dr);
-		} else {
-			i.remove();
-		}
-	}
-}
 
-public int getGlobalChirality() {
-	this.updateGlobal();
-	return this.getGlobalMBasis().chirality;
-}
+func get_parent_axes() -> IKNode3D:
+	return self.parent
 
-public int getLocalChirality() {
-	this.updateGlobal();
-	return this.getLocalMBasis().chirality;
-}
 
-/**
-	* True if the input axis of this Axes object in global coordinates should be
-	* multiplied by negative one after rotation.
-	* By default, this always returns false. But can be overriden for more advanced
-	* implementations
-	* allowing for reflection transformations.
-	* 
-	* @param axis
-	* @return true if axis should be flipped, false otherwise. Default is false.
-	*/
-public boolean isGlobalAxisFlipped(int axis) {
-	this.updateGlobal();
-	return globalMBasis.isAxisFlipped(axis);
-}
+func update_global(force: bool = false) -> void:
+	if self.dirty or force:
+		if self.areGlobal:
+			globalMBasis.adopt_values(self.localMBasis)
+		else:
+			get_parent_axes().update_global(false)
+			get_parent_axes().get_global_m_basis().set_to_global_of(self.localMBasis, self.globalMBasis)
 
-/**
-	* True if the input axis of this Axes object in local coordinates should be
-	* multiplied by negative one after rotation.
-	* By default, this always returns false. But can be overriden for more advanced
-	* implementations
-	* allowing for reflection transformations.
-	* 
-	* @param axis
-	* @return true if axis should be flipped, false otherwise. Default is false.
-	*/
-public boolean isLocalAxisFlipped(int axis) {
-	return localMBasis.isAxisFlipped(axis);
-}
+	dirty = false
 
-/**
-	* Sets the parentAxes for this axis locally.
-	* in other words, lx,ly,lz remain unchanged, but globalX, globalY, and globalZ
-	* change.
-	* 
-	* if setting this parent would result in a dependency loop, then the input Axes
-	* parent is set to this Axes' parent, prior to this axes setting the input axes
-	* as its parent.
-	**/
-public void setRelativeToParent(IKNode3D par) {
-	if (this.getParentAxes() != null)
-		this.getParentAxes().disown(this);
-	this.parent = new DependencyReference<IKNode3D>(par);
-	this.areGlobal = false;
-	this.getParentAxes().registerDependent(this);
-	this.markDirty();
-}
 
-public boolean needsUpdate() {
-	if (this.dirty)
-		return true;
-	else
-		return false;
-}
+func debug_call() -> void:
+	pass
 
-/**
-	* Given a vector in this axes local coordinates, returns the vector's position
-	* in global coordinates.
-	* 
-	* @param in
-	* @return
-	*/
-public Vector3 getGlobalOf(Vector3 in) {
-	Vector3 result = (Vector3) in.copy();
-	setToGlobalOf(in, result);
-	return result;
-}
+
+func origin_() -> Vector3:
+	self.update_global()
+	var temp_origin := self.get_global_m_basis().get_origin()
+	return temp_origin
+
+
+func set_parent(intended_parent: IKNode3D, requested_by: Object = null) -> void:
+	self.update_global()
+	var old_parent := self.get_parent_axes()
+
+	for dependent in dependentsSet:
+		dependent.parent_change_warning(self, old_parent, intended_parent, requested_by)
+
+	if intended_parent != null and intended_parent != self:
+		intended_parent.update_global()
+		intended_parent.get_global_m_basis().set_to_local_of(globalMBasis, localMBasis)
+
+		if old_parent != null:
+			old_parent.disown(self)
+
+		self.parent = intended_parent
+		self.get_parent_axes().register_dependent(self)
+		self.areGlobal = false
+	else:
+		if old_parent != null:
+			old_parent.disown(self)
+
+		self.parent = null
+		self.areGlobal = true
+
+	self.mark_dirty()
+	self.update_global()
+
+	for dependent in dependentsSet:
+		dependent.parent_change_completion_notice(self, old_parent, intended_parent, requested_by)
+
+
+func for_each_dependent(action: Callable) -> void:
+	var i := 0
+	while i < dependentsSet.size():
+		var dr := dependentsSet[i]
+		if dr != null:
+			action.call(dr)
+		else:
+			dependentsSet.remove(i)
+			continue
+
+		i += 1
+
+
+
 
 /**
 	* Given a vector in this axes local coordinates, modifies the vector's values
