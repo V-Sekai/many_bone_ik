@@ -73,27 +73,6 @@ func _init(par: IKBone, tip_heading: Vector3, roll_heading: Vector3, input_tag: 
 		raise NullParentForBoneException.new()
 
 
-func set_ancestor_count(count: int) -> void:
-	self.ancestor_count = count
-	for b in self.children:
-		b.set_ancestor_count(self.ancestor_count + 1)
-
-# /**
-# 	* updates the ancestor count for this bone, and
-# 	* sets the ancestor count of all child bones
-# 	* to this bone's ancestor count +1;
-# 	* 
-# 	* @param count
-# 	*/
-func update_ancestor_count() -> void:
-	var counted_ancestors: int = 0
-	var current_bone: IKBone = self.parent
-	while current_bone != null:
-		counted_ancestors += 1
-		current_bone = current_bone.parent
-	set_ancestor_count(counted_ancestors)
-
-
 func _init(par: IKBone = null,
 	tip_heading: Vector3,
 	roll_heading: Vector3,
@@ -242,6 +221,28 @@ func _init(par_arma: AbstractArmature,
 
 func _init() -> void:
 	last_rotation = Quaternion()
+
+
+func set_ancestor_count(count: int) -> void:
+	self.ancestor_count = count
+	for b in self.children:
+		b.set_ancestor_count(self.ancestor_count + 1)
+
+# /**
+# 	* updates the ancestor count for this bone, and
+# 	* sets the ancestor count of all child bones
+# 	* to this bone's ancestor count +1;
+# 	* 
+# 	* @param count
+# 	*/
+func update_ancestor_count() -> void:
+	var counted_ancestors: int = 0
+	var current_bone: IKBone = self.parent
+	while current_bone != null:
+		counted_ancestors += 1
+		current_bone = current_bone.parent
+	set_ancestor_count(counted_ancestors)
+
 
 func get_parent() -> IKBone:
     return self.parent
