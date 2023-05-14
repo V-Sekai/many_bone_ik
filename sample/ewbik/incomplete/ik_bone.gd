@@ -181,7 +181,7 @@ func enable_pin_(pin_to: Vector3) -> void:
 		if not child.pin.is_enabled():
 			add_free_child(child)
 	notify_ancestors_of_pin()
-	# update_segmented_armature()
+	# Do not update_segmented_armature.
 
 func is_pinned() -> bool:
 	return pin and pin.is_enabled()
