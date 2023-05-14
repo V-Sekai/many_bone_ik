@@ -261,7 +261,7 @@ func closest_cone(next: IKLimitCone, input: Vector3) -> Vector3:
         return next.control_point
 
 # Returns null if no rectification is required.
-func closest_point_on_closest_cone(next: IKLimitCone, input: Vector3, in_bounds: Array) -> Vector3:
+func closest_point_on_closest_cone(next: IKLimitCone, input: Vector3, in_bounds: Array) -> Variant:
     var closest_to_first = closest_to_cone(input, in_bounds)
     
     if in_bounds[0]:
@@ -298,7 +298,6 @@ func update_tangent_handles(next: IKLimitCone) -> void:
     update_tangent_and_cushion_handles(next, CUSHION)
 
 
-# Update tangent and cushion handles
 func update_tangent_and_cushion_handles(next, mode):
     if next != null:
         var radA = _get_radius(mode)
@@ -426,20 +425,15 @@ func get_tangent_circle_radius_next_cos(mode):
     return tangent_circle_radius_next_cos
 
 
-#	/**
-#	 * for internal and rendering use only. Avoid modifying any values in the
-#	 * resulting object,
-#	 * which is returned by reference.
-#	 * 
-#	 * @param mode
-#	 * @return
-#	 */
-# Get tangent circle center next2
-func get_tangent_circle_center_next_2(mode):
+# For internal and rendering use only. Avoid modifying any values in the
+# resulting object, which is returned by reference.
+#
+# @param mode: int - The mode to determine which tangent circle center to return
+# @return Vector2 - The tangent circle center based on the given mode
+func get_tangent_circle_center_next_2(mode: int) -> Vector2:
     if mode == CUSHION:
         return cushion_tangent_circle_center_next2
     return tangent_circle_center_next_2
-
 
 # Get radius
 func _get_radius(mode):
@@ -498,12 +492,11 @@ func get_cushion_radius():
 func get_cushion_cosine():
     return cushion_cosine
 
-#	/**
-#	 * @param cushion range 0-1, how far toward the boundary to begin slowing down
-#	 *                the rotation if soft constraints are enabled.
-#	 *                Value of 1 is equivalent to no cushion. Value of 0 means the
-#	 *                cushion will begin at the center of the cone
-#	 */
+# Converts the given cushion value to a range between 0 and 1, where:
+# - 0 means the cushion will begin at the center of the cone
+# - 1 is equivalent to no cushion
+#
+# @param cushion: float - The cushion value to be converted
 func set_cushion_ratio(cushion):
     var adjusted_cushion = min(1.0, max(0.001, cushion))
     cushion_radius = radius * adjusted_cushion
