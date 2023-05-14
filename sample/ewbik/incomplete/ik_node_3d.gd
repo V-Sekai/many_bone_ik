@@ -138,43 +138,48 @@ func for_each_dependent(action: Callable) -> void:
 		i += 1
 
 
+func update_global(force: bool = false) -> void:
+	if self.dirty or force:
+		if self.areGlobal:
+			globalMBasis.adopt_values(self.localMBasis)
+		else:
+			get_parent_axes().update_global(false)
+			get_parent_axes().get_global_m_basis().set_to_global_of(self.localMBasis, self.globalMBasis)
 
+	dirty = false
 
-/**
-	* Given a vector in this axes local coordinates, modifies the vector's values
-	* to represent its position global coordinates.
-	* 
-	* @param in
-	* @return a reference to this the @param in object.
-	*/
-public Vector3 setToGlobalOf(Vector3 in) {
-	this.updateGlobal();
-	getGlobalMBasis().setToGlobalOf(in, in);
-	return in;
-}
+func get_global_chirality() -> int:
+	self.update_global()
+	return self.get_global_m_basis().chirality
 
-/**
-	* Given an input vector in this axes local coordinates, modifies the output
-	* vector's values to represent the input's position in global coordinates.
-	* 
-	* @param in
-	*/
-public void setToGlobalOf(Vector3 input, Vector3 output) {
-	this.updateGlobal();
-	getGlobalMBasis().setToGlobalOf(input, output);
-}
+func get_local_chirality() -> int:
+	self.update_global()
+	return self.get_local_m_basis().chirality
 
-/**
-	* Given an input sgRay in this axes local coordinates, modifies the output
-	* Rays's values to represent the input's in global coordinates.
-	* 
-	* @param in
-	*/
-public void setToGlobalOf(IKRay3D input, IKRay3D output) {
-	this.updateGlobal();
-	this.setToGlobalOf(input.p1(), output.p1());
-	this.setToGlobalOf(input.p2(), output.p2());
-}
+func is_global_axis_flipped(axis: int) -> bool:
+	self.update_global()
+	return globalMBasis.is_axis_flipped(axis)
+
+func is_local_axis_flipped(axis: int) -> bool:
+	return localMBasis.is_axis_flipped(axis)
+
+func set_relative_to_parent(par: IKNode3D) -> void:
+	if self.get_parent_axes() != null:
+		self.get_parent_axes().disown(self)
+
+	self.parent = par
+	self.areGlobal = false
+	self.get_parent_axes().register_dependent(self)
+	self.mark_dirty()
+
+func needs_update() -> bool:
+	return self.dirty
+
+func get_global_of(input_vector: Vector3) -> Vector3:
+	var result := input_vector.duplicate()
+	set_to_global_of(input_vector, result)
+	return result
+
 
 public IKRay3D getGlobalOf(IKRay3D in) {
 	return new IKRay3D(this.getGlobalOf(in.p1()), this.getGlobalOf(in.p2()));
@@ -564,90 +569,48 @@ protected void setWeakRefToParent(DependencyReference<IKNode3D> parentRef) {
 	this.parent = parentRef;
 }
 
-public void slipTo(IKNode3D newAxisGlobal, ArrayList<Object> dontWarn) {
-	this.updateGlobal();
-	IKNode3D originalGlobal = this.getGlobalCopy();
-	notifyDependentsOfSlip(newAxisGlobal, dontWarn);
-	IKNode3D newVals = newAxisGlobal.getGlobalCopy();
 
-	if (this.getParentAxes() != null) {
-		newVals = getParentAxes().getLocalOf(newAxisGlobal);
-	}
-	this.alignGlobalsTo(newAxisGlobal);
-	this.markDirty();
-	this.updateGlobal();
+func slip_to(new_axis_global: IKNode3D, dont_warn: Array = []) -> void:
+	self.update_global()
+	var original_global := self.get_global_copy()
+	notify_dependents_of_slip(new_axis_global, dont_warn)
+	var new_vals := new_axis_global.get_global_copy()
 
-	notifyDependentsOfSlipCompletion(originalGlobal, dontWarn);
-}
+	if self.get_parent_axes() != null:
+		new_vals = get_parent_axes().get_local_of(new_axis_global)
 
-public void notifyDependentsOfSlip(IKNode3D newAxisGlobal, ArrayList<Object> dontWarn) {
-	for (IKNode3D dependant : dependentsSet) {
-		if (!dontWarn.contains(dependant)) {
-			// First we check if the dependent extends IKNode3D
-			// so we know whether or not to pass the dontWarn list
-			if (this.getClass().isAssignableFrom(dependant.getClass())) {
-				((IKNode3D) dependant).axisSlipWarning(this.getGlobalCopy(), newAxisGlobal, this, dontWarn);
-			} else {
-				dependant.axisSlipWarning(this.getGlobalCopy(), newAxisGlobal, this);
-			}
-		} else {
-			System.out.println("skipping: " + dependant);
-		}
-	}
-}
+	self.align_globals_to(new_axis_global)
+	self.mark_dirty()
+	self.update_global()
 
-public void notifyDependentsOfSlipCompletion(IKNode3D globalAxisPriorToSlipping, ArrayList<Object> dontWarn) {
-	for (IKNode3D dependant : dependentsSet) {
-		if (!dontWarn.contains(dependant))
-			dependant.axisSlipCompletionNotice(globalAxisPriorToSlipping, this.getGlobalCopy(), this);
-		else
-			System.out.println("skipping: " + dependant);
-	}
-}
+	notify_dependents_of_slip_completion(original_global, dont_warn)
 
-public void notifyDependentsOfSlip(IKNode3D newAxisGlobal) {
-	for (IKNode3D dependant : dependentsSet) {
-		dependant.axisSlipWarning(this.getGlobalCopy(), newAxisGlobal, this);
-	}
-}
+func notify_dependents_of_slip(new_axis_global: IKNode3D, dont_warn: Array) -> void:
+	for dependant in dependentsSet:
+		if not dont_warn.has(dependant):
+			dependant.axis_slip_warning(self.get_global_copy(), new_axis_global, self, dont_warn)
+		else:
+			print("skipping: ", dependant)
 
-public void notifyDependentsOfSlipCompletion(IKNode3D globalAxisPriorToSlipping) {
-	for (IKNode3D dependant : dependentsSet) {
-		dependant.axisSlipCompletionNotice(globalAxisPriorToSlipping, this.getGlobalCopy(), this);
-	}
-}
+func notify_dependents_of_slip_completion(global_axis_prior_to_slipping: IKNode3D, dont_warn: Array) -> void:
+	for dependant in dependentsSet:
+		if not dont_warn.has(dependant):
+			dependant.axis_slip_completion_notice(global_axis_prior_to_slipping, self.get_global_copy(), self)
+		else:
+			print("skipping: ", dependant)
 
-/**
-	* @param depth indicates how many descendant generations down to notify of the
-	*              dirtiness.
-	*              leave blank unless you know what you're doing.
-	*/
-public void markDirty(int depth) {
-	if (!this.dirty) {
-		this.dirty = true;
-		this.markDependentsDirty(depth - 1);
-	}
-}
+func mark_dirty(depth: int = -1) -> void:
+	if not self.dirty:
+		self.dirty = true
+		self.mark_dependents_dirty(depth - 1)
 
-public void markDependentsDirty(int depth) {
-	if (depth >= 0)
-		forEachDependent((a) -> a.markDirty(depth));
-}
+func mark_dependents_dirty(depth: int) -> void:
+	if depth >= 0:
+		for dependant in dependentsSet:
+			dependant.mark_dirty(depth)
 
-public void markDependentsDirty() {
-	forEachDependent((a) -> a.markDirty());
-}
-
-public void markDirty() {
-	if (!this.dirty) {
-		this.dirty = true;
-		this.markDependentsDirty();
-	}
-}
-
-public String print() {
-	this.updateGlobal();
-	String global = "Global: " + getGlobalMBasis().print();
-	String local = "Local: " + getLocalMBasis().print();
-	return global + "\n" + local;
-}
+func print() -> String:
+	self.update_global()
+	var global := "Global: " + get_global_m_basis().print()
+	var local := "Local: " + get_local_m_basis().print()
+	return global + "\n" + local
