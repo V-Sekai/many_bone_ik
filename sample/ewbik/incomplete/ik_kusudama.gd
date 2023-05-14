@@ -3,833 +3,400 @@ extends Object
 
 class_name IKKusudama
 
-public class IKKusudama {
-
-	public static final double TAU = Math.PI * 2;
-	public static final double PI = Math.PI;
-	protected IKNode3D limitingAxes;
-	protected IKNode3D twistAxes;
-	protected double painfullness = 0.9d;
-	protected double cushionRatio = 0.1d;
-
-	/**
-	 * An array containing all of the Kusudama's limitCones. The kusudama is built
-	 * up
-	 * with the expectation that any limitCone in the array is connected to the cone
-	 * at the previous element in the array,
-	 * and the cone at the next element in the array.
-	 */
-	protected ArrayList<IKLimitCone> limitCones = new ArrayList<IKLimitCone>();
-
-	/**
-	 * Defined as some Angle in radians about the limitingAxes Y axis, 0 being
-	 * equivalent to the
-	 * limitingAxes Z axis.
-	 */
-	protected double minAxialAngle = Math.PI;
-	/**
-	 * Defined as some Angle in radians about the limitingAxes Y axis, 0 being
-	 * equivalent to the
-	 * minAxialAngle
-	 */
-	protected double range = Math.PI * 3;
-
-	protected boolean orientationallyConstrained = false;
-	protected boolean axiallyConstrained = false;
-
-	// for IK solvers. Defines the weight ratio between the unconstrained IK solved
-	// orientation and the constrained orientation for this bone
-	// per iteration. This should help stabilize solutions somewhat by allowing for
-	// soft constraint violations.
-	protected Double strength = 1d;
-
-	protected IKBone attachedTo;
-	protected Quaternion twistMinRot = new Quaternion();
-	protected Quaternion twistMaxRot = new Quaternion();
-	protected Quaternion twistCenterRot = new Quaternion();
-
-	public IKKusudama() {
-	}
-
-	public IKKusudama(IKBone forBone) {
-		this.attachedTo = forBone;
-		this.limitingAxes = forBone.getMajorRotationAxes();
-		this.twistAxes = this.limitingAxes.attachedCopy(false);
-		this.attachedTo.addConstraint(this);
-		this.enable();
-	}
-
-	public void constraintUpdateNotification() {
-		this.updateTangentRadii();
-		this.updateRotationalFreedom();
-	}
-
-	/**
-	 * This function should be called after you've set all of the Limiting Cones
-	 * for this Kusudama. It will orient the twist axes relative to which the
-	 * constrained rotations are computed
-	 * so as to minimize the potential for undesirable twist rotations due to
-	 * antipodal singularities.
-	 * 
-	 * In general, auto-optimization attempts to point the y-component of the twist
-	 * constraint
-	 * axes in the direction that places it within an oreintation allowed by the
-	 * constraint,
-	 * and roughly as far as possible from any orientations not allowed by the
-	 * constraint.
-	 */
-	public void optimizeLimitingAxes() {
-		IKNode3D originalLimitingAxes = twistAxes.getGlobalCopy();
-
-		ArrayList<Vector3> directions = new ArrayList<>();
-		if (getLimitCones().size() == 1) {
-			directions.add((limitCones.get(0).getControlPoint()).copy());
-		} else {
-			for (int i = 0; i < getLimitCones().size() - 1; i++) {
-				Vector3 thisC = getLimitCones().get(i).getControlPoint().copy();
-				Vector3 nextC = getLimitCones().get(i + 1).getControlPoint().copy();
-				Quaternion thisToNext = new Quaternion(thisC, nextC);
-				Quaternion halfThisToNext = new Quaternion(thisToNext.getAxis(), thisToNext.getAngle() / 2d);
-
-				Vector3 halfAngle = halfThisToNext.applyToCopy(thisC);
-				halfAngle.normalize();
-				halfAngle.mult(thisToNext.getAngle());
-				directions.add(halfAngle);
-			}
-		}
-
-		Vector3 newY = new Vector3();
-		for (Vector3 dv : directions) {
-			newY.add(dv);
-		}
-
-		newY.div(directions.size());
-		if (newY.mag() != 0 && !Double.isNaN(newY.y)) {
-			newY.normalize();
-		} else {
-			newY = new Vector3(0, 1d, 0);
-		}
-
-		IKRay3D newYRay = new IKRay3D(new Vector3(0, 0, 0), newY);
-
-		Quaternion oldYtoNewY = new Quaternion(twistAxes.y_().heading(),
-				originalLimitingAxes.getGlobalOf(newYRay).heading());
-		twistAxes.rotateBy(oldYtoNewY);
-
-		for (IKLimitCone lc : getLimitCones()) {
-			originalLimitingAxes.setToGlobalOf(lc.controlPoint, lc.controlPoint);
-			twistAxes.setToLocalOf(lc.controlPoint, lc.controlPoint);
-			lc.controlPoint.normalize();
-		}
-
-		this.updateTangentRadii();
-	}
-
-	public void updateTangentRadii() {
-		for (int i = 0; i < limitCones.size(); i++) {
-			IKLimitCone next = i < limitCones.size() - 1 ? limitCones.get(i + 1) : null;
-			limitCones.get(i).updateTangentHandles(next);
-		}
-	}
-
-	IKRay3D boneRay = new IKRay3D(new Vector3(), new Vector3());
-	IKRay3D constrainedRay = new IKRay3D(new Vector3(), new Vector3());
-
-	/**
-	 * Snaps the bone this Kusudama is constraining to be within the Kusudama's
-	 * orientational and axial limits.
-	 */
-	public void snapToLimits() {
-		if (orientationallyConstrained) {
-			setAxesToOrientationSnap(attachedTo().localAxes(), swingOrientationAxes());
-		}
-		if (axiallyConstrained) {
-			snapToTwistLimits(attachedTo().localAxes(), twistOrientationAxes());
-		}
-	}
-
-	/**
-	 * Presumes the input axes are the bone's localAxes, and rotates
-	 * them to satisfy the snap limits.
-	 * 
-	 * @param toSet
-	 */
-	public void setAxesToSnapped(IKNode3D toSet, IKNode3D limitingAxes, IKNode3D twistAxes) {
-		if (limitingAxes != null) {
-			if (orientationallyConstrained) {
-				setAxesToOrientationSnap(toSet, limitingAxes);
-			}
-			if (axiallyConstrained) {
-				snapToTwistLimits(toSet, twistAxes);
-			}
-		}
-	}
-
-	public double clamp(double value, double min, double max) {
-		if (value < min)
-			return min;
-		if (value > max)
-			return max;
-		return value;
-	}
-
-	public void setAxesToReturnfulled(IKNode3D toSet, IKNode3D swingAxes, IKNode3D twistAxes,
-			double cosHalfReturnfullness, double angleReturnfullness) {
-		if (swingAxes != null && painfullness > 0d) {
-			if (orientationallyConstrained) {
-				Vector3 origin = toSet.origin_();
-				Vector3 inPoint = toSet.y_().p2().copy();
-				Vector3 pathPoint = pointOnPathSequence(inPoint, swingAxes);
-				inPoint.sub(origin);
-				pathPoint.sub(origin);
-				Quaternion toClamp = new Quaternion(inPoint, pathPoint);
-				toClamp.rotation.clampToQuadranceAngle(cosHalfReturnfullness);
-				toSet.rotateBy(toClamp);
-			}
-			if (axiallyConstrained) {
-				double angleToTwistMid = angleToTwistCenter(toSet, twistAxes);
-				double clampedAngle = clamp(angleToTwistMid, -angleReturnfullness, angleReturnfullness);
-				toSet.rotateAboutY(clampedAngle, false);
-			}
-		}
-	}
-
-	/**
-	 * A value between between 0 and 1 dictating
-	 * how much the bone to which this kusudama belongs
-	 * prefers to be away from the edges of the kusudama
-	 * if it can. This is useful for avoiding unnatural poses,
-	 * as the kusudama will push bones back into their more
-	 * "comfortable" regions. Leave this value at its default of
-	 * -1 unless your empirical observations show you need it, as its computation
-	 * isn't free.
-	 * Setting this value to anything higher than 0.4 is probably overkill
-	 * in most situations.
-	 * 
-	 * @param amt set to a value outside of 0-1 to disable
-	 */
-	public void setPainfullness(double amt) {
-		painfullness = amt;
-		if (attachedTo() != null && attachedTo().parentArmature != null) {
-			attachedTo().parentArmature.updateShadowSkelRateInfo();
-		}
-	}
-
-	/**
-	 * @return A value between (ideally between 0 and 1) dictating
-	 *         how much the bone to which this kusudama belongs
-	 *         prefers to be away from the edges of the kusudama
-	 *         if it can.
-	 */
-	public double getPainfulness() {
-		return painfullness;
-	}
-
-	@Override
-	public boolean isInLimits_(Vector3 globalPoint) {
-		double[] inBounds = { 1d };
-		Vector3 inLimits = this.pointInLimits(globalPoint, inBounds, IKLimitCone.BOUNDARY);
-		return inBounds[0] > 0d;
-	}
-
-	/**
-	 * Presumes the input axes are the bone's localAxes, and rotates
-	 * them to satisfy the snap limits.
-	 * 
-	 * @param toSet
-	 */
-	public void setAxesToSoftOrientationSnap(IKNode3D toSet, IKNode3D limitingAxes, double cosHalfAngleDampen) {
-		double[] inBounds = { 1d };
-		/**
-		 * Basic idea:
-		 * We treat our hard and soft boundaries as if they were two seperate kusudamas.
-		 * First we check if we have exceeded our soft boundaries, if so,
-		 * we find the closest point on the soft boundary and the closest point on the
-		 * same segment
-		 * of the hard boundary.
-		 * let d be our orientation between these two points, represented as a ratio
-		 * with 0 being right on the soft boundary
-		 * and 1 being right on the hard boundary.
-		 * 
-		 * On every kusudama call, we store the previous value of d.
-		 * If the new d is greater than the old d, our result is the weighted average of
-		 * these
-		 * (with the weight determining the resistance of the boundary). This result is
-		 * stored for reference by future calls.
-		 * If the new d is less than the old d, we return the input orientation, and set
-		 * the new d to this lower value for reference by future calls.
-		 */
-		limitingAxes.updateGlobal();
-		boneRay.p1().set(limitingAxes.origin_());
-		boneRay.p2().set(toSet.y_().p2());
-		Vector3 bonetip = limitingAxes.getLocalOf(toSet.y_().p2());
-		Vector3 inCushionLimits = this.pointInLimits(bonetip, inBounds, IKLimitCone.CUSHION);
-
-		if (inBounds[0] == -1 && inCushionLimits != null) {
-			constrainedRay.p1().set(boneRay.p1());
-			constrainedRay.p2().set(limitingAxes.getGlobalOf(inCushionLimits));
-			Quaternion rectifiedRot = new Quaternion(boneRay.heading(), constrainedRay.heading());
-			toSet.rotateBy(rectifiedRot);
-			toSet.updateGlobal();
-		}
-	}
-
-	/**
-	 * Presumes the input axes are the bone's localAxes, and rotates
-	 * them to satisfy the snap limits.
-	 * 
-	 * @param toSet
-	 */
-	public void setAxesToOrientationSnap(IKNode3D toSet, IKNode3D limitingAxes) {
-		double[] inBounds = { 1d };
-		limitingAxes.updateGlobal();
-		boneRay.p1().set(limitingAxes.origin_());
-		boneRay.p2().set(toSet.y_().p2());
-		Vector3 bonetip = limitingAxes.getLocalOf(toSet.y_().p2());
-		Vector3 inLimits = this.pointInLimits(bonetip, inBounds, IKLimitCone.BOUNDARY);
-
-		if (inBounds[0] == -1 && inLimits != null) {
-			constrainedRay.p1().set(boneRay.p1());
-			constrainedRay.p2().set(limitingAxes.getGlobalOf(inLimits));
-			Quaternion rectifiedRot = new Quaternion(boneRay.heading(), constrainedRay.heading());
-			toSet.rotateBy(rectifiedRot);
-			toSet.updateGlobal();
-		}
-	}
-
-	public boolean isInOrientationLimits(IKNode3D globalAxes, IKNode3D limitingAxes) {
-		double[] inBounds = { 1d };
-		Vector3 localizedPoint = limitingAxes.getLocalOf(globalAxes.y_().p2()).copy().normalize();
-		if (limitCones.size() == 1) {
-			return limitCones.get(0).determineIfInBounds(null, localizedPoint);
-		} else {
-			for (int i = 0; i < limitCones.size() - 1; i++) {
-				if (limitCones.get(i).determineIfInBounds(limitCones.get(i + 1), localizedPoint))
-					return true;
-			}
-			return false;
-		}
-	}
-
-	protected Vector3 twistMinVec;
-	protected Vector3 twistMaxVec;
-	protected Vector3 twistTan;
-	protected Vector3 twistCenterVec;
-	protected double twistHalfRangeHalfCos;
-	protected boolean flippedBounds = false;
-
-	/**
-	 * Kusudama constraints decompose the bone orientation into a swing component
-	 * and a twist component.
-	 * One way to visualize the swing and twist is by imagining that the bone has a
-	 * canonical default transorm such that when it is in this default pose, it is
-	 * pointing straight up along the y-axis.
-	 * The swing twist decomposition corresponds to
-	 * 1. first "twisting" the bone along that y-axis, then
-	 * 2. "swinging" it away from the y-axis until it is in its desired
-	 * non-canonical pose.
-	 * Where LimitCones let you constrain how far you can "swing" away from that
-	 * y-axis on step 2,
-	 * The axialLimits define how much you can "twist" clockwis or counterclockwise
-	 * along that y-axis on step 1.
-	 * 
-	 * 
-	 * @param minAnlge some angle in radians about the major rotation frame's y-axis
-	 *                 to serve as the first angle within the range that the bone is
-	 *                 allowed to twist.
-	 * @param inRange  some angle in radians added to the minAngle. if the bone's
-	 *                 local Z goes maxAngle radians beyond the minAngle, it is
-	 *                 considered past the limit.
-	 *                 This value is always interpreted as being in the positive
-	 *                 direction. For example, if this value is -PI/2, the entire
-	 *                 range from minAngle to minAngle + 3PI/4 is
-	 *                 considered valid.
-	 */
-	public void setAxialLimits(double minAngle, double inRange) {
-		minAxialAngle = minAngle;
-		range = inRange;
-		Vector3 y_axis = new Vector3(0, 1, 0);
-		twistMinRot = new Quaternion(y_axis, minAxialAngle);
-		twistMinVec = twistMinRot.applyToCopy(new Vector3(0, 0, 1));
-		twistHalfRangeHalfCos = Math.cos(inRange / 4); // for quadrance angle. We need half the range angle since
-														// starting from the center, and half of that since quadrance
-														// takes cos(angle/2)
-		twistMaxVec = new Quaternion(y_axis, range).applyToCopy(twistMinVec);
-		twistMaxRot = new Quaternion(y_axis, range);
-		Quaternion halfRot = new Quaternion(y_axis, range / 2);
-		twistCenterVec = halfRot.applyToCopy(twistMinVec);
-		twistCenterRot = new Quaternion(new Vector3(0, 0, 1), twistCenterVec);
-		Vector3 maxcross = twistMaxVec.crossCopy(y_axis);
-		constraintUpdateNotification();
-	}
-
-	/**
-	 * gets the current twist ratio of the bone this kusudama constrains
-	 */
-	public double getTwistRatio() {
-		return getTwistRatio(this.attachedTo().localAxes());
-	}
-
-	/**
-	 * gets the current twist ratio of the bone this kusudama constrains
-	 */
-	public double getTwistRatio(IKNode3D toGet) {
-		return getTwistRatio(toGet, this.twistAxes);
-	}
-
-	/**
-	 * sets the twist angle of the bone this kusudama constrains
-	 * 
-	 * @param ratio, value from 0-1, with 0 being equivalent to the minimum
-	 *               boundary, and 1 the maximum boundary
-	 */
-
-	public void setTwist(double ratio) {
-		this.setTwist(ratio, this.attachedTo.localAxes());
-
-	}
-
-	public void setTwist(double ratio, IKNode3D toSet) {
-		Quaternion alignRot = twistAxes.getGlobalMBasis().inverseRotation.applyTo(toSet.getGlobalMBasis().rotation);
-		Quaternion[] decomposition = alignRot.getSwingTwist(new Vector3(0, 1, 0));
-		decomposition[1] = new Quaternion(Quaternion.slerp(ratio, twistMinRot.rotation, twistMaxRot.rotation));
-		Quaternion recomposition = decomposition[0].applyTo(decomposition[1]);
-		toSet.getParentAxes().getGlobalMBasis().inverseRotation
-				.applyTo(twistAxes.getGlobalMBasis().rotation.applyTo(recomposition), toSet.localMBasis.rotation);
-		toSet.markDirty();
-	}
-
-	public double getTwistRatio(IKNode3D toGet, IKNode3D twistAxes) {
-		Quaternion alignRot = twistAxes.getGlobalMBasis().inverseRotation.applyTo(toGet.getGlobalMBasis().rotation);
-		Quaternion[] decomposition = alignRot.getSwingTwist(new Vector3(0, 1, 0));
-		Vector3 twistZ = decomposition[1].applyToCopy(new Vector3(0, 0, 1));
-		Quaternion minToZ = new Quaternion(twistMinVec, twistZ);
-		Quaternion minToCenter = new Quaternion(twistMinVec, twistCenterVec);
-		double minToZAngle = minToZ.getAngle();
-		double minToMaxAngle = range;
-		double flipper = minToCenter.getAxis().dot(minToZ.getAxis()) < 0 ? -1 : 1;
-		return (minToZAngle * flipper) / minToMaxAngle;
-	}
-
-	/**
-	 * 
-	 * @param toSet
-	 * @param twistAxes
-	 * @return radians of twist required to snap bone into twist limits (0 if bone
-	 *         is already in twist limits)
-	 */
-	public double snapToTwistLimits(IKNode3D toSet, IKNode3D twistAxes) {
-		if (!axiallyConstrained)
-			return 0d;
-		Quaternion globTwistCent = twistAxes.getGlobalMBasis().rotation.applyTo(twistCenterRot);// create a temporary
-		// orientation representing
-		// globalOf((0,0,1))
-		// represents the middle of
-		// the allowable twist range
-		// in global space
-		Quaternion alignRot = globTwistCent.applyInverseTo(toSet.getGlobalMBasis().rotation);
-		Quaternion[] decomposition = alignRot.getSwingTwist(new Vector3(0, 1, 0)); // decompose the orientation to a
-																						// swing and
-		// twist away from globTwistCent's
-		// global basis
-		decomposition[1].rotation.clampToQuadranceAngle(twistHalfRangeHalfCos);
-		Quaternion recomposition = decomposition[0].applyTo(decomposition[1]);
-		toSet.getParentAxes().getGlobalMBasis().inverseRotation.applyTo(globTwistCent.applyTo(recomposition),
-				toSet.localMBasis.rotation);
-		toSet.localMBasis.refreshPrecomputed();
-		toSet.markDirty();
-		return 0;
-	}
-
-	public double angleToTwistCenter(IKNode3D toSet, IKNode3D twistAxes) {
-		if (!axiallyConstrained)
-			return 0d;
-		Quaternion invRot = twistAxes.getGlobalMBasis().getInverseRotation();
-		Quaternion alignRot = invRot.applyTo(toSet.getGlobalMBasis().rotation);
-		Quaternion[] decomposition = alignRot.getSwingTwist(new Vector3(0, 1, 0));
-		Vector3 twistedDir = decomposition[1].applyToCopy(new Vector3(0, 0, 1));
-		Quaternion toMid = new Quaternion(twistedDir, twistCenterVec);
-		return toMid.getAngle() * toMid.getAxis().y;
-	}
-
-	public boolean inTwistLimits(IKNode3D boneAxes, IKNode3D limitingAxes) {
-		Quaternion invRot = limitingAxes.getGlobalMBasis().getInverseRotation();
-		Quaternion alignRot = invRot.applyTo(boneAxes.getGlobalMBasis().rotation);
-		Quaternion[] decomposition = alignRot.getSwingTwist(new Vector3(0, 1, 0));
-		double angleDelta2 = decomposition[1].getAngle() * decomposition[1].getAxis().y * -1d;
-		angleDelta2 = toTau(angleDelta2);
-		double fromMinToAngleDelta = toTau(signedAngleDifference(angleDelta2, TAU - this.minAxialAngle()));
-		if (fromMinToAngleDelta < TAU - range) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-
-	public double signedAngleDifference(double minAngle, double base) {
-		double d = Math.abs(minAngle - base) % TAU;
-		double r = d > PI ? TAU - d : d;
-		double sign = (minAngle - base >= 0 && minAngle - base <= PI)
-				|| (minAngle - base <= -PI && minAngle - base >= -TAU) ? 1f : -1f;
-		r *= sign;
-		return r;
-	}
-
-	/**
-	 * Given a point (in global coordinates), checks to see if a ray can be extended
-	 * from the Kusudama's origin to that point, such that the ray in the Kusudama's
-	 * reference frame is within the range allowed by the Kusudama's coneLimits.
-	 * If such a ray exists, the original point is returned (the point is within the
-	 * limits). If it cannot exist, the tip of the ray within the kusudama's limits
-	 * that
-	 * would require the least rotation to arrive at the input point is returned.
-	 *
-	 * @param inPoint      the point to test.
-	 * @param inBounds     a number from -1 to 1 representing the point's distance
-	 *                     from
-	 *                     the boundary, 0 means the point is right on the boundary,
-	 *                     1 means the point
-	 *                     is within the boundary and on the path furthest from the
-	 *                     boundary. any negative number means
-	 *                     the point is outside of the boundary, but does not
-	 *                     signify anything about how far from the boundary
-	 *                     the point is.
-	 * @param boundaryMode mode for handling boundaries
-	 * @return the original point, if it's in limits, or the closest point which is
-	 *         in limits.
-	 */
-	public Vector3 pointInLimits(Vector3 inPoint, double[] inBounds, int boundaryMode) {
-		Vector3 point = inPoint.copy();
-		point.normalize();
-
-		inBounds[0] = -1;
-
-		Vector3 closestCollisionPoint = null;
-		double closestCos = -2d;
-
-		if (limitCones.size() > 1 && this.orientationallyConstrained) {
-			for (int i = 0; i < limitCones.size() - 1; i++) {
-				Vector3 collisionPoint = inPoint.copy();
-				collisionPoint.set(0, 0, 0);
-				IKLimitCone nextCone = limitCones.get(i + 1);
-				boolean inSegBounds = limitCones.get(i).inBoundsFromThisToNext(nextCone, point, collisionPoint);
-
-				if (inSegBounds) {
-					inBounds[0] = 1;
-				} else {
-					double thisCos = collisionPoint.dot(point);
-					if (closestCollisionPoint == null || thisCos > closestCos) {
-						closestCollisionPoint = collisionPoint.copy();
-						closestCos = thisCos;
-					}
-				}
-			}
-
-			return inBounds[0] == -1 ? closestCollisionPoint : inPoint;
-		} else if (orientationallyConstrained) {
-			if (point.dot(limitCones.get(0).getControlPoint()) > limitCones.get(0).getRadiusCosine()) {
-				inBounds[0] = 1;
-				return inPoint;
-			} else {
-				Vector3 axis = limitCones.get(0).getControlPoint().crossCopy(point);
-				Quaternion toLimit = new Quaternion(axis, limitCones.get(0).getRadius());
-				return toLimit.applyToCopy(limitCones.get(0).getControlPoint());
-			}
-		} else {
-			inBounds[0] = 1;
-			return inPoint;
-		}
-	}
-
-	public Vector3 pointOnPathSequence(Vector3 inPoint, IKNode3D limitingAxes) {
-		double closestPointDot = 0d;
-		Vec3d point = limitingAxes.getLocalOf(inPoint);
-		point.normalize();
-		Vec3d result = (Vec3d) point.copy();
-
-		if (limitCones.size() == 1) {
-			result.set(limitCones.get(0).controlPoint);
-		} else {
-			for (int i = 0; i < limitCones.size() - 1; i++) {
-				IKLimitCone nextCone = limitCones.get(i + 1);
-				Vector3 closestPathPoint = limitCones.get(i).getClosestPathPoint(nextCone, point);
-				double closeDot = closestPathPoint.dot(point);
-				if (closeDot > closestPointDot) {
-					result.set(closestPathPoint);
-					closestPointDot = closeDot;
-				}
-			}
-		}
-
-		return limitingAxes.getGlobalOf(result);
-	}
-
-	public IKBone attachedTo() {
-		return this.attachedTo;
-	}
-
-	/**
-	 * Add a LimitCone to the Kusudama.
-	 * 
-	 * @param newPoint where on the Kusudama to add the LimitCone (in Kusudama's
-	 *                 local coordinate frame defined by its bone's
-	 *                 majorRotationAxes))
-	 * @param radius   the radius of the limitCone
-	 * @param previous the LimitCone adjacent to this one (may be null if LimitCone
-	 *                 is not supposed to be between two existing LimitCones)
-	 * @param next     the other LimitCone adjacent to this one (may be null if
-	 *                 LimitCone is not supposed to be between two existing
-	 *                 LimitCones)
-	 */
-	public void addLimitCone(Vector3 newPoint, double radius, IKLimitCone previous, IKLimitCone next) {
-		int insertAt = 0;
-
-		if (next == null || limitCones.size() == 0) {
-			addLimitConeAtIndex(-1, newPoint, radius);
-		} else if (previous != null) {
-			insertAt = limitCones.indexOf(previous) + 1;
-		} else {
-			insertAt = (int) MathUtils.max(0, limitCones.indexOf(next));
-		}
-		addLimitConeAtIndex(insertAt, newPoint, radius);
-	}
-
-	public void removeLimitCone(IKLimitCone limitCone) {
-		this.limitCones.remove(limitCone);
-		this.updateTangentRadii();
-		this.updateRotationalFreedom();
-	}
-
-	/**
-	 * Adds a LimitCone to the Kusudama. LimitCones are reach cones which can be
-	 * arranged sequentially. The Kusudama will infer
-	 * a smooth path leading from one LimitCone to the next.
-	 * 
-	 * Using a single LimitCone is functionally equivalent to a classic reachCone
-	 * constraint.
-	 * 
-	 * @param insertAt the intended index for this LimitCone in the sequence of
-	 *                 LimitCones from which the Kusudama will infer a path. @see
-	 *                 IK.IKKusudama.limitCones limitCones array.
-	 * @param newPoint where on the Kusudama to add the LimitCone (in Kusudama's
-	 *                 local coordinate frame defined by its bone's
-	 *                 majorRotationAxes))
-	 * @param radius   the radius of the limitCone
-	 */
-	public void addLimitConeAtIndex(int insertAt, Vector3 newPoint, double radius) {
-		IKLimitCone newCone = createLimitConeForIndex(insertAt, newPoint, radius);
-		if (insertAt == -1) {
-			limitCones.add(newCone);
-		} else {
-			limitCones.add(insertAt, newCone);
-		}
-		this.updateTangentRadii();
-		this.updateRotationalFreedom();
-
-	}
-
-	public double toTau(double angle) {
-		double result = angle;
-		if (angle < 0) {
-			result = (2 * Math.PI) + angle;
-		}
-		result = result % (Math.PI * 2);
-		return result;
-	}
-
-	public double mod(double x, double y) {
-		if (y != 0 && x != 0) {
-			double result = x % y;
-			if (result < 0) {
-				result += y;
-			}
-			return result;
-		} else {
-			return 0;
-		}
-	}
-
-	/**
-	 * @return the limitingAxes of this Kusudama (these are just its parentBone's
-	 *         majorRotationAxes)
-	 */
-	@Override
-	public IKNode3D swingOrientationAxes() {
-		return IKNode3D limitingAxes;
-	}
-
-	@Override
-	public IKNode3D twistOrientationAxes() {
-		return IKNode3D twistAxes;
-	}
-
-	/**
-	 * 
-	 * @return the lower bound on the axial constraint
-	 */
-	public double minAxialAngle() {
-		return minAxialAngle;
-	}
-
-	public double maxAxialAngle() {
-		return range;
-	}
-
-	/**
-	 * the upper bound on the axial constraint in absolute terms
-	 * 
-	 * @return
-	 */
-	public double absoluteMaxAxialAngle() {
-		// return mod((minAxialAngle + range),(Math.PI*2d));
-		return signedAngleDifference(range + minAxialAngle, Math.PI * 2d);
-	}
-
-	public boolean isAxiallyConstrained() {
-		return axiallyConstrained;
-	}
-
-	public boolean isOrientationallyConstrained() {
-		return orientationallyConstrained;
-	}
-
-	public void disableOrientationalLimits() {
-		this.orientationallyConstrained = false;
-	}
-
-	public void enableOrientationalLimits() {
-		this.orientationallyConstrained = true;
-	}
-
-	public void toggleOrientationalLimits() {
-		this.orientationallyConstrained = !this.orientationallyConstrained;
-	}
-
-	public void disableAxialLimits() {
-		this.axiallyConstrained = false;
-	}
-
-	public void enableAxialLimits() {
-		this.axiallyConstrained = true;
-	}
-
-	public void toggleAxialLimits() {
-		axiallyConstrained = !axiallyConstrained;
-	}
-
-	public boolean isEnabled() {
-		return axiallyConstrained || orientationallyConstrained;
-	}
-
-	public void disable() {
-		this.axiallyConstrained = false;
-		this.orientationallyConstrained = false;
-	}
-
-	public void enable() {
-		this.axiallyConstrained = true;
-		this.orientationallyConstrained = true;
-	}
-
-	double unitHyperArea = 2 * Math.pow(Math.PI, 2);
-	double unitArea = 4 * Math.PI;
-
-	/**
-	 * This functionality is not yet fully implemented. It always returns an
-	 * overly simplistic representation
-	 * not in line with what is described below.
-	 * 
-	 * @return an (approximate) measure of the amount of rotational
-	 *         freedom afforded by this kusudama, with 0 meaning no rotational
-	 *         freedom, and 1 meaning total unconstrained freedom.
-	 * 
-	 *         This is approximately computed as a ratio between the orientations
-	 *         the bone can be in
-	 *         vs the orientations it cannot be in. Note that unfortunately this
-	 *         function double counts
-	 *         the orientations a bone can be in between two limit cones in a
-	 *         sequence if those limit
-	 *         cones intersect with a previous sequence.
-	 */
-	public double getRotationalFreedom() {
-
-		// computation cached from updateRotationalFreedom
-		// feel free to override that method if you want your own more correct result.
-		// please contribute back a better solution if you write one.
-		return rotationalFreedom;
-	}
-
-	double rotationalFreedom = 1d;
-
-	protected void updateRotationalFreedom() {
-		double axialConstrainedHyperArea = isAxiallyConstrained() ? (range / TAU) : 1d;
-		// quick and dirty solution (should revisit);
-		double totalLimitConeSurfaceAreaRatio = 0d;
-		for (IKLimitCone l : limitCones) {
-			totalLimitConeSurfaceAreaRatio += (l.getRadius() * 2d) / TAU;
-		}
-		rotationalFreedom = axialConstrainedHyperArea
-				* (isOrientationallyConstrained() ? Math.min(totalLimitConeSurfaceAreaRatio, 1d) : 1d);
-	}
-
-	/**
-	 * attaches the Kusudama to the BoneExample. If the
-	 * kusudama has its own limitingAxes specified,
-	 * replaces the bone's major rotation
-	 * axes with the Kusudamas limitingAxes.
-	 * 
-	 * otherwise, this function will set the kusudama's
-	 * limiting axes to the major rotation axes specified by the bone.
-	 * 
-	 * @param forBone the bone to which to attach this Kusudama.
-	 */
-	public void attachTo(IKBone forBone) {
-		this.attachedTo = forBone;
-		if (this.limitingAxes == null)
-			this.limitingAxes = forBone.getMajorRotationAxes();
-		else {
-			forBone.setFrameofRotation(this.limitingAxes);
-			this.limitingAxes = forBone.getMajorRotationAxes();
-		}
-		this.twistAxes = this.limitingAxes.attachedCopy(false);
-	}
-
-	/**
-	 * for IK solvers. Defines the weight ratio between the unconstrained IK solved
-	 * orientation and the constrained orientation for this bone
-	 * per iteration. This should help stabilize solutions somewhat by allowing for
-	 * soft constraint violations.
-	 * 
-	 * @param strength a value between 0 and 1. Any other value will be clamped to
-	 *                 this range.
-	 **/
-	public void setStrength(double newStrength) {
-		this.strength = Math.max(0d, Math.min(1d, newStrength));
-	}
-
-	/**
-	 * for IK solvers. Defines the weight ratio between the unconstrained IK solved
-	 * orientation and the constrained orientation for this bone
-	 * per iteration. This should help stabilize solutions somewhat by allowing for
-	 * soft constraint violations.
-	 **/
-	public double getStrength() {
-		return this.strength;
-	}
-
-	public ArrayList<? extends IKLimitCone> getLimitCones() {
-		return this.limitCones;
-	}
-
-	@Override
-	public void notifyOfLoadCompletion() {
-		if (twistAxes.getParentAxes() == null) {
-			twistAxes.setParent(limitingAxes.getParentAxes());
-		}
-		this.constraintUpdateNotification();
-		this.optimizeLimitingAxes();
-		if (isAxiallyConstrained()) {
-			this.setAxialLimits(this.minAxialAngle, this.range);
-		}
-	}
-}
+const TAU: float = PI * 2
+const PI: float = PI
+
+var limiting_axes: IKNode3D
+var twist_axes: IKNode3D
+var painfullness: float = 0.9
+var cushion_ratio: float = 0.1
+
+var limit_cones: Array = []
+
+var min_axial_angle: float = PI
+var range: float = PI * 3
+
+var orientationally_constrained: bool = false
+var axially_constrained: bool = false
+
+var strength: float = 1.0
+
+var attached_to: IKBone
+var twist_min_rot: Quat = Quat()
+var twist_max_rot: Quat = Quat()
+var twist_center_rot: Quat = Quat()
+
+func _init() -> void:
+    pass
+
+func _init(for_bone: IKBone) -> void:
+    attached_to = for_bone
+    limiting_axes = for_bone.get_major_rotation_axes()
+    twist_axes = limiting_axes.attached_copy(false)
+    attached_to.add_constraint(self)
+    enable()
+
+func constraint_update_notification() -> void:
+    update_tangent_radii()
+    update_rotational_freedom()
+
+func optimize_limiting_axes() -> void:
+    var original_limiting_axes: IKNode3D = twist_axes.get_global_copy()
+
+    var directions: Array = []
+    if get_limit_cones().size() == 1:
+        directions.append(limit_cones[0].get_control_point().copy())
+    else:
+        for i in range(get_limit_cones().size() - 1):
+            var this_c: Vector3 = get_limit_cones()[i].get_control_point().copy()
+            var next_c: Vector3 = get_limit_cones()[i + 1].get_control_point().copy()
+            var this_to_next: Quat = Quat(this_c, next_c)
+            var half_this_to_next: Quat = Quat(this_to_next.get_axis(), this_to_next.get_angle() / 2.0)
+
+            var half_angle: Vector3 = half_this_to_next.apply_to_copy(this_c)
+            half_angle.normalize()
+            half_angle *= this_to_next.get_angle()
+            directions.append(half_angle)
+
+    var new_y: Vector3 = Vector3()
+    for dv in directions:
+        new_y += dv
+
+    new_y /= directions.size()
+    if new_y.length() != 0 and not isnan(new_y.y):
+        new_y.normalize()
+    else:
+        new_y = Vector3(0, 1.0, 0)
+
+    var new_y_ray: IKRay3D = IKRay3D(Vector3(0, 0, 0), new_y)
+
+    var old_y_to_new_y: Quat = Quat(twist_axes.y_().heading(),
+                                     original_limiting_axes.get_global_of(new_y_ray).heading())
+    twist_axes.rotate_by(old_y_to_new_y)
+
+    for lc in get_limit_cones():
+        original_limiting_axes.set_to_global_of(lc.control_point, lc.control_point)
+        twist_axes.set_to_local_of(lc.control_point, lc.control_point)
+        lc.control_point.normalize()
+
+    update_tangent_radii()
+
+func update_tangent_radii() -> void:
+    for i in range(limit_cones.size()):
+        var next: IKLimitCone = limit_cones[i + 1] if i < limit_cones.size() - 1 else null
+        limit_cones[i].update_tangent_handles(next)
+
+func snap_to_limits() -> void:
+    if orientationally_constrained:
+        set_axes_to_orientation_snap(attached_to.local_axes(), swing_orientation_axes())
+    if axially_constrained:
+        snap_to_twist_limits(attached_to.local_axes(), twist_orientation_axes())
+
+func set_axes_to_snapped(to_set: IKNode3D, limiting_axes: IKNode3D, twist_axes: IKNode3D) -> void:
+    if limiting_axes != null:
+        if orientationally_constrained:
+            set_axes_to_orientation_snap(to_set, limiting_axes)
+        if axially_constrained:
+            snap_to_twist_limits(to_set, twist_axes)
+
+func clamp(value: float, min: float, max: float) -> float:
+    if value < min:
+        return min
+    if value > max:
+        return max
+    return value
+
+func set_axes_to_returnfulled(to_set: IKNode3D, swing_axes: IKNode3D, twist_axes: IKNode3D,
+                               cos_half_returnfullness: float, angle_returnfullness: float) -> void:
+    if swing_axes != null and painfullness > 0.0:
+        if orientationally_constrained:
+            var origin: Vector3 = to_set.origin_()
+            var in_point: Vector3 = to_set.y_().p2().copy()
+            var path_point: Vector3 = point_on_path_sequence(in_point, swing_axes)
+            in_point -= origin
+            path_point -= origin
+            var to_clamp: Quat = Quat(in_point, path_point)
+            to_clamp.rotation.clamp_to_quadrance_angle(cos_half_returnfullness)
+            to_set.rotate_by(to_clamp)
+        if axially_constrained:
+            var angle_to_twist_mid: float = angle_to_twist_center(to_set, twist_axes)
+            var clamped_angle: float = clamp(angle_to_twist_mid, -angle_returnfullness, angle_returnfullness)
+            to_set.rotate_about_y(clamped_angle, false)
+
+# A value between between 0 and 1 dictating
+# how much the bone to which this kusudama belongs
+# prefers to be away from the edges of the kusudama
+# if it can. This is useful for avoiding unnatural poses,
+# as the kusudama will push bones back into their more
+# "comfortable" regions. Leave this value at its default of
+# -1 unless your empirical observations show you need it, as its computation
+# isn't free.
+# Setting this value to anything higher than 0.4 is probably overkill
+# in most situations.
+#
+# @param amt set to a value outside of 0-1 to disable
+func set_painfullness(amt: float) -> void:
+    painfullness = amt
+    if attached_to() != null and attached_to().parent_armature != null:
+        attached_to().parent_armature.update_shadow_skel_rate_info()
+
+# @return A value between (ideally between 0 and 1) dictating
+#         how much the bone to which this kusudama belongs
+#         prefers to be away from the edges of the kusudama
+#         if it can.
+func get_painfulness() -> float:
+    return painfullness
+
+func is_in_limits_(global_point: Vector3) -> bool:
+    var in_bounds: Array[float] = [1.0]
+    var in_limits: Vector3 = point_in_limits(global_point, in_bounds, IKLimitCone.BOUNDARY)
+    return in_bounds[0] > 0.0
+
+# Presumes the input axes are the bone's local_axes, and rotates
+# them to satisfy the snap limits.
+#
+# @param to_set
+func set_axes_to_soft_orientation_snap(to_set: IKNode3D, limiting_axes: IKNode3D, cos_half_angle_dampen: float) -> void:
+    var in_bounds: Array[float] = [1.0]
+    limiting_axes.update_global()
+    bone_ray.p1.set(limiting_axes.origin_())
+    bone_ray.p2.set(to_set.y_().p2())
+    var bonetip: Vector3 = limiting_axes.get_local_of(to_set.y_().p2())
+    var in_cushion_limits: Vector3 = point_in_limits(bonetip, in_bounds, IKLimitCone.CUSHION)
+
+    if in_bounds[0] == -1 and in_cushion_limits != null:
+        constrained_ray.p1.set(bone_ray.p1())
+        constrained_ray.p2.set(limiting_axes.get_global_of(in_cushion_limits))
+        var rectified_rot: Quat = Quat(bone_ray.heading(), constrained_ray.heading())
+        to_set.rotate_by(rectified_rot)
+        to_set.update_global()
+
+# Presumes the input axes are the bone's local_axes, and rotates
+# them to satisfy the snap limits.
+#
+# @param to_set
+func set_axes_to_orientation_snap(to_set: IKNode3D, limiting_axes: IKNode3D) -> void:
+    var in_bounds: Array[float] = [1.0]
+    limiting_axes.update_global()
+    bone_ray.p1.set(limiting_axes.origin_())
+    bone_ray.p2.set(to_set.y_().p2())
+    var bonetip: Vector3 = limiting_axes.get_local_of(to_set.y_().p2())
+    var in_limits: Vector3 = point_in_limits(bonetip, in_bounds, IKLimitCone.BOUNDARY)
+
+    if in_bounds[0] == -1 and in_limits != null:
+        constrained_ray.p1.set(bone_ray.p1())
+        constrained_ray.p2.set(limiting_axes.get_global_of(in_limits))
+        var rectified_rot: Quat = Quat(bone_ray.heading(), constrained_ray.heading())
+        to_set.rotate_by(rectified_rot)
+        to_set.update_global()
+
+func is_in_orientation_limits(global_axes: IKNode3D, limiting_axes: IKNode3D) -> bool:
+    var in_bounds: Array[float] = [1.0]
+    var localized_point: Vector3 = limiting_axes.get_local_of(global_axes.y_().p2()).copy().normalized()
+    if limit_cones.size() == 1:
+        return limit_cones[0].determine_if_in_bounds(null, localized_point)
+    else:
+        for i in range(limit_cones.size() - 1):
+            if limit_cones[i].determine_if_in_bounds(limit_cones[i + 1], localized_point):
+                return true
+        return false
+
+var twistMinVec: Vector3
+var twistMaxVec: Vector3
+var twistTan: Vector3
+var twistCenterVec: Vector3
+var twistHalfRangeHalfCos: float
+var flippedBounds: bool = false
+
+func set_axial_limits(minAngle: float, inRange: float) -> void:
+	minAxialAngle = minAngle
+	range = inRange
+	var y_axis: Vector3 = Vector3(0, 1, 0)
+	twistMinRot = Quat(y_axis, minAxialAngle)
+	twistMinVec = twistMinRot.xform(Vector3(0, 0, 1))
+	twistHalfRangeHalfCos = cos(inRange / 4) # for quadrance angle. We need half the range angle since
+												# starting from the center, and half of that since quadrance
+												# takes cos(angle/2)
+	twistMaxVec = Quat(y_axis, range).xform(twistMinVec)
+	twistMaxRot = Quat(y_axis, range)
+	var halfRot: Quat = Quat(y_axis, range / 2)
+	twistCenterVec = halfRot.xform(twistMinVec)
+	twistCenterRot = Quat(Vector3(0, 0, 1), twistCenterVec)
+	var maxcross: Vector3 = twistMaxVec.cross(y_axis)
+	constraint_update_notification()
+
+func get_twist_ratio() -> float:
+	return get_twist_ratio(attached_to().local_axes())
+
+func get_twist_ratio(toGet: IKNode3D) -> float:
+	return get_twist_ratio(toGet, twistAxes)
+
+func set_twist(ratio: float) -> void:
+	set_twist(ratio, attached_to.local_axes())
+
+func set_twist(ratio: float, toSet: IKNode3D) -> void:
+	var alignRot: Quat = twistAxes.get_global_m_basis().inverse_rotation.xform(toSet.get_global_m_basis().rotation)
+	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0))
+	decomposition[1] = Quat.slerp(ratio, twistMinRot.rotation, twistMaxRot.rotation)
+	var recomposition: Quat = decomposition[0].xform(decomposition[1])
+	toSet.parent_axes().get_global_m_basis().inverse_rotation.xform(twistAxes.get_global_m_basis().rotation.xform(recomposition), toSet.local_m_basis.rotation)
+	toSet.mark_dirty()
+
+func get_twist_ratio(toGet: IKNode3D, twistAxes: IKNode3D) -> float:
+	var alignRot: Quat = twistAxes.get_global_m_basis().inverse_rotation.xform(toGet.get_global_m_basis().rotation)
+	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0))
+	var twistZ: Vector3 = decomposition[1].xform(Vector3(0, 0, 1))
+	var minToZ: Quat = Quat(twistMinVec, twistZ)
+	var minToCenter: Quat = Quat(twistMinVec, twistCenterVec)
+	var minToZAngle: float = minToZ.get_angle()
+	var minToMaxAngle: float = range
+	var flipper: float = minToCenter.get_axis().dot(minToZ.get_axis()) < 0 ? -1 : 1
+	return (minToZAngle * flipper) / minToMaxAngle
+
+func snap_to_twist_limits(toSet: IKNode3D, twistAxes: IKNode3D) -> float:
+	if not axiallyConstrained:
+		return 0.0
+	var globTwistCent: Quat = twistAxes.get_global_m_basis().rotation.xform(twistCenterRot) # create a temporary
+																							# orientation representing
+																							# globalOf((0,0,1))
+																							# represents the middle of
+																							# the allowable twist range
+																							# in global space
+	var alignRot: Quat = globTwistCent.inverse().xform(toSet.get_global_m_basis().rotation)
+	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0)) # decompose the orientation to a swing and
+																			# twist away from globTwistCent's
+																			# global basis
+	decomposition[1].rotation.clamp_to_quadrance_angle(twistHalfRangeHalfCos)
+	var recomposition: Quat = decomposition[0].xform(decomposition[1])
+	toSet.parent_axes().get_global_m_basis().inverse_rotation.xform(globTwistCent.xform(recomposition), toSet.local_m_basis.rotation)
+	toSet.local_m_basis.refresh_precomputed()
+	toSet.mark_dirty()
+	return 0
+
+func angle_to_twist_center(toSet: IKNode3D, twistAxes: IKNode3D) -> float:
+	if not axiallyConstrained:
+		return 0.0
+	var invRot: Quat = twistAxes.get_global_m_basis().get_inverse_rotation()
+	var alignRot: Quat = invRot.xform(toSet.get_global_m_basis().rotation)
+	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0))
+	var twistedDir: Vector3 = decomposition[1].xform(Vector3(0, 0, 1))
+	var toMid: Quat = Quat(twistedDir, twistCenterVec)
+	return toMid.get_angle() * toMid.get_axis().y
+
+func in_twist_limits(boneAxes: IKNode3D, limitingAxes: IKNode3D) -> bool:
+	var invRot: Quat = limitingAxes.get_global_m_basis().get_inverse_rotation()
+	var alignRot: Quat = invRot.xform(boneAxes.get_global_m_basis().rotation)
+	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0))
+	var angleDelta2: float = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1.0
+	angleDelta2 = to_tau(angleDelta2)
+	var fromMinToAngleDelta: float = to_tau(signed_angle_difference(angleDelta2, TAU - min_axial_angle()))
+	if fromMinToAngleDelta < TAU - range:
+		return false
+	else:
+		return true
+
+func signed_angle_difference(minAngle: float, base: float) -> float:
+	var d: float = abs(minAngle - base) % TAU
+	var r: float = d > PI ? TAU - d : d
+	var sign: float = (minAngle - base >= 0 and minAngle - base <= PI) or (minAngle - base <= -PI and minAngle - base >= -TAU) ? 1.0 : -1.0
+	r *= sign
+	return r
+
+func point_in_limits(inPoint: Vector3, inBounds: Array, boundaryMode: int) -> Vector3:
+	var point: Vector3 = inPoint.duplicate()
+	point.normalize()
+
+	inBounds[0] = -1
+
+	var closestCollisionPoint: Vector3 = null
+	var closestCos: float = -2.0
+
+	if limitCones.size() > 1 and orientationallyConstrained:
+		for i in range(limitCones.size() - 1):
+			var collisionPoint: Vector3 = inPoint.duplicate()
+			collisionPoint.set(0, 0, 0)
+			var nextCone: IKLimitCone = limitCones[i + 1]
+			var inSegBounds: bool = limitCones[i].in_bounds_from_this_to_next(nextCone, point, collisionPoint)
+
+			if inSegBounds:
+				inBounds[0] = 1
+			else:
+				var thisCos: float = collisionPoint.dot(point)
+				if closestCollisionPoint == null or thisCos > closestCos:
+					closestCollisionPoint = collisionPoint.duplicate()
+					closestCos = thisCos
+
+		return inBounds[0] == -1 ? closestCollisionPoint : inPoint
+	elif orientationallyConstrained:
+		if point.dot(limitCones[0].get_control_point()) > limitCones[0].get_radius_cosine():
+			inBounds[0] = 1
+			return inPoint
+		else:
+			var axis: Vector3 = limitCones[0].get_control_point().cross(point)
+			var toLimit: Quat = Quat(axis, limitCones[0].get_radius())
+			return toLimit.xform(limitCones[0].get_control_point())
+	else:
+		inBounds[0] = 1
+
+func point_on_path_sequence(in_point: Vector3, limiting_axes: IKNode3D) -> Vector3:
+	var closest_point_dot: float = 0.0
+	var point: Vector3 = limiting_axes.get_local_of(in_point)
+	point.normalize()
+	var result: Vector3 = point.duplicate()
+
+	if limit_cones.size() == 1:
+		result = limit_cones[0].control_point
+	else:
+		for i in range(limit_cones.size() - 1):
+			var next_cone: IKLimitCone = limit_cones[i + 1]
+			var closest_path_point: Vector3 = limit_cones[i].get_closest_path_point(next_cone, point)
+			var close_dot: float = closest_path_point.dot(point)
+			if close_dot > closest_point_dot:
+				result = closest_path_point
+				closest_point_dot = close_dot
+
+	return limiting_axes.get_global_of(result)
+
+func attached_to() -> IKBone:
+	return self.attached_to
+
+func add_limit_cone(new_point: Vector3, radius: float, previous: IKLimitCone, next: IKLimitCone) -> void:
+	var insert_at: int = 0
+
+	if next == null or limit_cones.size() == 0:
+		add_limit_cone_at_index(-1, new_point, radius)
+	elif previous != null:
+		insert_at = limit_cones.find(previous) + 1
+	else:
+		insert_at = max(0, limit_cones.find(next))
+	add_limit_cone_at_index(insert_at, new_point, radius)
+
+func remove_limit_cone(limit_cone: IKLimitCone) -> void:
+	limit_cones.erase(limit_cone)
+	update_tangent_radii()
+	update_rotational_freedom()
+
+func add_limit_cone_at_index(insert_at: int, new_point: Vector3, radius: float) -> void:
+	var new_cone: IKLimitCone = create_limit_cone_for_index(insert_at, new_point, radius)
+	if insert_at == -1:
+		limit_cones.append(new_cone)
+	else:
+		limit_cones.insert(insert_at, new_cone)
+	update_tangent_radii()
+	update_rotational_freedom()
+
+func to_tau(angle: float) -> float:
+	var result: float = angle
+	if angle < 0:
+		result = (2 * PI) + angle
+	result = fmod(result, PI * 2)
+	return result
+
+func mod(x: float, y: float) -> float:
+	if y != 0 and x != 0:
+		var result: float = fmod(x, y)
+		if result < 0:
+			result += y
+		return result
+	else:
+		return 0
