@@ -180,394 +180,249 @@ func get_global_of(input_vector: Vector3) -> Vector3:
 	set_to_global_of(input_vector, result)
 	return result
 
+func set_to_global_of(input: Vector3, output: Vector3 = null) -> Vector3:
+	self.update_global()
+	get_global_m_basis().set_to_global_of(input, output if output else input)
+	return output if output else input
 
-public IKRay3D getGlobalOf(IKRay3D in) {
-	return new IKRay3D(this.getGlobalOf(in.p1()), this.getGlobalOf(in.p2()));
-}
-
-/**
-	* resets this IKNode3D to be equivalent to the identity transform and marks
-	* it dirty
-	*/
-public void toIdentity() {
-	this.localMBasis.setIdentity();
-	this.markDirty();
-}
+func set_to_global_of_ray(input: IKRay3D, output: IKRay3D) -> void:
+	self.update_global()
+	self.set_to_global_of(input.p1(), output.p1())
+	self.set_to_global_of(input.p2(), output.p2())
 
 
-public Vector3 getLocalOf(Vector3 in) {
-	this.updateGlobal();
-	return getGlobalMBasis().getLocalOf(in);
-}
+func get_global_of(input: IKRay3D) -> IKRay3D:
+	return IKRay3D.new(self.get_global_of(input.p1()), self.get_global_of(input.p2()))
 
-/**
-	* Given a vector in global coordinates, modifies the vector's values to
-	* represent its position in theseAxes local coordinates.
-	* 
-	* @param in
-	* @return a reference to the @param in object.
-	*/
+func to_identity() -> void:
+	self.local_m_basis.set_identity()
+	self.mark_dirty()
 
-public Vector3 setToLocalOf(Vector3 in) {
-	this.updateGlobal();
-	Vector3 result = (Vector3) in.copy();
-	this.getGlobalMBasis().setToLocalOf(in, result);
-	in.set(result);
-	return result;
-}
+func get_local_of(input: Vector3) -> Vector3:
+	self.update_global()
+	return get_global_m_basis().get_local_of(input)
 
-/**
-	* Given a vector in global coordinates, modifies the vector's values to
-	* represent its position in theseAxes local coordinates.
-	* 
-	* @param in
-	*/
+func set_to_local_of(input: Vector3, output: Vector3 = null) -> Vector3:
+	self.update_global()
+	var result: Vector3 = input.duplicate() if output is null else output
+	self.get_global_m_basis().set_to_local_of(input, result)
+	return result
 
-public void setToLocalOf(Vector3 in, Vector3 out) {
-	this.updateGlobal();
-	this.getGlobalMBasis().setToLocalOf(in, out);
-}
+func set_to_local_of_ray(input: IKRay3D, output: IKRay3D) -> void:
+	self.set_to_local_of(input.p1(), output.p1())
+	self.set_to_local_of(input.p2(), output.p2())
 
-/**
-	* Given a sgRay in global coordinates, modifies the sgRay's values to represent
-	* its position in theseAxes local coordinates.
-	* 
-	* @param in
-	*/
 
-public void setToLocalOf(IKRay3D in, IKRay3D out) {
-	this.setToLocalOf(in.p1(), out.p1());
-	this.setToLocalOf(in.p2(), out.p2());
-}
+func set_to_local_of(input: Basis, output: Basis) -> void:
+	update_global()
+	global_m_basis.set_to_local_of(input, output)
 
-public void setToLocalOf(IKBasis input, IKBasis output) {
-	this.updateGlobal();
-	this.getGlobalMBasis().setToLocalOf(input, output);
-}
+func get_local_of(in: IKRay3D) -> IKRay3D:
+	var result: IKRay3D = in.copy()
+	result.p1 = get_local_of(in.p1)
+	result.p2 = get_local_of(in.p2)
+	return result
 
-public <R extends IKRay3D> R getLocalOf(R in) {
-	R result = (R) in.copy();
-	result.p1.set(this.getLocalOf(in.p1()));
-	result.p2.set(this.getLocalOf(in.p2()));
-	return result;
-}
+func translate_by_local(translate: Vector3) -> void:
+	update_global()
+	local_m_basis.translate_by(translate)
+	mark_dirty()
+	
+func translate_by_global(translate: Vector3) -> void:
+	if get_parent_axes() != null:
+		update_global()
+		translate_to(translate + origin())
+	else:
+		local_m_basis.translate_by(translate)
+	mark_dirty()
 
-public void translateByLocal(Vector3 translate) {
-	this.updateGlobal();
-	getLocalMBasis().translateBy(translate);
-	this.markDirty();
+func translate_to(translate: Vector3, slip: bool) -> void:
+	update_global()
+	if slip:
+		var temp_abstract_axes: IKNode3D = get_global_copy()
+		temp_abstract_axes.translate_to(translate)
+		slip_to(temp_abstract_axes)
+	else:
+		translate_to(translate)
 
-}
+func translate_to(translate: Vector3) -> void:
+	if get_parent_axes() != null:
+		update_global()
+		local_m_basis.translate_to(get_parent_axes().global_m_basis.get_local_of(translate))
+		mark_dirty()
+	else:
+		update_global()
+		local_m_basis.translate_to(translate)
+		mark_dirty()
 
-public void translateByGlobal(Vector3 translate) {
-	if (this.getParentAxes() != null) {
-		this.updateGlobal();
-		this.translateTo(translate.addCopy(this.origin_()));
-	} else {
-		getLocalMBasis().translateBy(translate);
-	}
+func set_slip_type(type: int) -> void:
+	if get_parent_axes() != null:
+		if type == SlipType.IGNORE:
+			get_parent_axes().dependents_set.erase(self)
+		elif type == SlipType.NORMAL or type == SlipType.FORWARD:
+			get_parent_axes().register_dependent(self)
+	slip_type = type
 
-	this.markDirty();
-}
+func get_slip_type() -> int:
+	return slip_type
 
-public void translateTo(Vector3 translate, boolean slip) {
-	this.updateGlobal();
-	if (slip) {
-		IKNode3D tempAbstractAxes = this.getGlobalCopy();
-		tempAbstractAxes.translateTo(translate);
-		this.slipTo(tempAbstractAxes);
-	} else {
-		this.translateTo(translate);
-	}
-}
+func rotate_about_x(angle: float, orthonormalized: bool) -> void:
+	update_global()
+	var x_rot: Quat = Quat(global_m_basis.x_heading, angle)
+	rotate_by(x_rot)
+	mark_dirty()
 
-public void translateTo(Vector3 translate) {
-	if (this.getParentAxes() != null) {
-		this.updateGlobal();
-		getLocalMBasis().translateTo(getParentAxes().getGlobalMBasis().getLocalOf(translate));
-		this.markDirty();
-	} else {
-		this.updateGlobal();
-		getLocalMBasis().translateTo(translate);
-		this.markDirty();
-	}
+func rotate_about_y(angle: float, orthonormalized: bool) -> void:
+	update_global()
+	var y_rot: Quat = Quat(global_m_basis.y_heading, angle)
+	rotate_by(y_rot)
+	mark_dirty()
 
-}
+func rotate_about_z(angle: float, orthonormalized: bool) -> void:
+	update_global()
+	var z_rot: Quat = Quat(global_m_basis.z_heading, angle)
+	rotate_by(z_rot)
+	mark_dirty()
 
-public void setSlipType(int type) {
-	if (this.getParentAxes() != null) {
-		if (type == IGNORE) {
-			this.getParentAxes().dependentsSet.remove(this);
-		} else if (type == NORMAL || type == FORWARD) {
-			this.getParentAxes().registerDependent(this);
-		}
-	}
-	this.slipType = type;
-}
+func rotate_by(apply: Quat) -> void:
+	update_global()
+	if get_parent_axes() != null:
+		var new_rot: Quat = get_parent_axes().global_m_basis.get_local_of_rotation(apply)
+		local_m_basis.rotate_by(new_rot)
+	else:
+		local_m_basis.rotate_by(apply)
+	mark_dirty()
 
-public int getSlipType() {
-	return this.slipType;
-}
+func rotate_by_local(apply: Quat) -> void:
+	update_global()
+	if parent != null:
+		local_m_basis.rotate_by(apply)
+	mark_dirty()
 
-public void rotateAboutX(double angle, boolean orthonormalized) {
-	this.updateGlobal();
-	Quaternion xRot = new Quaternion(getGlobalMBasis().getXHeading(), angle);
-	this.rotateBy(xRot);
-	this.markDirty();
-}
+func align_locals_to(target_axes: IKNode3D) -> void:
+	local_m_basis.adopt_values(target_axes.local_m_basis)
+	mark_dirty()
 
-public void rotateAboutY(double angle, boolean orthonormalized) {
-	this.updateGlobal();
-	Quaternion yRot = new Quaternion(getGlobalMBasis().getYHeading(), angle);
-	this.rotateBy(yRot);
-	this.markDirty();
-}
+func align_globals_to(target_axes: IKNode3D) -> void:
+	target_axes.update_global()
+	update_global()
+	if get_parent_axes() != null:
+		get_parent_axes().global_m_basis.set_to_local_of(target_axes.global_m_basis, local_m_basis)
+	else:
+		local_m_basis.adopt_values(target_axes.global_m_basis)
+	mark_dirty()
+	update_global()
 
-public void rotateAboutZ(double angle, boolean orthonormalized) {
-	this.updateGlobal();
-	Quaternion zRot = new Quaternion(getGlobalMBasis().getZHeading(), angle);
-	this.rotateBy(zRot);
-	this.markDirty();
-}
+func align_orientation_to(target_axes: IKNode3D) -> void:
+	target_axes.update_global()
+	update_global()
+	if get_parent_axes() != null:
+		globalMBasis.rotate_to(target_axes.globalMBasis.rotation)
+		get_parent_axes().globalMBasis.set_to_local_of(globalMBasis, localMBasis)
+	else:
+		localMBasis.rotate_to(target_axes.globalMBasis.rotation)
+	mark_dirty()
 
-/**
-	* Rotates the bases around their origin in global coordinates
-	* 
-	* @param rotation
-	*/
-public void rotateBy(Quaternion apply) {
+func set_global_orientation_to(rotation: Quaternion) -> void:
+	update_global()
+	if get_parent_axes() != null:
+		globalMBasis.rotate_to(rotation)
+		get_parent_axes().globalMBasis.set_to_local_of(globalMBasis, localMBasis)
+	else:
+		localMBasis.rotate_to(rotation)
+	mark_dirty()
 
-	this.updateGlobal();
-	if (this.getParentAxes() != null) {
-		Quaternion newRot = this.getParentAxes().getGlobalMBasis().getLocalOfRotation(apply);
-		this.getLocalMBasis().rotateBy(newRot);
-	} else {
-		this.getLocalMBasis().rotateBy(apply);
-	}
+func set_local_orientation_to(rotation: Quaternion) -> void:
+	localMBasis.rotate_to(rotation)
+	mark_dirty()
 
-	this.markDirty();
-}
+func register_dependent(new_dependent: IKNode3D) -> void:
+	if is_ancestor_of(new_dependent):
+		transfer_to_parent(new_dependent.get_parent_axes())
+	if not dependentsSet.has(new_dependent):
+		dependentsSet.add(new_dependent)
 
-/**
-	* rotates the bases around their origin in Local coordinates
-	* 
-	* @param rotation
-	*/
-public void rotateByLocal(Quaternion apply) {
-	this.updateGlobal();
-	if (parent != null) {
-		this.getLocalMBasis().rotateBy(apply);
-	}
-	this.markDirty();
-}
+func is_ancestor_of(potential_descendent: IKNode3D) -> bool:
+	var result: bool = false
+	var cursor: IKNode3D = potential_descendent.get_parent_axes()
+	while cursor != null:
+		if cursor == self:
+			result = true
+			break
+		else:
+			cursor = cursor.get_parent_axes()
+	return result
 
-/**
-	* sets these axes to have the same orientation and location relative to their
-	* parent
-	* axes as the input's axes do to the input's parent axes.
-	* 
-	* If the axes on which this function is called are orthonormal,
-	* this function normalizes and orthogonalizes them regardless of whether the
-	* targetAxes are orthonormal.
-	* 
-	* @param targetAxes the Axes to make this Axis identical to
-	*/
-public void alignLocalsTo(IKNode3D targetAxes) {
-	this.getLocalMBasis().adoptValues(targetAxes.localMBasis);
-	this.markDirty();
-}
+func transfer_to_parent(new_parent: IKNode3D) -> void:
+	emancipate()
+	set_parent(new_parent)
 
-/**
-	* sets these axes to have the same global orientation as the input Axes.
-	* these Axes lx, ly, and lz headings will differ from the target ages,
-	* but its gx, gy, and gz headings should be identical unless this
-	* axis is orthonormalized and the target axes are not.
-	* 
-	* @param targetAxes
-	*/
-public void alignGlobalsTo(IKNode3D targetAxes) {
-	targetAxes.updateGlobal();
-	this.updateGlobal();
-	if (this.getParentAxes() != null) {
-		getParentAxes().getGlobalMBasis().setToLocalOf(targetAxes.globalMBasis, localMBasis);
-	} else {
-		this.getLocalMBasis().adoptValues(targetAxes.globalMBasis);
-	}
-	this.markDirty();
-	this.updateGlobal();
-}
+func emancipate() -> void:
+	if get_parent_axes() != null:
+		update_global()
+		var old_parent: IKNode3D = get_parent_axes()
+		for ad in dependentsSet:
+			ad.parent_change_warning(self, get_parent_axes(), null, null)
+		localMBasis.adopt_values(globalMBasis)
+		get_parent_axes().disown(self)
+		parent = DependencyReference[IKNode3D](null)
+		are_global = true
+		mark_dirty()
+		update_global()
+		for ad in dependentsSet:
+			ad.parent_change_completion_notice(self, old_parent, null, null)
 
-public void alignOrientationTo(IKNode3D targetAxes) {
-	targetAxes.updateGlobal();
-	this.updateGlobal();
-	if (this.getParentAxes() != null) {
-		this.getGlobalMBasis().rotateTo(targetAxes.getGlobalMBasis().rotation);
-		getParentAxes().getGlobalMBasis().setToLocalOf(this.globalMBasis, this.localMBasis);
-	} else {
-		this.getLocalMBasis().rotateTo(targetAxes.getGlobalMBasis().rotation);
-	}
-	this.markDirty();
-}
+func disown(child: IKNode3D) -> void:
+	dependentsSet.erase(child)
 
-/**
-	* updates the axes object such that its global orientation
-	* matches the given Quaternion object.
-	* 
-	* @param rotation
-	*/
-public void setGlobalOrientationTo(Quaternion rotation) {
-	this.updateGlobal();
-	if (this.getParentAxes() != null) {
-		this.getGlobalMBasis().rotateTo(rotation);
-		getParentAxes().getGlobalMBasis().setToLocalOf(this.globalMBasis, this.localMBasis);
-	} else {
-		this.getLocalMBasis().rotateTo(rotation);
-	}
-	this.markDirty();
-}
+func get_global_m_basis() -> IKBasis:
+	update_global()
+	return globalMBasis
 
-public void setLocalOrientationTo(Quaternion rotation) {
-	this.getLocalMBasis().rotateTo(rotation);
-	this.markDirty();
-}
+func get_local_m_basis() -> IKBasis:
+	return localMBasis
 
-public void registerDependent(IKNode3D newDependent) {
-	// Make sure we don't hit a dependency loop
-	if (IKNode3D.class.isAssignableFrom(newDependent.getClass())) {
-		if (((IKNode3D) newDependent).isAncestorOf(this)) {
-			this.transferToParent(((IKNode3D) newDependent).getParentAxes());
-		}
-	}
-	if (!dependentsSet.contains(newDependent)) {
-		dependentsSet.add(newDependent);
-	}
-}
 
-public boolean isAncestorOf(IKNode3D potentialDescendent) {
-	boolean result = false;
-	IKNode3D cursor = potentialDescendent.getParentAxes();
-	while (cursor != null) {
-		if (cursor == this) {
-			result = true;
-			break;
-		} else {
-			cursor = cursor.getParentAxes();
-		}
-	}
-	return result;
-}
+func axis_slip_warning(global_prior_to_slipping: IKNode3D, global_after_slipping: IKNode3D,
+						actual_axis: IKNode3D, dont_warn: Array) -> void:
+	update_global()
+	if slipType == NORMAL:
+		if get_parent_axes() != null:
+			var global_vals: IKNode3D = relative_to(global_prior_to_slipping)
+			global_vals = global_prior_to_slipping.get_local_of(global_vals)
+			localMBasis.adopt_values(globalMBasis)
+			mark_dirty()
+	elif slipType == FORWARD:
+		var global_after_vals: IKNode3D = relative_to(global_after_slipping)
+		notify_dependents_of_slip(global_after_vals, dont_warn)
 
-/**
-	* unregisters this IKNode3D from its current parent and
-	* registers it to a new parent without changing its global position or
-	* orientation
-	* when doing so.
-	* 
-	* @param newParent
-	*/
+func axis_slip_warning(global_prior_to_slipping: IKNode3D, global_after_slipping: IKNode3D,
+						actual_axis: IKNode3D) -> void:
+	pass
 
-public void transferToParent(IKNode3D newParent) {
-	this.emancipate();
-	this.setParent(newParent);
-}
+func axis_slip_completion_notice(global_prior_to_slipping: IKNode3D, global_after_slipping: IKNode3D,
+									this_axis: IKNode3D) -> void:
+	pass
 
-/**
-	* unregisters this IKNode3D from its parent,
-	* but keeps its global position the same.
-	*/
-public void emancipate() {
-	if (this.getParentAxes() != null) {
-		this.updateGlobal();
-		IKNode3D oldParent = this.getParentAxes();
-		for (IKNode3D ad : this.dependentsSet) {
-			ad.parentChangeWarning(this, this.getParentAxes(), null, null);
-		}
-		this.getLocalMBasis().adoptValues(this.globalMBasis);
-		this.getParentAxes().disown(this);
-		this.parent = new DependencyReference<IKNode3D>(null);
-		this.areGlobal = true;
-		this.markDirty();
-		this.updateGlobal();
-		for (IKNode3D ad : this.dependentsSet) {
-			ad.parentChangeCompletionNotice(this, oldParent, null, null);
-		}
-	}
-}
+func slip_to(new_axis_global: IKNode3D) -> void:
+	update_global()
+	var original_global: IKNode3D = get_global_copy()
+	notify_dependents_of_slip(new_axis_global)
+	var new_vals: IKNode3D = new_axis_global.free_copy()
 
-public void disown(IKNode3D child) {
-	dependentsSet.remove(child);
-}
+	if get_parent_axes() != null:
+		new_vals = get_parent_axes().get_local_of(new_vals)
+	localMBasis.adopt_values(new_vals.globalMBasis)
+	dirty = true
+	update_global()
 
-public IKBasis getGlobalMBasis() {
-	this.updateGlobal();
-	return globalMBasis;
-}
+	notify_dependents_of_slip_completion(original_global)
 
-public IKBasis getLocalMBasis() {
-	return localMBasis;
-}
+func get_weak_ref_to_parent() -> DependencyReference[IKNode3D]:
+	return parent
 
-public void axisSlipWarning(IKNode3D globalPriorToSlipping, IKNode3D globalAfterSlipping,
-		IKNode3D actualAxis, ArrayList<Object> dontWarn) {
-	this.updateGlobal();
-	if (this.slipType == NORMAL) {
-		if (this.getParentAxes() != null) {
-			IKNode3D globalVals = this.relativeTo(globalPriorToSlipping);
-			globalVals = globalPriorToSlipping.getLocalOf(globalVals);
-			this.getLocalMBasis().adoptValues(globalMBasis);
-			this.markDirty();
-		}
-	} else if (this.slipType == FORWARD) {
-		IKNode3D globalAfterVals = this.relativeTo(globalAfterSlipping);
-		this.notifyDependentsOfSlip(globalAfterVals, dontWarn);
-	}
-}
-
-public void axisSlipWarning(IKNode3D globalPriorToSlipping, IKNode3D globalAfterSlipping,
-		IKNode3D actualAxis) {
-
-}
-
-public void axisSlipCompletionNotice(IKNode3D globalPriorToSlipping, IKNode3D globalAfterSlipping,
-		IKNode3D thisAxis) {
-
-}
-
-public void slipTo(IKNode3D newAxisGlobal) {
-	this.updateGlobal();
-	IKNode3D originalGlobal = this.getGlobalCopy();
-	notifyDependentsOfSlip(newAxisGlobal);
-	IKNode3D newVals = newAxisGlobal.freeCopy();
-
-	if (this.getParentAxes() != null) {
-		newVals = getParentAxes().getLocalOf(newVals);
-	}
-	this.getLocalMBasis().adoptValues(newVals.globalMBasis);
-	this.dirty = true;
-	this.updateGlobal();
-
-	notifyDependentsOfSlipCompletion(originalGlobal);
-}
-
-/**
-	* You probably shouldn't touch this unless you're implementing i/o or
-	* undo/redo.
-	* 
-	* @return
-	*/
-protected DependencyReference<IKNode3D> getWeakRefToParent() {
-	return this.parent;
-}
-
-/**
-	* You probably shouldn't touch this unless you're implementing i/o or
-	* undo/redo.
-	* 
-	* @return
-	*/
-protected void setWeakRefToParent(DependencyReference<IKNode3D> parentRef) {
-	this.parent = parentRef;
-}
+func set_weak_ref_to_parent(parent_ref: DependencyReference[IKNode3D]) -> void:
+	parent = parent_ref
 
 
 func slip_to(new_axis_global: IKNode3D, dont_warn: Array = []) -> void:
