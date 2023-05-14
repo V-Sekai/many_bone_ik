@@ -24,11 +24,16 @@ var orientation_lock: bool = false
 var stiffness_scalar: float = 0.0
 var ancestor_count: int = 0
 
-func _init(par: IKBone, tip_heading: Vector3, roll_heading: Vector3, input_tag: String, input_bone_height: float, coordinate_type: FrameType) -> void:
+func _init(par: IKBone = null,
+			tip_heading: Vector3 = Vector3(),
+			roll_heading: Vector3 = Vector3(),
+			input_tag: String = "",
+			input_bone_height: float = 0.0,
+			coordinate_type: FrameType = FrameType.RELATIVE) -> void:
 	last_rotation = Quaternion()
 
 	if par != null:
-		tag = str(hash(self)) if input_tag == null or input_tag == "" else input_tag
+		tag = str(hash(self)) if input_tag == "" else input_tag
 		bone_height = input_bone_height
 
 		var tip_heading_ray: IKRay3D = IKRay3D.new(par.get_tip(), tip_heading)
@@ -43,8 +48,6 @@ func _init(par: IKBone, tip_heading: Vector3, roll_heading: Vector3, input_tag: 
 		elif coordinate_type == FrameType.RELATIVE:
 			temp_tip = par.local_axes.get_global_of(tip_heading_ray.heading())
 			temp_roll = par.local_axes.get_global_of(roll_heading_ray.heading())
-		else:
-			print("WOAH WOAH WOAH")
 
 		temp_x = temp_tip.cross(temp_roll)
 		temp_roll = temp_x.cross(temp_tip)
@@ -71,156 +74,6 @@ func _init(par: IKBone, tip_heading: Vector3, roll_heading: Vector3, input_tag: 
 		self.update_ancestor_count()
 	else:
 		raise NullParentForBoneException.new()
-
-
-func _init(par: IKBone = null,
-	tip_heading: Vector3,
-	roll_heading: Vector3,
-	input_tag: String,
-	coordinate_type: int) -> void:
- last_rotation = Quaternion()
-
- if par:
-	 tag = str(hash(self)) if not input_tag else input_tag
-
-	 tip_heading_ray = IKRay3D.new(par.get_tip(), tip_heading)
-	 roll_heading_ray = IKRay3D.new(par.get_tip(), roll_heading)
-	 temp_tip = tip_heading.duplicate()
-	 temp_roll = roll_heading.duplicate()
-	 temp_x = Vector3()
-
-	 if coordinate_type == frameType.GLOBAL:
-		 temp_tip = tip_heading_ray.heading()
-		 temp_roll = roll_heading_ray.heading()
-	 elif coordinate_type == frameType.RELATIVE:
-		 temp_tip = par.local_axes().get_global_of(tip_heading_ray.heading())
-		 temp_roll = par.local_axes().get_global_of(roll_heading_ray.heading())
-	 else:
-		 print("WOAH WOAH WOAH")
-
-	 temp_x = temp_tip.cross(temp_roll)
-	 temp_roll = temp_x.cross(temp_tip)
-
-	 temp_x.normalize()
-	 temp_tip.normalize()
-	 temp_roll.normalize()
-
-	 bone_height = tip_heading_ray.mag()
-	 parent = par
-	 parent_armature = parent.parent_armature
-	 parent_armature.add_to_bone_list(self)
-
-	 generate_axes(parent.get_tip(), temp_x, temp_tip, temp_roll)
-
-	 local_axes.set_parent(parent.local_axes)
-	 previous_orientation = local_axes.attached_copy(true)
-
-	 major_rotation_axes = parent.local_axes().get_global_copy()
-	 major_rotation_axes.translate_to(parent.get_tip())
-	 major_rotation_axes.set_parent(parent.local_axes)
-
-	 parent.add_child(self)
-	 parent.add_free_child(self)
-	 update_ancestor_count()
- else:
-	 raise NullParentForBoneException()
-
-func _init(par_arma: AbstractArmature,
-		tip_heading: Vector3,
-		roll_heading: Vector3,
-		input_tag: String,
-		input_bone_height: float = 0.0,
-		coordinate_type: int) -> void:
- last_rotation = Quaternion()
-
- if par_arma:
-	 tag = str(hash(self)) if not input_tag else input_tag
-
-	 tip_heading_ray = IKRay3D.new(par_arma.local_axes.origin, tip_heading)
-	 tip_heading_ray.get_ray_scaled_to(input_bone_height)
-	 roll_heading_ray = IKRay3D.new(par_arma.local_axes.origin, roll_heading)
-	 temp_tip = tip_heading.duplicate()
-	 temp_roll = roll_heading.duplicate()
-	 temp_x = temp_tip.duplicate()
-
-	 if coordinate_type == frameType.GLOBAL:
-		 temp_tip = tip_heading_ray.heading()
-		 temp_roll = roll_heading_ray.heading()
-	 elif coordinate_type == frameType.RELATIVE:
-		 temp_tip = par_arma.local_axes.get_global_of(tip_heading_ray.heading())
-		 temp_roll = par_arma.local_axes.get_global_of(roll_heading_ray.heading())
-	 else:
-		 print("WOAH WOAH WOAH")
-
-	 temp_x = temp_tip.cross(temp_roll)
-	 temp_roll = temp_x.cross(temp_tip)
-
-	 temp_x.normalize()
-	 temp_tip.normalize()
-	 temp_roll.normalize()
-
-	 parent_armature = par_arma
-	 generate_axes(parent_armature.local_axes.origin, temp_x, temp_tip, temp_roll)
-	 local_axes.set_parent(parent_armature.local_axes)
-	 major_rotation_axes = parent_armature.local_axes().get_global_copy()
-	 major_rotation_axes.set_parent(parent_armature.local_axes())
-	 parent_armature.add_to_bone_list(self)
-	 previous_orientation = local_axes.attached_copy(true)
-	 bone_height = input_bone_height
-	 update_ancestor_count()
- else:
-	 raise NullParentForBoneException()
-
-func _init(par_arma: AbstractArmature,
-		tip_heading: Vector3,
-		roll_heading: Vector3,
-		input_tag: String,
-		coordinate_type: int) -> void:
- last_rotation = Quaternion()
-
- if par_arma:
-	 tag = str(hash(self)) if not input_tag else input_tag
-
-	 tip_heading_ray = IKRay3D.new(par_arma.local_axes.origin, tip_heading)
-	 roll_heading_ray = IKRay3D.new(par_arma.local_axes.origin, roll_heading)
-	 temp_tip = tip_heading.duplicate()
-	 temp_roll = roll_heading.duplicate()
-	 temp_x = roll_heading.duplicate()
-
-	 if coordinate_type == frameType.GLOBAL:
-		 temp_tip = tip_heading_ray.heading()
-		 temp_roll = roll_heading_ray.heading()
-	 elif coordinate_type == frameType.RELATIVE:
-		 temp_tip = par_arma.local_axes.get_global_of(tip_heading_ray.heading())
-		 temp_roll = par_arma.local_axes.get_global_of(roll_heading_ray.heading())
-	 else:
-		 print("WOAH WOAH WOAH")
-
-	 temp_x = temp_tip.cross(temp_roll)
-	 temp_roll = temp_x.cross(temp_tip)
-
-	 temp_x.normalize()
-	 temp_tip.normalize()
-	 temp_roll.normalize()
-
-	 bone_height = tip_heading.mag()
-	 parent_armature = par_arma
-
-	 generate_axes(parent_armature.local_axes.origin, temp_x, temp_tip, temp_roll)
-	 local_axes.set_parent(parent_armature.local_axes)
-	 previous_orientation = local_axes.attached_copy(true)
-
-	 major_rotation_axes = parent_armature.local_axes().get_global_copy()
-	 major_rotation_axes.set_parent(parent.local_axes)
-
-	 parent_armature.add_to_bone_list(self)
-	 update_ancestor_count()
-	 update_segmented_armature()
- else:
-	 raise NullParentForBoneException()
-
-func _init() -> void:
-	last_rotation = Quaternion()
 
 
 func set_ancestor_count(count: int) -> void:
