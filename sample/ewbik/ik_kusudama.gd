@@ -48,7 +48,7 @@ func optimize_limiting_axes() -> void:
 			var half_this_to_next: Quaternion = Quaternion(this_to_next.get_axis(), this_to_next.get_angle() / 2.0)
 
 			var half_angle: Vector3 = half_this_to_next.apply_to_copy(this_c)
-			half_angle.normalize()
+			half_angle = half_angle.normalized()
 			half_angle *= this_to_next.get_angle()
 			directions.append(half_angle)
 
@@ -58,7 +58,7 @@ func optimize_limiting_axes() -> void:
 
 	new_y /= directions.size()
 	if new_y.length() != 0 and not isnan(new_y.y):
-		new_y.normalize()
+		new_y = new_y.normalized()
 	else:
 		new_y = Vector3(0, 1.0, 0)
 
