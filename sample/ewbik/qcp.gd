@@ -87,12 +87,12 @@ func calculate_rmsd_array(x: PackedVector3Array, y: PackedVector3Array) -> void:
 		calculate_rmsd(w_sum)
 
 func inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> void:
-	var x1: float
-	var x2: float
-	var y1: float
-	var y2: float
-	var z1: float
-	var z2: float
+	var x1: float = 0
+	var x2: float = 0
+	var y1: float = 0
+	var y2: float = 0
+	var z1: float = 0
+	var z2: float = 0
 	var g1: float = 0
 	var g2: float = 0
 
