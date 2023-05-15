@@ -1,5 +1,5 @@
 @tool
-extends Reference
+extends RefCounted
 
 class_name IKBasis
 
@@ -31,29 +31,25 @@ var y_ray: IKRay3D
 var z_ray: IKRay3D
 
 func _init(origin: Vector3) -> void:
-	translate = origin.duplicate()
-	x_base = origin.duplicate()
-	y_base = origin.duplicate()
-	z_base = origin.duplicate()
-	x_base.set(1, 0, 0)
-	y_base.set(0, 1, 0)
-	z_base.set(0, 0, 1)
-	var zero: Vector3 = origin.duplicate()
-	zero.set(0, 0, 0)
-	x_ray = IKRay3D.new(zero.duplicate(), x_base.duplicate())
-	y_ray = IKRay3D.new(zero.duplicate(), y_base.duplicate())
-	z_ray = IKRay3D.new(zero.duplicate(), z_base.duplicate())
+	translate = origin
+	x_base = origin
+	y_base = origin
+	z_base = origin
+	x_base = Vector3(1, 0, 0)
+	y_base = Vector3(0, 1, 0)
+	z_base = Vector3(0, 0, 1)
+	var zero: Vector3
+	x_ray = IKRay3D.new(zero, x_base)
+	y_ray = IKRay3D.new(zero, y_base)
+	z_ray = IKRay3D.new(zero, z_base)
 	refresh_precomputed()
 
 func adopt_values(input: IKBasis) -> void:
-	translate.set(input.translate)
-	rotation.set(input.rotation)
-	x_base = translate.duplicate()
-	y_base = translate.duplicate()
-	z_base = translate.duplicate()
-	x_base.set(1, 0, 0)
-	y_base.set(0, 1, 0)
-	z_base.set(0, 0, 1)
+	translate = input.translate
+	rotation = input.rotation
+	x_base = Vector3(1, 0, 0)
+	y_base = Vector3(0, 1, 0)
+	z_base = Vector3(0, 0, 1)
 	x_ray = input.x_ray.duplicate()
 	y_ray = input.y_ray.duplicate()
 	z_ray = input.z_ray.duplicate()
