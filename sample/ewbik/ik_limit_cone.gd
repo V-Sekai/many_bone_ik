@@ -31,16 +31,16 @@ var cushion_tangent_circle_radius_next_cos: float
 const BOUNDARY = 0
 const CUSHION = 1
 
-# softness of 0 means completely hard.
-# any softness higher than 0f means that
-# as the softness value is increased
-# the is more penalized for moving
-# further from the center of the channel
+## softness of 0 means completely hard.
+## any softness higher than 0f means that
+## as the softness value is increased
+## the is more penalized for moving
+## further from the center of the channel
 var softness: float = 0.0
 
-# a triangle where the [1] is th tangent_circle_next_n, and [0] and [2]
-# are the points at which the tangent circle intersects this limit_cone and the
-# next limit_cone
+## a triangle where the [1] is th tangent_circle_next_n, and [0] and [2]
+## are the points at which the tangent circle intersects this limit_cone and the
+## next limit_cone
 var first_triangle_next: Array = [Vector3(), Vector3(), Vector3()]
 var second_triangle_next: Array = [Vector3(), Vector3(), Vector3()]
 
@@ -158,20 +158,19 @@ func determine_if_in_bounds(next, input: Vector3) -> bool:
     elif next != null and next.control_point.dot(input) >= next.radius_cosine:
         return true
     else:
-#			/*
-#			* if we reach this point in the code, we are either on the path between two
-#			* limitCones, or on the path extending out from between them
-#			* but outside of their radii.
-#			* To determine which , we take the cross product of each control point with
-#			* each tangent center.
-#			* The direction of each of the resultant vectors will represent the normal of a
-#			* plane.
-#			* Each of these four planes define part of a boundary which determines if our
-#			* point is in bounds.
-#			* If the dot product of our point with the normal of any of these planes is
-#			* negative, we must be out
-#			* of bounds.
-#			*/
+        ## if we reach this point in the code, we are either on the path between two
+        ## limitCones, or on the path extending out from between them
+        ## but outside of their radii.
+        ## To determine which , we take the cross product of each control point with
+        ## each tangent center.
+        ## The direction of each of the resultant vectors will represent the normal of a
+        ## plane.
+        ## Each of these four planes define part of a boundary which determines if our
+        ## point is in bounds.
+        ## If the dot product of our point with the normal of any of these planes is
+        ## negative, we must be out
+        ## of bounds.
+
         if next == null:
             return false
         var in_tan1_rad = tangent_circle_center_next_1.dot(input) > tangent_circle_radius_next_cos
@@ -217,10 +216,10 @@ func get_on_path_sequence(next, input: Vector3) -> Variant:
         else:
             return null
 
-# Returns null if inapplicable for rectification. The original point if in
-# bounds, or the point rectified to the closest boundary on the path
-# sequence between two cones if the point is out of bounds and applicable for
-# rectification.
+## Returns null if inapplicable for rectification. The original point if in
+## bounds, or the point rectified to the closest boundary on the path
+## sequence between two cones if the point is out of bounds and applicable for
+## rectification.
 func get_on_great_tangent_triangle(next: IKLimitCone, input: Vector3) -> Variant:
     var c1xc2 = control_point.cross(next.control_point)
     var c1c2dir = input.dot(c1xc2)
