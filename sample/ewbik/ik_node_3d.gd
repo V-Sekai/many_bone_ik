@@ -76,7 +76,7 @@ func get_global_transform() -> Transform3D:
 			global_transform = local_transform
 
 		if disable_scale:
-			global_transform.basis.orthogonalize()
+			global_transform.basis = global_transform.basis.orthogonalized()
 
 		dirty &= ~TransformDirty.DIRTY_GLOBAL
 
@@ -98,7 +98,7 @@ func get_parent() -> IKNode3D:
 	return parent
 
 func to_local(p_global: Vector3) -> Vector3:
-	return get_global_transform().affine_inverse().xform(p_global)
+	return get_global_transform().affine_inverse() * p_global
 
 func to_global(p_local: Vector3) -> Vector3:
-	return get_global_transform().xform(p_local)
+	return get_global_transform() * p_local
