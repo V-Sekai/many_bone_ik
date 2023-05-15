@@ -3,9 +3,6 @@ extends Object
 
 class_name IKKusudama
 
-const TAU: float = PI * 2
-const PI: float = PI
-
 var limiting_axes: IKNode3D
 var twist_axes: IKNode3D
 var painfullness: float = 0.5
@@ -73,8 +70,8 @@ func optimize_limiting_axes() -> void:
 
 	for lc in get_limit_cones():
 		original_limiting_axes.set_to_global_of(lc.control_point, lc.control_point)
-			twist_axes.set_to_local_of(lc.control_point, lc.control_point)
-			lc.control_point.normalize()
+		twist_axes.set_to_local_of(lc.control_point, lc.control_point)
+		lc.control_point.normalize()
 	
 		update_tangent_radii()
 
@@ -225,13 +222,13 @@ func set_axial_limits(minAngle: float, inRange: float) -> void:
 func get_twist_ratio() -> float:
 	return get_twist_ratio(attached_to().local_axes())
 
-func get_twist_ratio(toGet: IKNode3D) -> float:
+func get_twist_ratio_ik_node(toGet: IKNode3D) -> float:
 	return get_twist_ratio(toGet, twistAxes)
 
 func set_twist(ratio: float) -> void:
 	set_twist(ratio, attached_to.local_axes())
 
-func set_twist(ratio: float, toSet: IKNode3D) -> void:
+func set_twist_ik_node(ratio: float, toSet: IKNode3D) -> void:
 	var alignRot: Quat = twistAxes.get_global_m_basis().inverse_rotation.xform(toSet.get_global_m_basis().rotation)
 	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0))
 	decomposition[1] = Quat.slerp(ratio, twistMinRot.rotation, twistMaxRot.rotation)
@@ -239,16 +236,18 @@ func set_twist(ratio: float, toSet: IKNode3D) -> void:
 	toSet.parent_axes().get_global_m_basis().inverse_rotation.xform(twistAxes.get_global_m_basis().rotation.xform(recomposition), toSet.local_m_basis.rotation)
 	toSet.mark_dirty()
 
-func get_twist_ratio(toGet: IKNode3D, twistAxes: IKNode3D) -> float:
-	var alignRot: Quat = twistAxes.get_global_m_basis().inverse_rotation.xform(toGet.get_global_m_basis().rotation)
-	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0))
-	var twistZ: Vector3 = decomposition[1].xform(Vector3(0, 0, 1))
-	var minToZ: Quat = Quat(twistMinVec, twistZ)
-	var minToCenter: Quat = Quat(twistMinVec, twistCenterVec)
-	var minToZAngle: float = minToZ.get_angle()
-	var minToMaxAngle: float = range
-	var flipper: float = minToCenter.get_axis().dot(minToZ.get_axis()) < 0 ? -1 : 1
-	return (minToZAngle * flipper) / minToMaxAngle
+func get_twist_ratio_ik_node_twist_axes(toGet: IKNode3D, twistAxes: IKNode3D) -> float:
+	var align_rot: Quat = twist_axes.get_global_transform().basis.inverse().xform(to_get.get_global_transform().basis).get_rotation_quat()
+	var decomposition: Array = align_rot.get_swing_twist(Vector3(0, 1, 0))
+	var twist_z: Vector3 = decomposition[1].xform(Vector3(0, 0, 1))
+	var min_to_z: Quat = Quat(twist_min_vec, twist_z)
+	var min_to_center: Quat = Quat(twist_min_vec, twist_center_vec)
+	var min_to_z_angle: float = min_to_z.get_angle()
+	var min_to_max_angle: float = range
+	var flipper: float = 1
+	if min_to_center.get_axis().dot(min_to_z.get_axis()) < 0:
+		flipper = -1
+	return (min_to_z_angle * flipper) / min_to_max_angle
 
 func snap_to_twist_limits(toSet: IKNode3D, twistAxes: IKNode3D) -> float:
 	if not axiallyConstrained:
@@ -292,16 +291,21 @@ func in_twist_limits(boneAxes: IKNode3D, limitingAxes: IKNode3D) -> bool:
 	else:
 		return true
 
-func signed_angle_difference(minAngle: float, base: float) -> float:
-	var d: float = abs(minAngle - base) % TAU
-	var r: float = d > PI ? TAU - d : d
-	var sign: float = (minAngle - base >= 0 and minAngle - base <= PI) or (minAngle - base <= -PI and minAngle - base >= -TAU) ? 1.0 : -1.0
+
+func signed_angle_difference(min_angle: float, base: float) -> float:
+	var d: float = abs(min_angle - base) % TAU
+	var r: float = d
+	if d > PI:
+		r = TAU - d
+	var sign: float = -1.0
+	if (min_angle - base >= 0 and min_angle - base <= PI) or (min_angle - base <= -PI and min_angle - base >= -TAU):
+		sign = 1.0
 	r *= sign
 	return r
+	
 
 func point_in_limits(inPoint: Vector3, inBounds: Array, boundaryMode: int) -> Vector3:
-	var point: Vector3 = inPoint.duplicate()
-	point.normalize()
+	var point: Vector3 = inPoint.normalized()
 
 	inBounds[0] = -1
 
@@ -310,8 +314,7 @@ func point_in_limits(inPoint: Vector3, inBounds: Array, boundaryMode: int) -> Ve
 
 	if limitCones.size() > 1 and orientationallyConstrained:
 		for i in range(limitCones.size() - 1):
-			var collisionPoint: Vector3 = inPoint.duplicate()
-			collisionPoint.set(0, 0, 0)
+			var collisionPoint: Vector3
 			var nextCone: IKLimitCone = limitCones[i + 1]
 			var inSegBounds: bool = limitCones[i].in_bounds_from_this_to_next(nextCone, point, collisionPoint)
 
@@ -323,7 +326,10 @@ func point_in_limits(inPoint: Vector3, inBounds: Array, boundaryMode: int) -> Ve
 					closestCollisionPoint = collisionPoint.duplicate()
 					closestCos = thisCos
 
-		return inBounds[0] == -1 ? closestCollisionPoint : inPoint
+		if inBounds[0] == -1:
+			return closestCollisionPoint
+		else:
+			return inPoint
 	elif orientationallyConstrained:
 		if point.dot(limitCones[0].get_control_point()) > limitCones[0].get_radius_cosine():
 			inBounds[0] = 1

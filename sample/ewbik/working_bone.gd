@@ -40,7 +40,6 @@ func _init(to_simulate: BoneState, chain: IKArmatureSegment, sim_transforms, for
 
 	var pre_damp: float = 1.0 - for_bone.get_stiffness()
 	var default_dampening = on_chain.get_dampening()
-	var default_dampening: float = for_armature.get_dampening()
 	var dampening: float = PI if for_bone.get_parent() == null else pre_damp * default_dampening
 	cos_half_dampen = cos(dampening / 2.0)
 
