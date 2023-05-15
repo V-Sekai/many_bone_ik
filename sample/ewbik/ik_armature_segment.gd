@@ -11,7 +11,7 @@ class_name IKArmatureSegment
 
 var shadow_skel: ShadowSkeleton
 var sim_transforms: Array
-var for_armature: AbstractArmature
+var for_armature: Skeleton3D
 var sub_segments: Array = []
 var child_segments: Array = []
 var solvable_strand_bones: Array = []
@@ -25,7 +25,7 @@ var bone_centered_target_headings: Array
 var bone_centered_tip_headings: Array
 var uniform_bone_centered_tip_headings: Array
 var weights: PackedFloat64Array
-var pinned_bones: weight_array
+var pinned_bones: Array[WorkingBone]
 var is_root_pinned: bool = false
 var has_pinned_ancestor: bool = false
 var previous_deviation: float = INF
@@ -41,7 +41,7 @@ func _init(shadow_skel: ShadowSkeleton, starting_from: BoneState, parent_segment
 	self.parent_segment = parent_segment
 
 	self.is_root_pinned = is_root_pinned
-	self.has_pinned_ancestor = parentSegment != null && (parentSegment.is_root_pinned || parentSegment.has_pinned_ancestor)
+	self.has_pinned_ancestor = parent_segment != null && (parent_segment.is_root_pinned || parent_segment.has_pinned_ancestor)
 
 	# build_segment
 	var seg_effectors: Array = []

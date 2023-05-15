@@ -37,6 +37,11 @@
 ## @author Eron Gjoni (adopted to EWB IK)
 ## @author K. S. Ernest (iFire) Lee (adopted to Godot Engine 4.0)
 
+@tool
+extends RefCounted
+
+class_name QCP
+
 var evec_prec: float = 1e-6
 var eval_prec: float = 1e-11
 
