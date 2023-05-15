@@ -1,35 +1,6 @@
 ## Implementation of the Quaternionf-Based Characteristic Polynomial algorithm
 ## for RMSD and Superposition calculations.
 ##
-## Usage:
-##
-## The input consists of 2 Vector3 arrays of equal length. The input
-## coordinates are not changed.
-##
-## var x = ...
-## var y = ...
-## var qcp = SuperPositionQCP.new()
-## qcp.set(x, y)
-##
-## or with weighting factors [0 - 1]
-##
-## var weights = ...
-## qcp.set(x, y, weights)
-##
-## For maximum efficiency, create a SuperPositionQCP object once and reuse it.
-##
-## A. Calculate rmsd only
-##
-## var rmsd = qcp.get_rmsd()
-##
-## B. Calculate a 4x4 transformation (Quaternionation and translation) matrix
-##
-## var quaternion_trans = qcp.get_transformation_matrix()
-##
-## C. Get transformated points (y superposed onto the reference x)
-##
-## var y_superposed = qcp.get_transformed_coordinates()
-##
 ## Citations:
 ##
 ## Liu P, Agrafiotis DK, & Theobald DL (2011) Reply to comment on: "Fast
