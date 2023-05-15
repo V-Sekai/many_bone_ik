@@ -158,8 +158,8 @@ func remove_pin() -> void:
 
 func enable_pin() -> void:
 	if not pin:
-		pin_axes = local_axes().get_global_copy()
-		pin_axes.set_parent(parent_armature.local_axes().get_parent_axes())
+		pin_axes = get_local_axes().get_global_copy()
+		pin_axes.set_parent(parent_armature.get_local_axes().get_parent_axes())
 		pin = create_and_return_pin_on_axes(pin_axes)
 	pin.enable()
 	free_children.clear()
@@ -172,8 +172,8 @@ func enable_pin() -> void:
 
 func enable_pin_(pin_to: Vector3) -> void:
 	if not pin:
-		pin_axes = local_axes().get_global_copy()
-		pin_axes.set_parent(parent_armature.local_axes().get_parent_axes())
+		pin_axes = get_local_axes().get_global_copy()
+		pin_axes.set_parent(parent_armature.get_local_axes().get_parent_axes())
 		pin_axes.translate_to(pin_to)
 		pin = create_and_return_pin_on_axes(pin_axes)
 	else:
@@ -277,7 +277,7 @@ func get_tip_() -> Vector3:
 func set_bone_height(in_bone_height: float) -> void:
 	bone_height = in_bone_height
 	for child in get_children():
-		child.local_axes().translate_to(get_tip_())
+		child.get_local_axes().translate_to(get_tip_())
 		child.major_rotation_axes.translate_to(get_tip_())
 
 func delete_bone() -> void:
