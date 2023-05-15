@@ -72,8 +72,6 @@ func _init(par: IKBone = null,
 		self.parent.add_free_child(self)
 		self.parent.add_child(self)
 		self.update_ancestor_count()
-	else:
-		raise NullParentForBoneException.new()
 
 
 func set_ancestor_count(count: int) -> void:
@@ -98,7 +96,7 @@ func update_ancestor_count() -> void:
 
 
 func get_parent() -> IKBone:
-    return self.parent
+	return self.parent
 
 func attach_to_parent(input_parent: IKBone) -> void:
 	input_parent.add_child(self)
@@ -295,7 +293,7 @@ func has_child(list: Array[IKBone], query: IKBone) -> void:
 	for c in get_children():
 		c.has_child(list, query)
 
-func local_axes() -> IKNode3D:
+func get_local_axes() -> IKNode3D:
 	return local_axes
 
 func get_bone_height() -> float:
