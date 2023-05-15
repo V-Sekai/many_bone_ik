@@ -22,7 +22,6 @@ protected double dampening = Math.toRadians(5d);
 private boolean abilityBiasing = false;
 
 public double IKSolverStability = 0d;
-PerformanceStats performance = new PerformanceStats();
 
 public int defaultStabilizingPassCount = 1;
 
@@ -37,11 +36,11 @@ AbstractAxes fauxParent;
  */
 public AbstractArmature(AbstractAxes inputOrigin, String name) {
 
-    this.localAxes = (AbstractAxes) inputOrigin;
-    this.tempWorkingAxes = localAxes.getGlobalCopy();
-    this.tag = name;
-    createRootBone(localAxes.y_().heading(), localAxes.z_().heading(), tag + " : rootBone", 1d,
-            AbstractBone.frameType.GLOBAL);
+	this.localAxes = (AbstractAxes) inputOrigin;
+	this.tempWorkingAxes = localAxes.getGlobalCopy();
+	this.tag = name;
+	createRootBone(localAxes.y_().heading(), localAxes.z_().heading(), tag + " : rootBone", 1d,
+			AbstractBone.frameType.GLOBAL);
 }
 
 /**
@@ -51,24 +50,24 @@ public AbstractArmature(AbstractAxes inputOrigin, String name) {
  * @return
  */
 public AbstractBone createRootBone(AbstractBone inputBone) {
-    this.rootBone = inputBone;
-    this.segmentedArmature = new SegmentedArmature(rootBone);
-    fauxParent = rootBone.localAxes().getGlobalCopy();
+	this.rootBone = inputBone;
+	this.segmentedArmature = new SegmentedArmature(rootBone);
+	fauxParent = rootBone.localAxes().getGlobalCopy();
 
-    return rootBone;
+	return rootBone;
 }
 
 private <V extends Vec3d<?>> AbstractBone createRootBone(V tipHeading, V rollHeading, String inputTag,
-        double boneHeight, AbstractBone.frameType coordinateType) {
-    initializeRootBone(this, tipHeading, rollHeading, inputTag, boneHeight, coordinateType);
-    this.segmentedArmature = new SegmentedArmature(rootBone);
-    fauxParent = rootBone.localAxes().getGlobalCopy();
+		double boneHeight, AbstractBone.frameType coordinateType) {
+	initializeRootBone(this, tipHeading, rollHeading, inputTag, boneHeight, coordinateType);
+	this.segmentedArmature = new SegmentedArmature(rootBone);
+	fauxParent = rootBone.localAxes().getGlobalCopy();
 
-    return rootBone;
+	return rootBone;
 }
 
 protected abstract void initializeRootBone(AbstractArmature armature, Vec3d<?> tipHeading, Vec3d<?> rollHeading,
-        String inputTag, double boneHeight, AbstractBone.frameType coordinateType);
+		String inputTag, double boneHeight, AbstractBone.frameType coordinateType);
 
 /**
  * The default number of iterations to run over this armature whenever
@@ -79,8 +78,8 @@ protected abstract void initializeRootBone(AbstractArmature armature, Vec3d<?> t
  * @param iter
  */
 public void setDefaultIterations(int iter) {
-    this.IKIterations = iter;
-    regenerateShadowSkeleton();
+	this.IKIterations = iter;
+	regenerateShadowSkeleton();
 }
 
 /**
@@ -97,15 +96,15 @@ public void setDefaultIterations(int iter) {
  * @param damp
  */
 public void setDefaultDampening(double damp) {
-    this.dampening = Math.min(Math.PI * 3d, Math.max(Math.abs(Double.MIN_VALUE), Math.abs(damp)));
-    regenerateShadowSkeleton();
+	this.dampening = Math.min(Math.PI * 3d, Math.max(Math.abs(Double.MIN_VALUE), Math.abs(damp)));
+	regenerateShadowSkeleton();
 }
 
 /**
  * @return the rootBone of this armature.
  */
 public AbstractBone getRootBone() {
-    return rootBone;
+	return rootBone;
 }
 
 /**
@@ -114,9 +113,9 @@ public AbstractBone getRootBone() {
  * @return all bones belonging to this armature.
  */
 public ArrayList<? extends AbstractBone> getBoneList() {
-    this.bones.clear();
-    rootBone.addDescendantsToArmature();
-    return bones;
+	this.bones.clear();
+	rootBone.addDescendantsToArmature();
+	return bones;
 }
 
 /**
@@ -129,8 +128,8 @@ public ArrayList<? extends AbstractBone> getBoneList() {
  * @param newTag
  */
 protected void updateBoneTag(AbstractBone bone, String previousTag, String newTag) {
-    tagBoneMap.remove(previousTag);
-    tagBoneMap.put(newTag, bone);
+	tagBoneMap.remove(previousTag);
+	tagBoneMap.put(newTag, bone);
 }
 
 /**
@@ -140,11 +139,11 @@ protected void updateBoneTag(AbstractBone bone, String previousTag, String newTa
  * @param bone
  */
 protected void addToBoneList(AbstractBone abstractBone) {
-    if (!bones.contains(abstractBone)) {
-        bones.add(abstractBone);
-        tagBoneMap.put(abstractBone.getTag(), abstractBone);
-        this.regenerateShadowSkeleton();
-    }
+	if (!bones.contains(abstractBone)) {
+		bones.add(abstractBone);
+		tagBoneMap.put(abstractBone.getTag(), abstractBone);
+		this.regenerateShadowSkeleton();
+	}
 }
 
 /**
@@ -152,11 +151,11 @@ protected void addToBoneList(AbstractBone abstractBone) {
  * is to know it no longer exists
  */
 protected void removeFromBoneList(AbstractBone abstractBone) {
-    if (bones.contains(abstractBone)) {
-        bones.remove(abstractBone);
-        tagBoneMap.remove(abstractBone);
-        this.regenerateShadowSkeleton();
-    }
+	if (bones.contains(abstractBone)) {
+		bones.remove(abstractBone);
+		tagBoneMap.remove(abstractBone);
+		this.regenerateShadowSkeleton();
+	}
 }
 
 /**
@@ -166,7 +165,7 @@ protected void removeFromBoneList(AbstractBone abstractBone) {
  */
 
 public AbstractBone getBoneTagged(String tag) {
-    return tagBoneMap.get(tag);
+	return tagBoneMap.get(tag);
 }
 
 /**
@@ -174,14 +173,14 @@ public AbstractBone getBoneTagged(String tag) {
  * @return the user specified tag String for this armature.
  */
 public String getTag() {
-    return this.tag;
+	return this.tag;
 }
 
 /**
  * @param A user specified tag string for this armature.
  */
 public void setTag(String newTag) {
-    this.tag = newTag;
+	this.tag = newTag;
 }
 
 /*
@@ -208,19 +207,19 @@ protected AbstractBone[] skelStateBoneList = new AbstractBone[0];
 
 ShadowSkeleton shadowSkel;
 private void _regenerateShadowSkeleton() {
-    skelState = new SkeletonState();
-    for(AbstractBone b: bones) {
-        registerBoneWithShadowSkeleton(b);
-    }
-    skelState.validate();
-    shadowSkel = new ShadowSkeleton(skelState, this);
-    skelStateBoneList = new AbstractBone[skelState.getBoneCount()];
-    for(int i=0; i<bones.size(); i++) {
-        BoneState bonestate = skelState.getBoneStateById(bones.get(i).getIdentityHash());
-        if(bonestate != null)
-            skelStateBoneList[bonestate.getIndex()] = bones.get(i);
-    }
-    dirtySkelState = false;
+	skelState = new SkeletonState();
+	for(AbstractBone b: bones) {
+		registerBoneWithShadowSkeleton(b);
+	}
+	skelState.validate();
+	shadowSkel = new ShadowSkeleton(skelState, this);
+	skelStateBoneList = new AbstractBone[skelState.getBoneCount()];
+	for(int i=0; i<bones.size(); i++) {
+		BoneState bonestate = skelState.getBoneStateById(bones.get(i).getIdentityHash());
+		if(bonestate != null)
+			skelStateBoneList[bonestate.getIndex()] = bones.get(i);
+	}
+	dirtySkelState = false;
 }
 
 
@@ -240,7 +239,7 @@ private void _regenerateShadowSkeleton() {
  * you should (but don't have to) call updateShadowSkelRateInfo() for maximum efficiency.
  */
 public void regenerateShadowSkeleton() {
-    this.regenerateShadowSkeleton(false);
+	this.regenerateShadowSkeleton(false);
 }
  /**
  * @param force by default, callign this function sets a flag notifying the solver that it needs to regenerate the shadow skeleton before
@@ -248,79 +247,79 @@ public void regenerateShadowSkeleton() {
  * (useful if you do solves in a separate thread from structure updates)
  */
 public void regenerateShadowSkeleton(boolean force) {
-    dirtySkelState = true;
-    if(force) 
-        this._regenerateShadowSkeleton();
-    dirtyRate = true;
-    /*segmentedArmature.updateSegmentedArmature();
-    boneSegmentMap.clear();
-    recursivelyUpdateBoneSegmentMapFrom(segmentedArmature);
-    SegmentedArmature.recursivelyCreateHeadingArraysFor(segmentedArmature);
-    WorkingBone[][] built = buildTraversalArrayFromGroups(segmentedArmature);
-    traversalArray = built[0];
-    returnfulArray = built[1];
-    traversalIndex = new HashMap<AbstractBone, Integer>();
-    returnfulIndex = new HashMap<AbstractBone, Integer>();
-    for (int i = 0; i < traversalArray.length; i++) {
-        traversalIndex.put(traversalArray[i].forBone, i);
-    }
-    for (int i = 0; i < returnfulArray.length; i++) {
-        returnfulIndex.put(returnfulArray[i].forBone, i);
-    }*/
+	dirtySkelState = true;
+	if(force) 
+		this._regenerateShadowSkeleton();
+	dirtyRate = true;
+	/*segmentedArmature.updateSegmentedArmature();
+	boneSegmentMap.clear();
+	recursivelyUpdateBoneSegmentMapFrom(segmentedArmature);
+	SegmentedArmature.recursivelyCreateHeadingArraysFor(segmentedArmature);
+	WorkingBone[][] built = buildTraversalArrayFromGroups(segmentedArmature);
+	traversalArray = built[0];
+	returnfulArray = built[1];
+	traversalIndex = new HashMap<AbstractBone, Integer>();
+	returnfulIndex = new HashMap<AbstractBone, Integer>();
+	for (int i = 0; i < traversalArray.length; i++) {
+		traversalIndex.put(traversalArray[i].forBone, i);
+	}
+	for (int i = 0; i < returnfulArray.length; i++) {
+		returnfulIndex.put(returnfulArray[i].forBone, i);
+	}*/
 }
 
 public void updateShadowSkelRateInfo() {
-    dirtyRate = true;
+	dirtyRate = true;
 }
 
 private void _updateShadowSkelRateInfo() {
-    BoneState[] bonestates = skelState.getBonesArray();
-    for(int i=0; i<skelStateBoneList.length; i++) {
-        AbstractBone b = skelStateBoneList[i];
-        BoneState bs = bonestates[i];
-        bs.setStiffness(b.getStiffness());
-    }
+	BoneState[] bonestates = skelState.getBonesArray();
+	for(int i=0; i<skelStateBoneList.length; i++) {
+		AbstractBone b = skelStateBoneList[i];
+		BoneState bs = bonestates[i];
+		bs.setStiffness(b.getStiffness());
+	}
 }
 
 private void registerBoneWithShadowSkeleton(AbstractBone bone) { 
-    String parBoneId = (bone.getParent() == null) ? null : bone.getParent().getIdentityHash(); 
-    Constraint constraint = bone.getConstraint();
-    String constraintId = (constraint == null) ? null : constraint.getIdentityHash(); 
-    AbstractIKPin target = bone.getIKPin();
-    String targetId = (target == null || target.getPinWeight() == 0 || target.isEnabled() == false) ? null : target.getIdentityHash();
-    skelState.addBone(
-            bone.getIdentityHash(), 
-            bone.localAxes().getIdentityHash(), 
-            parBoneId, 
-            constraintId, 
-            bone.getStiffness(),
-            targetId);
-    registerAxesWithShadowSkeleton(bone.localAxes(), bone.getParent() == null);
-    if(targetId != null) registerTargetWithShadowSkeleton(target);
-    if(constraintId != null) registerConstraintWithShadowSkeleton(constraint);
-    
+	String parBoneId = (bone.getParent() == null) ? null : bone.getParent().getIdentityHash(); 
+	Constraint constraint = bone.getConstraint();
+	String constraintId = (constraint == null) ? null : constraint.getIdentityHash(); 
+	AbstractIKPin target = bone.getIKPin();
+	String targetId = (target == null || target.getPinWeight() == 0 || target.isEnabled() == false) ? null : target.getIdentityHash();
+	skelState.addBone(
+			bone.getIdentityHash(), 
+			bone.localAxes().getIdentityHash(), 
+			parBoneId, 
+			constraintId, 
+			bone.getStiffness(),
+			targetId);
+	registerAxesWithShadowSkeleton(bone.localAxes(), bone.getParent() == null);
+	if(targetId != null) registerTargetWithShadowSkeleton(target);
+	if(constraintId != null) registerConstraintWithShadowSkeleton(constraint);
+	
 }
 private void registerTargetWithShadowSkeleton(AbstractIKPin ikPin) {
-    skelState.addTarget(ikPin.getIdentityHash(), 
-            ikPin.getAxes().getIdentityHash(), 
-            ikPin.forBone().getIdentityHash(),
-            new double[] {ikPin.getXPriority(), ikPin.getYPriority(), ikPin.getZPriority()}, 
-            ikPin.getDepthFalloff(),
-            ikPin.getPinWeight());
-    registerAxesWithShadowSkeleton(ikPin.getAxes(), true);
+	skelState.addTarget(ikPin.getIdentityHash(), 
+			ikPin.getAxes().getIdentityHash(), 
+			ikPin.forBone().getIdentityHash(),
+			new double[] {ikPin.getXPriority(), ikPin.getYPriority(), ikPin.getZPriority()}, 
+			ikPin.getDepthFalloff(),
+			ikPin.getPinWeight());
+	registerAxesWithShadowSkeleton(ikPin.getAxes(), true);
 }
 private void registerConstraintWithShadowSkeleton(Constraint constraint) {
-    AbstractAxes twistAxes = constraint.twistOrientationAxes() == null ? null : constraint.twistOrientationAxes();
-    skelState.addConstraint(
-            constraint.getIdentityHash(),
-            constraint.attachedTo().getIdentityHash(),
-            constraint.swingOrientationAxes().getIdentityHash(),
-            twistAxes == null ? null : twistAxes.getIdentityHash(),
-            constraint);
-    registerAxesWithShadowSkeleton(constraint.swingOrientationAxes(), false);
-    if(twistAxes != null)
-        registerAxesWithShadowSkeleton(twistAxes, false);
-    
+	AbstractAxes twistAxes = constraint.twistOrientationAxes() == null ? null : constraint.twistOrientationAxes();
+	skelState.addConstraint(
+			constraint.getIdentityHash(),
+			constraint.attachedTo().getIdentityHash(),
+			constraint.swingOrientationAxes().getIdentityHash(),
+			twistAxes == null ? null : twistAxes.getIdentityHash(),
+			constraint);
+	registerAxesWithShadowSkeleton(constraint.swingOrientationAxes(), false);
+	if(twistAxes != null)
+		registerAxesWithShadowSkeleton(twistAxes, false);
+	
 }
 /**
  * @param axes
@@ -330,16 +329,16 @@ private void registerConstraintWithShadowSkeleton(Constraint constraint) {
  * see the skelState.addTransform documentation for more info. 
  */
 private void registerAxesWithShadowSkeleton(AbstractAxes axes, boolean unparent) {
-    String parent_id  = unparent || axes.getParentAxes() == null ? null : axes.getParentAxes().getIdentityHash();
-    AbstractBasis basis = getSkelStateRelativeBasis(axes, unparent);
-    Vec3d<?> translate = basis.translate;
-    Rot rotation =basis.rotation;
-    skelState.addTransform(
-            axes.getIdentityHash(), 
-            new double[]{translate.getX(), translate.getY(), translate.getZ()}, 
-            rotation.toArray(), 
-            new double[]{1.0,1.0,1.0}, 
-            parent_id, axes);
+	String parent_id  = unparent || axes.getParentAxes() == null ? null : axes.getParentAxes().getIdentityHash();
+	AbstractBasis basis = getSkelStateRelativeBasis(axes, unparent);
+	Vec3d<?> translate = basis.translate;
+	Rot rotation =basis.rotation;
+	skelState.addTransform(
+			axes.getIdentityHash(), 
+			new double[]{translate.getX(), translate.getY(), translate.getZ()}, 
+			rotation.toArray(), 
+			new double[]{1.0,1.0,1.0}, 
+			parent_id, axes);
 }
 
 /**
@@ -349,68 +348,68 @@ private void registerAxesWithShadowSkeleton(AbstractAxes axes, boolean unparent)
  * @return
  */
 private AbstractBasis getSkelStateRelativeBasis(AbstractAxes axes, boolean unparent) {
-    AbstractBasis basis = axes.getLocalMBasis(); 
-    if(unparent) {
-        basis = basis.copy();
-        this.localAxes().getGlobalMBasis().setToLocalOf(axes.getGlobalMBasis(), basis);
-    }
-    return basis;
+	AbstractBasis basis = axes.getLocalMBasis(); 
+	if(unparent) {
+		basis = basis.copy();
+		this.localAxes().getGlobalMBasis().setToLocalOf(axes.getGlobalMBasis(), basis);
+	}
+	return basis;
 }
 
 private void updateskelStateTransforms() {
-    BoneState[] bonestates = skelState.getBonesArray();
-    for(int i=0; i<skelStateBoneList.length; i++) {
-        AbstractBone b = skelStateBoneList[i];
-        BoneState bs = bonestates[i];
-        updateSkelStateBone(b, bs);
-    }
+	BoneState[] bonestates = skelState.getBonesArray();
+	for(int i=0; i<skelStateBoneList.length; i++) {
+		AbstractBone b = skelStateBoneList[i];
+		BoneState bs = bonestates[i];
+		updateSkelStateBone(b, bs);
+	}
 }
 
 private void updateSkelStateBone(AbstractBone b, BoneState bs) {
-    updateSkelStateAxes(b.localAxes(), bs.getTransform(), b.getParent() == null);
-    if(b.getConstraint() != null) {
-        updateSkelStateConstraint(b.getConstraint(), bs.getConstraint());
-    }
-    TargetState ts = bs.getTarget(); 
-    if(ts != null) {
-        updateSkelStateTarget(b.getIKPin(), ts);
-    }
+	updateSkelStateAxes(b.localAxes(), bs.getTransform(), b.getParent() == null);
+	if(b.getConstraint() != null) {
+		updateSkelStateConstraint(b.getConstraint(), bs.getConstraint());
+	}
+	TargetState ts = bs.getTarget(); 
+	if(ts != null) {
+		updateSkelStateTarget(b.getIKPin(), ts);
+	}
 }
 
 private void updateSkelStateConstraint(Constraint c, ConstraintState cs) {
-    AbstractAxes swing = c.swingOrientationAxes();
-        updateSkelStateAxes(swing, cs.getSwingTransform(), false);
-    AbstractAxes twist = c.twistOrientationAxes();
-    if(twist != null)
-        updateSkelStateAxes(twist, cs.getTwistTransform(), false);
+	AbstractAxes swing = c.swingOrientationAxes();
+		updateSkelStateAxes(swing, cs.getSwingTransform(), false);
+	AbstractAxes twist = c.twistOrientationAxes();
+	if(twist != null)
+		updateSkelStateAxes(twist, cs.getTwistTransform(), false);
 }	
 
 private void updateSkelStateTarget(AbstractIKPin p, TargetState ts) {
-    updateSkelStateAxes(p.getAxes(), ts.getTransform(), true);
+	updateSkelStateAxes(p.getAxes(), ts.getTransform(), true);
 }
 
 private void updateSkelStateAxes(AbstractAxes a, TransformState ts, boolean unparent) {
-    AbstractBasis basis = getSkelStateRelativeBasis(a, unparent);
-    ts.rotation= basis.rotation.toArray(); 
-    ts.translation = basis.translate.get();
-    if(!a.forceOrthoNormality) {
-        ts.scale[0] = basis.getXHeading().mag() * ( basis.isAxisFlipped(AbstractAxes.X) ? -1d : 1d);
-        ts.scale[1] = basis.getYHeading().mag() * ( basis.isAxisFlipped(AbstractAxes.Y) ? -1d : 1d); 
-        ts.scale[2] = basis.getZHeading().mag() * ( basis.isAxisFlipped(AbstractAxes.Z) ? -1d : 1d);
-    } else {
-        ts.scale[0] = basis.isAxisFlipped(AbstractAxes.X) ? -1d : 1d;
-        ts.scale[1] = basis.isAxisFlipped(AbstractAxes.Y) ? -1d : 1d; 
-        ts.scale[2] = basis.isAxisFlipped(AbstractAxes.Z) ? -1d : 1d;
-    }
+	AbstractBasis basis = getSkelStateRelativeBasis(a, unparent);
+	ts.rotation= basis.rotation.toArray(); 
+	ts.translation = basis.translate.get();
+	if(!a.forceOrthoNormality) {
+		ts.scale[0] = basis.getXHeading().mag() * ( basis.isAxisFlipped(AbstractAxes.X) ? -1d : 1d);
+		ts.scale[1] = basis.getYHeading().mag() * ( basis.isAxisFlipped(AbstractAxes.Y) ? -1d : 1d); 
+		ts.scale[2] = basis.getZHeading().mag() * ( basis.isAxisFlipped(AbstractAxes.Z) ? -1d : 1d);
+	} else {
+		ts.scale[0] = basis.isAxisFlipped(AbstractAxes.X) ? -1d : 1d;
+		ts.scale[1] = basis.isAxisFlipped(AbstractAxes.Y) ? -1d : 1d; 
+		ts.scale[2] = basis.isAxisFlipped(AbstractAxes.Z) ? -1d : 1d;
+	}
 }
 
 private void recursivelyUpdateBoneSegmentMapFrom(SegmentedArmature startFrom) {
-    for (AbstractBone b : startFrom.segmentBoneList) {
-        boneSegmentMap.put(b, startFrom);
-    }
-    for (SegmentedArmature c : startFrom.childSegments) {
-        recursivelyUpdateBoneSegmentMapFrom(c);
-    }
+	for (AbstractBone b : startFrom.segmentBoneList) {
+		boneSegmentMap.put(b, startFrom);
+	}
+	for (SegmentedArmature c : startFrom.childSegments) {
+		recursivelyUpdateBoneSegmentMapFrom(c);
+	}
 }
 
 /**
@@ -421,14 +420,14 @@ private void recursivelyUpdateBoneSegmentMapFrom(SegmentedArmature startFrom) {
  * armature.
  */
 public void refreshArmaturePins() {
-    AbstractBone rootBone = this.getRootBone();
-    ArrayList<AbstractBone> pinnedBones = new ArrayList<>();
-    rootBone.addSelfIfPinned(pinnedBones);
+	AbstractBone rootBone = this.getRootBone();
+	ArrayList<AbstractBone> pinnedBones = new ArrayList<>();
+	rootBone.addSelfIfPinned(pinnedBones);
 
-    for (AbstractBone b : pinnedBones) {
-        b.notifyAncestorsOfPin(false);
-        regenerateShadowSkeleton();
-    }
+	for (AbstractBone b : pinnedBones) {
+		b.notifyAncestorsOfPin(false);
+		regenerateShadowSkeleton();
+	}
 }
 
 /**
@@ -443,7 +442,7 @@ public void refreshArmaturePins() {
  * @param bone
  */
 public void IKSolver(AbstractBone bone) {
-    IKSolver(bone, -1, -1, -1);
+	IKSolver(bone, -1, -1, -1);
 }
 
 /**
@@ -459,21 +458,19 @@ public void IKSolver(AbstractBone bone) {
  *                          -1 if you want to use the armature's default.
  */
 public void IKSolver(AbstractBone bone, double dampening, int iterations, int stabilizingPasses) {
-    if(dirtySkelState) 
-        _regenerateShadowSkeleton();
-    if(dirtyRate) {
-        _updateShadowSkelRateInfo();
-        shadowSkel.updateRates();
-        dirtyRate = false;
-    }
-    //if(traversalArray != null && traversalArray.length > 0) {
-    performance.startPerformanceMonitor();
-    this.updateskelStateTransforms();
-    shadowSkel.solve(dampening, iterations, stabilizingPasses, (bonestate) -> alignBoneToSolverResult(bonestate));
-    //alignBonesListToSolverResults();
-    //flatTraveseSolver(bone, dampening, iterations, stabilizingPasses);// (bone, dampening, iterations);
-    performance.solveFinished(iterations == -1 ? this.IKIterations : iterations);
-    //}
+	if(dirtySkelState) 
+		_regenerateShadowSkeleton();
+	if(dirtyRate) {
+		_updateShadowSkelRateInfo();
+		shadowSkel.updateRates();
+		dirtyRate = false;
+	}
+	//if(traversalArray != null && traversalArray.length > 0) {
+	this.updateskelStateTransforms();
+	shadowSkel.solve(dampening, iterations, stabilizingPasses, (bonestate) -> alignBoneToSolverResult(bonestate));
+	//alignBonesListToSolverResults();
+	//flatTraveseSolver(bone, dampening, iterations, stabilizingPasses);// (bone, dampening, iterations);
+	//}
 }
 
 /**
@@ -482,20 +479,20 @@ public void IKSolver(AbstractBone bone, double dampening, int iterations, int st
  * ever in local coordinates, so we only need to read back the bones in local space and mark their transforms dirty.
  */
 private void alignBonesListToSolverResults() {
-    BoneState[] bonestates = skelState.getBonesArray();
-    for(int i=0; i<bonestates.length; i++) {
-        alignBoneToSolverResult(bonestates[i]);
-    }
+	BoneState[] bonestates = skelState.getBonesArray();
+	for(int i=0; i<bonestates.length; i++) {
+		alignBoneToSolverResult(bonestates[i]);
+	}
 }
 
 private void alignBoneToSolverResult(BoneState bs) {
-    int bsi = bs.getIndex();
-    AbstractBone currBone = skelStateBoneList[bsi];
-    AbstractAxes currBoneAx = currBone.localAxes();
-    TransformState ts = bs.getTransform();
-    currBoneAx.getLocalMBasis().set(ts.translation, ts.rotation, ts.scale);
-    currBoneAx._exclusiveMarkDirty();
-    currBone.IKUpdateNotification();
+	int bsi = bs.getIndex();
+	AbstractBone currBone = skelStateBoneList[bsi];
+	AbstractAxes currBoneAx = currBone.localAxes();
+	TransformState ts = bs.getTransform();
+	currBoneAx.getLocalMBasis().set(ts.translation, ts.rotation, ts.scale);
+	currBoneAx._exclusiveMarkDirty();
+	currBone.IKUpdateNotification();
 }
 
 /**
@@ -528,7 +525,7 @@ private void alignBoneToSolverResult(BoneState bs) {
  * @param passCount
  */
 public void setDefaultStabilizingPassCount(int passCount) {
-    defaultStabilizingPassCount = passCount;
+	defaultStabilizingPassCount = passCount;
 }
 
 /**
@@ -536,21 +533,21 @@ public void setDefaultStabilizingPassCount(int passCount) {
  * @return a reference to the Axes serving as this Armature's coordinate system.
  */
 public AbstractAxes localAxes() {
-    return this.localAxes;
+	return this.localAxes;
 }
 
 private void iterativelyNotifyBonesOfCompletedIKSolution(int startFrom, int endOn) { 
-    for(int i=startFrom; i>=endOn; i--) {
-        traversalArray[i].forBone.IKUpdateNotification();
-    }
+	for(int i=startFrom; i>=endOn; i--) {
+		traversalArray[i].forBone.IKUpdateNotification();
+	}
 }
 private void recursivelyNotifyBonesOfCompletedIKSolution(SegmentedArmature startFrom) {
-    for (AbstractBone b : startFrom.segmentBoneList) {
-        b.IKUpdateNotification();
-    }
-    for (SegmentedArmature s : startFrom.childSegments) {
-        recursivelyNotifyBonesOfCompletedIKSolution(s);
-    }
+	for (AbstractBone b : startFrom.segmentBoneList) {
+		b.IKUpdateNotification();
+	}
+	for (SegmentedArmature s : startFrom.childSegments) {
+		recursivelyNotifyBonesOfCompletedIKSolution(s);
+	}
 }
 
 /**
@@ -560,37 +557,37 @@ private void recursivelyNotifyBonesOfCompletedIKSolution(SegmentedArmature start
  */
 
 public void flatTraveseSolver(AbstractBone startFrom, double dampening, int iterations, int stabilizationPasses) {
-    int endOnIndex = traversalArray.length - 1;
-    //int returnfullEndOnIndex = returnfulArray.length > 0 ? returnfulIndex.get(startFrom);  
-    int tipIndex = 0;
-    SegmentedArmature forSegment = segmentedArmature;
-    iterations = iterations == -1 ? IKIterations : iterations;
-    double totalIterations = iterations;
-    stabilizationPasses = stabilizationPasses == -1 ? this.defaultStabilizingPassCount : stabilizationPasses;
-    if (startFrom != null) {
-        forSegment = boneSegmentMap.get(startFrom);
-        if(forSegment != null) {
-            AbstractBone endOnBone = forSegment.segmentRoot;
-            endOnIndex = traversalIndex.get(endOnBone);
-        }
-    }
+	int endOnIndex = traversalArray.length - 1;
+	//int returnfullEndOnIndex = returnfulArray.length > 0 ? returnfulIndex.get(startFrom);  
+	int tipIndex = 0;
+	SegmentedArmature forSegment = segmentedArmature;
+	iterations = iterations == -1 ? IKIterations : iterations;
+	double totalIterations = iterations;
+	stabilizationPasses = stabilizationPasses == -1 ? this.defaultStabilizingPassCount : stabilizationPasses;
+	if (startFrom != null) {
+		forSegment = boneSegmentMap.get(startFrom);
+		if(forSegment != null) {
+			AbstractBone endOnBone = forSegment.segmentRoot;
+			endOnIndex = traversalIndex.get(endOnBone);
+		}
+	}
 
-    iterativelyAlignSimAxesToBones(traversalArray, endOnIndex);
+	iterativelyAlignSimAxesToBones(traversalArray, endOnIndex);
 
-    for (int i = 0; i < iterations; i++) {
-        for (int j = 0; j <= endOnIndex; j++) {
-            traversalArray[j].fastUpdateOptimalRotationToPinnedDescendants(dampening,
-                    j == endOnIndex && endOnIndex == traversalArray.length - 1);
-        }
-        /*if(i < totalIterations - 1) {
-            for (int j = 0; j <= endOnIndex; j++) {
-                traversalArray[j].pullBackTowardAllowableRegion(i, iterations);
-            }
-        }*/
-    }
+	for (int i = 0; i < iterations; i++) {
+		for (int j = 0; j <= endOnIndex; j++) {
+			traversalArray[j].fastUpdateOptimalRotationToPinnedDescendants(dampening,
+					j == endOnIndex && endOnIndex == traversalArray.length - 1);
+		}
+		/*if(i < totalIterations - 1) {
+			for (int j = 0; j <= endOnIndex; j++) {
+				traversalArray[j].pullBackTowardAllowableRegion(i, iterations);
+			}
+		}*/
+	}
 
-    iterativelyAlignBonesToSimAxesFrom(traversalArray, endOnIndex);
-    iterativelyNotifyBonesOfCompletedIKSolution(tipIndex, endOnIndex);
+	iterativelyAlignBonesToSimAxesFrom(traversalArray, endOnIndex);
+	iterativelyNotifyBonesOfCompletedIKSolution(tipIndex, endOnIndex);
 }
 
 
@@ -598,64 +595,64 @@ public void flatTraveseSolver(AbstractBone startFrom, double dampening, int iter
  * the 0th element is for trying to reach targets, the 1st element is for trying to reach comfort.
  */
 private WorkingBone[][] buildTraversalArrayFromGroups(SegmentedArmature startFrom) {
-    ArrayList<WorkingBone> boneList = new ArrayList<WorkingBone>();
-    ArrayList<WorkingBone> returnfulList = new ArrayList<WorkingBone>();
-    buildTraversalArrayFromSegments(startFrom, boneList, returnfulList);
-    WorkingBone[] boneListResult = new WorkingBone[boneList.size()];
-    WorkingBone[] returnfulResult = new WorkingBone[returnfulList.size()];
-    WorkingBone[][] result = {boneList.toArray(boneListResult), returnfulList.toArray(returnfulResult)};
-    return result;
+	ArrayList<WorkingBone> boneList = new ArrayList<WorkingBone>();
+	ArrayList<WorkingBone> returnfulList = new ArrayList<WorkingBone>();
+	buildTraversalArrayFromSegments(startFrom, boneList, returnfulList);
+	WorkingBone[] boneListResult = new WorkingBone[boneList.size()];
+	WorkingBone[] returnfulResult = new WorkingBone[returnfulList.size()];
+	WorkingBone[][] result = {boneList.toArray(boneListResult), returnfulList.toArray(returnfulResult)};
+	return result;
 }
 
 private void buildTraversalArrayFromSegments(SegmentedArmature startFrom, ArrayList<WorkingBone> boneList, ArrayList<WorkingBone> returnfulList) {
-    for (SegmentedArmature a : startFrom.pinnedDescendants) {
-        for (SegmentedArmature c : a.childSegments) {
-            buildTraversalArrayFromSegments(c, boneList, returnfulList);
-        }
-    }
-    buildTraversalArrayFromChains(startFrom, boneList, returnfulList);
+	for (SegmentedArmature a : startFrom.pinnedDescendants) {
+		for (SegmentedArmature c : a.childSegments) {
+			buildTraversalArrayFromSegments(c, boneList, returnfulList);
+		}
+	}
+	buildTraversalArrayFromChains(startFrom, boneList, returnfulList);
 }
 
 private void buildTraversalArrayFromChains(SegmentedArmature chain, ArrayList<WorkingBone> boneList, ArrayList<WorkingBone> returnfulList) {
-    if ((chain.childSegments == null || chain.childSegments.size() == 0) && !chain.isTipPinned()) {
-        return;
-    } else if (!chain.isTipPinned()) {
-        for (SegmentedArmature c : chain.childSegments) {
-            buildTraversalArrayFromChains(c, boneList, returnfulList);
-        }
-    }
-    if(chain.isTipPinned() || chain.pinnedDescendants.size() > 0)
-        pushSegmentBonesToTraversalArray(chain, boneList, returnfulList);
+	if ((chain.childSegments == null || chain.childSegments.size() == 0) && !chain.isTipPinned()) {
+		return;
+	} else if (!chain.isTipPinned()) {
+		for (SegmentedArmature c : chain.childSegments) {
+			buildTraversalArrayFromChains(c, boneList, returnfulList);
+		}
+	}
+	if(chain.isTipPinned() || chain.pinnedDescendants.size() > 0)
+		pushSegmentBonesToTraversalArray(chain, boneList, returnfulList);
 }
 
 private void pushSegmentBonesToTraversalArray(SegmentedArmature chain, ArrayList<WorkingBone> boneList, ArrayList<WorkingBone> returnfulList) {
-    AbstractBone startFrom = debug && lastDebugBone != null ? lastDebugBone : chain.segmentTip;
-    AbstractBone stopAfter = chain.segmentRoot;
+	AbstractBone startFrom = debug && lastDebugBone != null ? lastDebugBone : chain.segmentTip;
+	AbstractBone stopAfter = chain.segmentRoot;
 
-    AbstractBone currentBone = startFrom;
-    while (currentBone != null) {
-        boneList.add(chain.simulatedBones.get(currentBone));
-        if(currentBone.getConstraint() != null)
-            if(currentBone.getConstraint().getPainfulness() > 0) {
-                returnfulList.add(chain.simulatedBones.get(currentBone));
-            }
-        if (currentBone == stopAfter)
-            currentBone = null;
-        else
-            currentBone = currentBone.getParent();
-    }
+	AbstractBone currentBone = startFrom;
+	while (currentBone != null) {
+		boneList.add(chain.simulatedBones.get(currentBone));
+		if(currentBone.getConstraint() != null)
+			if(currentBone.getConstraint().getPainfulness() > 0) {
+				returnfulList.add(chain.simulatedBones.get(currentBone));
+			}
+		if (currentBone == stopAfter)
+			currentBone = null;
+		else
+			currentBone = currentBone.getParent();
+	}
 }
 
 public void groupedRecursiveSegmentSolver(SegmentedArmature startFrom, double dampening, int stabilizationPasses,
-        int iteration, double totalIterations) {
-    recursiveSegmentSolver(startFrom, dampening, stabilizationPasses, iteration, totalIterations);
-    for (SegmentedArmature a : startFrom.pinnedDescendants) {
-        for (SegmentedArmature c : a.childSegments) {
-            // alignSegmentTipOrientationsFor(startFrom, dampening);
-            groupedRecursiveSegmentSolver(c, dampening, stabilizationPasses, iteration, totalIterations);
-        }
-    }
-    // alignSegmentTipOrientationsFor(startFrom, dampening);
+		int iteration, double totalIterations) {
+	recursiveSegmentSolver(startFrom, dampening, stabilizationPasses, iteration, totalIterations);
+	for (SegmentedArmature a : startFrom.pinnedDescendants) {
+		for (SegmentedArmature c : a.childSegments) {
+			// alignSegmentTipOrientationsFor(startFrom, dampening);
+			groupedRecursiveSegmentSolver(c, dampening, stabilizationPasses, iteration, totalIterations);
+		}
+	}
+	// alignSegmentTipOrientationsFor(startFrom, dampening);
 }
 
 /**
@@ -665,22 +662,22 @@ public void groupedRecursiveSegmentSolver(SegmentedArmature startFrom, double da
  * @param b bone to start from
  */
 public void iterativelyAlignBonesToSimAxesFrom(WorkingBone[] bonelist, int from) {
-    // SegmentedArmature chain = b.parentArmature.boneSegmentMap.get(b);
-    // //getChainFor(b);
+	// SegmentedArmature chain = b.parentArmature.boneSegmentMap.get(b);
+	// //getChainFor(b);
 
-    for (int i = from; i >= 0; i--) {
-        WorkingBone sb = bonelist[i];
-        AbstractAxes simulatedLocalAxes = sb.simLocalAxes;
-        AbstractBone b = sb.forBone;
-        /*if (b.parent != null) {
-            // TODO: test robustness / efficiency of avoiding global update
-            b.localAxes().localMBasis.rotateTo(simulatedLocalAxes.localMBasis.rotation);
-            b.localAxes().markDirty();
-            b.localAxes().updateGlobal();
-        } else {*/
-            b.localAxes().alignLocalsTo(simulatedLocalAxes);
-        //}
-    }
+	for (int i = from; i >= 0; i--) {
+		WorkingBone sb = bonelist[i];
+		AbstractAxes simulatedLocalAxes = sb.simLocalAxes;
+		AbstractBone b = sb.forBone;
+		/*if (b.parent != null) {
+			// TODO: test robustness / efficiency of avoiding global update
+			b.localAxes().localMBasis.rotateTo(simulatedLocalAxes.localMBasis.rotation);
+			b.localAxes().markDirty();
+			b.localAxes().updateGlobal();
+		} else {*/
+			b.localAxes().alignLocalsTo(simulatedLocalAxes);
+		//}
+	}
 }
 
 /**
@@ -689,20 +686,20 @@ public void iterativelyAlignBonesToSimAxesFrom(WorkingBone[] bonelist, int from)
  **/
 public void iterativelyAlignSimAxesToBones(WorkingBone[] bonelist, int from) {
 
-    // branching outside of loop in hopes of tiny performance gains
+	// branching outside of loop in hopes of tiny performance gains
 
-    for (int i = from; i >= 0; i--) {
-        WorkingBone sb = bonelist[i];
-        /*
-         * if (!sb.onChain.isBasePinned()) { sbAxes.alignGlobalsTo(b.localAxes());
-         * sbAxes.markDirty(); sbAxes.updateGlobal();
-         * cAxes.alignGlobalsTo(b.getMajorRotationAxes()); cAxes.markDirty();
-         * cAxes.updateGlobal(); } else {&=
-         */
-        sb.simLocalAxes.alignLocalsTo(sb.forBone.localAxes());
-        sb.simConstraintAxes.alignLocalsTo(sb.forBone.getMajorRotationAxes());
-        // }
-    }
+	for (int i = from; i >= 0; i--) {
+		WorkingBone sb = bonelist[i];
+		/*
+		 * if (!sb.onChain.isBasePinned()) { sbAxes.alignGlobalsTo(b.localAxes());
+		 * sbAxes.markDirty(); sbAxes.updateGlobal();
+		 * cAxes.alignGlobalsTo(b.getMajorRotationAxes()); cAxes.markDirty();
+		 * cAxes.updateGlobal(); } else {&=
+		 */
+		sb.simLocalAxes.alignLocalsTo(sb.forBone.localAxes());
+		sb.simConstraintAxes.alignLocalsTo(sb.forBone.getMajorRotationAxes());
+		// }
+	}
 
 }
 
@@ -713,64 +710,64 @@ public void iterativelyAlignSimAxesToBones(WorkingBone[] bonelist, int from) {
  * @param armature
  */
 public void recursiveSegmentSolver(SegmentedArmature armature, double dampening, int stabilizationPasses,
-        int iteration, double totalIterations) {
-    if (armature.childSegments == null && !armature.isTipPinned()) {
-        return;
-    } else if (!armature.isTipPinned()) {
-        for (SegmentedArmature c : armature.childSegments) {
-            recursiveSegmentSolver(c, dampening, stabilizationPasses, iteration, totalIterations);
-            // c.setProcessed(true);
-        }
-    }
-    QCPSolver(armature, dampening, false, stabilizationPasses, iteration, totalIterations);
+		int iteration, double totalIterations) {
+	if (armature.childSegments == null && !armature.isTipPinned()) {
+		return;
+	} else if (!armature.isTipPinned()) {
+		for (SegmentedArmature c : armature.childSegments) {
+			recursiveSegmentSolver(c, dampening, stabilizationPasses, iteration, totalIterations);
+			// c.setProcessed(true);
+		}
+	}
+	QCPSolver(armature, dampening, false, stabilizationPasses, iteration, totalIterations);
 }
 
 boolean debug = true;
 AbstractBone lastDebugBone = null;
 
 private void QCPSolver(SegmentedArmature chain, double dampening, boolean inverseWeighting, int stabilizationPasses,
-        int iteration, double totalIterations) {
+		int iteration, double totalIterations) {
 
-    debug = false;
+	debug = false;
 
-    // lastDebugBone = null;
-    AbstractBone startFrom = debug && lastDebugBone != null ? lastDebugBone : chain.segmentTip;
-    AbstractBone stopAfter = chain.segmentRoot;
+	// lastDebugBone = null;
+	AbstractBone startFrom = debug && lastDebugBone != null ? lastDebugBone : chain.segmentTip;
+	AbstractBone stopAfter = chain.segmentRoot;
 
-    AbstractBone currentBone = startFrom;
-    if (debug && chain.simulatedBones.size() < 2) {
+	AbstractBone currentBone = startFrom;
+	if (debug && chain.simulatedBones.size() < 2) {
 
-    } else {
-        /*
-         * if(chain.isTipPinned() && chain.segmentTip.getIKPin().getDepthFalloff() ==
-         * 0d) alignSegmentTipOrientationsFor(chain, dampening);
-         */
-        // System.out.print("---------");
-        while (currentBone != null) {
-            if (!currentBone.getIKOrientationLock()) {
-                chain.updateOptimalRotationToPinnedDescendants(currentBone, dampening, false, stabilizationPasses,
-                        iteration, totalIterations);
-            }
-            if (currentBone == stopAfter)
-                currentBone = null;
-            else
-                currentBone = currentBone.getParent();
+	} else {
+		/*
+		 * if(chain.isTipPinned() && chain.segmentTip.getIKPin().getDepthFalloff() ==
+		 * 0d) alignSegmentTipOrientationsFor(chain, dampening);
+		 */
+		// System.out.print("---------");
+		while (currentBone != null) {
+			if (!currentBone.getIKOrientationLock()) {
+				chain.updateOptimalRotationToPinnedDescendants(currentBone, dampening, false, stabilizationPasses,
+						iteration, totalIterations);
+			}
+			if (currentBone == stopAfter)
+				currentBone = null;
+			else
+				currentBone = currentBone.getParent();
 
-            if (debug) {
-                lastDebugBone = currentBone;
-                break;
-            }
-        }
+			if (debug) {
+				lastDebugBone = currentBone;
+				break;
+			}
+		}
 
-    }
+	}
 }
 
 void rootwardlyUpdateFalloffCacheFrom(AbstractBone forBone) {
-    SegmentedArmature current = boneSegmentMap.get(forBone);
-    while (current != null) {
-        current.createHeadingArrays();
-        current = current.getParentSegment();
-    }
+	SegmentedArmature current = boneSegmentMap.get(forBone);
+	while (current != null) {
+		current.createHeadingArrays();
+		current = current.getParentSegment();
+	}
 }
 
 // debug code -- use to set a minimum distance an effector must move
@@ -784,11 +781,11 @@ SGVec_3d lastTargetPos = new SGVec_3d();
  * @param enabled
  */
 public void setAbilityBiasing(boolean enabled) {
-    abilityBiasing = enabled;
+	abilityBiasing = enabled;
 }
 
 public boolean getAbilityBiasing() {
-    return abilityBiasing;
+	return abilityBiasing;
 }
 
 /**
@@ -800,80 +797,80 @@ public boolean getAbilityBiasing() {
  * @return
  */
 public Rot getRotationBetween(AbstractAxes a, AbstractAxes b) {
-    return new Rot(a.x_().heading(), a.y_().heading(), b.x_().heading(), b.y_().heading());
+	return new Rot(a.x_().heading(), a.y_().heading(), b.x_().heading(), b.y_().heading());
 }
 
 public int getDefaultIterations() {
-    return IKIterations;
+	return IKIterations;
 }
 
 public double getDampening() {
-    return dampening;
+	return dampening;
 }
 
 @Override
 public void makeSaveable(SaveManager saveManager) {
-    saveManager.addToSaveState(this);
-    if (this.localAxes().getParentAxes() != null)
-        this.localAxes().getParentAxes().makeSaveable(saveManager);
-    else
-        this.localAxes().makeSaveable(saveManager);
-    this.rootBone.makeSaveable(saveManager);
+	saveManager.addToSaveState(this);
+	if (this.localAxes().getParentAxes() != null)
+		this.localAxes().getParentAxes().makeSaveable(saveManager);
+	else
+		this.localAxes().makeSaveable(saveManager);
+	this.rootBone.makeSaveable(saveManager);
 }
 
 @Override
 public JSONObject getSaveJSON(SaveManager saveManager) {
-    JSONObject saveJSON = new JSONObject();
-    saveJSON.setString("identityHash", this.getIdentityHash());
-    saveJSON.setString("localAxes", localAxes().getIdentityHash());
-    saveJSON.setString("rootBone", getRootBone().getIdentityHash());
-    saveJSON.setInt("defaultIterations", getDefaultIterations());
-    saveJSON.setDouble("dampening", this.getDampening());
-    // saveJSON.setBoolean("inverseWeighted", this.isInverseWeighted());
-    saveJSON.setString("tag", this.getTag());
-    return saveJSON;
+	JSONObject saveJSON = new JSONObject();
+	saveJSON.setString("identityHash", this.getIdentityHash());
+	saveJSON.setString("localAxes", localAxes().getIdentityHash());
+	saveJSON.setString("rootBone", getRootBone().getIdentityHash());
+	saveJSON.setInt("defaultIterations", getDefaultIterations());
+	saveJSON.setDouble("dampening", this.getDampening());
+	// saveJSON.setBoolean("inverseWeighted", this.isInverseWeighted());
+	saveJSON.setString("tag", this.getTag());
+	return saveJSON;
 }
 
 public void loadFromJSONObject(JSONObject j, LoadManager l) {
-    try {
-        this.localAxes = l.getObjectFor(AbstractAxes.class, j, "localAxes");
-        this.rootBone = l.getObjectFor(AbstractBone.class, j, "rootBone");
-        if (j.hasKey("defaultIterations"))
-            this.IKIterations = j.getInt("defaultIterations");
-        if (j.hasKey("dampening"))
-            this.dampening = j.getDouble("dampening");
-        this.tag = j.getString("tag");
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+	try {
+		this.localAxes = l.getObjectFor(AbstractAxes.class, j, "localAxes");
+		this.rootBone = l.getObjectFor(AbstractBone.class, j, "rootBone");
+		if (j.hasKey("defaultIterations"))
+			this.IKIterations = j.getInt("defaultIterations");
+		if (j.hasKey("dampening"))
+			this.dampening = j.getDouble("dampening");
+		this.tag = j.getString("tag");
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
 }
 
 @Override
 public void notifyOfSaveIntent(SaveManager saveManager) {
-    this.makeSaveable(saveManager);
+	this.makeSaveable(saveManager);
 }
 
 @Override
 public void notifyOfSaveCompletion(SaveManager saveManager) {
-    // TODO Auto-generated method stub
+	// TODO Auto-generated method stub
 
 }
 
 @Override
 public void notifyOfLoadCompletion() {
-    this.createRootBone(rootBone);
-    refreshArmaturePins();
-    regenerateShadowSkeleton();
+	this.createRootBone(rootBone);
+	refreshArmaturePins();
+	regenerateShadowSkeleton();
 }
 
 @Override
 public boolean isLoading() {
-    // TODO Auto-generated method stub
-    return false;
+	// TODO Auto-generated method stub
+	return false;
 }
 
 @Override
 public void setLoading(boolean loading) {
-    // TODO Auto-generated method stub
+	// TODO Auto-generated method stub
 
 }
