@@ -1,5 +1,3 @@
-
-
 #ifndef QCP_H
 #define QCP_H
 
