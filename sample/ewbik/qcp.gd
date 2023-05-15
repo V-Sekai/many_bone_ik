@@ -1,82 +1,70 @@
-# /**
-#  * Implementation of the Quaternionf-Based Characteristic Polynomial algorithm
-#  * for RMSD and Superposition calculations.
-#  * <p>
-#  * Usage:
-#  * <p>
-#  * The input consists of 2 Vector3 arrays of equal length. The input
-#  * coordinates are not changed.
-#  *
-#  * <pre>
-#  *    Vector3[] x = ...
-#  *    Vector3[] y = ...
-#  *    SuperPositionQCP qcp = new SuperPositionQCP();
-#  *    qcp.set(x, y);
-#  * </pre>
-#  * <p>
-#  * or with weighting factors [0 - 1]]
-#  *
-#  * <pre>
-#  *    double[] weights = ...
-#  *    qcp.set(x, y, weights);
-#  * </pre>
-#  * <p>
-#  * For maximum efficiency, create a SuperPositionQCP object once and reuse it.
-#  * <p>
-#  * A. Calculate rmsd only
-#  *
-#  * <pre>
-#  * double rmsd = qcp.getRmsd();
-#  * </pre>
-#  * <p>
-#  * B. Calculate a 4x4 transformation (Quaternionation and translation) matrix
-#  *
-#  * <pre>
-#  * Matrix4f Quaterniontrans = qcp.getTransformationMatrix();
-#  * </pre>
-#  * <p>
-#  * C. Get transformated points (y superposed onto the reference x)
-#  *
-#  * <pre>
-#  * Vector3[] ySuperposed = qcp.getTransformedCoordinates();
-#  * </pre>
-#  * <p>
-#  * Citations:
-#  * <p>
-#  * Liu P, Agrafiotis DK, & Theobald DL (2011) Reply to comment on: "Fast
-#  * determination of the optimal Quaternionation matrix for macromolecular
-#  * superpositions." Journal of Computational Chemistry 32(1):185-186.
-#  * [http://dx.doi.org/10.1002/jcc.21606]
-#  * <p>
-#  * Liu P, Agrafiotis DK, & Theobald DL (2010) "Fast determination of the optimal
-#  * Quaternionation matrix for macromolecular superpositions." Journal of Computational
-#  * Chemistry 31(7):1561-1563. [http://dx.doi.org/10.1002/jcc.21439]
-#  * <p>
-#  * Douglas L Theobald (2005) "Rapid calculation of RMSDs using a
-#  * quaternion-based characteristic polynomial." Acta Crystallogr A
-#  * 61(4):478-480. [http://dx.doi.org/10.1107/S0108767305015266 ]
-#  * <p>
-#  * This is an adoption of the original C code QCPQuaternion 1.4 (2012, October 10) to
-#  * Java. The original C source code is available from
-#  * http://theobald.brandeis.edu/qcp/ and was developed by
-#  * <p>
-#  * Douglas L. Theobald Department of Biochemistry MS 009 Brandeis University 415
-#  * South St Waltham, MA 02453 USA
-#  * <p>
-#  * dtheobald@brandeis.edu
-#  * <p>
-#  * Pu Liu Johnson & Johnson Pharmaceutical Research and Development, L.L.C. 665
-#  * Stockton Drive Exton, PA 19341 USA
-#  * <p>
-#  * pliu24@its.jnj.com
-#  * <p>
-#  *
-#  * @author Douglas L. Theobald (original C code)
-#  * @author Pu Liu (original C code)
-#  * @author Peter Rose (adopted to Java)
-#  * @author Aleix Lafita (adopted to Java)
-#  * @author Eron Gjoni (adopted to EWB IK)
-#  */
+## Implementation of the Quaternionf-Based Characteristic Polynomial algorithm
+## for RMSD and Superposition calculations.
+##
+## Usage:
+##
+## The input consists of 2 Vector3 arrays of equal length. The input
+## coordinates are not changed.
+##
+## var x = ...
+## var y = ...
+## var qcp = SuperPositionQCP.new()
+## qcp.set(x, y)
+##
+## or with weighting factors [0 - 1]
+##
+## var weights = ...
+## qcp.set(x, y, weights)
+##
+## For maximum efficiency, create a SuperPositionQCP object once and reuse it.
+##
+## A. Calculate rmsd only
+##
+## var rmsd = qcp.get_rmsd()
+##
+## B. Calculate a 4x4 transformation (Quaternionation and translation) matrix
+##
+## var quaternion_trans = qcp.get_transformation_matrix()
+##
+## C. Get transformated points (y superposed onto the reference x)
+##
+## var y_superposed = qcp.get_transformed_coordinates()
+##
+## Citations:
+##
+## Liu P, Agrafiotis DK, & Theobald DL (2011) Reply to comment on: "Fast
+## determination of the optimal Quaternionation matrix for macromolecular
+## superpositions." Journal of Computational Chemistry 32(1):185-186.
+## [http://dx.doi.org/10.1002/jcc.21606]
+##
+## Liu P, Agrafiotis DK, & Theobald DL (2010) "Fast determination of the optimal
+## Quaternionation matrix for macromolecular superpositions." Journal of Computational
+## Chemistry 31(7):1561-1563. [http://dx.doi.org/10.1002/jcc.21439]
+##
+## Douglas L Theobald (2005) "Rapid calculation of RMSDs using a
+## quaternion-based characteristic polynomial." Acta Crystallogr A
+## 61(4):478-480. [http://dx.doi.org/10.1107/S0108767305015266 ]
+##
+## This is an adoption of the original C code QCPQuaternion 1.4 (2012, October 10) to
+## Java. The original C source code is available from
+## http://theobald.brandeis.edu/qcp/ and was developed by
+##
+## Douglas L. Theobald Department of Biochemistry MS 009 Brandeis University 415
+## South St Waltham, MA 02453 USA
+##
+## dtheobald@brandeis.edu
+##
+## Pu Liu Johnson & Johnson Pharmaceutical Research and Development, L.L.C. 665
+## Stockton Drive Exton, PA 19341 USA
+##
+## pliu24@its.jnj.com
+##
+## @author Douglas L. Theobald (original C code)
+## @author Pu Liu (original C code)
+## @author Peter Rose (adopted to Java)
+## @author Aleix Lafita (adopted to Java)
+## @author Eron Gjoni (adopted to EWB IK)
+## @author K. S. Ernest (iFire) Lee (adopted to Godot Engine 4.0)
 
 var evec_prec: float = 1e-6
 var eval_prec: float = 1e-11
@@ -117,7 +105,7 @@ var inner_product_calculated: bool = false
 func _init(self, p_evec_prec: float, p_eval_prec: float):
     self.evec_prec = p_evec_prec
     self.eval_prec = p_eval_prec
-    
+
 func calculate_rmsd(x: PackedVector3Array, y: PackedVector3Array) -> void:
     if x.size() == 1:
         rmsd = x[0].distance_to(y[0])
