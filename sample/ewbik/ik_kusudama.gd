@@ -26,102 +26,99 @@ var twist_min_rot: Quat = Quat()
 var twist_max_rot: Quat = Quat()
 var twist_center_rot: Quat = Quat()
 
-func _init() -> void:
-    pass
-
 func _init(for_bone: IKBone) -> void:
-    attached_to = for_bone
-    limiting_axes = for_bone.get_major_rotation_axes()
-    twist_axes = limiting_axes.attached_copy(false)
-    attached_to.add_constraint(self)
-    enable()
+	attached_to = for_bone
+	limiting_axes = for_bone.get_major_rotation_axes()
+	twist_axes = limiting_axes.attached_copy(false)
+	attached_to.add_constraint(self)
+	enable()
 
 func constraint_update_notification() -> void:
-    update_tangent_radii()
-    update_rotational_freedom()
+	update_tangent_radii()
+	update_rotational_freedom()
 
 func optimize_limiting_axes() -> void:
-    var original_limiting_axes: IKNode3D = twist_axes.get_global_copy()
+	var original_limiting_axes: IKNode3D = twist_axes.get_global_copy()
 
-    var directions: Array = []
-    if get_limit_cones().size() == 1:
-        directions.append(limit_cones[0].get_control_point().copy())
-    else:
-        for i in range(get_limit_cones().size() - 1):
-            var this_c: Vector3 = get_limit_cones()[i].get_control_point().copy()
-            var next_c: Vector3 = get_limit_cones()[i + 1].get_control_point().copy()
-            var this_to_next: Quat = Quat(this_c, next_c)
-            var half_this_to_next: Quat = Quat(this_to_next.get_axis(), this_to_next.get_angle() / 2.0)
+	var directions: Array = []
+	if get_limit_cones().size() == 1:
+		directions.append(limit_cones[0].get_control_point().copy())
+	else:
+		for i in range(get_limit_cones().size() - 1):
+			var this_c: Vector3 = get_limit_cones()[i].get_control_point().copy()
+			var next_c: Vector3 = get_limit_cones()[i + 1].get_control_point().copy()
+			var this_to_next: Quat = Quat(this_c, next_c)
+			var half_this_to_next: Quat = Quat(this_to_next.get_axis(), this_to_next.get_angle() / 2.0)
 
-            var half_angle: Vector3 = half_this_to_next.apply_to_copy(this_c)
-            half_angle.normalize()
-            half_angle *= this_to_next.get_angle()
-            directions.append(half_angle)
+			var half_angle: Vector3 = half_this_to_next.apply_to_copy(this_c)
+			half_angle.normalize()
+			half_angle *= this_to_next.get_angle()
+			directions.append(half_angle)
 
-    var new_y: Vector3 = Vector3()
-    for dv in directions:
-        new_y += dv
+	var new_y: Vector3 = Vector3()
+	for dv in directions:
+		new_y += dv
 
-    new_y /= directions.size()
-    if new_y.length() != 0 and not isnan(new_y.y):
-        new_y.normalize()
-    else:
-        new_y = Vector3(0, 1.0, 0)
+	new_y /= directions.size()
+	if new_y.length() != 0 and not isnan(new_y.y):
+		new_y.normalize()
+	else:
+		new_y = Vector3(0, 1.0, 0)
 
-    var new_y_ray: IKRay3D = IKRay3D(Vector3(0, 0, 0), new_y)
+	var new_y_ray: IKRay3D = IKRay3D(Vector3(0, 0, 0), new_y)
 
-    var old_y_to_new_y: Quat = Quat(twist_axes.y_().heading(),
-                                     original_limiting_axes.get_global_of(new_y_ray).heading())
-    twist_axes.rotate_by(old_y_to_new_y)
+	var old_y_to_new_y: Quat = Quat(twist_axes.y_().heading(),
+									 original_limiting_axes.get_global_of(new_y_ray).heading())
+	twist_axes.rotate_by(old_y_to_new_y)
 
-    for lc in get_limit_cones():
-        original_limiting_axes.set_to_global_of(lc.control_point, lc.control_point)
-        twist_axes.set_to_local_of(lc.control_point, lc.control_point)
-        lc.control_point.normalize()
+	for lc in get_limit_cones():
+		original_limiting_axes.set_to_global_of(lc.control_point, lc.control_point)
+		twist_axes.set_to_local_of(lc.control_point, lc.control_point)
+		lc.control_point.normalize()
 
-    update_tangent_radii()
+	update_tangent_radii()
 
 func update_tangent_radii() -> void:
-    for i in range(limit_cones.size()):
-        var next: IKLimitCone = limit_cones[i + 1] if i < limit_cones.size() - 1 else null
-        limit_cones[i].update_tangent_handles(next)
+	for i in range(limit_cones.size()):
+		var next: IKLimitCone = limit_cones[i + 1] if i < limit_cones.size() - 1 else null
+		limit_cones[i].update_tangent_handles(next)
 
 func snap_to_limits() -> void:
-    if orientationally_constrained:
-        set_axes_to_orientation_snap(attached_to.local_axes(), swing_orientation_axes())
-    if axially_constrained:
-        snap_to_twist_limits(attached_to.local_axes(), twist_orientation_axes())
+	if orientationally_constrained:
+		set_axes_to_orientation_snap(attached_to.local_axes(), swing_orientation_axes())
+	if axially_constrained:
+		snap_to_twist_limits(attached_to.local_axes(), twist_orientation_axes())
 
 func set_axes_to_snapped(to_set: IKNode3D, limiting_axes: IKNode3D, twist_axes: IKNode3D) -> void:
-    if limiting_axes != null:
-        if orientationally_constrained:
-            set_axes_to_orientation_snap(to_set, limiting_axes)
-        if axially_constrained:
-            snap_to_twist_limits(to_set, twist_axes)
+	if limiting_axes != null:
+		if orientationally_constrained:
+			set_axes_to_orientation_snap(to_set, limiting_axes)
+		if axially_constrained:
+			snap_to_twist_limits(to_set, twist_axes)
 
 func clamp(value: float, min: float, max: float) -> float:
-    if value < min:
-        return min
-    if value > max:
-        return max
-    return value
+	if value < min:
+		return min
+	if value > max:
+		return max
+	return value
 
 func set_axes_to_returnfulled(to_set: IKNode3D, swing_axes: IKNode3D, twist_axes: IKNode3D,
-                               cos_half_returnfullness: float, angle_returnfullness: float) -> void:
-    if swing_axes != null and painfullness > 0.0:
-        if orientationally_constrained:
-            var origin: Vector3 = to_set.origin_()
-            var in_point: Vector3 = to_set.y_().p2().copy()
-            var path_point: Vector3 = point_on_path_sequence(in_point, swing_axes)
-            in_point -= origin
-            path_point -= origin
-            var to_clamp: Quat = Quat(in_point, path_point)
-            to_clamp.rotation.clamp_to_quadrance_angle(cos_half_returnfullness)
-            to_set.rotate_by(to_clamp)
-        if axially_constrained:
-            var angle_to_twist_mid: float = angle_to_twist_center(to_set, twist_axes)
-            var clamped_angle: float = clamp(angle_to_twist_mid, -angle_returnfullness, angle_returnfullness)
-            to_set.rotate_about_y(clamped_angle, false)
+							   cos_half_returnfullness: float, angle_returnfullness: float) -> void:
+	if swing_axes != null and painfullness > 0.0:
+		if orientationally_constrained:
+			var origin: Vector3 = to_set.origin_()
+			var in_point: Vector3 = to_set.y_().p2().copy()
+			var path_point: Vector3 = point_on_path_sequence(in_point, swing_axes)
+			in_point -= origin
+			path_point -= origin
+			var to_clamp: Quat = Quat(in_point, path_point)
+			to_clamp.rotation.clamp_to_quadrance_angle(cos_half_returnfullness)
+			to_set.rotate_by(to_clamp)
+		if axially_constrained:
+			var angle_to_twist_mid: float = angle_to_twist_center(to_set, twist_axes)
+			var clamped_angle: float = clamp(angle_to_twist_mid, -angle_returnfullness, angle_returnfullness)
+			to_set.rotate_about_y(clamped_angle, false)
 
 # A value between between 0 and 1 dictating
 # how much the bone to which this kusudama belongs
@@ -134,72 +131,72 @@ func set_axes_to_returnfulled(to_set: IKNode3D, swing_axes: IKNode3D, twist_axes
 # Setting this value to anything higher than 0.4 is probably overkill
 # in most situations.
 #
-# @param amt set to a value outside of 0-1 to disable
-func set_painfullness(amt: float) -> void:
-    painfullness = amt
-    if attached_to() != null and attached_to().parent_armature != null:
-        attached_to().parent_armature.update_shadow_skel_rate_info()
+# @param amount set to a value outside of 0-1 to disable
+func set_painfullness(amount: float) -> void:
+	painfullness = amount
+	if attached_to() != null and attached_to().parent_armature != null:
+		attached_to().parent_armature.update_shadow_skel_rate_info()
 
 # @return A value between (ideally between 0 and 1) dictating
 #         how much the bone to which this kusudama belongs
 #         prefers to be away from the edges of the kusudama
 #         if it can.
 func get_painfulness() -> float:
-    return painfullness
+	return painfullness
 
 func is_in_limits_(global_point: Vector3) -> bool:
-    var in_bounds: Array[float] = [1.0]
-    var in_limits: Vector3 = point_in_limits(global_point, in_bounds, IKLimitCone.BOUNDARY)
-    return in_bounds[0] > 0.0
+	var in_bounds: Array[float] = [1.0]
+	var in_limits: Vector3 = point_in_limits(global_point, in_bounds, IKLimitCone.BOUNDARY)
+	return in_bounds[0] > 0.0
 
 # Presumes the input axes are the bone's local_axes, and rotates
 # them to satisfy the snap limits.
 #
 # @param to_set
 func set_axes_to_soft_orientation_snap(to_set: IKNode3D, limiting_axes: IKNode3D, cos_half_angle_dampen: float) -> void:
-    var in_bounds: Array[float] = [1.0]
-    limiting_axes.update_global()
-    bone_ray.p1.set(limiting_axes.origin_())
-    bone_ray.p2.set(to_set.y_().p2())
-    var bonetip: Vector3 = limiting_axes.get_local_of(to_set.y_().p2())
-    var in_cushion_limits: Vector3 = point_in_limits(bonetip, in_bounds, IKLimitCone.CUSHION)
+	var in_bounds: Array[float] = [1.0]
+	limiting_axes.update_global()
+	bone_ray.p1.set(limiting_axes.origin_())
+	bone_ray.p2.set(to_set.y_().p2())
+	var bonetip: Vector3 = limiting_axes.get_local_of(to_set.y_().p2())
+	var in_cushion_limits: Vector3 = point_in_limits(bonetip, in_bounds, IKLimitCone.CUSHION)
 
-    if in_bounds[0] == -1 and in_cushion_limits != null:
-        constrained_ray.p1.set(bone_ray.p1())
-        constrained_ray.p2.set(limiting_axes.get_global_of(in_cushion_limits))
-        var rectified_rot: Quat = Quat(bone_ray.heading(), constrained_ray.heading())
-        to_set.rotate_by(rectified_rot)
-        to_set.update_global()
+	if in_bounds[0] == -1 and in_cushion_limits != null:
+		constrained_ray.p1.set(bone_ray.p1())
+		constrained_ray.p2.set(limiting_axes.get_global_of(in_cushion_limits))
+		var rectified_rot: Quat = Quat(bone_ray.heading(), constrained_ray.heading())
+		to_set.rotate_by(rectified_rot)
+		to_set.update_global()
 
 # Presumes the input axes are the bone's local_axes, and rotates
 # them to satisfy the snap limits.
 #
 # @param to_set
 func set_axes_to_orientation_snap(to_set: IKNode3D, limiting_axes: IKNode3D) -> void:
-    var in_bounds: Array[float] = [1.0]
-    limiting_axes.update_global()
-    bone_ray.p1.set(limiting_axes.origin_())
-    bone_ray.p2.set(to_set.y_().p2())
-    var bonetip: Vector3 = limiting_axes.get_local_of(to_set.y_().p2())
-    var in_limits: Vector3 = point_in_limits(bonetip, in_bounds, IKLimitCone.BOUNDARY)
+	var in_bounds: Array[float] = [1.0]
+	limiting_axes.update_global()
+	bone_ray.p1.set(limiting_axes.origin_())
+	bone_ray.p2.set(to_set.y_().p2())
+	var bonetip: Vector3 = limiting_axes.get_local_of(to_set.y_().p2())
+	var in_limits: Vector3 = point_in_limits(bonetip, in_bounds, IKLimitCone.BOUNDARY)
 
-    if in_bounds[0] == -1 and in_limits != null:
-        constrained_ray.p1.set(bone_ray.p1())
-        constrained_ray.p2.set(limiting_axes.get_global_of(in_limits))
-        var rectified_rot: Quat = Quat(bone_ray.heading(), constrained_ray.heading())
-        to_set.rotate_by(rectified_rot)
-        to_set.update_global()
+	if in_bounds[0] == -1 and in_limits != null:
+		constrained_ray.p1.set(bone_ray.p1())
+		constrained_ray.p2.set(limiting_axes.get_global_of(in_limits))
+		var rectified_rot: Quat = Quat(bone_ray.heading(), constrained_ray.heading())
+		to_set.rotate_by(rectified_rot)
+		to_set.update_global()
 
 func is_in_orientation_limits(global_axes: IKNode3D, limiting_axes: IKNode3D) -> bool:
-    var in_bounds: Array[float] = [1.0]
-    var localized_point: Vector3 = limiting_axes.get_local_of(global_axes.y_().p2()).copy().normalized()
-    if limit_cones.size() == 1:
-        return limit_cones[0].determine_if_in_bounds(null, localized_point)
-    else:
-        for i in range(limit_cones.size() - 1):
-            if limit_cones[i].determine_if_in_bounds(limit_cones[i + 1], localized_point):
-                return true
-        return false
+	var in_bounds: Array[float] = [1.0]
+	var localized_point: Vector3 = limiting_axes.get_local_of(global_axes.y_().p2()).copy().normalized()
+	if limit_cones.size() == 1:
+		return limit_cones[0].determine_if_in_bounds(null, localized_point)
+	else:
+		for i in range(limit_cones.size() - 1):
+			if limit_cones[i].determine_if_in_bounds(limit_cones[i + 1], localized_point):
+				return true
+		return false
 
 var twistMinVec: Vector3
 var twistMaxVec: Vector3
@@ -357,7 +354,7 @@ func point_on_path_sequence(in_point: Vector3, limiting_axes: IKNode3D) -> Vecto
 
 	return limiting_axes.get_global_of(result)
 
-func attached_to() -> IKBone:
+func get_attached_to() -> IKBone:
 	return self.attached_to
 
 func add_limit_cone(new_point: Vector3, radius: float, previous: IKLimitCone, next: IKLimitCone) -> void:
