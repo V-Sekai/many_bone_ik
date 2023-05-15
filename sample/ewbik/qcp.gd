@@ -114,6 +114,10 @@ var rmsd_calculated: bool = false
 var transformation_calculated: bool = false
 var inner_product_calculated: bool = false
 
+func _init(self, p_evec_prec: float, p_eval_prec: float):
+    self.evec_prec = p_evec_prec
+    self.eval_prec = p_eval_prec
+    
 func calculate_rmsd(x: PackedVector3Array, y: PackedVector3Array) -> void:
     if x.size() == 1:
         rmsd = x[0].distance_to(y[0])
@@ -349,10 +353,6 @@ func move_to_weighted_center(r_to_center: PackedVector3Array, r_weight: Array[fl
             w_sum += 1
         center /= w_sum
     return center
-
-func _init(self, p_evec_prec: float, p_eval_prec: float):
-    self.evec_prec = p_evec_prec
-    self.eval_prec = p_eval_prec
 
 func get_rmsd() -> float:
     if not rmsd_calculated:
