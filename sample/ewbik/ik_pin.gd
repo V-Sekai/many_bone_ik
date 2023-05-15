@@ -70,9 +70,17 @@ func disable():
 # the descendant of that one's descendant will be reported with half weight.
 #
 # @param depth
+
+
+
 func set_depth_falloff(depth: float):
+	var prev_depth = self.depth_falloff
 	self.depth_falloff = depth
-	self.for_bone.parent_armature.rootwardly_update_falloff_cache_from(for_bone)
+	if ((self.depth_falloff == 0 && prev_depth != 0) || (self.depth_falloff != 0 && prev_depth == 0)):
+		self.for_bone.parent_armature.regenerate_shadow_skeleton()
+	else:
+		self.for_bone.parent_armature.update_shadow_skel_rate_info()
+
 
 func get_depth_falloff() -> float:
 	return depth_falloff
@@ -122,7 +130,7 @@ func set_target_priorities(x_priority: float, y_priority: float, z_priority: flo
 	self.x_priority = x_priority
 	self.y_priority = y_priority
 	self.z_priority = z_priority
-	self.for_bone.parent_armature.rootwardly_update_falloff_cache_from(for_bone)
+	self.for_bone.parent_armature.update_shadow_skel_rate_info()
 
 # @return the number of bases an effector to this target will attempt to align
 #         on.
@@ -219,4 +227,4 @@ func get_pin_weight() -> float:
 #
 func set_pin_weight(weight: float) -> void:
 	pin_weight = weight
-	for_bone.parent_armature.rootwardly_update_falloff_cache_from(for_bone)
+	for_bone.parent_armature.update_shadow_skel_rate_info()

@@ -157,8 +157,8 @@ func add_bone(id: String, transform_id: String, parent_id: String, target_id: St
 ## `swingOrientationTransform_id`: the id string of the swing orientation transform
 ## `twistOrientationTransform_id`: OPTIONAL, only relevant for ball and socket-type region constraints (like Kusudamas, splines, limit cones, etc). A transform specifying the orientation of the twist basis to be used in swing twist decomposition when constraining this bone.
 ## `directReference`: REQUIRED, a reference to the actual Constraint instance so the solver can call its snapToLimitingAxes function.
-func add_constraint(id: String, forBone_id: String, swingOrientationTransform_id: String, twistOrientationTransform_id: String = "", directReference: IKKusudama = null) -> ConstraintState:
-	var con := ConstraintState.new(id, forBone_id, swingOrientationTransform_id, twistOrientationTransform_id, directReference, constraint_map, constraints_list, transforms, transform_map, bone_map, assume_valid)
+func add_constraint(id: String, forBone_id: String, swingOrientationTransform_id: String, painfulness: float, twistOrientationTransform_id: String = "", directReference: IKKusudama = null) -> ConstraintState:
+	var con := ConstraintState.new(id, forBone_id, swingOrientationTransform_id, painfulness, twistOrientationTransform_id, directReference, constraint_map, constraints_list, transforms, transform_map, bone_map, assume_valid)
 	constraint_map[id] = con
 	return con
 

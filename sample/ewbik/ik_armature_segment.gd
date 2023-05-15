@@ -3,6 +3,12 @@ extends Object
 
 class_name IKArmatureSegment
 
+## A segment is defined as any set of bones all solving for the same targets.
+## A segment may have subsegments, which are all bones solving for one or more strict subsets 
+## of the targets the segment solves for.
+## A segment may have child segments, which do not solve for any of the same targets as the parent segment,
+## but whose bones are all descendants of the bones in the parent segment.
+
 var shadow_skel: ShadowSkeleton
 var sim_transforms: Array
 var for_armature: AbstractArmature
@@ -19,8 +25,9 @@ var bone_centered_target_headings: Array
 var bone_centered_tip_headings: Array
 var uniform_bone_centered_tip_headings: Array
 var weights: PackedFloat64Array
-var pinned_bones: Array
+var pinned_bones: weight_array
 var is_root_pinned: bool = false
+var has_pinned_ancestor: bool = false
 var previous_deviation: float = INF
 const DOUBLE_ROUNDING_ERROR = 0.000000000000001 
 var qcp_converger: QCP = QCP.new(DOUBLE_ROUNDING_ERROR, DOUBLE_ROUNDING_ERROR)
@@ -32,7 +39,9 @@ func _init(shadow_skel: ShadowSkeleton, starting_from: BoneState, parent_segment
 	self.sim_transforms = shadow_skel.sim_transforms
 	self.for_armature = shadow_skel.for_armature
 	self.parent_segment = parent_segment
-	self.is_root_pinned = is_root_pinned or (parent_segment != null and parent_segment.is_root_pinned)
+
+	self.is_root_pinned = is_root_pinned
+	self.has_pinned_ancestor = parentSegment != null && (parentSegment.is_root_pinned || parentSegment.has_pinned_ancestor)
 
 	# build_segment
 	var seg_effectors: Array = []
@@ -77,6 +86,9 @@ func _init(shadow_skel: ShadowSkeleton, starting_from: BoneState, parent_segment
 	self.child_segments = child_sgmts
 	self.solvable_strand_bones = strand_bones
 
+	if self.is_root_pinned:
+		self.wb_segmentRoot.set_as_segment_root()
+
 	# build_reverse_traversal_array
 	var reverse_traversal_array: Array = []
 
@@ -115,7 +127,10 @@ func _init(shadow_skel: ShadowSkeleton, starting_from: BoneState, parent_segment
 			bone_centered_tip_headings[current_heading] = Vector3()
 			uniform_bone_centered_tip_headings[current_heading] = Vector3()
 			current_heading += 1
-			
+
+func get_dapening() -> float:
+	return shadow_skel.base_dampening
+	
 func recursively_create_penalty_array(weight_array: Array, pin_sequence: Array, current_falloff: float) -> void:
 	if current_falloff == 0:
 		return

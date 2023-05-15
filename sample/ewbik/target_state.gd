@@ -3,6 +3,10 @@ extends Object
 
 class_name TargetState
 
+const X_DIR = 0
+const Y_DIR = 2
+Const Z_DIR = 4
+
 var id: String
 var transform_id: String
 var for_bone_id: String

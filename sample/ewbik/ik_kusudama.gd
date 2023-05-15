@@ -8,7 +8,7 @@ const PI: float = PI
 
 var limiting_axes: IKNode3D
 var twist_axes: IKNode3D
-var painfullness: float = 0.9
+var painfullness: float = 0.5
 var cushion_ratio: float = 0.1
 
 var limit_cones: Array = []
@@ -73,10 +73,10 @@ func optimize_limiting_axes() -> void:
 
 	for lc in get_limit_cones():
 		original_limiting_axes.set_to_global_of(lc.control_point, lc.control_point)
-		twist_axes.set_to_local_of(lc.control_point, lc.control_point)
-		lc.control_point.normalize()
-
-	update_tangent_radii()
+			twist_axes.set_to_local_of(lc.control_point, lc.control_point)
+			lc.control_point.normalize()
+	
+		update_tangent_radii()
 
 func update_tangent_radii() -> void:
 	for i in range(limit_cones.size()):

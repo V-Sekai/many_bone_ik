@@ -14,9 +14,11 @@ var on_chain: IKArmatureSegment
 var cos_half_dampen: float = 0.0
 var cos_half_return_damp: float = 0.0
 var return_damp: float = 0.0
-var cos_half_returnfullness_dampened_iterated: Array[float]
-var half_returnfullness_dampened_iterated: Array[float]
 var springy: bool = false
+
+## set to true if this WorkingBone's chain is not a subsegment, and this bone is its root
+var is_segment_root: bool = false
+var has_pinned_ancestor: bool = false
 
 # All of these vectors point in the same direction (the one the bone is pointing in),
 # each of them corresponds to a tangent cone which the bone should prefer to avoid.
@@ -33,8 +35,11 @@ func _init(to_simulate: BoneState, chain: IKArmatureSegment, sim_transforms, for
 	if for_bone.get_target() != null:
 		target_state = for_bone.get_target()
 		sim_target_axes = sim_transforms[target_state.get_transform().get_index()]
+	
+	self.has_pinned_ancestor = onChain.has_pinned_ancestor
 
 	var pre_damp: float = 1.0 - for_bone.get_stiffness()
+	var default_dampening = on_chain.get_dampening()
 	var default_dampening: float = for_armature.get_dampening()
 	var dampening: float = PI if for_bone.get_parent() == null else pre_damp * default_dampening
 	cos_half_dampen = cos(dampening / 2.0)
@@ -47,52 +52,11 @@ func _init(to_simulate: BoneState, chain: IKArmatureSegment, sim_transforms, for
 		var k: IKKusudama = constraint_state.get_direct_reference() as IKKusudama
 		if k != null and k.get_painfulness() > 0.0:
 			springy = true
-			var iterations: int = for_armature.get_default_iterations()
-			half_returnfullness_dampened_iterated.clear()
-			half_returnfullness_dampened_iterated.resize(iterations)
-			cos_half_returnfullness_dampened_iterated.clear()
-			cos_half_returnfullness_dampened_iterated.resize(iterations)
-			for i in range(iterations):
-				var iterations_clamp: float = compute_iterate_returnfulness(i, for_armature.get_default_iterations(), k)
-				var cos_iteration_return_clamp: float = cos(iterations_clamp / 2.0)
-				half_returnfullness_dampened_iterated[i] = iterations_clamp
-				cos_half_returnfullness_dampened_iterated[i] = cos_iteration_return_clamp
 		else:
 			springy = false
 
-		if k != null:
-			var abl: Array[IKLimitCone] = k.get_limit_cones()
-			var cone_count: int = (abl.size() * 3) - 2
-			bone_tip_vectors.clear()
-			bone_tip_vectors.resize(cone_count)
-			cosine_radii_cache.clear()
-			cosine_radii_cache.resize(cone_count)
-			limit_cone_local_direction_cache.clear()
-			limit_cone_local_direction_cache.resize(cone_count)
-
-			for i in range(abl.size()):
-				var lc: IKLimitCone = abl[i]
-				bone_tip_vectors[i * 3] = Vector3()
-				limit_cone_local_direction_cache[i * 3] = lc.get_control_point() * -1.0
-				cosine_radii_cache[i * 3] = abl[i].get_radius_cosine()
-
-				if lc.get_tangent_circle_center_next_1(0) != null and i < cone_count - 1:
-					bone_tip_vectors[i * 3 + 1] = Vector3()
-					bone_tip_vectors[i * 3 + 2] = Vector3()
-					limit_cone_local_direction_cache[i * 3 + 1] = lc.get_tangent_circle_center_next_1(0).copy()
-					cosine_radii_cache[i * 3 + 1] = 1.0 - lc.get_tangent_circle_radius_next_cos(0)
-					limit_cone_local_direction_cache[i * 3 + 2] = lc.get_tangent_circle_center_next_2(0).copy()
-					cosine_radii_cache[i * 3 + 2] = 1.0 - lc.get_tangent_circle_radius_next_cos(0)
-
-
-func fast_update_optimal_rotation_to_pinned_descendants(dampening: float, translate: bool) -> void:
+func fast_update_optimal_rotation_to_pinned_descendants(stabilize_passes: int, translate: bool) -> void:
 	sim_local_axes.update_global()
-
-	var new_dampening: float
-	if translate:
-		new_dampening = PI * 2
-	else:
-		new_dampening = -1
 
 	var localized_target_headings: Array[Vector3] = on_chain.bone_centered_target_headings
 	var weights: Array[float] = on_chain.weights
@@ -128,12 +92,12 @@ func fast_update_optimal_rotation_to_pinned_descendants(dampening: float, transl
 	var prev_orientation: Quaternion = sim_local_axes.get_local_m_basis().rotation.rotation
 	var got_closer: bool = true
 
-	for i in range(for_armature.default_stabilizing_pass_count + 1):
+	for i in range(stabilize_passes + 1):
 		update_tip_headings(on_chain.bone_centered_tip_headings, true)
 		update_optimal_rotation_to_pinned_descendants(new_dampening, translate, on_chain.bone_centered_tip_headings,
 														on_chain.bone_centered_target_headings, weights)
 
-		if for_armature.default_stabilizing_pass_count > 0:
+		if stabilize_passes > 0:
 			update_tip_headings(on_chain.uniform_bone_centered_tip_headings, false)
 			var current_msd: float = on_chain.get_manual_msd(on_chain.uniform_bone_centered_tip_headings,
 																on_chain.bone_centered_target_headings,
@@ -201,9 +165,13 @@ func update_tip_headings(localized_tip_headings: Array[Vector3], scale: bool) ->
 			hdx += 2
 
 
+func set_as_segment_root() -> void:
+	self.is_segment_root = true
+
+
 func update_cos_dampening() -> void:
 	var predamp: float = 1 - for_bone.get_stiffness()
-	var default_dampening: float = for_armature.get_dampening()
+	var default_dampening: float = on_chain.get_dampening()
 
 	if for_bone.get_parent() == null:
 		dampening = PI

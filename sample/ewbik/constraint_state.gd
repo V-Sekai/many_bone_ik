@@ -11,6 +11,7 @@ var direct_reference: IKKusudama
 var index: int
 var swing_transform_idx: int = -1
 var twist_transform_idx: int = -1
+var painfulness: float = 0.0
 
 var constraint_map: Dictionary = {} # Dictionary[String, ConstraintState]
 var constraints_list: Array[ConstraintState] = []
@@ -19,11 +20,12 @@ var transform_map: Dictionary = {} # Dictionary[String, TransformState]
 var assume_valid: bool = false
 var bone_map: Dictionary = {} # Dictionary[String, BoneState]
 
-func _init(id: String, for_bone_id: String, swing_orientation_transform_id: String, twist_orientation_transform_id: String, direct_reference: IKKusudama, constraint_map: Dictionary, constraints_list: Array[ConstraintState], transforms: Array[TransformState] , transform_map: Dictionary, bone_map: Dictionary, assume_valid: bool) -> void:
+func _init(id: String, for_bone_id: String, swing_orientation_transform_id: String, painfulness: float, twist_orientation_transform_id: String, direct_reference: IKKusudama, constraint_map: Dictionary, constraints_list: Array[ConstraintState], transforms: Array[TransformState] , transform_map: Dictionary, bone_map: Dictionary, assume_valid: bool) -> void:
     self.for_bone_id = for_bone_id
     self.swing_orientation_transform_id = swing_orientation_transform_id
     self.twist_orientation_transform_id = twist_orientation_transform_id
     self.direct_reference = direct_reference
+    self.painfulness = painfulness
     self.constraint_map = constraint_map
     self.constraints_list = constraints_list
     self.transforms = transforms
@@ -56,6 +58,9 @@ func set_index(index: int) -> void:
 # Returns the index of the constraint state.
 func get_index() -> int:
     return self.index
+
+func getPainfulness() ->float:
+    return self.painfulness
 
 # Optimizes the constraint state.
 func optimize() -> void:

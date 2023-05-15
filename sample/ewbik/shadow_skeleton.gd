@@ -3,23 +3,22 @@ extends Object
 
 class_name ShadowSkeleton
 
-var for_armature: AbstractArmature
 var sim_transforms: Array
 var shadow_space: Transform3D
 var traversal_array: Array
 var root_segment: IKArmatureSegment
 var skel_state: SkeletonState
+var base_dampening = PI
 
-func _init(skel_state: SkeletonState, for_armature: AbstractArmature):
-	self.for_armature = for_armature
+func _init(skel_state: SkeletonState, base_dampening: float):
 	self.skel_state = skel_state
+	self.shadow_space = Transform3D();
+	self.base_dampening = baseDampening;
 
 	# Build simTransforms hierarchy
 	var transform_count = skel_state.get_transform_count()
 	if transform_count != 0:
 		sim_transforms = []
-		shadow_space = for_armature.local_axes().free_copy()
-		shadow_space = Transform3D()
 
 		for i in range(transform_count):
 			var ts = skel_state.get_transform_state(i)
@@ -51,12 +50,12 @@ func _init(skel_state: SkeletonState, for_armature: AbstractArmature):
 		for i in range(reversed_traversal_array.size() - 1, -1, -1):
 			traversal_array.append(reversed_traversal_array[i])
 
-func solve(dampening: float, iterations: int, stabilization_passes: int, notifier: Callable) -> void:
+func set_dampening(dampening: float) -> void:
+	self.base_dampening = dampening
+	update_rates()
+
+func solve(iterations: int, stabilization_passes: int, notifier: Callable) -> void:
 	var end_on_index = traversal_array.size() - 1
-	if iterations == -1:
-		iterations = for_armature.get_default_iterations()
-	if stabilization_passes == -1:
-		stabilization_passes = for_armature.default_stabilizing_pass_count
 	var transforms = skel_state.get_transforms_array()
 	for i in range(transforms.size()):
 		sim_transforms[i].get_local_m_basis().set(transforms[i].translation, transforms[i].rotation,
