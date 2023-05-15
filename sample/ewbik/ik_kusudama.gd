@@ -19,9 +19,9 @@ var axially_constrained: bool = false
 var strength: float = 1.0
 
 var attached_to: IKBone
-var twist_min_rot: Quat = Quat()
-var twist_max_rot: Quat = Quat()
-var twist_center_rot: Quat = Quat()
+var twist_min_rot: Quaternion
+var twist_max_rot: quaternion
+var twist_center_rot: Quaternion
 
 func _init(for_bone: IKBone) -> void:
 	attached_to = for_bone
@@ -44,8 +44,8 @@ func optimize_limiting_axes() -> void:
 		for i in range(get_limit_cones().size() - 1):
 			var this_c: Vector3 = get_limit_cones()[i].get_control_point().copy()
 			var next_c: Vector3 = get_limit_cones()[i + 1].get_control_point().copy()
-			var this_to_next: Quat = Quat(this_c, next_c)
-			var half_this_to_next: Quat = Quat(this_to_next.get_axis(), this_to_next.get_angle() / 2.0)
+			var this_to_next: Quaternion = Quaternion(this_c, next_c)
+			var half_this_to_next: Quaternion = Quaternion(this_to_next.get_axis(), this_to_next.get_angle() / 2.0)
 
 			var half_angle: Vector3 = half_this_to_next.apply_to_copy(this_c)
 			half_angle.normalize()
@@ -64,7 +64,7 @@ func optimize_limiting_axes() -> void:
 
 	var new_y_ray: IKRay3D = IKRay3D(Vector3(0, 0, 0), new_y)
 
-	var old_y_to_new_y: Quat = Quat(twist_axes.y_().heading(),
+	var old_y_to_new_y: Quaternion = Quaternion(twist_axes.y_().heading(),
 									 original_limiting_axes.get_global_of(new_y_ray).heading())
 	twist_axes.rotate_by(old_y_to_new_y)
 
@@ -109,7 +109,7 @@ func set_axes_to_returnfulled(to_set: IKNode3D, swing_axes: IKNode3D, twist_axes
 			var path_point: Vector3 = point_on_path_sequence(in_point, swing_axes)
 			in_point -= origin
 			path_point -= origin
-			var to_clamp: Quat = Quat(in_point, path_point)
+			var to_clamp: Quaternion = Quaternion(in_point, path_point)
 			to_clamp.rotation.clamp_to_quadrance_angle(cos_half_returnfullness)
 			to_set.rotate_by(to_clamp)
 		if axially_constrained:
@@ -161,7 +161,7 @@ func set_axes_to_soft_orientation_snap(to_set: IKNode3D, limiting_axes: IKNode3D
 	if in_bounds[0] == -1 and in_cushion_limits != null:
 		constrained_ray.p1.set(bone_ray.p1())
 		constrained_ray.p2.set(limiting_axes.get_global_of(in_cushion_limits))
-		var rectified_rot: Quat = Quat(bone_ray.heading(), constrained_ray.heading())
+		var rectified_rot: Quaternion = Quaternion(bone_ray.heading(), constrained_ray.heading())
 		to_set.rotate_by(rectified_rot)
 		to_set.update_global()
 
@@ -180,7 +180,7 @@ func set_axes_to_orientation_snap(to_set: IKNode3D, limiting_axes: IKNode3D) -> 
 	if in_bounds[0] == -1 and in_limits != null:
 		constrained_ray.p1.set(bone_ray.p1())
 		constrained_ray.p2.set(limiting_axes.get_global_of(in_limits))
-		var rectified_rot: Quat = Quat(bone_ray.heading(), constrained_ray.heading())
+		var rectified_rot: Quaternion = Quaternion(bone_ray.heading(), constrained_ray.heading())
 		to_set.rotate_by(rectified_rot)
 		to_set.update_global()
 
@@ -206,16 +206,16 @@ func set_axial_limits(minAngle: float, inRange: float) -> void:
 	minAxialAngle = minAngle
 	range = inRange
 	var y_axis: Vector3 = Vector3(0, 1, 0)
-	twistMinRot = Quat(y_axis, minAxialAngle)
+	twistMinRot = Quaternion(y_axis, minAxialAngle)
 	twistMinVec = twistMinRot.xform(Vector3(0, 0, 1))
 	twistHalfRangeHalfCos = cos(inRange / 4) # for quadrance angle. We need half the range angle since
 												# starting from the center, and half of that since quadrance
 												# takes cos(angle/2)
-	twistMaxVec = Quat(y_axis, range).xform(twistMinVec)
-	twistMaxRot = Quat(y_axis, range)
-	var halfRot: Quat = Quat(y_axis, range / 2)
+	twistMaxVec = Quaternion(y_axis, range).xform(twistMinVec)
+	twistMaxRot = Quaternion(y_axis, range)
+	var halfRot: Quaternion = Quaternion(y_axis, range / 2)
 	twistCenterVec = halfRot.xform(twistMinVec)
-	twistCenterRot = Quat(Vector3(0, 0, 1), twistCenterVec)
+	twistCenterRot = Quaternion(Vector3(0, 0, 1), twistCenterVec)
 	var maxcross: Vector3 = twistMaxVec.cross(y_axis)
 	constraint_update_notification()
 
@@ -229,19 +229,19 @@ func set_twist(ratio: float) -> void:
 	set_twist(ratio, attached_to.local_axes())
 
 func set_twist_ik_node(ratio: float, toSet: IKNode3D) -> void:
-	var alignRot: Quat = twistAxes.get_global_m_basis().inverse_rotation.xform(toSet.get_global_m_basis().rotation)
+	var alignRot: Quaternion = twistAxes.get_global_m_basis().inverse_rotation.xform(toSet.get_global_m_basis().rotation)
 	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0))
-	decomposition[1] = Quat.slerp(ratio, twistMinRot.rotation, twistMaxRot.rotation)
-	var recomposition: Quat = decomposition[0].xform(decomposition[1])
+	decomposition[1] = Quaternion.slerp(ratio, twistMinRot.rotation, twistMaxRot.rotation)
+	var recomposition: Quaternion = decomposition[0].xform(decomposition[1])
 	toSet.parent_axes().get_global_m_basis().inverse_rotation.xform(twistAxes.get_global_m_basis().rotation.xform(recomposition), toSet.local_m_basis.rotation)
 	toSet.mark_dirty()
 
 func get_twist_ratio_ik_node_twist_axes(toGet: IKNode3D, twistAxes: IKNode3D) -> float:
-	var align_rot: Quat = twist_axes.get_global_transform().basis.inverse().xform(to_get.get_global_transform().basis).get_rotation_quat()
+	var align_rot: Quaternion = twist_axes.get_global_transform().basis.inverse().xform(to_get.get_global_transform().basis).get_rotation_quat()
 	var decomposition: Array = align_rot.get_swing_twist(Vector3(0, 1, 0))
 	var twist_z: Vector3 = decomposition[1].xform(Vector3(0, 0, 1))
-	var min_to_z: Quat = Quat(twist_min_vec, twist_z)
-	var min_to_center: Quat = Quat(twist_min_vec, twist_center_vec)
+	var min_to_z: Quaternion = Quaternion(twist_min_vec, twist_z)
+	var min_to_center: Quaternion = Quaternion(twist_min_vec, twist_center_vec)
 	var min_to_z_angle: float = min_to_z.get_angle()
 	var min_to_max_angle: float = range
 	var flipper: float = 1
@@ -252,18 +252,18 @@ func get_twist_ratio_ik_node_twist_axes(toGet: IKNode3D, twistAxes: IKNode3D) ->
 func snap_to_twist_limits(toSet: IKNode3D, twistAxes: IKNode3D) -> float:
 	if not axiallyConstrained:
 		return 0.0
-	var globTwistCent: Quat = twistAxes.get_global_m_basis().rotation.xform(twistCenterRot) # create a temporary
+	var globTwistCent: Quaternion = twistAxes.get_global_m_basis().rotation.xform(twistCenterRot) # create a temporary
 																							# orientation representing
 																							# globalOf((0,0,1))
 																							# represents the middle of
 																							# the allowable twist range
 																							# in global space
-	var alignRot: Quat = globTwistCent.inverse().xform(toSet.get_global_m_basis().rotation)
+	var alignRot: Quaternion = globTwistCent.inverse().xform(toSet.get_global_m_basis().rotation)
 	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0)) # decompose the orientation to a swing and
 																			# twist away from globTwistCent's
 																			# global basis
 	decomposition[1].rotation.clamp_to_quadrance_angle(twistHalfRangeHalfCos)
-	var recomposition: Quat = decomposition[0].xform(decomposition[1])
+	var recomposition: Quaternion = decomposition[0].xform(decomposition[1])
 	toSet.parent_axes().get_global_m_basis().inverse_rotation.xform(globTwistCent.xform(recomposition), toSet.local_m_basis.rotation)
 	toSet.local_m_basis.refresh_precomputed()
 	toSet.mark_dirty()
@@ -272,16 +272,16 @@ func snap_to_twist_limits(toSet: IKNode3D, twistAxes: IKNode3D) -> float:
 func angle_to_twist_center(toSet: IKNode3D, twistAxes: IKNode3D) -> float:
 	if not axiallyConstrained:
 		return 0.0
-	var invRot: Quat = twistAxes.get_global_m_basis().get_inverse_rotation()
-	var alignRot: Quat = invRot.xform(toSet.get_global_m_basis().rotation)
+	var invRot: Quaternion = twistAxes.get_global_m_basis().get_inverse_rotation()
+	var alignRot: Quaternion = invRot.xform(toSet.get_global_m_basis().rotation)
 	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0))
 	var twistedDir: Vector3 = decomposition[1].xform(Vector3(0, 0, 1))
-	var toMid: Quat = Quat(twistedDir, twistCenterVec)
+	var toMid: Quaternion = Quaternion(twistedDir, twistCenterVec)
 	return toMid.get_angle() * toMid.get_axis().y
 
 func in_twist_limits(boneAxes: IKNode3D, limitingAxes: IKNode3D) -> bool:
-	var invRot: Quat = limitingAxes.get_global_m_basis().get_inverse_rotation()
-	var alignRot: Quat = invRot.xform(boneAxes.get_global_m_basis().rotation)
+	var invRot: Quaternion = limitingAxes.get_global_m_basis().get_inverse_rotation()
+	var alignRot: Quaternion = invRot.xform(boneAxes.get_global_m_basis().rotation)
 	var decomposition: Array = alignRot.get_swing_twist(Vector3(0, 1, 0))
 	var angleDelta2: float = decomposition[1].get_angle() * decomposition[1].get_axis().y * -1.0
 	angleDelta2 = to_tau(angleDelta2)
@@ -336,7 +336,7 @@ func point_in_limits(inPoint: Vector3, inBounds: Array, boundaryMode: int) -> Ve
 			return inPoint
 		else:
 			var axis: Vector3 = limitCones[0].get_control_point().cross(point)
-			var toLimit: Quat = Quat(axis, limitCones[0].get_radius())
+			var toLimit: Quaternion = Quaternion(axis, limitCones[0].get_radius())
 			return toLimit.xform(limitCones[0].get_control_point())
 	else:
 		inBounds[0] = 1

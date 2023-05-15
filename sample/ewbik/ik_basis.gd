@@ -17,8 +17,8 @@ enum Chirality {
 
 var chirality: int = Chirality.RIGHT
 
-var rotation: Quat = Quat()
-var inverse_rotation: Quat = Quat()
+var rotation: Quaternion
+var inverse_rotation: Quaternion
 
 var translate: Vector3
 
@@ -70,20 +70,20 @@ func set_identity() -> void:
     y_ray.p2.set(y_base)
     z_ray.p1.set(translate)
     z_ray.p2.set(z_base)
-    rotation = Quat()
+    rotation = Quaternion()
     refresh_precomputed()
 
-func create_prioritized_rotation(x_heading: Vector3, y_heading: Vector3, z_heading: Vector3) -> Quat:
+func create_prioritized_rotation(x_heading: Vector3, y_heading: Vector3, z_heading: Vector3) -> Quaternion:
 	var temp_v: Vector3 = z_heading.duplicate()
 	temp_v.set(0, 0, 0)
-	var to_yz: Quat = Quat(y_base, z_base, y_heading, z_heading)
+	var to_yz: Quaternion = Quaternion(y_base, z_base, y_heading, z_heading)
 	to_yz.apply_to(y_base, temp_v)
-	var to_y: Quat = Quat(temp_v, y_heading)
+	var to_y: Quaternion = Quaternion(temp_v, y_heading)
 
 	return to_y.apply_to(to_yz)
 
-func get_local_of_rotation(in_rot: Quat) -> Quat:
-	var result_new: Quat = inverse_rotation.apply_to(in_rot).apply_to(rotation)
+func get_local_of_rotation(in_rot: Quaternion) -> Quaternion:
+	var result_new: Quaternion = inverse_rotation.apply_to(in_rot).apply_to(rotation)
 	return result_new
 
 func set_to_local_of(global_input: IKBasis, local_output: IKBasis) -> void:
@@ -106,11 +106,11 @@ func set_to_local_of(input: Vector3, output: Vector3) -> void:
 	output -= translate
 	inverse_rotation.apply_to(output, output)
 
-func rotate_to(new_rotation: Quat) -> void:
+func rotate_to(new_rotation: Quaternion) -> void:
 	rotation.set(new_rotation)
 	refresh_precomputed()
 
-func rotate_by(add_rotation: Quat) -> void:
+func rotate_by(add_rotation: Quaternion) -> void:
 	add_rotation.apply_to(rotation, rotation)
 	refresh_precomputed()
 
@@ -164,7 +164,7 @@ func get_origin() -> Vector3:
 func is_axis_flipped(axis: int) -> bool:
 	return false
 
-func get_inverse_rotation() -> Quat:
+func get_inverse_rotation() -> Quaternion:
 	return inverse_rotation
 
 func update_rays() -> void:

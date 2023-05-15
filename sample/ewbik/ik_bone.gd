@@ -6,7 +6,7 @@ class_name IKBone
 var parent_armature: AbstractArmature
 var tag: String
 
-var last_rotation: Quat
+var last_rotation: Quaternion
 var previous_orientation: IKNode3D
 var local_axes: IKNode3D
 var major_rotation_axes: IKNode3D
@@ -127,7 +127,7 @@ func add_constraint(new_constraint: IKKusudama) -> IKKusudama:
 func get_constraint() -> IKKusudama:
 	return constraints
 
-func rotate_by(rot: Quat) -> void:
+func rotate_by(rot: Quaternion) -> void:
 	previous_orientation.align_locals_to(local_axes)
 	local_axes.rotate_by(rot)
 	last_rotation = rot

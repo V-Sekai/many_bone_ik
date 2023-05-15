@@ -268,32 +268,32 @@ func get_slip_type() -> int:
 
 func rotate_about_x(angle: float, orthonormalized: bool) -> void:
 	update_global()
-	var x_rot: Quat = Quat(global_m_basis.x_heading, angle)
+	var x_rot: Quaternion = Quaternion(global_m_basis.x_heading, angle)
 	rotate_by(x_rot)
 	mark_dirty()
 
 func rotate_about_y(angle: float, orthonormalized: bool) -> void:
 	update_global()
-	var y_rot: Quat = Quat(global_m_basis.y_heading, angle)
+	var y_rot: Quaternion = Quaternion(global_m_basis.y_heading, angle)
 	rotate_by(y_rot)
 	mark_dirty()
 
 func rotate_about_z(angle: float, orthonormalized: bool) -> void:
 	update_global()
-	var z_rot: Quat = Quat(global_m_basis.z_heading, angle)
+	var z_rot: Quaternion = Quaternion(global_m_basis.z_heading, angle)
 	rotate_by(z_rot)
 	mark_dirty()
 
-func rotate_by(apply: Quat) -> void:
+func rotate_by(apply: Quaternion) -> void:
 	update_global()
 	if get_parent_axes() != null:
-		var new_rot: Quat = get_parent_axes().global_m_basis.get_local_of_rotation(apply)
+		var new_rot: Quaternion = get_parent_axes().global_m_basis.get_local_of_rotation(apply)
 		local_m_basis.rotate_by(new_rot)
 	else:
 		local_m_basis.rotate_by(apply)
 	mark_dirty()
 
-func rotate_by_local(apply: Quat) -> void:
+func rotate_by_local(apply: Quaternion) -> void:
 	update_global()
 	if parent != null:
 		local_m_basis.rotate_by(apply)
