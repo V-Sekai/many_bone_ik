@@ -3,7 +3,7 @@ extends Object
 
 class_name IKBone
 
-var parent_armature: AbstractArmature
+var parent_armature: Skeleton3D
 var tag: String
 
 var last_rotation: Quaternion
@@ -24,6 +24,11 @@ var orientation_lock: bool = false
 var stiffness_scalar: float = 0.0
 var ancestor_count: int = 0
 
+enum FrameType {
+	GLOBAL,
+	RELATIVE
+}
+
 func _init(par: IKBone = null,
 			tip_heading: Vector3 = Vector3(),
 			roll_heading: Vector3 = Vector3(),
@@ -38,9 +43,9 @@ func _init(par: IKBone = null,
 
 		var tip_heading_ray: IKRay3D = IKRay3D.new(par.get_tip(), tip_heading)
 		var roll_heading_ray: IKRay3D = IKRay3D.new(par.get_tip(), roll_heading)
-		var temp_tip: Vector3 = tip_heading.copy()
-		var temp_roll: Vector3 = roll_heading.copy()
-		var temp_x: Vector3 = temp_roll.copy()
+		var temp_tip: Vector3 = tip_heading
+		var temp_roll: Vector3 = roll_heading
+		var temp_x: Vector3 = temp_roll
 
 		if coordinate_type == FrameType.GLOBAL:
 			temp_tip = tip_heading_ray.heading()
@@ -52,9 +57,9 @@ func _init(par: IKBone = null,
 		temp_x = temp_tip.cross(temp_roll)
 		temp_roll = temp_x.cross(temp_tip)
 
-		temp_x.normalize()
-		temp_tip.normalize()
-		temp_roll.normalize()
+		temp_x = temp_x.normalized()
+		temp_tip = temp_tip.normalized()
+		temp_roll = temp_roll.normalized()
 
 		self.parent = par
 		self.parent_armature = self.parent.parent_armature

@@ -22,8 +22,8 @@ enum Axis {
 
 var debug: bool = false
 
-var localMBasis: IKBasis
-var globalMBasis: IKBasis
+var localMBasis: Transform3D
+var globalMBasis: Transform3D
 var parent: IKNode3D = null
 
 var slipType: int = 0
@@ -40,7 +40,7 @@ var tag: String = str(hash(self)) + "-Axes"
 func create_temp_vars(type: Vector3) -> void:
 	workingVector = type.copy()
 
-func _init(globalBasis: IKBasis, parent: IKNode3D) -> void:
+func _init(globalBasis: Transform3D, parent: IKNode3D) -> void:
 	self.globalMBasis = globalBasis.copy()
 	create_temp_vars(globalBasis.get_origin())
 	
@@ -375,13 +375,12 @@ func emancipate() -> void:
 func disown(child: IKNode3D) -> void:
 	dependentsSet.erase(child)
 
-func get_global_m_basis() -> IKBasis:
+func get_global_m_basis() -> Transform3D:
 	update_global()
 	return globalMBasis
 
-func get_local_m_basis() -> IKBasis:
+func get_local_m_basis() -> Transform3D:
 	return localMBasis
-
 
 func axis_slip_warning(global_prior_to_slipping: IKNode3D, global_after_slipping: IKNode3D,
 						actual_axis: IKNode3D, dont_warn: Array) -> void:
