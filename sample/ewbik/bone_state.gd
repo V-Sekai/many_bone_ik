@@ -3,14 +3,13 @@ extends Object
 
 class_name BoneState
 
-
-var id: String = null
-var parent_id: String = null
-var transform_id: String = null
-var target_id: String = null
-var constraint_id: String = null
+var id: String
+var parent_id: String
+var transform_id: String
+var target_id: String
+var constraint_id: String
 var stiffness: float = 0.0
-var child_map: Dictionary[String, int] = {}
+var child_map: Dictionary = {} # Dictionary[String, int]
 var index: int
 var parent_idx: int = -1
 var child_indices: Array[int] = []
@@ -43,10 +42,10 @@ func get_parent() -> BoneState:
 		return bones[parent_idx]
 	return null
 
-func get_child(_id: String) -> BoneState:
+func get_child_from_name(_id: String) -> BoneState:
 	return bones[child_map[_id]]
 
-func get_child(index: int) -> BoneState:
+func get_child_from_index(index: int) -> BoneState:
 	return bones[child_indices[index]]
 
 func clear_child_list() -> void:
@@ -99,25 +98,25 @@ func validate() -> void:
 	if assumeValid:
 		return
 
-	var transform: TransformState = transformMap.get(this.transform_id)
+	var transform: TransformState = transformMap.get(self.transform_id)
 	if transform == null:
-		raise("Bone '%s' references transform with id '%s', but '%s' has not been registered with the SkeletonState." % [this.id, this.transform_id, this.transform_id])
+		raise("Bone '%s' references transform with id '%s', but '%s' has not been registered with the SkeletonState." % [self.id, self.transform_id, self.transform_id])
 
-	if this.parent_id != null:
-		var parent: BoneState = boneMap.get(this.parent_id)
+	if self.parent_id != null:
+		var parent: BoneState = boneMap.get(self.parent_id)
 		if parent == null:
-			raise("Bone '%s' references parent bone with id '%s', but '%s' has not been registered with the SkeletonState." % [this.id, this.parent_id, this.parent_id])
+			raise("Bone '%s' references parent bone with id '%s', but '%s' has not been registered with the SkeletonState." % [self.id, self.parent_id, self.parent_id])
 
 		var parentBonesTransform: TransformState = transformMap.get(parent.transform_id)
 		var transformsParent: TransformState = transformMap.get(transform.parent_id)
 
 		if parentBonesTransform != transformsParent:
-			raise("Bone '%s' has listed bone with id '%s' as its parent, which has a transform_id of '%s' but the parent transform of this bone's transform is listed as %s. A bone's transform must have the parent bone's transform as its parent" % [this.id, this.parent_id, parent.transform_id, transform.parent_id])
+			raise("Bone '%s' has listed bone with id '%s' as its parent, which has a transform_id of '%s' but the parent transform of this bone's transform is listed as %s. A bone's transform must have the parent bone's transform as its parent" % [self.id, self.parent_id, parent.transform_id, transform.parent_id])
 
 		var ancestor: BoneState = parent
 		while ancestor != null:
 			if ancestor == self:
-				raise("Bone '%s' is listed as being both a descendant and an ancestor of itself." % this.id)
+				raise("Bone '%s' is listed as being both a descendant and an ancestor of itself." % self.id)
 
 			if ancestor.parent_id == null:
 				ancestor = null
@@ -128,24 +127,24 @@ func validate() -> void:
 					raise("bone with id `%s` lists its parent bone as having id `%s`, but no such bone has been registered with the SkeletonState" % [curr.id, curr.parent_id])
 
 	else:
-		if this.constraint_id != null:
-			raise("Bone '%s' has been determined to be a root bone. However, root bones may not be constrained. If you wish to constrain the root bone anyway, please insert a fake unconstrained root bone prior to this bone. Give that bone's transform values equal to this bone's, and set this bone's transforms to identity." % this.id)
+		if self.constraint_id != null:
+			raise("Bone '%s' has been determined to be a root bone. However, root bones may not be constrained. If you wish to constrain the root bone anyway, please insert a fake unconstrained root bone prior to this bone. Give that bone's transform values equal to this bone's, and set this bone's transforms to identity." % self.id)
 
-	if this.constraint_id != null:
-		var constraint: ConstraintState = constraintMap.get(this.constraint_id)
+	if self.constraint_id != null:
+		var constraint: ConstraintState = constraintMap.get(self.constraint_id)
 		if constraint == null:
-			raise("Bone '%s' claims to be constrained by '%s', but no such constraint has been registered with this SkeletonState" % [this.id, this.constraint_id])
+			raise("Bone '%s' claims to be constrained by '%s', but no such constraint has been registered with this SkeletonState" % [self.id, self.constraint_id])
 
-		if not constraint.forBone_id == this.id:
-			raise("Bone '%s' claims to be constrained by '%s', but constraint of id '%s' claims to be constraining bone with id '%s'" % [this.id, constraint.id, constraint.id, constraint.forBone_id])
+		if not constraint.forBone_id == self.id:
+			raise("Bone '%s' claims to be constrained by '%s', but constraint of id '%s' claims to be constraining bone with id '%s'" % [self.id, constraint.id, constraint.id, constraint.forBone_id])
 
 func get_index() -> int:
 	return index
 
 
 func get_id_string() -> String:
-	return this.id
+	return self.id
 
 
 func set_stiffness(stiffness: float) -> void:
-	this.stiffness = stiffness
+	self.stiffness = stiffness
