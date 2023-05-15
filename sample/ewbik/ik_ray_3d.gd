@@ -1,281 +1,281 @@
+@tool
+extends Object
 
-#ifndef IK_RAY_3D_H
-#define IK_RAY_3D_H
+class_name IKRay3D
 
-#include "core/io/resource.h"
-#include "core/math/vector3.h"
+const X = 0
+const Y = 1
+const Z = 2
+var p1: Vector3
+var p2: Vector3
+var working_vector: Vector3
 
-class IKRay3D : public RefCounted {
-	GDCLASS(IKRay3D, RefCounted);
+func _init(origin: Vector3, end_point: Vector3) -> void:
+	self.working_vector = origin
+	self.p1 = origin
+	self.p2 = end_point
 
-	Vector3 tta, ttb, ttc;
-	Vector3 I, u, v, n, dir, w0;
-	Vector3 m, at, bt, ct, pt;
-	Vector3 bc, ca, ac;
+func heading() -> Vector3:
+	self.working_vector = p2
+	return working_vector - p1
 
-	Vector3 point_1;
-	Vector3 point_2;
-	Vector3 working_vector;
+func set_heading(new_head: Vector3) -> void:
+	self.p2 = self.p1 + new_head
 
-protected:
-	static void _bind_methods();
+func get_heading(set_to: Vector3) -> void:
+	set_to = p2 - p1
 
-public:
-	IKRay3D();
-	virtual ~IKRay3D() {}
-	IKRay3D(Vector3 p_point_one, Vector3 p_point_two);
-	virtual Vector3 get_heading();
-	virtual void set_heading(const Vector3 &p_new_head);
+func origin() -> Vector3:
+	return p1
 
-	/**
-	 * Returns the scalar projection of the input vector on this
-	 * ray. In other words, if this ray goes from (5, 0) to (10, 0),
-	 * and the input vector is (7.5, 7), this function
-	 * would output 0.5. Because that is amount the ray would need
-	 * to be scaled by so that its tip is where the vector would project onto
-	 * this ray.
-	 * <p>
-	 * Due to floating point errors, the intended properties of this function might
-	 * not be entirely consistent with its output under summation.
-	 * <p>
-	 * To help spare programmer cognitive cycles debugging in such circumstances,
-	 * the intended properties
-	 * are listed for reference here (despite their being easily inferred).
-	 * <p>
-	 * 1. calling get_scaled_projection(someVector) should return the same value as
-	 * calling
-	 * get_scaled_projection(closestPointTo(someVector).
-	 * 2. calling getMultipliedBy(get_scaled_projection(someVector)) should return the
-	 * same
-	 * vector as calling closestPointTo(someVector)
-	 *
-	 * @param p_input a vector to project onto this ray
-	 */
-	virtual real_t get_scaled_projection(const Vector3 p_input);
+func mag() -> float:
+	working_vector = p2
+	return (working_vector - p1).length()
 
-	/**
-	 * adds the specified length to the ray in both directions.
-	 */
-	virtual void elongate(real_t p_amount);
+func set_mag(new_mag: float) -> void:
+	working_vector = p2
+	var dir = working_vector - p1
+	dir = dir.normalized() * new_mag
+	set_heading(dir)
 
-	/**
-	 * @param ta the first vertex of a triangle on the plane
-	 * @param tb the second vertex of a triangle on the plane
-	 * @param tc the third vertex of a triangle on the plane
-	 * @return the point where this ray intersects the plane specified by the
-	 *         triangle ta,tb,tc.
-	 */
-	virtual Vector3 get_intersects_plane(Vector3 p_vertex_a, Vector3 p_vertex_b, Vector3 p_vertex_c);
+func div(divisor: float) -> void:
+	p2 -= p1
+	p2 /= divisor
+	p2 += p1
 
-	/*
-	 * Find where this ray intersects a sphere
-	 *
-	 * @param Vector3 the center of the sphere to test against.
-	 *
-	 * @param radius radius of the sphere
-	 *
-	 * @param S1 reference to variable in which the first intersection will be
-	 * placed
-	 *
-	 * @param S2 reference to variable in which the second intersection will be
-	 * placed
-	 *
-	 * @return number of intersections found;
-	 */
-	virtual int intersects_sphere(Vector3 p_sphere_center, real_t p_radius, Vector3 *r_first_intersection, Vector3 *r_second_intersection);
-	virtual void p1(Vector3 p_point);
-	virtual void p2(Vector3 p_point);
-	virtual Vector3 p2();
-	virtual Vector3 p1();
-	virtual int intersects_sphere(Vector3 p_rp1, Vector3 p_rp2, float p_radius, Vector3 *r_first_intersection, Vector3 *r_second_intersection);
-	float triangle_area_2d(float p_x1, float p_y1, float p_x2, float p_y2, float p_x3, float p_y3);
-	void barycentric(Vector3 p_a, Vector3 p_b, Vector3 p_c, Vector3 p_p, Vector3 *r_uvw);
-	virtual Vector3 plane_intersect_test(Vector3 p_vertex_a, Vector3 p_vertex_b, Vector3 p_vertex_c, Vector3 *uvw);
-	operator String() const {
-		return String(L"(") + point_1.x + L" ->  " + point_2.x + L") \n " + L"(" + point_1.y + L" ->  " + point_2.y + L") \n " + L"(" + point_1.z + L" ->  " + point_2.z + L") \n ";
-	}
-};
+func mult(scalar: float) -> void:
+	p2 -= p1
+	p2 *= scalar
+	p2 += p1
 
-#endif // IK_RAY_3D_H
+func get_multiplied_by(scalar: float) -> Vector3:
+	var result = heading()
+	result *= scalar
+	result += p1
+	return result
 
+func get_divided_by(divisor: float) -> Vector3:
+	var result = heading()
+	result /= divisor
+	result += p1
+	return result
 
-IKRay3D::IKRay3D() {
-}
+func get_scaled_to(scale: float) -> Vector3:
+	var result = heading()
+	result.normalize()
+	result *= scale
+	result += p1
+	return result
 
-IKRay3D::IKRay3D(Vector3 p_p1, Vector3 p_p2) {
-	working_vector = p_p1;
-	point_1 = p_p1;
-	point_2 = p_p2;
-}
+func elongate(amt: float) -> void:
+	var mid_point = (p1 + p2) * 0.5
+	var p1_heading = p1 - mid_point
+	var p2_heading = p2 - mid_point
+	var p1_add = p1_heading.normalized() * amt
+	var p2_add = p2_heading.normalized() * amt
 
-Vector3 IKRay3D::get_heading() {
-	working_vector = point_2;
-	return working_vector - point_1;
-}
+	p1 = p1_heading + p1_add + mid_point
+	p2 = p2_heading + p2_add + mid_point
 
-void IKRay3D::set_heading(const Vector3 &p_new_head) {
-	point_2 = point_1;
-	point_2 = p_new_head;
-}
+func copy() -> IKRay3D:
+	return IKRay3D.new(p1, p2)
 
-real_t IKRay3D::get_scaled_projection(const Vector3 p_input) {
-	working_vector = p_input;
-	working_vector = working_vector - point_1;
-	Vector3 heading = get_heading();
-	real_t headingMag = heading.length();
-	real_t workingVectorMag = working_vector.length();
-	if (workingVectorMag == 0 || headingMag == 0) {
-		return 0;
-	}
-	return (working_vector.dot(heading) / (headingMag * workingVectorMag)) * (workingVectorMag / headingMag);
-}
+func reverse() -> void:
+	var temp = p1
+	p1 = p2
+	p2 = temp
 
-void IKRay3D::elongate(real_t amt) {
-	Vector3 midPoint = (point_1 + point_2) * 0.5f;
-	Vector3 p1Heading = point_1 - midPoint;
-	Vector3 p2Heading = point_2 - midPoint;
-	Vector3 p1Add = p1Heading.normalized() * amt;
-	Vector3 p2Add = p2Heading.normalized() * amt;
+func get_reversed() -> IKRay3D:
+	return IKRay3D.new(p2, p1)
 
-	point_1 = p1Heading + p1Add + midPoint;
-	point_2 = p2Heading + p2Add + midPoint;
-}
+func get_ray_scaled_to(scalar: float) -> IKRay3D:
+	return IKRay3D.new(p1, get_scaled_to(scalar))
 
-Vector3 IKRay3D::get_intersects_plane(Vector3 ta, Vector3 tb, Vector3 tc) {
-	Vector3 uvw;
-	tta = ta;
-	ttb = tb;
-	ttc = tc;
-	tta -= point_1;
-	ttb -= point_1;
-	ttc -= point_1;
-	Vector3 result = plane_intersect_test(tta, ttb, ttc, &uvw);
-	return result + point_1;
-}
+func point_with(r: IKRay3D) -> void:
+	if heading().dot(r.heading()) < 0:
+		reverse()
 
-int IKRay3D::intersects_sphere(Vector3 sphereCenter, real_t radius, Vector3 *S1, Vector3 *S2) {
-	Vector3 tp1 = point_1 - sphereCenter;
-	Vector3 tp2 = point_2 - sphereCenter;
-	int result = intersects_sphere(tp1, tp2, radius, S1, S2);
-	*S1 += sphereCenter;
-	*S2 += sphereCenter;
-	return result;
-}
+func point_with_heading(heading: Vector3) -> void:
+	if self.heading().dot(heading) < 0:
+		reverse()
 
-void IKRay3D::p1(Vector3 in) {
-	point_1 = in;
-}
+func get_ray_scaled_by(scalar: float) -> IKRay3D:
+	return IKRay3D.new(p1, get_multiplied_by(scalar))
 
-void IKRay3D::p2(Vector3 in) {
-	point_2 = in;
-}
+func set_to_inverted_tip(vec: Vector3) -> Vector3:
+	vec.x = (p1.x - p2.x) + p1.x
+	vec.y = (p1.y - p2.y) + p1.y
+	vec.z = (p1.z - p2.z) + p1.z
+	return vec
 
-Vector3 IKRay3D::p2() {
-	return point_2;
-}
+func contract_to(percent: float) -> void:
+	var half_percent = 1 - ((1 - percent) / 2.0)
 
-Vector3 IKRay3D::p1() {
-	return point_1;
-}
+	p1 = p1.lerp(p2, half_percent)
+	p2 = p2.lerp(p1, half_percent)
 
-int IKRay3D::intersects_sphere(Vector3 rp1, Vector3 rp2, float radius, Vector3 *S1, Vector3 *S2) {
-	Vector3 direction = rp2 - rp1;
-	Vector3 e = direction; // e=ray.dir
-	e.normalize(); // e=g/|g|
-	Vector3 h = point_1;
-	h = Vector3(0.0f, 0.0f, 0.0f);
-	h = h - rp1; // h=r.o-c.M
-	float lf = e.dot(h); // lf=e.h
-	float radpow = radius * radius;
-	float hdh = h.length_squared();
-	float lfpow = lf * lf;
-	float s = radpow - hdh + lfpow; // s=r^2-h^2+lf^2
-	if (s < 0.0f) {
-		return 0; // no intersection points ?
-	}
-	s = Math::sqrt(s); // s=sqrt(r^2-h^2+lf^2)
+func translate_to(new_location: Vector3) -> void:
+	working_vector = p2 - p1
+	working_vector += new_location
+	p2 = working_vector
+	p1 = new_location
 
-	int result = 0;
-	if (lf < s) {
-		if (lf + s >= 0) {
-			s = -s; // swap S1 <-> S2}
-			result = 1; // one intersection point
-		}
-	} else {
-		result = 2; // 2 intersection points
-	}
+func translate_tip_to(new_location: Vector3) -> void:
+	working_vector = new_location
+	var trans_by = working_vector - p2
+	translate_by(trans_by)
 
-	*S1 = e * (lf - s);
-	*S1 += rp1; // S1=A+e*(lf-s)
-	*S2 = e * (lf + s);
-	*S2 += rp1; // S2=A+e*(lf+s)
-	return result;
-}
+func translate_by(to_add: Vector3) -> void:
+	p1 += to_add
+	p2 += to_add
 
-Vector3 IKRay3D::plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc, Vector3 *uvw) {
-	u = tb;
-	v = tc;
-	n = Vector3(0, 0, 0);
-	dir = get_heading();
-	w0 = Vector3(0, 0, 0);
-	float r, a, b;
-	u -= ta;
-	v -= ta;
+func normalize() -> void:
+	set_mag(1)
 
-	n = u.cross(v);
+static func tri_area_2d(x1: float, y1: float, x2: float, y2: float, x3: float, y3: float) -> float:
+	return (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2)
 
-	w0 -= ta;
-	a = -(n.dot(w0));
-	b = n.dot(dir);
-	r = a / b;
-	I = dir;
-	I *= r;
-	barycentric(ta, tb, tc, I, uvw);
-	return I;
-}
+var I: Vector3
+var u: Vector3
+var v: Vector3
+var n: Vector3
+var dir: Vector3
+var w0: Vector3
+var in_use: bool = false
 
-float IKRay3D::triangle_area_2d(float x1, float y1, float x2, float y2, float x3, float y3) {
-	return (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2);
-}
+func barycentric(a: Vector3, b: Vector3, c: Vector3, p: Vector3, uvw: Array) -> void:
+	bc = b
+	ca = a
+	at = a
+	bt = b
+	ct = c
+	pt = p
 
-void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 *uvw) {
-	bc = b;
-	ca = a;
-	at = a;
-	bt = b;
-	ct = c;
-	pt = p;
+	m = ((bc - ct).cross(ca - at))
 
-	m = Vector3(bc - ct).cross(ca - at);
+	var nu: float
+	var nv: float
+	var ood: float
 
-	float nu;
-	float nv;
-	float ood;
+	var x = abs(m.x)
+	var y = abs(m.y)
+	var z = abs(m.z)
 
-	float x = Math::abs(m.x);
-	float y = Math::abs(m.y);
-	float z = Math::abs(m.z);
+	if x >= y and x >= z:
+		nu = tri_area_2d(pt.y, pt.z, bt.y, bt.z, ct.y, ct.z)
+		nv = tri_area_2d(pt.y, pt.z, ct.y, ct.z, at.y, at.z)
+		ood = 1.0 / m.x
+	elif y >= x and y >= z:
+		nu = tri_area_2d(pt.x, pt.z, bt.x, bt.z, ct.x, ct.z)
+		nv = tri_area_2d(pt.x, pt.z, ct.x, ct.z, at.x, at.z)
+		ood = 1.0 / -m.y
+	else:
+		nu = tri_area_2d(pt.x, pt.y, bt.x, bt.y, ct.x, ct.y)
+		nv = tri_area_2d(pt.x, pt.y, ct.x, ct.y, at.x, at.y)
+		ood = 1.0 / m.z
 
-	if (x >= y && x >= z) {
-		nu = triangle_area_2d(pt.y, pt.z, bt.y, bt.z, ct.y, ct.z);
-		nv = triangle_area_2d(pt.y, pt.z, ct.y, ct.z, at.y, at.z);
-		ood = 1.0f / m.x;
-	} else if (y >= x && y >= z) {
-		nu = triangle_area_2d(pt.x, pt.z, bt.x, bt.z, ct.x, ct.z);
-		nv = triangle_area_2d(pt.x, pt.z, ct.x, ct.z, at.x, at.z);
-		ood = 1.0f / -m.y;
-	} else {
-		nu = triangle_area_2d(pt.x, pt.y, bt.x, bt.y, ct.x, ct.y);
-		nv = triangle_area_2d(pt.x, pt.y, ct.x, ct.y, at.x, at.y);
-		ood = 1.0f / m.z;
-	}
-	(*uvw)[0] = nu * ood;
-	(*uvw)[1] = nv * ood;
-	(*uvw)[2] = 1.0f - (*uvw)[0] - (*uvw)[1];
-}
+	uvw[0] = nu * ood
+	uvw[1] = nv * ood
+	uvw[2] = 1.0 - uvw[0] - uvw[1]
 
-void IKRay3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_heading"), &IKRay3D::get_heading);
-	ClassDB::bind_method(D_METHOD("get_scaled_projection", "input"), &IKRay3D::get_scaled_projection);
-	ClassDB::bind_method(D_METHOD("get_intersects_plane", "a", "b", "c"), &IKRay3D::get_intersects_plane);
-}
+func plane_intersect_test(ta: Vector3, tb: Vector3, tc: Vector3, uvw: Array) -> Vector3:
+	u = tb
+	v = tc
+	n = Vector3()
+	dir = heading()
+	w0 = Vector3(0, 0, 0)
+
+	var r: float
+	var a: float
+	var b: float
+	u -= ta
+	v -= ta
+
+	n = u.cross(v)
+
+	w0 -= ta
+	a = -(n.dot(w0))
+	b = n.dot(dir)
+	r = a / b
+	I = Vector3(0, 0, 0)
+	I = dir
+	I *= r
+	barycentric(ta, tb, tc, I, uvw)
+
+	return I
+
+func intersects_sphere(sphere_center: Vector3, radius: float, S1: Vector3, S2: Vector3) -> int:
+	var tp1 = p1 - sphere_center
+	var tp2 = p2 - sphere_center
+	var result = intersects_sphere_vectors(tp1, tp2, radius, S1, S2)
+	S1 += sphere_center
+	S2 += sphere_center
+	return result
+
+func intersects_sphere_vectors(rp1: Vector3, rp2: Vector3, radius: float, S1: Vector3, S2: Vector3) -> int:
+	var direction: Vector3 = rp2 - rp1
+	var e = direction
+	e.normalize()
+	var h = p1
+	h.set(0, 0, 0)
+	h -= rp1
+	var lf = e.dot(h)
+	var radpow = radius * radius
+	var hdh = h.length_squared()
+	var lfpow = lf * lf
+	var s = radpow - hdh + lfpow
+
+	if s < 0.0:
+		return 0
+
+	s = sqrt(s)
+	var result: int
+
+	if lf < s and lf + s >= 0:
+		s = -s
+		result = 1
+	else:
+		result = 2
+
+	S1 = e * (lf - s)
+	S1 += rp1
+	S2 = e * (lf + s)
+	S2 += rp1
+
+	return result
+
+var m: Vector3
+var at: Vector3
+var bt: Vector3
+var ct: Vector3
+var pt: Vector3
+var bc: Vector3
+var ca: Vector3
+var ac: Vector3
+
+func _print() -> String:
+	var result = "IKRay3D (%s ->  %s)\n(%s ->  %s)\n(%s ->  %s)\n" % [
+		str(p1.x), str(p2.x),
+		str(p1.y), str(p2.y),
+		str(p1.z), str(p2.z)
+	]
+	return result
+
+func set_p1(input: Vector3) -> void:
+	p1 = input
+
+func set_p2(input: Vector3) -> void:
+	p2 = input
+
+func lerp(a: float, b: float, t: float) -> float:
+	return (1 - t) * a + t * b
+
+func get_p2() -> Vector3:
+	return p2
+
+func set_from_ik_ray(r: IKRay3D) -> void:
+	p1 = r.p1
+	p2 = r.p2
+
+func get_p1() -> Vector3:
+	return p1
