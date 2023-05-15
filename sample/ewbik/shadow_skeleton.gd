@@ -13,7 +13,7 @@ var base_dampening = PI
 func _init(skel_state: SkeletonState, base_dampening: float):
 	self.skel_state = skel_state
 	self.shadow_space = Transform3D();
-	self.base_dampening = baseDampening;
+	self.base_dampening = base_dampening;
 
 	# Build simTransforms hierarchy
 	var transform_count = skel_state.get_transform_count()
@@ -65,7 +65,7 @@ func solve(iterations: int, stabilization_passes: int, notifier: Callable) -> vo
 		for j in range(end_on_index + 1):
 			traversal_array[j].pull_back_toward_allowable_region(i, iterations)
 		for j in range(end_on_index + 1):
-			traversal_array[j].fast_update_optimal_rotation_to_pinned_descendants(dampening,
+			traversal_array[j].fast_update_optimal_rotation_to_pinned_descendants(base_dampening,
 																					j == end_on_index and end_on_index == traversal_array.size() - 1)
 	for wb in traversal_array:
 		align_bone(wb)
