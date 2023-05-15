@@ -202,13 +202,35 @@ func inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> 
 func calculate_rmsd(r_length: float) -> void:
     rmsd = sqrt(abs(2.0 * (e0 - mxEigenV) / r_length))
 
-func set(r_target: PackedVector3Array, r_moved: PackedVector3Array) -> void:
+func set_basic(r_target: PackedVector3Array, r_moved: PackedVector3Array) -> void:
     target = r_target
     moved = r_moved
     rmsd_calculated = false
     transformation_calculated = false
     inner_product_calculated = false
 
+func set_advanced(p_moved: PackedVector3Array, p_target: PackedVector3Array, p_weight: Array[float], p_translate: bool) -> void:
+    rmsd_calculated = false
+    transformation_calculated = false
+    inner_product_calculated = false
+
+    moved = p_moved
+    target = p_target
+    weight = p_weight
+
+    if p_translate:
+        moved_center = move_to_weighted_center(moved, weight)
+        w_sum = 0
+        target_center = move_to_weighted_center(target, weight)
+        translate(moved_center * -1, moved)
+        translate(target_center * -1, target)
+    else:
+        if not p_weight.is_empty():
+            for i in range(p_weight.size()):
+                w_sum += p_weight[i]
+        else:
+            w_sum = p_moved.size()
+    
 func calculate_rotation() -> Quat:
 	# QCP doesn't handle single targets, so if we only have one point and one
 	# target, we just rotate by the angular distance between them
@@ -302,34 +324,12 @@ func calculate_rotation() -> Quat:
         q4 /= min_val
         return Quaternion(q2, q3, q4, q1).normalized()
 
-func set(p_moved: PackedVector3Array, p_target: PackedVector3Array, p_weight: Array[float], p_translate: bool) -> void:
-    rmsd_calculated = false
-    transformation_calculated = false
-    inner_product_calculated = false
-
-    moved = p_moved
-    target = p_target
-    weight = p_weight
-
-    if p_translate:
-        moved_center = move_to_weighted_center(moved, weight)
-        w_sum = 0
-        target_center = move_to_weighted_center(target, weight)
-        translate(moved_center * -1, moved)
-        translate(target_center * -1, target)
-    else:
-        if not p_weight.is_empty():
-            for i in range(p_weight.size()):
-                w_sum += p_weight[i]
-        else:
-            w_sum = p_moved.size()
-
 static func translate(r_translate: Vector3, r_x: PackedVector3Array) -> void:
     for i in range(r_x.size()):
         r_x[i] += r_translate
 
 func get_rmsd(r_fixed: PackedVector3Array, r_moved: PackedVector3Array) -> float:
-    set(r_fixed, r_moved)
+    set_basic(r_fixed, r_moved)
     return get_rmsd()
 
 func move_to_weighted_center(r_to_center: PackedVector3Array, r_weight: Array[float]) -> Vector3:
@@ -361,7 +361,7 @@ func get_rmsd() -> float:
     return rmsd
 
 func weighted_superpose(p_moved: PackedVector3Array, p_target: PackedVector3Array, p_weight: Array[float], translate: bool) -> Quat:
-    set(p_moved, p_target, p_weight, translate)
+    set_advanced(p_moved, p_target, p_weight, translate)
     return get_rotation()
 
 func get_rotation() -> Quaternion:
