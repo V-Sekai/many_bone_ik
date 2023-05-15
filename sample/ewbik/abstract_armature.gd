@@ -811,69 +811,6 @@ public double getDampening() {
     return dampening;
 }
 
-boolean monitorPerformance = true;
-
-public void setPerformanceMonitor(boolean state) {
-    monitorPerformance = state;
-}
-
-public class PerformanceStats {
-    int timedCalls = 0;
-    int benchmarkWindow = 60;
-    int iterationCount = 0;
-    float averageSolutionTime = 0;
-    float averageIterationTime = 0;
-    int solutionCount = 0;
-    float iterationsPerSecond = 0f;
-    long totalSolutionTime = 0;
-
-    long startTime = 0;
-
-    public void startPerformanceMonitor() {
-        monitorPerformance = true;
-        if (monitorPerformance) {
-            if (timedCalls > benchmarkWindow) {
-                performance.resetPerformanceStat();
-            }
-            startTime = System.nanoTime();
-        }
-    }
-
-    public void solveFinished(int iterations) {
-        if (monitorPerformance) {
-            totalSolutionTime += System.nanoTime() - startTime;
-            // averageSolutionTime *= solutionCount;
-            solutionCount++;
-            iterationCount += iterations;
-
-            if (timedCalls > benchmarkWindow) {
-                timedCalls = 0;
-                performance.printStats();
-            }
-            timedCalls++;
-        }
-    }
-
-    public void resetPerformanceStat() {
-        startTime = 0;
-        iterationCount = 0;
-        averageSolutionTime = 0;
-        solutionCount = 0;
-        iterationsPerSecond = 0f;
-        totalSolutionTime = 0;
-        averageIterationTime = 0;
-    }
-
-    public void printStats() {
-        averageSolutionTime = (float) (totalSolutionTime / solutionCount) / 1000000f;
-        averageIterationTime = (float) (totalSolutionTime / iterationCount) / 1000000f;
-        System.out.println("solution time average: ");
-        System.out.println("per call = " + (averageSolutionTime) + "ms");
-        System.out.println("per iteration = " + (averageIterationTime) + "ms \n");
-    }
-
-}
-
 @Override
 public void makeSaveable(SaveManager saveManager) {
     saveManager.addToSaveState(this);
