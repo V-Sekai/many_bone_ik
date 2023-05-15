@@ -308,28 +308,26 @@ func update_tangent_and_cushion_handles(next, mode):
 
         var arc_normal = A.cross(B)
 
-#			/**
-#			 * There are an infinite number of circles co-tangent with A and B, every other
-#			 * one of which has a unique radius.
-#			 * 
-#			 * However, we want the radius of our tangent circles to obey the following
-#			 * properties:
-#			 * 1) When the radius of A + B == 0 radians, our tangent circle's radius should
-#			 * = pi/2 radians.
-#			 * In other words, the tangent circle should span a hemisphere.
-#			 * 2) When the radius of A + B == pi radians, our tangent circle's radius should
-#			 * = 0 radians.
-#			 * In other words, when A + B combined are capable of spanning the entire
-#			 * sphere,
-#			 * our tangentCircle should be nothing.
-#			 * 
-#			 * Another way to think of this is -- whatever the maximum distance can be
-#			 * between the
-#			 * borders of A and B (presuming their centers are free to move about the circle
-#			 * but their radii remain constant), we want our tangentCircle's diameter to be
-#			 * precisely that distance.
-#			 *
-#			 */
+        # There are an infinite number of circles co-tangent with A and B, every other
+        # one of which has a unique radius.
+        # 
+        # However, we want the radius of our tangent circles to obey the following
+        # properties:
+        # 1) When the radius of A + B == 0 radians, our tangent circle's radius should
+        # = pi/2 radians.
+        # In other words, the tangent circle should span a hemisphere.
+        # 2) When the radius of A + B == pi radians, our tangent circle's radius should
+        # = 0 radians.
+        # In other words, when A + B combined are capable of spanning the entire
+        # sphere,
+        # our tangentCircle should be nothing.
+        #
+        # Another way to think of this is -- whatever the maximum distance can be
+        # between the
+        # borders of A and B (presuming their centers are free to move about the circle
+        # but their radii remain constant), we want our tangentCircle's diameter to be
+        # precisely that distance.
+
         var t_radius = (PI - (radA + radB)) / 2.0
 
         # Calculate direction of cones
