@@ -92,10 +92,24 @@ var moved_center: Vector3
 
 var e0: float = 0
 var rmsd: float = 0
-var Sxy: float = 0, Sxz: float = 0, Syx: float = 0, Syz: float = 0, Szx: float = 0, Szy: float = 0
-var SxxpSyy: float = 0, Szz: float = 0, mxEigenV: float = 0, SyzmSzy: float = 0, SxzmSzx: float = 0, SxymSyx: float = 0
-var SxxmSyy: float = 0, SxypSyx: float = 0, SxzpSzx: float = 0
-var Syy: float = 0, Sxx: float = 0, SyzpSzy: float = 0
+var Sxy: float = 0
+var Sxz: float = 0
+var Syx: float = 0
+var Syz: float = 0
+var Szx: float = 0
+var Szy: float = 0
+var SxxpSyy: float = 0
+var Szz: float = 0
+var mxEigenV: float = 0
+var SyzmSzy: float = 0
+var SxzmSzx: float = 0
+var SxymSyx: float = 0
+var SxxmSyy: float = 0
+var SxypSyx: float = 0
+var SxzpSzx: float = 0
+var Syy: float = 0
+var Sxx: float = 0
+var SyzpSzy: float = 0
 var rmsd_calculated: bool = false
 var transformation_calculated: bool = false
 var inner_product_calculated: bool = false
