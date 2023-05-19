@@ -213,7 +213,7 @@ func is_ancestor_of(potential_descendent: IKPin) -> bool:
 
 func get_pin_weight() -> float:
 	return pin_weight
-	
+
 # Currently only works with tranquil solver.
 #
 # @param weight any positive number representing how much the IK solver

@@ -72,7 +72,7 @@ func optimize_limiting_axes() -> void:
 		original_limiting_axes.set_to_global_of(lc.control_point, lc.control_point)
 		twist_axes.set_to_local_of(lc.control_point, lc.control_point)
 		lc.control_point.normalize()
-	
+
 		update_tangent_radii()
 
 func update_tangent_radii() -> void:
@@ -302,7 +302,7 @@ func signed_angle_difference(min_angle: float, base: float) -> float:
 		sign = 1.0
 	r *= sign
 	return r
-	
+
 
 func point_in_limits(inPoint: Vector3, inBounds: Array, boundaryMode: int) -> Vector3:
 	var point: Vector3 = inPoint.normalized()

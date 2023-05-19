@@ -38,7 +38,7 @@ var constraint_map: Dictionary = {} # Dictionary[String, ConstraintState]
 
 var bones: Array[BoneState]
 var targets: Array[TargetState]
-var constraints: Array[ConstraintState] 
+var constraints: Array[ConstraintState]
 var transforms: Array[TransformState]
 
 var root_bone_state: BoneState = null

@@ -62,7 +62,7 @@ func get_vector3_orthogonal(vector: Vector3):
 		return Vector3(inverse * vector.y, -inverse * vector.x, 0)
 
 #	/**
-#	 * 
+#	 *
 #	 * @param direction
 #	 * @param rad
 #	 * @param cushion    range 0-1, how far toward the boundary to begin slowing
@@ -78,7 +78,7 @@ func _init(direction: Vector3, rad: float, cushion: float, attached_to: IKKusuda
 	set_control_point(direction)
 	self.tangent_circle_center_next_1 = get_vector3_orthogonal(direction)
 	self.tangent_circle_center_next_2 = -tangent_circle_center_next_1
-	
+
 	const FLT_MIN = 1.17e-38
 	self.radius = max(FLT_MIN, rad)
 	self.radius_cosine = cos(radius)
@@ -88,7 +88,7 @@ func _init(direction: Vector3, rad: float, cushion: float, attached_to: IKKusuda
 	self.parent_kusudama = attached_to
 
 #	/**
-#	 * 
+#	 *
 #	 * @param next
 #	 * @param input
 #	 * @param collisionPoint will be set to the rectified (if necessary) position of
@@ -110,7 +110,7 @@ func in_bounds_from_this_to_next(next, input: Vector3, collision_point: Vector3)
 	return is_in_bounds
 
 #	/**
-#	 * 
+#	 *
 #	 * @param next
 #	 * @param input
 #	 * @return null if the input point is already in bounds, or the point's
@@ -144,7 +144,7 @@ func get_closest_path_point(next, input: Vector3) -> Vector3:
 #	 * @return
 #	 */
 func determine_if_in_bounds(next, input: Vector3) -> bool:
-	
+
 #		/**
 #		 * Procedure : Check if input is contained in this cone, or the next cone
 #		 * if it is, then we're finished and in bounds. otherwise,
@@ -223,14 +223,14 @@ func get_on_path_sequence(next, input: Vector3) -> Variant:
 func get_on_great_tangent_triangle(next: IKLimitCone, input: Vector3) -> Variant:
 	var c1xc2 = control_point.cross(next.control_point)
 	var c1c2dir = input.dot(c1xc2)
-	
+
 	if c1c2dir < 0.0:
 		var c1xt1 = control_point.cross(tangent_circle_center_next_1)
 		var t1xc2 = tangent_circle_center_next_1.cross(next.control_point)
-		
+
 		if input.dot(c1xt1) > 0 and input.dot(t1xc2) > 0:
 			var to_next_cos = input.dot(tangent_circle_center_next_1)
-			
+
 			if to_next_cos > tangent_circle_radius_next_cos:
 				var plane_normal = tangent_circle_center_next_1.cross(input)
 				var rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next)
@@ -242,7 +242,7 @@ func get_on_great_tangent_triangle(next: IKLimitCone, input: Vector3) -> Variant
 	else:
 		var t2xc1 = tangent_circle_center_next_2.cross(control_point)
 		var c2xt2 = next.control_point.cross(tangent_circle_center_next_2)
-		
+
 		if input.dot(t2xc1) > 0 and input.dot(c2xt2) > 0:
 			if input.dot(tangent_circle_center_next_2) > tangent_circle_radius_next_cos:
 				var plane_normal = tangent_circle_center_next_2.cross(input)
@@ -262,15 +262,15 @@ func closest_cone(next: IKLimitCone, input: Vector3) -> Vector3:
 # Returns null if no rectification is required.
 func closest_point_on_closest_cone(next: IKLimitCone, input: Vector3, in_bounds: Array) -> Variant:
 	var closest_to_first = closest_to_cone(input, in_bounds)
-	
+
 	if in_bounds[0]:
 		return closest_to_first
-	
+
 	var closest_to_second = next.closest_to_cone(input, in_bounds)
-	
+
 	if in_bounds[0]:
 		return closest_to_second
-	
+
 	var cos_to_first = input.dot(closest_to_first)
 	var cos_to_second = input.dot(closest_to_second)
 
@@ -309,7 +309,7 @@ func update_tangent_and_cushion_handles(next, mode):
 
 		# There are an infinite number of circles co-tangent with A and B, every other
 		# one of which has a unique radius.
-		# 
+		#
 		# However, we want the radius of our tangent circles to obey the following
 		# properties:
 		# 1) When the radius of A + B == 0 radians, our tangent circle's radius should

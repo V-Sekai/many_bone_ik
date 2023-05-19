@@ -35,7 +35,7 @@ func _init(to_simulate: BoneState, chain: IKArmatureSegment, sim_transforms, for
 	if for_bone.get_target() != null:
 		target_state = for_bone.get_target()
 		sim_target_axes = sim_transforms[target_state.get_transform().get_index()]
-	
+
 	self.has_pinned_ancestor = on_chain.has_pinned_ancestor
 
 	var pre_damp: float = 1.0 - for_bone.get_stiffness()

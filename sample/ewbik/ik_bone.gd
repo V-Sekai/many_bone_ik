@@ -88,7 +88,7 @@ func set_ancestor_count(count: int) -> void:
 # 	* updates the ancestor count for this bone, and
 # 	* sets the ancestor count of all child bones
 # 	* to this bone's ancestor count +1;
-# 	* 
+# 	*
 # 	* @param count
 # 	*/
 func update_ancestor_count() -> void:

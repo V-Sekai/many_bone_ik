@@ -198,7 +198,7 @@ func set_advanced(p_moved: PackedVector3Array, p_target: PackedVector3Array, p_w
 				w_sum += p_weight[i]
 		else:
 			w_sum = p_moved.size()
-	
+
 func calculate_rotation() -> Quaternion:
 	# QCP doesn't handle single targets, so if we only have one point and one
 	# target, we just rotate by the angular distance between them

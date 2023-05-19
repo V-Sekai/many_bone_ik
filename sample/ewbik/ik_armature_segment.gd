@@ -4,7 +4,7 @@ extends Object
 class_name IKArmatureSegment
 
 ## A segment is defined as any set of bones all solving for the same targets.
-## A segment may have subsegments, which are all bones solving for one or more strict subsets 
+## A segment may have subsegments, which are all bones solving for one or more strict subsets
 ## of the targets the segment solves for.
 ## A segment may have child segments, which do not solve for any of the same targets as the parent segment,
 ## but whose bones are all descendants of the bones in the parent segment.
@@ -29,7 +29,7 @@ var pinned_bones: Array[WorkingBone]
 var is_root_pinned: bool = false
 var has_pinned_ancestor: bool = false
 var previous_deviation: float = INF
-const DOUBLE_ROUNDING_ERROR = 0.000000000000001 
+const DOUBLE_ROUNDING_ERROR = 0.000000000000001
 var qcp_converger: QCP = QCP.new(DOUBLE_ROUNDING_ERROR, DOUBLE_ROUNDING_ERROR)
 var wb_segment_tip: WorkingBone
 var parent_segment: IKArmatureSegment
@@ -130,7 +130,7 @@ func _init(shadow_skel: ShadowSkeleton, starting_from: BoneState, parent_segment
 
 func get_dapening() -> float:
 	return shadow_skel.base_dampening
-	
+
 func recursively_create_penalty_array(weight_array: Array, pin_sequence: Array, current_falloff: float) -> void:
 	if current_falloff == 0:
 		return
