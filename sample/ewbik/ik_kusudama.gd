@@ -20,7 +20,7 @@ var strength: float = 1.0
 
 var attached_to: IKBone
 var twist_min_rot: Quaternion
-var twist_max_rot: quaternion
+var twist_max_rot: Quaternion
 var twist_center_rot: Quaternion
 
 func _init(for_bone: IKBone) -> void:

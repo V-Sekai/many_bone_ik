@@ -146,7 +146,10 @@ func prune() -> void:
 ## @param constraint_id Optional ID string of the constraint on this bone, or null if no constraint.
 ## @param stiffness     Aka friction. Optional value from 1-0 indicating how slowly this bone moves. 1 means it never moves, 0 means it moves as much as the dampening parameter allows.
 func add_bone(id: String, transform_id: String, parent_id: String, target_id: String, constraint_id: String, stiffness: float = 0.0) -> BoneState:
-	var result := BoneState.new(id, transform_id, parent_id, target_id, constraint_id, stiffness)
+	var result := BoneState.new(id, transform_id, parent_id, target_id, constraint_id, stiffness, 
+	transforms, targets, bones, constraints, bones_list, bone_map, root_bone_state,
+	transform_map, target_map, constraint_map, 
+	)
 	bone_map[id] = result
 	return result
 
