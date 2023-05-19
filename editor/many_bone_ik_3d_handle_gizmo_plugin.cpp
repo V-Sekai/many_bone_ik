@@ -34,7 +34,6 @@
 
 #include "core/io/resource_saver.h"
 #include "core/math/transform_3d.h"
-#include "editor/editor_file_dialog.h"
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
 #include "editor/editor_scale.h"
