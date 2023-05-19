@@ -76,7 +76,11 @@ func get_global_transform() -> Transform3D:
 			global_transform = local_transform
 
 		if disable_scale:
-			global_transform.basis = global_transform.basis.orthogonalized()
+			# Start orthogonalized()
+			var scl: Vector3 = global_transform.basis.get_scale();
+			global_transform.basis = global_transform.basis.orthonormalized();
+			global_transform.basis = global_transform.basis * Basis.from_scale(scl)
+			# End orthogonalized()
 
 		dirty &= ~TransformDirty.DIRTY_GLOBAL
 
