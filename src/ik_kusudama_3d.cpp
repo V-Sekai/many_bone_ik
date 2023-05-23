@@ -306,3 +306,13 @@ void IKKusudama3D::_bind_methods() {
 void IKKusudama3D::set_limit_cones(TypedArray<IKLimitCone3D> p_cones) {
 	limit_cones = p_cones;
 }
+
+Quaternion IKKusudama3D::quaternion_axis_angle_normalized(const Vector3 &p_axis, real_t p_angle) {
+	real_t norm = p_axis.length_squared();
+	if (norm == 0) {
+		return Quaternion();
+	}
+	real_t half_angle = -0.5 * p_angle;
+	real_t coeff = -sin(half_angle) / sqrt(norm);
+	return Quaternion(coeff * p_axis.x, coeff * p_axis.y, coeff * p_axis.z, cos(half_angle));
+}

@@ -103,26 +103,18 @@ protected:
 	static void _bind_methods();
 
 public:
-	static Quaternion quaternion_axis_angle_normalized(const Vector3 &p_axis, real_t p_angle) {
-		real_t norm = p_axis.length_squared();
-		if (norm == 0) {
-			return Quaternion();
-		}
-		real_t half_angle = -0.5 * p_angle;
-		real_t coeff = -sin(half_angle) / sqrt(norm);
-		return Quaternion(coeff * p_axis.x, coeff * p_axis.y, coeff * p_axis.z, cos(half_angle));
-	}
+	static Quaternion quaternion_axis_angle_normalized(const Vector3 &p_axis, real_t p_angle);
 
-	virtual ~IKKusudama3D() {
+	~IKKusudama3D() {
 	}
 
 	IKKusudama3D() {}
 
 	IKKusudama3D(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, real_t cos_half_angle_dampen);
 
-	virtual void _update_constraint();
+	void _update_constraint();
 
-	virtual void update_tangent_radii();
+	void update_tangent_radii();
 
 	Ref<IKRay3D> bone_ray = Ref<IKRay3D>(memnew(IKRay3D()));
 	Ref<IKRay3D> constrained_ray = Ref<IKRay3D>(memnew(IKRay3D()));
@@ -136,7 +128,7 @@ public:
 	 *
 	 * @param to_set
 	 */
-	virtual void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampen, real_t p_cos_half_angle_dampen);
+	void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampen, real_t p_cos_half_angle_dampen);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
@@ -149,7 +141,7 @@ public:
 	 * This value is always interpreted as being in the positive direction. For example, if this value is -PI/2, the entire range_angle from min_angle to min_angle + 3PI/4 is
 	 * considered valid.
 	 */
-	virtual void set_axial_limits(real_t min_angle, real_t in_range);
+	void set_axial_limits(real_t min_angle, real_t in_range);
 
 	/**
 	 *
@@ -157,7 +149,7 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	virtual void set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_dampen);
+	void set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_dampen);
 
 	/**
 	 * Given a point (in local coordinates), checks to see if a ray can be extended from the Kusudama's
@@ -183,24 +175,24 @@ public:
 	 * @param new_point where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
 	 * @param radius the radius of the limitCone
 	 */
-	virtual void add_limit_cone(Vector3 new_point, double radius);
-	virtual void remove_limit_cone(Ref<IKLimitCone3D> limitCone);
+	void add_limit_cone(Vector3 new_point, double radius);
+	void remove_limit_cone(Ref<IKLimitCone3D> limitCone);
 
 	/**
 	 *
 	 * @return the lower bound on the axial constraint
 	 */
-	virtual real_t get_min_axial_angle();
-	virtual real_t get_range_angle();
+	real_t get_min_axial_angle();
+	real_t get_range_angle();
 
-	virtual bool is_axially_constrained();
-	virtual bool is_orientationally_constrained();
-	virtual void disable_orientational_limits();
-	virtual void enable_orientational_limits();
-	virtual void toggle_orientational_limits();
-	virtual void disable_axial_limits();
-	virtual void enable_axial_limits();
-	virtual void toggle_axial_limits();
+	bool is_axially_constrained();
+	bool is_orientationally_constrained();
+	void disable_orientational_limits();
+	void enable_orientational_limits();
+	void toggle_orientational_limits();
+	void disable_axial_limits();
+	void enable_axial_limits();
+	void toggle_axial_limits();
 	bool is_enabled();
 	void disable();
 	void enable();
@@ -219,9 +211,9 @@ public:
 	 * cones intersect with a previous sequence.
 	 */
 	double get_rotational_freedom();
-	virtual void update_rotational_freedom();
-	virtual TypedArray<IKLimitCone3D> get_limit_cones() const;
-	virtual void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
+	void update_rotational_freedom();
+	TypedArray<IKLimitCone3D> get_limit_cones() const;
+	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
 };
 
 #endif // IK_KUSUDAMA_3D_H
