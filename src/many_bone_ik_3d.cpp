@@ -431,6 +431,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void ManyBoneIK3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("copy_kusudama", "from", "bone_name_to", "mirror_vector3"), &ManyBoneIK3D::copy_kusudama);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform", "index"), &ManyBoneIK3D::get_constraint_orientation_transform);
@@ -1162,4 +1163,29 @@ int32_t ManyBoneIK3D::get_ui_selected_bone() const {
 
 void ManyBoneIK3D::set_ui_selected_bone(int32_t p_ui_selected_bone) {
 	ui_selected_bone = p_ui_selected_bone;
+}
+
+void ManyBoneIK3D::copy_kusudama(const String &p_bone_name_from, TypedArray<String> p_bone_name_to, Vector3 p_mirror) {
+	if (Math::is_zero_approx(p_mirror.length_squared())) {
+		p_mirror = Vector3(0, 1, 0);
+	}
+
+	int from = find_constraint(p_bone_name_from);
+
+	for (int i = 0; i < p_bone_name_to.size(); ++i) {
+		String bone_name_to = p_bone_name_to[i];
+		int to = find_constraint(bone_name_to);
+
+		int cone_count = get_kusudama_limit_cone_count(from);
+		set_kusudama_limit_cone_count(to, cone_count);
+
+		for (int cone_i = 0; cone_i < cone_count; ++cone_i) {
+			set_kusudama_limit_cone_center(
+					to, cone_i, get_kusudama_limit_cone_center(from, cone_i) * p_mirror);
+			set_kusudama_limit_cone_radius(to, cone_i, get_kusudama_limit_cone_radius(from, cone_i));
+		}
+
+		Vector2 twist = get_kusudama_twist(from);
+		set_kusudama_twist(to, twist * p_mirror.normalized().sign().x);
+	}
 }

@@ -94,6 +94,7 @@ protected:
 	void _notification(int p_what);
 
 public:
+	void copy_kusudama(const String &p_bone_name_from, TypedArray<String> p_bone_name_to, Vector3 p_mirror);
 	void set_stabilization_passes(int32_t p_passes) {
 		stabilize_passes = p_passes;
 		set_dirty();
