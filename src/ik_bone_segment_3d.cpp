@@ -193,11 +193,12 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 	Transform3D prev_transform = p_for_bone->get_pose();
 	bool gotCloser = true;
 	real_t bone_damp = p_for_bone->get_cos_half_dampen();
-	for (int i = 0; i <= default_stabilizing_pass_count; i++) {
-		update_tip_headings(p_for_bone, &tip_headings, false);
 
+	int i = 0;
+	do {
+		update_tip_headings(p_for_bone, &tip_headings, false);
 		if (!p_constraint_mode) {
-			// Solved ik transform and apply it.
+			// Solved the ik transform and apply it.
 			QCP qcp = QCP(evec_prec, eval_prec);
 			Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 			Vector3 translation = qcp.get_translation();
@@ -211,7 +212,7 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 			result.orthonormalize();
 			p_for_bone->set_global_pose(result);
 		}
-		// Calculate orientation before twist to avoid exceding the twist bound when updating the rotation.
+		// Calculate orientation before twist to avoid exceeding the twist bound when updating the rotation.
 		if (p_for_bone->is_orientationally_constrained() && p_for_bone->get_parent().is_valid()) {
 			p_for_bone->get_constraint()->set_axes_to_orientation_snap(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
 		}
@@ -230,7 +231,9 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 				gotCloser = false;
 			}
 		}
-	}
+		i++;
+	} while (i < default_stabilizing_pass_count && !gotCloser);
+
 	if (!gotCloser) {
 		p_for_bone->set_pose(prev_transform);
 	}
