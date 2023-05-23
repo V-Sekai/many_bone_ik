@@ -109,18 +109,18 @@ Vector3 IKRay3D::p1() {
 	return point_1;
 }
 
-int IKRay3D::intersects_sphere(Vector3 rp1, Vector3 rp2, float radius, Vector3 *S1, Vector3 *S2) {
+int IKRay3D::intersects_sphere(Vector3 rp1, Vector3 rp2, real_t radius, Vector3 *S1, Vector3 *S2) {
 	Vector3 direction = rp2 - rp1;
 	Vector3 e = direction; // e=ray.dir
 	e.normalize(); // e=g/|g|
 	Vector3 h = point_1;
 	h = Vector3(0.0f, 0.0f, 0.0f);
 	h = h - rp1; // h=r.o-c.M
-	float lf = e.dot(h); // lf=e.h
-	float radpow = radius * radius;
-	float hdh = h.length_squared();
-	float lfpow = lf * lf;
-	float s = radpow - hdh + lfpow; // s=r^2-h^2+lf^2
+	real_t lf = e.dot(h); // lf=e.h
+	real_t radpow = radius * radius;
+	real_t hdh = h.length_squared();
+	real_t lfpow = lf * lf;
+	real_t s = radpow - hdh + lfpow; // s=r^2-h^2+lf^2
 	if (s < 0.0f) {
 		return 0; // no intersection points ?
 	}
@@ -149,7 +149,7 @@ Vector3 IKRay3D::plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc, Vector
 	n = Vector3(0, 0, 0);
 	dir = get_heading();
 	w0 = Vector3(0, 0, 0);
-	float r, a, b;
+	real_t r, a, b;
 	u -= ta;
 	v -= ta;
 
@@ -165,7 +165,7 @@ Vector3 IKRay3D::plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc, Vector
 	return I;
 }
 
-float IKRay3D::triangle_area_2d(float x1, float y1, float x2, float y2, float x3, float y3) {
+real_t IKRay3D::triangle_area_2d(real_t x1, real_t y1, real_t x2, real_t y2, real_t x3, real_t y3) {
 	return (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2);
 }
 
@@ -179,13 +179,13 @@ void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 *u
 
 	m = Vector3(bc - ct).cross(ca - at);
 
-	float nu;
-	float nv;
-	float ood;
+	real_t nu;
+	real_t nv;
+	real_t ood;
 
-	float x = Math::abs(m.x);
-	float y = Math::abs(m.y);
-	float z = Math::abs(m.z);
+	real_t x = Math::abs(m.x);
+	real_t y = Math::abs(m.y);
+	real_t z = Math::abs(m.z);
 
 	if (x >= y && x >= z) {
 		nu = triangle_area_2d(pt.y, pt.z, bt.y, bt.z, ct.y, ct.z);
