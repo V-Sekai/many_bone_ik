@@ -31,12 +31,18 @@
 #include "ik_node_3d.h"
 
 void IKNode3D::_propagate_transform_changed() {
+	Vector<Ref<IKNode3D>> to_remove;
+
 	for (Ref<IKNode3D> transform : children) {
 		if (transform.is_null()) {
-			children.erase(transform);
-			continue;
+			to_remove.push_back(transform);
+		} else {
+			transform->_propagate_transform_changed();
 		}
-		transform->_propagate_transform_changed();
+	}
+
+	for (Ref<IKNode3D> transform : to_remove) {
+		children.erase(transform);
 	}
 
 	dirty |= DIRTY_GLOBAL;
@@ -44,21 +50,18 @@ void IKNode3D::_propagate_transform_changed() {
 
 void IKNode3D::_update_local_transform() const {
 	local_transform.basis = rotation.scaled(scale);
-
 	dirty &= ~DIRTY_LOCAL;
 }
 
 void IKNode3D::rotate_local_with_global(const Basis &p_basis, bool p_propagate) {
-	if (parent.is_null()) {
-		return;
-	}
-	Basis new_rot;
-	new_rot = parent->get_global_transform().basis;
-	local_transform.basis = (new_rot.inverse() * p_basis * new_rot) * local_transform.basis;
-	dirty |= DIRTY_GLOBAL;
-	if (p_propagate) {
-		_propagate_transform_changed();
-	}
+    if (!parent.is_null()) {
+        Basis new_rot = parent->get_global_transform().basis;
+        local_transform.basis = (new_rot.inverse() * p_basis * new_rot) * local_transform.basis;
+        dirty |= DIRTY_GLOBAL;
+        if (p_propagate) {
+            _propagate_transform_changed();
+        }
+    }
 }
 
 void IKNode3D::set_transform(const Transform3D &p_transform) {
