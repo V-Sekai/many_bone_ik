@@ -54,30 +54,28 @@ void IKNode3D::_update_local_transform() const {
 }
 
 void IKNode3D::rotate_local_with_global(const Basis &p_basis, bool p_propagate) {
-    if (!parent.is_null()) {
-        Basis new_rot = parent->get_global_transform().basis;
-        local_transform.basis = (new_rot.inverse() * p_basis * new_rot) * local_transform.basis;
-        dirty |= DIRTY_GLOBAL;
-        if (p_propagate) {
-            _propagate_transform_changed();
-        }
-    }
+	if (parent.is_null()) {
+		return;
+	}
+	Basis new_rot;
+	new_rot = parent->get_global_transform().basis;
+	local_transform.basis = (new_rot.inverse() * p_basis * new_rot) * local_transform.basis;
+	dirty |= DIRTY_GLOBAL;
+	if (p_propagate) {
+		_propagate_transform_changed();
+	}
 }
 
 void IKNode3D::set_transform(const Transform3D &p_transform) {
-	if (local_transform == p_transform) {
-		return;
+	if (local_transform != p_transform) {
+		local_transform = p_transform;
+		dirty |= DIRTY_VECTORS;
+		_propagate_transform_changed();
 	}
-	local_transform = p_transform;
-	dirty |= DIRTY_VECTORS;
-	_propagate_transform_changed();
 }
 
 void IKNode3D::set_global_transform(const Transform3D &p_transform) {
-	Transform3D xform = p_transform;
-	if (parent.is_valid()) {
-		xform = parent->get_global_transform().affine_inverse() * p_transform;
-	}
+	Transform3D xform = parent.is_valid() ? parent->get_global_transform().affine_inverse() * p_transform : p_transform;
 	local_transform = xform;
 	dirty |= DIRTY_VECTORS;
 	_propagate_transform_changed();
