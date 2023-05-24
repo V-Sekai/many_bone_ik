@@ -10,6 +10,14 @@
 	<tutorials>
 	</tutorials>
 	<methods>
+		<method name="copy_kusudama">
+			<return type="void" />
+			<param index="0" name="from" type="String" />
+			<param index="1" name="bone_name_to" type="String[]" />
+			<param index="2" name="mirror_vector3" type="Vector3" />
+			<description>
+			</description>
+	</method>
 		<method name="find_constraint" qualifiers="const">
 			<return type="int" />
 			<param index="0" name="name" type="String" />
