@@ -29,7 +29,6 @@
 /**************************************************************************/
 
 #include "ik_bone_3d.h"
-
 #include "ik_kusudama_3d.h"
 #include "many_bone_ik_3d.h"
 #include "math/ik_node_3d.h"
@@ -56,25 +55,32 @@ void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 
 void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 	Vector3 child_centroid;
-	if (children.is_empty()) {
+	int child_count = 0;
+
+	for (Ref<IKBone3D> ik_bone : children) {
+		child_centroid += ik_bone->get_ik_transform()->get_global_transform().origin;
+		child_count++;
+	}
+
+	if (child_count > 0) {
+		child_centroid /= child_count;
+	} else {
 		PackedInt32Array bone_children = p_skeleton->get_bone_children(bone_id);
 		for (BoneId child_bone_idx : bone_children) {
 			child_centroid += p_skeleton->get_bone_global_pose(child_bone_idx).origin;
 		}
 		child_centroid /= bone_children.size();
-	} else {
-		for (Ref<IKBone3D> ik_bone : children) {
-			child_centroid += ik_bone->get_ik_transform()->get_global_transform().origin;
-		}
-		child_centroid /= children.size();
 	}
+
 	Vector3 godot_bone_origin = godot_skeleton_aligned_transform->get_global_transform().origin;
 	child_centroid -= godot_bone_origin;
+
 	if (Math::is_zero_approx(child_centroid.length_squared()) && parent.is_valid()) {
 		child_centroid = parent->get_bone_direction_transform()->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	} else if (Math::is_zero_approx(child_centroid.length_squared()) && parent.is_null()) {
 		child_centroid = get_bone_direction_transform()->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	}
+
 	if (!Math::is_zero_approx(child_centroid.length_squared()) && (children.size() || p_skeleton->get_bone_children(bone_id).size())) {
 		child_centroid.normalize();
 		Vector3 bone_direction = bone_direction_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
