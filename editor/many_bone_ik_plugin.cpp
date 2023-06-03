@@ -208,6 +208,14 @@ void ManyBoneIK3DEditor::create_editors() {
 	direction_priorities_vector3->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(direction_priorities_vector3);
 
+	twist_current_float = memnew(EditorPropertyFloat());
+	twist_current_float->hide();
+	twist_current_float->setup(0, 1, 0.01, false, false, false, false, String::utf8("°"), false);
+	twist_current_float->set_label(TTR("Twist Current"));
+	twist_current_float->set_selectable(false);
+	twist_current_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
+	constraint_bone_section->get_vbox()->add_child(twist_current_float);
+
 	twist_from_float = memnew(EditorPropertyFloat());
 	twist_from_float->hide();
 	twist_from_float->setup(-360, 360, 0.01, false, false, false, false, String::utf8("°"), true);
@@ -286,6 +294,7 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 
 	bone_damp_float->hide();
 	target_nodepath->hide();
+	twist_current_float->hide();
 	twist_from_float->hide();
 	twist_range_float->hide();
 	cone_count_float->hide();
@@ -323,6 +332,9 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 	direction_priorities_vector3->set_object_and_property(ik, vformat("pins/%d/direction_priorities", selected_bone));
 	direction_priorities_vector3->update_property();
 	direction_priorities_vector3->show();
+	twist_current_float->set_object_and_property(ik, vformat("constraints/%d/twist_current", selected_bone));
+	twist_current_float->update_property();
+	twist_current_float->show();
 	twist_from_float->set_object_and_property(ik, vformat("constraints/%d/twist_from", selected_bone));
 	twist_from_float->update_property();
 	twist_from_float->show();
