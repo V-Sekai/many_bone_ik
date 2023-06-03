@@ -210,7 +210,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 	twist_current_float = memnew(EditorPropertyFloat());
 	twist_current_float->hide();
-	twist_current_float->setup(0, 1, 0.01, false, false, false, false, String::utf8("°"), false);
+	twist_current_float->setup(0, 1, 0.01, false, false, false, false);
 	twist_current_float->set_label(TTR("Twist Current"));
 	twist_current_float->set_selectable(false);
 	twist_current_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));

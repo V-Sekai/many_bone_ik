@@ -33,7 +33,6 @@
 
 #include "ik_bone_3d.h"
 #include "ik_bone_segment_3d.h"
-#include "ik_kusudama_3d.h"
 #include "ik_limit_cone_3d.h"
 #include "ik_ray_3d.h"
 #include "math/ik_node_3d.h"
