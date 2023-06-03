@@ -131,9 +131,9 @@ ManyBoneIK3DHandleGizmoPlugin::ManyBoneIK3DHandleGizmoPlugin() {
 	create_handle_material("handles_billboard", true);
 	Ref<Texture2D> handle_axial_from = Node3DEditor::get_singleton()->get_theme_icon(SNAME("SpringArm3D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_from", false, handle_axial_from);
-	Ref<Texture2D> handle_axial_middle = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node"), SNAME("EditorIcons"));
+	Ref<Texture2D> handle_axial_middle = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Control"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_middle", false, handle_axial_middle);
-	Ref<Texture2D> handle_axial_to = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node"), SNAME("EditorIcons"));
+	Ref<Texture2D> handle_axial_to = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node3D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_to", false, handle_axial_to);
 	Ref<Texture2D> handle_axial_current = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node2D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_current", false, handle_axial_current);
@@ -179,8 +179,6 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 	}
 	Vector<Vector3> center_handles;
 	Vector<Vector3> radius_handles;
-	Vector<float> center_handle_radii;
-	Vector<float> radius_handle_radii;
 	const TypedArray<IKLimitCone3D> &limit_cones = ik_kusudama->get_limit_cones();
 	for (int32_t cone_i = 0; cone_i < limit_cones.size(); cone_i++) {
 		Ref<IKLimitCone3D> limit_cone = limit_cones[cone_i];
@@ -227,7 +225,6 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 			handle_relative_to_mesh.origin = center * radius;
 			Transform3D handle_transform = constraint_transform * handle_relative_to_mesh;
 			center_handles.push_back(handle_transform.origin);
-			center_handle_radii.push_back(radius);
 		}
 		{
 			Ref<IKLimitCone3D> limit_cone = ik_kusudama->get_limit_cones()[current_cone];
@@ -241,12 +238,9 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 			handle_relative_to_mesh.origin = (maw_rotation.xform(center) * radius);
 			Transform3D handle_transform = constraint_transform * handle_relative_to_mesh;
 			radius_handles.push_back(handle_transform.origin);
-			radius_handle_radii.push_back(radius);
 		}
 		current_cone++;
 	}
-	apply_dynamic_offset(center_handles, center_handle_radii);
-	apply_dynamic_offset(radius_handles, radius_handle_radii);
 	if (center_handles.size()) {
 		p_gizmo->add_handles(center_handles, get_material("handles"), Vector<int>(), false, true);
 	}
@@ -322,7 +316,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		start_angle = start_angle + kusudama->get_range_angle();
 	}
 	float end_angle = start_angle + Math::abs(kusudama->get_range_angle());
-	float gaps = Math::deg_to_rad(30.0f);
+	float gaps = Math::deg_to_rad(60.0f);
 	for (float theta = start_angle; theta < end_angle; theta += gaps) {
 		const float ra = theta;
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
@@ -346,8 +340,6 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		axial_to_radii.push_back(radius);
 	}
 	if (axial_from_handles.size() && axial_to_handles.size()) {
-		apply_dynamic_offset(axial_from_handles, axial_from_radii);
-		apply_dynamic_offset(axial_to_handles, axial_to_radii);
 		p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), true, false);
 		p_gizmo->add_handles(axial_to_handles, get_material("handles_axial_to"), Vector<int>(), true, false);
 	}
@@ -356,7 +348,6 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		for (int32_t handle_i = 0; handle_i < axial_middle_handles.size(); handle_i++) {
 			handles.push_back(axial_middle_handles[handle_i]);
 		}
-		apply_dynamic_offset(handles, axial_middle_radii);
 		p_gizmo->add_handles(handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
 	{
@@ -370,29 +361,6 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		Vector<Vector3> handles_current;
 		handles_current.push_back(handle_position);
 		axial_current_radii.push_back(radius);
-		apply_dynamic_offset(handles_current, axial_current_radii);
 		p_gizmo->add_handles(handles_current, get_material("handles_axial_current"), Vector<int>(), true, true);
 	}
-}
-
-void ManyBoneIK3DHandleGizmoPlugin::apply_dynamic_offset(Vector<Vector3> &handles, const Vector<float> &radii) {
-	if (handles.size() < 2 || handles.size() != radii.size()) {
-		return;
-	}
-	for (int i = 1; i < handles.size(); ++i) {
-		Vector3 offset = calculate_dynamic_offset(handles[i - 1], handles[i], radii[i - 1], radii[i]);
-		handles.write[i] += offset;
-	}
-}
-
-Vector3 ManyBoneIK3DHandleGizmoPlugin::calculate_dynamic_offset(const Vector3 &pos1, const Vector3 &pos2, float radius1, float radius2) {
-	float min_distance = radius1 + radius2;
-	float current_distance = pos1.distance_to(pos2);
-
-	if (current_distance < min_distance) {
-		Vector3 direction = (pos2 - pos1).normalized();
-		return direction * (min_distance - current_distance);
-	}
-
-	return Vector3(0, 0, 0);
 }

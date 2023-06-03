@@ -70,10 +70,8 @@ public:
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	ManyBoneIK3DHandleGizmoPlugin();
 	int32_t get_priority() const override;
-	void apply_dynamic_offset(Vector<Vector3> &handles, const Vector<float> &radii);
 	void create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
 	void create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
-	Vector3 calculate_dynamic_offset(const Vector3 &pos1, const Vector3 &pos2, float radius1, float radius2);
 };
 
 class EditorPluginManyBoneIKHandle : public EditorPlugin {
