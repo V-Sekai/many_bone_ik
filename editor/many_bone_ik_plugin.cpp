@@ -94,49 +94,45 @@ void ManyBoneIK3DEditor::_notification(int p_what) {
 void ManyBoneIK3DEditor::_update_properties() {
 	Node3DEditor::get_singleton()->update_transform_gizmo();
 }
-
 void ManyBoneIK3DEditor::update_joint_tree() {
-	if (!ik || !ik->get_skeleton() || !joint_tree) {
+	if (!ik || !joint_tree) {
 		return;
 	}
-	joint_tree->clear();
 
 	Skeleton3D *skeleton = ik->get_skeleton();
 	if (!skeleton) {
 		return;
 	}
 
+	joint_tree->clear();
+
 	TreeItem *root = joint_tree->create_item();
-
 	HashMap<int, TreeItem *> items;
-
 	items.insert(-1, root);
 
 	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
 	Vector<int> bones_to_process = skeleton->get_parentless_bones();
-	while (bones_to_process.size() > 0) {
+
+	while (!bones_to_process.is_empty()) {
 		int current_bone_idx = bones_to_process[0];
-		bones_to_process.erase(current_bone_idx);
+		bones_to_process.remove_at(0);
+
 		StringName bone_name = skeleton->get_bone_name(current_bone_idx);
 		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
-		if (!items.find(parent_idx)) {
-			continue;
-		}
-		TreeItem *parent_item = items.find(parent_idx)->value;
 
-		TreeItem *joint_item = joint_tree->create_item(parent_item);
-		items.insert(current_bone_idx, joint_item);
+		if (items.find(parent_idx)) {
+			TreeItem *parent_item = items.find(parent_idx)->value;
+			TreeItem *joint_item = joint_tree->create_item(parent_item);
+			items.insert(current_bone_idx, joint_item);
 
-		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
-		joint_item->set_icon(0, bone_icon);
-		joint_item->set_selectable(0, true);
-		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
+			joint_item->set_text(0, bone_name);
+			joint_item->set_icon(0, bone_icon);
+			joint_item->set_selectable(0, true);
+			joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
 
-		// Add the bone's children to the list of bones to be processed.
-		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
-		int child_bone_size = current_bone_child_bones.size();
-		for (int i = 0; i < child_bone_size; i++) {
-			bones_to_process.push_back(current_bone_child_bones[i]);
+			// Add the bone's children to the list of bones to be processed.
+			Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
+			bones_to_process.append_array(current_bone_child_bones);
 		}
 	}
 }
