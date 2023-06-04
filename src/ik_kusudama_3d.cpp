@@ -202,36 +202,6 @@ void IKKusudama3D::enable() {
 	orientationally_constrained = true;
 }
 
-double IKKusudama3D::get_rotational_freedom() {
-	const double TOTAL_ROTATIONAL_RANGE = 2 * M_PI;
-	double constrained_range = 0.0;
-	TypedArray<IKLimitCone3D> cones = get_limit_cones();
-	for (int32_t cone_i = 0; cone_i < cones.size(); cone_i++) {
-		Ref<IKLimitCone3D> cone = cones[cone_i];
-		constrained_range += cone->get_radius();
-	}
-
-	// Calculate overlaps between sequential pairs of limit cones.
-	double total_overlap = 0.0;
-	for (int32_t i = 0; i < cones.size() - 1; ++i) {
-		Ref<IKLimitCone3D> cone_i = cones[i];
-		Ref<IKLimitCone3D> cone_j = cones[i + 1];
-
-		Vector3 cone_i_center = cone_i->get_control_point();
-		Vector3 cone_j_center = cone_j->get_control_point();
-		double distance_between_centers = cone_i_center.distance_to(cone_j_center);
-
-		double overlap = cone_i->get_radius() + cone_j->get_radius() - distance_between_centers;
-		if (overlap > 0) {
-			total_overlap += overlap;
-		}
-	}
-
-	double adjusted_constrained_range = constrained_range - total_overlap;
-	double free_range = TOTAL_ROTATIONAL_RANGE - adjusted_constrained_range;
-	return rotational_freedom = free_range / TOTAL_ROTATIONAL_RANGE;
-}
-
 TypedArray<IKLimitCone3D> IKKusudama3D::get_limit_cones() const {
 	return limit_cones;
 }
@@ -336,6 +306,7 @@ Quaternion IKKusudama3D::quaternion_axis_angle_normalized(const Vector3 &p_axis,
 	real_t coeff = -sin(half_angle) / sqrt(norm);
 	return Quaternion(coeff * p_axis.x, coeff * p_axis.y, coeff * p_axis.z, cos(half_angle));
 }
+
 void IKKusudama3D::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation) {
 	p_rotation = (p_rotation * range_angle) + min_axial_angle;
 	Quaternion inv_rot = bone_attached_to->get_constraint_orientation_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
@@ -375,41 +346,4 @@ real_t IKKusudama3D::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) 
 	}
 
 	return 0;
-}
-
-void IKKusudama3D::set_rotation_freedom(double p_value) {
-	// Clamp the input value between 0 and 1.
-	double clamped_value = CLAMP(p_value, 0.0, 1.0);
-
-	// Calculate the desired free range based on the clamped value.
-	const double TOTAL_ROTATIONAL_RANGE = 2 * M_PI;
-	double desired_free_range = clamped_value * TOTAL_ROTATIONAL_RANGE;
-
-	double current_constrained_range = TOTAL_ROTATIONAL_RANGE - rotational_freedom * TOTAL_ROTATIONAL_RANGE;
-
-	// Calculate the difference between the desired and current constrained ranges.
-	double range_difference = current_constrained_range - (TOTAL_ROTATIONAL_RANGE - desired_free_range);
-
-	// Distribute the range difference evenly among all limit cones.
-	TypedArray<IKLimitCone3D> cones = get_limit_cones();
-	double adjustment_per_cone = range_difference / cones.size();
-
-	for (int32_t cone_i = 0; cone_i < cones.size() - 1; cone_i++) {
-		Ref<IKLimitCone3D> cone = cones[cone_i];
-		Ref<IKLimitCone3D> next_cone = cones[cone_i + 1];
-
-		double new_radius = cone->get_radius() + adjustment_per_cone;
-		cone->set_radius(new_radius);
-
-		Vector3 current_center = cone->get_control_point();
-		Vector3 next_center = next_cone->get_control_point();
-
-		current_center.normalize();
-		next_center.normalize();
-
-		// Spherically interpolate between the current and next control points.
-		Vector3 adjusted_center = current_center.slerp(next_center, clamped_value);
-
-		cone->set_control_point(adjusted_center);
-	}
 }

@@ -240,14 +240,6 @@ void ManyBoneIK3DEditor::create_editors() {
 	cone_count_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(cone_count_float);
 
-	rotational_freedom_float = memnew(EditorPropertyFloat());
-	rotational_freedom_float->hide();
-	rotational_freedom_float->setup(0, 1, 0.01, false, false, false, false);
-	rotational_freedom_float->set_label(TTR("Roational Freedom"));
-	rotational_freedom_float->set_selectable(false);
-	rotational_freedom_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
-	constraint_bone_section->get_vbox()->add_child(rotational_freedom_float);
-
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i] = memnew(EditorPropertyVector3());
 		center_vector3[cone_i]->hide();
@@ -305,7 +297,6 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 	twist_current_float->hide();
 	twist_from_float->hide();
 	twist_range_float->hide();
-	rotational_freedom_float->hide();
 	cone_count_float->hide();
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i]->hide();
@@ -350,9 +341,6 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 	twist_range_float->set_object_and_property(ik, vformat("constraints/%d/twist_range", selected_bone));
 	twist_range_float->update_property();
 	twist_range_float->show();
-	rotational_freedom_float->set_object_and_property(ik, vformat("constraints/%d/rotaional_freedom", selected_bone));
-	rotational_freedom_float->update_property();
-	rotational_freedom_float->show();
 	cone_count_float->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone_count", selected_bone));
 	cone_count_float->update_property();
 	cone_count_float->show();

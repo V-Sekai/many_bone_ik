@@ -96,7 +96,6 @@ class IKKusudama3D : public Resource {
 			Vector3 p_axis,
 			Quaternion &r_swing,
 			Quaternion &r_twist);
-	double rotational_freedom = 1;
 
 protected:
 	static void _bind_methods();
@@ -209,8 +208,6 @@ public:
 	 * the orientations a bone can be in between two limit cones in a sequence if those limit
 	 * cones intersect with a previous sequence.
 	 */
-	double get_rotational_freedom();
-	void set_rotation_freedom(double p_value);
 	TypedArray<IKLimitCone3D> get_limit_cones() const;
 	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
 	real_t get_current_twist_rotation(Ref<IKBone3D> bone_attached_to);
