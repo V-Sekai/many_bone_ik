@@ -131,9 +131,9 @@ ManyBoneIK3DHandleGizmoPlugin::ManyBoneIK3DHandleGizmoPlugin() {
 	create_handle_material("handles_billboard", true);
 	Ref<Texture2D> handle_axial_from = Node3DEditor::get_singleton()->get_theme_icon(SNAME("SpringArm3D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_from", false, handle_axial_from);
-	Ref<Texture2D> handle_axial_middle = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node"), SNAME("EditorIcons"));
+	Ref<Texture2D> handle_axial_middle = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Control"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_middle", false, handle_axial_middle);
-	Ref<Texture2D> handle_axial_to = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node"), SNAME("EditorIcons"));
+	Ref<Texture2D> handle_axial_to = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node3D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_to", false, handle_axial_to);
 	Ref<Texture2D> handle_axial_current = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node2D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_current", false, handle_axial_current);
@@ -212,6 +212,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 	real_t dist = v0.distance_to(v1);
 	float radius = dist / 5.0;
 	int32_t current_cone = 0;
+	const float offset = 0.1f;
 	for (int32_t cone_i = 0; cone_i < ik_kusudama->get_limit_cones().size() * (3 * 4); cone_i = cone_i + (3 * 4)) {
 		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
 		float cone_radius = kusudama_limit_cones[cone_i + 3];
@@ -232,9 +233,10 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 			if (Math::is_zero_approx(maw_axis.length_squared())) {
 				maw_axis = Vector3(0, 1, 0);
 			}
-			Quaternion maw_rotation = IKKusudama3D::quaternion_axis_angle_normalized(maw_axis, cone_radius);
+			Quaternion maw_rotation = IKKusudama3D::quaternion_axis_angle_normalized(maw_axis, cone_radius).normalized();
+
 			Transform3D handle_relative_to_mesh;
-			handle_relative_to_mesh.origin = maw_rotation.xform(center) * radius;
+			handle_relative_to_mesh.origin = (maw_rotation.xform(center) * radius);
 			Transform3D handle_transform = constraint_transform * handle_relative_to_mesh;
 			radius_handles.push_back(handle_transform.origin);
 		}
@@ -284,6 +286,10 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	Vector<Vector3> axial_from_handles;
 	TypedArray<Vector3> axial_middle_handles;
 	TypedArray<Vector3> axial_current_handles;
+	Vector<float> axial_from_radii;
+	Vector<float> axial_to_radii;
+	Vector<float> axial_middle_radii;
+	Vector<float> axial_current_radii;
 	Vector<Vector3> axial_to_handles;
 
 	Transform3D constraint_twist_transform = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
@@ -294,6 +300,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	float radius = dist / 5.0;
 	float w = radius * Math::sin(cone_radius);
 	float d = radius * Math::cos(cone_radius);
+	const float offset = 0.1f;
 	{
 		const float ra = (float)kusudama->get_min_axial_angle();
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
@@ -302,6 +309,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
 		axial_from_handles.push_back((axial_transform).origin);
+		axial_from_radii.push_back(radius);
 	}
 	float start_angle = kusudama->get_min_axial_angle();
 	bool negative_range = kusudama->get_range_angle() < real_t(0.0);
@@ -309,7 +317,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		start_angle = start_angle + kusudama->get_range_angle();
 	}
 	float end_angle = start_angle + Math::abs(kusudama->get_range_angle());
-	float gaps = Math::deg_to_rad(30.0f);
+	float gaps = Math::deg_to_rad(60.0f);
 	for (float theta = start_angle; theta < end_angle; theta += gaps) {
 		const float ra = theta;
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
@@ -319,6 +327,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		axial_middle_handles.push_back((axial_transform).origin);
+		axial_middle_radii.push_back(radius);
 	}
 	axial_middle_handles.pop_front();
 	{
@@ -329,6 +338,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
 		axial_to_handles.push_back((axial_transform).origin);
+		axial_to_radii.push_back(radius);
 	}
 	if (axial_from_handles.size() && axial_to_handles.size()) {
 		p_gizmo->add_handles(axial_from_handles, get_material("handles_axial_from"), Vector<int>(), true, false);
@@ -341,4 +351,15 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		}
 		p_gizmo->add_handles(handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
+	float current_angle = kusudama->get_min_axial_angle() + Math::abs(ik_kusudama->get_current_twist_rotation(ik_bone) * ik_kusudama->get_range_angle());
+	const Point2 a = Vector2(Math::sin(current_angle), Math::cos(current_angle)) * w;
+	Transform3D center_relative_to_mesh;
+	Transform3D axial_from_relative_to_mesh;
+	axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
+	Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
+	Vector3 handle_position = (axial_transform).origin;
+	Vector<Vector3> handles_current;
+	handles_current.push_back(handle_position);
+	axial_current_radii.push_back(radius);
+	p_gizmo->add_handles(handles_current, get_material("handles_axial_current"), Vector<int>(), true, true);
 }

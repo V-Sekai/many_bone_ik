@@ -306,6 +306,9 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 			ERR_FAIL_INDEX_V(index, constraint_names.size(), false);
 			r_ret = constraint_names[index];
 			return true;
+		} else if (what == "twist_current") {
+			r_ret = get_kusudama_twist_current(index);
+			return true;
 		} else if (what == "twist_from") {
 			r_ret = get_kusudama_twist(index).x;
 			return true;
@@ -390,6 +393,9 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 				_set_constraint_count(constraint_count);
 			}
 			_set_constraint_name(index, p_value);
+			return true;
+		} else if (what == "twist_current") {
+			set_kusudama_twist_current(index, p_value);
 			return true;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_kusudama_twist(index);
@@ -923,14 +929,17 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 void ManyBoneIK3D::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			set_physics_process_internal(true);
 			set_notify_transform(true);
 			set_process_priority(1);
 		} break;
+		case NOTIFICATION_ENTER_TREE: {
+			set_physics_process_internal(true);
+		} break;
+		case NOTIFICATION_EXIT_TREE: {
+			set_physics_process_internal(false);
+		} break;
 		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
-			if (is_visible_in_tree()) {
-				execute(get_process_delta_time());
-			}
+			execute(get_process_delta_time());
 		} break;
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			update_gizmos();
@@ -1188,4 +1197,45 @@ void ManyBoneIK3D::copy_kusudama(const String &p_bone_name_from, TypedArray<Stri
 		Vector2 twist = get_kusudama_twist(from);
 		set_kusudama_twist(to, twist * p_mirror.normalized().sign().x);
 	}
+}
+
+void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_rotation);
+		ik_bone->set_skeleton_bone_pose(get_skeleton());
+	}
+}
+
+real_t ManyBoneIK3D::get_kusudama_twist_current(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
+	String bone_name = constraint_names[p_index];
+	if (!segmented_skeletons.size()) {
+		return 0;
+	}
+	for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		return CLAMP(ik_bone->get_constraint()->get_current_twist_rotation(ik_bone), 0, 1);
+	}
+	return 0;
 }

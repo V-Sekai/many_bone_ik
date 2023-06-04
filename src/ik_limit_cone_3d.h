@@ -31,6 +31,7 @@
 #ifndef IK_LIMIT_CONE_3D_H
 #define IK_LIMIT_CONE_3D_H
 
+#include "ik_bone_3d.h"
 #include "ik_ray_3d.h"
 
 #include "core/io/resource.h"

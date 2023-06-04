@@ -92,43 +92,46 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	ERR_FAIL_COND_V(p_index == -1, -1);
 	ERR_FAIL_NULL_V(p_headings, -1);
 	ERR_FAIL_NULL_V(p_for_bone, -1);
+	ERR_FAIL_NULL_V(p_weights, -1);
 
 	int32_t index = p_index;
 	Vector3 bone_origin_relative_to_skeleton_origin = p_for_bone->get_bone_direction_global_pose().origin;
 	p_headings->write[index] = target_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
 	Vector3 priority = get_direction_priorities();
+
+	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
+
 	if (priority.x > 0.0) {
-		real_t w = (*p_weights)[index];
-		w = MAX(w, 1.0f);
+		real_t w = p_weights->get(index);
 		p_headings->write[index] = (target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_X) + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
-		p_headings->write[index] *= Vector3(w, w, w);
+		p_headings->write[index] *= Vector3(w, w, w) * scale_by;
 		index++;
 
 		p_headings->write[index] = (target_relative_to_skeleton_origin.origin - target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_X)) - bone_origin_relative_to_skeleton_origin;
-		p_headings->write[index] *= Vector3(w, w, w);
+		p_headings->write[index] *= Vector3(w, w, w) * scale_by;
 		index++;
 	}
+
 	if (priority.y > 0.0) {
-		real_t w = (*p_weights)[index];
-		w = MAX(w, 1.0f);
+		real_t w = p_weights->get(index);
 		p_headings->write[index] = (target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_Y) + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
-		p_headings->write[index] *= Vector3(w, w, w);
+		p_headings->write[index] *= Vector3(w, w, w) * scale_by;
 		index++;
 
 		p_headings->write[index] = (target_relative_to_skeleton_origin.origin - target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_Y)) - bone_origin_relative_to_skeleton_origin;
-		p_headings->write[index] *= Vector3(w, w, w);
+		p_headings->write[index] *= Vector3(w, w, w) * scale_by;
 		index++;
 	}
+
 	if (priority.z > 0.0) {
-		real_t w = (*p_weights)[index];
-		w = MAX(w, 1.0f);
+		real_t w = p_weights->get(index);
 		p_headings->write[index] = (target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_Z) + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
-		p_headings->write[index] *= Vector3(w, w, w);
+		p_headings->write[index] *= Vector3(w, w, w) * scale_by;
 		index++;
 
 		p_headings->write[index] = (target_relative_to_skeleton_origin.origin - target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_Z)) - bone_origin_relative_to_skeleton_origin;
-		p_headings->write[index] *= Vector3(w, w, w);
+		p_headings->write[index] *= Vector3(w, w, w) * scale_by;
 		index++;
 	}
 	return index;
@@ -139,39 +142,51 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	ERR_FAIL_NULL_V(p_headings, -1);
 	ERR_FAIL_NULL_V(for_bone, -1);
 	ERR_FAIL_NULL_V(p_for_bone, -1);
-	Transform3D tip_xform_relative_to_skeleton_origin = for_bone->get_bone_direction_global_pose();
+
+	Transform3D tip_xform_relative_to_skeleton_origin = for_bone->get_bone_direction_global_pose(); // for_bone is correct.
 	Basis tip_basis = tip_xform_relative_to_skeleton_origin.basis;
 	Vector3 bone_origin_relative_to_skeleton_origin = p_for_bone->get_bone_direction_global_pose().origin;
+
 	int32_t index = p_index;
 	p_headings->write[index] = tip_xform_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
-	double scale_by = 1.0f;
+
+	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
 	if (p_is_uniform) {
 		double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
-		scale_by = MAX(1.0, distance);
+		double epsilon = 1e-6;
+		scale_by = MAX(1.0, 1.0 / ((distance + epsilon) * (distance + epsilon)));
 	}
-	// Scale by means when two things that are very far away, they may be close in physical space but they get a higher weighting.
-	// Tell the optimizer how decrease importance.
-	// Same rotational distane is not the same ecluidian distance.
+
 	const Vector3 priority = get_direction_priorities();
+
 	if (priority.x > 0.0) {
-		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_X) * scale_by) + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_X) * priority.x) + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] *= scale_by;
 		index++;
-		p_headings->write[index] = (tip_xform_relative_to_skeleton_origin.origin - (tip_basis.get_column(Vector3::AXIS_X) * scale_by)) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = (tip_xform_relative_to_skeleton_origin.origin - (tip_basis.get_column(Vector3::AXIS_X) * priority.x)) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] *= scale_by;
 		index++;
 	}
+
 	if (priority.y > 0.0) {
-		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_Y) * scale_by) + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_Y) * priority.y) + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] *= scale_by;
 		index++;
-		p_headings->write[index] = (tip_xform_relative_to_skeleton_origin.origin - (tip_basis.get_column(Vector3::AXIS_Y) * scale_by)) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = (tip_xform_relative_to_skeleton_origin.origin - (tip_basis.get_column(Vector3::AXIS_Y) * priority.y)) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] *= scale_by;
 		index++;
 	}
+
 	if (priority.z > 0.0) {
-		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_Z) * scale_by) + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = ((tip_basis.get_column(Vector3::AXIS_Z) * priority.z) + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] *= scale_by;
 		index++;
-		p_headings->write[index] = (tip_xform_relative_to_skeleton_origin.origin - (tip_basis.get_column(Vector3::AXIS_Z) * scale_by)) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] = (tip_xform_relative_to_skeleton_origin.origin - (tip_basis.get_column(Vector3::AXIS_Z) * priority.z)) - bone_origin_relative_to_skeleton_origin;
+		p_headings->write[index] *= scale_by;
 		index++;
 	}
+
 	return index;
 }
 

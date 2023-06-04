@@ -94,49 +94,45 @@ void ManyBoneIK3DEditor::_notification(int p_what) {
 void ManyBoneIK3DEditor::_update_properties() {
 	Node3DEditor::get_singleton()->update_transform_gizmo();
 }
-
 void ManyBoneIK3DEditor::update_joint_tree() {
-	if (!ik || !ik->get_skeleton() || !joint_tree) {
+	if (!ik || !joint_tree) {
 		return;
 	}
-	joint_tree->clear();
 
 	Skeleton3D *skeleton = ik->get_skeleton();
 	if (!skeleton) {
 		return;
 	}
 
+	joint_tree->clear();
+
 	TreeItem *root = joint_tree->create_item();
-
 	HashMap<int, TreeItem *> items;
-
 	items.insert(-1, root);
 
 	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
 	Vector<int> bones_to_process = skeleton->get_parentless_bones();
-	while (bones_to_process.size() > 0) {
+
+	while (!bones_to_process.is_empty()) {
 		int current_bone_idx = bones_to_process[0];
-		bones_to_process.erase(current_bone_idx);
+		bones_to_process.remove_at(0);
+
 		StringName bone_name = skeleton->get_bone_name(current_bone_idx);
 		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
-		if (!items.find(parent_idx)) {
-			continue;
-		}
-		TreeItem *parent_item = items.find(parent_idx)->value;
 
-		TreeItem *joint_item = joint_tree->create_item(parent_item);
-		items.insert(current_bone_idx, joint_item);
+		if (items.find(parent_idx)) {
+			TreeItem *parent_item = items.find(parent_idx)->value;
+			TreeItem *joint_item = joint_tree->create_item(parent_item);
+			items.insert(current_bone_idx, joint_item);
 
-		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
-		joint_item->set_icon(0, bone_icon);
-		joint_item->set_selectable(0, true);
-		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
+			joint_item->set_text(0, bone_name);
+			joint_item->set_icon(0, bone_icon);
+			joint_item->set_selectable(0, true);
+			joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
 
-		// Add the bone's children to the list of bones to be processed.
-		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
-		int child_bone_size = current_bone_child_bones.size();
-		for (int i = 0; i < child_bone_size; i++) {
-			bones_to_process.push_back(current_bone_child_bones[i]);
+			// Add the bone's children to the list of bones to be processed.
+			Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
+			bones_to_process.append_array(current_bone_child_bones);
 		}
 	}
 }
@@ -207,6 +203,14 @@ void ManyBoneIK3DEditor::create_editors() {
 	direction_priorities_vector3->set_label(TTR("Direction Priorities"));
 	direction_priorities_vector3->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
 	constraint_bone_section->get_vbox()->add_child(direction_priorities_vector3);
+
+	twist_current_float = memnew(EditorPropertyFloat());
+	twist_current_float->hide();
+	twist_current_float->setup(0, 1, 0.01, false, false, false, false);
+	twist_current_float->set_label(TTR("Twist Current"));
+	twist_current_float->set_selectable(false);
+	twist_current_float->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
+	constraint_bone_section->get_vbox()->add_child(twist_current_float);
 
 	twist_from_float = memnew(EditorPropertyFloat());
 	twist_from_float->hide();
@@ -286,6 +290,7 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 
 	bone_damp_float->hide();
 	target_nodepath->hide();
+	twist_current_float->hide();
 	twist_from_float->hide();
 	twist_range_float->hide();
 	cone_count_float->hide();
@@ -323,6 +328,9 @@ void ManyBoneIK3DEditor::_joint_tree_selection_changed() {
 	direction_priorities_vector3->set_object_and_property(ik, vformat("pins/%d/direction_priorities", selected_bone));
 	direction_priorities_vector3->update_property();
 	direction_priorities_vector3->show();
+	twist_current_float->set_object_and_property(ik, vformat("constraints/%d/twist_current", selected_bone));
+	twist_current_float->update_property();
+	twist_current_float->show();
 	twist_from_float->set_object_and_property(ik, vformat("constraints/%d/twist_from", selected_bone));
 	twist_from_float->update_property();
 	twist_from_float->show();

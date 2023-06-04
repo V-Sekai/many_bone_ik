@@ -250,6 +250,9 @@ void IKBoneSegment3D::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<re
 	int32_t last_index = 0;
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
+		if (effector.is_null()) {
+			continue;
+		}
 		last_index = effector->update_effector_target_headings(r_target_headings, last_index, p_for_bone, &heading_weights);
 	}
 }
@@ -260,6 +263,9 @@ void IKBoneSegment3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector
 	int32_t last_index = 0;
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];
+		if (effector.is_null()) {
+			continue;
+		}
 		last_index = effector->update_effector_tip_headings(r_heading_tip, last_index, p_for_bone, p_uniform);
 	}
 }
