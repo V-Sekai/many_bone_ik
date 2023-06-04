@@ -77,43 +77,46 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		return;
 	}
 	Node *root = node_3d->get_tree()->get_edited_scene_root();
-	ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
-	if (!many_bone_ik) {
-		return;
-	}
-	Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
-	if (!many_bone_ik_skeleton) {
-		return;
-	}
-	if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
-		many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
-	}
-	Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
-	int bones_to_process_i = 0;
-	Vector<BoneId> processing_bones;
-	Vector<Ref<IKBoneSegment3D>> bone_segments = many_bone_ik->get_segmented_skeletons();
-	for (Ref<IKBoneSegment3D> bone_segment : bone_segments) {
-		if (bone_segment.is_null()) {
-			continue;
+	TypedArray<Node> nodes = root->find_children("*", "ManyBoneIK3D");
+	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
+		ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(nodes[node_i]);
+		if (!many_bone_ik) {
+			return;
 		}
-		while (bones_to_process_i < bones_to_process.size()) {
-			int current_bone_idx = bones_to_process[bones_to_process_i];
-			processing_bones.push_back(current_bone_idx);
-			Vector<int> child_bones_vector = many_bone_ik_skeleton->get_bone_children(current_bone_idx);
-			for (int child_bone_idx : child_bones_vector) {
-				bones_to_process.push_back(child_bone_idx);
-			}
-			bones_to_process_i++;
+		Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
+		if (!many_bone_ik_skeleton) {
+			return;
 		}
-		Color current_bone_color = bone_color;
-		for (BoneId bone_i : bones_to_process) {
-			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
-			if (ik_bone.is_null()) {
+		if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
+			many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
+		}
+		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
+		int bones_to_process_i = 0;
+		Vector<BoneId> processing_bones;
+		Vector<Ref<IKBoneSegment3D>> bone_segments = many_bone_ik->get_segmented_skeletons();
+		for (Ref<IKBoneSegment3D> bone_segment : bone_segments) {
+			if (bone_segment.is_null()) {
 				continue;
 			}
-			if (ik_bone->is_axially_constrained()) {
-				create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
-				create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+			while (bones_to_process_i < bones_to_process.size()) {
+				int current_bone_idx = bones_to_process[bones_to_process_i];
+				processing_bones.push_back(current_bone_idx);
+				Vector<int> child_bones_vector = many_bone_ik_skeleton->get_bone_children(current_bone_idx);
+				for (int child_bone_idx : child_bones_vector) {
+					bones_to_process.push_back(child_bone_idx);
+				}
+				bones_to_process_i++;
+			}
+			Color current_bone_color = bone_color;
+			for (BoneId bone_i : bones_to_process) {
+				Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
+				if (ik_bone.is_null()) {
+					continue;
+				}
+				if (ik_bone->is_axially_constrained()) {
+					create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+					create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
+				}
 			}
 		}
 	}
@@ -134,6 +137,8 @@ ManyBoneIK3DHandleGizmoPlugin::ManyBoneIK3DHandleGizmoPlugin() {
 	create_handle_material("handles_axial_to", false, handle_axial_to);
 	Ref<Texture2D> handle_axial_current = Node3DEditor::get_singleton()->get_theme_icon(SNAME("Node2D"), SNAME("EditorIcons"));
 	create_handle_material("handles_axial_current", false, handle_axial_current);
+	kusudama_shader.instantiate();
+	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
 }
 
 int32_t ManyBoneIK3DHandleGizmoPlugin::get_priority() const {
@@ -251,6 +256,16 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		return;
 	}
 	BoneId parent_idx = many_bone_ik_skeleton->get_bone_parent(current_bone_idx);
+	LocalVector<int> bones;
+	LocalVector<float> weights;
+	bones.resize(4);
+	weights.resize(4);
+	for (int i = 0; i < 4; i++) {
+		bones[i] = 0;
+		weights[i] = 0;
+	}
+	bones[0] = parent_idx;
+	weights[0] = 1;
 	PackedFloat32Array kusudama_limit_cones;
 	Ref<IKKusudama3D> kusudama = ik_bone->get_constraint();
 	if (kusudama.is_null()) {
@@ -259,14 +274,22 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
 		return;
 	}
+	if (current_bone_idx <= -1) {
+		return;
+	}
 	if (parent_idx >= many_bone_ik_skeleton->get_bone_count()) {
+		return;
+	}
+	if (parent_idx <= -1) {
 		return;
 	}
 	Vector<Vector3> axial_from_handles;
 	TypedArray<Vector3> axial_middle_handles;
+	TypedArray<Vector3> axial_current_handles;
 	Vector<float> axial_from_radii;
 	Vector<float> axial_to_radii;
 	Vector<float> axial_middle_radii;
+	Vector<float> axial_current_radii;
 	Vector<Vector3> axial_to_handles;
 
 	Transform3D constraint_twist_transform = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
@@ -283,7 +306,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = Vector3(a.x, -d, a.y);
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
 		axial_from_handles.push_back((axial_transform).origin);
 		axial_from_radii.push_back(radius);
@@ -300,9 +323,9 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = Vector3(a.x, -d, a.y);
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = Vector3(a.x, -d, a.y);
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		axial_middle_handles.push_back((axial_transform).origin);
 		axial_middle_radii.push_back(radius);
 	}
@@ -312,7 +335,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
 		Transform3D axial_from_relative_to_mesh;
 		Transform3D center_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = Vector3(a.x, -d, a.y);
+		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
 		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
 		axial_to_handles.push_back((axial_transform).origin);
 		axial_to_radii.push_back(radius);
@@ -328,4 +351,15 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		}
 		p_gizmo->add_handles(handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
+	float current_angle = kusudama->get_min_axial_angle() + Math::abs(ik_kusudama->get_current_twist_rotation(ik_bone) * ik_kusudama->get_range_angle());
+	const Point2 a = Vector2(Math::sin(current_angle), Math::cos(current_angle)) * w;
+	Transform3D center_relative_to_mesh;
+	Transform3D axial_from_relative_to_mesh;
+	axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
+	Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
+	Vector3 handle_position = (axial_transform).origin;
+	Vector<Vector3> handles_current;
+	handles_current.push_back(handle_position);
+	axial_current_radii.push_back(radius);
+	p_gizmo->add_handles(handles_current, get_material("handles_axial_current"), Vector<int>(), true, true);
 }

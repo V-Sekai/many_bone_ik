@@ -40,7 +40,6 @@
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/node_3d_editor_gizmos.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
-#include "ik_effector_3d.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
 #include "scene/3d/label_3d.h"

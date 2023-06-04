@@ -210,6 +210,26 @@ public:
 	 */
 	TypedArray<IKLimitCone3D> get_limit_cones() const;
 	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
+	real_t get_current_twist_rotation(Ref<IKBone3D> bone_attached_to);
+	void set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation);
+
+	double _to_tau(double angle) {
+		double result = angle;
+		if (angle < 0) {
+			result = (2 * Math_PI) + angle;
+		}
+		result = fmod(result, (Math_PI * 2.0));
+		return result;
+	}
+
+	double signed_angle_difference(double min_angle, double p_super) {
+		double d = fmod(abs(min_angle - p_super), Math_TAU);
+		double r = d > Math_PI ? Math_TAU - d : d;
+
+		double sign = (min_angle - p_super >= 0 && min_angle - p_super <= Math_PI) || (min_angle - p_super <= -Math_PI && min_angle - p_super >= -Math_TAU) ? 1.0 : -1.0;
+		r *= sign;
+		return r;
+	}
 };
 
 #endif // IK_KUSUDAMA_3D_H
