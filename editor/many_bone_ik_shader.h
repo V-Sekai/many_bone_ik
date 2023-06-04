@@ -197,7 +197,7 @@ void vertex() {
 
 void fragment() {
 	vec4 result_color_allowed = vec4(0.0, 0.0, 0.0, 0.0);
-	if (cone_sequence.length() == 30) {
+	if (cone_count * 3 == 30) {
 		result_color_allowed = color_allowed(normal_model_dir, cone_count, 0.02);
 	}
 	ALBEDO = kusudama_color.rgb;

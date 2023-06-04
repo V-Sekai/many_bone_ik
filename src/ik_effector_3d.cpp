@@ -92,7 +92,7 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	ERR_FAIL_COND_V(p_index == -1, -1);
 	ERR_FAIL_NULL_V(p_headings, -1);
 	ERR_FAIL_NULL_V(p_for_bone, -1);
-    ERR_FAIL_NULL_V(p_weights, -1);
+	ERR_FAIL_NULL_V(p_weights, -1);
 
 	int32_t index = p_index;
 	Vector3 bone_origin_relative_to_skeleton_origin = p_for_bone->get_bone_direction_global_pose().origin;
