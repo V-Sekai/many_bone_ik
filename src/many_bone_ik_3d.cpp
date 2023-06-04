@@ -929,14 +929,17 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 void ManyBoneIK3D::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			set_physics_process_internal(true);
 			set_notify_transform(true);
 			set_process_priority(1);
 		} break;
+		case NOTIFICATION_ENTER_TREE: {
+			set_physics_process_internal(true);
+		} break;
+		case NOTIFICATION_EXIT_TREE: {
+			set_physics_process_internal(false);
+		} break;
 		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
-			if (is_visible_in_tree()) {
-				execute(get_process_delta_time());
-			}
+			execute(get_process_delta_time());
 		} break;
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			update_gizmos();
