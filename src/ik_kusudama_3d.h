@@ -210,24 +210,26 @@ public:
 	 * cones intersect with a previous sequence.
 	 */
 	double get_rotational_freedom();
-	void update_rotational_freedom();
+	void set_rotation_freedom(double p_value);
 	TypedArray<IKLimitCone3D> get_limit_cones() const;
 	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
 	real_t get_current_twist_rotation(Ref<IKBone3D> bone_attached_to);
 	void set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation);
-	real_t _to_tau(real_t angle) {
-		real_t result = angle;
+
+	double _to_tau(double angle) {
+		double result = angle;
 		if (angle < 0) {
 			result = (2 * Math_PI) + angle;
 		}
-		result = _mod(result, (Math_PI * 2.0f));
+		result = fmod(result, (Math_PI * 2.0));
 		return result;
 	}
-	real_t signed_angle_difference(real_t min_angle, real_t p_super) {
-		real_t d = Math::fmod(Math::abs(min_angle - p_super), real_t(Math_TAU));
-		real_t r = d > Math_PI ? Math_TAU - d : d;
 
-		real_t sign = (min_angle - p_super >= 0 && min_angle - p_super <= real_t(Math_PI)) || (min_angle - p_super <= -real_t(Math_PI) && min_angle - p_super >= -real_t(Math_TAU)) ? real_t(1.0) : real_t(-1.0);
+	double signed_angle_difference(double min_angle, double p_super) {
+		double d = fmod(abs(min_angle - p_super), Math_TAU);
+		double r = d > Math_PI ? Math_TAU - d : d;
+
+		double sign = (min_angle - p_super >= 0 && min_angle - p_super <= Math_PI) || (min_angle - p_super <= -Math_PI && min_angle - p_super >= -Math_TAU) ? 1.0 : -1.0;
 		r *= sign;
 		return r;
 	}

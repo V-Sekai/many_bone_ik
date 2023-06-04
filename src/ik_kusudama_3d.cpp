@@ -31,11 +31,11 @@
 #include "ik_kusudama_3d.h"
 
 #include "core/math/quaternion.h"
+#include "ik_limit_cone_3d.h"
 #include "math/ik_node_3d.h"
 
 void IKKusudama3D::_update_constraint() {
 	update_tangent_radii();
-	update_rotational_freedom();
 }
 
 void IKKusudama3D::update_tangent_radii() {
@@ -69,6 +69,9 @@ void IKKusudama3D::set_axial_limits(real_t min_angle, real_t in_range) {
 	twist_max_rot = Quaternion(z_axis, twist_max_vec);
 	Vector3 max_cross = twist_max_vec.cross(y_axis);
 	flipped_bounds = twist_tan.cross(max_cross).y < real_t(0.0);
+	twist_min_rot.normalize();
+	twist_center_rot.normalize();
+	twist_max_rot.normalize();
 }
 
 void IKKusudama3D::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> constraint_axes, real_t p_dampening, real_t p_cos_half_dampen) {
@@ -79,6 +82,8 @@ void IKKusudama3D::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKN
 	global_twist_center.normalize();
 	Quaternion align_rot = global_twist_center.inverse() * to_set->get_global_transform().basis.get_rotation_quaternion();
 	Quaternion parent_global_inverse = to_set->get_parent()->get_global_transform().basis.get_rotation_quaternion().inverse();
+	align_rot.normalize();
+	parent_global_inverse.normalize();
 	Quaternion twist_rotation, swing_rotation; // Hold the ik transform's decomposed swing and twist away from global_twist_centers's global basis.
 	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
 	twist_rotation = IKBoneSegment3D::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
@@ -93,6 +98,7 @@ void IKKusudama3D::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
+	p_rotation.normalize();
 	if (p_rotation.w < 0.0) {
 		p_rotation *= -1;
 	}
@@ -197,20 +203,33 @@ void IKKusudama3D::enable() {
 }
 
 double IKKusudama3D::get_rotational_freedom() {
-	// Computation is cached from the update_rotational_freedom function.
-	// Please contribute back a better solution if you write a better way to calculate rotational freedom.
-	return rotational_freedom;
-}
-
-void IKKusudama3D::update_rotational_freedom() {
-	double axial_constrained_hyper_area = is_axially_constrained() ? (range_angle / Math_TAU) : 1;
-	// A quick and dirty solution (should revisit).
-	double total_limit_cone_surface_area_ratio = 0;
-	for (int32_t cone_i = 0; cone_i < limit_cones.size(); cone_i++) {
-		Ref<IKLimitCone3D> l = limit_cones[cone_i];
-		total_limit_cone_surface_area_ratio += (l->get_radius() * 2) / Math_TAU;
+	const double TOTAL_ROTATIONAL_RANGE = 2 * M_PI;
+	double constrained_range = 0.0;
+	TypedArray<IKLimitCone3D> cones = get_limit_cones();
+	for (int32_t cone_i = 0; cone_i < cones.size(); cone_i++) {
+		Ref<IKLimitCone3D> cone = cones[cone_i];
+		constrained_range += cone->get_radius();
 	}
-	rotational_freedom = axial_constrained_hyper_area * (is_orientationally_constrained() ? MIN(total_limit_cone_surface_area_ratio, 1) : 1);
+
+	// Calculate overlaps between sequential pairs of limit cones.
+	double total_overlap = 0.0;
+	for (int32_t i = 0; i < cones.size() - 1; ++i) {
+		Ref<IKLimitCone3D> cone_i = cones[i];
+		Ref<IKLimitCone3D> cone_j = cones[i + 1];
+
+		Vector3 cone_i_center = cone_i->get_control_point();
+		Vector3 cone_j_center = cone_j->get_control_point();
+		double distance_between_centers = cone_i_center.distance_to(cone_j_center);
+
+		double overlap = cone_i->get_radius() + cone_j->get_radius() - distance_between_centers;
+		if (overlap > 0) {
+			total_overlap += overlap;
+		}
+	}
+
+	double adjusted_constrained_range = constrained_range - total_overlap;
+	double free_range = TOTAL_ROTATIONAL_RANGE - adjusted_constrained_range;
+	return rotational_freedom = free_range / TOTAL_ROTATIONAL_RANGE;
 }
 
 TypedArray<IKLimitCone3D> IKKusudama3D::get_limit_cones() const {
@@ -317,46 +336,80 @@ Quaternion IKKusudama3D::quaternion_axis_angle_normalized(const Vector3 &p_axis,
 	real_t coeff = -sin(half_angle) / sqrt(norm);
 	return Quaternion(coeff * p_axis.x, coeff * p_axis.y, coeff * p_axis.z, cos(half_angle));
 }
-
 void IKKusudama3D::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation) {
 	p_rotation = (p_rotation * range_angle) + min_axial_angle;
-	Quaternion inv_rot;
+	Quaternion inv_rot = bone_attached_to->get_constraint_orientation_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
 	if (inv_rot.is_finite() && !inv_rot.is_equal_approx(Quaternion())) {
-		inv_rot = bone_attached_to->get_constraint_orientation_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
+		Quaternion align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
+		if (!align_rot.is_equal_approx(Quaternion())) {
+			Quaternion swing;
+			Quaternion twist;
+			get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
+			real_t angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
+			angle_delta_2 = _to_tau(angle_delta_2);
+			real_t dist_to_target_rotation = _to_tau(signed_angle_difference(angle_delta_2, Math_TAU - p_rotation));
+			Vector3 limiting_axes_origin = bone_attached_to->get_constraint_orientation_transform()->get_global_transform().origin;
+			Vector3 bone_axis_y = bone_attached_to->get_bone_direction_transform()->get_global_transform().xform(Vector3(0, 1, 0));
+			Vector3 axis_y = bone_axis_y - limiting_axes_origin;
+			real_t turn_diff = dist_to_target_rotation;
+			Basis rot = Quaternion(axis_y, turn_diff).normalized();
+			bone_attached_to->get_ik_transform()->rotate_local_with_global(rot);
+		}
 	}
-	Quaternion align_rot;
-	if (!inv_rot.is_equal_approx(Quaternion())) {
-		align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
-	}
-	Quaternion swing;
-	Quaternion twist;
-	get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
-	real_t angle_delta_2 = twist.get_angle() * twist.get_axis().y * -1;
-	angle_delta_2 = _to_tau(angle_delta_2);
-	real_t dist_to_target_rotation = _to_tau(signed_angle_difference(angle_delta_2, Math_TAU - p_rotation));
-	Vector3 limiting_axes_origin = bone_attached_to->get_constraint_orientation_transform()->get_global_transform().origin;
-	Vector3 bone_axis_y = bone_attached_to->get_bone_direction_transform()->get_global_transform().xform(Vector3(0, 1, 0));
-	Vector3 axis_y = bone_axis_y - limiting_axes_origin;
-	real_t turn_diff = dist_to_target_rotation;
-	Basis rot =  Quaternion(axis_y, turn_diff).normalized();
-	bone_attached_to->get_ik_transform()->rotate_local_with_global(rot);
 }
 
 real_t IKKusudama3D::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) {
-	Quaternion inv_rot;
+	Quaternion inv_rot = bone_attached_to->get_constraint_orientation_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
 	if (inv_rot.is_finite() && !inv_rot.is_equal_approx(Quaternion())) {
-		inv_rot = bone_attached_to->get_constraint_orientation_transform()->get_global_transform().basis.inverse().get_rotation_quaternion();
+		Quaternion align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
+		if (!align_rot.is_equal_approx(Quaternion())) {
+			Quaternion swing;
+			Quaternion twist;
+			get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
+			real_t angle = twist.get_angle() * twist.get_axis().y;
+			if (range_angle == 0.0) {
+				return 0;
+			}
+			return CLAMP(_to_tau(signed_angle_difference(angle, min_axial_angle)) / range_angle, 0, 1);
+		}
 	}
-	Quaternion align_rot;
-	if (!inv_rot.is_equal_approx(Quaternion())) {
-		align_rot = inv_rot * bone_attached_to->get_bone_direction_transform()->get_global_transform().basis.get_rotation_quaternion();
+
+	return 0;
+}
+
+void IKKusudama3D::set_rotation_freedom(double p_value) {
+	// Clamp the input value between 0 and 1.
+	double clamped_value = CLAMP(p_value, 0.0, 1.0);
+
+	// Calculate the desired free range based on the clamped value.
+	const double TOTAL_ROTATIONAL_RANGE = 2 * M_PI;
+	double desired_free_range = clamped_value * TOTAL_ROTATIONAL_RANGE;
+
+	double current_constrained_range = TOTAL_ROTATIONAL_RANGE - rotational_freedom * TOTAL_ROTATIONAL_RANGE;
+
+	// Calculate the difference between the desired and current constrained ranges.
+	double range_difference = current_constrained_range - (TOTAL_ROTATIONAL_RANGE - desired_free_range);
+
+	// Distribute the range difference evenly among all limit cones.
+	TypedArray<IKLimitCone3D> cones = get_limit_cones();
+	double adjustment_per_cone = range_difference / cones.size();
+
+	for (int32_t cone_i = 0; cone_i < cones.size() - 1; cone_i++) {
+		Ref<IKLimitCone3D> cone = cones[cone_i];
+		Ref<IKLimitCone3D> next_cone = cones[cone_i + 1];
+
+		double new_radius = cone->get_radius() + adjustment_per_cone;
+		cone->set_radius(new_radius);
+
+		Vector3 current_center = cone->get_control_point();
+		Vector3 next_center = next_cone->get_control_point();
+
+		current_center.normalize();
+		next_center.normalize();
+
+		// Spherically interpolate between the current and next control points.
+		Vector3 adjusted_center = current_center.slerp(next_center, clamped_value);
+
+		cone->set_control_point(adjusted_center);
 	}
-	Quaternion swing;
-	Quaternion twist;
-	get_swing_twist(align_rot, Vector3(0, 1, 0), swing, twist);
-	real_t angle = twist.get_angle() * twist.get_axis().y;
-	if (range_angle == 0.0) {
-		return 0;
-	}
-	return CLAMP(_to_tau(signed_angle_difference(angle, min_axial_angle)) / range_angle, 0, 1);
 }

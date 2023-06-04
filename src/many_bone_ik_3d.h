@@ -188,6 +188,8 @@ public:
 	void set_dirty();
 	real_t get_kusudama_twist_current(int32_t p_index) const;
 	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
+	void set_kusudama_rotation_freedom(int32_t p_index, real_t p_value);
+	real_t get_kusudama_rotation_freedom(int32_t p_index) const;
 };
 
 #endif // MANY_BONE_IK_3D_H
