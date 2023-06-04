@@ -66,13 +66,6 @@ public:
 	const Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
 	const int32_t KUSUDAMA_MAX_CONES = 10;
 	bool has_gizmo(Node3D *p_spatial) override;
-
-	virtual Ref<EditorNode3DGizmo> create_gizmo(Node3D *p_spatial) {
-		Ref<EditorNode3DGizmo> gizmo;
-		gizmo.inst();
-		// Set up your gizmo here (e.g., add meshes, materials, etc.)
-		return gizmo;
-	}
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	ManyBoneIK3DGizmoPlugin();
