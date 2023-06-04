@@ -198,10 +198,6 @@ void vertex() {
 void fragment() {
 	vec4 result_color_allowed = vec4(0.0, 0.0, 0.0, 0.0);
 	result_color_allowed = color_allowed(normal_model_dir, cone_count, 0.02);
-	ALBEDO = kusudama_color.rgb;
-	if (result_color_allowed.a == 0.0) {
-		discard;
-	}
 	ALBEDO = result_color_allowed.rgb;
 	ALPHA = 0.8;
 }
