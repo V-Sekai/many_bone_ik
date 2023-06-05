@@ -198,7 +198,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	constraint_bone_section->get_vbox()->add_child(weight_float);
 
 	direction_priorities_vector3 = memnew(EditorPropertyVector3());
-	direction_priorities_vector3->setup(0, 1, 0.01, false, false, "", false);
+	direction_priorities_vector3->setup(-1, 1, 0.05, false, false, "", false);
 	direction_priorities_vector3->hide();
 	direction_priorities_vector3->set_label(TTR("Direction Priorities"));
 	direction_priorities_vector3->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));

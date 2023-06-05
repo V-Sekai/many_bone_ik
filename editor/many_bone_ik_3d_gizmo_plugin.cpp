@@ -79,45 +79,42 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	}
 	p_gizmo->clear();
 	Node *root = node_3d->get_tree()->get_edited_scene_root();
-	TypedArray<Node> nodes = root->find_children("*", "ManyBoneIK3D");
-	for (int32_t node_i = 0; node_i < nodes.size(); node_i++) {
-		ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(nodes[node_i]);
-		if (!many_bone_ik) {
-			return;
+	ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
+	if (!many_bone_ik) {
+		return;
+	}
+	Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
+	if (!many_bone_ik_skeleton) {
+		return;
+	}
+	if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
+		many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
+	}
+	Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
+	int bones_to_process_i = 0;
+	Vector<BoneId> processing_bones;
+	Vector<Ref<IKBoneSegment3D>> bone_segments = many_bone_ik->get_segmented_skeletons();
+	for (Ref<IKBoneSegment3D> bone_segment : bone_segments) {
+		if (bone_segment.is_null()) {
+			continue;
 		}
-		Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
-		if (!many_bone_ik_skeleton) {
-			return;
+		while (bones_to_process_i < bones_to_process.size()) {
+			int current_bone_idx = bones_to_process[bones_to_process_i];
+			processing_bones.push_back(current_bone_idx);
+			Vector<int> child_bones_vector = many_bone_ik_skeleton->get_bone_children(current_bone_idx);
+			for (int child_bone_idx : child_bones_vector) {
+				bones_to_process.push_back(child_bone_idx);
+			}
+			bones_to_process_i++;
 		}
-		if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
-			many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
-		}
-		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
-		int bones_to_process_i = 0;
-		Vector<BoneId> processing_bones;
-		Vector<Ref<IKBoneSegment3D>> bone_segments = many_bone_ik->get_segmented_skeletons();
-		for (Ref<IKBoneSegment3D> bone_segment : bone_segments) {
-			if (bone_segment.is_null()) {
+		Color current_bone_color = bone_color;
+		for (BoneId bone_i : bones_to_process) {
+			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
+			if (ik_bone.is_null()) {
 				continue;
 			}
-			while (bones_to_process_i < bones_to_process.size()) {
-				int current_bone_idx = bones_to_process[bones_to_process_i];
-				processing_bones.push_back(current_bone_idx);
-				Vector<int> child_bones_vector = many_bone_ik_skeleton->get_bone_children(current_bone_idx);
-				for (int child_bone_idx : child_bones_vector) {
-					bones_to_process.push_back(child_bone_idx);
-				}
-				bones_to_process_i++;
-			}
-			Color current_bone_color = bone_color;
-			for (BoneId bone_i : bones_to_process) {
-				Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
-				if (ik_bone.is_null()) {
-					continue;
-				}
-				if (ik_bone->is_orientationally_constrained()) {
-					create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
-				}
+			if (ik_bone->is_orientationally_constrained()) {
+				create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 			}
 		}
 	}
@@ -133,7 +130,6 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 		return;
 	}
 	BoneId parent_idx = many_bone_ik_skeleton->get_bone_parent(current_bone_idx);
-	Vector<Vector3> handles;
 	LocalVector<int> bones;
 	LocalVector<float> weights;
 	bones.resize(4);
@@ -178,7 +174,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
 		return;
 	}
-	if (current_bone_idx <= -1) {
+	if (current_bone_idx == -1) {
 		return;
 	}
 	if (parent_idx >= many_bone_ik_skeleton->get_bone_count()) {

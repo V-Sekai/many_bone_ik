@@ -100,7 +100,13 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	index++;
 	Vector3 priority = get_direction_priorities();
 
+	Transform3D bone_global_transform = p_for_bone->get_bone_direction_transform()->get_global_transform();
+	Vector3 target_relative_to_bone_origin = bone_global_transform.affine_inverse().basis.xform(target_relative_to_skeleton_origin.origin);
+
+	double distance = target_relative_to_bone_origin.length();
+	double epsilon = 1e-6;
 	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
+	scale_by *= MAX(1.0, 1.0 / ((distance + epsilon) * (distance + epsilon)));
 
 	if (priority.x > 0.0) {
 		real_t w = p_weights->get(index);
