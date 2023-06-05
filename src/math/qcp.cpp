@@ -91,8 +91,6 @@ Quaternion QCP::calculate_rotation() {
             result = Quaternion(-coeff * q.x, -coeff * q.y, -coeff * q.z, q0).normalized();
         }
     } else {
-        double a11 = sum_xx_plus_yy + sum_zz - max_eigenvalue;
-        double a12 = sum_yz_minus_zy;
         double a13 = -sum_xz_minus_zx;
         double a14 = sum_xy_minus_yx;
         double a21 = sum_yz_minus_zy;
