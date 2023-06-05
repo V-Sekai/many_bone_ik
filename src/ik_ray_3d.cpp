@@ -93,19 +93,19 @@ int IKRay3D::intersects_sphere(Vector3 sphereCenter, real_t radius, Vector3 *S1,
 	return result;
 }
 
-void IKRay3D::p1(Vector3 in) {
+void IKRay3D::set_point_1(Vector3 in) {
 	point_1 = in;
 }
 
-void IKRay3D::p2(Vector3 in) {
+void IKRay3D::set_point_2(Vector3 in) {
 	point_2 = in;
 }
 
-Vector3 IKRay3D::p2() {
+Vector3 IKRay3D::get_point_2() {
 	return point_2;
 }
 
-Vector3 IKRay3D::p1() {
+Vector3 IKRay3D::get_point_1() {
 	return point_1;
 }
 

@@ -116,13 +116,13 @@ void IKKusudama3D::get_swing_twist(
 
 void IKKusudama3D::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen) {
 	Vector<double> in_bounds = { 1.0 };
-	bone_ray->p1(limiting_axes->get_global_transform().origin);
-	bone_ray->p2(bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
-	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
+	bone_ray->set_point_1(limiting_axes->get_global_transform().origin);
+	bone_ray->set_point_2(bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
+	Vector3 bone_tip = limiting_axes->to_local(bone_ray->get_point_2());
 	Vector3 in_limits = get_local_point_in_limits(bone_tip, &in_bounds);
 	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x) && !Math::is_nan(in_limits.y) && !Math::is_nan(in_limits.z)) {
-		constrained_ray->p1(bone_ray->p1());
-		constrained_ray->p2(limiting_axes->to_global(in_limits));
+		constrained_ray->set_point_1(bone_ray->get_point_1());
+		constrained_ray->set_point_2(limiting_axes->to_global(in_limits));
 		Quaternion rectified_rot = Quaternion(bone_ray->get_heading(), constrained_ray->get_heading());
 		to_set->rotate_local_with_global(rectified_rot);
 	}

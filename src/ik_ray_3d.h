@@ -112,10 +112,10 @@ public:
 	 * @return number of intersections found;
 	 */
 	int intersects_sphere(Vector3 p_sphere_center, real_t p_radius, Vector3 *r_first_intersection, Vector3 *r_second_intersection);
-	void p1(Vector3 p_point);
-	void p2(Vector3 p_point);
-	Vector3 p2();
-	Vector3 p1();
+	void set_point_1(Vector3 p_point);
+	void set_point_2(Vector3 p_point);
+	Vector3 get_point_2();
+	Vector3 get_point_1();
 	int intersects_sphere(Vector3 p_rp1, Vector3 p_rp2, real_t p_radius, Vector3 *r_first_intersection, Vector3 *r_second_intersection);
 	real_t triangle_area_2d(real_t p_x1, real_t p_y1, real_t p_x2, real_t p_y2, real_t p_x3, real_t p_y3);
 	void barycentric(Vector3 p_a, Vector3 p_b, Vector3 p_c, Vector3 p_p, Vector3 *r_uvw);
