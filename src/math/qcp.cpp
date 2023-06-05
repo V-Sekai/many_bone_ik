@@ -158,22 +158,22 @@ Vector3 QCP::get_translation() {
 
 Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<real_t> &r_weight) {
 	Vector3 center;
-	real_t w_sum = 0;
+	real_t total_weight = 0;
 	bool weight_is_empty = r_weight.is_empty();
 	int size = r_to_center.size();
 
 	for (int i = 0; i < size; i++) {
 		if (!weight_is_empty) {
-			w_sum += r_weight[i];
+			total_weight += r_weight[i];
 			center += r_to_center[i] * r_weight[i];
 		} else {
 			center += r_to_center[i];
-			w_sum++;
+			total_weight++;
 		}
 	}
 
-	if (w_sum > 0) {
-		center /= w_sum;
+	if (total_weight > 0) {
+		center /= total_weight;
 	}
 
 	return center;
