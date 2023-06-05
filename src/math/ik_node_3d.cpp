@@ -140,3 +140,18 @@ Vector3 IKNode3D::to_local(const Vector3 &p_global) const {
 Vector3 IKNode3D::to_global(const Vector3 &p_local) const {
 	return get_global_transform().xform(p_local);
 }
+
+IKNode3D::~IKNode3D() {
+	cleanup();
+}
+
+void IKNode3D::_notification(int p_what) {
+	if (p_what == NOTIFICATION_PREDELETE) {
+		cleanup();
+	}
+}
+void IKNode3D::cleanup() {
+	for (Ref<IKNode3D> &child : children) {
+		child->set_parent(Ref<IKNode3D>());
+	}
+}

@@ -61,6 +61,7 @@ class IKNode3D : public RefCounted {
 	void _update_local_transform() const;
 
 protected:
+    void _notification(int p_what);
 	static void _bind_methods() {
 		ClassDB::bind_method(D_METHOD("get_transform"), &IKNode3D::get_transform);
 		ClassDB::bind_method(D_METHOD("get_global_transform"), &IKNode3D::get_global_transform);
@@ -82,6 +83,8 @@ public:
 	Vector3 to_local(const Vector3 &p_global) const;
 	Vector3 to_global(const Vector3 &p_local) const;
 	void rotate_local_with_global(const Basis &p_basis, bool p_propagate = false);
+	void cleanup();
+	~IKNode3D();
 };
 
 #endif // IK_NODE_3D_H

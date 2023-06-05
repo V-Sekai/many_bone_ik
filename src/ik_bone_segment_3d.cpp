@@ -152,7 +152,7 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
 	Transform3D prev_transform = p_for_bone->get_pose();
-	bool gotCloser = true;
+	bool got_closer = true;
 	real_t bone_damp = p_for_bone->get_cos_half_dampen();
 
 	int i = 0;
@@ -163,11 +163,8 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 			QCP qcp = QCP(evec_prec, eval_prec);
 			Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 			Vector3 translation = qcp.get_translation();
-			if (p_dampening != real_t(-1.0)) {
-				rot = clamp_to_quadrance_angle(rot, cos(p_dampening / 2.0)).normalized();
-			} else {
-				rot = clamp_to_quadrance_angle(rot, bone_damp).normalized();
-			}
+			real_t dampening = (p_dampening != real_t(-1.0)) ? p_dampening : bone_damp;
+			rot = clamp_to_quadrance_angle(rot, cos(dampening / 2.0)).normalized();
 			p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
 			Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 			result.orthonormalize();
@@ -183,19 +180,19 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 
 		if (default_stabilizing_pass_count > 0) {
 			update_tip_headings(p_for_bone, &tip_headings_uniform, true);
-			real_t currentmsd = get_manual_msd(tip_headings_uniform, target_headings, heading_weights);
-			if (currentmsd <= previous_deviation * 1.0001) {
-				previous_deviation = currentmsd;
-				gotCloser = true;
+			real_t current_msd = get_manual_msd(tip_headings_uniform, target_headings, heading_weights);
+			if (current_msd <= previous_deviation * 1.0001) {
+				previous_deviation = current_msd;
+				got_closer = true;
 				break;
 			} else {
-				gotCloser = false;
+				got_closer = false;
 			}
 		}
 		i++;
-	} while (i < default_stabilizing_pass_count && !gotCloser);
+	} while (i < default_stabilizing_pass_count && !got_closer);
 
-	if (!gotCloser) {
+	if (!got_closer) {
 		p_for_bone->set_pose(prev_transform);
 	}
 

@@ -946,10 +946,6 @@ void ManyBoneIK3D::remove_constraint(int32_t p_index) {
 	kusudama_twist.remove_at(p_index);
 
 	constraint_count--;
-	constraint_names.resize(constraint_count);
-	kusudama_twist.resize(constraint_count);
-	kusudama_limit_cone_count.resize(constraint_count);
-	kusudama_limit_cones.resize(constraint_count);
 
 	set_dirty();
 }
@@ -983,15 +979,13 @@ Vector<Ref<IKBone3D>> ManyBoneIK3D::get_bone_list() {
 void ManyBoneIK3D::set_bone_direction_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
+	int32_t bone_index = get_skeleton()->find_bone(bone_name);
 	for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
 		if (segmented_skeleton.is_null()) {
 			continue;
 		}
-		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
-		if (ik_bone.is_null()) {
-			continue;
-		}
-		if (ik_bone->get_constraint().is_null()) {
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(bone_index);
+		if (ik_bone.is_null() || ik_bone->get_constraint().is_null()) {
 			continue;
 		}
 		ik_bone->get_bone_direction_transform()->set_transform(p_transform);
