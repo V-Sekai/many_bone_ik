@@ -114,20 +114,6 @@ void IKKusudama3D::get_swing_twist(
 	r_swing = p_rotation * r_twist.inverse();
 }
 
-void IKKusudama3D::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen) {
-	Vector<double> in_bounds = { 1.0 };
-	bone_ray->set_point_1(limiting_axes->get_global_transform().origin);
-	bone_ray->set_point_2(bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0)));
-	Vector3 bone_tip = limiting_axes->to_local(bone_ray->get_point_2());
-	Vector3 in_limits = get_local_point_in_limits(bone_tip, &in_bounds);
-	if (in_bounds[0] < 0 && !Math::is_nan(in_limits.x) && !Math::is_nan(in_limits.y) && !Math::is_nan(in_limits.z)) {
-		constrained_ray->set_point_1(bone_ray->get_point_1());
-		constrained_ray->set_point_2(limiting_axes->to_global(in_limits));
-		Quaternion rectified_rot = Quaternion(bone_ray->get_heading(), constrained_ray->get_heading());
-		to_set->rotate_local_with_global(rectified_rot);
-	}
-}
-
 void IKKusudama3D::add_limit_cone(Vector3 new_cone_local_point, double radius) {
 	Ref<IKLimitCone3D> cone = Ref<IKLimitCone3D>(memnew(IKLimitCone3D(new_cone_local_point, radius, Ref<IKKusudama3D>(this))));
 	limit_cones.push_back(cone);
@@ -346,4 +332,28 @@ real_t IKKusudama3D::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) 
 	}
 
 	return 0;
+}
+
+void IKKusudama3D::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen) {
+	Vector<double> in_bounds = { 1.0 };
+	Vector3 limiting_origin = limiting_axes->get_global_transform().origin;
+	Vector3 bone_dir_xform = bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0));
+
+	bone_ray->point_1(limiting_origin);
+	bone_ray->point_2(bone_dir_xform);
+
+	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
+	Vector3 in_limits = get_local_point_in_limits(bone_tip, &in_bounds);
+
+	if (in_bounds[0] < 0 && !is_nan_vector(in_limits)) {
+		constrained_ray->point_1(bone_ray->get_point_1());
+		constrained_ray->point_2(limiting_axes->to_global(in_limits));
+
+		Quaternion rectified_rot = Quaternion(bone_ray->get_heading(), constrained_ray->get_heading());
+		to_set->rotate_local_with_global(rectified_rot);
+	}
+}
+
+bool IKKusudama3D::is_nan_vector(const Vector3 &vec) {
+	return Math::is_nan(vec.x) || Math::is_nan(vec.y) || Math::is_nan(vec.z);
 }

@@ -126,7 +126,9 @@ public:
 	 *
 	 * @param to_set
 	 */
-	void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampen, real_t p_cos_half_angle_dampen);
+	void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen);
+
+	bool is_nan_vector(const Vector3 &vec);
 
 	/**
 	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
