@@ -339,15 +339,15 @@ void IKKusudama3D::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Re
 	Vector3 limiting_origin = limiting_axes->get_global_transform().origin;
 	Vector3 bone_dir_xform = bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0));
 
-	bone_ray->point_1(limiting_origin);
-	bone_ray->point_2(bone_dir_xform);
+	bone_ray->set_point_1(limiting_origin);
+	bone_ray->set_point_2(bone_dir_xform);
 
-	Vector3 bone_tip = limiting_axes->to_local(bone_ray->p2());
+	Vector3 bone_tip = limiting_axes->to_local(bone_ray->get_point_2());
 	Vector3 in_limits = get_local_point_in_limits(bone_tip, &in_bounds);
 
 	if (in_bounds[0] < 0 && !is_nan_vector(in_limits)) {
-		constrained_ray->point_1(bone_ray->get_point_1());
-		constrained_ray->point_2(limiting_axes->to_global(in_limits));
+		constrained_ray->set_point_1(bone_ray->get_point_1());
+		constrained_ray->set_point_2(limiting_axes->to_global(in_limits));
 
 		Quaternion rectified_rot = Quaternion(bone_ray->get_heading(), constrained_ray->get_heading());
 		to_set->rotate_local_with_global(rectified_rot);
