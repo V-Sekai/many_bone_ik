@@ -237,8 +237,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 
 void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
 	if (current_bone_idx == -1) {
-        return;
-    }
+		return;
+	}
 	Ref<IKKusudama3D> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;

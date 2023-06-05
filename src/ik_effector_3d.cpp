@@ -103,15 +103,15 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 
 	Transform3D bone_global_transform = p_for_bone->get_bone_direction_transform()->get_global_transform();
 	Vector3 target_relative_to_bone_origin = bone_global_transform.affine_inverse().basis.xform(target_relative_to_skeleton_origin.origin);
-    double distance = target_relative_to_bone_origin.length();
-    double epsilon = 1e-6;
-    double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
+	double distance = target_relative_to_bone_origin.length();
+	double epsilon = 1e-6;
+	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
 
-    double min_distance = 1.0;
-    double max_distance = 5.0;
+	double min_distance = 1.0;
+	double max_distance = 5.0;
 
-    // Replace the inverse square law with the smoothstep function
-    scale_by *= smoothstep(min_distance, max_distance, distance + epsilon);
+	// Replace the inverse square law with the smoothstep function
+	scale_by *= smoothstep(min_distance, max_distance, distance + epsilon);
 
 	if (priority.x > 0.0) {
 		real_t w = p_weights->get(index);
@@ -163,15 +163,15 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	index++;
 
 	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
-    if (p_is_uniform) {
-        double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
-        double epsilon = 1e-6;
+	if (p_is_uniform) {
+		double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
+		double epsilon = 1e-6;
 
-        double min_distance = 1.0;
-        double max_distance = 5.0;
+		double min_distance = 1.0;
+		double max_distance = 5.0;
 
-        scale_by *= smoothstep(min_distance, max_distance, distance + epsilon);
-    }
+		scale_by *= smoothstep(min_distance, max_distance, distance + epsilon);
+	}
 
 	const Vector3 priority = get_direction_priorities();
 
