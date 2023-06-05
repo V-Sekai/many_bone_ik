@@ -198,7 +198,6 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 	real_t dist = v0.distance_to(v1);
 	float radius = dist / 5.0;
 	int32_t current_cone = 0;
-	const float offset = 0.1f;
 	for (int32_t cone_i = 0; cone_i < ik_kusudama->get_limit_cones().size() * (3 * 4); cone_i = cone_i + (3 * 4)) {
 		Vector3 center = Vector3(kusudama_limit_cones[cone_i + 0], kusudama_limit_cones[cone_i + 1], kusudama_limit_cones[cone_i + 2]);
 		float cone_radius = kusudama_limit_cones[cone_i + 3];
@@ -275,7 +274,6 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	float radius = dist / 5.0;
 	float w = radius * Math::sin(cone_radius);
 	float d = radius * Math::cos(cone_radius);
-	const float offset = 0.1f;
 	{
 		const float ra = (float)kusudama->get_min_axial_angle();
 		const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
