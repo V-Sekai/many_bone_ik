@@ -196,27 +196,27 @@ Vector3 QCP::get_translation() {
 
 Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<real_t> &r_weight) {
 	Vector3 center;
+	real_t w_sum = 0;
 	bool weight_is_empty = r_weight.is_empty();
-	if (!weight_is_empty) {
-		for (int i = 0; i < r_to_center.size(); i++) {
-			w_sum += weight[i];
-		}
-	}
-	if (!weight_is_empty && w_sum > 0) {
-		for (int i = 0; i < r_to_center.size(); i++) {
+	int size = r_to_center.size();
+
+	for (int i = 0; i < size; i++) {
+		if (!weight_is_empty) {
+			w_sum += r_weight[i];
 			center += r_to_center[i] * r_weight[i];
-		}
-		center /= w_sum;
-	} else {
-		w_sum = 0;
-		for (int i = 0; i < r_to_center.size(); i++) {
+		} else {
 			center += r_to_center[i];
 			w_sum++;
 		}
+	}
+
+	if (w_sum > 0) {
 		center /= w_sum;
 	}
+
 	return center;
 }
+
 
 void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2) {
 	double x1, x2, y1, y2, z1, z2;
