@@ -73,6 +73,12 @@ class IKBoneSegment3D : public Resource {
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode);
 	float get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights);
 	HashMap<BoneId, Ref<IKBone3D>> bone_map;
+	bool _is_parent_of_tip(Ref<IKBone3D> p_current_tip, BoneId p_tip_bone);
+	bool _has_multiple_children_or_pinned(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip);
+	void _process_children(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &r_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
+	Ref<IKBoneSegment3D> _create_child_segment(String &p_child_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik, Ref<IKBoneSegment3D> &p_parent);
+	Ref<IKBone3D> _create_next_bone(BoneId p_bone_id, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik);
+	void _finalize_segment(Ref<IKBone3D> p_current_tip);
 
 protected:
 	static void _bind_methods();
@@ -80,12 +86,9 @@ protected:
 public:
 	const double evec_prec = static_cast<double>(1E-6);
 	const double eval_prec = static_cast<double>(1E-11);
-	void set_stabilization_passes(int32_t p_passes) {
-		default_stabilizing_pass_count = p_passes;
-	}
-	int32_t get_stabilization_passes() const {
-		return default_stabilizing_pass_count;
-	}
+	void update_pinned_list(Vector<Vector<real_t>> &r_weights);
+	void set_stabilization_passes(int32_t p_passes);
+	int32_t get_stabilization_passes() const;
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle);
 	static void recursive_create_headings_arrays_for(Ref<IKBoneSegment3D> p_bone_segment);
 	void create_headings_arrays();
@@ -99,8 +102,7 @@ public:
 	void create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	Vector<Ref<IKBone3D>> get_bone_list() const;
 	Ref<IKBone3D> get_ik_bone(BoneId p_bone) const;
-	void generate_default_segments_from_root(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
-	void update_pinned_list(Vector<Vector<real_t>> &r_weights);
+	void generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
 	IKBoneSegment3D() {}
 	IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent = nullptr,
 			BoneId root = -1, BoneId tip = -1, int32_t p_stabilizing_pass_count = 0);
