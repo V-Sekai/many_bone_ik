@@ -1213,3 +1213,44 @@ real_t ManyBoneIK3D::get_kusudama_twist_current(int32_t p_index) const {
 	}
 	return 0;
 }
+
+void ManyBoneIK3D::set_stabilization_passes(int32_t p_passes) {
+	stabilize_passes = p_passes;
+	set_dirty();
+}
+
+int32_t ManyBoneIK3D::get_stabilization_passes() {
+	return stabilize_passes;
+}
+
+void ManyBoneIK3D::set_twist_constraint_defaults(Dictionary p_defaults) {
+	twist_constraint_defaults = p_defaults;
+}
+
+Dictionary ManyBoneIK3D::get_twist_constraint_defaults() {
+	return twist_constraint_defaults;
+}
+
+void ManyBoneIK3D::set_orientation_constraint_defaults(Dictionary p_defaults) {
+	orientation_constraint_defaults = p_defaults;
+}
+
+Dictionary ManyBoneIK3D::get_orientation_constraint_defaults() {
+	return orientation_constraint_defaults;
+}
+
+void ManyBoneIK3D::set_bone_direction_constraint_defaults(Dictionary p_defaults) {
+	bone_direction_constraint_defaults = p_defaults;
+}
+
+Dictionary ManyBoneIK3D::get_bone_direction_constraint_defaults() {
+	return bone_direction_constraint_defaults;
+}
+
+Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
+	return godot_skeleton_transform_inverse;
+}
+
+Ref<IKNode3D> ManyBoneIK3D::get_godot_skeleton_transform() {
+	return godot_skeleton_transform;
+}
