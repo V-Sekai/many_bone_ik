@@ -92,7 +92,6 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 }
 
 void IKBone3D::update_default_constraint_transform() {
-	// TODO: If the user hasn't specified constraint transform, create it with a good guess.
 	Ref<IKBone3D> parent_bone = get_parent();
 	if (parent_bone.is_valid()) {
 		Transform3D parent_bone_aligned_transform = parent_bone->get_ik_transform()->get_global_transform();
@@ -101,27 +100,39 @@ void IKBone3D::update_default_constraint_transform() {
 	}
 	Transform3D set_constraint_twist_transform = constraint_orientation_transform->get_global_transform();
 	constraint_twist_transform->set_global_transform(set_constraint_twist_transform);
-	// Orient the twist plane to the limit cone centroid (approximately).
+
 	if (constraint.is_null()) {
 		return;
 	}
+
 	TypedArray<IKLimitCone3D> cones = constraint->get_limit_cones();
 	Vector3 direction;
-	if (cones.size() == 0) { // if there are no limit cones, set the default twist orientation to align with the bone_direction
+
+	if (cones.size() == 0) {
 		direction = bone_direction_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	} else {
+		float total_radius_sum = 0.0f;
 		for (int32_t cone_i = 0; cone_i < cones.size(); cone_i++) {
-			Ref<IKLimitCone3D> cone = cones[cone_i];
+			const Ref<IKLimitCone3D> &cone = cones[cone_i];
 			if (cone.is_null()) {
 				break;
 			}
-			float weight = cone->get_radius() / Math_PI;
+			total_radius_sum += cone->get_radius();
+		}
+
+		for (int32_t cone_i = 0; cone_i < cones.size(); cone_i++) {
+			const Ref<IKLimitCone3D> &cone = cones[cone_i];
+			if (cone.is_null()) {
+				break;
+			}
+			float weight = cone->get_radius() / total_radius_sum;
 			direction += cone->get_control_point() * weight;
 		}
-		direction = direction.normalized();
+		direction.normalize();
 		direction = constraint_orientation_transform->get_global_transform().xform(direction);
 		direction -= constraint_orientation_transform->get_global_transform().origin;
 	}
+
 	Vector3 twist_axis = constraint_twist_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	Quaternion align_dir = Quaternion(twist_axis, direction);
 	constraint_twist_transform->rotate_local_with_global(align_dir);
