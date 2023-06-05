@@ -896,6 +896,7 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 
 void ManyBoneIK3D::set_dirty() {
 	is_dirty = true;
+	is_gizmo_dirty = true;
 }
 
 int32_t ManyBoneIK3D::find_constraint(String p_string) const {
@@ -941,7 +942,10 @@ void ManyBoneIK3D::_notification(int p_what) {
 			execute(get_process_delta_time());
 		} break;
 		case NOTIFICATION_TRANSFORM_CHANGED: {
-			update_gizmos();
+			if (is_gizmo_dirty) {
+				update_gizmos();
+				is_gizmo_dirty = false;
+			}
 		} break;
 	}
 }
