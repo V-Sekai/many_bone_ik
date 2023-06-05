@@ -64,86 +64,83 @@ Quaternion QCP::get_rotation() {
 }
 
 void QCP::calculate_rmsd(double r_length) {
-	rmsd = Math::sqrt(Math::abs(2.0f * (e0 - mxEigenV) / r_length));
+	rmsd = Math::sqrt(Math::abs(2.0f * (e0 - max_eigenvalue) / r_length));
 }
 
 Quaternion QCP::calculate_rotation() {
-	// QCP doesn't handle single targets, so if we only have one point and one
-	// target, we just rotate by the angular distance between them
-	if (moved.size() == 1) {
-		Vector3 u = moved[0];
-		Vector3 v = target[0];
-		double norm_product = u.length() * v.length();
+    Quaternion result;
 
-		if (norm_product == 0.0) {
-			return Quaternion();
-		}
+    if (moved.size() == 1) {
+        Vector3 u = moved[0];
+        Vector3 v = target[0];
+        double norm_product = u.length() * v.length();
 
-		double dot = u.dot(v);
+        if (norm_product == 0.0) {
+            return Quaternion();
+        }
 
-		if (dot < ((2.0e-15 - 1.0) * norm_product)) {
-			// The special case: u = -v,
-			// We select a PI angle rotation around
-			// an arbitrary vector orthogonal to u.
-			Vector3 w = u.normalized();
-			return Quaternion(-w.x, -w.y, -w.z, 0.0f).normalized();
-		}
-		// The general case: (u, v) defines a plane, we select
-		// the shortest possible rotation: axis orthogonal to this plane.
-		double q0 = Math::sqrt(0.5 * (1.0 + dot / norm_product));
-		double coeff = 1.0 / (2.0 * q0 * norm_product);
-		Vector3 q = v.cross(u);
-		return Quaternion(-coeff * q.x, -coeff * q.y, -coeff * q.z, q0).normalized();
-	} else {
-		double a11 = SxxpSyy + Szz - mxEigenV;
-		double a12 = SyzmSzy;
-		double a13 = -SxzmSzx;
-		double a14 = SxymSyx;
-		double a21 = SyzmSzy;
-		double a22 = SxxmSyy - Szz - mxEigenV;
-		double a23 = SxypSyx;
-		double a24 = SxzpSzx;
-		double a31 = a13;
-		double a32 = a23;
-		double a33 = Syy - Sxx - Szz - mxEigenV;
-		double a34 = SyzpSzy;
-		double a41 = a14;
-		double a42 = a24;
-		double a43 = a34;
-		double a44 = Szz - SxxpSyy - mxEigenV;
+        double dot = u.dot(v);
 
-		double a3344_4334 = a33 * a44 - a43 * a34;
-		double a3244_4234 = a32 * a44 - a42 * a34;
-		double a3243_4233 = a32 * a43 - a42 * a33;
-		double a3143_4133 = a31 * a43 - a41 * a33;
-		double a3144_4134 = a31 * a44 - a41 * a34;
-		double a3142_4132 = a31 * a42 - a41 * a32;
+        if (dot < ((2.0e-15 - 1.0) * norm_product)) {
+            Vector3 w = u.normalized();
+            result = Quaternion(-w.x, -w.y, -w.z, 0.0f).normalized();
+        } else {
+            double q0 = Math::sqrt(0.5 * (1.0 + dot / norm_product));
+            double coeff = 1.0 / (2.0 * q0 * norm_product);
+            Vector3 q = v.cross(u);
+            result = Quaternion(-coeff * q.x, -coeff * q.y, -coeff * q.z, q0).normalized();
+        }
+    } else {
+        double a11 = sum_xx_plus_yy + sum_zz - max_eigenvalue;
+        double a12 = sum_yz_minus_zy;
+        double a13 = -sum_xz_minus_zx;
+        double a14 = sum_xy_minus_yx;
+        double a21 = sum_yz_minus_zy;
+        double a22 = sum_xx_minus_yy - sum_zz - max_eigenvalue;
+        double a23 = sum_xy_plus_yx;
+        double a24 = sum_xz_plus_zx;
+        double a31 = a13;
+        double a32 = a23;
+        double a33 = sum_yy - sum_xx - sum_zz - max_eigenvalue;
+        double a34 = sum_yz_plus_zy;
+        double a41 = a14;
+        double a42 = a24;
+        double a43 = a34;
+        double a44 = sum_zz - sum_xx_plus_yy - max_eigenvalue;
 
-		double q1 = a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
-		double q2 = -a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
-		double q3 = a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
-		double q4 = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
+        double a3344_4334 = a33 * a44 - a43 * a34;
+        double a3244_4234 = a32 * a44 - a42 * a34;
+        double a3243_4233 = a32 * a43 - a42 * a33;
+        double a3143_4133 = a31 * a43 - a41 * a33;
+        double a3144_4134 = a31 * a44 - a41 * a34;
+        double a3142_4132 = a31 * a42 - a41 * a32;
 
-		double qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
+        double quaternion_w = a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
+        double quaternion_x = -a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
+        double quaternion_y = a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
+        double quaternion_z = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
+        double qsqr = quaternion_w * quaternion_w + quaternion_x * quaternion_x + quaternion_y * quaternion_y + quaternion_z * quaternion_z;
 
-		if (qsqr < evec_prec) {
-			return Quaternion();
-		}
+        if (qsqr < evec_prec) {
+            return Quaternion();
+        }
 
-		q2 *= -1;
-		q3 *= -1;
-		q4 *= -1;
-		real_t min = q1;
-		min = q2 < min ? q2 : min;
-		min = q3 < min ? q3 : min;
-		min = q4 < min ? q4 : min;
-		q1 /= min;
-		q2 /= min;
-		q3 /= min;
-		q4 /= min;
+        quaternion_x *= -1;
+        quaternion_y *= -1;
+        quaternion_z *= -1;
+        real_t min = quaternion_w;
+        min = quaternion_x < min ? quaternion_x : min;
+        min = quaternion_y < min ? quaternion_y : min;
+        min = quaternion_z < min ? quaternion_z : min;
+        quaternion_w /= min;
+        quaternion_x /= min;
+        quaternion_y /= min;
+        quaternion_z /= min;
 
-		return Quaternion(q2, q3, q4, q1).normalized();
-	}
+        result = Quaternion(quaternion_x, quaternion_y, quaternion_z, quaternion_w).normalized();
+    }
+
+    return result;
 }
 
 double QCP::get_rmsd(PackedVector3Array &r_fixed, PackedVector3Array &r_moved) {
@@ -185,69 +182,61 @@ Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<rea
 }
 
 void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2) {
-	double x1, x2, y1, y2, z1, z2;
-	double g1 = 0, g2 = 0;
+    Vector3 weighted_coord1, weighted_coord2;
+    double sum_of_squares1 = 0, sum_of_squares2 = 0;
 
-	Sxx = 0;
-	Sxy = 0;
-	Sxz = 0;
-	Syx = 0;
-	Syy = 0;
-	Syz = 0;
-	Szx = 0;
-	Szy = 0;
-	Szz = 0;
+    sum_xx = 0;
+    sum_xy = 0;
+    sum_xz = 0;
+    sum_yx = 0;
+    sum_yy = 0;
+    sum_yz = 0;
+    sum_zx = 0;
+    sum_zy = 0;
+    sum_zz = 0;
 
-	bool weight_is_empty = weight.is_empty();
-	int size = coords1.size();
+    bool weight_is_empty = weight.is_empty();
+    int size = coords1.size();
 
-	for (int i = 0; i < size; i++) {
-		if (!weight_is_empty) {
-			x1 = weight[i] * coords1[i].x;
-			y1 = weight[i] * coords1[i].y;
-			z1 = weight[i] * coords1[i].z;
+    for (int i = 0; i < size; i++) {
+        if (!weight_is_empty) {
+            weighted_coord1 = weight[i] * coords1[i];
+            sum_of_squares1 += weighted_coord1.dot(coords1[i]);
+        } else {
+            weighted_coord1 = coords1[i];
+            sum_of_squares1 += weighted_coord1.dot(weighted_coord1);
+        }
 
-			g1 += x1 * coords1[i].x + y1 * coords1[i].y + z1 * coords1[i].z;
-		} else {
-			x1 = coords1[i].x;
-			y1 = coords1[i].y;
-			z1 = coords1[i].z;
+        weighted_coord2 = coords2[i];
 
-			g1 += x1 * x1 + y1 * y1 + z1 * z1;
-		}
+        sum_of_squares2 += weight_is_empty ? weighted_coord2.dot(weighted_coord2) : (weight[i] * weighted_coord2.dot(weighted_coord2));
 
-		x2 = coords2[i].x;
-		y2 = coords2[i].y;
-		z2 = coords2[i].z;
+        sum_xx += (weighted_coord1.x * weighted_coord2.x);
+        sum_xy += (weighted_coord1.x * weighted_coord2.y);
+        sum_xz += (weighted_coord1.x * weighted_coord2.z);
 
-		g2 += weight_is_empty ? (x2 * x2 + y2 * y2 + z2 * z2) : (weight[i] * (x2 * x2 + y2 * y2 + z2 * z2));
+        sum_yx += (weighted_coord1.y * weighted_coord2.x);
+        sum_yy += (weighted_coord1.y * weighted_coord2.y);
+        sum_yz += (weighted_coord1.y * weighted_coord2.z);
 
-		Sxx += (x1 * x2);
-		Sxy += (x1 * y2);
-		Sxz += (x1 * z2);
+        sum_zx += (weighted_coord1.z * weighted_coord2.x);
+        sum_zy += (weighted_coord1.z * weighted_coord2.y);
+        sum_zz += (weighted_coord1.z * weighted_coord2.z);
+    }
 
-		Syx += (y1 * x2);
-		Syy += (y1 * y2);
-		Syz += (y1 * z2);
+    double initial_eigenvalue = (sum_of_squares1 + sum_of_squares2) * 0.5;
 
-		Szx += (z1 * x2);
-		Szy += (z1 * y2);
-		Szz += (z1 * z2);
-	}
+    sum_xz_plus_zx = sum_xz + sum_zx;
+    sum_yz_plus_zy = sum_yz + sum_zy;
+    sum_xy_plus_yx = sum_xy + sum_yx;
+    sum_yz_minus_zy = sum_yz - sum_zy;
+    sum_xz_minus_zx = sum_xz - sum_zx;
+    sum_xy_minus_yx = sum_xy - sum_yx;
+    sum_xx_plus_yy = sum_xx + sum_yy;
+    sum_xx_minus_yy = sum_xx - sum_yy;
+    max_eigenvalue = initial_eigenvalue;
 
-	e0 = (g1 + g2) * 0.5;
-
-	SxzpSzx = Sxz + Szx;
-	SyzpSzy = Syz + Szy;
-	SxypSyx = Sxy + Syx;
-	SyzmSzy = Syz - Szy;
-	SxzmSzx = Sxz - Szx;
-	SxymSyx = Sxy - Syx;
-	SxxpSyy = Sxx + Syy;
-	SxxmSyy = Sxx - Syy;
-	mxEigenV = e0;
-
-	inner_product_calculated = true;
+    inner_product_calculated = true;
 }
 
 void QCP::calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y) {

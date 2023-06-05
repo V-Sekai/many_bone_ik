@@ -66,39 +66,39 @@
  * @author Eron Gjoni (adapted to EWB IK)
  * @author K. S. Ernest (iFire) Lee (adapted to ManyBoneIK)
  */
+ 
+class QCP {
+	double evec_prec = static_cast<double>(1E-6);
+	double eval_prec = static_cast<double>(1E-11);
 
- class QCP {
-	 double evec_prec = static_cast<double>(1E-6);
-	 double eval_prec = static_cast<double>(1E-11);
- 
-	 PackedVector3Array target, moved;
-	 Vector<real_t> weight;
-	 double w_sum = 0;
- 
-	 Vector3 target_center, moved_center;
- 
-	 double e0 = 0, rmsd = 0, Sxy = 0, Sxz = 0, Syx = 0, Syz = 0, Szx = 0, Szy = 0;
-	 double SxxpSyy = 0, Szz = 0, mxEigenV = 0, SyzmSzy = 0, SxzmSzx = 0, SxymSyx = 0;
-	 double SxxmSyy = 0, SxypSyx = 0, SxzpSzx = 0;
-	 double Syy = 0, Sxx = 0, SyzpSzy = 0;
-	 bool rmsd_calculated = false, transformation_calculated = false, inner_product_calculated = false;
- 
-	 void calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y);
-	 void inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2);
-	 void calculate_rmsd(double r_length);
-	 void set(PackedVector3Array &r_target, PackedVector3Array &r_moved);
-	 Quaternion calculate_rotation();
-	 void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate);
-	 static void translate(Vector3 r_translate, PackedVector3Array &r_x);
-	 double get_rmsd(PackedVector3Array &r_fixed, PackedVector3Array &r_moved);
-	 Vector3 move_to_weighted_center(PackedVector3Array &r_to_center, Vector<real_t> &r_weight);
- 
- public:
-	 QCP(double p_evec_prec, double p_eval_prec);
-	 double get_rmsd();
-	 Quaternion weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate);
-	 Quaternion get_rotation();
-	 Vector3 get_translation();
+	PackedVector3Array target, moved;
+	Vector<real_t> weight;
+	double w_sum = 0;
+
+	Vector3 target_center, moved_center;
+
+	double e0 = 0, rmsd = 0, sum_xy = 0, sum_xz = 0, sum_yx = 0, sum_yz = 0, sum_zx = 0, sum_zy = 0;
+	double sum_xx_plus_yy = 0, sum_zz = 0, max_eigenvalue = 0, sum_yz_minus_zy = 0, sum_xz_minus_zx = 0, sum_xy_minus_yx = 0;
+	double sum_xx_minus_yy = 0, sum_xy_plus_yx = 0, sum_xz_plus_zx = 0;
+	double sum_yy = 0, sum_xx = 0, sum_yz_plus_zy = 0;
+	bool rmsd_calculated = false, transformation_calculated = false, inner_product_calculated = false;
+
+	void calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y);
+	void inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2);
+	void calculate_rmsd(double r_length);
+	void set(PackedVector3Array &r_target, PackedVector3Array &r_moved);
+	Quaternion calculate_rotation();
+	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate);
+	static void translate(Vector3 r_translate, PackedVector3Array &r_x);
+	double get_rmsd(PackedVector3Array &r_fixed, PackedVector3Array &r_moved);
+	Vector3 move_to_weighted_center(PackedVector3Array &r_to_center, Vector<real_t> &r_weight);
+
+public:
+	QCP(double p_evec_prec, double p_eval_prec);
+	double get_rmsd();
+	Quaternion weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate);
+	Quaternion get_rotation();
+	Vector3 get_translation();
 };
 
 #endif // QCP_H
