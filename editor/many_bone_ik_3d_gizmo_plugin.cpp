@@ -78,7 +78,6 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		return;
 	}
 	p_gizmo->clear();
-	Node *root = node_3d->get_tree()->get_edited_scene_root();
 	ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
 	if (!many_bone_ik) {
 		return;
