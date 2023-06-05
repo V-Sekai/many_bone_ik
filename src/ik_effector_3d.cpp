@@ -30,6 +30,7 @@
 
 #include "ik_effector_3d.h"
 
+#include "core/typedefs.h"
 #include "ik_bone_3d.h"
 #include "many_bone_ik_3d.h"
 #include "math/ik_node_3d.h"
@@ -102,11 +103,15 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 
 	Transform3D bone_global_transform = p_for_bone->get_bone_direction_transform()->get_global_transform();
 	Vector3 target_relative_to_bone_origin = bone_global_transform.affine_inverse().basis.xform(target_relative_to_skeleton_origin.origin);
+    double distance = target_relative_to_bone_origin.length();
+    double epsilon = 1e-6;
+    double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
 
-	double distance = target_relative_to_bone_origin.length();
-	double epsilon = 1e-6;
-	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
-	scale_by *= MAX(1.0, 1.0 / ((distance + epsilon) * (distance + epsilon)));
+    double min_distance = 1.0;
+    double max_distance = 5.0;
+
+    // Replace the inverse square law with the smoothstep function
+    scale_by *= smoothstep(min_distance, max_distance, distance + epsilon);
 
 	if (priority.x > 0.0) {
 		real_t w = p_weights->get(index);
@@ -158,11 +163,15 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	index++;
 
 	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
-	if (p_is_uniform) {
-		double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
-		double epsilon = 1e-6;
-		scale_by = MAX(1.0, 1.0 / ((distance + epsilon) * (distance + epsilon)));
-	}
+    if (p_is_uniform) {
+        double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
+        double epsilon = 1e-6;
+
+        double min_distance = 1.0;
+        double max_distance = 5.0;
+
+        scale_by *= smoothstep(min_distance, max_distance, distance + epsilon);
+    }
 
 	const Vector3 priority = get_direction_priorities();
 
@@ -228,4 +237,9 @@ void IKEffector3D::set_passthrough_factor(float p_passthrough_factor) {
 
 float IKEffector3D::get_passthrough_factor() const {
 	return passthrough_factor;
+}
+
+double IKEffector3D::smoothstep(double edge0, double edge1, double x) const {
+	double t = CLAMP((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+	return t * t * (3.0 - 2.0 * t);
 }
