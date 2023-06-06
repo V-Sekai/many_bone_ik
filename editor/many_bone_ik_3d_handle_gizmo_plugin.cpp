@@ -135,6 +135,7 @@ ManyBoneIK3DHandleGizmoPlugin::ManyBoneIK3DHandleGizmoPlugin() {
 	create_handle_material("handles_axial_current", false, handle_axial_current);
 	kusudama_shader.instantiate();
 	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
+	set_state(HIDDEN);
 }
 
 int32_t ManyBoneIK3DHandleGizmoPlugin::get_priority() const {
