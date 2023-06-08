@@ -239,7 +239,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i] = memnew(EditorPropertyVector3());
 		center_vector3[cone_i]->hide();
-		center_vector3[cone_i]->setup(0, 1, 0.01, false, false, "", false);
+		center_vector3[cone_i]->setup(-1, 1, 0.001f, false, false, "", false);
 		center_vector3[cone_i]->set_label(TTR(vformat("Cone Center Point %d", cone_i + 1)));
 		center_vector3[cone_i]->set_selectable(false);
 		center_vector3[cone_i]->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
@@ -247,7 +247,7 @@ void ManyBoneIK3DEditor::create_editors() {
 
 		radius_float[cone_i] = memnew(EditorPropertyFloat());
 		radius_float[cone_i]->hide();
-		radius_float[cone_i]->setup(0, 180, 0.01, false, false, false, false, String::utf8("°"), true);
+		radius_float[cone_i]->setup(0, 180, 0.001f, false, false, false, false, String::utf8("°"), true);
 		radius_float[cone_i]->set_label(TTR(vformat("Cone Radius %d", cone_i + 1)));
 		radius_float[cone_i]->set_selectable(false);
 		radius_float[cone_i]->connect("property_changed", callable_mp(this, &ManyBoneIK3DEditor::_value_changed));
