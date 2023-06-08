@@ -66,7 +66,7 @@
  * @author Eron Gjoni (adapted to EWB IK)
  * @author K. S. Ernest (iFire) Lee (adapted to ManyBoneIK)
  */
- 
+
 class QCP {
 	double evec_prec = static_cast<double>(1E-6);
 	double eval_prec = static_cast<double>(1E-11);
