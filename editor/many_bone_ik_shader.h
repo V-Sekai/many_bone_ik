@@ -31,8 +31,8 @@
 #ifndef MANY_BONE_IK_SHADER_H
 #define MANY_BONE_IK_SHADER_H
 
-static constexpr char MANY_BONE_IKKUSUDAMA_SHADER[] = R"(
 // Skeleton 3D gizmo kusudama constraint shader.
+static constexpr char MANY_BONE_IKKUSUDAMA_SHADER[] = R"(
 shader_type spatial;
 render_mode depth_draw_always;
 
@@ -65,7 +65,7 @@ bool is_in_inter_cone_path(in vec3 normal_dir, in vec4 tangent_1, in vec4 cone_1
 		float c1t1dir = dot(normal_dir, c1xt1);
 		float t1c2dir = dot(normal_dir, t1xc2);
 
-	 	return (c1t1dir > 0.0 && t1c2dir > 0.0);
+		return (c1t1dir > 0.0 && t1c2dir > 0.0);
 
 	} else {
 		vec3 t2xc1 = cross(tangent_2.xyz, cone_1.xyz);
@@ -75,7 +75,6 @@ bool is_in_inter_cone_path(in vec3 normal_dir, in vec4 tangent_1, in vec4 cone_1
 
 		return (c2t2dir > 0.0 && t2c1dir > 0.0);
 	}
-	return false;
 }
 
 //determines the current draw condition based on the desired draw condition in the setToArgument
