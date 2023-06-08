@@ -47,8 +47,7 @@ class EditorInspectorPluginManyBoneIK : public EditorInspectorPlugin {
 	ManyBoneIK3DEditor *skel_editor = nullptr;
 
 public:
-	EditorInspectorPluginManyBoneIK() {
-	}
+	EditorInspectorPluginManyBoneIK();
 	virtual ~EditorInspectorPluginManyBoneIK() {
 	}
 	virtual bool can_handle(Object *p_object) override;
@@ -81,13 +80,10 @@ class ManyBoneIK3DEditor : public VBoxContainer {
 
 protected:
 	void _notification(int p_what);
+	static void _bind_methods();
 
 public:
-	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik) {
-		ik = p_ik;
-		create_editors();
-	}
-
+	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik);
 	void _update_properties();
 	void update_joint_tree();
 	void create_editors();
@@ -106,14 +102,7 @@ public:
 	bool has_main_screen() const override;
 	virtual bool handles(Object *p_object) const override;
 	virtual String get_name() const override;
-	ManyBoneIK3DEditorPlugin() {
-		skeleton_plugin = memnew(EditorInspectorPluginManyBoneIK);
-
-		EditorInspector::add_inspector_plugin(skeleton_plugin);
-
-		Ref<Skeleton3DGizmoPlugin> gizmo_plugin = Ref<Skeleton3DGizmoPlugin>(memnew(Skeleton3DGizmoPlugin));
-		Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
-	}
+	ManyBoneIK3DEditorPlugin();
 };
 
 #endif // MANY_BONE_IK_PLUGIN_H
