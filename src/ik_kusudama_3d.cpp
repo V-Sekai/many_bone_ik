@@ -59,13 +59,13 @@ void IKKusudama3D::set_axial_limits(real_t min_angle, real_t in_range) {
 	range_angle = in_range;
 	Vector3 y_axis = Vector3(0.0f, 1.0f, 0.0f);
 	Vector3 z_axis = Vector3(0.0f, 0.0f, 1.0f);
-	twist_min_rot = quaternion_axis_angle_normalized(y_axis, min_axial_angle);
+	twist_min_rot = Quaternion(y_axis, min_axial_angle);
 	twist_min_vec = twist_min_rot.xform(z_axis);
 	twist_center_vec = twist_min_rot.xform(twist_min_vec);
 	twist_center_rot = Quaternion(z_axis, twist_center_vec);
 	twist_tan = twist_center_vec.cross(y_axis);
 	twist_half_range_half_cos = cos(in_range / real_t(4.0)); // For the quadrance angle. We need half the range angle since starting from the center, and half of that since quadrance takes cos(angle/2).
-	twist_max_vec = quaternion_axis_angle_normalized(y_axis, in_range).xform(twist_min_vec);
+	twist_max_vec = Quaternion(y_axis, in_range).xform(twist_min_vec);
 	twist_max_rot = Quaternion(z_axis, twist_max_vec);
 	Vector3 max_cross = twist_max_vec.cross(y_axis);
 	flipped_bounds = twist_tan.cross(max_cross).y < real_t(0.0);
@@ -290,16 +290,6 @@ void IKKusudama3D::_bind_methods() {
 
 void IKKusudama3D::set_limit_cones(TypedArray<IKLimitCone3D> p_cones) {
 	limit_cones = p_cones;
-}
-
-Quaternion IKKusudama3D::quaternion_axis_angle_normalized(const Vector3 &p_axis, real_t p_angle) {
-	real_t norm = p_axis.length_squared();
-	if (norm == 0) {
-		return Quaternion();
-	}
-	real_t half_angle = -0.5 * p_angle;
-	real_t coeff = -sin(half_angle) / sqrt(norm);
-	return Quaternion(coeff * p_axis.x, coeff * p_axis.y, coeff * p_axis.z, cos(half_angle));
 }
 
 void IKKusudama3D::set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation) {

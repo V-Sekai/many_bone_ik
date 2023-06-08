@@ -978,7 +978,9 @@ Vector<Ref<IKBone3D>> ManyBoneIK3D::get_bone_list() {
 
 void ManyBoneIK3D::set_bone_direction_transform(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
-	ERR_FAIL_NULL(get_skeleton());
+	if (!get_skeleton()) {
+		return;
+	}
 	String bone_name = constraint_names[p_index];
 	int32_t bone_index = get_skeleton()->find_bone(bone_name);
 	for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {

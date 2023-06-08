@@ -101,8 +101,6 @@ protected:
 	static void _bind_methods();
 
 public:
-	static Quaternion quaternion_axis_angle_normalized(const Vector3 &p_axis, real_t p_angle);
-
 	~IKKusudama3D() {
 	}
 

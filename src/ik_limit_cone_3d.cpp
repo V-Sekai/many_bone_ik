@@ -31,6 +31,7 @@
 #include "ik_limit_cone_3d.h"
 
 #include "core/error/error_macros.h"
+#include "core/math/quaternion.h"
 #include "ik_kusudama_3d.h"
 
 #include "core/io/resource.h"
@@ -74,18 +75,18 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 		// the axis of this cone, scaled to minimize its distance to the tangent contact points.
 		Vector3 scaledAxisA = A * cos(boundaryPlusTangentRadiusA);
 		// a point on the plane running through the tangent contact points
-		Quaternion temp_var = IKKusudama3D::quaternion_axis_angle_normalized(arc_normal, boundaryPlusTangentRadiusA);
+		Quaternion temp_var = Quaternion(arc_normal, boundaryPlusTangentRadiusA);
 		Vector3 planeDir1A = temp_var.xform(A);
 		// another point on the same plane
-		Quaternion tempVar2 = IKKusudama3D::quaternion_axis_angle_normalized(A, Math_PI / 2);
+		Quaternion tempVar2 = Quaternion(A, Math_PI / 2);
 		Vector3 planeDir2A = tempVar2.xform(planeDir1A);
 
 		Vector3 scaledAxisB = B * cos(boundaryPlusTangentRadiusB);
 		// a point on the plane running through the tangent contact points
-		Quaternion tempVar3 = IKKusudama3D::quaternion_axis_angle_normalized(arc_normal, boundaryPlusTangentRadiusB);
+		Quaternion tempVar3 = Quaternion(arc_normal, boundaryPlusTangentRadiusB);
 		Vector3 planeDir1B = tempVar3.xform(B);
 		// another point on the same plane
-		Quaternion tempVar4 = IKKusudama3D::quaternion_axis_angle_normalized(B, Math_PI / 2);
+		Quaternion tempVar4 = Quaternion(B, Math_PI / 2);
 		Vector3 planeDir2B = tempVar4.xform(planeDir1B);
 
 		// ray from scaled center of next cone to half way point between the circumference of this cone and the next cone.
@@ -355,7 +356,7 @@ Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds)
 		return Vector3(NAN, NAN, NAN);
 	}
 	Vector3 axis = get_control_point().cross(input);
-	Quaternion rot_to = IKKusudama3D::quaternion_axis_angle_normalized(axis.normalized(), get_radius());
+	Quaternion rot_to = Quaternion(axis.normalized(), get_radius());
 	Vector3 axis_control_point = get_control_point();
 	Vector3 result = rot_to.xform(axis_control_point);
 	in_bounds->write[0] = -1;
