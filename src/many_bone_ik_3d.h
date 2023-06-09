@@ -37,6 +37,7 @@
 
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
+#include <sys/_types/_int32_t.h>
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
@@ -91,6 +92,16 @@ protected:
 	void _notification(int p_what);
 
 public:
+	enum class HumanoidMode : int32_t {
+		HUMANOID_MODE_HUMANOID = 0,
+		HUMANOID_MODE_BODY,
+		HUMANOID_MODE_11_POINT,
+		HUMANOID_MODE_ALL,
+	};
+	HumanoidMode humanoid_mode = HumanoidMode::HUMANOID_MODE_11_POINT;
+	void set_humanoid_mode(int p_mode);
+	int get_humanoid_mode() const;
+
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes();
 	void set_twist_constraint_defaults(Dictionary p_defaults);
@@ -112,7 +123,7 @@ public:
 
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;
-	Vector<Ref<IKBone3D>> get_bone_list();
+	Vector<Ref<IKBone3D>> get_bone_list() const;
 	Vector<Ref<IKBoneSegment3D>> get_segmented_skeletons();
 	float get_iterations_per_frame() const;
 	void set_iterations_per_frame(const float &p_iterations_per_frame);
@@ -165,4 +176,5 @@ public:
 	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
 };
 
+VARIANT_ENUM_CAST(ManyBoneIK3D::HumanoidMode);
 #endif // MANY_BONE_IK_3D_H

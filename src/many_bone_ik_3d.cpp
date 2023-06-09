@@ -31,6 +31,7 @@
 #include "many_bone_ik_3d.h"
 #include "core/core_string_names.h"
 #include "core/error/error_macros.h"
+#include "core/object/class_db.h"
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
 
@@ -161,16 +162,18 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
 	}
 
+	const Vector<Ref<IKBone3D>> ik_bones = get_bone_list();
+
 	RBSet<String> existing_constraints;
-	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
-		const String name = get_constraint_name(constraint_i);
+	for (int32_t constraint_i = 0; constraint_i < ik_bones.size(); constraint_i++) {
+		const String name = ik_bones[constraint_i]->get_name();
 		existing_constraints.insert(name);
 	}
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
 					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Kusudama Constraints,constraints/"));
-	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+	for (int constraint_i = 0; constraint_i < ik_bones.size(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
 		const uint32_t constraint_usage = PROPERTY_USAGE_NO_EDITOR;
@@ -178,8 +181,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
-			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-				String name = get_skeleton()->get_bone_name(bone_i);
+			for (int bone_i = 0; bone_i < ik_bones.size(); bone_i++) {
+				String name = ik_bones[bone_i]->get_name();
 				if (existing_constraints.has(name)) {
 					continue;
 				}
@@ -222,7 +225,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 				PropertyInfo(Variant::INT, "bone_count",
 						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 						"Bone,bone/"));
-		for (int property_bone_i = 0; property_bone_i < get_bone_count(); property_bone_i++) {
+		for (int property_bone_i = 0; property_bone_i < bone_list.size(); property_bone_i++) {
 			PropertyInfo bone_name;
 			bone_name.type = Variant::STRING_NAME;
 			const uint32_t damp_usage = PROPERTY_USAGE_NO_EDITOR;
@@ -230,8 +233,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
 			if (get_skeleton()) {
 				String names;
-				for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
-					String name = get_skeleton()->get_bone_name(bone_i);
+				for (int bone_i = 0; bone_i < bone_list.size(); bone_i++) {
+					String name = bone_list[bone_i]->get_name();
 					name += ",";
 					names += name;
 				}
@@ -437,6 +440,8 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void ManyBoneIK3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_humanoid_mode", "mode"), &ManyBoneIK3D::set_humanoid_mode);
+	ClassDB::bind_method(D_METHOD("get_humanoid_mode"), &ManyBoneIK3D::get_humanoid_mode);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform", "index"), &ManyBoneIK3D::get_constraint_orientation_transform);
@@ -489,6 +494,8 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_direction_constraint_defaults"), &ManyBoneIK3D::get_bone_direction_constraint_defaults);
 	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK3D::set_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK3D::get_stabilization_passes);
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "humanoid_mode", PROPERTY_HINT_ENUM, "All,Humanoid,Body,11 Point"), "set_humanoid_mode", "get_humanoid_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
@@ -972,7 +979,7 @@ void ManyBoneIK3D::set_bone_damp(int32_t p_index, real_t p_damp) {
 	bone_damp.write[p_index] = p_damp;
 }
 
-Vector<Ref<IKBone3D>> ManyBoneIK3D::get_bone_list() {
+Vector<Ref<IKBone3D>> ManyBoneIK3D::get_bone_list() const {
 	return bone_list;
 }
 
@@ -1239,4 +1246,12 @@ Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
 
 Ref<IKNode3D> ManyBoneIK3D::get_godot_skeleton_transform() {
 	return godot_skeleton_transform;
+}
+
+void ManyBoneIK3D::set_humanoid_mode(int p_mode) {
+	humanoid_mode = HumanoidMode(p_mode);
+}
+
+int ManyBoneIK3D::get_humanoid_mode() const {
+	return int(humanoid_mode);
 }

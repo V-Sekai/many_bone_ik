@@ -31,7 +31,10 @@
 #include "many_bone_ik_plugin.h"
 
 #include "editor/plugins/node_3d_editor_plugin.h"
+#include "ik_bone_3d.h"
+#include "many_bone_ik_3d.h"
 #include "scene/gui/tree.h"
+#include "scene/resources/skeleton_profile.h"
 
 EditorPlugin::AfterGUIInput ManyBoneIK3DEditorPlugin::forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
 	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();
@@ -80,13 +83,15 @@ void EditorInspectorPluginManyBoneIK::parse_begin(Object *p_object) {
 void ManyBoneIK3DEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE: {
-			if (joint_tree) {
-				update_joint_tree();
+			if (joint_tree && ik) {
+				update_joint_tree(ManyBoneIK3D::HumanoidMode(ik->get_humanoid_mode()));
 				joint_tree->connect("item_selected", callable_mp(this, &ManyBoneIK3DEditor::_joint_tree_selection_changed));
 			}
 		} break;
 		case NOTIFICATION_THEME_CHANGED: {
-			update_joint_tree();
+			if (ik) {
+				update_joint_tree(ManyBoneIK3D::HumanoidMode(ik->get_humanoid_mode()));
+			}
 		} break;
 	}
 }
@@ -94,7 +99,8 @@ void ManyBoneIK3DEditor::_notification(int p_what) {
 void ManyBoneIK3DEditor::_update_properties() {
 	Node3DEditor::get_singleton()->update_transform_gizmo();
 }
-void ManyBoneIK3DEditor::update_joint_tree() {
+
+void ManyBoneIK3DEditor::update_joint_tree(ManyBoneIK3D::HumanoidMode humanoid_mode) {
 	if (!ik || !joint_tree) {
 		return;
 	}
@@ -113,6 +119,21 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 	Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
 	Vector<int> bones_to_process = skeleton->get_parentless_bones();
 
+	Ref<SkeletonProfileHumanoid> profile;
+	profile.instantiate();
+
+	HashSet<StringName> eleven_point_tracking_bones;
+	eleven_point_tracking_bones.insert("Root");
+	eleven_point_tracking_bones.insert("Head");
+	eleven_point_tracking_bones.insert("LeftHand");
+	eleven_point_tracking_bones.insert("RightHand");
+	eleven_point_tracking_bones.insert("LeftFoot");
+	eleven_point_tracking_bones.insert("RightFoot");
+	eleven_point_tracking_bones.insert("LeftShoulder");
+	eleven_point_tracking_bones.insert("RightShoulder");
+	eleven_point_tracking_bones.insert("LeftLowerLeg");
+	eleven_point_tracking_bones.insert("RightLowerLeg");
+
 	while (!bones_to_process.is_empty()) {
 		int current_bone_idx = bones_to_process[0];
 		bones_to_process.remove_at(0);
@@ -120,7 +141,27 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 		StringName bone_name = skeleton->get_bone_name(current_bone_idx);
 		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
 
-		if (items.find(parent_idx)) {
+		bool is_humanoid_bone = profile->has_bone(bone_name);
+		bool is_body_group = "Body" == profile->get_group(profile->find_bone(bone_name));
+
+		bool should_add_bone = false;
+		switch (humanoid_mode) {
+			case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_ALL:
+				should_add_bone = true;
+				break;
+			case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_HUMANOID:
+				should_add_bone = is_humanoid_bone;
+				break;
+			case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_BODY:
+				should_add_bone = is_body_group;
+				break;
+			case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_11_POINT:
+				should_add_bone = eleven_point_tracking_bones.has(bone_name);
+				[[fallthrough]];
+			default:
+				break;
+		}
+		if (items.find(parent_idx) && should_add_bone) {
 			TreeItem *parent_item = items.find(parent_idx)->value;
 			TreeItem *joint_item = joint_tree->create_item(parent_item);
 			items.insert(current_bone_idx, joint_item);
@@ -129,11 +170,11 @@ void ManyBoneIK3DEditor::update_joint_tree() {
 			joint_item->set_icon(0, bone_icon);
 			joint_item->set_selectable(0, true);
 			joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
-
-			// Add the bone's children to the list of bones to be processed.
-			Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
-			bones_to_process.append_array(current_bone_child_bones);
 		}
+
+		// Add the bone's children to the list of bones to be processed.
+		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
+		bones_to_process.append_array(current_bone_child_bones);
 	}
 }
 

@@ -85,7 +85,7 @@ protected:
 public:
 	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik);
 	void _update_properties();
-	void update_joint_tree();
+	void update_joint_tree(ManyBoneIK3D::HumanoidMode humanoid_mode = ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_ALL);
 	void create_editors();
 	void _value_changed(const String &p_property, Variant p_value, const String &p_name, bool p_changing);
 	void select_bone(int p_idx);
