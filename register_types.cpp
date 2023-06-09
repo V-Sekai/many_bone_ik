@@ -38,7 +38,6 @@
 
 #ifdef TOOLS_ENABLED
 #include "editor/many_bone_ik_3d_gizmo_plugin.h"
-#include "editor/many_bone_ik_3d_handle_gizmo_plugin.h"
 #include "editor/many_bone_ik_plugin.h"
 #endif
 
@@ -48,7 +47,6 @@ void initialize_many_bone_ik_module(ModuleInitializationLevel p_level) {
 #ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 		EditorPlugins::add_by_type<EditorPluginManyBoneIK>();
-		EditorPlugins::add_by_type<EditorPluginManyBoneIKHandle>();
 		EditorPlugins::add_by_type<ManyBoneIK3DEditorPlugin>();
 	}
 #endif
