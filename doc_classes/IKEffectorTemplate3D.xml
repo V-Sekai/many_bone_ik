@@ -9,7 +9,7 @@
 	<members>
 		<member name="direction_priorities" type="Vector3" setter="set_direction_priorities" getter="get_direction_priorities" default="Vector3(0.2, 0, 0.2)">
 		</member>
-		<member name="passthrough_factor" type="float" setter="set_passthrough_factor" getter="get_passthrough_factor" default="0.0">
+		<member name="passthrough_factor" type="float" setter="set_passthrough_factor" getter="get_passthrough_factor" default="1.0">
 		</member>
 		<member name="target_node" type="NodePath" setter="set_target_node" getter="get_target_node" default="NodePath(&quot;&quot;)">
 		</member>
