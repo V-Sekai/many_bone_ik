@@ -396,26 +396,53 @@ TreeItem *ManyBoneIK3DEditor::_find(TreeItem *p_node, const NodePath &p_path) {
 }
 
 void ManyBoneIK3DEditor::_value_changed(const String &p_property, Variant p_value, const String &p_name, bool p_changing) {
-	if (!is_visible()) {
+	if (!is_visible() || !ik) {
 		return;
 	}
-	if (!ik) {
-	}
+
 	EditorUndoRedoManager *undo_redo = EditorUndoRedoManager::get_singleton();
 	undo_redo->create_action(TTR("Set ManyBoneIK Property"), UndoRedo::MERGE_ENDS);
 	undo_redo->add_undo_property(ik, p_property, ik->get(p_property));
 	undo_redo->add_do_property(ik, p_property, p_value);
 	undo_redo->commit_action();
+
 	for (int32_t cone_i = 0; cone_i < MAX_KUSUDAMA_CONES; cone_i++) {
 		center_vector3[cone_i]->hide();
 		radius_float[cone_i]->hide();
 	}
-	for (int32_t cone_i = 0; cone_i < ik->get_kusudama_limit_cone_count(selected_bone); cone_i++) {
-		center_vector3[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/center", selected_bone, cone_i));
+
+	int32_t limit_cone_count = ik->get_kusudama_limit_cone_count(selected_bone);
+	for (int32_t cone_i = 0; cone_i < limit_cone_count; cone_i++) {
+		String center_property = vformat("constraints/%d/kusudama_limit_cone/%d/center", selected_bone, cone_i);
+		center_vector3[cone_i]->set_object_and_property(ik, center_property);
 		center_vector3[cone_i]->update_property();
 		center_vector3[cone_i]->show();
-		radius_float[cone_i]->set_object_and_property(ik, vformat("constraints/%d/kusudama_limit_cone/%d/radius", selected_bone, cone_i));
+
+		String radius_property = vformat("constraints/%d/kusudama_limit_cone/%d/radius", selected_bone, cone_i);
+		radius_float[cone_i]->set_object_and_property(ik, radius_property);
 		radius_float[cone_i]->update_property();
 		radius_float[cone_i]->show();
 	}
+
+	_update_properties();
+}
+
+ManyBoneIK3DEditorPlugin::ManyBoneIK3DEditorPlugin() {
+	skeleton_plugin = memnew(EditorInspectorPluginManyBoneIK);
+
+	EditorInspector::add_inspector_plugin(skeleton_plugin);
+
+	Ref<Skeleton3DGizmoPlugin> gizmo_plugin = Ref<Skeleton3DGizmoPlugin>(memnew(Skeleton3DGizmoPlugin));
+	Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
+}
+
+ManyBoneIK3DEditor::ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik) {
+	ik = p_ik;
+	create_editors();
+}
+
+EditorInspectorPluginManyBoneIK::EditorInspectorPluginManyBoneIK() {
+}
+
+void ManyBoneIK3DEditor::_bind_methods() {
 }
