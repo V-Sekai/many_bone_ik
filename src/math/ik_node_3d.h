@@ -61,7 +61,7 @@ class IKNode3D : public RefCounted {
 	void _update_local_transform() const;
 
 protected:
-    void _notification(int p_what);
+	void _notification(int p_what);
 	static void _bind_methods() {
 		ClassDB::bind_method(D_METHOD("get_transform"), &IKNode3D::get_transform);
 		ClassDB::bind_method(D_METHOD("get_global_transform"), &IKNode3D::get_global_transform);
