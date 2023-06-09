@@ -93,12 +93,11 @@ protected:
 
 public:
 	enum class HumanoidMode : int32_t {
-		HUMANOID_MODE_HUMANOID = 0,
-		HUMANOID_MODE_BODY,
-		HUMANOID_MODE_11_POINT,
 		HUMANOID_MODE_ALL,
+		HUMANOID_MODE_HUMANOID,
+		HUMANOID_MODE_BODY,
 	};
-	HumanoidMode humanoid_mode = HumanoidMode::HUMANOID_MODE_11_POINT;
+	HumanoidMode humanoid_mode = HumanoidMode::HUMANOID_MODE_BODY;
 	void set_humanoid_mode(int p_mode);
 	int get_humanoid_mode() const;
 
