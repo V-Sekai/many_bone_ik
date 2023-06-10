@@ -124,16 +124,27 @@ void ManyBoneIK3DEditor::update_joint_tree(ManyBoneIK3D::HumanoidMode humanoid_m
 
 	HashSet<StringName> eleven_point_tracking_bones;
 	eleven_point_tracking_bones.insert("Root");
+	eleven_point_tracking_bones.insert("Hips");
 	eleven_point_tracking_bones.insert("Head");
 	eleven_point_tracking_bones.insert("LeftHand");
 	eleven_point_tracking_bones.insert("RightHand");
-	eleven_point_tracking_bones.insert("LeftFoot");
-	eleven_point_tracking_bones.insert("RightFoot");
-	eleven_point_tracking_bones.insert("LeftShoulder");
-	eleven_point_tracking_bones.insert("RightShoulder");
+	eleven_point_tracking_bones.insert("LeftUpperArm");
+	eleven_point_tracking_bones.insert("RightUpperArm");
 	eleven_point_tracking_bones.insert("LeftLowerLeg");
 	eleven_point_tracking_bones.insert("RightLowerLeg");
+	eleven_point_tracking_bones.insert("LeftFoot");
+	eleven_point_tracking_bones.insert("RightFoot");
 
+	HashSet<StringName> humanoid_bones;
+
+	for (int i = 0; i < profile->get_bone_size(); ++i) {
+		StringName bone_name = profile->get_bone_name(i);
+
+		bool is_humanoid_bone = profile->has_bone(bone_name);
+		if (is_humanoid_bone) {
+			humanoid_bones.insert(bone_name);
+		}
+	}
 	while (!bones_to_process.is_empty()) {
 		int current_bone_idx = bones_to_process[0];
 		bones_to_process.remove_at(0);
@@ -142,7 +153,6 @@ void ManyBoneIK3DEditor::update_joint_tree(ManyBoneIK3D::HumanoidMode humanoid_m
 		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
 
 		bool is_humanoid_bone = profile->has_bone(bone_name);
-		bool is_body_group = "Body" == profile->get_group(profile->find_bone(bone_name));
 
 		bool should_add_bone = false;
 		switch (humanoid_mode) {
@@ -150,14 +160,11 @@ void ManyBoneIK3DEditor::update_joint_tree(ManyBoneIK3D::HumanoidMode humanoid_m
 				should_add_bone = true;
 				break;
 			case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_HUMANOID:
-				should_add_bone = is_humanoid_bone;
+				should_add_bone = is_humanoid_bone || is_bone_in_path_between_pins(current_bone_idx, humanoid_bones);
 				break;
 			case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_BODY:
-				should_add_bone = is_body_group;
+				should_add_bone = eleven_point_tracking_bones.has(bone_name) || is_bone_in_path_between_pins(current_bone_idx, eleven_point_tracking_bones);
 				break;
-			case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_11_POINT:
-				should_add_bone = eleven_point_tracking_bones.has(bone_name);
-				[[fallthrough]];
 			default:
 				break;
 		}
@@ -171,7 +178,6 @@ void ManyBoneIK3DEditor::update_joint_tree(ManyBoneIK3D::HumanoidMode humanoid_m
 			joint_item->set_selectable(0, true);
 			joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
 		}
-
 		// Add the bone's children to the list of bones to be processed.
 		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
 		bones_to_process.append_array(current_bone_child_bones);
@@ -184,6 +190,7 @@ void ManyBoneIK3DEditor::create_editors() {
 	}
 	set_h_size_flags(SIZE_EXPAND_FILL);
 	set_focus_mode(FOCUS_ALL);
+
 	const Color section_color = get_theme_color(SNAME("prop_subsection"), SNAME("Editor"));
 	EditorInspectorSection *bones_section = memnew(EditorInspectorSection);
 	bones_section->setup("bones", "Bones", ik->get_skeleton(), section_color, true);
@@ -486,4 +493,27 @@ EditorInspectorPluginManyBoneIK::EditorInspectorPluginManyBoneIK() {
 }
 
 void ManyBoneIK3DEditor::_bind_methods() {
+}
+
+bool ManyBoneIK3DEditor::is_bone_in_path_between_pins(int p_bone_idx, const HashSet<StringName> &p_pins) {
+	Skeleton3D *skeleton = ik->get_skeleton();
+	if (!skeleton || p_pins.is_empty()) {
+		return false;
+	}
+
+	for (const StringName &pin : p_pins) {
+		int pin_bone_idx = skeleton->find_bone(pin);
+		if (pin_bone_idx == -1) {
+			continue;
+		}
+
+		while (pin_bone_idx != -1) {
+			if (pin_bone_idx == p_bone_idx) {
+				return true;
+			}
+			pin_bone_idx = skeleton->get_bone_parent(pin_bone_idx);
+		}
+	}
+
+	return false;
 }

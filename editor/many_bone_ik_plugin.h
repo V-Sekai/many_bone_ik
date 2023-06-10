@@ -83,7 +83,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *e_plugin, ManyBoneIK3D *p_ik);
+	bool is_bone_in_path_between_pins(int p_bone_idx, const HashSet<StringName> &p_pins);
+	ManyBoneIK3DEditor(EditorInspectorPluginManyBoneIK *p_plugin, ManyBoneIK3D *p_ik);
 	void _update_properties();
 	void update_joint_tree(ManyBoneIK3D::HumanoidMode humanoid_mode = ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_ALL);
 	void create_editors();
