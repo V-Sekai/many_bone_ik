@@ -37,7 +37,6 @@
 
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
-#include <sys/_types/_int32_t.h>
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
