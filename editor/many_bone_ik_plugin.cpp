@@ -30,6 +30,7 @@
 
 #include "many_bone_ik_plugin.h"
 
+#include "editor/editor_properties_vector.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "ik_bone_3d.h"
 #include "many_bone_ik_3d.h"
