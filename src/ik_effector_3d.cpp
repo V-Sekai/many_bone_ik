@@ -107,12 +107,8 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	double epsilon = 1e-6;
 	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
 
-	double min_distance = 1.0;
-	double max_distance = 5.0;
-
-	// Replace the inverse square law with the smoothstep function
-	scale_by *= smoothstep(min_distance, max_distance, distance + epsilon);
-
+    scale_by *= 1 / (distance * distance + epsilon);
+	
 	if (priority.x > 0.0) {
 		real_t w = p_weights->get(index);
 		p_headings->write[index] = (target_relative_to_skeleton_origin.basis.get_column(Vector3::AXIS_X) + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
@@ -167,10 +163,7 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 		double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
 		double epsilon = 1e-6;
 
-		double min_distance = 1.0;
-		double max_distance = 5.0;
-
-		scale_by *= smoothstep(min_distance, max_distance, distance + epsilon);
+		scale_by *= 1 / (distance * distance + epsilon);
 	}
 
 	const Vector3 priority = get_direction_priorities();
@@ -237,9 +230,4 @@ void IKEffector3D::set_passthrough_factor(float p_passthrough_factor) {
 
 float IKEffector3D::get_passthrough_factor() const {
 	return passthrough_factor;
-}
-
-double IKEffector3D::smoothstep(double edge0, double edge1, double x) const {
-	double t = CLAMP((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-	return t * t * (3.0 - 2.0 * t);
 }
