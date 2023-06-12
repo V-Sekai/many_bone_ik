@@ -500,8 +500,6 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_direction_constraint_defaults"), &ManyBoneIK3D::get_bone_direction_constraint_defaults);
 	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK3D::set_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK3D::get_stabilization_passes);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_angles", "effector_index", "index", "altitude", "azimuth"), &ManyBoneIK3D::set_kusudama_limit_cone_angles);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_angles", "effector_index", "index"), &ManyBoneIK3D::get_kusudama_limit_cone_angles);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "humanoid_mode", PROPERTY_HINT_ENUM, "All,Humanoid,Body"), "set_humanoid_mode", "get_humanoid_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
@@ -1262,53 +1260,6 @@ void ManyBoneIK3D::set_humanoid_mode(int p_mode) {
 
 int ManyBoneIK3D::get_humanoid_mode() const {
 	return int(humanoid_mode);
-}
-
-void ManyBoneIK3D::set_kusudama_limit_cone_angles(int32_t p_effector_index, int32_t p_index, real_t p_altitude, real_t p_azimuth) {
-	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cone_count.size());
-	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
-	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
-
-	real_t altitude_rad = Math::deg_to_rad(p_altitude);
-	real_t azimuth_rad = Math::deg_to_rad(p_azimuth);
-
-	Vector3 center;
-	center.x = sin(altitude_rad) * cos(azimuth_rad);
-	center.y = sin(altitude_rad) * sin(azimuth_rad);
-	center.z = cos(altitude_rad);
-
-	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
-	if (Math::is_zero_approx(center.length_squared())) {
-		cone.x = 0;
-		cone.y = 1;
-		cone.z = 0;
-	} else {
-		cone.x = center.x;
-		cone.y = center.y;
-		cone.z = center.z;
-	}
-	set_dirty();
-}
-
-Vector2 ManyBoneIK3D::get_kusudama_limit_cone_angles(int32_t p_effector_index, int32_t p_index) {
-	ERR_FAIL_INDEX_V(p_effector_index, kusudama_limit_cone_count.size(), Vector2());
-	ERR_FAIL_INDEX_V(p_effector_index, kusudama_limit_cones.size(), Vector2());
-	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_effector_index].size(), Vector2());
-
-	const Vector4 &cone = kusudama_limit_cones[p_effector_index][p_index];
-	Vector3 center(cone.x, cone.y, cone.z);
-
-	if (Math::is_zero_approx(center.length_squared())) {
-		return Vector2(0, 0);
-	} else {
-		real_t altitude_rad = acos(center.z);
-		real_t azimuth_rad = atan2(center.y, center.x);
-
-		real_t altitude_deg = Math::rad_to_deg(altitude_rad);
-		real_t azimuth_deg = Math::rad_to_deg(azimuth_rad);
-
-		return Vector2(altitude_deg, azimuth_deg);
-	}
 }
 
 bool ManyBoneIK3D::is_bone_part_of_humanoid_mode(const StringName &bone_name, ManyBoneIK3D::HumanoidMode humanoid_mode) const {

@@ -164,8 +164,6 @@ public:
 	float get_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index) const;
 	void set_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index, Vector3 p_center);
 	void set_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index, float p_radius);
-	void set_kusudama_limit_cone_angles(int32_t p_effector_index, int32_t p_index, real_t p_altitude, real_t p_azimuth);
-	Vector2 get_kusudama_limit_cone_angles(int32_t p_effector_index, int32_t p_index);
 	int32_t get_kusudama_limit_cone_count(int32_t p_constraint_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	int32_t get_bone_count() const;
