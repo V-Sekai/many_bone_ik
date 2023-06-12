@@ -132,17 +132,6 @@ void IKKusudama3D::remove_limit_cone(Ref<IKLimitCone3D> limitCone) {
 	limit_cones.erase(limitCone);
 }
 
-real_t IKKusudama3D::_mod(real_t x, real_t y) {
-	if (!Math::is_zero_approx(y) && !Math::is_zero_approx(x)) {
-		real_t result = Math::fmod(x, y);
-		if (result < 0.0f) {
-			result += y;
-		}
-		return result;
-	}
-	return 0.0f;
-}
-
 real_t IKKusudama3D::get_min_axial_angle() {
 	return min_axial_angle;
 }

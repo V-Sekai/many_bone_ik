@@ -48,8 +48,6 @@ class IKLimitCone3D;
 class IKKusudama3D : public Resource {
 	GDCLASS(IKKusudama3D, Resource);
 
-	static real_t _mod(real_t x, real_t y);
-
 	/**
 	 * An array containing all of the Kusudama's limit_cones. The kusudama is built up
 	 * with the expectation that any limitCone in the array is connected to the cone at the previous element in the array,
