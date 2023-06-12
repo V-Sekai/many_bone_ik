@@ -96,6 +96,8 @@ public:
 		HUMANOID_MODE_HUMANOID,
 		HUMANOID_MODE_BODY,
 	};
+	bool is_bone_in_path_between_pins(int p_bone_idx, const HashSet<StringName> &p_pins) const;
+	bool is_bone_part_of_humanoid_mode(const StringName &bone_name, HumanoidMode humanoid_mode) const;
 	HumanoidMode humanoid_mode = HumanoidMode::HUMANOID_MODE_BODY;
 	void set_humanoid_mode(int p_mode);
 	int get_humanoid_mode() const;
@@ -162,6 +164,8 @@ public:
 	float get_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index) const;
 	void set_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index, Vector3 p_center);
 	void set_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index, float p_radius);
+	void set_kusudama_limit_cone_angles(int32_t p_effector_index, int32_t p_index, real_t p_altitude, real_t p_azimuth);
+	Vector2 get_kusudama_limit_cone_angles(int32_t p_effector_index, int32_t p_index);
 	int32_t get_kusudama_limit_cone_count(int32_t p_constraint_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	int32_t get_bone_count() const;

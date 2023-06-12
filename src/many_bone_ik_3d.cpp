@@ -34,6 +34,8 @@
 #include "core/object/class_db.h"
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
+#include "scene/3d/skeleton_3d.h"
+#include "scene/resources/skeleton_profile.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
@@ -120,30 +122,33 @@ void ManyBoneIK3D::update_skeleton_bones_transform() {
 }
 
 void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
-	RBSet<String> existing_pins;
+	RBSet<StringName> existing_pins;
 	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
-					PROPERTY_HINT_RANGE, "0,1024,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+					PROPERTY_HINT_RANGE, "0,65536,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Pins,pins/"));
 	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
-		const uint32_t pin_usage = PROPERTY_USAGE_NO_EDITOR;
+		const uint32_t pin_usage = PROPERTY_USAGE_DEFAULT;
 		effector_name.usage = pin_usage | PROPERTY_USAGE_READ_ONLY;
 		if (get_skeleton()) {
 			String names;
 			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
 				String name = get_skeleton()->get_bone_name(bone_i);
-				if (existing_pins.has(name)) {
+				StringName string_name = StringName(name);
+				if (existing_pins.has(string_name)) {
 					continue;
 				}
-				name += ",";
-				names += name;
+				if (is_bone_part_of_humanoid_mode(string_name, HumanoidMode(get_humanoid_mode()))) {
+					name += ",";
+					names += name;
+				}
 			}
 			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			effector_name.hint_string = names;
@@ -171,12 +176,12 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
-					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Kusudama Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < ik_bones.size(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		const uint32_t constraint_usage = PROPERTY_USAGE_NO_EDITOR;
+		const uint32_t constraint_usage = PROPERTY_USAGE_DEFAULT;
 		bone_name.usage = constraint_usage | PROPERTY_USAGE_READ_ONLY;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
@@ -205,7 +210,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
-						PROPERTY_HINT_RANGE, "0,10,1", constraint_usage | PROPERTY_USAGE_ARRAY,
+						PROPERTY_HINT_RANGE, "0,10,1", constraint_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
@@ -223,14 +228,14 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	{
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "bone_count",
-						PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
-						"Bone,bone/"));
+						PROPERTY_HINT_RANGE, "0,65536,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY,
+						"Bones,bones/"));
 		for (int property_bone_i = 0; property_bone_i < bone_list.size(); property_bone_i++) {
 			PropertyInfo bone_name;
 			bone_name.type = Variant::STRING_NAME;
-			const uint32_t damp_usage = PROPERTY_USAGE_NO_EDITOR;
+			const uint32_t damp_usage = PROPERTY_USAGE_DEFAULT;
 			bone_name.usage = damp_usage | PROPERTY_USAGE_READ_ONLY;
-			bone_name.name = "bone/" + itos(property_bone_i) + "/bone_name";
+			bone_name.name = "bones/" + itos(property_bone_i) + "/bone_name";
 			if (get_skeleton()) {
 				String names;
 				for (int bone_i = 0; bone_i < bone_list.size(); bone_i++) {
@@ -246,7 +251,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			}
 			p_list->push_back(bone_name);
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "bone/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
+					PropertyInfo(Variant::FLOAT, "bones/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
 		}
 	}
 }
@@ -284,7 +289,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 			r_ret = get_pin_direction_priorities(index);
 			return true;
 		}
-	} else if (name.begins_with("bone/")) {
+	} else if (name.begins_with("bones/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, bone_count, false);
@@ -380,7 +385,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			set_pin_direction_priorities(index, p_value);
 			return true;
 		}
-	} else if (name.begins_with("bone/")) {
+	} else if (name.begins_with("bones/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		if (what == "damp") {
@@ -436,6 +441,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -494,6 +500,8 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_direction_constraint_defaults"), &ManyBoneIK3D::get_bone_direction_constraint_defaults);
 	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK3D::set_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK3D::get_stabilization_passes);
+	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_angles", "effector_index", "index", "altitude", "azimuth"), &ManyBoneIK3D::set_kusudama_limit_cone_angles);
+	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_angles", "effector_index", "index"), &ManyBoneIK3D::get_kusudama_limit_cone_angles);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "humanoid_mode", PROPERTY_HINT_ENUM, "All,Humanoid,Body"), "set_humanoid_mode", "get_humanoid_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
@@ -501,10 +509,10 @@ void ManyBoneIK3D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "constraint_mode"), "set_constraint_mode", "get_constraint_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "ui_selected_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_ui_selected_bone", "get_ui_selected_bone");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "stabilization_passes"), "set_stabilization_passes", "get_stabilization_passes");
 	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "twist_constraint_defaults", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_twist_constraint_defaults", "get_twist_constraint_defaults");
 	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "orientation_constraint_defaults", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_orientation_constraint_defaults", "get_orientation_constraint_defaults");
-	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "bone_direction_constraint_defaults", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_bone_direction_constraint_defaults", "get_bone_direction_constraint_defaults");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "stabilization_passes"), "set_stabilization_passes", "get_stabilization_passes");
+	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "bone_direction_constraint_defaults", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_bone_direction_constraint_defaults", "get_bone_direction_constraint_defaults");	
 }
 
 ManyBoneIK3D::ManyBoneIK3D() {
@@ -1254,4 +1262,115 @@ void ManyBoneIK3D::set_humanoid_mode(int p_mode) {
 
 int ManyBoneIK3D::get_humanoid_mode() const {
 	return int(humanoid_mode);
+}
+
+void ManyBoneIK3D::set_kusudama_limit_cone_angles(int32_t p_effector_index, int32_t p_index, real_t p_altitude, real_t p_azimuth) {
+	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cone_count.size());
+	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
+	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
+
+	real_t altitude_rad = Math::deg_to_rad(p_altitude);
+	real_t azimuth_rad = Math::deg_to_rad(p_azimuth);
+
+	Vector3 center;
+	center.x = sin(altitude_rad) * cos(azimuth_rad);
+	center.y = sin(altitude_rad) * sin(azimuth_rad);
+	center.z = cos(altitude_rad);
+
+	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
+	if (Math::is_zero_approx(center.length_squared())) {
+		cone.x = 0;
+		cone.y = 1;
+		cone.z = 0;
+	} else {
+		cone.x = center.x;
+		cone.y = center.y;
+		cone.z = center.z;
+	}
+	set_dirty();
+}
+
+Vector2 ManyBoneIK3D::get_kusudama_limit_cone_angles(int32_t p_effector_index, int32_t p_index) {
+	ERR_FAIL_INDEX_V(p_effector_index, kusudama_limit_cone_count.size(), Vector2());
+	ERR_FAIL_INDEX_V(p_effector_index, kusudama_limit_cones.size(), Vector2());
+	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_effector_index].size(), Vector2());
+
+	const Vector4 &cone = kusudama_limit_cones[p_effector_index][p_index];
+	Vector3 center(cone.x, cone.y, cone.z);
+
+	if (Math::is_zero_approx(center.length_squared())) {
+		return Vector2(0, 0);
+	} else {
+		real_t altitude_rad = acos(center.z);
+		real_t azimuth_rad = atan2(center.y, center.x);
+
+		real_t altitude_deg = Math::rad_to_deg(altitude_rad);
+		real_t azimuth_deg = Math::rad_to_deg(azimuth_rad);
+
+		return Vector2(altitude_deg, azimuth_deg);
+	}
+}
+
+bool ManyBoneIK3D::is_bone_part_of_humanoid_mode(const StringName &bone_name, ManyBoneIK3D::HumanoidMode humanoid_mode) const {
+	Ref<SkeletonProfileHumanoid> profile;
+	profile.instantiate();
+
+	HashSet<StringName> eleven_point_tracking_bones;
+	eleven_point_tracking_bones.insert(SNAME("Root"));
+	eleven_point_tracking_bones.insert(SNAME("Hips"));
+	eleven_point_tracking_bones.insert(SNAME("Head"));
+	eleven_point_tracking_bones.insert(SNAME("LeftHand"));
+	eleven_point_tracking_bones.insert(SNAME("RightHand"));
+	eleven_point_tracking_bones.insert(SNAME("LeftUpperArm"));
+	eleven_point_tracking_bones.insert(SNAME("RightUpperArm"));
+	eleven_point_tracking_bones.insert(SNAME("LeftLowerLeg"));
+	eleven_point_tracking_bones.insert(SNAME("RightLowerLeg"));
+	eleven_point_tracking_bones.insert(SNAME("LeftFoot"));
+	eleven_point_tracking_bones.insert(SNAME("RightFoot"));
+
+	HashSet<StringName> humanoid_bones;
+
+	for (int i = 0; i < profile->get_bone_size(); ++i) {
+		StringName profile_bone_name = profile->get_bone_name(i);
+
+		bool is_humanoid_bone = profile->has_bone(profile_bone_name);
+		if (is_humanoid_bone) {
+			humanoid_bones.insert(profile_bone_name);
+		}
+	}
+
+	BoneId current_bone_idx = get_skeleton()->find_bone(bone_name);
+	switch (humanoid_mode) {
+		case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_ALL:
+			return true;
+		case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_HUMANOID:
+			return humanoid_bones.has(bone_name) || is_bone_in_path_between_pins(current_bone_idx, humanoid_bones);
+		case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_BODY:
+			return eleven_point_tracking_bones.has(bone_name) || is_bone_in_path_between_pins(current_bone_idx, eleven_point_tracking_bones);
+		default:
+			return false;
+	}
+}
+
+bool ManyBoneIK3D::is_bone_in_path_between_pins(int p_bone_idx, const HashSet<StringName> &p_pins) const {
+	Skeleton3D *skeleton = get_skeleton();
+	if (!skeleton || p_pins.is_empty()) {
+		return false;
+	}
+
+	for (const StringName &pin : p_pins) {
+		int pin_bone_idx = skeleton->find_bone(pin);
+		if (pin_bone_idx == -1) {
+			continue;
+		}
+
+		while (pin_bone_idx != -1) {
+			if (pin_bone_idx == p_bone_idx) {
+				return true;
+			}
+			pin_bone_idx = skeleton->get_bone_parent(pin_bone_idx);
+		}
+	}
+
+	return false;
 }
