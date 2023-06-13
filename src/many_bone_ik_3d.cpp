@@ -1296,9 +1296,9 @@ bool ManyBoneIK3D::is_bone_part_of_humanoid_mode(const StringName &p_bone_name, 
 		case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_ALL:
 			return true;
 		case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_HUMANOID:
-			return humanoid_bones.has(bone_name) || is_bone_in_path_between_pins(current_bone_idx, humanoid_bones);
+			return humanoid_bones.has(p_bone_name) || is_bone_in_path_between_pins(current_bone_idx, humanoid_bones);
 		case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_BODY:
-			return eleven_point_tracking_bones.has(bone_name) || is_bone_in_path_between_pins(current_bone_idx, eleven_point_tracking_bones);
+			return eleven_point_tracking_bones.has(p_bone_name) || is_bone_in_path_between_pins(current_bone_idx, eleven_point_tracking_bones);
 		default:
 			return false;
 	}
