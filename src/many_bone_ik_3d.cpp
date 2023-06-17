@@ -510,7 +510,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "stabilization_passes"), "set_stabilization_passes", "get_stabilization_passes");
 	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "twist_constraint_defaults", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_twist_constraint_defaults", "get_twist_constraint_defaults");
 	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "orientation_constraint_defaults", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_orientation_constraint_defaults", "get_orientation_constraint_defaults");
-	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "bone_direction_constraint_defaults", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_bone_direction_constraint_defaults", "get_bone_direction_constraint_defaults");	
+	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "bone_direction_constraint_defaults", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_bone_direction_constraint_defaults", "get_bone_direction_constraint_defaults");
 }
 
 ManyBoneIK3D::ManyBoneIK3D() {

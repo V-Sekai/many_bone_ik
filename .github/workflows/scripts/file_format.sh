@@ -46,9 +46,9 @@ while IFS= read -rd '' f; do
         continue
     fi
     # Disallow empty lines after the opening brace.
-    sed -z -i 's/\x7B\x0A\x0A/\x7B\x0A/g' "$f"
+    sed -i 's/\x7B\x0A\x0A/\x7B\x0A/g' "$f"
     # Disallow some empty lines before the closing brace.
-    sed -z -i 's/\x0A\x0A\x7D/\x0A\x7D/g' "$f"
+    sed -i 's/\x0A\x0A\x7D/\x0A\x7D/g' "$f"
 done
 
 git diff > patch.patch

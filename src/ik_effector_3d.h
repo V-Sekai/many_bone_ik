@@ -61,7 +61,7 @@ class IKEffector3D : public Resource {
 	PackedVector3Array tip_headings;
 	Vector<real_t> heading_weights;
 	Vector3 direction_priorities;
-	
+
 protected:
 	static void _bind_methods();
 
