@@ -70,6 +70,7 @@ private:
 	NodePath skeleton_node_path = NodePath("..");
 	int32_t ui_selected_bone = -1, stabilize_passes = 4;
 	bool is_gizmo_dirty = false;
+	bool is_setup_humanoid_bones = false;
 
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
@@ -174,6 +175,14 @@ public:
 	void set_dirty();
 	real_t get_kusudama_twist_current(int32_t p_index) const;
 	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
+
+	void setup_humanoid_bones(bool set_targets);
+
+	void set_setup_humanoid_bones(bool set_targets);
+
+	bool get_setup_humanoid_bones() const;
+
+	void tune_bone(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent, Node *owner);
 };
 
 VARIANT_ENUM_CAST(ManyBoneIK3D::HumanoidMode);
