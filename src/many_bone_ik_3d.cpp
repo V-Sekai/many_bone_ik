@@ -1603,16 +1603,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	json.instantiate();
 	json->parse(json_string);
 	Dictionary config = json->get_data();
-	Node *root = get_owner();
-	ERR_FAIL_NULL(root);
-	List<PropertyInfo> properties;
-	root->get_property_list(&properties);
 	Skeleton3D *skeleton = get_skeleton();
-
-	set_skeleton_node_path(NodePath(".."));
-	set_iterations_per_frame(10);
-	queue_print_skeleton();
-	set_stabilization_passes(1);
 	skeleton->reset_bone_poses();
 
 	Ref<SkeletonProfileHumanoid> humanoid_profile = memnew(SkeletonProfileHumanoid);
@@ -1662,24 +1653,27 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			}
 		}
 	}
-	if(!p_set_targets) {
+	if (!p_set_targets) {
 		return;
 	}
 	Array keys = targets.keys();
 	for (int target_i = 0; target_i < keys.size(); ++target_i) {
-		tune_bone(this, skeleton, keys[target_i], targets[keys[target_i]], root);
+		tune_bone(this, skeleton, keys[target_i], targets[keys[target_i]]);
 	}
 }
 
-void ManyBoneIK3D::tune_bone(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent, Node *owner) {
+void ManyBoneIK3D::tune_bone(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent) {
 	int bone_i = skeleton->find_bone(bone_name);
 
 	if (bone_i == -1) {
 		return;
 	}
+	if (!get_owner()) {
+		return;
+	}
 
 	Node3D *node_3d = nullptr;
-	TypedArray<Node> children = owner->find_children("*", "");
+	TypedArray<Node> children = get_owner()->find_children("*", "");
 	Node *parent = nullptr;
 
 	for (int i = 0; i < children.size(); ++i) {
@@ -1700,7 +1694,7 @@ void ManyBoneIK3D::tune_bone(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, St
 
 			if (String(node->get_name()) == bone_name_parent) {
 				node->add_child(node_3d, true);
-				node_3d->set_owner(owner);
+				node_3d->set_owner(get_owner());
 				parent = node;
 				break;
 			}
