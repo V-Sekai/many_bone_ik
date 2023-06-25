@@ -557,7 +557,8 @@ void ManyBoneIK3D::set_constraint_count(int32_t p_count) {
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
 		kusudama_limit_cone_count.write[constraint_i] = 0;
-		kusudama_limit_cones.write[constraint_i].resize(0);
+		kusudama_limit_cones.write[constraint_i].resize(1);
+		kusudama_limit_cones.write[constraint_i].write[0] = Vector4(0, 1, 0, Math_PI);
 		kusudama_twist.write[constraint_i] = Vector2(0, Math_TAU - CMP_EPSILON);
 	}
 	set_dirty();
@@ -1358,26 +1359,20 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 
 	Ref<SkeletonProfileHumanoid> humanoid_profile = memnew(SkeletonProfileHumanoid);
 	PackedStringArray humanoid_bones;
-	Dictionary targets;
-
-	targets["Hips"] = "ManyBoneIK3D";
-	targets["Root"] = "ManyBoneIK3D";
-	targets["Head"] = "ManyBoneIK3D";
-	targets["LeftHand"] = "ManyBoneIK3D";
-	targets["RightHand"] = "ManyBoneIK3D";
-	targets["LeftFoot"] = "ManyBoneIK3D";
-	targets["RightFoot"] = "ManyBoneIK3D";
 	if (!p_set_targets) {
 		return;
 	}
 	reset_constraints();
 	set_pin_count(bone_count);
 	set_constraint_count(bone_count);
+	create_pin_target_node(this, skeleton, "Hips", "Root");
 	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
 		String bone_name = skeleton->get_bone_name(bone_i);
 		set_pin_bone_name(bone_i, bone_name);
 		set_constraint_name(bone_i, bone_name);
-		create_pin_target_node(this, skeleton, bone_name, targets[bone_name]);
+		BoneId parent_bone_i = skeleton->get_bone_parent(bone_i);
+		String parent_bone_name = skeleton->get_bone_name(parent_bone_i);
+		create_pin_target_node(this, skeleton, bone_name, parent_bone_name);
 		if (config.has(bone_name)) {
 			Dictionary bone_config = config[bone_name];
 			if (bone_config.has("twist_rotation_range")) {
