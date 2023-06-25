@@ -1348,13 +1348,12 @@ bool ManyBoneIK3D::get_setup_humanoid_bones() const {
 }
 
 void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
-	ERR_FAIL_NULL(get_skeleton());
-
 	Ref<JSON> json;
 	json.instantiate();
 	json->parse(constraint_config_json_string);
 	Dictionary config = json->get_data();
-	Skeleton3D *skeleton = get_skeleton();
+	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
+	ERR_FAIL_NULL(skeleton);
 	skeleton->reset_bone_poses();
 
 	Ref<SkeletonProfileHumanoid> humanoid_profile = memnew(SkeletonProfileHumanoid);
@@ -1365,16 +1364,21 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	reset_constraints();
 	set_pin_count(bone_count);
 	set_constraint_count(bone_count);
-	create_pin_target_node(this, skeleton, "Hips", "Root");
 	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
 		String bone_name = skeleton->get_bone_name(bone_i);
+		if (skeleton->get_parentless_bones().has(bone_i)) {
+			create_pin_target_node(this, skeleton, bone_name, get_name());
+			set_pin_weight(bone_i, 0);
+		} else {
+			BoneId parent_bone_i = skeleton->get_bone_parent(bone_i);
+			String parent_bone_name = skeleton->get_bone_name(parent_bone_i);
+			create_pin_target_node(this, skeleton, bone_name, parent_bone_name);
+		}
 		set_pin_bone_name(bone_i, bone_name);
 		set_constraint_name(bone_i, bone_name);
-		BoneId parent_bone_i = skeleton->get_bone_parent(bone_i);
-		String parent_bone_name = skeleton->get_bone_name(parent_bone_i);
-		create_pin_target_node(this, skeleton, bone_name, parent_bone_name);
 		if (config.has(bone_name)) {
 			Dictionary bone_config = config[bone_name];
+			print_line(bone_config);
 			if (bone_config.has("twist_rotation_range")) {
 				Dictionary twist_rotation_range = bone_config["twist_rotation_range"];
 
