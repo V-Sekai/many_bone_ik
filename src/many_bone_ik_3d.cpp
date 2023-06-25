@@ -33,6 +33,7 @@
 #include "core/error/error_macros.h"
 #include "core/io/json.h"
 #include "core/object/class_db.h"
+#include "core/string/string_name.h"
 #include "core/variant/typed_array.h"
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
@@ -43,7 +44,7 @@
 #include "editor/editor_node.h"
 #endif
 
-void ManyBoneIK3D::_set_pin_count(int32_t p_value) {
+void ManyBoneIK3D::set_pin_count(int32_t p_value) {
 	int32_t old_count = pins.size();
 	pin_count = p_value;
 	pins.resize(p_value);
@@ -355,10 +356,10 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 	String name = p_name;
 	if (name == "constraint_count") {
-		_set_constraint_count(p_value);
+		set_constraint_count(p_value);
 		return true;
 	} else if (name == "pin_count") {
-		_set_pin_count(p_value);
+		set_pin_count(p_value);
 		return true;
 	} else if (name == "bone_count") {
 		_set_bone_count(p_value);
@@ -400,9 +401,9 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
 		if (what == "bone_name") {
 			if (index >= constraint_names.size()) {
-				_set_constraint_count(constraint_count);
+				set_constraint_count(constraint_count);
 			}
-			_set_constraint_name(index, p_value);
+			set_constraint_name(index, p_value);
 			return true;
 		} else if (what == "twist_current") {
 			set_kusudama_twist_current(index, p_value);
@@ -546,7 +547,7 @@ void ManyBoneIK3D::set_pin_passthrough_factor(int32_t p_effector_index, const fl
 	set_dirty();
 }
 
-void ManyBoneIK3D::_set_constraint_count(int32_t p_count) {
+void ManyBoneIK3D::set_constraint_count(int32_t p_count) {
 	int32_t old_count = constraint_names.size();
 	constraint_count = p_count;
 	constraint_names.resize(p_count);
@@ -701,7 +702,7 @@ Vector2 ManyBoneIK3D::get_kusudama_twist(int32_t p_index) const {
 	return kusudama_twist[p_index];
 }
 
-void ManyBoneIK3D::_set_constraint_name(int32_t p_index, String p_name) {
+void ManyBoneIK3D::set_constraint_name(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	constraint_names.write[p_index] = p_name;
 	set_dirty();
@@ -718,7 +719,7 @@ void ManyBoneIK3D::set_iterations_per_frame(const float &p_iterations_per_frame)
 	iterations_per_frame = p_iterations_per_frame;
 }
 
-void ManyBoneIK3D::_set_pin_bone_name(int32_t p_effector_index, StringName p_name) const {
+void ManyBoneIK3D::set_pin_bone_name(int32_t p_effector_index, StringName p_name) const {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
 	effector_template->set_name(p_name);
@@ -1152,12 +1153,12 @@ void ManyBoneIK3D::register_skeleton() {
 void ManyBoneIK3D::reset_constraints() {
 	Skeleton3D *skeleton = get_skeleton();
 	if (skeleton) {
-		_set_pin_count(skeleton->get_bone_count());
-		_set_constraint_count(skeleton->get_bone_count());
+		set_pin_count(skeleton->get_bone_count());
+		set_constraint_count(skeleton->get_bone_count());
 		_set_bone_count(skeleton->get_bone_count());
 		for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
-			_set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
-			_set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
+			set_pin_bone_name(bone_i, skeleton->get_bone_name(bone_i));
+			set_constraint_name(bone_i, skeleton->get_bone_name(bone_i));
 		}
 		for (int32_t bone_i : skeleton->get_parentless_bones()) {
 			set_pin_passthrough_factor(bone_i, 0.0f);
@@ -1366,23 +1367,19 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	targets["RightHand"] = "ManyBoneIK3D";
 	targets["LeftFoot"] = "ManyBoneIK3D";
 	targets["RightFoot"] = "ManyBoneIK3D";
-	if (p_set_targets) {
-		Array keys = targets.keys();
-		for (int target_i = 0; target_i < keys.size(); ++target_i) {
-			tune_bone(this, skeleton, keys[target_i], targets[keys[target_i]]);
-		}
+	if (!p_set_targets) {
+		return;
 	}
-	for (int config_i = 0; config_i < config.keys().size(); config_i++) {
-		String bone_name = config.keys()[config_i];
-
+	reset_constraints();
+	set_pin_count(bone_count);
+	set_constraint_count(bone_count);
+	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
+		String bone_name = skeleton->get_bone_name(bone_i);
+		set_pin_bone_name(bone_i, bone_name);
+		set_constraint_name(bone_i, bone_name);
+		create_pin_target_node(this, skeleton, bone_name, targets[bone_name]);
 		if (config.has(bone_name)) {
 			Dictionary bone_config = config[bone_name];
-			int32_t constraint_id = find_constraint(bone_name);
-
-			if (constraint_id == -1) {
-				continue;
-			}
-
 			if (bone_config.has("twist_rotation_range")) {
 				Dictionary twist_rotation_range = bone_config["twist_rotation_range"];
 
@@ -1390,31 +1387,34 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 					float twist_from = twist_rotation_range["from"];
 					float twist_range = twist_rotation_range["range"];
 					Vector2 twist = Vector2(twist_from, twist_range);
-					set_kusudama_twist(constraint_id, twist);
+					set_kusudama_twist(bone_i, twist);
 				}
 			}
 
 			if (bone_config.has("swing_rotation_center_radius")) {
 				Array cones = bone_config["swing_rotation_center_radius"];
-				set_kusudama_limit_cone_count(constraint_id, cones.size());
+				set_kusudama_limit_cone_count(bone_i, cones.size());
 
 				for (int cone_i = 0; cone_i < cones.size(); ++cone_i) {
 					Dictionary cone = cones[cone_i];
 
 					if (cone.has("center")) {
-						set_kusudama_limit_cone_center(constraint_id, cone_i, cone["center"]);
+						set_kusudama_limit_cone_center(bone_i, cone_i, cone["center"]);
 					}
 
 					if (cone.has("radius")) {
-						set_kusudama_limit_cone_radius(constraint_id, cone_i, cone["radius"]);
+						set_kusudama_limit_cone_radius(bone_i, cone_i, cone["radius"]);
 					}
 				}
 			}
 		}
+		is_setup_humanoid_bones = false;
+		set_dirty();
+		set_constraint_mode(false);
 	}
 }
 
-void ManyBoneIK3D::tune_bone(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent) {
+void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent) {
 	int bone_i = skeleton->find_bone(bone_name);
 
 	if (bone_i == -1) {
@@ -1457,10 +1457,10 @@ void ManyBoneIK3D::tune_bone(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, St
 			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
 
 	node_3d->set_owner(ik_instance->get_owner());
-
+	int32_t effector_id = ik_instance->find_effector_id(bone_name);
 	if (bone_name == "LeftToes" || bone_name == "RightToes") {
-		ik_instance->set_pin_weight(bone_i, 0);
+		ik_instance->set_pin_weight(effector_id, 0);
 	}
 
-	ik_instance->set_pin_nodepath(bone_i, ik_instance->get_path_to(node_3d));
+	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(node_3d));
 }

@@ -75,10 +75,10 @@ private:
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
 	Vector<Ref<IKEffectorTemplate3D>> get_bone_effectors() const;
-	void _set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
-	void _set_constraint_name(int32_t p_index, String p_name);
-	void _set_pin_count(int32_t p_value);
-	void _set_constraint_count(int32_t p_count);
+	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
+	void set_constraint_name(int32_t p_index, String p_name);
+	void set_pin_count(int32_t p_value);
+	void set_constraint_count(int32_t p_count);
 	void _remove_pin(int32_t p_index);
 	void _set_bone_count(int32_t p_count);
 
@@ -182,7 +182,7 @@ public:
 
 	bool get_setup_humanoid_bones() const;
 
-	void tune_bone(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
+	void create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
 
 	// | Body Part       | Description                                                                                                                                                                                                                   |
 	// |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
