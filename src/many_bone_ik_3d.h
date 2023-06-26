@@ -438,4 +438,5 @@ public:
 };
 
 VARIANT_ENUM_CAST(ManyBoneIK3D::HumanoidMode);
+
 #endif // MANY_BONE_IK_3D_H
