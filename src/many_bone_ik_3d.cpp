@@ -1425,7 +1425,6 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 
 	Node3D *node_3d = nullptr;
 	TypedArray<Node> children = get_owner()->find_children("*", "");
-	Node *parent = nullptr;
 
 	for (int i = 0; i < children.size(); ++i) {
 		Node *node = cast_to<Node>(children[i]);
@@ -1445,7 +1444,6 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 			if (String(node->get_name()) == bone_name_parent) {
 				node->add_child(node_3d, true);
 				node_3d->set_owner(get_owner());
-				parent = node;
 				break;
 			}
 		}
