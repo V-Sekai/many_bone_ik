@@ -676,6 +676,7 @@ void ManyBoneIK3D::set_kusudama_limit_cone_radius(int32_t p_effector_index, int3
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
 	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
 	cone.w = p_radius;
+	set_dirty();
 }
 
 void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
@@ -692,6 +693,7 @@ void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int3
 		cone.y = p_center.y;
 		cone.z = p_center.z;
 	}
+	set_dirty();
 }
 
 Vector2 ManyBoneIK3D::get_kusudama_twist(int32_t p_index) const {
@@ -761,6 +763,7 @@ void ManyBoneIK3D::execute(real_t delta) {
 			orientation_constraint_defaults[constraint_name] = get_constraint_orientation_transform(constraint_i);
 			bone_direction_constraint_defaults[constraint_name] = get_bone_direction_transform(constraint_i);
 		}
+		notify_property_list_changed();
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
@@ -904,7 +907,6 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 void ManyBoneIK3D::set_dirty() {
 	is_dirty = true;
 	is_gizmo_dirty = true;
-	notify_property_list_changed();
 }
 
 int32_t ManyBoneIK3D::find_constraint(String p_string) const {
