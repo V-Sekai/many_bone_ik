@@ -181,6 +181,7 @@ public:
 	void set_setup_humanoid_bones(bool set_targets);
 
 	bool get_setup_humanoid_bones() const;
+	void print_current_settings();
 
 	void create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
 
@@ -200,241 +201,34 @@ public:
 	// | [Side]LowerArm  | The elbow can bend and straighten, allowing the forearm to move towards or away from the upper arm during reaching and swinging motions.                                                                                       |
 	// | [Side]Hand      | The wrist can tilt up and down, allowing the hand to move towards or away from the forearm. It can also rotate slightly, enabling the hand to twist inward or outward for grasping and gesturing.                             |
 
+    // "swing_rotation_center_radius" to "s", "twist_rotation_range" to "t", "center" to "c", "radius" to "r", "from" to "f", and "range" to "r".
 	String constraint_config_json_string = R"(
-	{
-		"Hips" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, -1, 0), "radius" : 0.1745329252 } // 10 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 1.5707963268, // 90 degrees
-				"range" : 0.0872664626 // 5 degrees
-			}
-		},
-		"Spine" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, 1, 0), "radius" : 0.2617993878 } // 15 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.0436332313 // 2.5 degrees
-			}
-		},
-		"Chest" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, 1, 0), "radius" : 0.0872664626 } // 5 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.1745329252 // 10 degrees
-			}
-		},
-		"UpperChest" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, 1, 0), "radius" : 0.0872664626 } // 5 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.1745329252 // 10 degrees
-			}
-		},
-		"Neck" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, 1, 0), "radius" : 0.3926990817 } // 22.5 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.0436332313 // 2.5 degrees
-			}
-		},
-		"Head" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, 1, 0), "radius" : 0.0872664626 } // 5 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.0436332313 // 2.5 degrees
-			}
-		},
-		"LeftEye" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(1, 0, 0), "radius" : 0.0436332313 }, // 2.5 degrees
-				{ "center" : Vector3(0, 1, 0), "radius" : 0.0436332313 } // 2.5 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.0436332313 // 2.5 degrees
-			}
-		},
-		"LeftShoulder" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(1, 0.5, 0), "radius" : 0.3490658504 }, // 20 degrees
-				{ "center" : Vector3(0, 1, 0.5), "radius" : 0.2617993878 } // 15 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.2617993878 // 15 degrees
-			}
-		},
-		"LeftUpperArm" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(1, 0, 0.25), "radius" : 0.872664626 }, // 50 degrees
-				{ "center" : Vector3(0, -0.25, 1), "radius" : 0.872664626 } // 50 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.2617993878 // 15 degrees
-			}
-		},
-		"LeftLowerArm" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(1, 0, 0.5), "radius" : 0.698131701 }, // 40 degrees - Top segment
-				{ "center" : Vector3(0, 1, 0.5), "radius" : 0.698131701 }, // 40 degrees - Middle segment
-				{ "center" : Vector3(0, 0, 1), "radius" : 0.698131701 } // 40 degrees - Bottom segment
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.2617993878 // 15 degrees
-			}
-		},
-		"LeftHand" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, 1, 0), "radius" : 1.5707963268 }, // 90 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 1.5707963268 // 90 degrees
-			}
-		},
-		"LeftUpperLeg" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, -1, 0), "radius" : 1.5707963268 }, // 90 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.1745329252 // 10 degrees
-			}
-		},
-		"LeftLowerLeg" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, 1, -0.5), "radius" : 0.698131701 }, // 40 degrees - Top segment
-				{ "center" : Vector3(1, 0, -0.5), "radius" : 0.698131701 }, // 40 degrees - Middle segment
-				{ "center" : Vector3(0, 0, -1), "radius" : 0.698131701 } // 40 degrees - Bottom segment
-			],
-			"twist_rotation_range" : {
-				"from" : 0.872665, // 50 degrees
-				"range" : 0.1745329252 // 10 degrees
-			}
-		},
-		"LeftFoot" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, -1, 0), "radius" : 0.7853981634 }, // 45 degrees
-				{ "center" : Vector3(0, 0, 1), "radius" : 0.7853981634 } // 45 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.0872664626 // 5 degrees
-			}
-		},
-		"LeftToes" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, -1, 0), "radius" : 0.3490658504 } // 20 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.0872664626 // 5 degrees
-			}
-		},
-		"RightEye" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(-1, 0, 0), "radius" : 0.0436332313 }, // 2.5 degrees
-				{ "center" : Vector3(0, 1, 0), "radius" : 0.0436332313 } // 2.5 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.0436332313 // 2.5 degrees
-			}
-		},
-		"RightShoulder" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(-1, 0.5, 0), "radius" : 0.3490658504 }, // 20 degrees
-				{ "center" : Vector3(0, 1, -0.5), "radius" : 0.2617993878 } // 15 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.2617993878 // 15 degrees
-			}
-		},
-		"RightUpperArm" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(-0.25, 0, 1), "radius" : 0.872664626 }, // 50 degrees
-				{ "center" : Vector3(-1, 0.25, 0), "radius" : 0.872664626 } // 50 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.2617993878 // 15 degrees
-			}
-		},
-		"RightLowerArm" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(1, 0, 0.5), "radius" : 0.698131701 }, // 40 degrees - Top segment
-				{ "center" : Vector3(0, 1, 0.5), "radius" : 0.698131701 }, // 40 degrees - Middle segment
-				{ "center" : Vector3(0, 0, 1), "radius" : 0.698131701 } // 40 degrees - Bottom segment
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.2617993878 // 15 degrees
-			}
-		},
-		"RightHand" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, 1, 0), "radius" : 1.5707963268 }, // 90 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 1.5707963268 // 90 degrees
-			}
-		},
-		"RightUpperLeg" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, -1, 0), "radius" : 1.5707963268 }, // 90 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.1745329252 // 10 degrees
-			}
-		},
-		"RightLowerLeg" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(1, 0, -0.5), "radius" : 0.698131701 }, // 40 degrees - Top segment
-				{ "center" : Vector3(0, 1, -0.5), "radius" : 0.698131701 }, // 40 degrees - Middle segment
-				{ "center" : Vector3(0, 0, -1), "radius" : 0.698131701 } // 40 degrees - Bottom segment
-			],
-			"twist_rotation_range" : {
-				"from" : 0.872665, // 50 degrees
-				"range" : 0.1745329252 // 10 degrees
-			}
-		},
-		"RightFoot" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, -1, 0), "radius" : 0.7853981634 }, // 45 degrees
-				{ "center" : Vector3(0, 0, 1), "radius" : 0.7853981634 } // 45 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.0872664626 // 5 degrees
-			}
-		},
-		"RightToes" : {
-			"swing_rotation_center_radius" : [
-				{ "center" : Vector3(0, -1, 0), "radius" : 0.3490658504 } // 20 degrees
-			],
-			"twist_rotation_range" : {
-				"from" : 0, // 0 degrees
-				"range" : 0.0872664626 // 5 degrees
-			}
-		},
-	})";
+{
+  "Hips": {"s": [{"c": [0, -1, 0], "r": 0.349}], "t": {"f": 1.5708, "r": 0.174}},
+  "Spine": {"s": [{"c": [0, 1, 0], "r": 0.5236}], "t": {"f": 0, "r": 0.0872}},
+  "Chest": {"s": [{"c": [0, 1, 0], "r": 0.1746}], "t": {"f": 0, "r": 0.349}},
+  "UpperChest": {"s": [{"c": [0, 1, 0], "r": 0.1746}], "t": {"f": 0, "r": 0.349}},
+  "Neck": {"s": [{"c": [0, 1, 0], "r": 0.7854}], "t": {"f": 0, "r": 0.0872}},
+  "Head": {"s": [{"c": [0, 1, 0], "r": 0.1746}], "t": {"f": 0, "r": 0.0872}},
+  "LeftEye": {"s": [{"c": [1, 0, 0], "r": 0.0872}, {"c": [0, 1, 0], "r": 0.0872}], "t": {"f": 0, "r": 0.0872}},
+  "LeftShoulder": {"s": [{"c": [1, 0.5, 0], "r": 0.6982}, {"c": [0, 1, 0.5], "r": 0.5236}], "t": {"f": 0, "r": 0.5236}},
+  "LeftUpperArm": {"s": [{"c": [1, 0, 0.25], "r": 1.7453}, {"c": [0, -0.25, 1], "r": 1.7453}], "t": {"f": 0, "r": 0.5236}},
+  "LeftLowerArm": {"s": [{"c": [1, 0, 0.5], "r": 1.3963}, {"c": [0, 1, 0.5], "r": 1.3963}, {"c": [0, 0, 1], "r": 1.3963}], "t": {"f": 0, "r": 0.5236}},
+  "LeftHand": {"s": [{"c": [0, 1, 0], "r": 3.1416}], "t": {"f": 0, "r": 3.1416}},
+  "LeftUpperLeg": {"s": [{"c": [0, -1, 0], "r": 3.1416}], "t": {"f": 0, "r": 0.349}},
+  "LeftLowerLeg": {"s": [{"c": [0, 1, -0.5], "r": 1.3963}, {"c": [1, 0, -0.5], "r": 1.3963}, {"c": [0, 0, -1], "r": 1.3963}], "t": {"f": 1.7453, "r": 0.349}},
+  "LeftFoot": {"s": [{"c": [0, -1, 0], "r": 1.5708}, {"c": [0, 0, 1], "r": 1.5708}], "t": {"f": 0, "r": 0.1746}},
+  "LeftToes": {"s": [{"c": [0, -1, 0], "r": 0.6982}], "t": {"f": 0, "r": 0.1746}},
+  "RightEye": {"s": [{"c": [-1, 0, 0], "r": 0.0872}, {"c": [0, 1, 0], "r": 0.0872}], "t": {"f": 0, "r": 0.0872}},
+  "RightShoulder": {"s": [{"c": [-1, 0.5, 0], "r": 0.6982}, {"c": [0, 1, -0.5], "r": 0.5236}], "t": {"f": 0, "r": 0.5236}},
+  "RightUpperArm": {"s": [{"c": [-0.25, 0, 1], "r": 1.7453}, {"c": [-1, 0.25, 0], "r": 1.7453}], "t": {"f": 0, "r": 0.5236}},
+  "RightLowerArm": {"s": [{"c": [1, 0, 0.5], "r": 1.3963}, {"c": [0, 1, 0.5], "r": 1.3963}, {"c": [0, 0, 1], "r": 1.3963}], "t": {"f": 0, "r": 0.5236}},
+  "RightHand": {"s": [{"c": [0, 1, 0], "r": 3.1416}], "t": {"f": 0, "r": 3.1416}},
+  "RightUpperLeg": {"s": [{"c": [0, -1, 0], "r": 3.1416}], "t": {"f": 0, "r": 0.349}},
+  "RightLowerLeg": {"s": [{"c": [1, 0, -0.5], "r": 1.3963}, {"c": [0, 1, -0.5], "r": 1.3963}, {"c": [0, 0, -1], "r": 1.3963}], "t": {"f": 1.7453, "r": 0.349}},
+  "RightFoot": {"s": [{"c": [0, -1, 0], "r": 1.5708}, {"c": [0, 0, 1], "r": 1.5708}], "t": {"f": 0, "r": 0.1746}},
+  "RightToes": {"s": [{"c": [0, -1, 0], "r": 0.6982}], "t": {"f": 0, "r": 0.1746}}
+})";
 };
 
 VARIANT_ENUM_CAST(ManyBoneIK3D::HumanoidMode);

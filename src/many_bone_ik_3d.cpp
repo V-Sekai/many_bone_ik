@@ -163,11 +163,11 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D", pin_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.1,or_greater", pin_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
+				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight", PROPERTY_HINT_RANGE, "0,1,0.1,or_greater", pin_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.01,or_greater", pin_usage));
+				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.1,or_greater", pin_usage));
 	}
 
 	const Vector<Ref<IKBone3D>> ik_bones = get_bone_list();
@@ -206,20 +206,20 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians", constraint_usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians", constraint_usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.001", constraint_usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.1,exp", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count",
 						PROPERTY_HINT_RANGE, "0,10,1", constraint_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
-					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater", constraint_usage));
+					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater,exp", constraint_usage));
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians", constraint_usage));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radian,exps", constraint_usage));
 		}
 		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
@@ -254,7 +254,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			}
 			p_list->push_back(bone_name);
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "bones/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.01,radians", damp_usage));
+					PropertyInfo(Variant::FLOAT, "bones/" + itos(property_bone_i) + "/damp", PROPERTY_HINT_RANGE, "0,360,0.1,radians", damp_usage));
 		}
 	}
 }
@@ -514,7 +514,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "humanoid_mode", PROPERTY_HINT_ENUM, "All,Humanoid,Body"), "set_humanoid_mode", "get_humanoid_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.01,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.1,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "constraint_mode"), "set_constraint_mode", "get_constraint_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "ui_selected_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_ui_selected_bone", "get_ui_selected_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "stabilization_passes"), "set_stabilization_passes", "get_stabilization_passes");
@@ -576,7 +576,6 @@ inline StringName ManyBoneIK3D::get_constraint_name(int32_t p_index) const {
 void ManyBoneIK3D::set_kusudama_twist(int32_t p_index, Vector2 p_to) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist.write[p_index] = p_to;
-	set_dirty();
 }
 
 int32_t ManyBoneIK3D::find_effector_id(StringName p_bone_name) {
@@ -653,7 +652,6 @@ void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_constraint_index, int
 		cone.z = 0.0f;
 		cone.w = Math::deg_to_rad(10.0f);
 	}
-	set_dirty();
 }
 
 real_t ManyBoneIK3D::get_default_damp() const {
@@ -678,7 +676,6 @@ void ManyBoneIK3D::set_kusudama_limit_cone_radius(int32_t p_effector_index, int3
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
 	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
 	cone.w = p_radius;
-	set_dirty();
 }
 
 void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
@@ -695,7 +692,6 @@ void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int3
 		cone.y = p_center.y;
 		cone.z = p_center.z;
 	}
-	set_dirty();
 }
 
 Vector2 ManyBoneIK3D::get_kusudama_twist(int32_t p_index) const {
@@ -1350,8 +1346,7 @@ bool ManyBoneIK3D::get_setup_humanoid_bones() const {
 void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	Ref<JSON> json;
 	json.instantiate();
-	json->parse(constraint_config_json_string);
-	Dictionary config = json->get_data();
+	Dictionary config = JSON::parse_string(constraint_config_json_string);
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
 	ERR_FAIL_NULL(skeleton);
 	skeleton->reset_bone_poses();
@@ -1377,38 +1372,37 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		set_constraint_name(bone_i, bone_name);
 		if (config.has(bone_name)) {
 			Dictionary bone_config = config[bone_name];
-			print_line(bone_config);
-			if (bone_config.has("twist_rotation_range")) {
-				Dictionary twist_rotation_range = bone_config["twist_rotation_range"];
+			if (bone_config.has("t")) {
+				Dictionary twist_rotation_range = bone_config["t"];
 
-				if (twist_rotation_range.has("from") && twist_rotation_range.has("range")) {
-					float twist_from = twist_rotation_range["from"];
-					float twist_range = twist_rotation_range["range"];
+				if (twist_rotation_range.has("f") && twist_rotation_range.has("r")) {
+					float twist_from = twist_rotation_range["f"];
+					float twist_range = twist_rotation_range["r"];
 					Vector2 twist = Vector2(twist_from, twist_range);
 					set_kusudama_twist(bone_i, twist);
 				}
 			}
 
-			if (bone_config.has("swing_rotation_center_radius")) {
-				Array cones = bone_config["swing_rotation_center_radius"];
+			if (bone_config.has("s")) {
+				Array cones = bone_config["s"];
 				set_kusudama_limit_cone_count(bone_i, cones.size());
 
 				for (int cone_i = 0; cone_i < cones.size(); ++cone_i) {
 					Dictionary cone = cones[cone_i];
 
-					if (cone.has("center")) {
-						set_kusudama_limit_cone_center(bone_i, cone_i, cone["center"]);
+					if (cone.has("c")) {
+						Array centerArray = cone["c"];
+						Vector3 center(centerArray[0], centerArray[1], centerArray[2]);
+						set_kusudama_limit_cone_center(bone_i, cone_i, center);
 					}
 
-					if (cone.has("radius")) {
-						set_kusudama_limit_cone_radius(bone_i, cone_i, cone["radius"]);
+					if (cone.has("r")) {
+						set_kusudama_limit_cone_radius(bone_i, cone_i, cone["r"]);
 					}
 				}
 			}
 		}
 		is_setup_humanoid_bones = false;
-		set_dirty();
-		set_constraint_mode(false);
 	}
 }
 
@@ -1452,4 +1446,26 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 	node_3d->set_owner(ik_instance->get_owner());
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
 	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(node_3d));
+}
+
+void ManyBoneIK3D::print_current_settings() {
+	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
+	ERR_FAIL_NULL(skeleton);
+
+	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
+		String bone_name = skeleton->get_bone_name(bone_i);
+		print_line("Bone " + itos(bone_i) + ": " + bone_name);
+
+		Vector2 twist = get_kusudama_twist(bone_i);
+		print_line("  Twist: from=" + rtos(twist.x) + ", range=" + rtos(twist.y));
+
+		int cone_count = get_kusudama_limit_cone_count(bone_i);
+		print_line("  Cones: count=" + itos(cone_count));
+
+		for (int cone_i = 0; cone_i < cone_count; ++cone_i) {
+			Vector3 center = get_kusudama_limit_cone_center(bone_i, cone_i);
+			float radius = get_kusudama_limit_cone_radius(bone_i, cone_i);
+			print_line("    Cone " + itos(cone_i) + ": center=(" + rtos(center.x) + ", " + rtos(center.y) + ", " + rtos(center.z) + "), radius=" + rtos(radius));
+		}
+	}
 }
