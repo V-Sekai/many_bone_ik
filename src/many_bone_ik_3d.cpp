@@ -544,6 +544,7 @@ void ManyBoneIK3D::set_pin_passthrough_factor(int32_t p_effector_index, const fl
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
 	ERR_FAIL_NULL(effector_template);
 	effector_template->set_passthrough_factor(p_passthrough_factor);
+	set_dirty();
 }
 
 void ManyBoneIK3D::set_constraint_count(int32_t p_count) {
@@ -880,6 +881,7 @@ void ManyBoneIK3D::set_pin_weight(int32_t p_pin_index, const real_t &p_weight) {
 		pins.write[p_pin_index] = effector_template;
 	}
 	effector_template->set_weight(p_weight);
+	set_dirty();
 }
 
 Vector3 ManyBoneIK3D::get_pin_direction_priorities(int32_t p_pin_index) const {
@@ -896,6 +898,7 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 		pins.write[p_pin_index] = effector_template;
 	}
 	effector_template->set_direction_priorities(p_priority_direction);
+	set_dirty();
 }
 
 void ManyBoneIK3D::set_dirty() {
