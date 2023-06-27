@@ -1400,6 +1400,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			}
 		}
 		is_setup_humanoid_bones = false;
+		print_current_settings();
 	}
 }
 
@@ -1449,20 +1450,26 @@ void ManyBoneIK3D::print_current_settings() {
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
 	ERR_FAIL_NULL(skeleton);
 
+	Dictionary config = JSON::parse_string(constraint_config_json_string);
+	String output = "";
 	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
 		String bone_name = skeleton->get_bone_name(bone_i);
-		print_line("Bone " + itos(bone_i) + ": " + bone_name);
+		if (config.has(bone_name)) {
+			Vector2 twist = get_kusudama_twist(bone_i);
+			int cone_count = get_kusudama_limit_cone_count(bone_i);
 
-		Vector2 twist = get_kusudama_twist(bone_i);
-		print_line("  Twist: from=" + rtos(twist.x) + ", range=" + rtos(twist.y));
+			output += vformat("Bone %d: %s | Twist: from=%.4f, range=%.4f | Cones: count=%d", bone_i, bone_name, twist.x, twist.y, cone_count);
 
-		int cone_count = get_kusudama_limit_cone_count(bone_i);
-		print_line("  Cones: count=" + itos(cone_count));
+			for (int cone_i = 0; cone_i < cone_count; ++cone_i) {
+				Vector3 center = get_kusudama_limit_cone_center(bone_i, cone_i);
+				float radius = get_kusudama_limit_cone_radius(bone_i, cone_i);
+				output += vformat(" | Cone %d: center=(%.4f, %.4f, %.4f), radius=%.4f", cone_i, center.x, center.y, center.z, radius);
+			}
 
-		for (int cone_i = 0; cone_i < cone_count; ++cone_i) {
-			Vector3 center = get_kusudama_limit_cone_center(bone_i, cone_i);
-			float radius = get_kusudama_limit_cone_radius(bone_i, cone_i);
-			print_line("    Cone " + itos(cone_i) + ": center=(" + rtos(center.x) + ", " + rtos(center.y) + ", " + rtos(center.z) + "), radius=" + rtos(radius));
+			if (bone_i < bone_count - 1) {
+				output += " || ";
+			}
 		}
 	}
+	print_line(output);
 }
