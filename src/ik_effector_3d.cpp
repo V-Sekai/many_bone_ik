@@ -102,12 +102,7 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	Vector3 priority = get_direction_priorities();
 	Transform3D bone_global_transform = p_for_bone->get_bone_direction_transform()->get_global_transform();
 	Vector3 target_relative_to_bone_origin = bone_global_transform.affine_inverse().basis.xform(target_relative_to_skeleton_origin.origin);
-	double distance = target_relative_to_bone_origin.length();
-	double epsilon = 1e-6;
 	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
-
-	scale_by *= 1 / (distance * distance + epsilon);
-
 	for (int axis = Vector3::AXIS_X; axis <= Vector3::AXIS_Z; ++axis) {
 		if (priority[axis] > 0.0) {
 			real_t w = p_weights->get(index);
@@ -125,7 +120,7 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	return index;
 }
 
-int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone, bool p_is_uniform) const {
+int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone) const {
 	ERR_FAIL_COND_V(p_index == -1, -1);
 	ERR_FAIL_NULL_V(p_headings, -1);
 	ERR_FAIL_NULL_V(p_for_bone, -1);
@@ -138,12 +133,6 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	p_headings->write[index] = tip_xform_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
 	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
-	if (p_is_uniform) {
-		double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
-		double epsilon = 1e-6;
-
-		scale_by *= 1 / (distance * distance + epsilon);
-	}
 
 	const Vector3 priority = get_direction_priorities();
 

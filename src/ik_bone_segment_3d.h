@@ -67,7 +67,7 @@ class IKBoneSegment3D : public Resource {
 	bool has_pinned_descendants();
 	void enable_pinned_descendants();
 	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);
-	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip, bool p_uniform);
+	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip);
 	void set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_heading_tip, Vector<real_t> *r_weights, float p_dampening = -1, bool p_translate = false, bool p_constraint_mode = false);
 	void qcp_solver(const Vector<float> &p_damp, float p_default_damp, bool p_translate, bool p_constraint_mode);
 	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode);

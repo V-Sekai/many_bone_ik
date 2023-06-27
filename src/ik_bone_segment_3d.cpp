@@ -109,7 +109,7 @@ void IKBoneSegment3D::update_pinned_list(Vector<Vector<real_t>> &r_weights) {
 void IKBoneSegment3D::update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode) {
 	ERR_FAIL_NULL(p_for_bone);
 	update_target_headings(p_for_bone, &heading_weights, &target_headings);
-	update_tip_headings(p_for_bone, &tip_headings, false);
+	update_tip_headings(p_for_bone, &tip_headings);
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
 }
 
@@ -157,7 +157,7 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 
 	int i = 0;
 	do {
-		update_tip_headings(p_for_bone, &tip_headings, false);
+		update_tip_headings(p_for_bone, &tip_headings);
 		if (!p_constraint_mode) {
 			// Solved the ik transform and apply it.
 			QCP qcp = QCP(evec_prec, eval_prec);
@@ -179,7 +179,7 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 		}
 
 		if (default_stabilizing_pass_count > 0) {
-			update_tip_headings(p_for_bone, &tip_headings_uniform, true);
+			update_tip_headings(p_for_bone, &tip_headings_uniform);
 			real_t current_msd = get_manual_msd(tip_headings_uniform, target_headings, heading_weights);
 			if (current_msd <= previous_deviation * 1.0001) {
 				previous_deviation = current_msd;
@@ -215,7 +215,7 @@ void IKBoneSegment3D::update_target_headings(Ref<IKBone3D> p_for_bone, Vector<re
 	}
 }
 
-void IKBoneSegment3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip, bool p_uniform) {
+void IKBoneSegment3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip) {
 	ERR_FAIL_NULL(r_heading_tip);
 	ERR_FAIL_NULL(p_for_bone);
 	int32_t last_index = 0;
@@ -224,7 +224,7 @@ void IKBoneSegment3D::update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector
 		if (effector.is_null()) {
 			continue;
 		}
-		last_index = effector->update_effector_tip_headings(r_heading_tip, last_index, p_for_bone, p_uniform);
+		last_index = effector->update_effector_tip_headings(r_heading_tip, last_index, p_for_bone);
 	}
 }
 

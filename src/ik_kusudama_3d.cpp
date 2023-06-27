@@ -73,27 +73,40 @@ void IKKusudama3D::set_axial_limits(real_t min_angle, real_t in_range) {
 	twist_center_rot.normalize();
 	twist_max_rot.normalize();
 }
-
 void IKKusudama3D::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> constraint_axes, real_t p_dampening, real_t p_cos_half_dampen) {
 	if (!is_axially_constrained()) {
 		return;
 	}
 
 	Transform3D global_transform_constraint = constraint_axes->get_global_transform();
-	Quaternion global_twist_center = global_transform_constraint.basis.get_rotation_quaternion() * twist_center_rot;
+	Quaternion global_twist_center = twist_center_rot;
+
+	if (global_transform_constraint.basis.is_orthogonal() && Math::is_equal_approx(global_transform_constraint.basis.determinant(), 1.0)) {
+		global_twist_center = global_transform_constraint.basis.get_rotation_quaternion() * twist_center_rot;
+	}
 	global_twist_center.normalize();
 
 	Transform3D global_transform_to_set = to_set->get_global_transform();
-	Quaternion align_rot = global_twist_center.inverse() * global_transform_to_set.basis.get_rotation_quaternion();
+
+	Quaternion align_rot = global_twist_center.inverse();
+	if (global_transform_to_set.basis.is_orthogonal() && Math::is_equal_approx(global_transform_to_set.basis.determinant(), 1.0)) {
+		align_rot = align_rot * global_transform_to_set.basis.get_rotation_quaternion();
+	}
 	align_rot.normalize();
 
-	Transform3D parent_global_transform = to_set->get_parent()->get_global_transform();
-	Quaternion parent_global_inverse = parent_global_transform.basis.get_rotation_quaternion().inverse();
+	Transform3D parent_global_transform = to_set->get_parent()->get_global_transform().basis.inverse();
+	Quaternion parent_global_inverse = Quaternion();
+	if (parent_global_transform.basis.is_orthogonal() && Math::is_equal_approx(parent_global_transform.basis.determinant(), 1.0)) {
+		parent_global_inverse = parent_global_transform.basis.get_rotation_quaternion();
+	}
 	parent_global_inverse.normalize();
 
 	Quaternion twist_rotation, swing_rotation; // Hold the ik transform's decomposed swing and twist away from global_twist_centers's global basis.
 	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
-	twist_rotation = IKBoneSegment3D::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
+
+	if (!twist_rotation.is_equal_approx(Basis())) {
+		twist_rotation = IKBoneSegment3D::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
+	}
 
 	Quaternion recomposition = global_twist_center * (swing_rotation * twist_rotation);
 	Quaternion rotation = parent_global_inverse * recomposition;
