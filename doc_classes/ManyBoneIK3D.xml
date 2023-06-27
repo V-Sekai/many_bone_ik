@@ -222,6 +222,12 @@
 			<description>
 			</description>
 		</method>
+		<method name="setup_humanoid_bones">
+			<return type="void" />
+			<param index="0" name="enable" type="bool" />
+			<description>
+			</description>
+		</method>
 	</methods>
 	<members>
 		<member name="bone_direction_constraint_defaults" type="Dictionary" setter="set_bone_direction_constraint_defaults" getter="get_bone_direction_constraint_defaults" default="{}">
@@ -236,6 +242,8 @@
 		<member name="iterations_per_frame" type="float" setter="set_iterations_per_frame" getter="get_iterations_per_frame" default="20.0">
 		</member>
 		<member name="orientation_constraint_defaults" type="Dictionary" setter="set_orientation_constraint_defaults" getter="get_orientation_constraint_defaults" default="{}">
+		</member>
+		<member name="setup_humanoid_bones" type="bool" setter="set_setup_humanoid_bones" getter="get_setup_humanoid_bones" default="false">
 		</member>
 		<member name="skeleton_node_path" type="NodePath" setter="set_skeleton_node_path" getter="get_skeleton_node_path" default="NodePath(&quot;..&quot;)">
 		</member>

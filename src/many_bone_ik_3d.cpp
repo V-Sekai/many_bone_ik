@@ -504,7 +504,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK3D::set_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK3D::get_stabilization_passes);
 
-	ClassDB::bind_method(D_METHOD("setup_humanoid_bones"), &ManyBoneIK3D::setup_humanoid_bones);
+	ClassDB::bind_method(D_METHOD("setup_humanoid_bones", "enable"), &ManyBoneIK3D::setup_humanoid_bones);
 
 	ClassDB::bind_method(D_METHOD("set_setup_humanoid_bones", "set_targets"), &ManyBoneIK3D::set_setup_humanoid_bones);
 	ClassDB::bind_method(D_METHOD("get_setup_humanoid_bones"), &ManyBoneIK3D::get_setup_humanoid_bones);
