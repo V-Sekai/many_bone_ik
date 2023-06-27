@@ -1368,7 +1368,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		String bone_name = skeleton->get_bone_name(bone_i);
 		if (skeleton->get_parentless_bones().has(bone_i)) {
 			create_pin_target_node(this, skeleton, bone_name, get_name());
-			set_pin_weight(bone_i, 0);
 		} else {
 			BoneId parent_bone_i = skeleton->get_bone_parent(bone_i);
 			String parent_bone_name = skeleton->get_bone_name(parent_bone_i);
