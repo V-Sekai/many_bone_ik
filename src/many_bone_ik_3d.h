@@ -201,7 +201,7 @@ public:
 	// | [Side]LowerArm  | The elbow can bend and straighten, allowing the forearm to move towards or away from the upper arm during reaching and swinging motions.                                                                                       |
 	// | [Side]Hand      | The wrist can tilt up and down, allowing the hand to move towards or away from the forearm. It can also rotate slightly, enabling the hand to twist inward or outward for grasping and gesturing.                             |
 
-    // "swing_rotation_center_radius" to "s", "twist_rotation_range" to "t", "center" to "c", "radius" to "r", "from" to "f", and "range" to "r".
+	// "swing_rotation_center_radius" to "s", "twist_rotation_range" to "t", "center" to "c", "radius" to "r", "from" to "f", and "range" to "r".
 	String constraint_config_json_string = R"(
 {
   "Hips": {"s": [{"c": [0, -1, 0], "r": 0.349}], "t": {"f": 1.5708, "r": 0.174}},

@@ -371,7 +371,6 @@ Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds)
 	return result;
 }
 
-
 void IKLimitCone3D::set_tangent_circle_center_next_1(Vector3 point) {
 	tangent_circle_center_next_1 = point.normalized();
 }
