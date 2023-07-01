@@ -81,7 +81,7 @@ void IKKusudama3D::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKN
 	Transform3D global_transform_constraint = constraint_axes->get_global_transform();
 	Quaternion global_twist_center = twist_center_rot;
 
-	if (global_transform_constraint.basis.is_orthogonal() && Math::is_equal_approx(global_transform_constraint.basis.determinant(), 1.0)) {
+	if (global_transform_constraint.basis.is_orthogonal() && Math::is_equal_approx(global_transform_constraint.basis.determinant(), real_t(1.0))) {
 		global_twist_center = global_transform_constraint.basis.get_rotation_quaternion() * twist_center_rot;
 	}
 	global_twist_center.normalize();
@@ -89,14 +89,14 @@ void IKKusudama3D::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKN
 	Transform3D global_transform_to_set = to_set->get_global_transform();
 
 	Quaternion align_rot = global_twist_center.inverse();
-	if (global_transform_to_set.basis.is_orthogonal() && Math::is_equal_approx(global_transform_to_set.basis.determinant(), 1.0)) {
+	if (global_transform_to_set.basis.is_orthogonal() && Math::is_equal_approx(global_transform_to_set.basis.determinant(), real_t(1.0))) {
 		align_rot = align_rot * global_transform_to_set.basis.get_rotation_quaternion();
 	}
 	align_rot.normalize();
 
 	Transform3D parent_global_transform = to_set->get_parent()->get_global_transform().basis.inverse();
 	Quaternion parent_global_inverse = Quaternion();
-	if (parent_global_transform.basis.is_orthogonal() && Math::is_equal_approx(parent_global_transform.basis.determinant(), 1.0)) {
+	if (parent_global_transform.basis.is_orthogonal() && Math::is_equal_approx(parent_global_transform.basis.determinant(), real_t(1.0))) {
 		parent_global_inverse = parent_global_transform.basis.get_rotation_quaternion();
 	}
 	parent_global_inverse.normalize();
