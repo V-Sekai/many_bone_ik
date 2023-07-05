@@ -72,7 +72,7 @@ class QCP {
 	double eval_prec = static_cast<double>(1E-11);
 
 	PackedVector3Array target, moved;
-	Vector<real_t> weight;
+	Vector<double> weight;
 	double w_sum = 0;
 
 	Vector3 target_center, moved_center;
@@ -88,15 +88,15 @@ class QCP {
 	void calculate_rmsd(double r_length);
 	void set(PackedVector3Array &r_target, PackedVector3Array &r_moved);
 	Quaternion calculate_rotation();
-	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate);
+	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate);
 	static void translate(Vector3 r_translate, PackedVector3Array &r_x);
 	double get_rmsd(PackedVector3Array &r_fixed, PackedVector3Array &r_moved);
-	Vector3 move_to_weighted_center(PackedVector3Array &r_to_center, Vector<real_t> &r_weight);
+	Vector3 move_to_weighted_center(PackedVector3Array &r_to_center, Vector<double> &r_weight);
 
 public:
 	QCP(double p_evec_prec, double p_eval_prec);
 	double get_rmsd();
-	Quaternion weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate);
+	Quaternion weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate);
 	Quaternion get_rotation();
 	Vector3 get_translation();
 };

@@ -126,7 +126,7 @@ Quaternion QCP::calculate_rotation() {
 		quaternion_x *= -1;
 		quaternion_y *= -1;
 		quaternion_z *= -1;
-		real_t min = quaternion_w;
+		double min = quaternion_w;
 		min = quaternion_x < min ? quaternion_x : min;
 		min = quaternion_y < min ? quaternion_y : min;
 		min = quaternion_z < min ? quaternion_z : min;
@@ -156,9 +156,9 @@ Vector3 QCP::get_translation() {
 	return target_center - moved_center;
 }
 
-Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<real_t> &r_weight) {
+Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<double> &r_weight) {
 	Vector3 center;
-	real_t total_weight = 0;
+	double total_weight = 0;
 	bool weight_is_empty = r_weight.is_empty();
 	int size = r_to_center.size();
 
@@ -251,12 +251,12 @@ void QCP::calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y) {
 	}
 }
 
-Quaternion QCP::weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool translate) {
+Quaternion QCP::weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate) {
 	set(p_moved, p_target, p_weight, translate);
 	return get_rotation();
 }
 
-void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<real_t> &p_weight, bool p_translate) {
+void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate) {
 	rmsd_calculated = false;
 	transformation_calculated = false;
 	inner_product_calculated = false;
