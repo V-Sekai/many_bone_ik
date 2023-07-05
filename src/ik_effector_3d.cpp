@@ -89,7 +89,7 @@ Transform3D IKEffector3D::get_target_global_transform() const {
 	return target_relative_to_skeleton_origin;
 }
 
-int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone, const Vector<real_t> *p_weights) const {
+int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone, const Vector<double> *p_weights) const {
 	ERR_FAIL_COND_V(p_index == -1, -1);
 	ERR_FAIL_NULL_V(p_headings, -1);
 	ERR_FAIL_NULL_V(p_for_bone, -1);
