@@ -181,8 +181,6 @@ public:
 	void set_setup_humanoid_bones(bool set_targets);
 
 	bool get_setup_humanoid_bones() const;
-	void print_current_settings();
-
 	void create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
 
 	// | Body Part       | Description                                                                                                                                                                                                                   |
@@ -202,11 +200,6 @@ public:
 	// | [Side]Hand      | The wrist can tilt up and down, allowing the hand to move towards or away from the forearm. It can also rotate slightly, enabling the hand to twist inward or outward for grasping and gesturing.                             |
 
 	// "swing_rotation_center_radius" to "s", "twist_rotation_range" to "t", "center" to "c", "radius" to "r", "from" to "f", and "range" to "r".
-	String constraint_config_json_string = R"(
-{
-  "Hips": {"s": [{"c": [0, -1, 0], "r": 0.349}], "t": {"f": 1.5708, "r": 0.174}},
-}
-)";
 };
 
 VARIANT_ENUM_CAST(ManyBoneIK3D::HumanoidMode);

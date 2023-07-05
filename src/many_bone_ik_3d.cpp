@@ -1346,9 +1346,6 @@ bool ManyBoneIK3D::get_setup_humanoid_bones() const {
 }
 
 void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
-	Ref<JSON> json;
-	json.instantiate();
-	Dictionary config = JSON::parse_string(constraint_config_json_string);
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
 	ERR_FAIL_NULL(skeleton);
 	skeleton->reset_bone_poses();
@@ -1372,40 +1369,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		}
 		set_pin_bone_name(bone_i, bone_name);
 		set_constraint_name(bone_i, bone_name);
-		if (config.has(bone_name)) {
-			Dictionary bone_config = config[bone_name];
-			if (bone_config.has("t")) {
-				Dictionary twist_rotation_range = bone_config["t"];
-
-				if (twist_rotation_range.has("f") && twist_rotation_range.has("r")) {
-					float twist_from = twist_rotation_range["f"];
-					float twist_range = twist_rotation_range["r"];
-					Vector2 twist = Vector2(twist_from, twist_range);
-					set_kusudama_twist(bone_i, twist);
-				}
-			}
-
-			if (bone_config.has("s")) {
-				Array cones = bone_config["s"];
-				set_kusudama_limit_cone_count(bone_i, cones.size());
-
-				for (int cone_i = 0; cone_i < cones.size(); ++cone_i) {
-					Dictionary cone = cones[cone_i];
-
-					if (cone.has("c")) {
-						Array centerArray = cone["c"];
-						Vector3 center(centerArray[0], centerArray[1], centerArray[2]);
-						set_kusudama_limit_cone_center(bone_i, cone_i, center);
-					}
-
-					if (cone.has("r")) {
-						set_kusudama_limit_cone_radius(bone_i, cone_i, cone["r"]);
-					}
-				}
-			}
-		}
 		is_setup_humanoid_bones = false;
-		print_current_settings();
 	}
 }
 
@@ -1449,32 +1413,4 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 	node_3d->set_owner(ik_instance->get_owner());
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
 	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(node_3d));
-}
-
-void ManyBoneIK3D::print_current_settings() {
-	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
-	ERR_FAIL_NULL(skeleton);
-
-	Dictionary config = JSON::parse_string(constraint_config_json_string);
-	String output = "";
-	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
-		String bone_name = skeleton->get_bone_name(bone_i);
-		if (config.has(bone_name)) {
-			Vector2 twist = get_kusudama_twist(bone_i);
-			int cone_count = get_kusudama_limit_cone_count(bone_i);
-
-			output += vformat("Bone %d: %s | Twist: from=%.4f, range=%.4f | Cones: count=%d", bone_i, bone_name, twist.x, twist.y, cone_count);
-
-			for (int cone_i = 0; cone_i < cone_count; ++cone_i) {
-				Vector3 center = get_kusudama_limit_cone_center(bone_i, cone_i);
-				float radius = get_kusudama_limit_cone_radius(bone_i, cone_i);
-				output += vformat(" | Cone %d: center=(%.4f, %.4f, %.4f), radius=%.4f", cone_i, center.x, center.y, center.z, radius);
-			}
-
-			if (bone_i < bone_count - 1) {
-				output += " || ";
-			}
-		}
-	}
-	print_line(output);
 }
