@@ -57,21 +57,21 @@ class IKBoneSegment3D : public Resource {
 	PackedVector3Array target_headings;
 	PackedVector3Array tip_headings;
 	PackedVector3Array tip_headings_uniform;
-	Vector<real_t> heading_weights;
+	Vector<double> heading_weights;
 	BoneId many_bone_ik_tip_bone = -1;
 	int32_t idx_eff_i = -1, idx_eff_f = -1;
 	Skeleton3D *skeleton = nullptr;
 	bool pinned_descendants = false;
-	real_t previous_deviation = INFINITY;
+	double previous_deviation = INFINITY;
 	int32_t default_stabilizing_pass_count = 0; // Move to the stabilizing pass to the ik solver. Set it free.
 	bool has_pinned_descendants();
 	void enable_pinned_descendants();
-	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<real_t> *r_weights, PackedVector3Array *r_htarget);
+	void update_target_headings(Ref<IKBone3D> p_for_bone, Vector<double> *r_weights, PackedVector3Array *r_htarget);
 	void update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip);
-	void set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_heading_tip, Vector<real_t> *r_weights, float p_dampening = -1, bool p_translate = false, bool p_constraint_mode = false);
+	void set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_heading_tip, Vector<double> *r_weights, float p_dampening = -1, bool p_translate = false, bool p_constraint_mode = false);
 	void qcp_solver(const Vector<float> &p_damp, float p_default_damp, bool p_translate, bool p_constraint_mode);
-	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, real_t p_damp, bool p_translate, bool p_constraint_mode);
-	float get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<real_t> &p_weights);
+	void update_optimal_rotation(Ref<IKBone3D> p_for_bone, double p_damp, bool p_translate, bool p_constraint_mode);
+	float get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<double> &p_weights);
 	HashMap<BoneId, Ref<IKBone3D>> bone_map;
 	bool _is_parent_of_tip(Ref<IKBone3D> p_current_tip, BoneId p_tip_bone);
 	bool _has_multiple_children_or_pinned(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip);
@@ -86,13 +86,13 @@ protected:
 public:
 	const double evec_prec = static_cast<double>(1E-6);
 	const double eval_prec = static_cast<double>(1E-11);
-	void update_pinned_list(Vector<Vector<real_t>> &r_weights);
+	void update_pinned_list(Vector<Vector<double>> &r_weights);
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes() const;
-	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, real_t p_cos_half_angle);
+	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, double p_cos_half_angle);
 	static void recursive_create_headings_arrays_for(Ref<IKBoneSegment3D> p_bone_segment);
 	void create_headings_arrays();
-	void recursive_create_penalty_array(Ref<IKBoneSegment3D> p_bone_segment, Vector<Vector<real_t>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, real_t p_falloff);
+	void recursive_create_penalty_array(Ref<IKBoneSegment3D> p_bone_segment, Vector<Vector<double>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, double p_falloff);
 	Ref<IKBoneSegment3D> get_parent_segment();
 	void segment_solver(const Vector<float> &p_damp, float p_default_damp, bool p_constraint_mode);
 	Ref<IKBone3D> get_root() const;

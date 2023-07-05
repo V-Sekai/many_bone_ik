@@ -31,8 +31,8 @@
 #include "qcp.h"
 
 QCP::QCP(double p_evec_prec, double p_eval_prec) {
-	evec_prec = p_eval_prec;
-	eval_prec = p_evec_prec;
+	eigenvector_precision = p_eval_prec;
+	eigenvalue_precision = p_evec_prec;
 }
 
 void QCP::set(PackedVector3Array &r_target, PackedVector3Array &r_moved) {
@@ -119,7 +119,7 @@ Quaternion QCP::calculate_rotation() {
 		double quaternion_z = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
 		double qsqr = quaternion_w * quaternion_w + quaternion_x * quaternion_x + quaternion_y * quaternion_y + quaternion_z * quaternion_z;
 
-		if (qsqr < evec_prec) {
+		if (qsqr < eigenvector_precision) {
 			return Quaternion();
 		}
 

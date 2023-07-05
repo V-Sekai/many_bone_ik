@@ -68,8 +68,8 @@
  */
 
 class QCP {
-	double evec_prec = static_cast<double>(1E-6);
-	double eval_prec = static_cast<double>(1E-11);
+	double eigenvector_precision = 1E-6;
+	double eigenvalue_precision = 1E-11;
 
 	PackedVector3Array target, moved;
 	Vector<double> weight;
