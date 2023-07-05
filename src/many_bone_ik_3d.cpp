@@ -814,7 +814,7 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 		Vector<Ref<IKBone3D>> new_bone_list;
 		segmented_skeleton->create_bone_list(new_bone_list, true, queue_debug_skeleton);
 		bone_list.append_array(new_bone_list);
-		Vector<Vector<real_t>> weight_array;
+		Vector<Vector<double>> weight_array;
 		segmented_skeleton->update_pinned_list(weight_array);
 		segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
 		segmented_skeletons.push_back(segmented_skeleton);
