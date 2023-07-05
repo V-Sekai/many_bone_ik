@@ -1381,9 +1381,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	if (!p_set_targets) {
 		return;
 	}
-	set_iterations_per_frame(1);
-	set_default_damp(Math::deg_to_rad(45.0f));
-	set_stabilization_passes(1);
 	reset_constraints();
 	set_pin_count(bone_count);
 	set_constraint_count(bone_count);
