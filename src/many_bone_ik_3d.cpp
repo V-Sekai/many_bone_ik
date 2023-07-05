@@ -37,6 +37,7 @@
 #include "core/variant/typed_array.h"
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
+#include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/skeleton_profile.h"
 
@@ -1440,34 +1441,36 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 		return;
 	}
 
-	Node3D *node_3d = nullptr;
+	PhysicalBone3D *physical_bone_3d = nullptr;
 	TypedArray<Node> children = get_owner()->find_children("*", "");
 
 	for (int i = 0; i < children.size(); ++i) {
 		Node *node = cast_to<Node>(children[i]);
 
 		if (String(node->get_name()) == bone_name) {
-			node_3d = cast_to<Node3D>(node);
+			physical_bone_3d = cast_to<PhysicalBone3D>(node);
 			break;
 		}
 	}
-	if (!node_3d) {
-		node_3d = memnew(Node3D);
-		node_3d->set_name(bone_name);
+	if (!physical_bone_3d) {
+		physical_bone_3d = memnew(PhysicalBone3D);
+		physical_bone_3d->set_name(bone_name);
+		physical_bone_3d->set_bone_name(bone_name);
 
 		for (int i = 0; i < children.size(); ++i) {
 			Node *node = cast_to<Node>(children[i]);
 
 			if (String(node->get_name()) == bone_name_parent) {
-				node->add_child(node_3d, true);
-				node_3d->set_owner(get_owner());
+				node->add_child(physical_bone_3d, true);
+				physical_bone_3d->set_owner(get_owner());
 				break;
 			}
 		}
 	}
-	node_3d->set_global_transform(
+	physical_bone_3d->set_global_transform(
 			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
-	node_3d->set_owner(ik_instance->get_owner());
+	physical_bone_3d->set_owner(ik_instance->get_owner());
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
-	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(node_3d));
+	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(physical_bone_3d));
 }
+
