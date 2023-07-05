@@ -1422,6 +1422,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			} else if (bone_name.ends_with("Hand")) {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
+			} else if (bone_name.find("Thumb") != -1) {
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
+				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
 			} else {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(45.0f));
