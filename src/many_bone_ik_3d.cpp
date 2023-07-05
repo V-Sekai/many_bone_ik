@@ -1385,7 +1385,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	set_pin_count(bone_count);
 	set_constraint_count(bone_count);
 	Vector<String> ignored_root_bones = { "Root" };
-	HashSet<StringName> pins;
 	Vector<String> bones = { "Root", "Head", "Neck", "LeftUpperLeg", "RightUpperLeg", "LeftFoot", "RightFoot", "LeftUpperArm", "RightUpperArm",
 		"LeftHand", "RightHand", "Hips", "UpperChest", "Chest", "Spine", "LeftLowerLeg", "RightLowerLeg", "LeftShoulder", "RightShoulder", "LeftLowerArm", "RightLowerArm" };
 	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
