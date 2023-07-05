@@ -1405,7 +1405,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			Vector3 center(forward.x, forward.y, forward.z);
 			if (bone_name == "Hips") {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, Vector3(0, -1, 0));
-				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(30.0f));
+				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(10.0f));
 			} else if (bone_name.ends_with("UpperLeg") || bone_name.ends_with("LowerLeg")) {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
