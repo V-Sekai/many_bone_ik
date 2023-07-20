@@ -640,18 +640,23 @@ int32_t ManyBoneIK3D::get_kusudama_limit_cone_count(int32_t p_constraint_index) 
 }
 
 void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count) {
+	ERR_FAIL_NULL(get_skeleton());
 	ERR_FAIL_INDEX(p_constraint_index, kusudama_limit_cone_count.size());
 	ERR_FAIL_INDEX(p_constraint_index, kusudama_limit_cones.size());
 	int32_t old_cone_count = kusudama_limit_cones[p_constraint_index].size();
 	kusudama_limit_cone_count.write[p_constraint_index] = p_count;
 	Vector<Vector4> &cones = kusudama_limit_cones.write[p_constraint_index];
 	cones.resize(p_count);
+	String bone_name = get_constraint_name(p_constraint_index);
+	int bone_id = get_skeleton()->find_bone(bone_name);
+	Transform3D bone_transform = get_skeleton()->get_bone_global_rest(bone_id);
+	Vector3 forward_axis = -bone_transform.basis.get_column(Vector3::AXIS_Z).normalized();
 	for (int32_t cone_i = p_count; cone_i-- > old_cone_count;) {
 		Vector4 &cone = cones.write[cone_i];
-		cone.x = 0.0f;
-		cone.y = 1.0f;
-		cone.z = 0.0f;
-		cone.w = Math::deg_to_rad(10.0f);
+		cone.x = forward_axis.x;
+		cone.y = forward_axis.y;
+		cone.z = forward_axis.z;
+		cone.w = Math::deg_to_rad(0.0f);
 	}
 }
 
