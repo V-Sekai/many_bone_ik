@@ -1431,6 +1431,11 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 				backwards.z *= -1;
 				set_kusudama_limit_cone_center(bone_i, SECOND_CONE, backwards);
 				set_kusudama_limit_cone_radius(bone_i, SECOND_CONE, Math::deg_to_rad(2.5f));
+			} else if (bone_name.ends_with("Foot")) {
+				backwards.y *= -1;
+				backwards.z *= -1;
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, backwards);
+				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(45.0f));
 			} else if (bone_name.ends_with("Shoulder") || bone_name.ends_with("UpperArm")) {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(180.0f));
@@ -1448,7 +1453,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 				set_kusudama_limit_cone_radius(bone_i, SECOND_CONE, Math::deg_to_rad(2.5f));
 			} else if (bone_name.ends_with("Hand")) {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
-				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
+				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(60.0f));
 			} else if (bone_name.find("Thumb") != -1) {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
