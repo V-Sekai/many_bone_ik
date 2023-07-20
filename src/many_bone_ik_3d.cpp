@@ -1438,9 +1438,12 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 				backwards.normalize();
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, backwards);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(45.0f));
-			} else if (bone_name.ends_with("Shoulder") || bone_name.ends_with("UpperArm")) {
+			} else if (bone_name.ends_with("Shoulder")) {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
-				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(180.0f));
+				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(120.0f));
+			} else if (bone_name.ends_with("UpperArm")) {
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
+				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
 			} else if (bone_name.ends_with("LowerArm")) {
 				set_kusudama_limit_cone_count(bone_i, 2);
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
