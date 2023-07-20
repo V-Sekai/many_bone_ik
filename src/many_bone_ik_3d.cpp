@@ -639,7 +639,6 @@ int32_t ManyBoneIK3D::get_kusudama_limit_cone_count(int32_t p_constraint_index) 
 }
 
 void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count) {
-	ERR_FAIL_NULL(get_skeleton());
 	ERR_FAIL_INDEX(p_constraint_index, kusudama_limit_cone_count.size());
 	ERR_FAIL_INDEX(p_constraint_index, kusudama_limit_cones.size());
 	int32_t old_cone_count = kusudama_limit_cones[p_constraint_index].size();
@@ -647,9 +646,8 @@ void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_constraint_index, int
 	Vector<Vector4> &cones = kusudama_limit_cones.write[p_constraint_index];
 	cones.resize(p_count);
 	String bone_name = get_constraint_name(p_constraint_index);
-	int bone_id = get_skeleton()->find_bone(bone_name);
-	Transform3D bone_transform = get_skeleton()->get_bone_global_rest(bone_id);
-	Vector3 forward_axis = -bone_transform.basis.get_column(Vector3::AXIS_Z).normalized();
+	Transform3D bone_transform = get_bone_direction_transform(p_constraint_index);
+	Vector3 forward_axis = -bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
 	for (int32_t cone_i = p_count; cone_i-- > old_cone_count;) {
 		Vector4 &cone = cones.write[cone_i];
 		cone.x = forward_axis.x;
@@ -1415,34 +1413,34 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		if (!ignored_root_bones.has(bone_name) && humanoid_profile->has_bone(bone_name)) {
 			set_kusudama_limit_cone_count(bone_i, 1);
 			const int FIRST_CONE = 0;
-			BoneId humanoid_bone_id = humanoid_profile->find_bone(bone_name);
-			Transform3D humanoid_bone_pose = humanoid_profile->get_reference_pose(humanoid_bone_id);
-			Basis basis = humanoid_bone_pose.basis;
-			Vector3 forward = basis.get_column(Vector3::AXIS_Y).normalized();
-			Vector3 center(forward.x, forward.y, forward.z);
+			Transform3D bone_transform = get_bone_direction_transform(bone_i);
+			Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
 			if (bone_name == "Hips") {
-				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, Vector3(0, -1, 0));
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(10.0f));
-			} else if (bone_name.ends_with("UpperLeg") || bone_name.ends_with("LowerLeg")) {
-				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
+			} else if (bone_name.ends_with("UpperLeg") ) {
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, -forward);
+				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
+			} else if (bone_name.ends_with("LowerLeg")) {
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
 			} else if (bone_name.ends_with("Foot")) {
-				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(45.0f));
 			} else if (bone_name.ends_with("Shoulder") || bone_name.ends_with("UpperArm")) {
-				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(180.0f));
 			} else if (bone_name.ends_with("LowerArm")) {
-				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(135.0f));
 			} else if (bone_name.ends_with("Hand")) {
-				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
 			} else if (bone_name.find("Thumb") != -1) {
-				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
 			} else {
-				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, center);
+				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(45.0f));
 			}
 		}
