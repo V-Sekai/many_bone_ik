@@ -1484,7 +1484,6 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 	}
 	physical_bone_3d->set_global_transform(
 			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
-	physical_bone_3d->set_owner(ik_instance->get_owner());
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
 	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(physical_bone_3d));
 }
