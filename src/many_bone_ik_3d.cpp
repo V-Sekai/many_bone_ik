@@ -1387,26 +1387,18 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	set_pin_count(bone_count);
 	set_constraint_count(bone_count);
 	Vector<String> ignored_root_bones = { "Root" };
-	Vector<String> bones = { "Root", "Head", "Neck", "LeftUpperLeg", "RightUpperLeg", "LeftFoot", "RightFoot", "LeftUpperArm", "RightUpperArm",
-		"LeftHand", "RightHand", "Hips", "UpperChest", "Chest", "Spine", "LeftLowerLeg", "RightLowerLeg", "LeftShoulder", "RightShoulder", "LeftLowerArm", "RightLowerArm" };
+	Vector<String> bones = {
+		"Head",
+		"LeftHand",
+		"RightHand",
+		"Hips",
+		"LeftFoot",
+		"RightFoot",
+	};
 	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
 		String bone_name = skeleton->get_bone_name(bone_i);
-		bool is_found = false;
-		for (String bone : bones) {
-			if (bone_name == bone) {
-				is_found = true;
-				break;
-			}
-		}
-		if (!is_found) {
-			continue;
-		}
-		if (skeleton->get_parentless_bones().has(bone_i)) {
+		if (bones.has(bone_name)) {
 			create_pin_target_node(this, skeleton, bone_name, get_name());
-		} else {
-			BoneId parent_bone_i = skeleton->get_bone_parent(bone_i);
-			String parent_bone_name = skeleton->get_bone_name(parent_bone_i);
-			create_pin_target_node(this, skeleton, bone_name, parent_bone_name);
 		}
 		set_pin_bone_name(bone_i, bone_name);
 		set_constraint_name(bone_i, bone_name);
