@@ -37,6 +37,7 @@
 #include "core/variant/typed_array.h"
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
+#include "ik_limit_cone_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/skeleton_profile.h"
@@ -1395,6 +1396,12 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		"LeftFoot",
 		"RightFoot",
 	};
+	Vector<String> torso_bones = {
+		"Hips",
+		"Spine",
+		"Chest",
+		"UpperChest"
+	};
 	for (int bone_i = 0; bone_i < bone_count; bone_i++) {
 		String bone_name = skeleton->get_bone_name(bone_i);
 		if (bones.has(bone_name)) {
@@ -1403,12 +1410,20 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		set_pin_bone_name(bone_i, bone_name);
 		set_constraint_name(bone_i, bone_name);
 		if (!ignored_root_bones.has(bone_name) && humanoid_profile->has_bone(bone_name)) {
+		set_pin_passthrough_factor(bone_i, 1.0f);
 			set_kusudama_limit_cone_count(bone_i, 1);
 			const int FIRST_CONE = 0;
 			const int SECOND_CONE = 1;
 			Vector3 down = Vector3(0, -1, 0);
 			Transform3D bone_transform = get_bone_direction_transform(bone_i);
 			Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
+			Quaternion twist_rotation, swing_rotation;
+			IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
+			if (torso_bones.has(bone_name)) {
+				set_kusudama_twist(bone_i, Vector2(Math::deg_to_rad(twist_rotation.get_angle()), Math::deg_to_rad(15.0f)));
+			} else {
+				set_kusudama_twist(bone_i, Vector2(Math::deg_to_rad(twist_rotation.get_angle()), Math::deg_to_rad(355.0f)));
+			}
 			Vector3 backwards = -forward;
 			if (bone_name == "Hips") {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, Vector3(0, -1, 0));
@@ -1457,7 +1472,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
 			} else {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
-				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(45.0f));
+				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(2.5f));
 			}
 		}
 	}

@@ -79,22 +79,6 @@ class IKKusudama3D : public Resource {
 	bool orientationally_constrained = false;
 	bool axially_constrained = false;
 
-	/**
-	 * Get the swing rotation and twist rotation for the specified axis. The twist rotation represents the rotation around the specified axis. The swing rotation represents the rotation of the specified
-	 * axis itself, which is the rotation around an axis perpendicular to the specified axis. The swing and twist rotation can be
-	 * used to reconstruct the original quaternion: this = swing * twist
-	 *
-	 * @param p_axis the X, Y, Z component of the normalized axis for which to get the swing and twist rotation
-	 * @return twist represent the rotational twist
-	 * @return swing represent the rotational swing
-	 * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
-	 */
-	static void get_swing_twist(
-			Quaternion p_rotation,
-			Vector3 p_axis,
-			Quaternion &r_swing,
-			Quaternion &r_twist);
-
 protected:
 	static void _bind_methods();
 
@@ -114,6 +98,22 @@ public:
 	Ref<IKRay3D> constrained_ray = Ref<IKRay3D>(memnew(IKRay3D()));
 	double unit_hyper_area = 2 * Math::pow(Math_PI, 2);
 	double unit_area = 4 * Math_PI;
+
+	/**
+	 * Get the swing rotation and twist rotation for the specified axis. The twist rotation represents the rotation around the specified axis. The swing rotation represents the rotation of the specified
+	 * axis itself, which is the rotation around an axis perpendicular to the specified axis. The swing and twist rotation can be
+	 * used to reconstruct the original quaternion: this = swing * twist
+	 *
+	 * @param p_axis the X, Y, Z component of the normalized axis for which to get the swing and twist rotation
+	 * @return twist represent the rotational twist
+	 * @return swing represent the rotational swing
+	 * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
+	 */
+	static void get_swing_twist(
+			Quaternion p_rotation,
+			Vector3 p_axis,
+			Quaternion &r_swing,
+			Quaternion &r_twist);
 
 public:
 	/**
