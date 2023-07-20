@@ -100,17 +100,12 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	p_headings->write[index] = target_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
 	Vector3 priority = get_direction_priorities();
-	double scale_by = p_for_bone->get_pin().is_valid() ? p_for_bone->get_pin()->get_weight() : 1.0f;
 	for (int axis = Vector3::AXIS_X; axis <= Vector3::AXIS_Z; ++axis) {
 		if (priority[axis] > 0.0) {
-			real_t w = p_weights->get(index);
 			Vector3 column = target_relative_to_skeleton_origin.basis.get_column(axis);
-
 			p_headings->write[index] = (column + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
-			p_headings->write[index] *= Vector3(w, w, w) * scale_by;
 			index++;
 			p_headings->write[index] = (target_relative_to_skeleton_origin.origin - column) - bone_origin_relative_to_skeleton_origin;
-			p_headings->write[index] *= Vector3(w, w, w) * scale_by;
 			index++;
 		}
 	}
@@ -137,13 +132,12 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	for (int axis = Vector3::AXIS_X; axis <= Vector3::AXIS_Z; ++axis) {
 		if (priority[axis] > 0.0) {
 			Vector3 column = tip_basis.get_column(axis) * priority[axis];
-
 			p_headings->write[index] = (column + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
-			p_headings->write[index] *= scale_by;
+			p_headings->write[index] *= (1 - scale_by);
 			index++;
 
 			p_headings->write[index] = (tip_xform_relative_to_skeleton_origin.origin - column) - bone_origin_relative_to_skeleton_origin;
-			p_headings->write[index] *= scale_by;
+			p_headings->write[index] *= (1 - scale_by);
 			index++;
 		}
 	}
