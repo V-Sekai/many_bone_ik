@@ -1438,9 +1438,14 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			Quaternion twist_rotation, swing_rotation;
 			IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
 			Vector3 backwards = -forward;
-			if (bone_name == "Hips") {
+			if (bone_name == "Spine" || bone_name == "Chest" || bone_name == "UpperChest") {
+				set_kusudama_painfulness(bone_i, 0.9);
+			} else if (bone_name == "Hips") {
+				set_kusudama_painfulness(bone_i, 0.8);
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, Vector3(0, -1, 0));
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(10.0f));
+			} else if (bone_name.find("Neck") != -1) {
+				set_kusudama_painfulness(bone_i, 0.5);
 			} else if (bone_name.find("Head") != -1) {
 				set_pin_passthrough_factor(bone_i, 0.0f);
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
@@ -1449,6 +1454,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, backwards);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(90.0f));
 			} else if (bone_name.ends_with("LowerLeg")) {
+				set_kusudama_painfulness(bone_i, 0.7);
 				set_kusudama_limit_cone_count(bone_i, 2);
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(2.5f));
@@ -1457,6 +1463,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 				set_kusudama_limit_cone_center(bone_i, SECOND_CONE, backwards);
 				set_kusudama_limit_cone_radius(bone_i, SECOND_CONE, Math::deg_to_rad(2.5f));
 			} else if (bone_name.ends_with("Foot")) {
+				set_kusudama_painfulness(bone_i, 0.3);
 				set_pin_passthrough_factor(bone_i, 0.0f);
 				backwards.y += -1;
 				backwards.z += -1;
@@ -1464,6 +1471,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, backwards);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(45.0f));
 			} else if (bone_name.ends_with("Shoulder")) {
+				set_kusudama_painfulness(bone_i, 0.6);
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(120.0f));
 			} else if (bone_name.ends_with("UpperArm")) {
@@ -1483,6 +1491,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 				set_kusudama_limit_cone_center(bone_i, SECOND_CONE, backwards);
 				set_kusudama_limit_cone_radius(bone_i, SECOND_CONE, Math::deg_to_rad(2.5f));
 			} else if (bone_name.ends_with("Hand")) {
+				set_kusudama_painfulness(bone_i, 0.4);
 				set_pin_passthrough_factor(bone_i, 0.0f);
 				set_kusudama_limit_cone_center(bone_i, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(bone_i, FIRST_CONE, Math::deg_to_rad(60.0f));
