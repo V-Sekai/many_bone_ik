@@ -32,6 +32,7 @@
 #include "ik_kusudama_3d.h"
 #include "many_bone_ik_3d.h"
 #include "math/ik_node_3d.h"
+#include <cmath>
 
 void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
@@ -236,6 +237,27 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 		}
 	}
 	bone_direction_transform->set_parent(godot_skeleton_aligned_transform);
+
+	float predamp = 1.0 - get_stiffness();
+	float dampening = get_parent().is_null() ? Math_PI : predamp * p_default_dampening;
+	float iterations = p_many_bone_ik->get_iterations_per_frame();
+	if (get_constraint().is_null()) {
+		Ref<IKKusudama3D> new_constraint;
+		new_constraint.instantiate();
+		add_constraint(new_constraint);
+	}
+	float returnfulness = get_constraint()->get_painfulness();
+	float falloff = 0.2f;
+	half_returnfulness_dampened.resize(iterations);
+	cos_half_returnfulness_dampened.resize(iterations);
+	float iterations_pow = pow(iterations, falloff * iterations * returnfulness);
+	for (float i = 0; i < iterations; i++) {
+		float iteration_scalar = ((iterations_pow)-pow(i, falloff * iterations * returnfulness)) / (iterations_pow);
+		float iteration_return_clamp = iteration_scalar * returnfulness * dampening;
+		float cosIteration_return_clamp = cos(iteration_return_clamp / 2.0);
+		half_returnfulness_dampened.write[i] = iteration_return_clamp;
+		cos_half_returnfulness_dampened.write[i] = cosIteration_return_clamp;
+	}
 }
 
 float IKBone3D::get_cos_half_dampen() const {
@@ -290,4 +312,11 @@ bool IKBone3D::is_axially_constrained() {
 		return false;
 	}
 	return get_constraint()->is_axially_constrained();
+}
+
+void IKBone3D::pull_back_toward_allowable_region() {
+	Ref<IKKusudama3D> current_constraint = get_constraint();
+	if (current_constraint.is_valid()) {
+		current_constraint->set_axes_to_returnfulled(get_bone_direction_transform(), get_ik_transform(), get_constraint_orientation_transform(), cos_half_return_damp, return_damp);
+	}
 }

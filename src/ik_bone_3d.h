@@ -31,6 +31,7 @@
 #ifndef IK_BONE_3D_H
 #define IK_BONE_3D_H
 
+#include "core/math/math_defs.h"
 #include "ik_effector_template_3d.h"
 #include "ik_kusudama_3d.h"
 #include "ik_limit_cone_3d.h"
@@ -55,6 +56,11 @@ class IKBone3D : public Resource {
 	float default_dampening = Math_PI;
 	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
 	float cos_half_dampen = Math::cos(dampening / 2.0f);
+	double cos_half_return_damp = 0.0f;
+	double return_damp = 0.0f;
+	Vector<float> cos_half_returnfulness_dampened;
+	Vector<float> half_returnfulness_dampened;
+	double stiffness = 0.0;
 	Ref<IKKusudama3D> constraint;
 	// In the space of the local parent bone transform.
 	// The origin is the origin of the bone direction transform
@@ -70,6 +76,29 @@ protected:
 	static void _bind_methods();
 
 public:
+	Vector<float> &getCosHalfReturnfullnessDampened() {
+		return cos_half_returnfulness_dampened;
+	}
+
+	void setCosHalfReturnfullnessDampened(const Vector<float> &value) {
+		cos_half_returnfulness_dampened = value;
+	}
+
+	Vector<float> &getHalfReturnfullnessDampened() {
+		return half_returnfulness_dampened;
+	}
+
+	void setHalfReturnfullnessDampened(const Vector<float> &value) {
+		half_returnfulness_dampened = value;
+	}
+	void set_stiffness(double p_stiffness) {
+		stiffness = p_stiffness;
+	}
+
+	double get_stiffness() const {
+		return stiffness;
+	}
+	void pull_back_toward_allowable_region();
 	bool is_axially_constrained();
 	bool is_orientationally_constrained();
 	Transform3D get_bone_direction_global_pose() const;

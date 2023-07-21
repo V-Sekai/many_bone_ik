@@ -64,6 +64,7 @@ class IKKusudama3D : public Resource {
 	real_t twist_half_range_half_cos = 0;
 	Vector3 twist_tan;
 	bool flipped_bounds = false;
+	real_t painfulness = 0;
 
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
@@ -116,6 +117,19 @@ public:
 			Quaternion &r_twist);
 
 public:
+	double angle_to_twist_center(Ref<IKNode3D> toSet) {
+		if (!is_axially_constrained()) {
+			return 0;
+		}
+		Quaternion swing;
+		Quaternion twist;
+		IKKusudama3D::get_swing_twist(toSet->get_global_transform().basis, Vector3(0, 1, 0), swing, twist);
+		Quaternion invRot = twist.inverse();
+		Quaternion alignRot = invRot * toSet->get_global_transform().basis;
+		Vector3 twisted_direction = twist.xform(Vector3(0, 0, 1));
+		Quaternion toMid = Quaternion(twisted_direction, twist_center_vec);
+		return toMid.get_angle() * toMid.get_axis().y;
+	}
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
@@ -210,6 +224,23 @@ public:
 	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
 	real_t get_current_twist_rotation(Ref<IKBone3D> bone_attached_to);
 	void set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation);
+	float get_painfulness();
+	void set_painfulness(float p_painfulness);
+	static Quaternion clamp_to_quadrance_angle(Quaternion p_rotation, double p_cos_half_angle) {
+		Quaternion rotation = p_rotation;
+		double newCoeff = 1.0 - (p_cos_half_angle * abs(p_cos_half_angle));
+		double currentCoeff = rotation.x * rotation.x + rotation.y * rotation.y + rotation.z * rotation.z;
+		if (newCoeff >= currentCoeff) {
+			return rotation;
+		} else {
+			rotation.w = rotation.w < 0 ? -p_cos_half_angle : p_cos_half_angle;
+			double compositeCoeff = sqrt(newCoeff / currentCoeff);
+			rotation.x *= compositeCoeff;
+			rotation.y *= compositeCoeff;
+			rotation.z *= compositeCoeff;
+		}
+	}
+	void set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float cos_half_returnfullness, float angle_returnfullness);
 
 	double _to_tau(double angle) {
 		double result = angle;

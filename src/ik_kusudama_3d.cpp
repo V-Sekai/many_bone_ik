@@ -32,6 +32,7 @@
 
 #include "core/math/quaternion.h"
 #include "ik_limit_cone_3d.h"
+#include "ik_node_3d.h"
 #include "math/ik_node_3d.h"
 
 void IKKusudama3D::_update_constraint() {
@@ -345,6 +346,15 @@ real_t IKKusudama3D::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) 
 }
 
 void IKKusudama3D::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen) {
+	if (bone_direction.is_null()) {
+		return;
+	}
+	if (to_set.is_null()) {
+		return;
+	}
+	if (limiting_axes.is_null()) {
+		return;
+	}
 	Vector<double> in_bounds = { 1.0 };
 	Vector3 limiting_origin = limiting_axes->get_global_transform().origin;
 	Vector3 bone_dir_xform = bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0));
@@ -364,6 +374,49 @@ void IKKusudama3D::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Re
 	}
 }
 
+void IKKusudama3D::set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float cos_half_returnfullness, float angle_returnfullness) {
+	if (bone_direction.is_null() || to_set.is_null() || limiting_axes.is_null() || painfulness <= 0.0) {
+		return;
+	}
+	
+	Quaternion twist_rotation, swing_rotation;
+	get_swing_twist(bone_direction->get_global_transform().basis, Vector3(0, 1, 0), swing_rotation, twist_rotation);
+	
+	if (orientationally_constrained) {
+		Vector3 origin = to_set->get_global_transform().origin;
+		Vector3 limiting_origin = limiting_axes->get_global_transform().origin;
+		Vector3 bone_dir_xform = bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0));
+
+		bone_ray->set_point_1(limiting_origin);
+		bone_ray->set_point_2(bone_dir_xform);
+
+		Vector3 in_point = bone_ray->get_point_2();
+		Vector3 path_point = local_point_on_path_sequence(in_point, limiting_axes);
+		in_point -= origin;
+		path_point -= origin;
+		
+		Quaternion to_clamp(in_point, path_point);
+		to_clamp = clamp_to_quadrance_angle(to_clamp.normalized(), cos_half_returnfullness);
+		to_set->rotate_local_with_global(to_clamp);
+	}
+	
+	if (axially_constrained) {
+		double angle_to_twist_mid = angle_to_twist_center(to_set);
+		double clamped_angle = CLAMP(angle_to_twist_mid, -angle_returnfullness, angle_returnfullness);
+		Vector3 bone_axis_y = bone_direction->get_global_transform().basis.xform(Vector3(0, 1, 0));
+		Basis rotation = Quaternion(bone_axis_y, clamped_angle).normalized();
+		to_set->rotate_local_with_global(rotation, false);
+	}
+}
+
 bool IKKusudama3D::is_nan_vector(const Vector3 &vec) {
 	return Math::is_nan(vec.x) || Math::is_nan(vec.y) || Math::is_nan(vec.z);
+}
+
+void IKKusudama3D::set_painfulness(float p_painfulness) {
+	painfulness = p_painfulness;
+}
+
+float IKKusudama3D::get_painfulness() {
+	return painfulness;
 }

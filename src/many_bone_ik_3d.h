@@ -57,6 +57,7 @@ private:
 	Vector<Ref<IKBone3D>> bone_list;
 	Vector<Vector2> kusudama_twist;
 	Vector<float> bone_damp;
+	Vector<float> bone_painfulness;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 10;
@@ -81,7 +82,6 @@ private:
 	void set_constraint_count(int32_t p_count);
 	void _remove_pin(int32_t p_index);
 	void _set_bone_count(int32_t p_count);
-
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -120,8 +120,7 @@ public:
 	bool get_pin_enabled(int32_t p_effector_index) const;
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	void register_skeleton();
-	void reset_constraints();
-
+	void reset_constraints();	
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;
 	Vector<Ref<IKBone3D>> get_bone_list() const;
@@ -150,7 +149,8 @@ public:
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
 	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
-
+	void set_kusudama_painfulness(int32_t p_index, real_t p_painfulness);
+	real_t get_kusudama_painfulness(int32_t p_index) const;
 	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_constraint_twist_transform(int32_t p_index) const;
 	void set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform);

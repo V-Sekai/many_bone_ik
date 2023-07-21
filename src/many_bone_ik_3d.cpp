@@ -208,6 +208,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		}
 		p_list->push_back(bone_name);
 		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/painfulness", PROPERTY_HINT_RANGE, "0,1,0.01,exp", constraint_usage));
+		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_from", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
@@ -318,6 +320,9 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 			ERR_FAIL_INDEX_V(index, constraint_names.size(), false);
 			r_ret = constraint_names[index];
 			return true;
+		} else if (what == "painfulness") {
+			r_ret = get_kusudama_painfulness(index);
+			return true;
 		} else if (what == "twist_current") {
 			r_ret = get_kusudama_twist_current(index);
 			return true;
@@ -405,6 +410,9 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 				set_constraint_count(constraint_count);
 			}
 			set_constraint_name(index, p_value);
+			return true;
+		} else if (what == "painfulness") {
+			set_kusudama_painfulness(index, p_value);
 			return true;
 		} else if (what == "twist_current") {
 			set_kusudama_twist_current(index, p_value);
@@ -555,12 +563,14 @@ void ManyBoneIK3D::set_constraint_count(int32_t p_count) {
 	kusudama_twist.resize(p_count);
 	kusudama_limit_cone_count.resize(p_count);
 	kusudama_limit_cones.resize(p_count);
+	bone_painfulness.resize(p_count);
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
 		kusudama_limit_cone_count.write[constraint_i] = 0;
 		kusudama_limit_cones.write[constraint_i].resize(1);
 		kusudama_limit_cones.write[constraint_i].write[0] = Vector4(0, 1, 0, Math_PI);
 		kusudama_twist.write[constraint_i] = Vector2(0, Math_TAU - CMP_EPSILON);
+		bone_painfulness.write[constraint_i] = 0.0f;
 	}
 	set_dirty();
 }
@@ -788,12 +798,18 @@ void ManyBoneIK3D::execute(real_t delta) {
 		return;
 	}
 	update_ik_bones_transform();
+	for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		segmented_skeleton->update_returnfulness_damp(get_iterations_per_frame());
+	}
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
 		for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
 			if (segmented_skeleton.is_null()) {
 				continue;
 			}
-			segmented_skeleton->segment_solver(bone_damp, get_default_damp(), get_constraint_mode());
+			segmented_skeleton->segment_solver(bone_damp, get_default_damp(), get_constraint_mode(), i, get_iterations_per_frame());
 		}
 	}
 	update_skeleton_bones_transform();
@@ -846,6 +862,7 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 			const Vector2 axial_limit = get_kusudama_twist(constraint_i);
 			constraint->enable_axial_limits();
 			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
+			constraint->set_painfulness(get_kusudama_painfulness(constraint_i));
 			ik_bone_3d->add_constraint(constraint);
 			constraint->_update_constraint();
 			break;
@@ -971,6 +988,7 @@ void ManyBoneIK3D::remove_constraint(int32_t p_index) {
 	kusudama_limit_cone_count.remove_at(p_index);
 	kusudama_limit_cones.remove_at(p_index);
 	kusudama_twist.remove_at(p_index);
+	bone_painfulness.remove_at(p_index);
 
 	constraint_count--;
 
@@ -1520,4 +1538,31 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
 	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(physical_bone_3d));
+}
+
+void ManyBoneIK3D::set_kusudama_painfulness(int32_t p_index, real_t p_painfulness) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	bone_painfulness.write[p_index] = p_painfulness;
+	for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_constraint()->set_painfulness(p_painfulness);
+		ik_bone->set_skeleton_bone_pose(get_skeleton());
+		break;
+	}
+	set_dirty();
+}
+
+real_t ManyBoneIK3D::get_kusudama_painfulness(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
+	return bone_painfulness[p_index];
 }

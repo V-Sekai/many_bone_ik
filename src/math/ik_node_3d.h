@@ -63,8 +63,19 @@ class IKNode3D : public RefCounted {
 protected:
 	void _notification(int p_what);
 	static void _bind_methods() {
+		ClassDB::bind_method(D_METHOD("_propagate_transform_changed"), &IKNode3D::_propagate_transform_changed);
+		ClassDB::bind_method(D_METHOD("_update_local_transform"), &IKNode3D::_update_local_transform);
+		ClassDB::bind_method(D_METHOD("rotate_local_with_global", "p_basis", "p_propagate"), &IKNode3D::rotate_local_with_global, DEFVAL(false));
+		ClassDB::bind_method(D_METHOD("set_transform", "p_transform"), &IKNode3D::set_transform);
+		ClassDB::bind_method(D_METHOD("set_global_transform", "p_transform"), &IKNode3D::set_global_transform);
 		ClassDB::bind_method(D_METHOD("get_transform"), &IKNode3D::get_transform);
 		ClassDB::bind_method(D_METHOD("get_global_transform"), &IKNode3D::get_global_transform);
+		ClassDB::bind_method(D_METHOD("set_disable_scale", "p_enabled"), &IKNode3D::set_disable_scale);
+		ClassDB::bind_method(D_METHOD("is_scale_disabled"), &IKNode3D::is_scale_disabled);
+		ClassDB::bind_method(D_METHOD("set_parent", "p_parent"), &IKNode3D::set_parent);
+		ClassDB::bind_method(D_METHOD("get_parent"), &IKNode3D::get_parent);
+		ClassDB::bind_method(D_METHOD("to_local", "p_global"), &IKNode3D::to_local);
+		ClassDB::bind_method(D_METHOD("to_global", "p_local"), &IKNode3D::to_global);
 	}
 
 public:
