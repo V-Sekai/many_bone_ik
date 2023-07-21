@@ -117,19 +117,7 @@ public:
 			Quaternion &r_twist);
 
 public:
-	double angle_to_twist_center(Ref<IKNode3D> toSet) {
-		if (!is_axially_constrained()) {
-			return 0;
-		}
-		Quaternion swing;
-		Quaternion twist;
-		IKKusudama3D::get_swing_twist(toSet->get_global_transform().basis, Vector3(0, 1, 0), swing, twist);
-		Quaternion invRot = twist.inverse();
-		Quaternion alignRot = invRot * toSet->get_global_transform().basis;
-		Vector3 twisted_direction = twist.xform(Vector3(0, 0, 1));
-		Quaternion toMid = Quaternion(twisted_direction, twist_center_vec);
-		return toMid.get_angle() * toMid.get_axis().y;
-	}
+	double angle_to_twist_center(Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes);
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
