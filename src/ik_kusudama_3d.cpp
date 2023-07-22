@@ -388,48 +388,42 @@ void IKKusudama3D::set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IK
 	if (bone_direction.is_null() || to_set.is_null() || limiting_axes.is_null() || painfulness <= 0.0) {
 		return;
 	}
-	// TODO Fire 2023-07-21
-	// Quaternion twist_rotation, swing_rotation;
-	// get_swing_twist(bone_direction->get_global_transform().basis, Vector3(0, 1, 0), swing_rotation, twist_rotation);
-	// if (orientationally_constrained) {
-	// 	Vector3 origin = bone_direction->get_global_transform().origin;
-	// 	Vector3 limiting_origin = limiting_axes->get_global_transform().origin;
-	// 	Vector3 bone_dir_xform = bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0));
+	Quaternion twist_rotation, swing_rotation;
+	get_swing_twist(bone_direction->get_global_transform().basis, Vector3(0, 1, 0), swing_rotation, twist_rotation);
+	if (orientationally_constrained) {
+		Vector3 origin = bone_direction->get_global_transform().origin;
+		Vector3 limiting_origin = limiting_axes->get_global_transform().origin;
+		Vector3 bone_dir_xform = bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0));
 
-	// 	bone_ray->set_point_1(limiting_origin);
-	// 	bone_ray->set_point_2(bone_dir_xform);
+		bone_ray->set_point_1(limiting_origin);
+		bone_ray->set_point_2(bone_dir_xform);
 
-	// 	Vector3 in_point = bone_ray->get_point_2();
-	// 	Vector3 path_point = local_point_on_path_sequence(in_point, limiting_axes);
-	// 	in_point -= origin;
-	// 	path_point -= origin;
+		Vector3 in_point = bone_ray->get_point_2();
+		Vector3 path_point = local_point_on_path_sequence(in_point, limiting_axes);
+		in_point -= origin;
+		path_point -= origin;
 
-	// 	Quaternion to_clamp = Quaternion(in_point, path_point);
-	// 	to_clamp = clamp_to_quadrance_angle(to_clamp, cos_half_returnfullness).normalized();
-	// 	to_set->rotate_local_with_global(to_clamp);
-	// }
+		Quaternion to_clamp = Quaternion(in_point, path_point);
+		to_clamp = clamp_to_quadrance_angle(to_clamp, cos_half_returnfullness).normalized();
+		to_set->rotate_local_with_global(to_clamp);
+	}
 
-	// if (axially_constrained) {
-	// 	double angle_to_twist_mid = angle_to_twist_center(bone_direction, limiting_axes);
-	// 	double clamped_angle = CLAMP(angle_to_twist_mid, -angle_returnfullness, angle_returnfullness);
-	// 	Vector3 bone_axis_y = bone_direction->get_global_transform().xform(Vector3(0, 1, 0));
-	// 	Quaternion rotation = Quaternion(bone_axis_y, clamped_angle).normalized();
-	// 	to_set->rotate_local_with_global(rotation, false);
-	// }
+	if (axially_constrained) {
+		double angle_to_twist_mid = angle_to_twist_center(bone_direction, limiting_axes);
+		double clamped_angle = CLAMP(angle_to_twist_mid, -angle_returnfullness, angle_returnfullness);
+		Vector3 bone_axis_y = bone_direction->get_global_transform().xform(Vector3(0, 1, 0));
+		Quaternion rotation = Quaternion(bone_axis_y, clamped_angle).normalized();
+		to_set->rotate_local_with_global(rotation, false);
+	}
 }
 
 double IKKusudama3D::angle_to_twist_center(Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes) {
 	if (!is_axially_constrained()) {
 		return 0;
 	}
-	Quaternion swing;
-	Quaternion twist;
-	IKKusudama3D::get_swing_twist(bone_direction->get_global_transform().basis, Vector3(0, 1, 0), swing, twist);
-	swing.normalize();
-	twist.normalize();
 	Quaternion inverse_rotation = limiting_axes->get_global_transform().basis.get_rotation_quaternion().inverse();
 	Quaternion align_rotation = inverse_rotation * bone_direction->get_global_transform().basis.get_rotation_quaternion();
-	Vector3 twisted_direction = twist.xform(Vector3(0, 0, 1));
+	Vector3 twisted_direction = align_rotation.xform(Vector3(0, 0, 1));
 	Quaternion to_mid = Quaternion(twisted_direction, twist_center_vec);
 	return to_mid.get_angle() * to_mid.get_axis().y;
 }
