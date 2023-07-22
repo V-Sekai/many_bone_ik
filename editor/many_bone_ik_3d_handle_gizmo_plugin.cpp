@@ -41,6 +41,7 @@
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/node_3d_editor_gizmos.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
+#include "many_bone_ik_3d.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
 #include "scene/3d/label_3d.h"
@@ -59,7 +60,7 @@ void ManyBoneIK3DHandleGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DHandleGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<Marker3D>(p_spatial);
+	return cast_to<Marker3D>(p_spatial) || cast_to<ManyBoneIK>(p_spatial);
 }
 
 String ManyBoneIK3DHandleGizmoPlugin::get_gizmo_name() const {
@@ -89,9 +90,6 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		if (!many_bone_ik_skeleton) {
 			return;
 		}
-		if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
-			many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
-		}
 		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
 		int bones_to_process_i = 0;
 		Vector<BoneId> processing_bones;
@@ -118,7 +116,7 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				// TODO Find nearby pins for usability improvment.
 				int32_t pin_i = many_bone_ik->find_constraint(ik_bone->get_name());
 				Node *pin_node = many_bone_ik->get_node(many_bone_ik->get_pin_nodepath(bone_i));
-				if (cast_to<Node>(node_3d) == pin_node && ik_bone->is_axially_constrained()) {
+				if ((cast_to<Node>(node_3d) == pin_node && ik_bone->is_axially_constrained())) {
 					create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 					create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 				}

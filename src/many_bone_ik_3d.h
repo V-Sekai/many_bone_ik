@@ -160,7 +160,6 @@ public:
 	Transform3D get_constraint_orientation_transform(int32_t p_index) const;
 	void set_bone_direction_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_bone_direction_transform(int32_t p_index) const;
-
 	Vector2 get_kusudama_twist(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
@@ -178,11 +177,8 @@ public:
 	void set_dirty();
 	real_t get_kusudama_twist_current(int32_t p_index) const;
 	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
-
 	void setup_humanoid_bones(bool set_targets);
-
 	void set_setup_humanoid_bones(bool set_targets);
-
 	bool get_setup_humanoid_bones() const;
 	void create_pin_target_node(ManyBoneIK *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
 };
