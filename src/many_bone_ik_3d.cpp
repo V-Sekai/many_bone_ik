@@ -1403,6 +1403,10 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		return;
 	}
 	reset_constraints();
+	// For testing.
+	set_iterations_per_frame(1);
+	set_stabilization_passes(1);
+	// End For Testing.
 	set_pin_count(bone_count);
 	set_constraint_count(bone_count);
 	Vector<String> ignored_root_bones = { "Root" };
