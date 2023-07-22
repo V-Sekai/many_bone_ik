@@ -535,6 +535,7 @@ void ManyBoneIK::_bind_methods() {
 ManyBoneIK::ManyBoneIK() {
 	add_child(timer);
 	timer->set_owner(get_owner());
+	timer->set_autostart(true);
 	timer->set_wait_time(0.1);
 	timer->set_one_shot(true);
 	timer->connect("timeout", callable_mp(this, &ManyBoneIK::_on_timer_timeout));
