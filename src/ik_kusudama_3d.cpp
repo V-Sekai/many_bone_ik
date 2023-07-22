@@ -409,7 +409,7 @@ void IKKusudama3D::set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IK
 		to_set->rotate_local_with_global(to_clamp);
 	}
 
-	if (false && axially_constrained) {
+	if (axially_constrained) {
 		double angle_to_twist_mid = angle_to_twist_center(bone_direction, limiting_axes);
 		double clamped_angle = CLAMP(angle_to_twist_mid, -angle_returnfullness, angle_returnfullness);
 		Vector3 bone_axis_y = bone_direction->get_global_transform().xform(Vector3(0, 1, 0)).normalized();
