@@ -133,6 +133,10 @@ void IKKusudama3D::get_swing_twist(
 	if (d < real_t(0.0)) {
 		r_twist *= real_t(-1.0);
 	}
+	r_twist = r_twist.normalized();
+	if (!r_twist.is_finite()) {
+		r_twist = Quaternion();
+	}
 	r_swing = rotation * r_twist.inverse();
 }
 
