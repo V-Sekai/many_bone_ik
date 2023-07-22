@@ -189,6 +189,9 @@ void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton) {
 	ERR_FAIL_NULL(p_skeleton);
 	Transform3D bone_to_parent = get_pose();
 	p_skeleton->set_bone_pose_position(bone_id, bone_to_parent.origin);
+	if (!bone_to_parent.basis.is_finite()) {
+		bone_to_parent.basis = Basis();
+	}
 	p_skeleton->set_bone_pose_rotation(bone_id, bone_to_parent.basis.get_rotation_quaternion());
 	// The ik solver doesn't modify scale, and if we do it'll be to orthonormalize which will break the underlying skeleton.
 	// p_skeleton->set_bone_pose_scale(bone_id, bone_to_parent.basis.get_scale());
@@ -250,13 +253,13 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 	float falloff = 0.2f;
 	half_returnfulness_dampened.resize(iterations);
 	cos_half_returnfulness_dampened.resize(iterations);
-	float iterations_pow = pow(iterations, falloff * iterations * returnfulness);
+	float iterations_pow = Math::pow(iterations, falloff * iterations * returnfulness);
 	for (float i = 0; i < iterations; i++) {
-		float iteration_scalar = ((iterations_pow)-pow(i, falloff * iterations * returnfulness)) / (iterations_pow);
+		float iteration_scalar = ((iterations_pow)-Math::pow(i, falloff * iterations * returnfulness)) / (iterations_pow);
 		float iteration_return_clamp = iteration_scalar * returnfulness * dampening;
-		float cosIteration_return_clamp = cos(iteration_return_clamp / 2.0);
+		float cos_iteration_return_clamp = Math::cos(iteration_return_clamp / 2.0);
 		half_returnfulness_dampened.write[i] = iteration_return_clamp;
-		cos_half_returnfulness_dampened.write[i] = cosIteration_return_clamp;
+		cos_half_returnfulness_dampened.write[i] = cos_iteration_return_clamp;
 	}
 }
 

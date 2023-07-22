@@ -117,7 +117,7 @@ public:
 			Quaternion &r_twist);
 
 public:
-	double angle_to_twist_center(Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes);
+	double angle_to_twist_center(Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes);
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.

@@ -188,7 +188,7 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 						float dampened_angle = p_for_bone->get_stiffness() * bone_damp * returnfulness;
 						float total_iterations_square = total_iterations * total_iterations;
 						float scaled_dampened_angle = dampened_angle * ((total_iterations_square - (current_iteration * current_iteration)) / total_iterations_square);
-						float cos_half_angle = cos(0.5f * scaled_dampened_angle);
+						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);
 						p_for_bone->get_constraint()->set_axes_to_returnfulled(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), cos_half_angle, scaled_dampened_angle);
 					} else {
 						p_for_bone->get_constraint()->set_axes_to_returnfulled(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), p_for_bone->getCosHalfReturnfullnessDampened()[current_iteration], p_for_bone->getCosHalfReturnfullnessDampened()[current_iteration]);

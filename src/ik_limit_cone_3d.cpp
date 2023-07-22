@@ -358,7 +358,7 @@ Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds)
 		return Vector3(NAN, NAN, NAN);
 	}
 	Vector3 axis = normalized_control_point.cross(normalized_input);
-	if (Math::is_zero_approx(axis.length_squared())) {
+	if (Math::is_zero_approx(axis.length_squared()) || !axis.is_finite()) {
 		axis = Vector3(0, 1, 0);
 	}
 	Quaternion rot_to = Quaternion(axis.normalized(), get_radius());
@@ -366,7 +366,7 @@ Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds)
 	if (Math::is_zero_approx(axis_control_point.length_squared())) {
 		axis_control_point = Vector3(0, 1, 0);
 	}
-	Vector3 result = rot_to.xform(axis_control_point);
+	Vector3 result = rot_to.xform(axis_control_point.normalized());
 	in_bounds->write[0] = -1;
 	return result;
 }
