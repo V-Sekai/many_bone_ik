@@ -44,6 +44,7 @@
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
 #include "scene/3d/label_3d.h"
+#include "scene/3d/marker_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
@@ -58,7 +59,7 @@ void ManyBoneIK3DHandleGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DHandleGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<Skeleton3D>(p_spatial);
+	return cast_to<Marker3D>(p_spatial);
 }
 
 String ManyBoneIK3DHandleGizmoPlugin::get_gizmo_name() const {
@@ -88,9 +89,6 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		if (!many_bone_ik_skeleton) {
 			return;
 		}
-		if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
-			many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
-		}
 		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
 		int bones_to_process_i = 0;
 		Vector<BoneId> processing_bones;
@@ -114,7 +112,10 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				if (ik_bone.is_null()) {
 					continue;
 				}
-				if (ik_bone->is_axially_constrained()) {
+				// TODO Find nearby pins for usability improvment.
+				int32_t pin_i = many_bone_ik->find_constraint(ik_bone->get_name());
+				Node *pin_node = many_bone_ik->get_node(many_bone_ik->get_pin_nodepath(bone_i));
+				if (cast_to<Node>(node_3d) == pin_node && ik_bone->is_axially_constrained()) {
 					create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 					create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 				}
@@ -163,7 +164,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 	}
 	bones[0] = parent_idx;
 	weights[0] = 1;
-	Transform3D constraint_transform = p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+	Transform3D constraint_transform = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
 
 	PackedFloat32Array kusudama_limit_cones;
 	if (current_bone_idx >= many_bone_ik_skeleton->get_bone_count()) {
@@ -287,7 +288,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	TypedArray<Vector3> axial_current_handles;
 	Vector<Vector3> axial_to_handles;
 
-	Transform3D constraint_twist_transform = p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
+	Transform3D constraint_twist_transform = p_gizmo->get_node_3d()->get_global_transform().affine_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
 	float cone_radius = Math::deg_to_rad(90.0f);
 	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
