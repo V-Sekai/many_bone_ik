@@ -220,13 +220,13 @@ public:
 		double currentCoeff = rotation.x * rotation.x + rotation.y * rotation.y + rotation.z * rotation.z;
 		if (newCoeff >= currentCoeff) {
 			return rotation;
-		} else {
-			rotation.w = rotation.w < 0 ? -p_cos_half_angle : p_cos_half_angle;
-			double compositeCoeff = sqrt(newCoeff / currentCoeff);
-			rotation.x *= compositeCoeff;
-			rotation.y *= compositeCoeff;
-			rotation.z *= compositeCoeff;
 		}
+		rotation.w = rotation.w < 0 ? -p_cos_half_angle : p_cos_half_angle;
+		double compositeCoeff = sqrt(newCoeff / currentCoeff);
+		rotation.x *= compositeCoeff;
+		rotation.y *= compositeCoeff;
+		rotation.z *= compositeCoeff;
+		return rotation;
 	}
 	void set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float cos_half_returnfullness, float angle_returnfullness);
 
