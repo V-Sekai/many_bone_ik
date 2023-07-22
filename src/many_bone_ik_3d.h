@@ -43,8 +43,8 @@
 #include "editor/editor_undo_redo_manager.h"
 #endif
 
-class ManyBoneIK3D : public Node3D {
-	GDCLASS(ManyBoneIK3D, Node3D);
+class ManyBoneIK3D : public Node {
+	GDCLASS(ManyBoneIK3D, Node);
 
 private:
 	Dictionary twist_constraint_defaults, orientation_constraint_defaults, bone_direction_constraint_defaults;
@@ -61,7 +61,7 @@ private:
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 10;
-	int32_t iterations_per_frame = 20;
+	int32_t iterations_per_frame = 10;
 	float default_damp = Math::deg_to_rad(5.0f);
 	bool queue_debug_skeleton = false;
 	Ref<IKNode3D> godot_skeleton_transform = Ref<IKNode3D>(memnew(IKNode3D));

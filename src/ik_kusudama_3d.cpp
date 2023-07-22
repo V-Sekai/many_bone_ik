@@ -74,6 +74,7 @@ void IKKusudama3D::set_axial_limits(real_t min_angle, real_t in_range) {
 	twist_center_rot.normalize();
 	twist_max_rot.normalize();
 }
+
 void IKKusudama3D::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> constraint_axes, real_t p_dampening, real_t p_cos_half_dampen) {
 	if (!is_axially_constrained()) {
 		return;
@@ -390,7 +391,7 @@ void IKKusudama3D::set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IK
 	}
 	Quaternion twist_rotation, swing_rotation;
 	get_swing_twist(bone_direction->get_global_transform().basis, Vector3(0, 1, 0), swing_rotation, twist_rotation);
-	if (orientationally_constrained) {
+	if (false && orientationally_constrained) {
 		Vector3 origin = bone_direction->get_global_transform().origin;
 		Vector3 limiting_origin = limiting_axes->get_global_transform().origin;
 		Vector3 bone_dir_xform = bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0));
@@ -408,7 +409,7 @@ void IKKusudama3D::set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IK
 		to_set->rotate_local_with_global(to_clamp);
 	}
 
-	if (axially_constrained) {
+	if (false && axially_constrained) {
 		double angle_to_twist_mid = angle_to_twist_center(bone_direction, limiting_axes);
 		double clamped_angle = CLAMP(angle_to_twist_mid, -angle_returnfullness, angle_returnfullness);
 		Vector3 bone_axis_y = bone_direction->get_global_transform().xform(Vector3(0, 1, 0));

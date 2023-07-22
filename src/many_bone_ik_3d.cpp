@@ -535,7 +535,7 @@ void ManyBoneIK3D::_bind_methods() {
 ManyBoneIK3D::ManyBoneIK3D() {
 	add_child(timer);
 	timer->set_owner(get_owner());
-	timer->set_wait_time(0.5);
+	timer->set_wait_time(0.1);
 	timer->set_one_shot(true);
 	timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
 }
@@ -760,9 +760,6 @@ NodePath ManyBoneIK3D::get_pin_nodepath(int32_t p_effector_index) const {
 }
 
 void ManyBoneIK3D::execute(real_t delta) {
-	if (!is_visible_in_tree()) {
-		return;
-	}
 	if (!get_skeleton()) {
 		return;
 	}
@@ -775,7 +772,6 @@ void ManyBoneIK3D::execute(real_t delta) {
 	if (is_dirty) {
 		skeleton_changed(get_skeleton());
 		is_dirty = false;
-		update_gizmos();
 		for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 			String constraint_name = get_constraint_name(constraint_i);
 			twist_constraint_defaults[constraint_name] = get_constraint_twist_transform(constraint_i);
@@ -931,11 +927,11 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 
 void ManyBoneIK3D::set_dirty() {
 	timer->start();
+    is_dirty = true;
+    is_gizmo_dirty = true;
 }
 
 void ManyBoneIK3D::_on_timer_timeout() {
-    is_dirty = true;
-    is_gizmo_dirty = true;
     notify_property_list_changed();
 }
 
@@ -969,7 +965,6 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 void ManyBoneIK3D::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			set_notify_transform(true);
 			set_process_priority(1);
 		} break;
 		case NOTIFICATION_ENTER_TREE: {
@@ -980,12 +975,6 @@ void ManyBoneIK3D::_notification(int p_what) {
 		} break;
 		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
 			execute(get_process_delta_time());
-		} break;
-		case NOTIFICATION_TRANSFORM_CHANGED: {
-			if (is_gizmo_dirty) {
-				update_gizmos();
-				is_gizmo_dirty = false;
-			}
 		} break;
 	}
 }
@@ -1412,10 +1401,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		return;
 	}
 	reset_constraints();
-	// For testing.
-	set_iterations_per_frame(1);
-	set_stabilization_passes(1);
-	// End For Testing.
 	set_pin_count(bone_count);
 	set_constraint_count(bone_count);
 	Vector<String> ignored_root_bones = { "Root" };
@@ -1520,7 +1505,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 				set_pin_passthrough_factor(constraint_id, 0.0f);
 				set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(15.0f));
-			} else if (bone_name.ends_with("Eye") != -1) {
+			} else if (bone_name.ends_with("Eye")) {
 				set_pin_passthrough_factor(constraint_id, 0.0f);
 				set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(10.0f));
@@ -1563,7 +1548,7 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 			Node *node = cast_to<Node>(children[i]);
 
 			if (String(node->get_name()) == bone_name_parent) {
-				node->add_child(physical_bone_3d, true);
+				skeleton->add_child(physical_bone_3d, true);
 				physical_bone_3d->set_owner(get_owner());
 				break;
 			}
