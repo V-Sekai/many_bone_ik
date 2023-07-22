@@ -115,7 +115,7 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				}
 				// TODO Find nearby pins for usability improvment.
 				int32_t pin_i = many_bone_ik->find_constraint(ik_bone->get_name());
-				Node *pin_node = many_bone_ik->get_node(many_bone_ik->get_pin_nodepath(bone_i));
+				Node *pin_node = many_bone_ik->get_node(many_bone_ik->get_pin_nodepath(pin_i));
 				if ((cast_to<Node>(node_3d) == pin_node && ik_bone->is_axially_constrained())) {
 					create_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
 					create_twist_gizmo_handles(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
