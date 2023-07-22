@@ -1490,9 +1490,9 @@ void ManyBoneIK::setup_humanoid_bones(bool p_set_targets) {
 				set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(2.5f));
 				if (bone_name.begins_with("Left")) {
-					backwards.x += -1;
-				} else {
 					backwards.x += 1;
+				} else {
+					backwards.x += -1;
 				}
 				backwards.z += -1;
 				backwards.normalize();
@@ -1545,7 +1545,7 @@ void ManyBoneIK::create_pin_target_node(ManyBoneIK *ik_instance, Skeleton3D *ske
 		}
 	}
 	if (marker_3d) {
-		// Delete the existing Marker3D
+		marker_3d->get_parent()->remove_child(marker_3d);
 		marker_3d->queue_free();
 	}
 	marker_3d = memnew(Marker3D);
