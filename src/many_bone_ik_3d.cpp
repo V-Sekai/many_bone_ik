@@ -32,6 +32,7 @@
 #include "core/core_string_names.h"
 #include "core/error/error_macros.h"
 #include "core/io/json.h"
+#include "core/math/math_defs.h"
 #include "core/object/class_db.h"
 #include "core/string/string_name.h"
 #include "core/variant/typed_array.h"
@@ -1439,6 +1440,9 @@ void ManyBoneIK::setup_humanoid_bones(bool p_set_targets) {
 			Vector3 down = Vector3(0, -1, 0);
 			Transform3D bone_transform = get_bone_direction_transform(constraint_id);
 			Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
+			double initial_angle = atan2(forward.y, forward.x);
+			set_kusudama_twist(constraint_id, Vector2(initial_angle, Math_TAU));
+
 			Quaternion twist_rotation, swing_rotation;
 			IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
 			Vector3 backwards = -forward;
