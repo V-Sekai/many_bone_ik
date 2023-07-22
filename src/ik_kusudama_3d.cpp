@@ -121,20 +121,19 @@ void IKKusudama3D::get_swing_twist(
 		Vector3 p_axis,
 		Quaternion &r_swing,
 		Quaternion &r_twist) {
-	p_rotation.normalize();
-	if (p_rotation.w < 0.0) {
-		p_rotation *= -1;
+	Quaternion rotation = p_rotation;
+	if (rotation.w < 0.0) {
+		rotation *= -1;
 	}
 	// Swing-twist decomposition in Clifford algebra
 	// https://arxiv.org/abs/1506.05481
-	Vector3 p = p_axis * (p_rotation.x * p_axis.x + p_rotation.y * p_axis.y + p_rotation.z * p_axis.z);
-	r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w);
+	Vector3 p = p_axis * (rotation.x * p_axis.x + rotation.y * p_axis.y + rotation.z * p_axis.z);
+	r_twist = Quaternion(p.x, p.y, p.z, rotation.w);
 	real_t d = Vector3(r_twist.x, r_twist.y, r_twist.z).dot(p_axis);
 	if (d < real_t(0.0)) {
 		r_twist *= real_t(-1.0);
 	}
-	r_twist = r_twist.normalized();
-	r_swing = p_rotation * r_twist.inverse();
+	r_swing = rotation * r_twist.inverse();
 }
 
 void IKKusudama3D::add_limit_cone(Vector3 new_cone_local_point, double radius) {
