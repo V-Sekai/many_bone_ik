@@ -89,6 +89,9 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		if (!many_bone_ik_skeleton) {
 			return;
 		}
+		if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
+			many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
+		}
 		Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
 		int bones_to_process_i = 0;
 		Vector<BoneId> processing_bones;
