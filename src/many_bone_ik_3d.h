@@ -43,8 +43,8 @@
 #include "editor/editor_undo_redo_manager.h"
 #endif
 
-class ManyBoneIK3D : public Node {
-	GDCLASS(ManyBoneIK3D, Node);
+class ManyBoneIK : public Node {
+	GDCLASS(ManyBoneIK, Node);
 
 private:
 	Dictionary twist_constraint_defaults, orientation_constraint_defaults, bone_direction_constraint_defaults;
@@ -172,8 +172,8 @@ public:
 	int32_t get_bone_count() const;
 	void set_bone_damp(int32_t p_index, real_t p_damp);
 	real_t get_bone_damp(int32_t p_index) const;
-	ManyBoneIK3D();
-	~ManyBoneIK3D();
+	ManyBoneIK();
+	~ManyBoneIK();
 	void set_dirty();
 	real_t get_kusudama_twist_current(int32_t p_index) const;
 	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
@@ -183,9 +183,9 @@ public:
 	void set_setup_humanoid_bones(bool set_targets);
 
 	bool get_setup_humanoid_bones() const;
-	void create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
+	void create_pin_target_node(ManyBoneIK *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
 };
 
-VARIANT_ENUM_CAST(ManyBoneIK3D::HumanoidMode);
+VARIANT_ENUM_CAST(ManyBoneIK::HumanoidMode);
 
 #endif // MANY_BONE_IK_3D_H

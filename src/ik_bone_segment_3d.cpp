@@ -283,7 +283,7 @@ Ref<IKBoneSegment3D> IKBoneSegment3D::get_parent_segment() {
 	return parent_segment;
 }
 
-IKBoneSegment3D::IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent,
+IKBoneSegment3D::IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent,
 		BoneId p_root, BoneId p_tip, int32_t p_stabilizing_pass_count) {
 	root = p_root;
 	tip = p_tip;
@@ -392,7 +392,7 @@ void IKBoneSegment3D::recursive_create_headings_arrays_for(Ref<IKBoneSegment3D> 
 	}
 }
 
-void IKBoneSegment3D::generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
+void IKBoneSegment3D::generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK *p_many_bone_ik) {
 	Ref<IKBone3D> current_tip = root;
 
 	while (true) {
@@ -423,7 +423,7 @@ bool IKBoneSegment3D::_has_multiple_children_or_pinned(Vector<BoneId> &r_childre
 	return r_children.size() > 1 || p_current_tip->is_pinned();
 }
 
-void IKBoneSegment3D::_process_children(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &r_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
+void IKBoneSegment3D::_process_children(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &r_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK *p_many_bone_ik) {
 	tip = p_current_tip;
 	Ref<IKBoneSegment3D> parent(this);
 
@@ -441,11 +441,11 @@ void IKBoneSegment3D::_process_children(Vector<BoneId> &r_children, Ref<IKBone3D
 	}
 }
 
-Ref<IKBoneSegment3D> IKBoneSegment3D::_create_child_segment(String &p_child_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik, Ref<IKBoneSegment3D> &p_parent) {
+Ref<IKBoneSegment3D> IKBoneSegment3D::_create_child_segment(String &p_child_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK *p_many_bone_ik, Ref<IKBoneSegment3D> &p_parent) {
 	return Ref<IKBoneSegment3D>(memnew(IKBoneSegment3D(skeleton, p_child_name, p_pins, p_many_bone_ik, p_parent, p_root_bone, p_tip_bone)));
 }
 
-Ref<IKBone3D> IKBoneSegment3D::_create_next_bone(BoneId p_bone_id, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik) {
+Ref<IKBone3D> IKBoneSegment3D::_create_next_bone(BoneId p_bone_id, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK *p_many_bone_ik) {
 	String bone_name = skeleton->get_bone_name(p_bone_id);
 	Ref<IKBone3D> next_bone = Ref<IKBone3D>(memnew(IKBone3D(bone_name, skeleton, p_current_tip, p_pins, p_many_bone_ik->get_default_damp(), p_many_bone_ik)));
 	root_segment->bone_map[p_bone_id] = next_bone;
