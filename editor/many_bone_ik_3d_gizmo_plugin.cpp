@@ -88,7 +88,7 @@ void ManyBoneIKGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	Vector<BoneId> processing_bones;
 	TypedArray<Node> nodes = many_bone_ik_skeleton->get_owner()->find_children("*", "ManyBoneIK");
 	Vector<Ref<IKBoneSegment3D>> bone_segments;
-	ManyBoneIK* many_bone_ik = nullptr;
+	ManyBoneIK *many_bone_ik = nullptr;
 	for (int node_i = 0; node_i < nodes.size(); node_i++) {
 		many_bone_ik = Object::cast_to<ManyBoneIK>(nodes[node_i]);
 		if (many_bone_ik->get_skeleton() == many_bone_ik_skeleton) {
