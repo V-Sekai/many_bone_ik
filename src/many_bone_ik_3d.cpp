@@ -1521,20 +1521,6 @@ void ManyBoneIK::setup_humanoid_bones(bool p_set_targets) {
 			set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(10.0f));
 		}
 	}
-	Dictionary bone_rotation_ranges;
-	for (int i = 0; i < bone_rotation_ranges.size(); ++i) {
-		String bone_name = bone_rotation_ranges.keys()[i];
-		int32_t constraint_id = find_constraint(bone_name);
-		if (constraint_id != -1) {
-			Transform3D bone_transform = get_bone_direction_transform(constraint_id);
-			Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
-			double initial_angle = atan2(forward.y, forward.x);
-			double rotation_range = bone_rotation_ranges[bone_name];
-			rotation_range = Math::deg_to_rad(rotation_range);
-			double from_angle = initial_angle - (rotation_range / 2.0f);
-			set_kusudama_twist(constraint_id, Vector2(from_angle, rotation_range));
-		}
-	}
 	is_setup_humanoid_bones = false;
 	set_constraint_mode(false);
 }
