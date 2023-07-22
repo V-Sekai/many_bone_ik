@@ -781,6 +781,15 @@ void ManyBoneIK::execute(real_t delta) {
 			bone_direction_constraint_defaults[constraint_name] = get_bone_direction_transform(constraint_i);
 		}
 	}
+	if (bone_list.size()) {
+		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
+		if (root_ik_bone.is_null()) {
+			return;
+		}
+		Skeleton3D *skeleton = get_skeleton();
+		godot_skeleton_transform->set_transform(skeleton->get_global_transform());
+		godot_skeleton_transform_inverse = skeleton->get_global_transform().affine_inverse();
+	}
 	bool has_pins = false;
 	for (Ref<IKEffectorTemplate3D> pin : pins) {
 		if (pin.is_valid() && !pin->get_name().is_empty()) {
@@ -1520,11 +1529,10 @@ void ManyBoneIK::create_pin_target_node(ManyBoneIK *ik_instance, Skeleton3D *ske
 	if (bone_i == -1) {
 		return;
 	}
-	
+
 	if (!get_owner()) {
 		return;
 	}
-
 	Marker3D *marker_3d = nullptr;
 	TypedArray<Node> children = get_owner()->find_children("*", "");
 
@@ -1537,27 +1545,17 @@ void ManyBoneIK::create_pin_target_node(ManyBoneIK *ik_instance, Skeleton3D *ske
 		}
 	}
 	if (marker_3d) {
-		marker_3d->set_gizmo_extents(0.15f);
-		marker_3d->set_global_transform(
-			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
-	} else {
-		marker_3d = memnew(Marker3D);
-		marker_3d->set_name(bone_name);
-		marker_3d->set_gizmo_extents(0.15f);
-
-		for (int i = 0; i < children.size(); ++i) {
-			Node *node = cast_to<Node>(children[i]);
-
-			if (String(node->get_name()) == bone_name_parent) {
-				skeleton->add_child(marker_3d, true);
-				marker_3d->set_owner(get_owner());
-				break;
-			}
-		}
-		marker_3d->set_global_transform(
-			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
+		// Delete the existing Marker3D
+		marker_3d->queue_free();
 	}
+	marker_3d = memnew(Marker3D);
+	marker_3d->set_name(bone_name);
+	marker_3d->set_gizmo_extents(0.15f);
+	marker_3d->set_global_transform(
+			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
+	skeleton->add_child(marker_3d);
+	marker_3d->set_owner(get_owner());
 	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(marker_3d));
 }
 
