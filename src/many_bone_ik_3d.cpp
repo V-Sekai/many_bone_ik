@@ -38,6 +38,7 @@
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
 #include "ik_limit_cone_3d.h"
+#include "scene/3d/marker_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/skeleton_profile.h"
@@ -1519,40 +1520,45 @@ void ManyBoneIK::create_pin_target_node(ManyBoneIK *ik_instance, Skeleton3D *ske
 	if (bone_i == -1) {
 		return;
 	}
+	
 	if (!get_owner()) {
 		return;
 	}
 
-	PhysicalBone3D *physical_bone_3d = nullptr;
+	Marker3D *marker_3d = nullptr;
 	TypedArray<Node> children = get_owner()->find_children("*", "");
 
 	for (int i = 0; i < children.size(); ++i) {
 		Node *node = cast_to<Node>(children[i]);
 
 		if (String(node->get_name()) == bone_name) {
-			physical_bone_3d = cast_to<PhysicalBone3D>(node);
+			marker_3d = cast_to<Marker3D>(node);
 			break;
 		}
 	}
-	if (!physical_bone_3d) {
-		physical_bone_3d = memnew(PhysicalBone3D);
-		physical_bone_3d->set_name(bone_name);
-		physical_bone_3d->set_bone_name(bone_name);
+	if (marker_3d) {
+		marker_3d->set_gizmo_extents(0.15f);
+		marker_3d->set_global_transform(
+			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
+	} else {
+		marker_3d = memnew(Marker3D);
+		marker_3d->set_name(bone_name);
+		marker_3d->set_gizmo_extents(0.15f);
 
 		for (int i = 0; i < children.size(); ++i) {
 			Node *node = cast_to<Node>(children[i]);
 
 			if (String(node->get_name()) == bone_name_parent) {
-				skeleton->add_child(physical_bone_3d, true);
-				physical_bone_3d->set_owner(get_owner());
+				skeleton->add_child(marker_3d, true);
+				marker_3d->set_owner(get_owner());
 				break;
 			}
 		}
-	}
-	physical_bone_3d->set_global_transform(
+		marker_3d->set_global_transform(
 			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
+	}
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
-	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(physical_bone_3d));
+	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(marker_3d));
 }
 
 void ManyBoneIK::set_kusudama_painfulness(int32_t p_index, real_t p_painfulness) {
