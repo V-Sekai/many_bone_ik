@@ -1444,7 +1444,6 @@ void ManyBoneIK::setup_humanoid_bones(bool p_set_targets) {
 		set_kusudama_limit_cone_count(constraint_id, 1);
 		const int FIRST_CONE = 0;
 		const int SECOND_CONE = 1;
-		Vector3 down = Vector3(0, -1, 0);
 		Transform3D bone_transform = get_bone_direction_transform(constraint_id);
 		Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
 		double initial_angle = atan2(forward.y, forward.x);
