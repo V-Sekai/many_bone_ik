@@ -31,17 +31,18 @@
 #ifndef MANY_BONE_IK_3D_H
 #define MANY_BONE_IK_3D_H
 
-#include "ik_bone_3d.h"
-#include "ik_effector_template_3d.h"
-#include "math/ik_node_3d.h"
-
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
+#include "scene/main/timer.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
 #include "editor/editor_undo_redo_manager.h"
 #endif
+
+#include "ik_bone_3d.h"
+#include "ik_effector_template_3d.h"
+#include "math/ik_node_3d.h"
 
 class ManyBoneIK : public Node {
 	GDCLASS(ManyBoneIK, Node);
