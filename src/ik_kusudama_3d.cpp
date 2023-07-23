@@ -440,3 +440,11 @@ void IKKusudama3D::set_painfulness(float p_painfulness) {
 float IKKusudama3D::get_painfulness() {
 	return painfulness;
 }
+
+float IKKusudama3D::get_stiffness() {
+	return stiffness;
+}
+
+void IKKusudama3D::set_stiffness(float p_stiffness) {
+	stiffness = p_stiffness;
+}

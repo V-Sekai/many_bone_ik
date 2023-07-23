@@ -58,6 +58,7 @@ private:
 	Vector<Vector2> kusudama_twist;
 	Vector<float> bone_damp;
 	Vector<float> bone_painfulness;
+	Vector<float> bone_stiffness;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 10;
@@ -154,6 +155,8 @@ public:
 	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
 	void set_kusudama_painfulness(int32_t p_index, real_t p_painfulness);
 	real_t get_kusudama_painfulness(int32_t p_index) const;
+	void set_kusudama_stiffness(int32_t p_index, real_t p_stiffness);
+	real_t get_kusudama_stiffness(int32_t p_index) const;
 	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_constraint_twist_transform(int32_t p_index) const;
 	void set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform);

@@ -325,6 +325,9 @@ bool ManyBoneIK::_get(const StringName &p_name, Variant &r_ret) const {
 		} else if (what == "painfulness") {
 			r_ret = get_kusudama_painfulness(index);
 			return true;
+		} else if (what == "stiffness") {
+			r_ret = get_kusudama_stiffness(index);
+			return true;
 		} else if (what == "twist_current") {
 			r_ret = get_kusudama_twist_current(index);
 			return true;
@@ -415,6 +418,9 @@ bool ManyBoneIK::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		} else if (what == "painfulness") {
 			set_kusudama_painfulness(index, p_value);
+			return true;
+		} else if (what == "stiffness") {
+			set_kusudama_stiffness(index, p_value);
 			return true;
 		} else if (what == "twist_current") {
 			set_kusudama_twist_current(index, p_value);
@@ -514,14 +520,15 @@ void ManyBoneIK::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_direction_constraint_defaults"), &ManyBoneIK::get_bone_direction_constraint_defaults);
 	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK::set_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK::get_stabilization_passes);
-
 	ClassDB::bind_method(D_METHOD("setup_humanoid_bones", "enable"), &ManyBoneIK::setup_humanoid_bones);
-
 	ClassDB::bind_method(D_METHOD("set_setup_humanoid_bones", "set_targets"), &ManyBoneIK::set_setup_humanoid_bones);
 	ClassDB::bind_method(D_METHOD("get_setup_humanoid_bones"), &ManyBoneIK::get_setup_humanoid_bones);
+	ClassDB::bind_method(D_METHOD("set_kusudama_painfulness", "index", "painfulness"), &ManyBoneIK::set_kusudama_painfulness);
+	ClassDB::bind_method(D_METHOD("get_kusudama_painfulness", "index"), &ManyBoneIK::get_kusudama_painfulness);
+	ClassDB::bind_method(D_METHOD("set_kusudama_stiffness", "index", "stiffness"), &ManyBoneIK::set_kusudama_stiffness);
+	ClassDB::bind_method(D_METHOD("get_kusudama_stiffness", "index"), &ManyBoneIK::get_kusudama_stiffness);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "initialize_humanoid_bones"), "set_setup_humanoid_bones", "get_setup_humanoid_bones");
-
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "humanoid_mode", PROPERTY_HINT_ENUM, "All,Humanoid,Body"), "set_humanoid_mode", "get_humanoid_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
@@ -573,6 +580,7 @@ void ManyBoneIK::set_constraint_count(int32_t p_count) {
 	kusudama_limit_cone_count.resize(p_count);
 	kusudama_limit_cones.resize(p_count);
 	bone_painfulness.resize(p_count);
+	bone_stiffness.resize(p_count);
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
 		kusudama_limit_cone_count.write[constraint_i] = 0;
@@ -582,7 +590,7 @@ void ManyBoneIK::set_constraint_count(int32_t p_count) {
 		Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
 		double initial_angle = atan2(forward.y, forward.x);
 		kusudama_twist.write[constraint_i] = Vector2(initial_angle, Math_TAU);
-		bone_painfulness.write[constraint_i] = 0.0f;
+		bone_stiffness.write[constraint_i] = 0.0f;
 	}
 	set_dirty();
 }
@@ -1602,4 +1610,29 @@ void ManyBoneIK::set_kusudama_painfulness(int32_t p_index, real_t p_painfulness)
 real_t ManyBoneIK::get_kusudama_painfulness(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
 	return bone_painfulness[p_index];
+}
+void ManyBoneIK::set_kusudama_stiffness(int32_t p_index, real_t p_stiffness) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	bone_stiffness.write[p_index] = p_stiffness;
+	for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_constraint()->set_stiffness(p_stiffness);
+		ik_bone->set_skeleton_bone_pose(get_skeleton());
+		break;
+	}
+	set_dirty();
+}
+real_t ManyBoneIK::get_kusudama_stiffness(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
+	return bone_stiffness[p_index];
 }
