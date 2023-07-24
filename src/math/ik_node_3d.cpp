@@ -119,13 +119,22 @@ bool IKNode3D::is_scale_disabled() const {
 }
 
 void IKNode3D::set_parent(Ref<IKNode3D> p_parent) {
+	if (Ref<IKNode3D>(this) == p_parent) {
+		return;
+	}
+
 	if (parent.is_valid()) {
-		parent->children.erase(this);
+		parent->children.erase(Ref<IKNode3D>(this));
 	}
+
 	parent = p_parent;
+
 	if (p_parent.is_valid()) {
-		parent->children.push_back(this);
+		if (!p_parent->children.find(Ref<IKNode3D>(this))) {
+			p_parent->children.push_back(Ref<IKNode3D>(this));
+		}
 	}
+
 	_propagate_transform_changed();
 }
 
