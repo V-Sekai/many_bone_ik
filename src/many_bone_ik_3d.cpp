@@ -543,7 +543,7 @@ void ManyBoneIK3D::_bind_methods() {
 
 ManyBoneIK3D::ManyBoneIK3D() {
 	add_child(timer);
-	timer->set_wait_time(0.1);
+	timer->set_wait_time(0.5);
 	timer->set_one_shot(true);
 	timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
 	timer->set_owner(get_owner());
@@ -605,6 +605,7 @@ inline StringName ManyBoneIK3D::get_constraint_name(int32_t p_index) const {
 void ManyBoneIK3D::set_kusudama_twist(int32_t p_index, Vector2 p_to) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist.write[p_index] = p_to;
+	set_dirty();
 }
 
 int32_t ManyBoneIK3D::find_effector_id(StringName p_bone_name) {

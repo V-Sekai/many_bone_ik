@@ -61,7 +61,7 @@ void ManyBoneIK3DHandleGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DHandleGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<Marker3D>(p_spatial) || cast_to<ManyBoneIK3D>(p_spatial);
+	return cast_to<ManyBoneIK3D>(p_spatial);
 }
 
 String ManyBoneIK3DHandleGizmoPlugin::get_gizmo_name() const {
