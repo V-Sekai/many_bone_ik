@@ -4,7 +4,7 @@
 		A general inverse kinematics system with constraints.
 	</brief_description>
 	<description>
-		The ManyBoneIK class provides a comprehensive system for inverse kinematics (IK) with support for various constraints. It allows for complex IK setups involving multiple bones, each with their own constraints and parameters.
+		The ManyBoneIK3D class provides a comprehensive system for inverse kinematics (IK) with support for various constraints. It allows for complex IK setups involving multiple bones, each with their own constraints and parameters.
 	</description>
 	<tutorials>
 	</tutorials>

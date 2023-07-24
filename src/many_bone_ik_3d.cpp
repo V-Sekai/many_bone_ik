@@ -39,6 +39,7 @@
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
 #include "ik_limit_cone_3d.h"
+#include "scene/3d/marker_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/skeleton_profile.h"
@@ -464,7 +465,6 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 	return false;
 }
 
-<<<<<<< HEAD
 void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_humanoid_mode", "mode"), &ManyBoneIK3D::set_humanoid_mode);
 	ClassDB::bind_method(D_METHOD("get_humanoid_mode"), &ManyBoneIK3D::get_humanoid_mode);
@@ -520,75 +520,13 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_direction_constraint_defaults"), &ManyBoneIK3D::get_bone_direction_constraint_defaults);
 	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK3D::set_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK3D::get_stabilization_passes);
-
 	ClassDB::bind_method(D_METHOD("setup_humanoid_bones", "enable"), &ManyBoneIK3D::setup_humanoid_bones);
-
 	ClassDB::bind_method(D_METHOD("set_setup_humanoid_bones", "set_targets"), &ManyBoneIK3D::set_setup_humanoid_bones);
 	ClassDB::bind_method(D_METHOD("get_setup_humanoid_bones"), &ManyBoneIK3D::get_setup_humanoid_bones);
-=======
-void ManyBoneIK::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_humanoid_mode", "mode"), &ManyBoneIK::set_humanoid_mode);
-	ClassDB::bind_method(D_METHOD("get_humanoid_mode"), &ManyBoneIK::get_humanoid_mode);
-	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK::get_constraint_twist_transform);
-	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "index", "transform"), &ManyBoneIK::set_constraint_twist_transform);
-	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform", "index"), &ManyBoneIK::get_constraint_orientation_transform);
-	ClassDB::bind_method(D_METHOD("set_constraint_orientation_transform", "index", "transform"), &ManyBoneIK::set_constraint_orientation_transform);
-	ClassDB::bind_method(D_METHOD("get_bone_direction_transform", "index"), &ManyBoneIK::get_bone_direction_transform);
-	ClassDB::bind_method(D_METHOD("set_bone_direction_transform", "index", "transform"), &ManyBoneIK::set_bone_direction_transform);
-	ClassDB::bind_method(D_METHOD("get_pin_enabled", "index"), &ManyBoneIK::get_pin_enabled);
-	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &ManyBoneIK::remove_constraint);
-	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &ManyBoneIK::set_skeleton_node_path);
-	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &ManyBoneIK::get_skeleton_node_path);
-	ClassDB::bind_method(D_METHOD("register_skeleton"), &ManyBoneIK::register_skeleton);
-	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK::register_skeleton);
-	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &ManyBoneIK::set_pin_weight);
-	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &ManyBoneIK::get_pin_weight);
-	ClassDB::bind_method(D_METHOD("set_dirty"), &ManyBoneIK::set_dirty);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_radius", "index", "cone_index", "radius"), &ManyBoneIK::set_kusudama_limit_cone_radius);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_radius", "index", "cone_index"), &ManyBoneIK::get_kusudama_limit_cone_radius);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_center", "index", "cone_index", "center"), &ManyBoneIK::set_kusudama_limit_cone_center);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_center", "index", "cone_index"), &ManyBoneIK::get_kusudama_limit_cone_center);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_count", "index", "count"), &ManyBoneIK::set_kusudama_limit_cone_count);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_count", "index"), &ManyBoneIK::get_kusudama_limit_cone_count);
-	ClassDB::bind_method(D_METHOD("set_kusudama_twist", "index", "limit"), &ManyBoneIK::set_kusudama_twist);
-	ClassDB::bind_method(D_METHOD("get_kusudama_twist", "index"), &ManyBoneIK::get_kusudama_twist);
-	ClassDB::bind_method(D_METHOD("set_pin_passthrough_factor", "index", "falloff"), &ManyBoneIK::set_pin_passthrough_factor);
-	ClassDB::bind_method(D_METHOD("get_pin_passthrough_factor", "index"), &ManyBoneIK::get_pin_passthrough_factor);
-	ClassDB::bind_method(D_METHOD("get_constraint_name", "index"), &ManyBoneIK::get_constraint_name);
-	ClassDB::bind_method(D_METHOD("get_iterations_per_frame"), &ManyBoneIK::get_iterations_per_frame);
-	ClassDB::bind_method(D_METHOD("set_iterations_per_frame", "count"), &ManyBoneIK::set_iterations_per_frame);
-	ClassDB::bind_method(D_METHOD("find_constraint", "name"), &ManyBoneIK::find_constraint);
-	ClassDB::bind_method(D_METHOD("get_constraint_count"), &ManyBoneIK::get_constraint_count);
-	ClassDB::bind_method(D_METHOD("get_pin_count"), &ManyBoneIK::get_pin_count);
-	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &ManyBoneIK::get_pin_bone_name);
-	ClassDB::bind_method(D_METHOD("get_pin_direction_priorities", "index"), &ManyBoneIK::get_pin_direction_priorities);
-	ClassDB::bind_method(D_METHOD("set_pin_direction_priorities", "index", "priority"), &ManyBoneIK::set_pin_direction_priorities);
-	ClassDB::bind_method(D_METHOD("queue_print_skeleton"), &ManyBoneIK::queue_print_skeleton);
-	ClassDB::bind_method(D_METHOD("get_default_damp"), &ManyBoneIK::get_default_damp);
-	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &ManyBoneIK::set_default_damp);
-	ClassDB::bind_method(D_METHOD("get_pin_nodepath", "index"), &ManyBoneIK::get_pin_nodepath);
-	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &ManyBoneIK::set_pin_nodepath);
-	ClassDB::bind_method(D_METHOD("get_bone_count"), &ManyBoneIK::get_bone_count);
-	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enabled"), &ManyBoneIK::set_constraint_mode);
-	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &ManyBoneIK::get_constraint_mode);
-	ClassDB::bind_method(D_METHOD("set_ui_selected_bone", "bone"), &ManyBoneIK::set_ui_selected_bone);
-	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK::get_ui_selected_bone);
-	ClassDB::bind_method(D_METHOD("set_twist_constraint_defaults", "defaults"), &ManyBoneIK::set_twist_constraint_defaults);
-	ClassDB::bind_method(D_METHOD("get_twist_constraint_defaults"), &ManyBoneIK::get_twist_constraint_defaults);
-	ClassDB::bind_method(D_METHOD("set_orientation_constraint_defaults", "defaults"), &ManyBoneIK::set_orientation_constraint_defaults);
-	ClassDB::bind_method(D_METHOD("get_orientation_constraint_defaults"), &ManyBoneIK::get_orientation_constraint_defaults);
-	ClassDB::bind_method(D_METHOD("set_bone_direction_constraint_defaults", "defaults"), &ManyBoneIK::set_bone_direction_constraint_defaults);
-	ClassDB::bind_method(D_METHOD("get_bone_direction_constraint_defaults"), &ManyBoneIK::get_bone_direction_constraint_defaults);
-	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK::set_stabilization_passes);
-	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK::get_stabilization_passes);
-	ClassDB::bind_method(D_METHOD("setup_humanoid_bones", "enable"), &ManyBoneIK::setup_humanoid_bones);
-	ClassDB::bind_method(D_METHOD("set_setup_humanoid_bones", "set_targets"), &ManyBoneIK::set_setup_humanoid_bones);
-	ClassDB::bind_method(D_METHOD("get_setup_humanoid_bones"), &ManyBoneIK::get_setup_humanoid_bones);
-	ClassDB::bind_method(D_METHOD("set_kusudama_painfulness", "index", "painfulness"), &ManyBoneIK::set_kusudama_painfulness);
-	ClassDB::bind_method(D_METHOD("get_kusudama_painfulness", "index"), &ManyBoneIK::get_kusudama_painfulness);
-	ClassDB::bind_method(D_METHOD("set_kusudama_stiffness", "index", "stiffness"), &ManyBoneIK::set_kusudama_stiffness);
-	ClassDB::bind_method(D_METHOD("get_kusudama_stiffness", "index"), &ManyBoneIK::get_kusudama_stiffness);
->>>>>>> dae5b07... Delete open_problems.md, update class descriptions and methods in doc_classes folder
+	ClassDB::bind_method(D_METHOD("set_kusudama_painfulness", "index", "painfulness"), &ManyBoneIK3D::set_kusudama_painfulness);
+	ClassDB::bind_method(D_METHOD("get_kusudama_painfulness", "index"), &ManyBoneIK3D::get_kusudama_painfulness);
+	ClassDB::bind_method(D_METHOD("set_kusudama_stiffness", "index", "stiffness"), &ManyBoneIK3D::set_kusudama_stiffness);
+	ClassDB::bind_method(D_METHOD("get_kusudama_stiffness", "index"), &ManyBoneIK3D::get_kusudama_stiffness);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "initialize_humanoid_bones"), "set_setup_humanoid_bones", "get_setup_humanoid_bones");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "humanoid_mode", PROPERTY_HINT_ENUM, "All,Humanoid,Body"), "set_humanoid_mode", "get_humanoid_mode");
@@ -603,7 +541,7 @@ void ManyBoneIK::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "bone_direction_constraint_defaults", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_bone_direction_constraint_defaults", "get_bone_direction_constraint_defaults");
 }
 
-ManyBoneIK::ManyBoneIK3D() {
+ManyBoneIK3D::ManyBoneIK3D() {
 	timer->set_autostart(true);
 	timer->set_owner(get_owner());
 	timer->set_wait_time(0.1);
@@ -1618,15 +1556,6 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 	}
 	Marker3D *marker_3d = nullptr;
 	TypedArray<Node> children = get_owner()->find_children("*", "");
-
-	for (int i = 0; i < children.size(); ++i) {
-		Node *node = cast_to<Node>(children[i]);
-
-		if (String(node->get_name()) == bone_name) {
-			physical_bone_3d = cast_to<PhysicalBone3D>(node);
-			break;
-		}
-	}
 	if (marker_3d) {
 		marker_3d->get_parent()->remove_child(marker_3d);
 		marker_3d->queue_free();
@@ -1668,7 +1597,8 @@ real_t ManyBoneIK3D::get_kusudama_painfulness(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
 	return bone_painfulness[p_index];
 }
-void ManyBoneIK::set_kusudama_stiffness(int32_t p_index, real_t p_stiffness) {
+
+void ManyBoneIK3D::set_kusudama_stiffness(int32_t p_index, real_t p_stiffness) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
 	bone_stiffness.write[p_index] = p_stiffness;
@@ -1689,7 +1619,8 @@ void ManyBoneIK::set_kusudama_stiffness(int32_t p_index, real_t p_stiffness) {
 	}
 	set_dirty();
 }
-real_t ManyBoneIK::get_kusudama_stiffness(int32_t p_index) const {
+
+real_t ManyBoneIK3D::get_kusudama_stiffness(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
 	return bone_stiffness[p_index];
 }
