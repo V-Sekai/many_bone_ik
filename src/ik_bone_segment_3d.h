@@ -75,9 +75,9 @@ class IKBoneSegment3D : public Resource {
 	HashMap<BoneId, Ref<IKBone3D>> bone_map;
 	bool _is_parent_of_tip(Ref<IKBone3D> p_current_tip, BoneId p_tip_bone);
 	bool _has_multiple_children_or_pinned(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip);
-	void _process_children(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &r_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK *p_many_bone_ik);
-	Ref<IKBoneSegment3D> _create_child_segment(String &p_child_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK *p_many_bone_ik, Ref<IKBoneSegment3D> &p_parent);
-	Ref<IKBone3D> _create_next_bone(BoneId p_bone_id, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK *p_many_bone_ik);
+	void _process_children(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &r_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
+	Ref<IKBoneSegment3D> _create_child_segment(String &p_child_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik, Ref<IKBoneSegment3D> &p_parent);
+	Ref<IKBone3D> _create_next_bone(BoneId p_bone_id, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik);
 	void _finalize_segment(Ref<IKBone3D> p_current_tip);
 
 protected:
@@ -103,9 +103,9 @@ public:
 	Vector<Ref<IKBone3D>> get_bone_list() const;
 	Ref<IKBone3D> get_ik_bone(BoneId p_bone) const;
 	void update_returnfulness_damp(int32_t p_iterations);
-	void generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK *p_many_bone_ik);
+	void generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
 	IKBoneSegment3D() {}
-	IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent = nullptr,
+	IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent = nullptr,
 			BoneId root = -1, BoneId tip = -1, int32_t p_stabilizing_pass_count = 0);
 	~IKBoneSegment3D() {}
 };

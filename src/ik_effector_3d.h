@@ -38,7 +38,7 @@
 
 #define MIN_SCALE 0.1
 
-class ManyBoneIK;
+class ManyBoneIK3D;
 class IKBone3D;
 
 class IKEffector3D : public Resource {
@@ -71,7 +71,7 @@ public:
 	real_t get_weight() const;
 	void set_direction_priorities(Vector3 p_direction_priorities);
 	Vector3 get_direction_priorities() const;
-	void update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK *p_modification = nullptr);
+	void update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK3D *p_modification = nullptr);
 	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
 	float get_passthrough_factor() const;
 	void set_passthrough_factor(float p_passthrough_factor);

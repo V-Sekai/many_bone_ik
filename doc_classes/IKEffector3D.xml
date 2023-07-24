@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="IKEffector3D" inherits="Resource" is_experimental="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+<class name="IKEffector3D" inherits="Resource" is_experimental="true" version="4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
-		A class representing a 3D effector in an Inverse Kinematics system.
 	</brief_description>
 	<description>
-		The IKEffector3D class represents an effector in a 3D Inverse Kinematics (IK) system. An effector is the end point of a chain of bones, and its position is used to calculate the rotations of all preceding bones in the IK chain. This class provides methods for getting and setting the target node of the effector.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -12,7 +10,6 @@
 		<method name="get_target_node" qualifiers="const">
 			<return type="NodePath" />
 			<description>
-				Returns the NodePath of the target node for this effector. The target node is the node that the effector aims to reach.
 			</description>
 		</method>
 		<method name="set_target_node">
@@ -20,7 +17,6 @@
 			<param index="0" name="skeleton" type="Skeleton3D" />
 			<param index="1" name="node" type="NodePath" />
 			<description>
-				Sets the target node for this effector using a Skeleton3D and a NodePath. The effector will aim to reach this target node.
 			</description>
 		</method>
 	</methods>

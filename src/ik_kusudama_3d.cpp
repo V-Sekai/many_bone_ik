@@ -391,7 +391,7 @@ void IKKusudama3D::set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IK
 	}
 	Quaternion twist_rotation, swing_rotation;
 	get_swing_twist(bone_direction->get_global_transform().basis, Vector3(0, 1, 0), swing_rotation, twist_rotation);
-	if (orientationally_constrained) {
+	if (false && orientationally_constrained) {
 		Vector3 origin = bone_direction->get_global_transform().origin;
 		Vector3 limiting_origin = limiting_axes->get_global_transform().origin;
 		Vector3 bone_dir_xform = bone_direction->get_global_transform().xform(Vector3(0.0, 1.0, 0.0));
@@ -409,10 +409,10 @@ void IKKusudama3D::set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IK
 		to_set->rotate_local_with_global(to_clamp);
 	}
 
-	if (axially_constrained) {
+	if (false && axially_constrained) {
 		double angle_to_twist_mid = angle_to_twist_center(bone_direction, limiting_axes);
 		double clamped_angle = CLAMP(angle_to_twist_mid, -angle_returnfullness, angle_returnfullness);
-		Vector3 bone_axis_y = bone_direction->get_global_transform().xform(Vector3(0, 1, 0)).normalized();
+		Vector3 bone_axis_y = bone_direction->get_global_transform().xform(Vector3(0, 1, 0));
 		Quaternion rotation = Quaternion(bone_axis_y, clamped_angle).normalized();
 		to_set->rotate_local_with_global(rotation, false);
 	}
@@ -439,12 +439,4 @@ void IKKusudama3D::set_painfulness(float p_painfulness) {
 
 float IKKusudama3D::get_painfulness() {
 	return painfulness;
-}
-
-float IKKusudama3D::get_stiffness() {
-	return stiffness;
-}
-
-void IKKusudama3D::set_stiffness(float p_stiffness) {
-	stiffness = p_stiffness;
 }
