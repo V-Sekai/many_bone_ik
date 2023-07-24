@@ -1409,8 +1409,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
 	ERR_FAIL_NULL(skeleton);
 	skeleton->reset_bone_poses();
-	skeleton->set_show_rest_only(true);
-
 	Ref<SkeletonProfileHumanoid> humanoid_profile = memnew(SkeletonProfileHumanoid);
 	PackedStringArray humanoid_bones;
 	if (!p_set_targets) {
@@ -1541,7 +1539,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		}
 	}
 	is_setup_humanoid_bones = false;
-	skeleton->set_show_rest_only(false);
 	set_constraint_mode(false);
 }
 
