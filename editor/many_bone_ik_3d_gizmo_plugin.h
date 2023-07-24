@@ -55,8 +55,8 @@ class PhysicalBone3D;
 class ManyBoneIKEditorPlugin;
 class Button;
 
-class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
-	GDCLASS(ManyBoneIK3DGizmoPlugin, EditorNode3DGizmoPlugin);
+class ManyBoneIKGizmoPlugin : public EditorNode3DGizmoPlugin {
+	GDCLASS(ManyBoneIKGizmoPlugin, EditorNode3DGizmoPlugin);
 	Ref<Shader> kusudama_shader;
 
 protected:
@@ -68,9 +68,9 @@ public:
 	bool has_gizmo(Node3D *p_spatial) override;
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
-	ManyBoneIK3DGizmoPlugin();
+	ManyBoneIKGizmoPlugin();
 	int32_t get_priority() const override;
-	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
+	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK *p_many_bone_ik);
 };
 
 class EditorPluginManyBoneIK : public EditorPlugin {

@@ -54,19 +54,19 @@
 
 #include "ik_effector_3d.h"
 
-void ManyBoneIK3DGizmoPlugin::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &ManyBoneIK3DGizmoPlugin::get_gizmo_name);
+void ManyBoneIKGizmoPlugin::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &ManyBoneIKGizmoPlugin::get_gizmo_name);
 }
 
-bool ManyBoneIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<ManyBoneIK3D>(p_spatial);
+bool ManyBoneIKGizmoPlugin::has_gizmo(Node3D *p_spatial) {
+	return cast_to<Skeleton3D>(p_spatial);
 }
 
-String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
-	return "ManyBoneIK3D";
+String ManyBoneIKGizmoPlugin::get_gizmo_name() const {
+	return "ManyBoneIK";
 }
 
-void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
+void ManyBoneIKGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!p_gizmo) {
 		return;
 	}
@@ -76,11 +76,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	}
 
 	p_gizmo->clear();
-	ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
-	if (!many_bone_ik) {
-		return;
-	}
-	Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
+	Skeleton3D *many_bone_ik_skeleton = cast_to<Skeleton3D>(p_gizmo->get_node_3d());
 	if (!many_bone_ik_skeleton) {
 		return;
 	}
@@ -90,7 +86,15 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	Vector<int> bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
 	int bones_to_process_i = 0;
 	Vector<BoneId> processing_bones;
-	Vector<Ref<IKBoneSegment3D>> bone_segments = many_bone_ik->get_segmented_skeletons();
+	TypedArray<Node> nodes = many_bone_ik_skeleton->get_owner()->find_children("*", "ManyBoneIK");
+	Vector<Ref<IKBoneSegment3D>> bone_segments;
+	ManyBoneIK *many_bone_ik = nullptr;
+	for (int node_i = 0; node_i < nodes.size(); node_i++) {
+		many_bone_ik = Object::cast_to<ManyBoneIK>(nodes[node_i]);
+		if (many_bone_ik->get_skeleton() == many_bone_ik_skeleton) {
+			bone_segments = many_bone_ik->get_segmented_skeletons();
+		}
+	}
 	for (Ref<IKBoneSegment3D> bone_segment : bone_segments) {
 		if (bone_segment.is_null()) {
 			continue;
@@ -117,7 +121,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	}
 }
 
-void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
+void ManyBoneIKGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK *p_many_bone_ik) {
 	Ref<IKKusudama3D> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
@@ -269,18 +273,18 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 			kusudama_material, constraint_relative_to_the_skeleton);
 }
 
-ManyBoneIK3DGizmoPlugin::ManyBoneIK3DGizmoPlugin() {
+ManyBoneIKGizmoPlugin::ManyBoneIKGizmoPlugin() {
 	create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
 	kusudama_shader.instantiate();
 	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
 }
 
-int32_t ManyBoneIK3DGizmoPlugin::get_priority() const {
+int32_t ManyBoneIKGizmoPlugin::get_priority() const {
 	return -1;
 }
 
 EditorPluginManyBoneIK::EditorPluginManyBoneIK() {
-	Ref<ManyBoneIK3DGizmoPlugin> many_bone_ik_gizmo_plugin;
+	Ref<ManyBoneIKGizmoPlugin> many_bone_ik_gizmo_plugin;
 	many_bone_ik_gizmo_plugin.instantiate();
 	Node3DEditor::get_singleton()->add_gizmo_plugin(many_bone_ik_gizmo_plugin);
 }

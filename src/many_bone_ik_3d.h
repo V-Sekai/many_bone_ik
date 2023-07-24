@@ -31,20 +31,21 @@
 #ifndef MANY_BONE_IK_3D_H
 #define MANY_BONE_IK_3D_H
 
-#include "ik_bone_3d.h"
-#include "ik_effector_template_3d.h"
-#include "math/ik_node_3d.h"
-
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
+#include "scene/main/timer.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
 #include "editor/editor_undo_redo_manager.h"
 #endif
 
-class ManyBoneIK3D : public Node {
-	GDCLASS(ManyBoneIK3D, Node);
+#include "ik_bone_3d.h"
+#include "ik_effector_template_3d.h"
+#include "math/ik_node_3d.h"
+
+class ManyBoneIK : public Node {
+	GDCLASS(ManyBoneIK, Node);
 
 private:
 	Dictionary twist_constraint_defaults, orientation_constraint_defaults, bone_direction_constraint_defaults;
@@ -58,6 +59,7 @@ private:
 	Vector<Vector2> kusudama_twist;
 	Vector<float> bone_damp;
 	Vector<float> bone_painfulness;
+	Vector<float> bone_stiffness;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 10;
@@ -84,6 +86,7 @@ private:
 	void set_constraint_count(int32_t p_count);
 	void _remove_pin(int32_t p_index);
 	void _set_bone_count(int32_t p_count);
+
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -122,7 +125,7 @@ public:
 	bool get_pin_enabled(int32_t p_effector_index) const;
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	void register_skeleton();
-	void reset_constraints();	
+	void reset_constraints();
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;
 	Vector<Ref<IKBone3D>> get_bone_list() const;
@@ -153,13 +156,14 @@ public:
 	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
 	void set_kusudama_painfulness(int32_t p_index, real_t p_painfulness);
 	real_t get_kusudama_painfulness(int32_t p_index) const;
+	void set_kusudama_stiffness(int32_t p_index, real_t p_stiffness);
+	real_t get_kusudama_stiffness(int32_t p_index) const;
 	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_constraint_twist_transform(int32_t p_index) const;
 	void set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_constraint_orientation_transform(int32_t p_index) const;
 	void set_bone_direction_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_bone_direction_transform(int32_t p_index) const;
-
 	Vector2 get_kusudama_twist(int32_t p_index) const;
 	void set_kusudama_limit_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
@@ -172,20 +176,17 @@ public:
 	int32_t get_bone_count() const;
 	void set_bone_damp(int32_t p_index, real_t p_damp);
 	real_t get_bone_damp(int32_t p_index) const;
-	ManyBoneIK3D();
-	~ManyBoneIK3D();
+	ManyBoneIK();
+	~ManyBoneIK();
 	void set_dirty();
 	real_t get_kusudama_twist_current(int32_t p_index) const;
 	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
-
 	void setup_humanoid_bones(bool set_targets);
-
 	void set_setup_humanoid_bones(bool set_targets);
-
 	bool get_setup_humanoid_bones() const;
-	void create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
+	void create_pin_target_node(ManyBoneIK *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
 };
 
-VARIANT_ENUM_CAST(ManyBoneIK3D::HumanoidMode);
+VARIANT_ENUM_CAST(ManyBoneIK::HumanoidMode);
 
 #endif // MANY_BONE_IK_3D_H

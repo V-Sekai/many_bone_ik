@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  ik_effector_3d.h                                                      */
+/*  many_bone_ik_3d_handle_gizmo_plugin.h                                 */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,63 +28,61 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef IK_EFFECTOR_3D_H
-#define IK_EFFECTOR_3D_H
+#ifndef MANY_BONE_IK_3D_HANDLE_GIZMO_PLUGIN_H
+#define MANY_BONE_IK_3D_HANDLE_GIZMO_PLUGIN_H
 
-#include "math/ik_node_3d.h"
+#include "../src/ik_bone_3d.h"
+#include "../src/many_bone_ik_3d.h"
+#include "many_bone_ik_shader.h"
 
-#include "core/object/ref_counted.h"
+#include "core/templates/hash_map.h"
+#include "core/templates/local_vector.h"
+#include "editor/editor_inspector.h"
+#include "editor/editor_node.h"
+#include "editor/editor_properties.h"
+#include "editor/editor_settings.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
+#include "editor/plugins/skeleton_3d_editor_plugin.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/label_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/node_3d.h"
 #include "scene/3d/skeleton_3d.h"
+#include "scene/resources/immediate_mesh.h"
 
-#define MIN_SCALE 0.1
+class Joint;
+class PhysicalBone3D;
+class ManyBoneIKEditorPlugin;
+class Button;
 
-class ManyBoneIK;
-class IKBone3D;
-
-class IKEffector3D : public Resource {
-	GDCLASS(IKEffector3D, Resource);
-	friend class IKBone3D;
-	friend class IKBoneSegment3D;
-
-	Ref<IKBone3D> for_bone;
-	bool use_target_node_rotation = true;
-	NodePath target_node_path;
-	ObjectID target_node_cache;
-	Node *target_node_reference = nullptr;
-
-	Transform3D target_relative_to_skeleton_origin;
-	int32_t num_headings = 7;
-	// See IKEffectorTemplate to change the defaults.
-	real_t weight = 0.0;
-	real_t passthrough_factor = 0.0;
-	PackedVector3Array target_headings;
-	PackedVector3Array tip_headings;
-	Vector<real_t> heading_weights;
-	Vector3 direction_priorities;
+class ManyBoneIK3DHandleGizmoPlugin : public EditorNode3DGizmoPlugin {
+	GDCLASS(ManyBoneIK3DHandleGizmoPlugin, EditorNode3DGizmoPlugin);
+	Ref<Shader> kusudama_shader;
 
 protected:
 	static void _bind_methods();
 
 public:
-	IKEffector3D() = default;
-	void set_weight(real_t p_weight);
-	real_t get_weight() const;
-	void set_direction_priorities(Vector3 p_direction_priorities);
-	Vector3 get_direction_priorities() const;
-	void update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK *p_modification = nullptr);
-	const float MAX_KUSUDAMA_LIMIT_CONES = 30;
-	float get_passthrough_factor() const;
-	void set_passthrough_factor(float p_passthrough_factor);
-	void set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path);
-	NodePath get_target_node() const;
-	Transform3D get_target_global_transform() const;
-	void set_target_node_rotation(bool p_use);
-	bool get_target_node_rotation() const;
-	Ref<IKBone3D> get_ik_bone_3d() const;
-	bool is_following_translation_only() const;
-	int32_t update_effector_target_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone, const Vector<double> *p_weights) const;
-	int32_t update_effector_tip_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone) const;
-	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
+	const Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
+	const int32_t KUSUDAMA_MAX_CONES = 10;
+	bool has_gizmo(Node3D *p_spatial) override;
+	String get_gizmo_name() const override;
+	void redraw(EditorNode3DGizmo *p_gizmo) override;
+	ManyBoneIK3DHandleGizmoPlugin();
+	int32_t get_priority() const override;
+	void create_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK *p_many_bone_ik);
+	void create_twist_gizmo_handles(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK *p_many_bone_ik);
 };
 
-#endif // IK_EFFECTOR_3D_H
+class EditorPluginManyBoneIKHandle : public EditorPlugin {
+	GDCLASS(EditorPluginManyBoneIKHandle, EditorPlugin);
+
+public:
+	EditorPluginManyBoneIKHandle() {
+		Ref<ManyBoneIK3DHandleGizmoPlugin> many_bone_ik_gizmo_plugin;
+		many_bone_ik_gizmo_plugin.instantiate();
+		Node3DEditor::get_singleton()->add_gizmo_plugin(many_bone_ik_gizmo_plugin);
+	}
+};
+
+#endif // MANY_BONE_IK_3D_HANDLE_GIZMO_PLUGIN_H
