@@ -49,6 +49,7 @@
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
+#include "scene/gui/control.h"
 #include "scene/resources/capsule_shape_3d.h"
 #include "scene/resources/primitive_meshes.h"
 #include "scene/resources/sphere_shape_3d.h"
@@ -115,6 +116,9 @@ void ManyBoneIK3DHandleGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				}
 				// TODO Find nearby pins for usability improvment.
 				int32_t pin_i = many_bone_ik->find_constraint(ik_bone->get_name());
+				if (pin_i == -1) {
+					continue;
+				}
 				String node_path = many_bone_ik->get_pin_nodepath(pin_i);
 				if (node_path.is_empty()) {
 					continue;
@@ -235,7 +239,7 @@ void ManyBoneIK3DHandleGizmoPlugin::create_gizmo_handles(BoneId current_bone_idx
 		{
 			Ref<IKLimitCone3D> limit_cone = ik_kusudama->get_limit_cones()[current_cone];
 			Vector3 perpendicular = limit_cone->get_tangent_circle_center_next_1();
-			Vector3 maw_axis = center.cross(perpendicular);
+			Vector3 maw_axis = center.cross(perpendicular).normalized();
 			if (Math::is_zero_approx(maw_axis.length_squared())) {
 				maw_axis = Vector3(0, 1, 0);
 			}

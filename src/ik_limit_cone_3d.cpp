@@ -45,7 +45,7 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 		Vector3 A = get_control_point();
 		Vector3 B = p_next->get_control_point();
 
-		Vector3 arc_normal = A.cross(B);
+		Vector3 arc_normal = A.cross(B).normalized();
 
 		/**
 		 * There are an infinite number of circles co-tangent with A and B, every other
