@@ -1528,8 +1528,7 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 	if (!get_owner()) {
 		return;
 	}
-
-	PhysicalBone3D *physical_bone_3d = nullptr;
+	Marker3D *marker_3d = nullptr;
 	TypedArray<Node> children = get_owner()->find_children("*", "");
 
 	for (int i = 0; i < children.size(); ++i) {
@@ -1540,25 +1539,19 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 			break;
 		}
 	}
-	if (!physical_bone_3d) {
-		physical_bone_3d = memnew(PhysicalBone3D);
-		physical_bone_3d->set_name(bone_name);
-		physical_bone_3d->set_bone_name(bone_name);
-
-		for (int i = 0; i < children.size(); ++i) {
-			Node *node = cast_to<Node>(children[i]);
-
-			if (String(node->get_name()) == bone_name_parent) {
-				skeleton->add_child(physical_bone_3d, true);
-				physical_bone_3d->set_owner(get_owner());
-				break;
-			}
-		}
+	if (marker_3d) {
+		// Delete the existing Marker3D
+		marker_3d->queue_free();
 	}
-	physical_bone_3d->set_global_transform(
+	marker_3d = memnew(Marker3D);
+	marker_3d->set_name(bone_name);
+	marker_3d->set_gizmo_extents(0.15f);
+	marker_3d->set_global_transform(
 			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
-	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(physical_bone_3d));
+	skeleton->add_child(marker_3d);
+	marker_3d->set_owner(get_owner());
+	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(marker_3d));
 }
 
 void ManyBoneIK3D::set_kusudama_painfulness(int32_t p_index, real_t p_painfulness) {
