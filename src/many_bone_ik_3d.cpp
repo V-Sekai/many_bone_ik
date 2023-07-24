@@ -800,8 +800,8 @@ void ManyBoneIK::execute(real_t delta) {
 			return;
 		}
 		Skeleton3D *skeleton = get_skeleton();
-		godot_skeleton_transform->set_transform(skeleton->get_global_transform());
-		godot_skeleton_transform_inverse = skeleton->get_global_transform().affine_inverse();
+		godot_skeleton_transform->set_transform(skeleton->get_transform());
+		godot_skeleton_transform_inverse = skeleton->get_transform().affine_inverse();
 	}
 	bool has_pins = false;
 	for (Ref<IKEffectorTemplate3D> pin : pins) {
