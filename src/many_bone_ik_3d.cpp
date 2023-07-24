@@ -759,6 +759,9 @@ void ManyBoneIK3D::set_pin_bone_name(int32_t p_effector_index, StringName p_name
 
 void ManyBoneIK3D::set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path) {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
+	if (!String(p_node_path).is_valid_filename()) {
+		return;
+	}
 	Node *node = get_node_or_null(p_node_path);
 	if (!node) {
 		return;
@@ -1417,8 +1420,8 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	reset_constraints();
 	set_pin_count(bone_count);
 	set_constraint_count(bone_count);
-	Vector<String> ignored_root_bones = { "Root" };
 	Vector<String> bones = {
+		"Root",
 		"Head",
 		"LeftHand",
 		"RightHand",
@@ -1433,8 +1436,8 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			create_pin_target_node(this, skeleton, bone_name, get_name());
 		}
 		set_pin_bone_name(constraint_id, bone_name);
+		set_pin_passthrough_factor(constraint_id, 0);
 		set_constraint_name(constraint_id, bone_name);
-		set_pin_passthrough_factor(constraint_id, 1.0f);
 		set_kusudama_limit_cone_count(constraint_id, 1);
 		const int FIRST_CONE = 0;
 		const int SECOND_CONE = 1;
@@ -1522,6 +1525,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(10.0f));
 		}
+		if (humanoid_profile->has_bone(bone_name) && bone_name != "Root") {
+			set_pin_passthrough_factor(constraint_id, 1.0);
+		}
 	}
 	Dictionary bone_rotation_ranges;
 	for (int i = 0; i < bone_rotation_ranges.size(); ++i) {
@@ -1550,21 +1556,24 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 	if (!get_owner()) {
 		return;
 	}
+	int32_t pin_i = find_effector_id(bone_name);
+	NodePath path = get_pin_nodepath(pin_i);
+	Node *node = get_node(path);
 	Marker3D *marker_3d = nullptr;
-	TypedArray<Node> children = get_owner()->find_children("*", "");
-	if (marker_3d) {
-		marker_3d->get_parent()->remove_child(marker_3d);
-		marker_3d->queue_free();
+	if (node) {
+		marker_3d = cast_to<Marker3D>(node);
 	}
-	marker_3d = memnew(Marker3D);
-	marker_3d->set_name(bone_name);
-	marker_3d->set_gizmo_extents(0.15f);
+	if (!marker_3d) {
+		marker_3d = memnew(Marker3D);
+		marker_3d->set_name(bone_name);
+		add_child(marker_3d);
+		marker_3d->set_owner(get_owner());
+	}
+	marker_3d->set_gizmo_extents(0.10f);
 	marker_3d->set_global_transform(
 			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
-	skeleton->add_child(marker_3d);
-	marker_3d->set_owner(get_owner());
-	ik_instance->set_pin_nodepath(effector_id, ik_instance->get_path_to(marker_3d));
+	ik_instance->set_pin_nodepath(effector_id, bone_name);
 }
 
 void ManyBoneIK3D::set_kusudama_painfulness(int32_t p_index, real_t p_painfulness) {
