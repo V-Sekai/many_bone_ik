@@ -542,12 +542,10 @@ void ManyBoneIK3D::_bind_methods() {
 }
 
 ManyBoneIK3D::ManyBoneIK3D() {
-	timer->set_autostart(true);
-	timer->set_owner(get_owner());
+	add_child(timer);
 	timer->set_wait_time(0.1);
 	timer->set_one_shot(true);
 	timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
-	add_child(timer);
 	timer->set_owner(get_owner());
 }
 
@@ -942,12 +940,12 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 
 void ManyBoneIK3D::set_dirty() {
 	timer->start();
-    is_dirty = true;
-    is_gizmo_dirty = true;
+	is_dirty = true;
+	is_gizmo_dirty = true;
 }
 
 void ManyBoneIK3D::_on_timer_timeout() {
-    notify_property_list_changed();
+	notify_property_list_changed();
 }
 
 int32_t ManyBoneIK3D::find_constraint(String p_string) const {
