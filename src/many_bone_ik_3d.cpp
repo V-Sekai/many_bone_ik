@@ -668,7 +668,7 @@ void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_constraint_index, int
 		cone.x = forward_axis.x;
 		cone.y = forward_axis.y;
 		cone.z = forward_axis.z;
-		cone.w = Math::deg_to_rad(5.0f);
+		cone.w = Math::deg_to_rad(10.0f);
 	}
 }
 
