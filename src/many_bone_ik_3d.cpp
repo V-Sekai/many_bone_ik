@@ -1210,7 +1210,6 @@ void ManyBoneIK3D::set_ui_selected_bone(int32_t p_ui_selected_bone) {
 	ui_selected_bone = p_ui_selected_bone;
 }
 
-
 void ManyBoneIK3D::set_stabilization_passes(int32_t p_passes) {
 	stabilize_passes = p_passes;
 	set_dirty();
@@ -1387,13 +1386,19 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			create_pin_target_node(this, skeleton, bone_name, get_name());
 		}
 		set_pin_bone_name(constraint_id, bone_name);
-		set_pin_passthrough_factor(constraint_id, 0);
 		set_constraint_name(constraint_id, bone_name);
 		set_kusudama_limit_cone_count(constraint_id, 1);
 		const int FIRST_CONE = 0;
 		const int SECOND_CONE = 1;
 		Vector3 forward = Vector3(0, 1, 0);
 		Vector3 backwards = -forward;
+		double rotation_range = Math::deg_to_rad(140.0);
+		double from_angle = 0.0;
+		if (humanoid_profile->has_bone(bone_name) && bone_name != "Root") {
+			set_pin_passthrough_factor(constraint_id, 1.0);
+		} else {
+			set_pin_passthrough_factor(constraint_id, 0);
+		}
 		if (bone_name == "Spine" || bone_name == "Chest") {
 			set_kusudama_painfulness(constraint_id, 0.9);
 			set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
@@ -1473,21 +1478,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		} else {
 			set_kusudama_painfulness(constraint_id, 0.1);
 		}
-		if (humanoid_profile->has_bone(bone_name) && bone_name != "Root") {
-			set_pin_passthrough_factor(constraint_id, 1.0);
-		}
-	}
-	Dictionary bone_rotation_ranges;
-	for (int i = 0; i < bone_rotation_ranges.size(); ++i) {
-		String bone_name = bone_rotation_ranges.keys()[i];
-		int32_t constraint_id = find_constraint(bone_name);
-		if (constraint_id != -1) {
-			double initial_angle = get_kusudama_twist(constraint_id).x;
-			double rotation_range = bone_rotation_ranges[bone_name];
-			rotation_range = Math::deg_to_rad(rotation_range);
-			double from_angle = initial_angle - (rotation_range / 2.0f);
-			set_kusudama_twist(constraint_id, Vector2(from_angle, rotation_range));
-		}
+		set_kusudama_twist(constraint_id, Vector2(from_angle, rotation_range));
 	}
 	is_setup_humanoid_bones = false;
 	set_constraint_mode(true);
