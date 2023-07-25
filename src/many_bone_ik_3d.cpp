@@ -586,7 +586,7 @@ void ManyBoneIK3D::set_constraint_count(int32_t p_count) {
 		Transform3D bone_transform = get_bone_direction_transform(constraint_i);
 		Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
 		double initial_angle = atan2(forward.y, forward.x);
-		kusudama_twist.write[constraint_i] = Vector2(initial_angle, Math_TAU);
+		kusudama_twist.write[constraint_i] = Vector2(initial_angle, Math::deg_to_rad(5.0f));
 		bone_stiffness.write[constraint_i] = 0.0f;
 	}
 	set_dirty();
@@ -1518,6 +1518,8 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_pin_passthrough_factor(constraint_id, 0.0f);
 			set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(10.0f));
+		} else {
+			set_kusudama_painfulness(constraint_id, 0.1);
 		}
 		if (humanoid_profile->has_bone(bone_name) && bone_name != "Root") {
 			set_pin_passthrough_factor(constraint_id, 1.0);
@@ -1528,9 +1530,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		String bone_name = bone_rotation_ranges.keys()[i];
 		int32_t constraint_id = find_constraint(bone_name);
 		if (constraint_id != -1) {
-			Transform3D bone_transform = get_bone_direction_transform(constraint_id);
-			Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
-			double initial_angle = atan2(forward.y, forward.x);
+			double initial_angle = get_kusudama_twist(constraint_id).x;
 			double rotation_range = bone_rotation_ranges[bone_name];
 			rotation_range = Math::deg_to_rad(rotation_range);
 			double from_angle = initial_angle - (rotation_range / 2.0f);
