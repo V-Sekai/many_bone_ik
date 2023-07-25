@@ -364,16 +364,4 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 		}
 		p_gizmo->add_handles(handles, get_material("handles_axial_middle"), Vector<int>(), true, true);
 	}
-	{
-		float current_angle = kusudama->get_min_axial_angle() + Math::abs(ik_kusudama->get_current_twist_rotation(ik_bone) * ik_kusudama->get_range_angle());
-		const Point2 a = Vector2(Math::sin(current_angle), Math::cos(current_angle)) * w;
-		Transform3D center_relative_to_mesh;
-		Transform3D axial_from_relative_to_mesh;
-		axial_from_relative_to_mesh.origin = center_relative_to_mesh.xform(Vector3(a.x, -d, a.y));
-		Transform3D axial_transform = constraint_twist_transform * axial_from_relative_to_mesh;
-		Vector3 handle_position = (axial_transform).origin;
-		Vector<Vector3> handles_current;
-		handles_current.push_back(handle_position);
-		p_gizmo->add_handles(handles_current, get_material("handles_axial_current"), Vector<int>(), true, true);
-	}
 }

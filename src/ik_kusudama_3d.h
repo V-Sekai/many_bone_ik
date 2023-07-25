@@ -211,8 +211,6 @@ public:
 	 */
 	TypedArray<IKLimitCone3D> get_limit_cones() const;
 	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
-	real_t get_current_twist_rotation(Ref<IKBone3D> bone_attached_to);
-	void set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation);
 	float get_painfulness();
 	void set_painfulness(float p_painfulness);
 	float get_stiffness();
