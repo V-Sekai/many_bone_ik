@@ -132,8 +132,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	const Vector<Ref<IKBone3D>> ik_bones = get_bone_list();
 
 	RBSet<String> existing_constraints;
-	for (int32_t constraint_i = 0; constraint_i < ik_bones.size(); constraint_i++) {
-		const String name = ik_bones[constraint_i]->get_name();
+	for (int32_t constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
+		const String name = get_constraint_name(constraint_i);
 		existing_constraints.insert(name);
 	}
 	p_list->push_back(
@@ -668,7 +668,7 @@ void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_constraint_index, int
 		cone.x = forward_axis.x;
 		cone.y = forward_axis.y;
 		cone.z = forward_axis.z;
-		cone.w = Math::deg_to_rad(0.0f);
+		cone.w = Math::deg_to_rad(5.0f);
 	}
 }
 
