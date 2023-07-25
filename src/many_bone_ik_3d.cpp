@@ -140,7 +140,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			PropertyInfo(Variant::INT, "constraint_count",
 					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Kusudama Constraints,constraints/"));
-	for (int constraint_i = 0; constraint_i < ik_bones.size(); constraint_i++) {
+	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
 		const uint32_t constraint_usage = PROPERTY_USAGE_DEFAULT;
@@ -148,8 +148,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
-			for (int bone_i = 0; bone_i < ik_bones.size(); bone_i++) {
-				String name = ik_bones[bone_i]->get_name();
+			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
+				String name = get_skeleton()->get_bone_name(bone_i);
 				if (existing_constraints.has(name)) {
 					continue;
 				}
@@ -928,7 +928,9 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 }
 
 void ManyBoneIK3D::set_dirty() {
-	timer->start();
+	if (timer->is_inside_tree()) {
+		timer->start();
+	}
 	is_dirty = true;
 	is_gizmo_dirty = true;
 }
