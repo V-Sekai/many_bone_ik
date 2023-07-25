@@ -1410,6 +1410,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
 	ERR_FAIL_NULL(skeleton);
+	skeleton->set_show_rest_only(true);
 	skeleton->reset_bone_poses();
 	Ref<SkeletonProfileHumanoid> humanoid_profile = memnew(SkeletonProfileHumanoid);
 	PackedStringArray humanoid_bones;
@@ -1444,7 +1445,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		Transform3D bone_transform = get_bone_direction_transform(constraint_id);
 		Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
 		double initial_angle = atan2(forward.y, forward.x);
-		set_kusudama_twist(constraint_id, Vector2(initial_angle, Math::deg_to_rad(5.0f)));
+		set_kusudama_twist(constraint_id, Vector2(initial_angle, Math::deg_to_rad(120.0f)));
 		Quaternion twist_rotation, swing_rotation;
 		IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
 		Vector3 backwards = -forward;
@@ -1544,7 +1545,8 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		}
 	}
 	is_setup_humanoid_bones = false;
-	set_constraint_mode(false);
+	set_constraint_mode(true);
+	skeleton->set_show_rest_only(false);
 }
 
 void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent) {
@@ -1570,6 +1572,8 @@ void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D 
 		marker_3d->set_owner(get_owner());
 	}
 	marker_3d->set_gizmo_extents(0.10f);
+
+	Ref<SkeletonProfileHumanoid> humanoid_profile = memnew(SkeletonProfileHumanoid);
 	marker_3d->set_global_transform(
 			skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i));
 	int32_t effector_id = ik_instance->find_effector_id(bone_name);
