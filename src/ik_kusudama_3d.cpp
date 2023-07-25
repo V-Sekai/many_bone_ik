@@ -299,7 +299,6 @@ void IKKusudama3D::set_limit_cones(TypedArray<IKLimitCone3D> p_cones) {
 	limit_cones = p_cones;
 }
 
-
 void IKKusudama3D::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen) {
 	if (bone_direction.is_null()) {
 		return;
