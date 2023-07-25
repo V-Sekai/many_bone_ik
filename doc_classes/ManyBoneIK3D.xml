@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="ManyBoneIK3D" inherits="Node3D" is_experimental="true" version="4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+<class name="ManyBoneIK3D" inherits="Node3D" is_experimental="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
 		A general inverse kinematics system with constraints.
 	</brief_description>
@@ -295,9 +295,6 @@
 		</member>
 		<member name="default_damp" type="float" setter="set_default_damp" getter="get_default_damp" default="0.0872665">
 			The default maximum number of radians a bone is allowed to rotate per solver iteration. The lower this value, the more natural the pose results. However, this will increase the number of iterations_per_frame the solver requires to converge.
-		</member>
-		<member name="humanoid_mode" type="int" setter="set_humanoid_mode" getter="get_humanoid_mode" default="2">
-			An integer value indicating the mode of the humanoid structure. Different modes may represent different configurations or behaviors.
 		</member>
 		<member name="iterations_per_frame" type="float" setter="set_iterations_per_frame" getter="get_iterations_per_frame" default="10.0">
 			The number of iterations performed by the solver per frame. A higher value will result in more accurate poses but may impact performance.
