@@ -1426,7 +1426,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		"Head",
 		"LeftHand",
 		"RightHand",
-		"Hips",
 		"LeftFoot",
 		"RightFoot",
 	};
@@ -1442,12 +1441,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		set_kusudama_limit_cone_count(constraint_id, 1);
 		const int FIRST_CONE = 0;
 		const int SECOND_CONE = 1;
-		Transform3D bone_transform = get_bone_direction_transform(constraint_id);
-		Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
-		double initial_angle = atan2(forward.y, forward.x);
-		set_kusudama_twist(constraint_id, Vector2(initial_angle, Math::deg_to_rad(120.0f)));
-		Quaternion twist_rotation, swing_rotation;
-		IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
+		Vector3 forward = Vector3(0, 1, 0);
 		Vector3 backwards = -forward;
 		if (bone_name == "Spine" || bone_name == "Chest") {
 			set_kusudama_painfulness(constraint_id, 0.9);
