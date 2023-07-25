@@ -73,6 +73,7 @@ private:
 	NodePath skeleton_node_path = NodePath("..");
 	int32_t ui_selected_bone = -1, stabilize_passes = 4;
 	bool is_gizmo_dirty = false;
+	bool is_setup_humanoid_bones = false;
 	Timer *timer = memnew(Timer);
 
 	void _on_timer_timeout();
@@ -167,6 +168,9 @@ public:
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();
+	void setup_humanoid_bones(bool set_targets);
+	void set_setup_humanoid_bones(bool set_targets);
+	bool get_setup_humanoid_bones() const;
 	void create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
 };
 
