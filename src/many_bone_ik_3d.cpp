@@ -1404,9 +1404,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		} else {
 			set_kusudama_painfulness(constraint_id, 0.1);
 		}
-		double rotation_range = Math::deg_to_rad(140.0);
-		double from_angle = 0.0;
-		set_kusudama_twist(constraint_id, Vector2(from_angle, rotation_range));
 	}
 	is_setup_humanoid_bones = false;
 	set_constraint_mode(true);
