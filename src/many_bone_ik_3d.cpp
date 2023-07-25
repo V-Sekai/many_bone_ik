@@ -1365,7 +1365,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		} else if (bone_name.ends_with("Shoulder")) {
 			set_kusudama_painfulness(constraint_id, 0.6);
 			set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
-			set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(30.0f));
+			set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(60.0f));
 		} else if (bone_name.ends_with("UpperArm")) {
 			set_kusudama_painfulness(constraint_id, 0.5);
 			set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
