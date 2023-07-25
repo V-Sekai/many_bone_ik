@@ -647,7 +647,9 @@ float ManyBoneIK3D::get_kusudama_limit_cone_radius(int32_t p_constraint_index, i
 }
 
 int32_t ManyBoneIK3D::get_kusudama_limit_cone_count(int32_t p_constraint_index) const {
-	ERR_FAIL_INDEX_V(p_constraint_index, kusudama_limit_cone_count.size(), 0);
+	if (p_constraint_index < 0 || p_constraint_index >= kusudama_limit_cone_count.size()) {
+		return 0;
+	}
 	return kusudama_limit_cone_count[p_constraint_index];
 }
 
