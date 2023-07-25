@@ -49,8 +49,8 @@ void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
 	if (parent.is_valid()) {
 		parent->children.push_back(this);
 		godot_skeleton_aligned_transform->set_parent(parent->godot_skeleton_aligned_transform);
-		constraint_orientation_transform->set_parent(parent->bone_direction_transform);
-		constraint_twist_transform->set_parent(parent->bone_direction_transform);
+		constraint_orientation_transform->set_parent(parent->godot_skeleton_aligned_transform);
+		constraint_twist_transform->set_parent(parent->godot_skeleton_aligned_transform);
 	}
 }
 
