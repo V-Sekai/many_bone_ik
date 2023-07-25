@@ -178,8 +178,6 @@ public:
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();
-	real_t get_kusudama_twist_current(int32_t p_index) const;
-	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
 	void setup_humanoid_bones(bool set_targets);
 	void set_setup_humanoid_bones(bool set_targets);
 	bool get_setup_humanoid_bones() const;
