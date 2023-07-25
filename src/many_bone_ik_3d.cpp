@@ -573,7 +573,7 @@ void ManyBoneIK3D::set_constraint_count(int32_t p_count) {
 		Transform3D bone_transform = get_bone_direction_transform(constraint_i);
 		Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
 		double initial_angle = atan2(forward.y, forward.x);
-		kusudama_twist.write[constraint_i] = Vector2(initial_angle, Math::deg_to_rad(5.0f));
+		kusudama_twist.write[constraint_i] = Vector2(initial_angle, Math::deg_to_rad(Math_PI));
 		set_kusudama_stiffness(constraint_i, CMP_EPSILON);
 		set_kusudama_painfulness(constraint_i, CMP_EPSILON);
 	}
