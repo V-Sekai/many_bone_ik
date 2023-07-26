@@ -52,8 +52,6 @@
 #include "scene/resources/surface_tool.h"
 #include "scene/scene_string_names.h"
 
-#include "ik_effector_3d.h"
-
 void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &ManyBoneIK3DGizmoPlugin::get_gizmo_name);
 }
