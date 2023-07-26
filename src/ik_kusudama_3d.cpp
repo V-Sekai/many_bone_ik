@@ -32,7 +32,6 @@
 
 #include "core/math/quaternion.h"
 #include "ik_limit_cone_3d.h"
-#include "ik_node_3d.h"
 #include "math/ik_node_3d.h"
 
 void IKKusudama3D::_update_constraint() {
