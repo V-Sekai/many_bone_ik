@@ -964,7 +964,7 @@ void ManyBoneIK3D::_notification(int p_what) {
 			add_child(timer);
 			timer->set_owner(get_owner());
 			timer->start(true);
-			timer->set_wait_time(0.1);
+			timer->set_wait_time(0.5);
 			timer->set_one_shot(true);
 			timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
 			set_process_priority(1);
