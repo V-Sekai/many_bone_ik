@@ -45,7 +45,7 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 		Vector3 A = get_control_point();
 		Vector3 B = p_next->get_control_point();
 
-		Vector3 arc_normal = A.cross(B);
+		Vector3 arc_normal = A.cross(B).normalized();
 
 		/**
 		 * There are an infinite number of circles co-tangent with A and B, every other
@@ -73,7 +73,7 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 		double boundaryPlusTangentRadiusB = radB + tRadius;
 
 		// the axis of this cone, scaled to minimize its distance to the tangent contact points.
-		Vector3 scaledAxisA = A * cos(boundaryPlusTangentRadiusA);
+		Vector3 scaledAxisA = A * Math::cos(boundaryPlusTangentRadiusA);
 		// a point on the plane running through the tangent contact points
 		Quaternion temp_var = Quaternion(arc_normal, boundaryPlusTangentRadiusA);
 		Vector3 planeDir1A = temp_var.xform(A);
@@ -361,12 +361,12 @@ Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds)
 	if (Math::is_zero_approx(axis.length_squared()) || !axis.is_finite()) {
 		axis = Vector3(0, 1, 0);
 	}
-	Quaternion rot_to = Quaternion(axis.normalized(), get_radius());
+	Quaternion rot_to = Quaternion(axis, get_radius());
 	Vector3 axis_control_point = normalized_control_point;
 	if (Math::is_zero_approx(axis_control_point.length_squared())) {
 		axis_control_point = Vector3(0, 1, 0);
 	}
-	Vector3 result = rot_to.xform(axis_control_point.normalized());
+	Vector3 result = rot_to.xform(axis_control_point);
 	in_bounds->write[0] = -1;
 	return result;
 }
