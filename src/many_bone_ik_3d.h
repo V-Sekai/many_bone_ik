@@ -114,7 +114,6 @@ public:
 	bool get_pin_enabled(int32_t p_effector_index) const;
 	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	void register_skeleton();
-	void reset_constraints();
 	NodePath get_skeleton_node_path();
 	Skeleton3D *get_skeleton() const;
 	Vector<Ref<IKBone3D>> get_bone_list() const;
@@ -128,7 +127,7 @@ public:
 	StringName get_pin_bone_name(int32_t p_effector_index) const;
 	void set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path);
 	NodePath get_pin_nodepath(int32_t p_effector_index) const;
-	int32_t find_effector_id(StringName p_bone_name);
+	int32_t find_pin(StringName p_bone_name);
 	void set_pin_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
 	void set_pin_weight(int32_t p_pin_index, const real_t &p_weight);
 	real_t get_pin_weight(int32_t p_pin_index) const;
@@ -171,7 +170,7 @@ public:
 	void setup_humanoid_bones(bool set_targets);
 	void set_setup_humanoid_bones(bool set_targets);
 	bool get_setup_humanoid_bones() const;
-	void create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
+	void create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name);
 };
 
 #endif // MANY_BONE_IK_3D_H
