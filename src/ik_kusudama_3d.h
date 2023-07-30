@@ -65,7 +65,6 @@ class IKKusudama3D : public Resource {
 	Vector3 twist_tan;
 	bool flipped_bounds = false;
 	real_t painfulness = 0;
-	real_t stiffness = 0;
 
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
@@ -211,10 +210,10 @@ public:
 	 */
 	TypedArray<IKLimitCone3D> get_limit_cones() const;
 	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
+	real_t get_current_twist_rotation(Ref<IKBone3D> bone_attached_to);
+	void set_current_twist_rotation(Ref<IKBone3D> bone_attached_to, real_t p_rotation);
 	float get_painfulness();
 	void set_painfulness(float p_painfulness);
-	float get_stiffness();
-	void set_stiffness(float p_painfulness);
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_rotation, double p_cos_half_angle) {
 		Quaternion rotation = p_rotation;
 		double newCoeff = 1.0 - (p_cos_half_angle * abs(p_cos_half_angle));
@@ -230,6 +229,7 @@ public:
 		return rotation;
 	}
 	void set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float cos_half_returnfullness, float angle_returnfullness);
+
 	double _to_tau(double angle) {
 		double result = angle;
 		if (angle < 0) {
@@ -238,6 +238,7 @@ public:
 		result = fmod(result, (Math_PI * 2.0));
 		return result;
 	}
+
 	double signed_angle_difference(double min_angle, double p_super) {
 		double d = fmod(abs(min_angle - p_super), Math_TAU);
 		double r = d > Math_PI ? Math_TAU - d : d;

@@ -54,7 +54,7 @@ class IKNode3D : public RefCounted {
 	mutable int dirty = DIRTY_NONE;
 
 	Ref<IKNode3D> parent;
-	List<Ref<WeakRef>> children;
+	List<Ref<IKNode3D>> children;
 
 	bool disable_scale = false;
 

@@ -64,7 +64,7 @@
  * @author Peter Rose (adapted to Java)
  * @author Aleix Lafita (adapted to Java)
  * @author Eron Gjoni (adapted to EWB IK)
- * @author K. S. Ernest (iFire) Lee (adapted to ManyBoneIK3D)
+ * @author K. S. Ernest (iFire) Lee (adapted to ManyBoneIK)
  */
 
 class QCP {

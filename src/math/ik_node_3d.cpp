@@ -29,7 +29,6 @@
 /**************************************************************************/
 
 #include "ik_node_3d.h"
-#include "core/object/ref_counted.h"
 
 void IKNode3D::_propagate_transform_changed() {
 	Vector<Ref<IKNode3D>> to_remove;
@@ -120,25 +119,13 @@ bool IKNode3D::is_scale_disabled() const {
 }
 
 void IKNode3D::set_parent(Ref<IKNode3D> p_parent) {
-	if (Ref<IKNode3D>(this) == p_parent) {
-		return;
-	}
-
-	Ref<WeakRef> ref;
-	ref.instantiate();
-	ref->set_ref(this);
 	if (parent.is_valid()) {
-		parent->children.erase(ref);
+		parent->children.erase(this);
 	}
-
 	parent = p_parent;
-
 	if (p_parent.is_valid()) {
-		if (!p_parent->children.find(ref)) {
-			p_parent->children.push_back(ref);
-		}
+		parent->children.push_back(this);
 	}
-
 	_propagate_transform_changed();
 }
 
@@ -164,11 +151,7 @@ void IKNode3D::_notification(int p_what) {
 	}
 }
 void IKNode3D::cleanup() {
-	for (Ref<WeakRef> &child : children) {
-		Ref<IKNode3D> ik_node = child->get_ref();
-		if (ik_node.is_null()) {
-			continue;
-		}
-		ik_node->set_parent(Ref<IKNode3D>());
+	for (Ref<IKNode3D> &child : children) {
+		child->set_parent(Ref<IKNode3D>());
 	}
 }
