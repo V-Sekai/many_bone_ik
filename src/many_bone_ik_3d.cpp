@@ -513,8 +513,10 @@ void ManyBoneIK3D::set_constraint_count(int32_t p_count) {
 	kusudama_limit_cones.resize(p_count);
 	bone_painfulness.resize(p_count);
 	bone_stiffness.resize(p_count);
+	bone_damp.resize(p_count);
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
+		bone_damp.write[constraint_i] = Math::deg_to_rad(90.0f);
 		kusudama_limit_cone_count.write[constraint_i] = 0;
 		kusudama_limit_cones.write[constraint_i].resize(1);
 		kusudama_limit_cones.write[constraint_i].write[0] = Vector4(0, 1, 0, Math_PI);
