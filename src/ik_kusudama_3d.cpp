@@ -316,7 +316,7 @@ real_t IKKusudama3D::get_current_twist_rotation(Ref<IKBone3D> bone_attached_to) 
 			if (range_angle == 0.0) {
 				return 0;
 			}
-			return CLAMP(_to_tau(signed_angle_difference(angle, min_axial_angle)) / range_angle, 0, 1);
+			return _to_tau(signed_angle_difference(angle, min_axial_angle)) / range_angle;
 		}
 	}
 
