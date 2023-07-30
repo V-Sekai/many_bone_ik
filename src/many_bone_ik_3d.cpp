@@ -214,7 +214,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.1,exp", constraint_usage));
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "0,1,0.1", constraint_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count", PROPERTY_HINT_RANGE, "0,10,1", constraint_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
@@ -533,12 +533,6 @@ void ManyBoneIK3D::_bind_methods() {
 }
 
 ManyBoneIK3D::ManyBoneIK3D() {
-	add_child(timer);
-	timer->set_owner(get_owner());
-	timer->start();
-	timer->set_wait_time(0.1);
-	timer->set_one_shot(true);
-	timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
 }
 
 ManyBoneIK3D::~ManyBoneIK3D() {
@@ -593,6 +587,7 @@ inline StringName ManyBoneIK3D::get_constraint_name(int32_t p_index) const {
 void ManyBoneIK3D::set_kusudama_twist(int32_t p_index, Vector2 p_to) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist.write[p_index] = p_to;
+	set_dirty();
 }
 
 int32_t ManyBoneIK3D::find_effector_id(StringName p_bone_name) {
@@ -927,12 +922,12 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 }
 
 void ManyBoneIK3D::set_dirty() {
-    is_dirty = true;
-    is_gizmo_dirty = true;
+	is_dirty = true;
+	is_gizmo_dirty = true;
 }
 
 void ManyBoneIK3D::_on_timer_timeout() {
-    notify_property_list_changed();
+	notify_property_list_changed();
 }
 
 int32_t ManyBoneIK3D::find_constraint(String p_string) const {
@@ -965,6 +960,12 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 void ManyBoneIK3D::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
+			add_child(timer);
+			timer->set_owner(get_owner());
+			timer->start(true);
+			timer->set_wait_time(0.1);
+			timer->set_one_shot(true);
+			timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
 			set_process_priority(1);
 		} break;
 		case NOTIFICATION_ENTER_TREE: {
@@ -1219,6 +1220,7 @@ void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation
 		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone, p_rotation);
 		ik_bone->set_skeleton_bone_pose(get_skeleton());
 	}
+	set_dirty();
 }
 
 real_t ManyBoneIK3D::get_kusudama_twist_current(int32_t p_index) const {
@@ -1254,6 +1256,7 @@ int32_t ManyBoneIK3D::get_stabilization_passes() {
 
 void ManyBoneIK3D::set_twist_constraint_defaults(Dictionary p_defaults) {
 	twist_constraint_defaults = p_defaults;
+	set_dirty();
 }
 
 Dictionary ManyBoneIK3D::get_twist_constraint_defaults() {
@@ -1270,6 +1273,7 @@ Dictionary ManyBoneIK3D::get_orientation_constraint_defaults() {
 
 void ManyBoneIK3D::set_bone_direction_constraint_defaults(Dictionary p_defaults) {
 	bone_direction_constraint_defaults = p_defaults;
+	set_dirty();
 }
 
 Dictionary ManyBoneIK3D::get_bone_direction_constraint_defaults() {
@@ -1286,6 +1290,7 @@ Ref<IKNode3D> ManyBoneIK3D::get_godot_skeleton_transform() {
 
 void ManyBoneIK3D::set_humanoid_mode(int p_mode) {
 	humanoid_mode = HumanoidMode(p_mode);
+	set_dirty();
 }
 
 int ManyBoneIK3D::get_humanoid_mode() const {
