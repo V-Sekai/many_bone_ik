@@ -1200,7 +1200,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
 	ERR_FAIL_NULL(skeleton);
-	skeleton->set_show_rest_only(true);
 	skeleton->reset_bone_poses();
 	Ref<SkeletonProfileHumanoid> humanoid_profile = memnew(SkeletonProfileHumanoid);
 	PackedStringArray humanoid_bones;
@@ -1221,6 +1220,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	set_constraint_count(0);
 	for (int bone_i = 0; bone_i < bones.size(); bone_i++) {
 		String bone_name = bones[bone_i];
+		if (skeleton->get_parentless_bones().has(skeleton->find_bone(bone_name))) {
+			continue;
+		}
 		create_pin_target_node(this, skeleton, bone_name);
 		int32_t constraint_i = find_pin(bone_name);
 		if (constraint_i == -1) {
@@ -1246,6 +1248,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	set_constraint_count(humanoid_profile_bone_count);
 	for (int constraint_i = 0; constraint_i < humanoid_profile_bone_count; constraint_i++) {
 		String bone_name = humanoid_profile->get_bone_name(constraint_i);
+		if (skeleton->get_parentless_bones().has(skeleton->find_bone(bone_name))) {
+			continue;
+		}
 		set_constraint_name(constraint_i, bone_name);
 		set_kusudama_limit_cone_count(constraint_i, 1);
 		const int FIRST_CONE = 0;
@@ -1331,7 +1336,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	}
 	is_setup_humanoid_bones = false;
 	set_constraint_mode(true);
-	skeleton->set_show_rest_only(false);
 }
 
 void ManyBoneIK3D::create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name) {
