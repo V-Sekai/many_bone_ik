@@ -1364,6 +1364,7 @@ bool ManyBoneIK3D::is_bone_in_path_between_pins(int p_bone_idx, const HashSet<St
 void ManyBoneIK3D::set_setup_humanoid_bones(bool set_targets) {
 	is_setup_humanoid_bones = set_targets;
 	setup_humanoid_bones(is_setup_humanoid_bones);
+	set_dirty();
 }
 
 bool ManyBoneIK3D::get_setup_humanoid_bones() const {
