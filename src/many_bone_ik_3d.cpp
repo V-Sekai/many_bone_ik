@@ -1445,14 +1445,17 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
 			Vector3 backwards = -forward;
 			if (bone_name == "Spine" || bone_name == "Chest") {
+				set_kusudama_twist(constraint_id, Vector2(Math::deg_to_rad(10.0f), Math::deg_to_rad(5.0f)));
 				set_kusudama_painfulness(constraint_id, 0.9);
 				set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(2.5f));
 			} else if (bone_name == "UpperChest") {
+				set_kusudama_twist(constraint_id, Vector2(Math::deg_to_rad(-20.0f), Math::deg_to_rad(5.0f)));
 				set_kusudama_painfulness(constraint_id, 0.9);
 				set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, forward);
 				set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(10.0f));
 			} else if (bone_name == "Hips") {
+				set_kusudama_twist(constraint_id, Vector2(Math::deg_to_rad(-90.0f), Math::deg_to_rad(5.0f)));
 				set_kusudama_painfulness(constraint_id, 0.8);
 				set_kusudama_limit_cone_center(constraint_id, FIRST_CONE, Vector3(0, -1, 0));
 				set_kusudama_limit_cone_radius(constraint_id, FIRST_CONE, Math::deg_to_rad(10.0f));
