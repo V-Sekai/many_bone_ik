@@ -924,6 +924,7 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 void ManyBoneIK3D::set_dirty() {
 	is_dirty = true;
 	is_gizmo_dirty = true;
+	timer->start();
 }
 
 void ManyBoneIK3D::_on_timer_timeout() {
