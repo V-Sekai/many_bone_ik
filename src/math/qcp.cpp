@@ -87,7 +87,7 @@ Quaternion QCP::calculate_rotation() {
 		} else {
 			double q0 = Math::sqrt(0.5 * (1.0 + dot / norm_product));
 			double coeff = 1.0 / (2.0 * q0 * norm_product);
-			Vector3 q = v.cross(u);
+			Vector3 q = v.cross(u).normalized();
 			result = Quaternion(-coeff * q.x, -coeff * q.y, -coeff * q.z, q0).normalized();
 		}
 	} else {

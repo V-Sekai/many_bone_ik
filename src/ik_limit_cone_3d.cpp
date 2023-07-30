@@ -290,12 +290,12 @@ Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Ve
 	Vector3 c1xc2 = control_point.cross(next->control_point);
 	double c1c2dir = input.dot(c1xc2);
 	if (c1c2dir < 0.0) {
-		Vector3 c1xt1 = control_point.cross(tangent_circle_center_next_1);
-		Vector3 t1xc2 = tangent_circle_center_next_1.cross(next->control_point);
+		Vector3 c1xt1 = control_point.cross(tangent_circle_center_next_1).normalized();
+		Vector3 t1xc2 = tangent_circle_center_next_1.cross(next->control_point).normalized();
 		if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
 			double to_next_cos = input.dot(tangent_circle_center_next_1);
 			if (to_next_cos > tangent_circle_radius_next_cos) {
-				Vector3 plane_normal = tangent_circle_center_next_1.cross(input);
+				Vector3 plane_normal = tangent_circle_center_next_1.cross(input).normalized();
 				plane_normal.normalize();
 				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next);
 				return rotate_about_by.xform(tangent_circle_center_next_1);
@@ -306,11 +306,11 @@ Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Ve
 			return Vector3(NAN, NAN, NAN);
 		}
 	} else {
-		Vector3 t2xc1 = tangent_circle_center_next_2.cross(control_point);
-		Vector3 c2xt2 = next->control_point.cross(tangent_circle_center_next_2);
+		Vector3 t2xc1 = tangent_circle_center_next_2.cross(control_point).normalized();
+		Vector3 c2xt2 = next->control_point.cross(tangent_circle_center_next_2).normalized();
 		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
 			if (input.dot(tangent_circle_center_next_2) > tangent_circle_radius_next_cos) {
-				Vector3 plane_normal = tangent_circle_center_next_2.cross(input);
+				Vector3 plane_normal = tangent_circle_center_next_2.cross(input).normalized();
 				plane_normal.normalize();
 				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next);
 				return rotate_about_by.xform(tangent_circle_center_next_2);
@@ -357,7 +357,7 @@ Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds)
 		in_bounds->write[0] = 1.0;
 		return Vector3(NAN, NAN, NAN);
 	}
-	Vector3 axis = normalized_control_point.cross(normalized_input);
+	Vector3 axis = normalized_control_point.cross(normalized_input).normalized();
 	if (Math::is_zero_approx(axis.length_squared()) || !axis.is_finite()) {
 		axis = Vector3(0, 1, 0);
 	}
@@ -380,11 +380,11 @@ void IKLimitCone3D::set_tangent_circle_center_next_2(Vector3 point) {
 }
 
 Vector3 IKLimitCone3D::get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 input) const {
-	Vector3 c1xc2 = get_control_point().cross(next->control_point);
+	Vector3 c1xc2 = get_control_point().cross(next->control_point).normalized();
 	double c1c2dir = input.dot(c1xc2);
 	if (c1c2dir < 0.0) {
-		Vector3 c1xt1 = get_control_point().cross(tangent_circle_center_next_1);
-		Vector3 t1xc2 = tangent_circle_center_next_1.cross(next->get_control_point());
+		Vector3 c1xt1 = get_control_point().cross(tangent_circle_center_next_1).normalized();
+		Vector3 t1xc2 = tangent_circle_center_next_1.cross(next->get_control_point()).normalized();
 		if (input.dot(c1xt1) > 0.0f && input.dot(t1xc2) > 0.0f) {
 			Ref<IKRay3D> tan1ToInput = Ref<IKRay3D>(memnew(IKRay3D(tangent_circle_center_next_1, input)));
 			Vector3 result = tan1ToInput->get_intersects_plane(Vector3(0.0f, 0.0f, 0.0f), get_control_point(), next->get_control_point());
@@ -393,8 +393,8 @@ Vector3 IKLimitCone3D::get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 inp
 			return Vector3(NAN, NAN, NAN);
 		}
 	} else {
-		Vector3 t2xc1 = tangent_circle_center_next_2.cross(control_point);
-		Vector3 c2xt2 = next->get_control_point().cross(tangent_circle_center_next_2);
+		Vector3 t2xc1 = tangent_circle_center_next_2.cross(control_point).normalized();
+		Vector3 c2xt2 = next->get_control_point().cross(tangent_circle_center_next_2).normalized();
 		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
 			Ref<IKRay3D> tan2ToInput = Ref<IKRay3D>(memnew(IKRay3D(tangent_circle_center_next_2, input)));
 			Vector3 result = tan2ToInput->get_intersects_plane(Vector3(0.0f, 0.0f, 0.0f), get_control_point(), next->get_control_point());

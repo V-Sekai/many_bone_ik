@@ -153,7 +153,7 @@ Vector3 IKRay3D::plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc, Vector
 	u -= ta;
 	v -= ta;
 
-	n = u.cross(v);
+	n = u.cross(v).normalized();
 
 	w0 -= ta;
 	a = -(n.dot(w0));
@@ -177,7 +177,7 @@ void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 *u
 	ct = c;
 	pt = p;
 
-	m = Vector3(bc - ct).cross(ca - at);
+	m = Vector3(bc - ct).cross(ca - at).normalized();
 
 	real_t nu;
 	real_t nv;
