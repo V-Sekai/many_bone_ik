@@ -1275,6 +1275,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		"LeftFoot",
 		"RightFoot",
 	};
+	set_pin_count(0);
 	set_pin_count(bones.size());
 	Vector<String> ignored_root_bones = { "Root" };
 	TypedArray<Node> children = find_children("*", "Marker3D");
@@ -1302,17 +1303,23 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_pin_passthrough_factor(pin_i, 0.0f);
 		}
 	}
+	set_constraint_count(0);
 	for (int human_bone_i = 0; human_bone_i < humanoid_profile->get_bone_size(); human_bone_i++) {
 		String bone_name = humanoid_profile->get_bone_name(human_bone_i);
 		if (ignored_root_bones.has(bone_name)) {
 			continue;
 		}
-		if (!humanoid_profile->has_bone(bone_name)) {
-			continue;
-		}
 		int32_t constraint_i = get_constraint_count();
 		add_constraint();
 		set_constraint_name(constraint_i, bone_name);
+	}
+	skeleton_changed(get_skeleton());
+	for (int human_bone_i = 0; human_bone_i < humanoid_profile->get_bone_size(); human_bone_i++) {
+		String bone_name = humanoid_profile->get_bone_name(human_bone_i);
+		if (ignored_root_bones.has(bone_name)) {
+			continue;
+		}
+		int32_t constraint_i = find_constraint(bone_name);
 		set_kusudama_limit_cone_count(constraint_i, 1);
 		const int FIRST_CONE = 0;
 		const int SECOND_CONE = 1;
@@ -1340,6 +1347,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_kusudama_painfulness(constraint_i, 0.5);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(2.5f));
+		} else if (bone_name == "Head") {
+			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
+			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(15.0f));
 		} else if (bone_name.ends_with("UpperLeg")) {
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, backwards);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(25.0f));
@@ -1357,7 +1367,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			backwards.y += -1;
 			backwards.z += -1;
 			backwards.normalize();
-			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, backwards);
+			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, Vector3(0, -1, 0));
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(45.0f));
 		} else if (bone_name.ends_with("Shoulder")) {
 			set_kusudama_painfulness(constraint_i, 0.6);
@@ -1386,9 +1396,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		} else if (bone_name.ends_with("Thumb")) {
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(90.0f));
-		} else if (bone_name == "Head") {
-			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
-			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(15.0f));
 		} else if (bone_name.ends_with("Eye")) {
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(10.0f));
