@@ -185,7 +185,6 @@ public:
 	void set_setup_humanoid_bones(bool set_targets);
 
 	bool get_setup_humanoid_bones() const;
-	void create_pin_target_node(ManyBoneIK3D *ik_instance, Skeleton3D *skeleton, String bone_name, String bone_name_parent);
 };
 
 VARIANT_ENUM_CAST(ManyBoneIK3D::HumanoidMode);
