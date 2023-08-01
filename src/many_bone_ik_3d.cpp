@@ -150,10 +150,6 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 				if (existing_pins.has(string_name)) {
 					continue;
 				}
-				if (is_bone_part_of_humanoid_mode(string_name, HumanoidMode(get_humanoid_mode()))) {
-					name += ",";
-					names += name;
-				}
 			}
 			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			effector_name.hint_string = names;
@@ -458,8 +454,6 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void ManyBoneIK3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_humanoid_mode", "mode"), &ManyBoneIK3D::set_humanoid_mode);
-	ClassDB::bind_method(D_METHOD("get_humanoid_mode"), &ManyBoneIK3D::get_humanoid_mode);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform", "index"), &ManyBoneIK3D::get_constraint_orientation_transform);
@@ -1287,79 +1281,6 @@ Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
 
 Ref<IKNode3D> ManyBoneIK3D::get_godot_skeleton_transform() {
 	return godot_skeleton_transform;
-}
-
-void ManyBoneIK3D::set_humanoid_mode(int p_mode) {
-	humanoid_mode = HumanoidMode(p_mode);
-	set_dirty();
-}
-
-int ManyBoneIK3D::get_humanoid_mode() const {
-	return int(humanoid_mode);
-}
-
-bool ManyBoneIK3D::is_bone_part_of_humanoid_mode(const StringName &p_bone_name, ManyBoneIK3D::HumanoidMode p_humanoid_mode) const {
-	Ref<SkeletonProfileHumanoid> profile;
-	profile.instantiate();
-
-	HashSet<StringName> eleven_point_tracking_bones;
-	eleven_point_tracking_bones.insert(SNAME("Root"));
-	eleven_point_tracking_bones.insert(SNAME("Hips"));
-	eleven_point_tracking_bones.insert(SNAME("Head"));
-	eleven_point_tracking_bones.insert(SNAME("LeftHand"));
-	eleven_point_tracking_bones.insert(SNAME("RightHand"));
-	eleven_point_tracking_bones.insert(SNAME("LeftUpperArm"));
-	eleven_point_tracking_bones.insert(SNAME("RightUpperArm"));
-	eleven_point_tracking_bones.insert(SNAME("LeftLowerLeg"));
-	eleven_point_tracking_bones.insert(SNAME("RightLowerLeg"));
-	eleven_point_tracking_bones.insert(SNAME("LeftFoot"));
-	eleven_point_tracking_bones.insert(SNAME("RightFoot"));
-
-	HashSet<StringName> humanoid_bones;
-
-	for (int i = 0; i < profile->get_bone_size(); ++i) {
-		StringName profile_bone_name = profile->get_bone_name(i);
-
-		bool is_humanoid_bone = profile->has_bone(profile_bone_name);
-		if (is_humanoid_bone) {
-			humanoid_bones.insert(profile_bone_name);
-		}
-	}
-
-	BoneId current_bone_idx = get_skeleton()->find_bone(p_bone_name);
-	switch (p_humanoid_mode) {
-		case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_ALL:
-			return true;
-		case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_HUMANOID:
-			return humanoid_bones.has(p_bone_name) || is_bone_in_path_between_pins(current_bone_idx, humanoid_bones);
-		case ManyBoneIK3D::HumanoidMode::HUMANOID_MODE_BODY:
-			return eleven_point_tracking_bones.has(p_bone_name) || is_bone_in_path_between_pins(current_bone_idx, eleven_point_tracking_bones);
-		default:
-			return false;
-	}
-}
-
-bool ManyBoneIK3D::is_bone_in_path_between_pins(int p_bone_idx, const HashSet<StringName> &p_pins) const {
-	Skeleton3D *skeleton = get_skeleton();
-	if (!skeleton || p_pins.is_empty()) {
-		return false;
-	}
-
-	for (const StringName &pin : p_pins) {
-		int pin_bone_idx = skeleton->find_bone(pin);
-		if (pin_bone_idx == -1) {
-			continue;
-		}
-
-		while (pin_bone_idx != -1) {
-			if (pin_bone_idx == p_bone_idx) {
-				return true;
-			}
-			pin_bone_idx = skeleton->get_bone_parent(pin_bone_idx);
-		}
-	}
-
-	return false;
 }
 
 void ManyBoneIK3D::set_setup_humanoid_bones(bool set_targets) {

@@ -96,17 +96,6 @@ protected:
 	void _notification(int p_what);
 
 public:
-	enum class HumanoidMode : int32_t {
-		HUMANOID_MODE_ALL,
-		HUMANOID_MODE_HUMANOID,
-		HUMANOID_MODE_BODY,
-	};
-	bool is_bone_in_path_between_pins(int p_bone_idx, const HashSet<StringName> &p_pins) const;
-	bool is_bone_part_of_humanoid_mode(const StringName &bone_name, HumanoidMode humanoid_mode) const;
-	HumanoidMode humanoid_mode = HumanoidMode::HUMANOID_MODE_BODY;
-	void set_humanoid_mode(int p_mode);
-	int get_humanoid_mode() const;
-
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes();
 	void set_twist_constraint_defaults(Dictionary p_defaults);
@@ -186,7 +175,5 @@ public:
 
 	bool get_setup_humanoid_bones() const;
 };
-
-VARIANT_ENUM_CAST(ManyBoneIK3D::HumanoidMode);
 
 #endif // MANY_BONE_IK_3D_H
