@@ -96,6 +96,7 @@ protected:
 	void _notification(int p_what);
 
 public:
+	void add_constraint();
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes();
 	void set_twist_constraint_defaults(Dictionary p_defaults);
