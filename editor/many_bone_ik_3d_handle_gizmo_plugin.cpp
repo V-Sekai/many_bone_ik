@@ -286,7 +286,8 @@ void ManyBoneIK3DHandleGizmoPlugin::create_twist_gizmo_handles(BoneId current_bo
 	TypedArray<Vector3> axial_current_handles;
 	Vector<Vector3> axial_to_handles;
 
-	Transform3D constraint_twist_transform = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();	float cone_radius = Math::deg_to_rad(90.0f);
+	Transform3D constraint_twist_transform = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_twist_transform()->get_global_transform();
+	float cone_radius = Math::deg_to_rad(90.0f);
 	Vector3 v0 = many_bone_ik_skeleton->get_bone_global_rest(current_bone_idx).origin;
 	Vector3 v1 = many_bone_ik_skeleton->get_bone_global_rest(parent_idx).origin;
 	real_t dist = v0.distance_to(v1);
