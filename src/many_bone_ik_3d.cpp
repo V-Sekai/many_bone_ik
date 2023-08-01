@@ -1332,12 +1332,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	};
 	set_pin_count(bones.size());
 	Vector<String> ignored_root_bones = { "Root" };
-	Vector<String> torso_bones = {
-		"Hips",
-		"Spine",
-		"Chest",
-		"UpperChest"
-	};
 	for (int bone_i = 0; bone_i < bones.size(); bone_i++) {
 		String bone_name = bones[bone_i];
 		if (bones.has(bone_name)) {
