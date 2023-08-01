@@ -162,8 +162,6 @@ public:
 	int32_t get_kusudama_limit_cone_count(int32_t p_constraint_index) const;
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	int32_t get_bone_count() const;
-	void set_bone_damp(int32_t p_index, real_t p_damp);
-	real_t get_bone_damp(int32_t p_index) const;
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();
