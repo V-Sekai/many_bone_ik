@@ -137,7 +137,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			PropertyInfo(Variant::INT, "pin_count",
 					PROPERTY_HINT_RANGE, "0,65536,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Pins,pins/"));
-	for (int pin_i = 0; pin_i < pin_count; pin_i++) {
+	for (int pin_i = 0; pin_i < get_pin_count(); pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
@@ -180,7 +180,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 			PropertyInfo(Variant::INT, "constraint_count",
 					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Kusudama Constraints,constraints/"));
-	for (int constraint_i = 0; constraint_i < ik_bones.size(); constraint_i++) {
+	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
 		const uint32_t constraint_usage = PROPERTY_USAGE_DEFAULT;
@@ -188,8 +188,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
 			String names;
-			for (int bone_i = 0; bone_i < ik_bones.size(); bone_i++) {
-				String name = ik_bones[bone_i]->get_name();
+			for (int bone_i = 0; bone_i < get_constraint_count(); bone_i++) {
+				String name = get_constraint_name(bone_i);
 				if (existing_constraints.has(name)) {
 					continue;
 				}
@@ -322,7 +322,9 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 	} else if (name.begins_with("pins/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
-		ERR_FAIL_INDEX_V(index, pin_count, true);
+		if (index >= pins.size()) {
+			set_pin_count(constraint_count);
+		}
 		if (what == "bone_name") {
 			set_pin_bone(index, p_value);
 			return true;
@@ -347,10 +349,10 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
+		if (index >= constraint_names.size()) {
+			set_constraint_count(constraint_count);
+		}
 		if (what == "bone_name") {
-			if (index >= constraint_names.size()) {
-				set_constraint_count(constraint_count);
-			}
 			set_constraint_name(index, p_value);
 			return true;
 		} else if (what == "painfulness") {
@@ -1277,7 +1279,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	};
 	set_pin_count(0);
 	set_pin_count(bones.size());
-	Vector<String> ignored_root_bones = { "Root" };
 	TypedArray<Node> children = find_children("*", "Marker3D");
 	for (int i = 0; i < children.size(); ++i) {
 		Node *node = cast_to<Node>(children[i]);
@@ -1306,20 +1307,11 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	set_constraint_count(0);
 	for (int human_bone_i = 0; human_bone_i < humanoid_profile->get_bone_size(); human_bone_i++) {
 		String bone_name = humanoid_profile->get_bone_name(human_bone_i);
-		if (ignored_root_bones.has(bone_name)) {
-			continue;
-		}
-		int32_t constraint_i = get_constraint_count();
 		add_constraint();
-		set_constraint_name(constraint_i, bone_name);
+		set_constraint_name(human_bone_i, bone_name);
 	}
 	skeleton_changed(get_skeleton());
-	for (int human_bone_i = 0; human_bone_i < humanoid_profile->get_bone_size(); human_bone_i++) {
-		String bone_name = humanoid_profile->get_bone_name(human_bone_i);
-		if (ignored_root_bones.has(bone_name)) {
-			continue;
-		}
-		int32_t constraint_i = find_constraint(bone_name);
+	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		set_kusudama_limit_cone_count(constraint_i, 1);
 		const int FIRST_CONE = 0;
 		const int SECOND_CONE = 1;
@@ -1328,6 +1320,8 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		Quaternion twist_rotation, swing_rotation;
 		IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
 		Vector3 backwards = -forward;
+		set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(0.0f), Math::deg_to_rad(180.0f)));
+		String bone_name = get_constraint_name(constraint_i);
 		if (bone_name == "Spine" || bone_name == "Chest") {
 			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(10.0f), Math::deg_to_rad(5.0f)));
 			set_kusudama_painfulness(constraint_i, 0.9);
@@ -1351,9 +1345,11 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(15.0f));
 		} else if (bone_name.ends_with("UpperLeg")) {
+			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(0.0f), Math::deg_to_rad(90.0f)));
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, backwards);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(25.0f));
 		} else if (bone_name.ends_with("LowerLeg")) {
+			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(0.0f), Math::deg_to_rad(90.0f)));
 			set_kusudama_painfulness(constraint_i, 0.7);
 			set_kusudama_limit_cone_count(constraint_i, 2);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
@@ -1363,6 +1359,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_kusudama_limit_cone_center(constraint_i, SECOND_CONE, backwards);
 			set_kusudama_limit_cone_radius(constraint_i, SECOND_CONE, Math::deg_to_rad(2.5f));
 		} else if (bone_name.ends_with("Foot")) {
+			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(0.0f), Math::deg_to_rad(90.0f)));
 			set_kusudama_painfulness(constraint_i, 0.3);
 			backwards.y += -1;
 			backwards.z += -1;
@@ -1406,6 +1403,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	}
 	is_setup_humanoid_bones = false;
 }
+
 void ManyBoneIK3D::set_kusudama_painfulness(int32_t p_index, real_t p_painfulness) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
