@@ -1111,14 +1111,14 @@ void ManyBoneIK3D::register_skeleton() {
 void ManyBoneIK3D::reset_constraints() {
 	Skeleton3D *skeleton = get_skeleton();
 	if (skeleton) {
-		int32_t pin_count = get_pin_count();
+		int32_t saved_pin_count = get_pin_count();
 		set_pin_count(0);
-		set_pin_count(pin_count);
-		int32_t get_constraint_count = constraint_names.size();
+		set_pin_count(saved_pin_count);
+		int32_t saved_constraint_count = constraint_names.size();
 		set_constraint_count(0);
-		set_constraint_count(get_constraint_count);
+		set_constraint_count(saved_constraint_count);
 		_set_bone_count(0);
-		_set_bone_count(get_constraint_count);
+		_set_bone_count(saved_constraint_count);
 	}
 	set_dirty();
 }
