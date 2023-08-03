@@ -473,6 +473,21 @@ void fragment() {
 	edit_mode_button->set_tooltip_text(TTR("Edit Mode\nShow buttons on joints."));
 	Node3DEditor::get_singleton()->add_control_to_menu_panel(edit_mode_button);
 	edit_mode_button->connect("toggled", callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
+	constraint_from = memnew(SpinBox);
+	constraint_range = memnew(SpinBox);
+
+	constraint_from->set_min(0);
+	constraint_from->set_max(360);
+	constraint_from->set_step(1);
+	constraint_from->set_value(0);
+
+	constraint_range->set_min(0);
+	constraint_range->set_max(360);
+	constraint_range->set_step(1);
+	constraint_range->set_value(0);
+
+	Node3DEditor::get_singleton()->add_control_to_menu_panel(constraint_from);
+	Node3DEditor::get_singleton()->add_control_to_menu_panel(constraint_range);
 	edit_mode = false;
 	create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
 	kusudama_shader.instantiate();
@@ -557,6 +572,13 @@ int ManyBoneIK3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_
 
 	if (closest_idx >= 0) {
 		many_bone_ik->set_ui_selected_bone(closest_idx);
+		Vector2 constraint_twist = many_bone_ik->get_kusudama_twist(closest_idx);
+		constraint_from->set_value(Math::rad_to_deg(constraint_twist.x));
+		constraint_range->set_value(Math::rad_to_deg(constraint_twist.y));
+		constraint_from->connect("changed", callable_mp(many_bone_ik, &ManyBoneIK3D::set_kusudama_twist).bind(closest_idx, Vector2(Math::deg_to_rad(constraint_from->get_value()), constraint_twist.y)));
+		constraint_from->connect("changed", callable_mp(many_bone_ik, &ManyBoneIK3D::set_dirty));
+		constraint_range->connect("changed", callable_mp(many_bone_ik, &ManyBoneIK3D::set_kusudama_twist).bind(closest_idx, Vector2(constraint_twist.x, Math::deg_to_rad(constraint_range->get_value()))));
+		constraint_range->connect("changed", callable_mp(many_bone_ik, &ManyBoneIK3D::set_dirty));
 		return closest_idx;
 	}
 

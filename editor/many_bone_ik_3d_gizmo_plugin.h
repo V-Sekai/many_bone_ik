@@ -33,6 +33,7 @@
 
 #include "../src/ik_bone_3d.h"
 #include "../src/many_bone_ik_3d.h"
+#include "core/os/memory.h"
 #include "many_bone_ik_shader.h"
 
 #include "core/templates/hash_map.h"
@@ -48,6 +49,8 @@
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/3d/skeleton_3d.h"
+#include "scene/gui/panel.h"
+#include "scene/gui/spin_box.h"
 #include "scene/resources/immediate_mesh.h"
 
 class Joint;
@@ -72,6 +75,8 @@ class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	ManyBoneIK3D *many_bone_ik = nullptr;
 
 	Button *edit_mode_button = nullptr;
+	SpinBox *constraint_from = nullptr;
+	SpinBox *constraint_range = nullptr;
 	bool edit_mode = false;
 
 protected:
@@ -88,6 +93,10 @@ public:
 		if (edit_mode_button) {
 			Node3DEditor::get_singleton()->remove_control_from_menu_panel(edit_mode_button);
 			memdelete(edit_mode_button);
+			Node3DEditor::get_singleton()->add_control_to_menu_panel(constraint_from);
+			Node3DEditor::get_singleton()->add_control_to_menu_panel(constraint_range);
+			memdelete(constraint_from);
+			memdelete(constraint_range);
 		}
 	}
 	int32_t get_priority() const override;
