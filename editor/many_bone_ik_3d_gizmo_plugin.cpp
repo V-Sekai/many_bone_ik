@@ -140,6 +140,9 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
 		int child_bones_size = child_bones_vector.size();
 
+		Transform3D constraint_relative_to_the_skeleton = many_bone_ik->get_relative_transform(many_bone_ik->get_owner()).affine_inverse() *
+														  skeleton->get_relative_transform(skeleton->get_owner()) * many_bone_ik->get_godot_skeleton_transform_inverse();
+
 		for (int i = 0; i < child_bones_size; i++) {
 			// Something wrong.
 			if (child_bones_vector[i] < 0) {
@@ -148,8 +151,8 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 
 			int child_bone_idx = child_bones_vector[i];
 
-			Vector3 v0 = skeleton->get_bone_global_rest(current_bone_idx).origin;
-			Vector3 v1 = skeleton->get_bone_global_rest(child_bone_idx).origin;
+			Vector3 v0 = (constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(current_bone_idx)).origin;
+			Vector3 v1 = (constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(child_bone_idx)).origin;
 			Vector3 d = (v1 - v0).normalized();
 			real_t dist = v0.distance_to(v1);
 
@@ -157,7 +160,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			int closest = -1;
 			real_t closest_d = 0.0;
 			for (int j = 0; j < 3; j++) {
-				real_t dp = Math::abs(skeleton->get_bone_global_rest(current_bone_idx).basis[j].normalized().dot(d));
+				real_t dp = Math::abs((constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(current_bone_idx)).basis[j].normalized().dot(d));
 				if (j == 0 || dp > closest_d) {
 					closest = j;
 				}
@@ -184,7 +187,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					for (int j = 0; j < 3; j++) {
 						Vector3 axis;
 						if (first == Vector3()) {
-							axis = d.cross(d.cross(skeleton->get_bone_global_rest(current_bone_idx).basis[j])).normalized();
+							axis = d.cross(d.cross((constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(current_bone_idx)).basis[j])).normalized();
 							first = axis;
 						} else {
 							axis = d.cross(first).normalized();
@@ -239,7 +242,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 				surface_tool->add_vertex(v0);
 				surface_tool->set_bones(bones);
 				surface_tool->set_weights(weights);
-				surface_tool->add_vertex(v0 + (skeleton->get_bone_global_rest(current_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
+				surface_tool->add_vertex(v0 + ((constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(current_bone_idx)).basis.inverse())[j].normalized() * dist * bone_axis_length);
 
 				if (j == closest) {
 					continue;
@@ -256,7 +259,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					surface_tool->add_vertex(v1);
 					surface_tool->set_bones(bones);
 					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1 + (skeleton->get_bone_global_rest(child_bone_idx).basis.inverse())[j].normalized() * dist * bone_axis_length);
+					surface_tool->add_vertex(v1 + ((constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(child_bone_idx)).basis.inverse())[j].normalized() * dist * bone_axis_length);
 
 					if (j == closest) {
 						continue;
@@ -540,6 +543,7 @@ int ManyBoneIK3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_
 	int closest_idx = -1;
 	real_t closest_dist = 1e10;
 	const int bone_count = skeleton->get_bone_count();
+
 	for (int i = 0; i < bone_count; i++) {
 		Vector3 joint_pos_3d = gt.xform(skeleton->get_bone_global_pose(i).origin);
 		Vector2 joint_pos_2d = p_camera->unproject_position(joint_pos_3d);
@@ -564,13 +568,14 @@ Transform3D ManyBoneIK3DGizmoPlugin::get_subgizmo_transform(const EditorNode3DGi
 	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND_V(!skeleton, Transform3D());
 
-	return skeleton->get_bone_global_pose(p_id);
+	Transform3D constraint_relative_to_the_skeleton = many_bone_ik->get_relative_transform(many_bone_ik->get_owner()).affine_inverse() *
+													  skeleton->get_relative_transform(skeleton->get_owner()) * many_bone_ik->get_godot_skeleton_transform_inverse();
+	return constraint_relative_to_the_skeleton * skeleton->get_bone_global_pose(p_id);
 }
 
 void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) {
 	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND(!skeleton);
-
 	// Prepare for global to local.
 	Transform3D original_to_local;
 	int parent_idx = skeleton->get_bone_parent(p_id);
@@ -585,6 +590,9 @@ void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_
 	// Basis.
 	t.basis = to_local * p_transform.get_basis();
 
+	Transform3D constraint_relative_to_the_skeleton = many_bone_ik->get_relative_transform(many_bone_ik->get_owner()).affine_inverse() *
+													  skeleton->get_relative_transform(skeleton->get_owner()) * many_bone_ik->get_godot_skeleton_transform_inverse();
+	p_transform = constraint_relative_to_the_skeleton.affine_inverse() * p_transform;
 	// Origin.
 	Vector3 orig = skeleton->get_bone_pose(p_id).origin;
 	Vector3 sub = p_transform.origin - skeleton->get_bone_global_pose(p_id).origin;
@@ -594,6 +602,7 @@ void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_
 	skeleton->set_bone_pose_position(p_id, t.origin);
 	skeleton->set_bone_pose_rotation(p_id, t.basis.get_rotation_quaternion());
 	skeleton->set_bone_pose_scale(p_id, t.basis.get_scale());
+	many_bone_ik->update_gizmos();
 }
 
 void ManyBoneIK3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) {
@@ -607,11 +616,11 @@ void ManyBoneIK3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo,
 	ur->create_action(TTR("Set Bone Transform"));
 	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE) {
 		for (int i = 0; i < p_ids.size(); i++) {
-			int32_t constraint_i  = many_bone_ik->find_constraint(skeleton->get_bone_name(p_ids[i]));
+			int32_t constraint_i = many_bone_ik->find_constraint(skeleton->get_bone_name(p_ids[i]));
 			float from_original = many_bone_ik->get_kusudama_twist(constraint_i).x;
 			float range = many_bone_ik->get_kusudama_twist(constraint_i).y;
 			ur->add_do_method(many_bone_ik, "set_kusudama_twist", constraint_i, Vector2(skeleton->get_bone_pose(p_ids[i]).get_basis().get_euler().y, range));
-			ur->add_undo_method(many_bone_ik, "set_kusudama_twist", constraint_i,  Vector2(from_original, range));
+			ur->add_undo_method(many_bone_ik, "set_kusudama_twist", constraint_i, Vector2(from_original, range));
 			ur->add_do_method(many_bone_ik, "set_dirty");
 			ur->add_undo_method(many_bone_ik, "set_dirty");
 		}
