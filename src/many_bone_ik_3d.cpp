@@ -141,7 +141,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		const uint32_t constraint_usage = PROPERTY_USAGE_DEFAULT;
+		const uint32_t constraint_usage = PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NO_EDITOR;
 		bone_name.usage = constraint_usage;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
