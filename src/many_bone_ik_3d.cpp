@@ -134,14 +134,14 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = ik_bones[constraint_i]->get_name();
 		existing_constraints.insert(name);
 	}
+	const uint32_t constraint_usage = PROPERTY_USAGE_STORAGE;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "constraint_count",
-					PROPERTY_HINT_RANGE, "0,256,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+					PROPERTY_HINT_RANGE, "0,256,or_greater", constraint_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Kusudama Constraints,constraints/"));
 	for (int constraint_i = 0; constraint_i < get_constraint_count(); constraint_i++) {
 		PropertyInfo bone_name;
 		bone_name.type = Variant::STRING_NAME;
-		const uint32_t constraint_usage = PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NO_EDITOR;
 		bone_name.usage = constraint_usage;
 		bone_name.name = "constraints/" + itos(constraint_i) + "/bone_name";
 		if (get_skeleton()) {
@@ -180,26 +180,26 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians,exp", constraint_usage));
 		}
 		p_list->push_back(
-				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_NONE, "", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_orientation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_orientation", PROPERTY_HINT_NONE, "", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/bone_direction", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
+				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/bone_direction", PROPERTY_HINT_NONE, "", constraint_usage));
 	}
 	RBSet<StringName> existing_pins;
 	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
+	const uint32_t pin_usage = PROPERTY_USAGE_STORAGE;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
-					PROPERTY_HINT_RANGE, "0,65536,or_greater", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+					PROPERTY_HINT_RANGE, "0,65536,or_greater", pin_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Pins,pins/"));
 	for (int pin_i = 0; pin_i < get_pin_count(); pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
-		const uint32_t pin_usage = PROPERTY_USAGE_DEFAULT;
 		effector_name.usage = pin_usage | PROPERTY_USAGE_READ_ONLY;
 		if (get_skeleton()) {
 			String names;
@@ -226,7 +226,6 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::VECTOR3, "pins/" + itos(pin_i) + "/direction_priorities", PROPERTY_HINT_RANGE, "0,1,0.1,or_greater", pin_usage));
 	}
-
 }
 
 bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
@@ -1310,7 +1309,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		add_constraint();
 		set_constraint_name(human_bone_i, bone_name);
 	}
-	skeleton_changed(get_skeleton()); 
+	skeleton_changed(get_skeleton());
 	is_setup_humanoid_bones = false;
 	skeleton->set_show_rest_only(is_setup_humanoid_bones);
 }
