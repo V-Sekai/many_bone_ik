@@ -34,6 +34,7 @@
 
 #include "core/io/resource_saver.h"
 #include "core/math/transform_3d.h"
+#include "core/templates/local_vector.h"
 #include "editor/editor_interface.h"
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
@@ -41,6 +42,7 @@
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/node_3d_editor_gizmos.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
+#include "ik_bone_3d.h"
 #include "many_bone_ik_3d.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
@@ -118,9 +120,21 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 
 	while (bones_to_process.size() > current_bone_index) {
 		int current_bone_idx = bones_to_process[current_bone_index];
-		current_bone_index++;
 
 		Color current_bone_color = (current_bone_idx == selected) ? selected_bone_color : bone_color;
+
+		for (const Ref<IKBoneSegment3D> &segmented_skeleton : many_bone_ik->get_segmented_skeletons()) {
+			if (segmented_skeleton.is_null()) {
+				continue;
+			}
+			Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(current_bone_idx);
+			if (ik_bone.is_null() || ik_bone->get_constraint().is_null()) {
+				continue;
+			}
+			create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color, skeleton, many_bone_ik);
+		}
+
+		current_bone_index++;
 
 		Vector<int> child_bones_vector;
 		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
@@ -257,52 +271,6 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 
 	Ref<ArrayMesh> m = surface_tool->commit();
 	p_gizmo->add_mesh(m, Ref<Material>(), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
-
-	Node3D *node_3d = p_gizmo->get_node_3d();
-	if (!node_3d || !node_3d->is_visible_in_tree()) {
-		return;
-	}
-
-	p_gizmo->clear();
-	ManyBoneIK3D *many_bone_ik = cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
-	if (!many_bone_ik) {
-		return;
-	}
-	Skeleton3D *many_bone_ik_skeleton = many_bone_ik->get_skeleton();
-	if (!many_bone_ik_skeleton) {
-		return;
-	}
-	if (!many_bone_ik_skeleton->is_connected(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos))) {
-		many_bone_ik_skeleton->connect(SceneStringNames::get_singleton()->pose_updated, callable_mp(node_3d, &Node3D::update_gizmos));
-	}
-	bones_to_process = many_bone_ik_skeleton->get_parentless_bones();
-	int bones_to_process_i = 0;
-	Vector<BoneId> processing_bones;
-	Vector<Ref<IKBoneSegment3D>> bone_segments = many_bone_ik->get_segmented_skeletons();
-	for (Ref<IKBoneSegment3D> bone_segment : bone_segments) {
-		if (bone_segment.is_null()) {
-			continue;
-		}
-		while (bones_to_process_i < bones_to_process.size()) {
-			int current_bone_idx = bones_to_process[bones_to_process_i];
-			processing_bones.push_back(current_bone_idx);
-			Vector<int> child_bones_vector = many_bone_ik_skeleton->get_bone_children(current_bone_idx);
-			for (int child_bone_idx : child_bones_vector) {
-				bones_to_process.push_back(child_bone_idx);
-			}
-			bones_to_process_i++;
-		}
-		Color current_bone_color = bone_color;
-		for (BoneId bone_i : bones_to_process) {
-			Ref<IKBone3D> ik_bone = bone_segment->get_ik_bone(bone_i);
-			if (ik_bone.is_null()) {
-				continue;
-			}
-			if (ik_bone->is_orientationally_constrained()) {
-				create_gizmo_mesh(bone_i, ik_bone, p_gizmo, current_bone_color, many_bone_ik_skeleton, many_bone_ik);
-			}
-		}
-	}
 }
 
 void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
@@ -557,9 +525,7 @@ int ManyBoneIK3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_
 	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND_V(!skeleton, -1);
 
-	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();
-
-	if (!se || !se->is_edit_mode()) {
+	if (!edit_mode) {
 		return -1;
 	}
 
@@ -586,23 +552,23 @@ int ManyBoneIK3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_
 	}
 
 	if (closest_idx >= 0) {
-		se->select_bone(closest_idx);
+		many_bone_ik->set_ui_selected_bone(closest_idx);
 		return closest_idx;
 	}
 
-	se->select_bone(-1);
+	many_bone_ik->set_ui_selected_bone(-1);
 	return -1;
 }
 
 Transform3D ManyBoneIK3DGizmoPlugin::get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_node_3d());
+	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND_V(!skeleton, Transform3D());
 
 	return skeleton->get_bone_global_pose(p_id);
 }
 
 void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_node_3d());
+	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND(!skeleton);
 
 	// Prepare for global to local.
@@ -631,33 +597,23 @@ void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_
 }
 
 void ManyBoneIK3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) {
-	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_gizmo->get_node_3d());
+	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND(!skeleton);
 
-	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();
 	Node3DEditor *ne = Node3DEditor::get_singleton();
+	ERR_FAIL_COND(!ne);
 
 	EditorUndoRedoManager *ur = EditorUndoRedoManager::get_singleton();
 	ur->create_action(TTR("Set Bone Transform"));
-	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_MOVE) {
-		for (int i = 0; i < p_ids.size(); i++) {
-			ur->add_do_method(skeleton, "set_bone_pose_position", p_ids[i], skeleton->get_bone_pose_position(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_position", p_ids[i], se->get_bone_original_position());
-		}
-	}
 	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE) {
 		for (int i = 0; i < p_ids.size(); i++) {
-			ur->add_do_method(skeleton, "set_bone_pose_rotation", p_ids[i], skeleton->get_bone_pose_rotation(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_rotation", p_ids[i], se->get_bone_original_rotation());
-		}
-	}
-	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SCALE) {
-		for (int i = 0; i < p_ids.size(); i++) {
-			// If the axis is swapped by scaling, the rotation can be changed.
-			ur->add_do_method(skeleton, "set_bone_pose_rotation", p_ids[i], skeleton->get_bone_pose_rotation(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_rotation", p_ids[i], se->get_bone_original_rotation());
-			ur->add_do_method(skeleton, "set_bone_pose_scale", p_ids[i], skeleton->get_bone_pose_scale(p_ids[i]));
-			ur->add_undo_method(skeleton, "set_bone_pose_scale", p_ids[i], se->get_bone_original_scale());
+			int32_t constraint_i  = many_bone_ik->find_constraint(skeleton->get_bone_name(p_ids[i]));
+			float from_original = many_bone_ik->get_kusudama_twist(constraint_i).x;
+			float range = many_bone_ik->get_kusudama_twist(constraint_i).y;
+			ur->add_do_method(many_bone_ik, "set_kusudama_twist", constraint_i, Vector2(skeleton->get_bone_pose(p_ids[i]).get_basis().get_euler().y, range));
+			ur->add_undo_method(many_bone_ik, "set_kusudama_twist", constraint_i,  Vector2(from_original, range));
+			ur->add_do_method(many_bone_ik, "set_dirty");
+			ur->add_undo_method(many_bone_ik, "set_dirty");
 		}
 	}
 	ur->commit_action();
@@ -753,7 +709,7 @@ void ManyBoneIK3DGizmoPlugin::_subgizmo_selection_change() {
 
 	int selected = -1;
 	if (many_bone_ik) {
-		// selected = many_bone_ik->get_ui_selected_bone();
+		selected = many_bone_ik->get_ui_selected_bone();
 	}
 
 	if (selected >= 0) {
