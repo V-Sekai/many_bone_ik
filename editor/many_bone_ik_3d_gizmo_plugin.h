@@ -59,6 +59,21 @@ class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(ManyBoneIK3DGizmoPlugin, EditorNode3DGizmoPlugin);
 	Ref<Shader> kusudama_shader;
 
+	Ref<StandardMaterial3D> unselected_mat;
+	Ref<ShaderMaterial> selected_mat;
+	Ref<Shader> selected_sh;
+
+	MeshInstance3D *handles_mesh_instance = nullptr;
+	Ref<ImmediateMesh> handles_mesh;
+	Ref<ShaderMaterial> handle_material;
+	Ref<Shader> handle_shader;
+
+	Skeleton3D *skeleton = nullptr;
+	ManyBoneIK3D *many_bone_ik = nullptr;
+
+	Button *edit_mode_button = nullptr;
+	bool edit_mode = false;
+
 protected:
 	static void _bind_methods();
 
@@ -69,8 +84,27 @@ public:
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	ManyBoneIK3DGizmoPlugin();
+	~ManyBoneIK3DGizmoPlugin() {
+		if (edit_mode_button) {
+			Node3DEditor::get_singleton()->remove_control_from_menu_panel(edit_mode_button);
+			memdelete(edit_mode_button);
+		}
+	}
 	int32_t get_priority() const override;
 	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
+	int subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const override;
+	Transform3D get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const override;
+	void set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) override;
+	void commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) override;
+
+	void edit_mode_toggled(const bool pressed);
+	void parse_begin(Object *p_object);
+	void _subgizmo_selection_change();
+	void _update_gizmo_visible();
+	void _draw_gizmo();
+
+	void _draw_handles();
+	void _hide_handles();
 };
 
 class EditorPluginManyBoneIK : public EditorPlugin {
