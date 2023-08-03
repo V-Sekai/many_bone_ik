@@ -59,8 +59,7 @@ void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	bool ret = cast_to<ManyBoneIK3D>(p_spatial);
-	return ret;
+	return cast_to<ManyBoneIK3D>(p_spatial);
 }
 
 String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
@@ -68,13 +67,16 @@ String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
 }
 
 void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+	many_bone_ik = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
+	skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	p_gizmo->clear();
-
-	if (!skeleton->get_bone_count()) {
+	if (!skeleton || !skeleton->get_bone_count()) {
 		return;
 	}
-
+	if (!handles_mesh_instance->is_inside_tree()) {
+		skeleton->add_child(handles_mesh_instance);
+		handles_mesh_instance->set_skeleton_path(NodePath(""));
+	}
 	int selected = -1;
 	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();
 	if (se) {
@@ -456,6 +458,42 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 }
 
 ManyBoneIK3DGizmoPlugin::ManyBoneIK3DGizmoPlugin() {
+	handle_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+	handle_shader = Ref<Shader>(memnew(Shader));
+	handle_shader->set_code(R"(
+// Skeleton 3D gizmo handle shader.
+
+shader_type spatial;
+render_mode unshaded, shadows_disabled, depth_draw_always;
+uniform sampler2D texture_albedo : source_color;
+uniform float point_size : hint_range(0,128) = 32;
+void vertex() {
+	if (!OUTPUT_IS_SRGB) {
+		COLOR.rgb = mix( pow((COLOR.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)), vec3(2.4)), COLOR.rgb* (1.0 / 12.92), lessThan(COLOR.rgb,vec3(0.04045)) );
+	}
+	VERTEX = VERTEX;
+	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * MODEL_MATRIX * vec4(VERTEX.xyz, 1.0);
+	POSITION.z = mix(POSITION.z, 0, 0.999);
+	POINT_SIZE = point_size;
+}
+void fragment() {
+	vec4 albedo_tex = texture(texture_albedo,POINT_COORD);
+	vec3 col = albedo_tex.rgb + COLOR.rgb;
+	col = vec3(min(col.r,1.0),min(col.g,1.0),min(col.b,1.0));
+	ALBEDO = col;
+	if (albedo_tex.a < 0.5) { discard; }
+	ALPHA = albedo_tex.a;
+}
+)");
+	handle_material->set_shader(handle_shader);
+	Ref<Texture2D> handle = EditorNode::get_singleton()->get_gui_base()->get_theme_icon(SNAME("EditorBoneHandle"), SNAME("EditorIcons"));
+	handle_material->set_shader_parameter("point_size", handle->get_width());
+	handle_material->set_shader_parameter("texture_albedo", handle);
+
+	handles_mesh_instance = memnew(MeshInstance3D);
+	handles_mesh_instance->set_cast_shadows_setting(GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
+	handles_mesh.instantiate();
+	handles_mesh_instance->set_mesh(handles_mesh);
 	edit_mode_button = memnew(Button);
 	edit_mode_button->set_text(TTR("Edit Mode"));
 	edit_mode_button->set_flat(true);
@@ -670,6 +708,12 @@ void ManyBoneIK3DGizmoPlugin::_draw_gizmo() {
 }
 
 void ManyBoneIK3DGizmoPlugin::_update_gizmo_visible() {
+	if (!many_bone_ik) {
+		return;
+	}
+	if (!skeleton) {
+		return;
+	}
 	_subgizmo_selection_change();
 	if (edit_mode) {
 		int32_t selected_bone = many_bone_ik->get_ui_selected_bone();
@@ -706,9 +750,8 @@ void ManyBoneIK3DGizmoPlugin::_subgizmo_selection_change() {
 	}
 
 	int selected = -1;
-	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();
-	if (se) {
-		selected = se->get_selected_bone();
+	if (many_bone_ik) {
+		// selected = many_bone_ik->get_ui_selected_bone();
 	}
 
 	if (selected >= 0) {
@@ -730,18 +773,8 @@ void ManyBoneIK3DGizmoPlugin::_subgizmo_selection_change() {
 	}
 }
 
-void ManyBoneIK3DGizmoPlugin::parse_begin(Object *p_object) {
-	many_bone_ik = Object::cast_to<ManyBoneIK3D>(p_object);
-	ERR_FAIL_COND(!many_bone_ik);
-	skeleton = many_bone_ik->get_skeleton();
-	ERR_FAIL_COND(!skeleton);
-}
-
 void ManyBoneIK3DGizmoPlugin::edit_mode_toggled(const bool pressed) {
 	edit_mode = pressed;
-	if (!skeleton || !many_bone_ik) {
-		return;
-	}
 	_update_gizmo_visible();
 }
 

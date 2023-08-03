@@ -98,7 +98,6 @@ public:
 	void commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) override;
 
 	void edit_mode_toggled(const bool pressed);
-	void parse_begin(Object *p_object);
 	void _subgizmo_selection_change();
 	void _update_gizmo_visible();
 	void _draw_gizmo();
