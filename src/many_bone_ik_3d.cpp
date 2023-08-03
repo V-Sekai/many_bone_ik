@@ -1319,10 +1319,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		Quaternion twist_rotation, swing_rotation;
 		IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
 		Vector3 backwards = -forward;
-		set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(0.0f), Math::deg_to_rad(180.0f)));
 		String bone_name = get_constraint_name(constraint_i);
 		if (bone_name == "Spine" || bone_name == "Chest") {
-			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(10.0f), Math::deg_to_rad(5.0f)));
+			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(90.0f), Math::deg_to_rad(5.0f)));
 			set_kusudama_painfulness(constraint_i, 0.9);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(2.5f));
