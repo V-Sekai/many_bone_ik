@@ -142,6 +142,7 @@ public:
 	int32_t find_constraint(String p_string) const;
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
+	void set_kusudama_twist_from_range(int32_t p_index, float from, float range);
 	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
 	void set_kusudama_painfulness(int32_t p_index, real_t p_painfulness);
 	real_t get_kusudama_painfulness(int32_t p_index) const;

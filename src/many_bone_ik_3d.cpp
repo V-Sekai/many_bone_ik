@@ -39,6 +39,7 @@
 #include "ik_kusudama_3d.h"
 #include "ik_limit_cone_3d.h"
 #include "scene/3d/marker_3d.h"
+#include "scene/3d/node_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/skeleton_profile.h"
@@ -524,10 +525,24 @@ inline StringName ManyBoneIK3D::get_constraint_name(int32_t p_index) const {
 	return constraint_names[p_index];
 }
 
+Vector2 ManyBoneIK3D::get_kusudama_twist(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, kusudama_twist.size(), Vector2());
+	return kusudama_twist[p_index];
+}
+
 void ManyBoneIK3D::set_kusudama_twist(int32_t p_index, Vector2 p_to) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 	kusudama_twist.write[p_index] = p_to;
 	set_dirty();
+}
+
+void ManyBoneIK3D::set_kusudama_twist_from_range(int32_t p_index, float from, float range) {
+    ERR_FAIL_INDEX(p_index, constraint_count);
+    
+    Vector2 p_to = Vector2(from, range);
+    
+    kusudama_twist.write[p_index] = p_to;
+    set_dirty();
 }
 
 int32_t ManyBoneIK3D::find_effector_id(StringName p_bone_name) {
@@ -649,11 +664,6 @@ void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int3
 		cone.z = p_center.z;
 	}
 	set_dirty();
-}
-
-Vector2 ManyBoneIK3D::get_kusudama_twist(int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_index, kusudama_twist.size(), Vector2());
-	return kusudama_twist[p_index];
 }
 
 void ManyBoneIK3D::set_constraint_name(int32_t p_index, String p_name) {
@@ -910,6 +920,7 @@ void ManyBoneIK3D::_notification(int p_what) {
 			timer->set_one_shot(true);
 			timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
 			set_process_priority(1);
+			set_notify_transform(true);
 		} break;
 		case NOTIFICATION_ENTER_TREE: {
 			set_physics_process_internal(true);
@@ -919,6 +930,9 @@ void ManyBoneIK3D::_notification(int p_what) {
 			if (timer) {
 				timer->queue_free();
 			}
+		} break;
+		case NOTIFICATION_TRANSFORM_CHANGED: {
+			update_gizmos();
 		} break;
 		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
 			execute(get_process_delta_time());
@@ -1239,9 +1253,16 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	// | Head            | The head can rotate side-to-side up to 60-70 degrees, enabling the character to look left and right.                                                                                                   |
 	// | Neck            | The neck can rotate side-to-side up to 50-60 degrees for looking left and right.                                                                                                       |
 	// | [Side]UpperLeg  | The upper leg can rotate slightly up to 5-10 degrees for sitting.                                                                                                  |
-	// | [Side]Foot      | The foot can also rotate slightly inward or outward (inversion and eversion) up to 10-20 degrees for balance.         |
 	// | [Side]UpperArm  | The upper arm can also rotate slightly up to 30-40 degrees for more natural arm movement.                                                                             |
 	// | [Side]Hand      | The wrist can also rotate slightly up to 20-30 degrees, enabling the hand to twist inward or outward for grasping and gesturing.                             |
+	// | Hips            | The hips can rotate up to 45-55 degrees, allowing for twisting and turning movements.                                                                                                      |
+	// | Spine           | The spine can rotate up to 20-30 degrees, providing flexibility for bending and twisting.                                                                                                 |
+	// | Chest           | The chest can rotate up to 15-25 degrees, contributing to the twisting motion of the upper body.                                                                                       |
+	// | UpperChest      | The upper chest can rotate up to 10-20 degrees, aiding in the overall rotation of the torso.
+	// | [Side]UpperLeg  | The upper leg can rotate up to 30-40 degrees, allowing for movements such as kicking or stepping.                                                                                                  |
+	// | [Side]LowerLeg  | The lower leg can rotate slightly up to 10-15 degrees, providing flexibility for running or jumping.                                                                                                 |
+	// | [Side]Foot      | The foot can rotate inward or outward (inversion and eversion) up to 20-30 degrees, enabling balance and various stances.         |
+	// | [Side]Shoulder  | The shoulder can rotate up to 90 degrees in a normal range of motion. This allows for movements such as lifting an arm or throwing. However, with forced movement, it can rotate beyond this limit. |
 
 	// **Rotation Swing**
 	// | Body Part       | Description                                                                                                                                                                                                                   |
@@ -1320,34 +1341,42 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
 		Vector3 backwards = -forward;
 		String bone_name = get_constraint_name(constraint_i);
-		if (bone_name == "Spine" || bone_name == "Chest") {
-			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(90.0f), Math::deg_to_rad(5.0f)));
+		if (bone_name == "Hips") {
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(160.0f), Math::deg_to_rad(100.0f));
+			set_kusudama_painfulness(constraint_i, 0.8);
+			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, Vector3(0, -1, 0));
+			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(10.0f));
+		} else if (bone_name == "Spine") {
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(0.0f), Math::deg_to_rad(30.0f));
+			set_kusudama_painfulness(constraint_i, 0.9);
+			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
+			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(2.5f));
+		} else if (bone_name == "Chest") {
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(0.0f), Math::deg_to_rad(25.0f));
 			set_kusudama_painfulness(constraint_i, 0.9);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(2.5f));
 		} else if (bone_name == "UpperChest") {
-			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(-20.0f), Math::deg_to_rad(5.0f)));
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(0.0f), Math::deg_to_rad(5.0f));
 			set_kusudama_painfulness(constraint_i, 0.9);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(10.0f));
-		} else if (bone_name == "Hips") {
-			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(-90.0f), Math::deg_to_rad(5.0f)));
-			set_kusudama_painfulness(constraint_i, 0.8);
-			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, Vector3(0, -1, 0));
-			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(10.0f));
 		} else if (bone_name == "Neck") {
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(0.0f), Math::deg_to_rad(5.0f));
 			set_kusudama_painfulness(constraint_i, 0.5);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(2.5f));
 		} else if (bone_name == "Head") {
+			set_kusudama_painfulness(constraint_i, 0.2);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(15.0f));
 		} else if (bone_name.ends_with("UpperLeg")) {
-			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(0.0f), Math::deg_to_rad(180.0f)));
+			set_kusudama_painfulness(constraint_i, 0.2);
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(290.0f), Math::deg_to_rad(40.0f));
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, backwards);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(25.0f));
 		} else if (bone_name.ends_with("LowerLeg")) {
-			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(0.0f), Math::deg_to_rad(180.0f)));
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(290.0f), Math::deg_to_rad(15.0f));
 			set_kusudama_painfulness(constraint_i, 0.7);
 			set_kusudama_limit_cone_count(constraint_i, 2);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
@@ -1357,7 +1386,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_kusudama_limit_cone_center(constraint_i, SECOND_CONE, backwards);
 			set_kusudama_limit_cone_radius(constraint_i, SECOND_CONE, Math::deg_to_rad(2.5f));
 		} else if (bone_name.ends_with("Foot")) {
-			set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(0.0f), Math::deg_to_rad(180.0f)));
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(0.0f), Math::deg_to_rad(30.0f));
 			set_kusudama_painfulness(constraint_i, 0.3);
 			backwards.y += -1;
 			backwards.z += -1;
@@ -1365,13 +1394,18 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, Vector3(0, -1, 0));
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(45.0f));
 		} else if (bone_name.ends_with("Shoulder")) {
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(0.0f), Math::deg_to_rad(90.0f));
 			set_kusudama_painfulness(constraint_i, 0.6);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(30.0f));
 		} else if (bone_name.ends_with("UpperArm")) {
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(0.0f), Math::deg_to_rad(40.0f));
+			set_kusudama_painfulness(constraint_i, 0.2);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
-			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(90.0f));
+			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(40.0f));
 		} else if (bone_name.ends_with("LowerArm")) {
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(0.0f), Math::deg_to_rad(30.0f));
+			set_kusudama_painfulness(constraint_i, 0.2);
 			set_kusudama_limit_cone_count(constraint_i, 2);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(2.5f));
@@ -1385,16 +1419,19 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_kusudama_limit_cone_center(constraint_i, SECOND_CONE, backwards);
 			set_kusudama_limit_cone_radius(constraint_i, SECOND_CONE, Math::deg_to_rad(2.5f));
 		} else if (bone_name.ends_with("Hand")) {
+			set_kusudama_twist_from_range(constraint_i, Math::deg_to_rad(0.0f), Math::deg_to_rad(30.0f));
 			set_kusudama_painfulness(constraint_i, 0.4);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
-			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(60.0f));
+			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(30.0f));
 		} else if (bone_name.ends_with("Thumb")) {
+			set_kusudama_painfulness(constraint_i, 0.2);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
-			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(90.0f));
+			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(40.0f));
 		} else if (bone_name.ends_with("Eye")) {
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(10.0f));
 		} else {
+			set_kusudama_painfulness(constraint_i, 0.2);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(2.5f));
 		}

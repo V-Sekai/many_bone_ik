@@ -76,7 +76,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		return;
 	}
 	if (!handles_mesh_instance->is_inside_tree()) {
-		skeleton->add_child(handles_mesh_instance);
+		skeleton->call_deferred("add_child", handles_mesh_instance);
 		handles_mesh_instance->set_skeleton_path(NodePath(""));
 	}
 	int selected = -1;
