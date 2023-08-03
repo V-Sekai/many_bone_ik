@@ -704,6 +704,8 @@ void ManyBoneIK3DGizmoPlugin::_draw_gizmo() {
 	// Handles.
 	if (edit_mode) {
 		_draw_handles();
+	} else {
+		_hide_handles();
 	}
 }
 
