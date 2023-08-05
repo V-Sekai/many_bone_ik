@@ -67,10 +67,7 @@ class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	Ref<ImmediateMesh> handles_mesh;
 	Ref<ShaderMaterial> handle_material;
 	Ref<Shader> handle_shader;
-
-	Skeleton3D *skeleton = nullptr;
 	ManyBoneIK3D *many_bone_ik = nullptr;
-
 	Button *edit_mode_button = nullptr;
 	bool edit_mode = false;
 

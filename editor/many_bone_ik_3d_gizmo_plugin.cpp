@@ -70,7 +70,7 @@ String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
 
 void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	many_bone_ik = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
-	skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	p_gizmo->clear();
 	if (!skeleton || !skeleton->get_bone_count()) {
 		return;
@@ -84,8 +84,6 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (se) {
 		selected = se->get_selected_bone();
 	}
-
-	Color bone_color = EDITOR_GET("editors/3d_gizmos/gizmo_colors/skeleton");
 	Color selected_bone_color = EDITOR_GET("editors/3d_gizmos/gizmo_colors/selected_bone");
 	real_t bone_axis_length = EDITOR_GET("editors/3d_gizmos/gizmo_settings/bone_axis_length");
 	int bone_shape = EDITOR_GET("editors/3d_gizmos/gizmo_settings/bone_shape");
@@ -629,6 +627,11 @@ void ManyBoneIK3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo,
 }
 
 void ManyBoneIK3DGizmoPlugin::_draw_handles() {
+	if (!many_bone_ik) {
+		return;
+	}
+	Skeleton3D *skeleton = many_bone_ik->get_skeleton();
+	ERR_FAIL_COND(!skeleton);
 	const int bone_count = skeleton->get_bone_count();
 
 	handles_mesh->clear_surfaces();
@@ -657,6 +660,10 @@ void ManyBoneIK3DGizmoPlugin::_draw_handles() {
 }
 
 void ManyBoneIK3DGizmoPlugin::_draw_gizmo() {
+	if (!many_bone_ik) {
+		return;
+	}
+	Skeleton3D *skeleton = many_bone_ik->get_skeleton();
 	if (!skeleton) {
 		return;
 	}
@@ -678,6 +685,7 @@ void ManyBoneIK3DGizmoPlugin::_update_gizmo_visible() {
 	if (!many_bone_ik) {
 		return;
 	}
+	Skeleton3D *skeleton = many_bone_ik->get_skeleton();
 	if (!skeleton) {
 		return;
 	}
@@ -706,16 +714,18 @@ void ManyBoneIK3DGizmoPlugin::_update_gizmo_visible() {
 }
 
 void ManyBoneIK3DGizmoPlugin::_subgizmo_selection_change() {
+	if (!many_bone_ik) {
+		return;
+	}
+	Skeleton3D *skeleton = many_bone_ik->get_skeleton();
 	if (!skeleton) {
 		return;
 	}
-
 	// Once validated by subgizmos_intersect_ray, but required if through inspector's bones tree.
 	if (!edit_mode) {
 		skeleton->clear_subgizmo_selection();
 		return;
 	}
-
 	int selected = -1;
 	if (many_bone_ik) {
 		selected = many_bone_ik->get_ui_selected_bone();
