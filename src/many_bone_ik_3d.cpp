@@ -1244,24 +1244,24 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	if (!p_set_targets) {
 		return;
 	}
-	Vector<String> bones = {
+	Vector<String> bones_root_first = {
 		"Root",
+		"Hips",
 		"Head",
 		"LeftHand",
 		"RightHand",
-		"Hips",
 		"LeftFoot",
 		"RightFoot",
 	};
 	set_pin_count(0);
-	set_pin_count(bones.size());
+	set_pin_count(bones_root_first.size());
 	TypedArray<Node> children = find_children("*", "");
 	for (int i = 0; i < children.size(); ++i) {
 		Node *node = cast_to<Node>(children[i]);
 		node->queue_free();
 	}
-	for (int pin_i = 0; pin_i < bones.size(); pin_i++) {
-		String bone_name = bones[pin_i];
+	for (int pin_i = 0; pin_i < bones_root_first.size(); pin_i++) {
+		String bone_name = bones_root_first[pin_i];
 		Marker3D *marker_3d = memnew(Marker3D);
 		marker_3d->set_name(bone_name);
 		add_child(marker_3d, true);
