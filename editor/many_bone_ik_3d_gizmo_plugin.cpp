@@ -85,33 +85,6 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		selected = se->get_selected_bone();
 	}
 	Color selected_bone_color = EDITOR_GET("editors/3d_gizmos/gizmo_colors/selected_bone");
-	real_t bone_axis_length = EDITOR_GET("editors/3d_gizmos/gizmo_settings/bone_axis_length");
-	int bone_shape = EDITOR_GET("editors/3d_gizmos/gizmo_settings/bone_shape");
-
-	LocalVector<Color> axis_colors;
-	axis_colors.push_back(Node3DEditor::get_singleton()->get_theme_color(SNAME("axis_x_color"), SNAME("Editor")));
-	axis_colors.push_back(Node3DEditor::get_singleton()->get_theme_color(SNAME("axis_y_color"), SNAME("Editor")));
-	axis_colors.push_back(Node3DEditor::get_singleton()->get_theme_color(SNAME("axis_z_color"), SNAME("Editor")));
-
-	Ref<SurfaceTool> surface_tool(memnew(SurfaceTool));
-	surface_tool->begin(Mesh::PRIMITIVE_LINES);
-
-	if (p_gizmo->is_selected()) {
-		surface_tool->set_material(selected_mat);
-	} else {
-		unselected_mat->set_albedo(bone_color);
-		surface_tool->set_material(unselected_mat);
-	}
-
-	LocalVector<int> bones;
-	LocalVector<float> weights;
-	bones.resize(4);
-	weights.resize(4);
-	for (int i = 0; i < 4; i++) {
-		bones[i] = 0;
-		weights[i] = 0;
-	}
-	weights[0] = 1;
 
 	int current_bone_index = 0;
 	Vector<int> bones_to_process = skeleton->get_parentless_bones();
@@ -137,141 +110,15 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		Vector<int> child_bones_vector;
 		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
 		int child_bones_size = child_bones_vector.size();
-
-		Transform3D constraint_relative_to_the_skeleton = many_bone_ik->get_relative_transform(many_bone_ik->get_owner()).affine_inverse() *
-														  skeleton->get_relative_transform(skeleton->get_owner()) * many_bone_ik->get_godot_skeleton_transform_inverse();
-
 		for (int i = 0; i < child_bones_size; i++) {
 			// Something wrong.
 			if (child_bones_vector[i] < 0) {
 				continue;
 			}
-
-			int child_bone_idx = child_bones_vector[i];
-
-			Vector3 v0 = (constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(current_bone_idx)).origin;
-			Vector3 v1 = (constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(child_bone_idx)).origin;
-			Vector3 d = (v1 - v0).normalized();
-			real_t dist = v0.distance_to(v1);
-
-			// Find closest axis.
-			int closest = -1;
-			real_t closest_d = 0.0;
-			for (int j = 0; j < 3; j++) {
-				real_t dp = Math::abs((constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(current_bone_idx)).basis[j].normalized().dot(d));
-				if (j == 0 || dp > closest_d) {
-					closest = j;
-				}
-			}
-
-			// Draw bone.
-			switch (bone_shape) {
-				case 0: { // Wire shape.
-					surface_tool->set_color(current_bone_color);
-					bones[0] = current_bone_idx;
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v0);
-					bones[0] = child_bone_idx;
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1);
-				} break;
-
-				case 1: { // Octahedron shape.
-					Vector3 first;
-					Vector3 points[6];
-					int point_idx = 0;
-					for (int j = 0; j < 3; j++) {
-						Vector3 axis;
-						if (first == Vector3()) {
-							axis = d.cross(d.cross((constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(current_bone_idx)).basis[j])).normalized();
-							first = axis;
-						} else {
-							axis = d.cross(first).normalized();
-						}
-
-						surface_tool->set_color(current_bone_color);
-						for (int k = 0; k < 2; k++) {
-							if (k == 1) {
-								axis = -axis;
-							}
-							Vector3 point = v0 + d * dist * 0.2;
-							point += axis * dist * 0.1;
-
-							bones[0] = current_bone_idx;
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(v0);
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(point);
-
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(point);
-							bones[0] = child_bone_idx;
-							surface_tool->set_bones(bones);
-							surface_tool->set_weights(weights);
-							surface_tool->add_vertex(v1);
-							points[point_idx++] = point;
-						}
-					}
-					surface_tool->set_color(current_bone_color);
-					SWAP(points[1], points[2]);
-					bones[0] = current_bone_idx;
-					for (int j = 0; j < 6; j++) {
-						surface_tool->set_bones(bones);
-						surface_tool->set_weights(weights);
-						surface_tool->add_vertex(points[j]);
-						surface_tool->set_bones(bones);
-						surface_tool->set_weights(weights);
-						surface_tool->add_vertex(points[(j + 1) % 6]);
-					}
-				} break;
-			}
-
-			// Axis as root of the bone.
-			for (int j = 0; j < 3; j++) {
-				bones[0] = current_bone_idx;
-				surface_tool->set_color(axis_colors[j]);
-				surface_tool->set_bones(bones);
-				surface_tool->set_weights(weights);
-				surface_tool->add_vertex(v0);
-				surface_tool->set_bones(bones);
-				surface_tool->set_weights(weights);
-				surface_tool->add_vertex(v0 + ((constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(current_bone_idx)).basis.inverse())[j].normalized() * dist * bone_axis_length);
-
-				if (j == closest) {
-					continue;
-				}
-			}
-
-			// Axis at the end of the bone children.
-			if (i == child_bones_size - 1) {
-				for (int j = 0; j < 3; j++) {
-					bones[0] = child_bone_idx;
-					surface_tool->set_color(axis_colors[j]);
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1);
-					surface_tool->set_bones(bones);
-					surface_tool->set_weights(weights);
-					surface_tool->add_vertex(v1 + ((constraint_relative_to_the_skeleton * skeleton->get_bone_global_rest(child_bone_idx)).basis.inverse())[j].normalized() * dist * bone_axis_length);
-
-					if (j == closest) {
-						continue;
-					}
-				}
-			}
-
 			// Add the bone's children to the list of bones to be processed.
 			bones_to_process.push_back(child_bones_vector[i]);
 		}
 	}
-
-	Ref<ArrayMesh> m = surface_tool->commit();
-	p_gizmo->add_mesh(m, Ref<Material>(), Transform3D(), skeleton->register_skin(skeleton->create_skin_from_rest_transforms()));
 }
 
 void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {

@@ -42,7 +42,9 @@
 #include "scene/3d/node_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
+#include "scene/main/node.h"
 #include "scene/resources/skeleton_profile.h"
+#include "scene/scene_string_names.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
@@ -914,10 +916,10 @@ void ManyBoneIK3D::_notification(int p_what) {
 			set_notify_transform(true);
 		} break;
 		case NOTIFICATION_ENTER_TREE: {
-			set_physics_process_internal(true);
+			set_process_internal(true);
 		} break;
 		case NOTIFICATION_EXIT_TREE: {
-			set_physics_process_internal(false);
+			set_process_internal(false);
 			if (timer) {
 				timer->queue_free();
 			}
@@ -925,8 +927,9 @@ void ManyBoneIK3D::_notification(int p_what) {
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			update_gizmos();
 		} break;
-		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
+		case NOTIFICATION_INTERNAL_PROCESS: {
 			execute(get_process_delta_time());
+			update_gizmos();
 		} break;
 	}
 }
