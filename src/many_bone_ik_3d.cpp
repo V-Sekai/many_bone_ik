@@ -1240,6 +1240,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		return;
 	}
 	Vector<String> bones = {
+		"Root",
 		"Head",
 		"LeftHand",
 		"RightHand",
@@ -1265,13 +1266,8 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		marker_3d->set_global_transform(pose);
 		set_pin_nodepath(pin_i, get_path_to(marker_3d));
 		set_pin_bone_name(pin_i, bone_name);
-		set_pin_passthrough_factor(pin_i, 1.0f);
-		if (bone_name.ends_with("Foot")) {
-			set_pin_passthrough_factor(pin_i, 0.0f);
-		} else if (bone_name.ends_with("Hand")) {
-			set_pin_passthrough_factor(pin_i, 0.0f);
-		} else if (bone_name.find("Head") != -1) {
-			set_pin_passthrough_factor(pin_i, 0.0f);
+		if (bone_name == "Hips") {
+			set_pin_passthrough_factor(pin_i, 1);
 		}
 	}
 	set_constraint_count(0);
@@ -1384,10 +1380,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		} else if (bone_name.ends_with("Eye")) {
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
 			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(10.0f));
-		} else {
-			set_kusudama_painfulness(constraint_i, 0.2);
-			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, forward);
-			set_kusudama_limit_cone_radius(constraint_i, FIRST_CONE, Math::deg_to_rad(2.5f));
 		}
 	}
 	is_setup_humanoid_bones = false;
