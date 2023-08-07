@@ -190,7 +190,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
-	const uint32_t pin_usage = PROPERTY_USAGE_STORAGE;
+	const uint32_t pin_usage = PROPERTY_USAGE_DEFAULT;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
 					PROPERTY_HINT_RANGE, "0,65536,or_greater", pin_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
@@ -529,12 +529,12 @@ void ManyBoneIK3D::set_kusudama_twist(int32_t p_index, Vector2 p_to) {
 }
 
 void ManyBoneIK3D::set_kusudama_twist_from_range(int32_t p_index, float from, float range) {
-    ERR_FAIL_INDEX(p_index, constraint_count);
-    
-    Vector2 p_to = Vector2(from, range);
-    
-    kusudama_twist.write[p_index] = p_to;
-    set_dirty();
+	ERR_FAIL_INDEX(p_index, constraint_count);
+
+	Vector2 p_to = Vector2(from, range);
+
+	kusudama_twist.write[p_index] = p_to;
+	set_dirty();
 }
 
 int32_t ManyBoneIK3D::find_effector_id(StringName p_bone_name) {
