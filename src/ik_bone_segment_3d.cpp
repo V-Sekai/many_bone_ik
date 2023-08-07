@@ -123,7 +123,7 @@ Quaternion IKBoneSegment3D::clamp_to_quadrance_angle(Quaternion p_quat, double p
 		rot.y *= compositeCoeff;
 		rot.z *= compositeCoeff;
 	}
-	return rot;
+	return rot.normalized();
 }
 
 float IKBoneSegment3D::get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<double> &p_weights) {
