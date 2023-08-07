@@ -1255,7 +1255,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	};
 	set_pin_count(0);
 	set_pin_count(bones.size());
-	TypedArray<Node> children = find_children("*", "Marker3D");
+	TypedArray<Node> children = find_children("*", "");
 	for (int i = 0; i < children.size(); ++i) {
 		Node *node = cast_to<Node>(children[i]);
 		node->queue_free();
