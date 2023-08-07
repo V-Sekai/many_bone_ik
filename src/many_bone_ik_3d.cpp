@@ -642,7 +642,6 @@ void ManyBoneIK3D::set_kusudama_limit_cone_radius(int32_t p_effector_index, int3
 }
 
 void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
-	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cone_count.size());
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
 	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
@@ -1115,6 +1114,9 @@ void ManyBoneIK3D::register_skeleton() {
 void ManyBoneIK3D::reset_constraints() {
 	Skeleton3D *skeleton = get_skeleton();
 	if (skeleton) {
+		orientation_constraint_defaults.clear();
+		twist_constraint_defaults.clear();
+		bone_direction_constraint_defaults.clear();
 		int32_t saved_pin_count = get_pin_count();
 		set_pin_count(0);
 		set_pin_count(saved_pin_count);
