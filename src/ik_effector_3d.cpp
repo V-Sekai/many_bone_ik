@@ -82,18 +82,6 @@ void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBo
 		target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * for_bone->get_ik_transform()->get_global_transform();
 		return;
 	}
-	Transform3D current_target_transform = current_target_node->get_global_transform();
-	Vector3 tip_position = for_bone->get_ik_transform()->get_global_transform().origin;
-	Vector3 target_position = current_target_transform.origin;
-	float distance = target_position.distance_squared_to(tip_position);
-	if (Math::is_zero_approx(distance)) {
-		target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * for_bone->get_ik_transform()->get_global_transform();
-		return;
-	}
-	if (distance > 0.20f) {
-		target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * for_bone->get_ik_transform()->get_global_transform();
-		return;
-	}
 	target_relative_to_skeleton_origin = p_many_bone_ik->get_godot_skeleton_transform_inverse() * current_target_node->get_global_transform();
 }
 
@@ -143,7 +131,6 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	index++;
 	double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
 	double scale_by = MAX(1.0, distance);
-
 	const Vector3 priority = get_direction_priorities();
 
 	for (int axis = Vector3::AXIS_X; axis <= Vector3::AXIS_Z; ++axis) {
