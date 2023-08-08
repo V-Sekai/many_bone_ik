@@ -30,7 +30,6 @@
 
 #include "ik_kusudama_3d.h"
 
-#include "core/math/basis.h"
 #include "core/math/quaternion.h"
 #include "ik_limit_cone_3d.h"
 #include "ik_node_3d.h"
@@ -77,21 +76,25 @@ void IKKusudama3D::set_axial_limits(real_t min_angle, real_t in_range) {
 }
 
 void IKKusudama3D::get_swing_twist(
-		Basis p_rotation,
+		Quaternion p_rotation,
 		Vector3 p_axis,
-		Basis &r_swing,
-		Basis &r_twist) {
-	Vector3 rotation_axis;
-	real_t rotation_angle = 0;
-	p_rotation.get_axis_angle(rotation_axis, rotation_angle);
-
-	Vector3 projection = p_axis * (rotation_axis.dot(p_axis));
-	if (Math::is_zero_approx(projection.length_squared()) || !projection.is_finite()) {
-		projection = Vector3(0, 1, 0);
+		Quaternion &r_swing,
+		Quaternion &r_twist) {
+	if (!p_rotation.is_finite() || !p_axis.is_normalized()) {
+		return;
 	}
-	r_twist = Basis(projection.normalized(), rotation_angle);
-
-	r_swing = p_rotation * r_twist.transposed();
+	Quaternion rotation = p_rotation.normalized();
+	if (rotation.w < 0.0) {
+		rotation *= -1;
+	}
+	// Swing-twist decomposition in Clifford algebra
+	// https://arxiv.org/abs/1506.05481
+	Vector3 p = p_axis * (rotation.x * p_axis.x + rotation.y * p_axis.y + rotation.z * p_axis.z);
+	r_twist = Quaternion(p.x, p.y, p.z, rotation.w).normalized();
+	if (!r_twist.is_finite()) {
+		r_twist = Quaternion();
+	}
+	r_swing = rotation * r_twist.inverse();
 }
 
 void IKKusudama3D::add_limit_cone(Vector3 new_cone_local_point, double radius) {
@@ -261,29 +264,29 @@ void IKKusudama3D::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKN
 	}
 
 	Transform3D global_transform_constraint = constraint_axes->get_global_transform();
-	Basis global_twist_center = twist_center_rot;
+	Quaternion global_twist_center = twist_center_rot;
 
 	if (global_transform_constraint.basis.is_orthogonal() && Math::is_equal_approx(global_transform_constraint.basis.determinant(), real_t(1.0))) {
-		global_twist_center = global_transform_constraint.basis * twist_center_rot;
+		global_twist_center = global_transform_constraint.basis.get_rotation_quaternion() * twist_center_rot;
 	}
-	global_twist_center.orthonormalize();
+	global_twist_center.normalize();
 
 	Transform3D global_transform_to_set = to_set->get_global_transform();
 
-	Basis align_rot = global_twist_center.inverse() * global_transform_to_set.basis;
+	Quaternion align_rot = global_twist_center.inverse() * global_transform_to_set.basis.get_rotation_quaternion();
 
 	Transform3D parent_global_transform = to_set->get_parent()->get_global_transform().basis.inverse();
-	Basis parent_global_inverse = parent_global_transform.basis;
+	Quaternion parent_global_inverse = parent_global_transform.basis.get_rotation_quaternion();
 
-	Basis swing_rotation, twist_rotation;
+	Quaternion twist_rotation, swing_rotation;
 	get_swing_twist(align_rot, Vector3(0, 1, 0), swing_rotation, twist_rotation);
 
-	if (!twist_rotation.is_equal_approx(Basis())) {
+	if (!twist_rotation.is_equal_approx(Quaternion())) {
 		twist_rotation = IKBoneSegment3D::clamp_to_quadrance_angle(twist_rotation, twist_half_range_half_cos);
 	}
 
-	Basis recomposition = global_twist_center.orthonormalized() * (swing_rotation.orthonormalized() * twist_rotation.orthonormalized());
-	Basis rotation = (parent_global_inverse * recomposition).orthonormalized();
+	Quaternion recomposition = global_twist_center.normalized() * (swing_rotation.normalized() * twist_rotation.normalized());
+	Quaternion rotation = (parent_global_inverse * recomposition).normalized();
 
 	Transform3D ik_transform = to_set->get_transform();
 	to_set->set_transform(Transform3D(rotation, ik_transform.origin));
@@ -324,7 +327,7 @@ void IKKusudama3D::set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IK
 	if (bone_direction.is_null() || to_set.is_null() || limiting_axes.is_null() || painfulness <= 0.0) {
 		return;
 	}
-	Basis twist_rotation, swing_rotation;
+	Quaternion twist_rotation, swing_rotation;
 	get_swing_twist(bone_direction->get_global_transform().basis, Vector3(0, 1, 0), swing_rotation, twist_rotation);
 	if (orientationally_constrained) {
 		Vector3 origin = bone_direction->get_global_transform().origin;

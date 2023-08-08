@@ -1288,7 +1288,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		const int SECOND_CONE = 1;
 		Transform3D bone_transform = get_bone_direction_transform(constraint_i);
 		Vector3 forward = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
-		Basis twist_rotation, swing_rotation;
+		Quaternion twist_rotation, swing_rotation;
 		IKKusudama3D::get_swing_twist(bone_transform.basis, forward, swing_rotation, twist_rotation);
 		Vector3 backwards = -forward;
 		set_kusudama_twist(constraint_i, Vector2(Math::deg_to_rad(0.0f), Math::deg_to_rad(180.0f)));
