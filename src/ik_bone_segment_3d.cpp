@@ -110,20 +110,27 @@ void IKBoneSegment3D::update_optimal_rotation(Ref<IKBone3D> p_for_bone, double p
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
 }
 
-Quaternion IKBoneSegment3D::clamp_to_quadrance_angle(Quaternion p_quat, double p_cos_half_angle) {
+Basis IKBoneSegment3D::clamp_to_quadrance_angle(Basis p_basis, double p_cos_half_angle) {
 	double newCoeff = double(1.0) - (p_cos_half_angle * Math::abs(p_cos_half_angle));
-	Quaternion rot = p_quat;
-	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
+	Basis rot = p_basis;
+	Vector3 axis;
+	double angle;
+	rot.get_axis_angle(axis, angle);
+	double currentCoeff = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
 	if (newCoeff >= currentCoeff) {
 		return rot;
 	} else {
-		rot.w = rot.w < double(0.0) ? -p_cos_half_angle : p_cos_half_angle;
 		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
-		rot.x *= compositeCoeff;
-		rot.y *= compositeCoeff;
-		rot.z *= compositeCoeff;
+		axis.x *= compositeCoeff;
+		axis.y *= compositeCoeff;
+		axis.z *= compositeCoeff;
+		axis.normalize();
+		if (Math::is_zero_approx(axis.length_squared()) || !axis.is_finite()) {
+			axis = Vector3(0, 1, 0);
+		}
+		rot.set_axis_angle(axis, angle);
 	}
-	return rot.normalized();
+	return rot.orthonormalized();
 }
 
 float IKBoneSegment3D::get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<double> &p_weights) {
@@ -158,10 +165,10 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 		if (!p_constraint_mode) {
 			// Solved the ik transform and apply it.
 			QCP qcp = QCP(evec_prec, eval_prec);
-			Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+			Basis rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 			Vector3 translation = qcp.get_translation();
 			double dampening = (p_dampening != -1.0) ? p_dampening : bone_damp;
-			rot = clamp_to_quadrance_angle(rot, cos(dampening / 2.0)).normalized();
+			rot = clamp_to_quadrance_angle(rot, cos(dampening / 2.0)).orthonormalized();
 			p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
 			Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 			result.orthonormalize();
@@ -374,7 +381,7 @@ void IKBoneSegment3D::recursive_create_penalty_array(Ref<IKBoneSegment3D> p_bone
 	}
 
 	for (Ref<IKBoneSegment3D> s : p_bone_segment->get_child_segments()) {
-        recursive_create_penalty_array(s, r_penalty_array, r_pinned_bones, p_falloff * current_falloff);
+		recursive_create_penalty_array(s, r_penalty_array, r_pinned_bones, p_falloff * current_falloff);
 	}
 }
 

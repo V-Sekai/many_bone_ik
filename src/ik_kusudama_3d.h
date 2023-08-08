@@ -31,17 +31,18 @@
 #ifndef IK_KUSUDAMA_3D_H
 #define IK_KUSUDAMA_3D_H
 
+#include "core/io/resource.h"
+#include "core/math/basis.h"
+#include "core/math/quaternion.h"
+#include "core/object/ref_counted.h"
+#include "core/variant/typed_array.h"
+#include "scene/3d/node_3d.h"
+
 #include "ik_bone_3d.h"
 #include "ik_bone_segment_3d.h"
 #include "ik_limit_cone_3d.h"
 #include "ik_ray_3d.h"
 #include "math/ik_node_3d.h"
-
-#include "core/io/resource.h"
-#include "core/math/quaternion.h"
-#include "core/object/ref_counted.h"
-#include "core/variant/typed_array.h"
-#include "scene/3d/node_3d.h"
 
 class IKBone3D;
 class IKLimitCone3D;
@@ -111,10 +112,10 @@ public:
 	 * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
 	 */
 	static void get_swing_twist(
-			Quaternion p_rotation,
+			Basis p_rotation,
 			Vector3 p_axis,
-			Quaternion &r_swing,
-			Quaternion &r_twist);
+			Basis &r_swing,
+			Basis &r_twist);
 
 public:
 	double angle_to_twist_center(Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes);
