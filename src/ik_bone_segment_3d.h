@@ -89,7 +89,7 @@ public:
 	void update_pinned_list(Vector<Vector<double>> &r_weights);
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes() const;
-	static Basis clamp_to_quadrance_angle(Basis p_basis, double p_cos_half_angle);
+	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, double p_cos_half_angle);
 	static void recursive_create_headings_arrays_for(Ref<IKBoneSegment3D> p_bone_segment);
 	void create_headings_arrays();
 	void recursive_create_penalty_array(Ref<IKBoneSegment3D> p_bone_segment, Vector<Vector<double>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, double p_falloff);

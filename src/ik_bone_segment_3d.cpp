@@ -98,8 +98,11 @@ void IKBoneSegment3D::update_pinned_list(Vector<Vector<double>> &r_weights) {
 	if (is_pinned()) {
 		effector_list.push_back(tip->get_pin());
 	}
-	for (Ref<IKBoneSegment3D> child : child_segments) {
-		effector_list.append_array(child->effector_list);
+	double passthrough_factor = is_pinned() ? tip->get_pin()->passthrough_factor : 1.0;
+	if (passthrough_factor > 0.0) {
+		for (Ref<IKBoneSegment3D> child : child_segments) {
+			effector_list.append_array(child->effector_list);
+		}
 	}
 }
 
@@ -110,27 +113,20 @@ void IKBoneSegment3D::update_optimal_rotation(Ref<IKBone3D> p_for_bone, double p
 	set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
 }
 
-Basis IKBoneSegment3D::clamp_to_quadrance_angle(Basis p_basis, double p_cos_half_angle) {
+Quaternion IKBoneSegment3D::clamp_to_quadrance_angle(Quaternion p_quat, double p_cos_half_angle) {
 	double newCoeff = double(1.0) - (p_cos_half_angle * Math::abs(p_cos_half_angle));
-	Basis rot = p_basis;
-	Vector3 axis;
-	double angle;
-	rot.get_axis_angle(axis, angle);
-	double currentCoeff = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
+	Quaternion rot = p_quat;
+	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
 	if (newCoeff >= currentCoeff) {
 		return rot;
 	} else {
+		rot.w = rot.w < double(0.0) ? -p_cos_half_angle : p_cos_half_angle;
 		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
-		axis.x *= compositeCoeff;
-		axis.y *= compositeCoeff;
-		axis.z *= compositeCoeff;
-		axis.normalize();
-		if (Math::is_zero_approx(axis.length_squared()) || !axis.is_finite()) {
-			axis = Vector3(0, 1, 0);
-		}
-		rot.set_axis_angle(axis, angle);
+		rot.x *= compositeCoeff;
+		rot.y *= compositeCoeff;
+		rot.z *= compositeCoeff;
 	}
-	return rot.orthonormalized();
+	return rot;
 }
 
 float IKBoneSegment3D::get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<double> &p_weights) {
@@ -165,10 +161,10 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 		if (!p_constraint_mode) {
 			// Solved the ik transform and apply it.
 			QCP qcp = QCP(evec_prec, eval_prec);
-			Basis rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+			Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 			Vector3 translation = qcp.get_translation();
 			double dampening = (p_dampening != -1.0) ? p_dampening : bone_damp;
-			rot = clamp_to_quadrance_angle(rot, cos(dampening / 2.0)).orthonormalized();
+			rot = clamp_to_quadrance_angle(rot, cos(dampening / 2.0)).normalized();
 			p_for_bone->get_ik_transform()->rotate_local_with_global(rot);
 			Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 			result.orthonormalize();
@@ -354,6 +350,10 @@ void IKBoneSegment3D::create_headings_arrays() {
 }
 
 void IKBoneSegment3D::recursive_create_penalty_array(Ref<IKBoneSegment3D> p_bone_segment, Vector<Vector<double>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, double p_falloff) {
+	if (p_falloff <= 0.0) {
+		return;
+	}
+
 	double current_falloff = 1.0;
 
 	if (p_bone_segment->is_pinned()) {
