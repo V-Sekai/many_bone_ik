@@ -92,7 +92,8 @@ public:
 			}
 			Transform3D reference_pose = get_reference_pose(bone_i);
 			Vector3 y_up = reference_pose.basis.get_column(Vector3::AXIS_Y).normalized();
-			Vector3 y_up_backwards = -y_up;
+			Vector3 y_up_backwards = y_up;
+			y_up_backwards.y = -y_up_backwards.y;
 			float twist_range = Math::deg_to_rad(360.0f);
 			float twist_from = reference_pose.basis.get_euler().y;
 			if (bone_name == "Spine" || bone_name == "Chest") {
