@@ -1298,7 +1298,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 						bone_name.ends_with("LittleProximal") ||
 						bone_name.ends_with("LittleIntermediate") ||
 						bone_name.ends_with("LittleDistal");
-
 		if (isFinger) {
 			continue;
 		}

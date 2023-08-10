@@ -93,6 +93,8 @@ public:
 			Transform3D reference_pose = get_reference_pose(bone_i);
 			Vector3 y_up = reference_pose.basis.get_column(Vector3::AXIS_Y).normalized();
 			Vector3 y_up_backwards = -y_up;
+			float twist_range = Math::deg_to_rad(360.0f);
+			float twist_from = reference_pose.basis.get_euler().y;
 			if (bone_name == "Spine" || bone_name == "Chest") {
 				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
 			} else if (bone_name == "UpperChest") {
@@ -126,9 +128,11 @@ public:
 			} else {
 				swing_limit_cones.push_back(LimitCone(y_up, Math_PI));
 			}
-			float twist_range = Math::deg_to_rad(360.0f);
-			float twist_from = 0 - twist_range / 2;
-			set_bone_constraint(bone_name, twist_from, twist_range, swing_limit_cones);
+			if (bone_name == "LeftHand" || bone_name == "RightHand") {
+				twist_range = Math::deg_to_rad(20.0f);
+			}
+
+			set_bone_constraint(bone_name, twist_from - twist_range / 2, twist_range, swing_limit_cones);
 		}
 	}
 	~SkeletonProfileHumanoidConstraint() {}
