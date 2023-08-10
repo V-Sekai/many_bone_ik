@@ -31,111 +31,18 @@
 #ifndef MANY_BONE_IK_3D_H
 #define MANY_BONE_IK_3D_H
 
-#include "core/math/math_defs.h"
-#include "core/math/transform_3d.h"
-#include "core/math/vector3.h"
 #include "ik_bone_3d.h"
 #include "ik_effector_template_3d.h"
 #include "math/ik_node_3d.h"
 
 #include "core/object/ref_counted.h"
 #include "core/os/memory.h"
-#include "scene/3d/skeleton_3d.h"
 #include "scene/main/timer.h"
-#include "scene/resources/skeleton_profile.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
 #include "editor/editor_undo_redo_manager.h"
 #endif
-
-class SkeletonProfileHumanoidConstraint : public SkeletonProfileHumanoid {
-	GDCLASS(SkeletonProfileHumanoidConstraint, SkeletonProfileHumanoid);
-
-public:
-	struct LimitCone {
-		Vector3 center = Vector3(0, 1, 0);
-		float radius = Math_PI;
-
-		LimitCone(Vector3 center = Vector3(), float radius = 0) :
-				center(center), radius(radius) {}
-	};
-
-	struct BoneConstraint {
-		float twist_from = 0;
-		float twist_range = Math_TAU;
-		Vector<LimitCone> swing_limit_cones;
-
-		BoneConstraint(float twist_from = 0, float twist_range = 0, Vector<LimitCone> swing_limit_cones = Vector<LimitCone>()) :
-				twist_from(twist_from), twist_range(twist_range), swing_limit_cones(swing_limit_cones) {
-			swing_limit_cones.resize(10);
-		}
-	};
-	void set_bone_constraint(const StringName &bone_name, float twist_from, float twist_range, Vector<LimitCone> swing_limit_cones) {
-		bone_constraints[bone_name] = BoneConstraint(twist_from, twist_range, swing_limit_cones);
-	}
-	BoneConstraint get_bone_constraint(const StringName &bone_name) const {
-		if (bone_constraints.has(bone_name)) {
-			return bone_constraints[bone_name];
-		} else {
-			return BoneConstraint();
-		}
-	}
-	SkeletonProfileHumanoidConstraint() {
-		Vector<StringName> bone_names = { "Spine", "Chest", "UpperChest", "Hips", "Neck", "Head", "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftFoot", "RightFoot", "LeftShoulder", "RightShoulder", "LeftUpperArm", "RightUpperArm", "LeftLowerArm", "RightLowerArm", "LeftHand", "RightHand", "LeftThumb", "RightThumb", "LeftEye", "RightEye" };
-		for (int i = 0; i < bone_names.size(); ++i) {
-			StringName bone_name = bone_names[i];
-			Vector<LimitCone> swing_limit_cones;
-			BoneId bone_i = find_bone(bone_name);
-			if (bone_i == -1) {
-				continue;
-			}
-			Transform3D reference_pose = get_reference_pose(bone_i);
-			Vector3 y_up = reference_pose.basis.get_column(Vector3::AXIS_Y).normalized();
-			Vector3 y_up_backwards = -y_up;
-			if (bone_name == "Spine" || bone_name == "Chest") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
-			} else if (bone_name == "UpperChest") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
-			} else if (bone_name == "Hips") {
-				swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(10.0f)));
-			} else if (bone_name == "Neck") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
-			} else if (bone_name == "Head") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(15.0f)));
-			} else if (bone_name == "LeftUpperLeg" || bone_name == "RightUpperLeg") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(25.0f)));
-			} else if (bone_name == "LeftLowerLeg" || bone_name == "RightLowerLeg") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
-				swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
-			} else if (bone_name == "LeftFoot" || bone_name == "RightFoot") {
-				swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(45.0f)));
-			} else if (bone_name == "LeftShoulder" || bone_name == "RightShoulder") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(30.0f)));
-			} else if (bone_name == "LeftUpperArm" || bone_name == "RightUpperArm") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(90.0f)));
-			} else if (bone_name == "LeftLowerArm" || bone_name == "RightLowerArm") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
-				swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
-			} else if (bone_name == "LeftHand" || bone_name == "RightHand") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(60.0f)));
-			} else if (bone_name == "LeftThumb" || bone_name == "RightThumb") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(90.0f)));
-			} else if (bone_name == "LeftEye" || bone_name == "RightEye") {
-				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
-			} else {
-				swing_limit_cones.push_back(LimitCone(y_up, Math_PI));
-			}
-			float twist_range = Math::deg_to_rad(360.0f);
-			float twist_from = 0 - twist_range / 2;
-			set_bone_constraint(bone_name, twist_from, twist_range, swing_limit_cones);
-		}
-	}
-	~SkeletonProfileHumanoidConstraint() {}
-
-private:
-	HashMap<StringName, BoneConstraint> bone_constraints;
-};
 
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
