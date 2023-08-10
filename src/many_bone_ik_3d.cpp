@@ -1285,26 +1285,25 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		int32_t constraint_i = get_constraint_count();
 		add_constraint();
 		set_constraint_name(constraint_i, bone_name);
-		if (bone_name.ends_with("Eye") || bone_name == "Root") {
+		if (bone_name.ends_with("Eye") || bone_name == "Root" || bone_name == "Hips") {
 			continue;
 		}
 		set_kusudama_painfulness(constraint_i, 0.5);
 	}
 	for (int bone_i = 0; bone_i < get_constraint_count(); bone_i++) {
-		int32_t constraint_i = find_constraint(skeleton->get_bone_name(bone_i));
+		String bone_name = skeleton->get_bone_name(bone_i);
+		int32_t constraint_i = find_constraint(bone_name);
 		if (constraint_i == -1) {
 			continue;
 		}
 		set_kusudama_limit_cone_count(constraint_i, 1);
 		const int FIRST_CONE = 0;
 		const int SECOND_CONE = 1;
-		Transform3D bone_transform = get_bone_direction_transform(constraint_i);
-		Vector3 y_up_local = bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
-		Vector3 y_up = bone_transform.xform(y_up_local);
 		Quaternion twist_rotation, swing_rotation;
+		Transform3D bone_transform = get_bone_direction_transform(constraint_i);
+		Vector3 y_up = bone_transform.basis.get_column(Vector3::AXIS_Y);
 		Vector3 backwards = -y_up;
-		set_kusudama_twist_from_range(constraint_i, y_up.y, Math_TAU);
-		String bone_name = get_constraint_name(constraint_i);
+		set_kusudama_twist_from_range(constraint_i, 0.0, Math::deg_to_rad(5.0f));
 		if (bone_name == "Spine" || bone_name == "Chest") {
 			set_kusudama_painfulness(constraint_i, 0.9);
 			set_kusudama_limit_cone_center(constraint_i, FIRST_CONE, y_up);
