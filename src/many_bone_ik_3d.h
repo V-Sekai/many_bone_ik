@@ -53,6 +53,24 @@ class SkeletonProfileHumanoidConstraint : public SkeletonProfileHumanoid {
 	GDCLASS(SkeletonProfileHumanoidConstraint, SkeletonProfileHumanoid);
 
 public:
+	// Unit vector pointing towards the left side of imported 3D assets.
+	const Vector3 MODEL_LEFT = Vector3(1, 0, 0);
+
+	// Unit vector pointing towards the right side of imported 3D assets.
+	const Vector3 MODEL_RIGHT = Vector3(-1, 0, 0);
+
+	// Unit vector pointing towards the top side (up) of imported 3D assets.
+	const Vector3 MODEL_TOP = Vector3(0, 1, 0);
+
+	// Unit vector pointing towards the bottom side (down) of imported 3D assets.
+	const Vector3 MODEL_BOTTOM = Vector3(0, -1, 0);
+
+	// Unit vector pointing towards the front side (facing forward) of imported 3D assets.
+	const Vector3 MODEL_FRONT = Vector3(0, 0, 1);
+
+	// Unit vector pointing towards the rear side (facing backwards) of imported 3D assets.
+	const Vector3 MODEL_REAR = Vector3(0, 0, -1);
+
 	struct LimitCone {
 		Vector3 center = Vector3(0, 1, 0);
 		float radius = Math_PI;
@@ -81,24 +99,6 @@ public:
 			return BoneConstraint();
 		}
 	}
-	// Unit vector pointing towards the left side of imported 3D assets.
-	const Vector3 MODEL_LEFT = Vector3(1, 0, 0);
-
-	// Unit vector pointing towards the right side of imported 3D assets.
-	const Vector3 MODEL_RIGHT = Vector3(-1, 0, 0);
-
-	// Unit vector pointing towards the top side (up) of imported 3D assets.
-	const Vector3 MODEL_TOP = Vector3(0, 1, 0);
-
-	// Unit vector pointing towards the bottom side (down) of imported 3D assets.
-	const Vector3 MODEL_BOTTOM = Vector3(0, -1, 0);
-
-	// Unit vector pointing towards the front side (facing forward) of imported 3D assets.
-	const Vector3 MODEL_FRONT = Vector3(0, 0, 1);
-
-	// Unit vector pointing towards the rear side (facing backwards) of imported 3D assets.
-	const Vector3 MODEL_REAR = Vector3(0, 0, -1);
-
 	SkeletonProfileHumanoidConstraint() {
 		Vector<StringName> bone_names = { "Spine", "Chest", "UpperChest", "Hips", "Neck", "Head", "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftFoot", "RightFoot", "LeftShoulder", "RightShoulder", "LeftUpperArm", "RightUpperArm", "LeftLowerArm", "RightLowerArm", "LeftHand", "RightHand", "LeftThumb", "RightThumb", "LeftEye", "RightEye" };
 		for (int i = 0; i < bone_names.size(); ++i) {
@@ -147,9 +147,7 @@ public:
 			} else if (bone_name == "LeftEye" || bone_name == "RightEye") {
 				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
 			} else if (bone_name == "LeftToes" || bone_name == "RightToes") {
-				swing_limit_cones.push_back(LimitCone(MODEL_FRONT, Math_PI));
-			} else {
-				swing_limit_cones.push_back(LimitCone(MODEL_TOP, Math_PI));
+				continue;
 			}
 			if (bone_name == "LeftHand" || bone_name == "RightHand") {
 				twist_range = Math::deg_to_rad(20.0f);

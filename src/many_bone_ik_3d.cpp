@@ -1307,7 +1307,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		int32_t constraint_i = get_constraint_count();
 		add_constraint();
 		set_constraint_name(constraint_i, bone_name);
-		if (bone_name.ends_with("Eye") || bone_name == "Root" || bone_name == "Hips") {
+		if (bone_name.ends_with("Eye") || bone_name == "Root" || bone_name == "Hips" || bone_name == "LeftToes" || bone_name == "RightToes") {
 			continue;
 		}
 		set_kusudama_painfulness(constraint_i, 0.5);
