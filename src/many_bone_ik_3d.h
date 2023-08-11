@@ -110,6 +110,8 @@ public:
 				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(25.0f)));
 			} else if (bone_name == "LeftLowerLeg" || bone_name == "RightLowerLeg") {
 				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
+				Vector3 center_of_cones = Vector3(0, 0, -1);
+				swing_limit_cones.push_back(LimitCone(center_of_cones, Math::deg_to_rad(2.5f)));
 				swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
 			} else if (bone_name == "LeftFoot" || bone_name == "RightFoot") {
 				swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(45.0f)));
@@ -119,6 +121,8 @@ public:
 				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(90.0f)));
 			} else if (bone_name == "LeftLowerArm" || bone_name == "RightLowerArm") {
 				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
+				Vector3 center_of_cones = Vector3(0, 0, 1);
+				swing_limit_cones.push_back(LimitCone(center_of_cones, Math::deg_to_rad(2.5f)));
 				swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
 			} else if (bone_name == "LeftHand" || bone_name == "RightHand") {
 				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(60.0f)));
