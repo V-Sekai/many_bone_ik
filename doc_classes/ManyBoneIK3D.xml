@@ -86,13 +86,6 @@
 				Returns the painfulness of a bone. Painfulness is how much the bone prefers to remain in its comfortable region.
 			</description>
 		</method>
-		<method name="get_kusudama_stiffness" qualifiers="const">
-			<return type="float" />
-			<param index="0" name="index" type="int" />
-			<description>
-				Returns the stiffness of a bone. Stiffness is how much the bone prefers to stay wherever it happens to be. Think of stiffness as a per-bone reciprocal scaling factor on the dampening parameter.
-			</description>
-		</method>
 		<method name="get_kusudama_twist" qualifiers="const">
 			<return type="Vector2" />
 			<param index="0" name="index" type="int" />
@@ -235,14 +228,6 @@
 			<param index="1" name="painfulness" type="float" />
 			<description>
 				Sets the painfulness of a bone. Painfulness is how much the bone prefers to remain in its comfortable region.
-			</description>
-		</method>
-		<method name="set_kusudama_stiffness">
-			<return type="void" />
-			<param index="0" name="index" type="int" />
-			<param index="1" name="stiffness" type="float" />
-			<description>
-				Sets the stiffness of a bone. Stiffness is how much the bone prefers to stay wherever it happens to be. Think of stiffness as a per-bone reciprocal scaling factor on the dampening parameter.
 			</description>
 		</method>
 		<method name="set_kusudama_twist">

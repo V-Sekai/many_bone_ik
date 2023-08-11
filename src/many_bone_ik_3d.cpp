@@ -395,6 +395,8 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void ManyBoneIK3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_kusudama_painfulness", "index", "painfulness"), &ManyBoneIK3D::set_kusudama_painfulness);
+	ClassDB::bind_method(D_METHOD("get_kusudama_painfulness", "index"), &ManyBoneIK3D::get_kusudama_painfulness);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_twist_transform);
 	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform", "index"), &ManyBoneIK3D::get_constraint_orientation_transform);
