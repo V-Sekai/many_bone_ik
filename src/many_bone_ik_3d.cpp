@@ -1237,6 +1237,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	// | [Side]Hand      | The wrist can tilt up and down up to 50-60 degrees, allowing the hand to move towards or away from the forearm.
 	set_process_thread_group(PROCESS_THREAD_GROUP_SUB_THREAD);
 	set_process_thread_group_order(100);
+	set_stabilization_passes(1);
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
 	ERR_FAIL_NULL(skeleton);
 	skeleton->set_show_rest_only(true);
@@ -1307,10 +1308,10 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		int32_t constraint_i = get_constraint_count();
 		add_constraint();
 		set_constraint_name(constraint_i, bone_name);
-		if (bone_name.ends_with("Eye") || bone_name == "Root" || bone_name == "Hips" || bone_name == "LeftToes" || bone_name == "RightToes") {
+		if (bone_name.ends_with("Eye") || bone_name == "Root" || bone_name == "LeftToes" || bone_name == "RightToes") {
 			continue;
 		}
-		set_kusudama_painfulness(constraint_i, 0.5);
+		set_kusudama_painfulness(constraint_i, 1.0);
 	}
 	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
 		String bone_name = humanoid_profile->get_bone_name(bone_i);
