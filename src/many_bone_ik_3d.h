@@ -57,8 +57,8 @@ public:
 		Vector3 center = Vector3(0, 1, 0);
 		float radius = Math_PI;
 
-		LimitCone(Vector3 center = Vector3(), float radius = 0) :
-				center(center), radius(radius) {}
+		LimitCone(Vector3 p_center = Vector3(), float p_radius = 0) :
+				center(p_center), radius(p_radius) {}
 	};
 
 	struct BoneConstraint {
@@ -66,17 +66,17 @@ public:
 		float twist_range = Math_TAU;
 		Vector<LimitCone> swing_limit_cones;
 
-		BoneConstraint(float twist_from = 0, float twist_range = 0, Vector<LimitCone> swing_limit_cones = Vector<LimitCone>()) :
-				twist_from(twist_from), twist_range(twist_range), swing_limit_cones(swing_limit_cones) {
-			swing_limit_cones.resize(10);
+		BoneConstraint(float p_twist_from = 0, float p_twist_range = 0, Vector<LimitCone> p_swing_limit_cones = Vector<LimitCone>()) :
+				twist_from(p_twist_from), twist_range(p_twist_range), swing_limit_cones(p_swing_limit_cones) {
+			p_swing_limit_cones.resize(10);
 		}
 	};
-	void set_bone_constraint(const StringName &bone_name, float twist_from, float twist_range, Vector<LimitCone> swing_limit_cones) {
-		bone_constraints[bone_name] = BoneConstraint(twist_from, twist_range, swing_limit_cones);
+	void set_bone_constraint(const StringName &p_bone_name, float p_twist_from, float p_twist_range, Vector<LimitCone> p_swing_limit_cones) {
+		bone_constraints[p_bone_name] = BoneConstraint(p_twist_from, p_twist_range, p_swing_limit_cones);
 	}
-	BoneConstraint get_bone_constraint(const StringName &bone_name) const {
-		if (bone_constraints.has(bone_name)) {
-			return bone_constraints[bone_name];
+	BoneConstraint get_bone_constraint(const StringName &p_bone_name) const {
+		if (bone_constraints.has(p_bone_name)) {
+			return bone_constraints[p_bone_name];
 		} else {
 			return BoneConstraint();
 		}
