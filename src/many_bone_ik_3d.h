@@ -114,7 +114,7 @@ public:
 				swing_limit_cones.push_back(LimitCone(center_of_cones, Math::deg_to_rad(2.5f)));
 				swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
 			} else if (bone_name == "LeftFoot" || bone_name == "RightFoot") {
-				swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(45.0f)));
+				swing_limit_cones.push_back(LimitCone(Vector3(0, -1, 0), Math::deg_to_rad(5.0f)));
 			} else if (bone_name == "LeftShoulder" || bone_name == "RightShoulder") {
 				swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(30.0f)));
 			} else if (bone_name == "LeftUpperArm" || bone_name == "RightUpperArm") {
