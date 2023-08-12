@@ -77,7 +77,7 @@ protected:
 		switch (p_what) {
 			case EditorNode3DGizmoPlugin::NOTIFICATION_PREDELETE: {
 				if (edit_mode_button) {
-					edit_mode_button->queue_free()
+					edit_mode_button->queue_free();
 				}
 			} break
 		}
