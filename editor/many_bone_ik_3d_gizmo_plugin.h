@@ -82,9 +82,7 @@ public:
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	ManyBoneIK3DGizmoPlugin();
 	~ManyBoneIK3DGizmoPlugin() {
-		if (edit_mode_button) {
-			Node3DEditor::get_singleton()->remove_control_from_menu_panel(edit_mode_button);
-		}
+		Node3DEditor::get_singleton()->remove_control_from_menu_panel(edit_mode_button);
 	}
 	int32_t get_priority() const override;
 	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
