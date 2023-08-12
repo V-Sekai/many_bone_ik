@@ -84,8 +84,6 @@ public:
 	~ManyBoneIK3DGizmoPlugin() {
 		if (edit_mode_button) {
 			Node3DEditor::get_singleton()->remove_control_from_menu_panel(edit_mode_button);
-			memdelete(edit_mode_button);
-			edit_mode_button = nullptr;
 		}
 	}
 	int32_t get_priority() const override;
