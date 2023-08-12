@@ -73,6 +73,15 @@ class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 
 protected:
 	static void _bind_methods();
+	void _notifications(int32_t p_what) {
+		switch (p_what) {
+			case EditorNode3DGizmoPlugin::NOTIFICATION_PREDELETE: {
+				if (edit_mode_button) {
+					edit_mode_button->queue_free()
+				}
+			} break
+		}
+	}
 
 public:
 	const Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
@@ -81,9 +90,6 @@ public:
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	ManyBoneIK3DGizmoPlugin();
-	~ManyBoneIK3DGizmoPlugin() {
-		Node3DEditor::get_singleton()->remove_control_from_menu_panel(edit_mode_button);
-	}
 	int32_t get_priority() const override;
 	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
 	int subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const override;
