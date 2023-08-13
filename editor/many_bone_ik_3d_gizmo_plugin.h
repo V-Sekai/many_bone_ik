@@ -73,15 +73,7 @@ class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 
 protected:
 	static void _bind_methods();
-	void _notifications(int32_t p_what) {
-		switch (p_what) {
-			case EditorNode3DGizmoPlugin::NOTIFICATION_PREDELETE: {
-				if (edit_mode_button) {
-					edit_mode_button->queue_free();
-				}
-			} break
-		}
-	}
+	void _notifications(int32_t p_what);
 
 public:
 	const Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");

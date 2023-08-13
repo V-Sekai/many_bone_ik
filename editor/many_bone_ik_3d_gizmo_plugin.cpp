@@ -605,3 +605,12 @@ void ManyBoneIK3DGizmoPlugin::edit_mode_toggled(const bool pressed) {
 void ManyBoneIK3DGizmoPlugin::_hide_handles() {
 	handles_mesh_instance->hide();
 }
+void ManyBoneIK3DGizmoPlugin::_notifications(int32_t p_what) {
+	switch (p_what) {
+		case EditorNode3DGizmoPlugin::NOTIFICATION_PREDELETE: {
+			if (edit_mode_button) {
+				edit_mode_button->queue_free();
+			}
+		} break;
+	}
+}
