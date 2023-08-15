@@ -274,86 +274,6 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 }
 
 ManyBoneIK3DGizmoPlugin::ManyBoneIK3DGizmoPlugin() {
-	handle_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
-	handle_shader = Ref<Shader>(memnew(Shader));
-	handle_shader->set_code(R"(
-// Skeleton 3D gizmo handle shader.
-
-shader_type spatial;
-render_mode unshaded, shadows_disabled, depth_draw_always;
-uniform sampler2D texture_albedo : source_color;
-uniform float point_size : hint_range(0,128) = 32;
-void vertex() {
-	if (!OUTPUT_IS_SRGB) {
-		COLOR.rgb = mix( pow((COLOR.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)), vec3(2.4)), COLOR.rgb* (1.0 / 12.92), lessThan(COLOR.rgb,vec3(0.04045)) );
-	}
-	VERTEX = VERTEX;
-	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * MODEL_MATRIX * vec4(VERTEX.xyz, 1.0);
-	POSITION.z = mix(POSITION.z, 0, 0.999);
-	POINT_SIZE = point_size;
-}
-void fragment() {
-	vec4 albedo_tex = texture(texture_albedo,POINT_COORD);
-	vec3 col = albedo_tex.rgb + COLOR.rgb;
-	col = vec3(min(col.r,1.0),min(col.g,1.0),min(col.b,1.0));
-	ALBEDO = col;
-	if (albedo_tex.a < 0.5) { discard; }
-	ALPHA = albedo_tex.a;
-}
-)");
-	handle_material->set_shader(handle_shader);
-	Ref<Texture2D> handle = EditorNode::get_singleton()->get_gui_base()->get_theme_icon(SNAME("EditorBoneHandle"), SNAME("EditorIcons"));
-	handle_material->set_shader_parameter("point_size", handle->get_width());
-	handle_material->set_shader_parameter("texture_albedo", handle);
-
-	handles_mesh_instance = memnew(MeshInstance3D);
-	handles_mesh_instance->set_cast_shadows_setting(GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
-	handles_mesh_instance->set_mesh(handles_mesh);
-	edit_mode_button = memnew(Button);
-	edit_mode_button->set_text(TTR("Edit Mode"));
-	edit_mode_button->set_flat(true);
-	edit_mode_button->set_toggle_mode(true);
-	edit_mode_button->set_focus_mode(Control::FOCUS_NONE);
-	edit_mode_button->set_tooltip_text(TTR("Edit Mode\nShow buttons on joints."));
-	edit_mode_button->connect("toggled", callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
-	edit_mode = false;
-	create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
-	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
-
-	unselected_mat = Ref<StandardMaterial3D>(memnew(StandardMaterial3D));
-	unselected_mat->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
-	unselected_mat->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA);
-	unselected_mat->set_flag(StandardMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
-	unselected_mat->set_flag(StandardMaterial3D::FLAG_SRGB_VERTEX_COLOR, true);
-
-	selected_mat = Ref<ShaderMaterial>(memnew(ShaderMaterial));
-	selected_sh = Ref<Shader>(memnew(Shader));
-	selected_sh->set_code(R"(
-// Skeleton 3D gizmo bones shader.
-
-shader_type spatial;
-render_mode unshaded, shadows_disabled;
-void vertex() {
-	if (!OUTPUT_IS_SRGB) {
-		COLOR.rgb = mix( pow((COLOR.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)), vec3(2.4)), COLOR.rgb* (1.0 / 12.92), lessThan(COLOR.rgb,vec3(0.04045)) );
-	}
-	VERTEX = VERTEX;
-	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * MODEL_MATRIX * vec4(VERTEX.xyz, 1.0);
-	POSITION.z = mix(POSITION.z, 0, 0.998);
-}
-void fragment() {
-	ALBEDO = COLOR.rgb;
-	ALPHA = COLOR.a;
-}
-)");
-	selected_mat->set_shader(selected_sh);
-
-	// Register properties in editor settings.
-	EDITOR_DEF("editors/3d_gizmos/gizmo_colors/skeleton", Color(1, 0.8, 0.4));
-	EDITOR_DEF("editors/3d_gizmos/gizmo_colors/selected_bone", Color(0.8, 0.3, 0.0));
-	EDITOR_DEF("editors/3d_gizmos/gizmo_settings/bone_axis_length", (float)0.1);
-	EDITOR_DEF("editors/3d_gizmos/gizmo_settings/bone_shape", 1);
-	EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "editors/3d_gizmos/gizmo_settings/bone_shape", PROPERTY_HINT_ENUM, "Wire,Octahedron"));
 }
 
 int32_t ManyBoneIK3DGizmoPlugin::get_priority() const {
@@ -606,6 +526,86 @@ void ManyBoneIK3DGizmoPlugin::_hide_handles() {
 void ManyBoneIK3DGizmoPlugin::_notifications(int32_t p_what) {
 	switch (p_what) {
 		case EditorNode3DGizmoPlugin::NOTIFICATION_POSTINITIALIZE: {
+			handle_material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+			handle_shader = Ref<Shader>(memnew(Shader));
+			handle_shader->set_code(R"(
+// Skeleton 3D gizmo handle shader.
+
+shader_type spatial;
+render_mode unshaded, shadows_disabled, depth_draw_always;
+uniform sampler2D texture_albedo : source_color;
+uniform float point_size : hint_range(0,128) = 32;
+void vertex() {
+	if (!OUTPUT_IS_SRGB) {
+		COLOR.rgb = mix( pow((COLOR.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)), vec3(2.4)), COLOR.rgb* (1.0 / 12.92), lessThan(COLOR.rgb,vec3(0.04045)) );
+	}
+	VERTEX = VERTEX;
+	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * MODEL_MATRIX * vec4(VERTEX.xyz, 1.0);
+	POSITION.z = mix(POSITION.z, 0, 0.999);
+	POINT_SIZE = point_size;
+}
+void fragment() {
+	vec4 albedo_tex = texture(texture_albedo,POINT_COORD);
+	vec3 col = albedo_tex.rgb + COLOR.rgb;
+	col = vec3(min(col.r,1.0),min(col.g,1.0),min(col.b,1.0));
+	ALBEDO = col;
+	if (albedo_tex.a < 0.5) { discard; }
+	ALPHA = albedo_tex.a;
+}
+)");
+			handle_material->set_shader(handle_shader);
+			Ref<Texture2D> handle = EditorNode::get_singleton()->get_gui_base()->get_theme_icon(SNAME("EditorBoneHandle"), SNAME("EditorIcons"));
+			handle_material->set_shader_parameter("point_size", handle->get_width());
+			handle_material->set_shader_parameter("texture_albedo", handle);
+
+			handles_mesh_instance = memnew(MeshInstance3D);
+			handles_mesh_instance->set_cast_shadows_setting(GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
+			handles_mesh_instance->set_mesh(handles_mesh);
+			edit_mode_button = memnew(Button);
+			edit_mode_button->set_text(TTR("Edit Mode"));
+			edit_mode_button->set_flat(true);
+			edit_mode_button->set_toggle_mode(true);
+			edit_mode_button->set_focus_mode(Control::FOCUS_NONE);
+			edit_mode_button->set_tooltip_text(TTR("Edit Mode\nShow buttons on joints."));
+			edit_mode_button->connect("toggled", callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
+			edit_mode = false;
+			create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
+			kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
+
+			unselected_mat = Ref<StandardMaterial3D>(memnew(StandardMaterial3D));
+			unselected_mat->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
+			unselected_mat->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA);
+			unselected_mat->set_flag(StandardMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+			unselected_mat->set_flag(StandardMaterial3D::FLAG_SRGB_VERTEX_COLOR, true);
+
+			selected_mat = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+			selected_sh = Ref<Shader>(memnew(Shader));
+			selected_sh->set_code(R"(
+// Skeleton 3D gizmo bones shader.
+
+shader_type spatial;
+render_mode unshaded, shadows_disabled;
+void vertex() {
+	if (!OUTPUT_IS_SRGB) {
+		COLOR.rgb = mix( pow((COLOR.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)), vec3(2.4)), COLOR.rgb* (1.0 / 12.92), lessThan(COLOR.rgb,vec3(0.04045)) );
+	}
+	VERTEX = VERTEX;
+	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * MODEL_MATRIX * vec4(VERTEX.xyz, 1.0);
+	POSITION.z = mix(POSITION.z, 0, 0.998);
+}
+void fragment() {
+	ALBEDO = COLOR.rgb;
+	ALPHA = COLOR.a;
+}
+)");
+			selected_mat->set_shader(selected_sh);
+
+			// Register properties in editor settings.
+			EDITOR_DEF("editors/3d_gizmos/gizmo_colors/skeleton", Color(1, 0.8, 0.4));
+			EDITOR_DEF("editors/3d_gizmos/gizmo_colors/selected_bone", Color(0.8, 0.3, 0.0));
+			EDITOR_DEF("editors/3d_gizmos/gizmo_settings/bone_axis_length", (float)0.1);
+			EDITOR_DEF("editors/3d_gizmos/gizmo_settings/bone_shape", 1);
+			EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "editors/3d_gizmos/gizmo_settings/bone_shape", PROPERTY_HINT_ENUM, "Wire,Octahedron"));
 			Node3DEditor::get_singleton()->add_control_to_menu_panel(edit_mode_button);
 		} break;
 		case EditorNode3DGizmoPlugin::NOTIFICATION_PREDELETE: {
