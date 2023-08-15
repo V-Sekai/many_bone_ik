@@ -315,7 +315,6 @@ void fragment() {
 	edit_mode_button->set_toggle_mode(true);
 	edit_mode_button->set_focus_mode(Control::FOCUS_NONE);
 	edit_mode_button->set_tooltip_text(TTR("Edit Mode\nShow buttons on joints."));
-	Node3DEditor::get_singleton()->add_control_to_menu_panel(edit_mode_button);
 	edit_mode_button->connect("toggled", callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
 	edit_mode = false;
 	create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
@@ -606,10 +605,11 @@ void ManyBoneIK3DGizmoPlugin::_hide_handles() {
 
 void ManyBoneIK3DGizmoPlugin::_notifications(int32_t p_what) {
 	switch (p_what) {
+		case EditorNode3DGizmoPlugin::NOTIFICATION_POSTINITIALIZE: {
+			Node3DEditor::get_singleton()->add_control_to_menu_panel(edit_mode_button);
+		} break;
 		case EditorNode3DGizmoPlugin::NOTIFICATION_PREDELETE: {
-			if (edit_mode_button) {
-				edit_mode_button->queue_free();
-			}
+			Node3DEditor::get_singleton()->remove_control_from_menu_panel(edit_mode_button);
 		} break;
 	}
 }
