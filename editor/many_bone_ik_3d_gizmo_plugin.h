@@ -49,6 +49,7 @@
 #include "scene/3d/node_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/immediate_mesh.h"
+#include "scene/resources/material.h"
 
 class Joint;
 class PhysicalBone3D;
@@ -57,15 +58,15 @@ class Button;
 
 class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(ManyBoneIK3DGizmoPlugin, EditorNode3DGizmoPlugin);
-	Ref<Shader> kusudama_shader;
+	Ref<Shader> kusudama_shader = memnew(Shader);
 
 	Ref<StandardMaterial3D> unselected_mat;
 	Ref<ShaderMaterial> selected_mat;
-	Ref<Shader> selected_sh;
+	Ref<Shader> selected_sh = memnew(Shader);
 
 	MeshInstance3D *handles_mesh_instance = nullptr;
-	Ref<ImmediateMesh> handles_mesh;
-	Ref<ShaderMaterial> handle_material;
+	Ref<ImmediateMesh> handles_mesh = memnew(ImmediateMesh);
+	Ref<ShaderMaterial> handle_material = memnew(ShaderMaterial);
 	Ref<Shader> handle_shader;
 	ManyBoneIK3D *many_bone_ik = nullptr;
 	Button *edit_mode_button = nullptr;

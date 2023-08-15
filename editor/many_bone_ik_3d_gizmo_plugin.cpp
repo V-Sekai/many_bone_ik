@@ -308,7 +308,6 @@ void fragment() {
 
 	handles_mesh_instance = memnew(MeshInstance3D);
 	handles_mesh_instance->set_cast_shadows_setting(GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
-	handles_mesh.instantiate();
 	handles_mesh_instance->set_mesh(handles_mesh);
 	edit_mode_button = memnew(Button);
 	edit_mode_button->set_text(TTR("Edit Mode"));
@@ -320,7 +319,6 @@ void fragment() {
 	edit_mode_button->connect("toggled", callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
 	edit_mode = false;
 	create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
-	kusudama_shader.instantiate();
 	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
 
 	unselected_mat = Ref<StandardMaterial3D>(memnew(StandardMaterial3D));
