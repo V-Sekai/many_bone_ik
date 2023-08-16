@@ -457,7 +457,6 @@ void ManyBoneIK3D::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "initialize_humanoid_bones"), "set_setup_humanoid_bones", "get_setup_humanoid_bones");
 
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "humanoid_mode", PROPERTY_HINT_ENUM, "All,Humanoid,Body"), "set_humanoid_mode", "get_humanoid_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.1,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
