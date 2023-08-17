@@ -31,7 +31,6 @@
 #ifndef IK_BONE_3D_H
 #define IK_BONE_3D_H
 
-#include "core/math/math_defs.h"
 #include "ik_effector_template_3d.h"
 #include "ik_kusudama_3d.h"
 #include "ik_limit_cone_3d.h"

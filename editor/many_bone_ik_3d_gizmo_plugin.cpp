@@ -28,10 +28,6 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "many_bone_ik_3d_gizmo_plugin.h"
-
-#include "../src/ik_kusudama_3d.h"
-
 #include "core/io/resource_saver.h"
 #include "core/math/transform_3d.h"
 #include "core/templates/local_vector.h"
@@ -42,8 +38,6 @@
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/node_3d_editor_gizmos.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
-#include "../ik_bone_3d.h"
-#include "../many_bone_ik_3d.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/joint_3d.h"
 #include "scene/3d/label_3d.h"
@@ -55,6 +49,11 @@
 #include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/surface_tool.h"
 #include "scene/scene_string_names.h"
+
+#include "../src/ik_bone_3d.h"
+#include "../src/ik_kusudama_3d.h"
+#include "../src/many_bone_ik_3d.h"
+#include "many_bone_ik_3d_gizmo_plugin.h"
 
 void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &ManyBoneIK3DGizmoPlugin::get_gizmo_name);
