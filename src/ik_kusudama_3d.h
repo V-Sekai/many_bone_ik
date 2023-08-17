@@ -64,7 +64,7 @@ class IKKusudama3D : public Resource {
 	real_t twist_half_range_half_cos = 0;
 	Vector3 twist_tan;
 	bool flipped_bounds = false;
-	real_t painfulness = 0;
+	real_t resistance = 0;
 
 	/**
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
@@ -210,8 +210,8 @@ public:
 	 */
 	TypedArray<IKLimitCone3D> get_limit_cones() const;
 	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
-	float get_painfulness();
-	void set_painfulness(float p_painfulness);
+	float get_resistance();
+	void set_resistance(float p_resistance);
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_rotation, double p_cos_half_angle);
 	void set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float cos_half_returnfullness, float angle_returnfullness);
 };

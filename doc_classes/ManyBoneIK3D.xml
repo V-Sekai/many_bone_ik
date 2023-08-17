@@ -79,11 +79,11 @@
 				Returns the radius of the limit cone for the kusudama at the specified index.
 			</description>
 		</method>
-		<method name="get_kusudama_painfulness" qualifiers="const">
+		<method name="get_kusudama_resistance" qualifiers="const">
 			<return type="float" />
 			<param index="0" name="index" type="int" />
 			<description>
-				Returns the painfulness of a bone. Painfulness is how much the bone prefers to remain in its comfortable region.
+				Returns the resistance of a bone. resistance is how much the bone prefers to remain in its comfortable region.
 			</description>
 		</method>
 		<method name="get_kusudama_twist" qualifiers="const">
@@ -222,12 +222,12 @@
 				Sets the radius of the limit cone for the kusudama at the specified index.
 			</description>
 		</method>
-		<method name="set_kusudama_painfulness">
+		<method name="set_kusudama_resistance">
 			<return type="void" />
 			<param index="0" name="index" type="int" />
-			<param index="1" name="painfulness" type="float" />
+			<param index="1" name="resistance" type="float" />
 			<description>
-				Sets the painfulness of a bone. Painfulness is how much the bone prefers to remain in its comfortable region.
+				Sets the resistance of a bone. resistance is how much the bone prefers to remain in its comfortable region.
 			</description>
 		</method>
 		<method name="set_kusudama_twist">

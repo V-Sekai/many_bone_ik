@@ -331,7 +331,7 @@ void IKKusudama3D::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Re
 }
 
 void IKKusudama3D::set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float cos_half_returnfullness, float angle_returnfullness) {
-	if (bone_direction.is_null() || to_set.is_null() || limiting_axes.is_null() || painfulness <= 0.0) {
+	if (bone_direction.is_null() || to_set.is_null() || limiting_axes.is_null() || resistance <= 0.0) {
 		return;
 	}
 	Quaternion twist_rotation, swing_rotation;
@@ -378,12 +378,12 @@ bool IKKusudama3D::is_nan_vector(const Vector3 &vec) {
 	return Math::is_nan(vec.x) || Math::is_nan(vec.y) || Math::is_nan(vec.z);
 }
 
-void IKKusudama3D::set_painfulness(float p_painfulness) {
-	painfulness = p_painfulness;
+void IKKusudama3D::set_resistance(float p_resistance) {
+	resistance = p_resistance;
 }
 
-float IKKusudama3D::get_painfulness() {
-	return painfulness;
+float IKKusudama3D::get_resistance() {
+	return resistance;
 }
 
 Quaternion IKKusudama3D::clamp_to_quadrance_angle(Quaternion p_rotation, double p_cos_half_angle) {

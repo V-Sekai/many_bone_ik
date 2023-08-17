@@ -249,7 +249,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 		new_constraint.instantiate();
 		add_constraint(new_constraint);
 	}
-	float returnfulness = get_constraint()->get_painfulness();
+	float returnfulness = get_constraint()->get_resistance();
 	float falloff = 0.2f;
 	half_returnfulness_dampened.resize(iterations);
 	cos_half_returnfulness_dampened.resize(iterations);

@@ -182,9 +182,9 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 			update_tip_headings(p_for_bone, &tip_headings_uniform);
 			double current_msd = get_manual_msd(tip_headings_uniform, target_headings, heading_weights);
 			if (current_msd <= previous_deviation * 1.0001) {
-				if (p_for_bone->get_constraint().is_valid() && !Math::is_zero_approx(p_for_bone->get_constraint()->get_painfulness())) {
+				if (p_for_bone->get_constraint().is_valid() && !Math::is_zero_approx(p_for_bone->get_constraint()->get_resistance())) {
 					if (bone_damp != -1) {
-						float returnfulness = p_for_bone->get_constraint()->get_painfulness();
+						float returnfulness = p_for_bone->get_constraint()->get_resistance();
 						float dampened_angle = p_for_bone->get_stiffness() * bone_damp * returnfulness;
 						float total_iterations_square = total_iterations * total_iterations;
 						float scaled_dampened_angle = dampened_angle * ((total_iterations_square - (current_iteration * current_iteration)) / total_iterations_square);
