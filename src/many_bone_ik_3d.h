@@ -92,8 +92,8 @@ public:
 		BoneConstraint(BoneConstraint &&) = default;
 		BoneConstraint &operator=(const BoneConstraint &) = default;
 		BoneConstraint &operator=(BoneConstraint &&) = default;
-		explicit BoneConstraint(Vector<LimitCone> swing_limit_cones) :
-				swing_limit_cones(std::move(swing_limit_cones)) {}
+		explicit BoneConstraint(Vector<LimitCone> p_swing_limit_cones) :
+				swing_limit_cones(std::move(p_swing_limit_cones)) {}
 	};
 	void set_bone_constraint(const StringName &p_bone_name, float p_twist_from, float p_twist_range, Vector<LimitCone> p_swing_limit_cones);
 	BoneConstraint get_bone_constraint(const StringName &p_bone_name) const;
