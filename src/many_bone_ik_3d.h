@@ -184,9 +184,9 @@ private:
 	int32_t iterations_per_frame = 10;
 	float default_damp = Math::deg_to_rad(5.0f);
 	bool queue_debug_skeleton = false;
-	Ref<IKNode3D> godot_skeleton_transform = Ref<IKNode3D>(memnew(IKNode3D));
+	Ref<IKNode3D> godot_skeleton_transform;
 	Transform3D godot_skeleton_transform_inverse;
-	Ref<IKNode3D> ik_origin = Ref<IKNode3D>(memnew(IKNode3D));
+	Ref<IKNode3D> ik_origin;
 	bool is_dirty = true;
 	NodePath skeleton_node_path = NodePath("..");
 	int32_t ui_selected_bone = -1, stabilize_passes = 4;

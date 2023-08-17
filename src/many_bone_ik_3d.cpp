@@ -725,6 +725,7 @@ void ManyBoneIK3D::execute(real_t delta) {
 			return;
 		}
 		Skeleton3D *skeleton = get_skeleton();
+		godot_skeleton_transform.instantiate();
 		godot_skeleton_transform->set_transform(skeleton->get_transform());
 		godot_skeleton_transform_inverse = skeleton->get_transform().affine_inverse();
 	}
@@ -769,6 +770,7 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 	for (BoneId root_bone_index : roots) {
 		StringName parentless_bone = p_skeleton->get_bone_name(root_bone_index);
 		Ref<IKBoneSegment3D> segmented_skeleton = Ref<IKBoneSegment3D>(memnew(IKBoneSegment3D(p_skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1, stabilize_passes)));
+		ik_origin.instantiate();
 		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
 		segmented_skeleton->generate_default_segments(pins, root_bone_index, -1, this);
 		Vector<Ref<IKBone3D>> new_bone_list;
@@ -790,7 +792,8 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 			if (ik_bone_3d->get_bone_id() != bone_id) {
 				continue;
 			}
-			Ref<IKKusudama3D> constraint = Ref<IKKusudama3D>(memnew(IKKusudama3D()));
+			Ref<IKKusudama3D> constraint;
+			constraint.instantiate();
 			constraint->enable_orientational_limits();
 
 			int32_t cone_count = kusudama_limit_cone_count[constraint_i];
