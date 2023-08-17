@@ -1313,7 +1313,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		if (bone_name.ends_with("Eye") || bone_name == "Root" || bone_name == "LeftToes" || bone_name == "RightToes") {
 			continue;
 		}
-		set_kusudama_resistance(constraint_i, 1.0);
 	}
 	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
 		String bone_name = humanoid_profile->get_bone_name(bone_i);
@@ -1328,6 +1327,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			set_kusudama_limit_cone(constraint_i, cone_i, cones[cone_i].center, cones[cone_i].radius);
 		}
 		set_kusudama_twist_from_range(constraint_i, constraint.twist_from, constraint.twist_range);
+		set_kusudama_resistance(constraint_i, constraint.resistance);
 	}
 	is_setup_humanoid_bones = false;
 	skeleton->set_show_rest_only(is_setup_humanoid_bones);
@@ -1386,42 +1386,56 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		y_up_backwards.y = -y_up_backwards.y;
 		float twist_range = Math::deg_to_rad(360.0f);
 		float twist_from = reference_pose.basis.get_euler().y;
+		float resistance = 0.0f;
 		if (bone_name == "Spine" || bone_name == "Chest") {
 			twist_from = -1.5708;
 			twist_range = 3.14159;
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(3.0f))); // Reduced from 5.0f to 3.0f
+			resistance = 0.5f;
 		} else if (bone_name == "UpperChest") {
 			twist_from = -1.5708;
 			twist_range = 3.14159;
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f))); // Reduced from 15.0f to 10.0f
+			resistance = 0.6f;
 		} else if (bone_name == "Hips") {
 			swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(10.0f)));
+			resistance = 0.5f;
 		} else if (bone_name == "Neck") {
 			twist_from = -1.5708;
 			twist_range = 3.14159;
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
+			resistance = 0.6f;
 		} else if (bone_name == "Head") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(15.0f)));
+			resistance = 0.7f;
 		} else if (bone_name == "LeftUpperLeg" || bone_name == "RightUpperLeg") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(25.0f)));
+			resistance = 0.8f;
 		} else if (bone_name == "LeftLowerLeg" || bone_name == "RightLowerLeg") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(MODEL_REAR, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
+			resistance = 0.8f;
 		} else if (bone_name == "LeftFoot" || bone_name == "RightFoot") {
 			swing_limit_cones.push_back(LimitCone(MODEL_BOTTOM, Math::deg_to_rad(5.0f)));
+			resistance = 0.1;
 		} else if (bone_name == "LeftShoulder" || bone_name == "RightShoulder") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(30.0f)));
+			resistance = 0.2;
 		} else if (bone_name == "LeftUpperArm" || bone_name == "RightUpperArm") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(90.0f)));
+			resistance = 0.3;
 		} else if (bone_name == "LeftLowerArm" || bone_name == "RightLowerArm") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(MODEL_FRONT, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
+			resistance = 0.4;
 		} else if (bone_name == "LeftHand" || bone_name == "RightHand") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(60.0f)));
+			resistance = 0.5;
 		} else if (bone_name == "LeftThumb" || bone_name == "RightThumb") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(90.0f)));
+			resistance = 0.6;
 		} else if (bone_name == "LeftEye" || bone_name == "RightEye") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
 		} else if (bone_name == "LeftToes" || bone_name == "RightToes") {
@@ -1430,8 +1444,7 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		if (bone_name == "LeftHand" || bone_name == "RightHand") {
 			twist_range = Math::deg_to_rad(20.0f);
 		}
-
-		set_bone_constraint(bone_name, twist_from - twist_range / 2, twist_range, swing_limit_cones);
+		set_bone_constraint(bone_name, twist_from - twist_range / 2, twist_range, swing_limit_cones, resistance);
 	}
 }
 SkeletonProfileHumanoidConstraint::BoneConstraint SkeletonProfileHumanoidConstraint::get_bone_constraint(const StringName &p_bone_name) const {
@@ -1441,6 +1454,6 @@ SkeletonProfileHumanoidConstraint::BoneConstraint SkeletonProfileHumanoidConstra
 		return BoneConstraint();
 	}
 }
-void SkeletonProfileHumanoidConstraint::set_bone_constraint(const StringName &p_bone_name, float p_twist_from, float p_twist_range, Vector<LimitCone> p_swing_limit_cones) {
-	bone_constraints[p_bone_name] = BoneConstraint(p_twist_from, p_twist_range, p_swing_limit_cones);
+void SkeletonProfileHumanoidConstraint::set_bone_constraint(const StringName &p_bone_name, float p_twist_from, float p_twist_range, Vector<LimitCone> p_swing_limit_cones, float p_resistance = 0.0f) {
+	bone_constraints[p_bone_name] = BoneConstraint(p_twist_from, p_twist_range, p_swing_limit_cones, p_resistance);
 }

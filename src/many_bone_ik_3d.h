@@ -83,9 +83,10 @@ public:
 		float twist_from = 0;
 		float twist_range = Math_TAU;
 		Vector<LimitCone> swing_limit_cones;
+		float resistance = 0;
 
-		BoneConstraint(float p_twist_from = 0, float p_twist_range = 0, Vector<LimitCone> p_swing_limit_cones = Vector<LimitCone>()) :
-				twist_from(p_twist_from), twist_range(p_twist_range), swing_limit_cones(p_swing_limit_cones) {
+		BoneConstraint(float p_twist_from = 0, float p_twist_range = 0, Vector<LimitCone> p_swing_limit_cones = Vector<LimitCone>(), float p_resistance = 0) :
+				twist_from(p_twist_from), twist_range(p_twist_range), swing_limit_cones(p_swing_limit_cones), resistance(p_resistance) {
 			p_swing_limit_cones.resize(10);
 		}
 		BoneConstraint(const BoneConstraint &) = default;
@@ -95,7 +96,7 @@ public:
 		explicit BoneConstraint(Vector<LimitCone> p_swing_limit_cones) :
 				swing_limit_cones(std::move(p_swing_limit_cones)) {}
 	};
-	void set_bone_constraint(const StringName &p_bone_name, float p_twist_from, float p_twist_range, Vector<LimitCone> p_swing_limit_cones);
+	void set_bone_constraint(const StringName &p_bone_name, float p_twist_from, float p_twist_range, Vector<LimitCone> p_swing_limit_cones, float p_resistance);
 	BoneConstraint get_bone_constraint(const StringName &p_bone_name) const;
 	SkeletonProfileHumanoidConstraint();
 	~SkeletonProfileHumanoidConstraint() {
