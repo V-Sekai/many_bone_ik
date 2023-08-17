@@ -1440,6 +1440,8 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(90.0f)));
 			resistance = 0.3;
 		} else if (bone_name == "LeftLowerArm" || bone_name == "RightLowerArm") {
+			twist_from = Math::deg_to_rad(-55.0f);
+			twist_range = Math::deg_to_rad(50.0f);
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(MODEL_FRONT, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
