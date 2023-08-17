@@ -172,6 +172,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
 		p_list->push_back(
+				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_current", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));	
+		p_list->push_back(
 				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count", PROPERTY_HINT_RANGE, "0,10,1", constraint_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
@@ -280,6 +282,9 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		} else if (what == "twist_range") {
 			r_ret = get_kusudama_twist(index).y;
 			return true;
+		} else if (what == "twist_current") {
+			r_ret = get_kusudama_twist_current(index);
+			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			r_ret = get_kusudama_limit_cone_count(index);
 			return true;
@@ -361,6 +366,9 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 		} else if (what == "twist_range") {
 			Vector2 twist_range = get_kusudama_twist(index);
 			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
+			return true;
+		} else if (what == "twist_current") {
+			set_kusudama_twist_current(index, p_value);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
@@ -1456,4 +1464,46 @@ SkeletonProfileHumanoidConstraint::BoneConstraint SkeletonProfileHumanoidConstra
 }
 void SkeletonProfileHumanoidConstraint::set_bone_constraint(const StringName &p_bone_name, float p_twist_from, float p_twist_range, Vector<LimitCone> p_swing_limit_cones, float p_resistance = 0.0f) {
 	bone_constraints[p_bone_name] = BoneConstraint(p_twist_from, p_twist_range, p_swing_limit_cones, p_resistance);
+}
+
+real_t ManyBoneIK3D::get_kusudama_twist_current(int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), 0.0f);
+	String bone_name = constraint_names[p_index];
+	if (!segmented_skeletons.size()) {
+		return 0;
+	}
+	for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		return ik_bone->get_constraint()->get_current_twist_rotation(ik_bone->get_ik_transform(), ik_bone->get_bone_direction_transform(), ik_bone->get_constraint_twist_transform());
+	}
+	return 0;
+}
+
+void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation) {
+	ERR_FAIL_INDEX(p_index, constraint_names.size());
+	String bone_name = constraint_names[p_index];
+	for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
+		if (segmented_skeleton.is_null()) {
+			continue;
+		}
+		Ref<IKBone3D> ik_bone = segmented_skeleton->get_ik_bone(get_skeleton()->find_bone(bone_name));
+		if (ik_bone.is_null()) {
+			continue;
+		}
+		if (ik_bone->get_constraint().is_null()) {
+			continue;
+		}
+		ik_bone->get_constraint()->set_current_twist_rotation(ik_bone->get_ik_transform(), ik_bone->get_bone_direction_transform(), ik_bone->get_constraint_twist_transform(), p_rotation);
+		ik_bone->set_skeleton_bone_pose(get_skeleton());
+		notify_property_list_changed();
+	}
 }
