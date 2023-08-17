@@ -871,7 +871,7 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 void ManyBoneIK3D::set_dirty() {
 	is_dirty = true;
 	is_gizmo_dirty = true;
-	if (timer->is_inside_tree()) {
+	if (timer->is_inside_tree() && timer->is_stopped()) {
 		timer->start();
 	}
 }
@@ -1387,13 +1387,19 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		float twist_range = Math::deg_to_rad(360.0f);
 		float twist_from = reference_pose.basis.get_euler().y;
 		if (bone_name == "Spine" || bone_name == "Chest") {
-			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
+			twist_from = -1.5708;
+			twist_range = 3.14159;
+			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(3.0f))); // Reduced from 5.0f to 3.0f
 		} else if (bone_name == "UpperChest") {
-			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
+			twist_from = -1.5708;
+			twist_range = 3.14159;
+			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f))); // Reduced from 15.0f to 10.0f
 		} else if (bone_name == "Hips") {
 			swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(10.0f)));
 		} else if (bone_name == "Neck") {
-			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
+			twist_from = -1.5708;
+			twist_range = 3.14159;
+			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
 		} else if (bone_name == "Head") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(15.0f)));
 		} else if (bone_name == "LeftUpperLeg" || bone_name == "RightUpperLeg") {
