@@ -1372,7 +1372,7 @@ void ManyBoneIK3D::add_constraint() {
 	kusudama_limit_cone_count.write[old_count] = 0;
 	kusudama_limit_cones.write[old_count].resize(1);
 	kusudama_limit_cones.write[old_count].write[0] = Vector4(0, 1, 0, Math_PI);
-	kusudama_twist.write[old_count] = Vector2(0, Math_TAU - CMP_EPSILON);
+	kusudama_twist.write[old_count] = Vector2(0, Math_TAU);
 	bone_resistance.write[old_count] = 0.0f;
 	set_dirty();
 }
@@ -1426,17 +1426,24 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 			swing_limit_cones.push_back(LimitCone(MODEL_BOTTOM, Math::deg_to_rad(5.0f)));
 			resistance = 0.1;
 		} else if (bone_name == "LeftShoulder" || bone_name == "RightShoulder") {
+			twist_range = Math::deg_to_rad(20.0f); // Add this line
+
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(30.0f)));
 			resistance = 0.2;
 		} else if (bone_name == "LeftUpperArm" || bone_name == "RightUpperArm") {
+			twist_range = Math::deg_to_rad(40.0f); // Add this line
+
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(90.0f)));
 			resistance = 0.3;
 		} else if (bone_name == "LeftLowerArm" || bone_name == "RightLowerArm") {
+			twist_range = Math::deg_to_rad(10.0f);
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(MODEL_FRONT, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
 			resistance = 0.4;
 		} else if (bone_name == "LeftHand" || bone_name == "RightHand") {
+			twist_range = Math::deg_to_rad(30.0f); // Add this line
+
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(60.0f)));
 			resistance = 0.5;
 		} else if (bone_name == "LeftThumb" || bone_name == "RightThumb") {
