@@ -1253,12 +1253,12 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	Vector<String> bones = {
 		"Root",
 		"Head",
-		"Chest",
+		"UpperChest",
 		"LeftShoulder",
 		"LeftHand",
 		"RightShoulder",
 		"RightHand",
-		"Hips",
+		"Spine",
 		"LeftLowerLeg",
 		"LeftFoot",
 		"RightLowerLeg",
@@ -1269,22 +1269,23 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	TypedArray<Node> children = find_children("*", "Marker3D");
 	for (int i = 0; i < children.size(); ++i) {
 		Node *node = cast_to<Node>(children[i]);
-		node->queue_free();
+		memdelete(node);
 	}
 	for (int pin_i = 0; pin_i < bones.size(); pin_i++) {
 		String bone_name = bones[pin_i];
 		Marker3D *marker_3d = memnew(Marker3D);
 		marker_3d->set_name(bone_name);
-		add_child(marker_3d, true);
+		add_child(marker_3d);
 		marker_3d->set_owner(get_owner());
 		int32_t bone_i = skeleton->find_bone(bone_name);
 		Transform3D pose = skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i);
 		marker_3d->set_global_transform(pose);
 		set_pin_nodepath(pin_i, get_path_to(marker_3d));
 		set_pin_bone_name(pin_i, bone_name);
-		if (bone_name == "Hips") {
-			set_pin_passthrough_factor(pin_i, 1);
+		if (bone_name == "Root") {
+			continue;
 		}
+		set_pin_passthrough_factor(pin_i, 1.0f);
 	}
 	skeleton_changed(get_skeleton());
 	set_constraint_count(0);
