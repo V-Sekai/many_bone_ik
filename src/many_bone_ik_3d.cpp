@@ -1253,10 +1253,15 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	Vector<String> bones = {
 		"Root",
 		"Head",
+		"Chest",
+		"LeftShoulder",
 		"LeftHand",
+		"RightShoulder",
 		"RightHand",
 		"Hips",
+		"LeftLowerLeg",
 		"LeftFoot",
+		"RightLowerLeg",
 		"RightFoot",
 	};
 	set_pin_count(0);
@@ -1302,7 +1307,8 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 						bone_name.ends_with("RingDistal") ||
 						bone_name.ends_with("LittleProximal") ||
 						bone_name.ends_with("LittleIntermediate") ||
-						bone_name.ends_with("LittleDistal");
+						bone_name.ends_with("LittleDistal") ||
+						bone_name.ends_with("Eye");
 		if (isFinger) {
 			continue;
 		}
@@ -1310,9 +1316,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		int32_t constraint_i = get_constraint_count();
 		add_constraint();
 		set_constraint_name(constraint_i, bone_name);
-		if (bone_name.ends_with("Eye") || bone_name == "Root" || bone_name == "LeftToes" || bone_name == "RightToes") {
-			continue;
-		}
 		set_kusudama_resistance(constraint_i, 1.0);
 	}
 	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
@@ -1388,7 +1391,7 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		y_up_backwards.y = -y_up_backwards.y;
 		float twist_range = Math::deg_to_rad(360.0f);
 		float twist_from = reference_pose.basis.get_euler().y;
-		float resistance = 0.0f;
+		float resistance = 1.0;
 		if (bone_name == "Spine" || bone_name == "Chest") {
 			twist_from = -1.5708;
 			twist_range = 3.14159;
@@ -1438,17 +1441,11 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		} else if (bone_name == "LeftThumb" || bone_name == "RightThumb") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(90.0f)));
 			resistance = 0.6;
-		} else if (bone_name == "LeftEye" || bone_name == "RightEye") {
-			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
-		} else if (bone_name == "LeftToes" || bone_name == "RightToes") {
-			continue;
-		}
-		if (bone_name == "LeftHand" || bone_name == "RightHand") {
-			twist_range = Math::deg_to_rad(20.0f);
 		}
 		set_bone_constraint(bone_name, twist_from - twist_range / 2, twist_range, swing_limit_cones, resistance);
 	}
 }
+
 SkeletonProfileHumanoidConstraint::BoneConstraint SkeletonProfileHumanoidConstraint::get_bone_constraint(const StringName &p_bone_name) const {
 	if (bone_constraints.has(p_bone_name)) {
 		return bone_constraints[p_bone_name];

@@ -204,8 +204,6 @@ public:
 	int32_t find_constraint(String p_string) const;
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
-	void set_kusudama_twist_from_range(int32_t p_index, float from, float range);
-	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
 	void set_kusudama_resistance(int32_t p_index, real_t p_resistance);
 	real_t get_kusudama_resistance(int32_t p_index) const;
 	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);
@@ -219,11 +217,13 @@ public:
 			Vector3 p_center, float p_radius);
 	Vector3 get_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index) const;
 	float get_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index) const;
+	int32_t get_kusudama_limit_cone_count(int32_t p_constraint_index) const;
+	int32_t get_bone_count() const;
+	void set_kusudama_twist_from_range(int32_t p_index, float from, float range);
+	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
+	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	void set_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index, Vector3 p_center);
 	void set_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index, float p_radius);
-	int32_t get_kusudama_limit_cone_count(int32_t p_constraint_index) const;
-	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
-	int32_t get_bone_count() const;
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();

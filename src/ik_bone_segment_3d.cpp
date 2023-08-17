@@ -117,16 +117,20 @@ Quaternion IKBoneSegment3D::clamp_to_quadrance_angle(Quaternion p_quat, double p
 	double newCoeff = double(1.0) - (p_cos_half_angle * Math::abs(p_cos_half_angle));
 	Quaternion rot = p_quat;
 	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
+
 	if (newCoeff >= currentCoeff) {
 		return rot;
 	} else {
-		rot.w = rot.w < double(0.0) ? -p_cos_half_angle : p_cos_half_angle;
+		// Calculate how much over the limit the rotation is, between 0 and 1
+		double over_limit = (currentCoeff - newCoeff) / (1.0 - newCoeff);
+		Quaternion clamped_rotation = rot;
+		clamped_rotation.w = rot.w < double(0.0) ? -p_cos_half_angle : p_cos_half_angle;
 		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
-		rot.x *= compositeCoeff;
-		rot.y *= compositeCoeff;
-		rot.z *= compositeCoeff;
+		clamped_rotation.x *= compositeCoeff;
+		clamped_rotation.y *= compositeCoeff;
+		clamped_rotation.z *= compositeCoeff;
+		return rot.slerp(clamped_rotation, over_limit);
 	}
-	return rot;
 }
 
 float IKBoneSegment3D::get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<double> &p_weights) {
