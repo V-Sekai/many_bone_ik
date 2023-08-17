@@ -75,7 +75,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!skeleton || !skeleton->get_bone_count()) {
 		return;
 	}
-	if (!handles_mesh_instance->is_inside_tree()) {
+	if (handles_mesh_instance && handles_mesh_instance->is_inside_tree()) {
 		skeleton->call_deferred("add_child", handles_mesh_instance);
 		handles_mesh_instance->set_skeleton_path(NodePath(""));
 	}
@@ -274,6 +274,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 }
 
 ManyBoneIK3DGizmoPlugin::ManyBoneIK3DGizmoPlugin() {
+	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
 }
 
 int32_t ManyBoneIK3DGizmoPlugin::get_priority() const {
@@ -570,7 +571,6 @@ void fragment() {
 			edit_mode_button->connect("toggled", callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
 			edit_mode = false;
 			create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
-			kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
 
 			unselected_mat = Ref<StandardMaterial3D>(memnew(StandardMaterial3D));
 			unselected_mat->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
