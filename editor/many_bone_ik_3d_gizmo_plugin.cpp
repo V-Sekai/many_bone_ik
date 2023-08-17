@@ -75,7 +75,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!skeleton || !skeleton->get_bone_count()) {
 		return;
 	}
-	if (handles_mesh_instance && handles_mesh_instance->is_inside_tree()) {
+	if (handles_mesh_instance && !handles_mesh_instance->is_inside_tree()) {
 		skeleton->call_deferred("add_child", handles_mesh_instance);
 		handles_mesh_instance->set_skeleton_path(NodePath(""));
 	}
