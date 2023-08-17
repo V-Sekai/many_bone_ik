@@ -1313,6 +1313,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		if (bone_name.ends_with("Eye") || bone_name == "Root" || bone_name == "LeftToes" || bone_name == "RightToes") {
 			continue;
 		}
+		set_kusudama_resistance(constraint_i, 1.0);
 	}
 	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
 		String bone_name = humanoid_profile->get_bone_name(bone_i);
@@ -1371,6 +1372,7 @@ void ManyBoneIK3D::add_constraint() {
 	bone_resistance.write[old_count] = 0.0f;
 	set_dirty();
 }
+
 SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 	Vector<StringName> bone_names = { "Spine", "Chest", "UpperChest", "Hips", "Neck", "Head", "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftFoot", "RightFoot", "LeftShoulder", "RightShoulder", "LeftUpperArm", "RightUpperArm", "LeftLowerArm", "RightLowerArm", "LeftHand", "RightHand", "LeftThumb", "RightThumb", "LeftEye", "RightEye" };
 	for (int i = 0; i < bone_names.size(); ++i) {
