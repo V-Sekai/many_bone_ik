@@ -1414,7 +1414,6 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		} else if (bone_name == "UpperChest") {
 			twist_from = Math::deg_to_rad(10.0f);
 			twist_range = Math::deg_to_rad(40.0f);
-			twist_range = 3.14159;
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
 			resistance = 0.6f;
 		} else if (bone_name == "Neck") {
