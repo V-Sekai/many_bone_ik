@@ -135,8 +135,7 @@ private:
 	int32_t ui_selected_bone = -1, stabilize_passes = 4;
 	bool is_gizmo_dirty = false;
 	bool is_setup_humanoid_bones = false;
-	Timer *timer = memnew(Timer);
-
+	Ref<SceneTreeTimer> timer;
 	void _on_timer_timeout();
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
