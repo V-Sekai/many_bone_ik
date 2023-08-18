@@ -1380,7 +1380,7 @@ void ManyBoneIK3D::add_constraint() {
 	kusudama_limit_cone_count.write[old_count] = 0;
 	kusudama_limit_cones.write[old_count].resize(1);
 	kusudama_limit_cones.write[old_count].write[0] = Vector4(0, 1, 0, Math_PI);
-	kusudama_twist.write[old_count] = Vector2(0, Math_TAU - CMP_EPSILON);
+	kusudama_twist.write[old_count] = Vector2(0, Math_PI);
 	bone_resistance.write[old_count] = 0.0f;
 	set_dirty();
 }
@@ -1398,7 +1398,7 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		Vector3 y_up = reference_pose.basis.get_column(Vector3::AXIS_Y).normalized();
 		Vector3 y_up_backwards = y_up;
 		y_up_backwards.y = -y_up_backwards.y;
-		float twist_range = Math::deg_to_rad(360.0f);
+		float twist_range = Math::deg_to_rad(180.0f);
 		float twist_from = reference_pose.basis.get_euler().y;
 		float resistance = 1.0;
 		if (bone_name == "Spine" || bone_name == "Chest") {
