@@ -1409,18 +1409,18 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		} else if (bone_name == "Spine") {
 			twist_from = Math::deg_to_rad(4.0f);
 			twist_range = Math::deg_to_rad(4.0f);
-			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(3.0f))); // Reduced from 5.0f to 3.0f
+			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(3.0f)));
 			resistance = 0.5f;
 		} else if (bone_name == "Chest") {
-			twist_from = Math::deg_to_rad(15.0f);
-			twist_range = Math::deg_to_rad(7.0f);
-			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(3.0f))); // Reduced from 5.0f to 3.0f
+			twist_from = Math::deg_to_rad(5.0f);
+			twist_range = Math::deg_to_rad(-10.0f);
+			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(3.0f)));
 			resistance = 0.5f;
 		} else if (bone_name == "UpperChest") {
-			twist_from = Math::deg_to_rad(15.0f);
-			twist_range = Math::deg_to_rad(15.0f);
+			twist_from = Math::deg_to_rad(10.0f);
+			twist_range = Math::deg_to_rad(40.0f);
 			twist_range = 3.14159;
-			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f))); // Reduced from 15.0f to 10.0f
+			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(10.0f)));
 			resistance = 0.6f;
 		} else if (bone_name == "Neck") {
 			twist_from = Math::deg_to_rad(15.0f);
