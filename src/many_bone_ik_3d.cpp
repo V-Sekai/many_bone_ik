@@ -43,6 +43,7 @@
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/main/node.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/skeleton_profile.h"
 #include "scene/scene_string_names.h"
 
@@ -879,9 +880,7 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 void ManyBoneIK3D::set_dirty() {
 	is_dirty = true;
 	is_gizmo_dirty = true;
-	if (timer->is_inside_tree() && timer->is_stopped()) {
-		timer->start();
-	}
+	timer->set_time_left(0.5f);
 }
 
 void ManyBoneIK3D::_on_timer_timeout() {
@@ -918,23 +917,17 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 void ManyBoneIK3D::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			add_child(timer, true, INTERNAL_MODE_BACK);
-			timer->set_owner(get_owner());
-			timer->start(true);
-			timer->set_wait_time(0.5);
-			timer->set_one_shot(true);
-			timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
 			set_process_priority(1);
 			set_notify_transform(true);
 		} break;
 		case NOTIFICATION_ENTER_TREE: {
+			timer.instantiate();
+			timer->set_time_left(0.5);
+			timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
 			set_process_internal(true);
 		} break;
 		case NOTIFICATION_EXIT_TREE: {
 			set_process_internal(false);
-			if (timer) {
-				timer->queue_free();
-			}
 		} break;
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			update_gizmos();
