@@ -157,6 +157,21 @@ protected:
 	void _notification(int p_what);
 
 public:
+	Vector3 convert_attitude_azimuth_to_coordinate(float attitude, float azimuth) const {
+		Vector3 p_center;
+		p_center.x = sin(attitude) * cos(azimuth);
+		p_center.y = sin(attitude) * sin(azimuth);
+		p_center.z = cos(attitude);
+		return p_center;
+	}
+	Vector2 convert_coordinate_to_attitude_azimuth(Vector3 p_center) const {
+		float attitude = acos(p_center.z);
+		float azimuth = atan2(p_center.y, p_center.x);
+		Array attitude_azimuth;
+		attitude_azimuth.push_back(attitude);
+		attitude_azimuth.push_back(azimuth);
+		return Vector2(attitude, azimuth);
+	}
 	void add_constraint();
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes();

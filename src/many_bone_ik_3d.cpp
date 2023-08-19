@@ -179,7 +179,10 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
-					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01,or_greater,exp", constraint_usage));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/altitude", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
+			p_list->push_back(
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/azimuth", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
+
 			p_list->push_back(
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians,exp", constraint_usage));
 		}
@@ -292,8 +295,13 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		} else if (name.begins_with(begins)) {
 			int32_t cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
-			if (cone_what == "center") {
-				r_ret = get_kusudama_limit_cone_center(index, cone_index);
+			if (cone_what == "altitude") {
+				Vector3 center = get_kusudama_limit_cone_center(index, cone_index);
+				r_ret = convert_coordinate_to_attitude_azimuth(center).x;
+				return true;
+			} else if (cone_what == "azimuth") {
+				Vector3 center = get_kusudama_limit_cone_center(index, cone_index);
+				r_ret = convert_coordinate_to_attitude_azimuth(center).y;
 				return true;
 			} else if (cone_what == "radius") {
 				r_ret = get_kusudama_limit_cone_radius(index, cone_index);
@@ -377,12 +385,19 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 		} else if (name.begins_with(begins)) {
 			int cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
-			if (cone_what == "center") {
-				Vector3 center = p_value;
-				if (Math::is_zero_approx(center.length_squared())) {
-					center = Vector3(0.0, 1.0, 0.0);
-				}
-				set_kusudama_limit_cone_center(index, cone_index, center);
+			if (cone_what == "altitude") {
+				float attitude = p_value;
+				Vector3 center = get_kusudama_limit_cone_center(index, cone_index);
+				Vector2 attitude_azimuth = convert_coordinate_to_attitude_azimuth(center);
+				Vector3 new_center = convert_attitude_azimuth_to_coordinate(attitude, attitude_azimuth.y);
+				set_kusudama_limit_cone_center(index, cone_index, new_center);
+				return true;
+			} else if (cone_what == "azimuth") {
+				float azimuth = p_value;
+				Vector3 center = get_kusudama_limit_cone_center(index, cone_index);
+				Vector2 attitude_azimuth = convert_coordinate_to_attitude_azimuth(center);
+				Vector3 new_center = convert_attitude_azimuth_to_coordinate(attitude_azimuth.x, azimuth);
+				set_kusudama_limit_cone_center(index, cone_index, new_center);
 				return true;
 			} else if (cone_what == "radius") {
 				set_kusudama_limit_cone_radius(index, cone_index, p_value);
@@ -404,6 +419,8 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void ManyBoneIK3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("convert_attitude_azimuth_to_coordinate", "atitude", "azimuth"), &ManyBoneIK3D::convert_attitude_azimuth_to_coordinate);
+	ClassDB::bind_method(D_METHOD("convert_coordinate_to_attitude_azimuth", "center"), &ManyBoneIK3D::convert_coordinate_to_attitude_azimuth);
 	ClassDB::bind_method(D_METHOD("set_kusudama_resistance", "index", "resistance"), &ManyBoneIK3D::set_kusudama_resistance);
 	ClassDB::bind_method(D_METHOD("get_kusudama_resistance", "index"), &ManyBoneIK3D::get_kusudama_resistance);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
@@ -565,7 +582,7 @@ void ManyBoneIK3D::set_kusudama_limit_cone(int32_t p_constraint_index, int32_t p
 	if (Math::is_zero_approx(p_center.length_squared())) {
 		p_center = Vector3(0.0f, 1.0f, 0.0f);
 	}
-	Vector3 center = p_center.normalized();
+	Vector3 center = p_center;
 	Vector4 cone;
 	cone.x = center.x;
 	cone.y = center.y;
@@ -577,10 +594,6 @@ void ManyBoneIK3D::set_kusudama_limit_cone(int32_t p_constraint_index, int32_t p
 }
 
 Vector3 ManyBoneIK3D::get_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index) const {
-	if (unlikely((p_constraint_index) < 0 || (p_constraint_index) >= (kusudama_limit_cone_count.size()))) {
-		ERR_PRINT_ONCE("Can't get limit cone center.");
-		return Vector3(0.0, 1.0, 0.0);
-	}
 	if (unlikely((p_constraint_index) < 0 || (p_constraint_index) >= (kusudama_limit_cones.size()))) {
 		ERR_PRINT_ONCE("Can't get limit cone center.");
 		return Vector3(0.0, 1.0, 0.0);
@@ -598,7 +611,6 @@ Vector3 ManyBoneIK3D::get_kusudama_limit_cone_center(int32_t p_constraint_index,
 }
 
 float ManyBoneIK3D::get_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_constraint_index, kusudama_limit_cone_count.size(), Math_TAU);
 	ERR_FAIL_INDEX_V(p_constraint_index, kusudama_limit_cones.size(), Math_TAU);
 	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_constraint_index].size(), Math_TAU);
 	return kusudama_limit_cones[p_constraint_index][p_index].w;
@@ -626,6 +638,8 @@ void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_constraint_index, int
 		cone.z = forward_axis.z;
 		cone.w = Math::deg_to_rad(0.0f);
 	}
+	set_dirty();
+	notify_property_list_changed();
 }
 
 real_t ManyBoneIK3D::get_default_damp() const {
