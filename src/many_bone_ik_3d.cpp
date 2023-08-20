@@ -1411,8 +1411,8 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		float twist_from = reference_pose.basis.get_euler().y;
 		float resistance = 1.0;
 		if (bone_name == "Hips") {
-			twist_from = Math::deg_to_rad(20.0f);
-			twist_range = Math::deg_to_rad(20.0f);
+			twist_from = Math::deg_to_rad(0.0f);
+			twist_range = Math::deg_to_rad(40.0f);
 			resistance = 0.5f;
 		} else if (bone_name == "Spine") {
 			twist_from = Math::deg_to_rad(4.0f);
