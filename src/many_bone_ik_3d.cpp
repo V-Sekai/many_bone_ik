@@ -179,9 +179,9 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
 		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/altitude", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/altitude", PROPERTY_HINT_RANGE, "-90,90.0,0.1,radians,exp", constraint_usage));
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/azimuth", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/azimuth", PROPERTY_HINT_RANGE, "0,359.9,0.1,radians,exp", constraint_usage));
 
 			p_list->push_back(
 					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians,exp", constraint_usage));
@@ -419,8 +419,8 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void ManyBoneIK3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("convert_attitude_azimuth_to_coordinate", "atitude", "azimuth"), &ManyBoneIK3D::convert_attitude_azimuth_to_coordinate);
-	ClassDB::bind_method(D_METHOD("convert_coordinate_to_attitude_azimuth", "center"), &ManyBoneIK3D::convert_coordinate_to_attitude_azimuth);
+	ClassDB::bind_static_method("ManyBoneIK3D", D_METHOD("convert_attitude_azimuth_to_coordinate", "atitude", "azimuth"), &ManyBoneIK3D::convert_attitude_azimuth_to_coordinate);
+	ClassDB::bind_static_method("ManyBoneIK3D", D_METHOD("convert_coordinate_to_attitude_azimuth", "center"), &ManyBoneIK3D::convert_coordinate_to_attitude_azimuth);
 	ClassDB::bind_method(D_METHOD("set_kusudama_resistance", "index", "resistance"), &ManyBoneIK3D::set_kusudama_resistance);
 	ClassDB::bind_method(D_METHOD("get_kusudama_resistance", "index"), &ManyBoneIK3D::get_kusudama_resistance);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
@@ -1413,7 +1413,6 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		if (bone_name == "Hips") {
 			twist_from = Math::deg_to_rad(20.0f);
 			twist_range = Math::deg_to_rad(2.0f);
-			swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(10.0f)));
 			resistance = 0.5f;
 		} else if (bone_name == "Spine") {
 			twist_from = Math::deg_to_rad(4.0f);
