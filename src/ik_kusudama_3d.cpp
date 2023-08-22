@@ -115,6 +115,7 @@ void IKKusudama3D::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKN
 	if (recomposition.dot(parent_global_inverse) < 0) {
 		recomposition = -recomposition;
 	}
+	recomposition.normalize();
 
 	Quaternion rotation = parent_global_inverse * recomposition;
 
@@ -421,6 +422,9 @@ Quaternion IKKusudama3D::clamp_to_quadrance_angle(Quaternion p_rotation, double 
 	clamped_rotation.x *= compositeCoeff;
 	clamped_rotation.y *= compositeCoeff;
 	clamped_rotation.z *= compositeCoeff;
+	if (!rotation.is_finite()) {
+		return Quaternion();
+	}
 	return rotation.slerp(clamped_rotation, over_limit);
 }
 

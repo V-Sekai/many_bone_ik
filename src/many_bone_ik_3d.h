@@ -49,63 +49,6 @@
 #include "editor/editor_undo_redo_manager.h"
 #endif
 
-class SkeletonProfileHumanoidConstraint : public SkeletonProfileHumanoid {
-	GDCLASS(SkeletonProfileHumanoidConstraint, SkeletonProfileHumanoid);
-
-public:
-	// Unit vector pointing towards the left side of imported 3D assets.
-	const Vector3 MODEL_LEFT = Vector3(1, 0, 0);
-
-	// Unit vector pointing towards the right side of imported 3D assets.
-	const Vector3 MODEL_RIGHT = Vector3(-1, 0, 0);
-
-	// Unit vector pointing towards the top side (up) of imported 3D assets.
-	const Vector3 MODEL_TOP = Vector3(0, 1, 0);
-
-	// Unit vector pointing towards the bottom side (down) of imported 3D assets.
-	const Vector3 MODEL_BOTTOM = Vector3(0, -1, 0);
-
-	// Unit vector pointing towards the front side (facing forward) of imported 3D assets.
-	const Vector3 MODEL_FRONT = Vector3(0, 0, 1);
-
-	// Unit vector pointing towards the rear side (facing backwards) of imported 3D assets.
-	const Vector3 MODEL_REAR = Vector3(0, 0, -1);
-
-	struct LimitCone {
-		Vector3 center = Vector3(0, 1, 0);
-		float radius = Math_PI;
-
-		LimitCone(Vector3 p_center = Vector3(), float p_radius = 0) :
-				center(p_center), radius(p_radius) {}
-	};
-
-	struct BoneConstraint {
-		float twist_from = 0;
-		float twist_range = Math_TAU;
-		Vector<LimitCone> swing_limit_cones;
-		float resistance = 0;
-
-		BoneConstraint(float p_twist_from = 0, float p_twist_range = 0, Vector<LimitCone> p_swing_limit_cones = Vector<LimitCone>(), float p_resistance = 0) :
-				twist_from(p_twist_from), twist_range(p_twist_range), swing_limit_cones(p_swing_limit_cones), resistance(p_resistance) {
-			p_swing_limit_cones.resize(10);
-		}
-		BoneConstraint(const BoneConstraint &) = default;
-		BoneConstraint(BoneConstraint &&) = default;
-		BoneConstraint &operator=(const BoneConstraint &) = default;
-		BoneConstraint &operator=(BoneConstraint &&) = default;
-		explicit BoneConstraint(Vector<LimitCone> p_swing_limit_cones) :
-				swing_limit_cones(std::move(p_swing_limit_cones)) {}
-	};
-	void set_bone_constraint(const StringName &p_bone_name, float p_twist_from, float p_twist_range, Vector<LimitCone> p_swing_limit_cones, float p_resistance);
-	BoneConstraint get_bone_constraint(const StringName &p_bone_name) const;
-	SkeletonProfileHumanoidConstraint();
-	~SkeletonProfileHumanoidConstraint() {
-	}
-
-private:
-	HashMap<StringName, BoneConstraint> bone_constraints;
-};
-
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
 
@@ -135,8 +78,7 @@ private:
 	int32_t ui_selected_bone = -1, stabilize_passes = 4;
 	bool is_gizmo_dirty = false;
 	bool is_setup_humanoid_bones = false;
-	Timer *timer = memnew(Timer);
-
+	Ref<SceneTreeTimer> timer;
 	void _on_timer_timeout();
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
@@ -158,6 +100,28 @@ protected:
 	void _notification(int p_what);
 
 public:
+	static Vector3 convert_attitude_azimuth_to_coordinate(float attitude, float azimuth) {
+		Vector3 p_center;
+		p_center.x = sin(attitude) * cos(azimuth);
+		p_center.y = sin(attitude) * sin(azimuth);
+		p_center.z = cos(attitude);
+		return p_center;
+	}
+	static Vector2 convert_coordinate_to_attitude_azimuth(Vector3 p_center) {
+		float attitude = acos(CLAMP(p_center.z, -1.0f, 1.0f));
+		float azimuth = 0.0f;
+
+		if (ABS(p_center.z) < 1.0f) {
+			azimuth = atan2(p_center.y, p_center.x);
+			if (azimuth < 0.0f) {
+				azimuth += Math_TAU;
+			}
+		} else {
+			azimuth = 0.0f;
+		}
+
+		return Vector2(attitude, azimuth);
+	}
 	void add_constraint();
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes();
