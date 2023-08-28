@@ -429,6 +429,9 @@ Quaternion IKKusudama3D::clamp_to_quadrance_angle(Quaternion p_rotation, double 
 }
 
 void IKKusudama3D::set_current_twist_rotation(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_rotation) {
+	if (p_rotation < min_axial_angle && p_rotation > min_axial_angle + range_angle) {
+		p_rotation = min_axial_angle;
+	}
 	p_rotation = 1 / Math_TAU * p_rotation;
 	Quaternion align_rot_inv = p_twist_transform->get_global_transform().basis.inverse().get_rotation_quaternion();
 	Quaternion align_rot = align_rot_inv * p_bone_direction->get_global_transform().basis.get_rotation_quaternion();
