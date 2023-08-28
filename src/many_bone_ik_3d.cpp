@@ -372,18 +372,31 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		} else if (what == "twist_from") {
 			float new_twist_from = p_value;
-			Vector2 twist_from = get_kusudama_twist(index);
-			if (new_twist_from < twist_from.x || new_twist_from > twist_from.x + twist_from.y) {
-				new_twist_from = get_kusudama_twist_current(index);
+			Vector2 twist = get_kusudama_twist(index);
+			float new_twist_current = get_kusudama_twist_current(index);
+			if (new_twist_current < twist.x || new_twist_current > twist.x + twist.y) {
+				twist.x = MIN(new_twist_current, twist.x);
+				twist.y = MAX(new_twist_current, twist.y);
 			}
-			set_kusudama_twist(index, Vector2(new_twist_from, twist_from.y));
+			set_kusudama_twist(index, Vector2(new_twist_from, twist.y));
+			set_kusudama_twist_current(index, new_twist_current);
 			return true;
 		} else if (what == "twist_range") {
-			Vector2 twist_range = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
+			float new_twist_range = p_value;
+			Vector2 twist = get_kusudama_twist(index);
+			float new_twist_current = get_kusudama_twist_current(index);
+			if (new_twist_current < twist.x || new_twist_current > twist.x + twist.y) {
+				twist.x = MIN(new_twist_current, twist.x);
+				twist.y = MAX(new_twist_current, twist.y);
+			}
+			set_kusudama_twist(index, Vector2(twist.x, new_twist_range));
+			set_kusudama_twist_current(index, new_twist_current);
 			return true;
 		} else if (what == "twist_current") {
-			set_kusudama_twist_current(index, p_value);
+			float new_twist_current = p_value;
+			Vector2 twist = get_kusudama_twist(index);
+			set_kusudama_twist(index, Vector2(new_twist_current, twist.y));
+			set_kusudama_twist_current(index, new_twist_current);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
