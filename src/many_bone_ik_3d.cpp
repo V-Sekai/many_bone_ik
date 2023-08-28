@@ -1308,8 +1308,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	}
 	skeleton_changed(get_skeleton());
 	set_constraint_count(0);
-	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
-		String bone_name = humanoid_profile->get_bone_name(bone_i);
+	for (int bone_i = 0; bone_i < get_bone_list().size(); bone_i++) {
+		int32_t matched_bone_i = get_bone_list()[bone_i]->get_bone_id();
+		String bone_name = humanoid_profile->get_bone_name(matched_bone_i);
 		if (skeleton->find_bone(bone_name) == -1) {
 			continue;
 		}
