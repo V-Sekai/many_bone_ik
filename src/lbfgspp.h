@@ -21,7 +21,7 @@ protected:
 		GDVIRTUAL_BIND(_call_operator, "x", "grad");
 		ClassDB::bind_method(D_METHOD("minimize", "x", "fx", "lower_bound", "upper_bound"), &LBFGSBSolver::minimize);
 	}
-	GDVIRTUAL2RC(double, _call_operator, TypedArray<double>, TypedArray<double>);
+	GDVIRTUAL2R(double, _call_operator, const TypedArray<double>&, TypedArray<double>);
 
     std::function<double(const Eigen::VectorXd &p_x, Eigen::VectorXd &r_grad)> operator_pointer;
 
@@ -32,8 +32,8 @@ public:
     LBFGSBSolver() {        
         operator_pointer = std::bind(&LBFGSBSolver::native_operator, this, std::placeholders::_1, std::placeholders::_2);
     }
-	double native_operator(const Eigen::VectorXd &p_x, Eigen::VectorXd &r_grad) {
-		TypedArray<double> x = LBFGSBSolver::eigen_to_godot(p_x);
+	double native_operator(const Eigen::VectorXd &r_x, Eigen::VectorXd &r_grad) {
+		TypedArray<double> x = LBFGSBSolver::eigen_to_godot(r_x);
 		TypedArray<double> grad = LBFGSBSolver::eigen_to_godot(r_grad);
 		Eigen::VectorXd vec(r_grad.size());
 		for (int i = 0; i < r_grad.size(); ++i) {
@@ -68,31 +68,25 @@ public:
         }
         return array;
 	};
-	Array minimize(TypedArray<double> p_x,
-			double p_fx, TypedArray<double> p_lower_bound, TypedArray<double> p_upper_bound) {
+	Array minimize(const TypedArray<double> &p_x,
+			const double &p_fx, const TypedArray<double> &p_lower_bound, const TypedArray<double> &p_upper_bound) {
 		LBFGSpp::LBFGSBParam<double> param;
 		param.epsilon = 1e-6;
 		param.max_iterations = 100;
 
 		LBFGSpp::LBFGSBSolver<double> solver(param);
 
-		Eigen::VectorXd lower_bound = godot_to_eigen(p_lower_bound);
-		Eigen::VectorXd upper_bound = godot_to_eigen(p_upper_bound);
+		const Eigen::VectorXd lower_bound = godot_to_eigen(p_lower_bound);
+		const Eigen::VectorXd upper_bound = godot_to_eigen(p_upper_bound);
 
 		Eigen::VectorXd x = godot_to_eigen(p_x);
 
-		double fx = 0;
+		double fx = p_fx;
 		int niter = solver.minimize(operator_pointer, x, fx, lower_bound, upper_bound);
 		Array ret;
 		ret.push_back(niter);
 		ret.push_back(eigen_to_godot(x));
 		ret.push_back(fx);
-
-		std::cout << niter << " iterations" << std::endl;
-		std::cout << "x = \n"
-				  << x.transpose() << std::endl;
-		std::cout << "f(x) = " << fx << std::endl;
-
 		return ret;
 	}
 };
