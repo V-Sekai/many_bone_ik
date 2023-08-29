@@ -34,6 +34,7 @@
 #include "src/ik_effector_3d.h"
 #include "src/ik_effector_template_3d.h"
 #include "src/ik_kusudama_3d.h"
+#include "src/lbfgspp.h"
 #include "src/many_bone_ik_3d.h"
 
 #ifdef TOOLS_ENABLED
@@ -58,8 +59,10 @@ void initialize_many_bone_ik_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(IKKusudama3D);
 		GDREGISTER_CLASS(IKRay3D);
 		GDREGISTER_CLASS(IKLimitCone3D);
+		GDREGISTER_CLASS(LBFGSBSolver);
 	}
 }
+
 
 void uninitialize_many_bone_ik_module(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
