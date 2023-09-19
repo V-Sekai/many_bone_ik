@@ -467,6 +467,8 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_count"), &ManyBoneIK3D::get_bone_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enabled"), &ManyBoneIK3D::set_constraint_mode);
 	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &ManyBoneIK3D::get_constraint_mode);
+	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current"), &ManyBoneIK3D::get_kusudama_twist_current);
+	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "twist_current"), &ManyBoneIK3D::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_ui_selected_bone", "bone"), &ManyBoneIK3D::set_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("set_twist_constraint_defaults", "defaults"), &ManyBoneIK3D::set_twist_constraint_defaults);
@@ -1258,7 +1260,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	// | [Side]Hand      | The wrist can tilt up and down up to 50-60 degrees, allowing the hand to move towards or away from the forearm.
 	set_process_thread_group(PROCESS_THREAD_GROUP_SUB_THREAD);
 	set_process_thread_group_order(100);
-	set_stabilization_passes(1);
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
 	ERR_FAIL_NULL(skeleton);
 	skeleton->set_show_rest_only(true);
@@ -1327,8 +1328,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 						bone_name.ends_with("RingDistal") ||
 						bone_name.ends_with("LittleProximal") ||
 						bone_name.ends_with("LittleIntermediate") ||
-						bone_name.ends_with("LittleDistal") ||
-						bone_name.ends_with("Eye");
+						bone_name.ends_with("LittleDistal");
 		if (isFinger) {
 			continue;
 		}

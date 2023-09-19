@@ -1,4 +1,5 @@
 #include "skeleton_profile_humanoid_constraint.h"
+#include "core/math/math_defs.h"
 
 SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 	Vector<StringName> bone_names = { "Spine", "Chest", "UpperChest", "Hips", "Neck", "Head", "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftFoot", "RightFoot", "LeftShoulder", "RightShoulder", "LeftUpperArm", "RightUpperArm", "LeftLowerArm", "RightLowerArm", "LeftHand", "RightHand", "LeftThumb", "RightThumb", "LeftEye", "RightEye" };
@@ -14,7 +15,7 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		Vector3 y_up_backwards = y_up;
 		y_up_backwards.y = -y_up_backwards.y;
 		float twist_range = Math::deg_to_rad(180.0f);
-		float twist_from = reference_pose.basis.get_euler().y;
+		float twist_from = Math_TAU;
 		float resistance = 0;
 		if (bone_name == "Hips") {
 			twist_from = Math::deg_to_rad(0.0f);
