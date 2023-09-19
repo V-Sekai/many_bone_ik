@@ -33,7 +33,7 @@ public:
 	};
 
 	struct BoneConstraint {
-		float twist_from = 0;
+		float twist_from = Math_TAU;
 		float twist_range = Math_PI;
 		Vector<LimitCone> swing_limit_cones;
 		float resistance = 0;
