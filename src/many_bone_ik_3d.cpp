@@ -371,15 +371,32 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			set_kusudama_resistance(index, p_value);
 			return true;
 		} else if (what == "twist_from") {
-			Vector2 twist_from = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(p_value, twist_from.y));
+			float new_twist_from = p_value;
+			Vector2 twist = get_kusudama_twist(index);
+			float new_twist_current = get_kusudama_twist_current(index);
+			if (new_twist_current < twist.x || new_twist_current > twist.x + twist.y) {
+				twist.x = MIN(new_twist_current, twist.x);
+				twist.y = MAX(new_twist_current, twist.y);
+			}
+			set_kusudama_twist(index, Vector2(new_twist_from, twist.y));
+			set_kusudama_twist_current(index, new_twist_current);
 			return true;
 		} else if (what == "twist_range") {
-			Vector2 twist_range = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
+			float new_twist_range = p_value;
+			Vector2 twist = get_kusudama_twist(index);
+			float new_twist_current = get_kusudama_twist_current(index);
+			if (new_twist_current < twist.x || new_twist_current > twist.x + twist.y) {
+				twist.x = MIN(new_twist_current, twist.x);
+				twist.y = MAX(new_twist_current, twist.y);
+			}
+			set_kusudama_twist(index, Vector2(twist.x, new_twist_range));
+			set_kusudama_twist_current(index, new_twist_current);
 			return true;
 		} else if (what == "twist_current") {
-			set_kusudama_twist_current(index, p_value);
+			float new_twist_current = p_value;
+			Vector2 twist = get_kusudama_twist(index);
+			set_kusudama_twist(index, Vector2(new_twist_current, twist.y));
+			set_kusudama_twist_current(index, new_twist_current);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
@@ -467,6 +484,8 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_count"), &ManyBoneIK3D::get_bone_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enabled"), &ManyBoneIK3D::set_constraint_mode);
 	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &ManyBoneIK3D::get_constraint_mode);
+	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current"), &ManyBoneIK3D::get_kusudama_twist_current);
+	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "twist_current"), &ManyBoneIK3D::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_ui_selected_bone", "bone"), &ManyBoneIK3D::set_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("set_twist_constraint_defaults", "defaults"), &ManyBoneIK3D::set_twist_constraint_defaults);
@@ -1258,7 +1277,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	// | [Side]Hand      | The wrist can tilt up and down up to 50-60 degrees, allowing the hand to move towards or away from the forearm.
 	set_process_thread_group(PROCESS_THREAD_GROUP_SUB_THREAD);
 	set_process_thread_group_order(100);
-	set_stabilization_passes(1);
 	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
 	ERR_FAIL_NULL(skeleton);
 	skeleton->set_show_rest_only(true);
@@ -1308,9 +1326,11 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	}
 	skeleton_changed(get_skeleton());
 	set_constraint_count(0);
-	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
-		String bone_name = humanoid_profile->get_bone_name(bone_i);
-		if (skeleton->find_bone(bone_name) == -1) {
+	for (int bone_i = 0; bone_i < get_bone_list().size(); bone_i++) {
+		int32_t matched_bone_i = get_bone_list()[bone_i]->get_bone_id();
+		String bone_name = skeleton->get_bone_name(matched_bone_i);
+		int32_t humanoid_bone_i = humanoid_profile->find_bone(bone_name);
+		if (humanoid_bone_i == -1) {
 			continue;
 		}
 		bool isFinger = bone_name.ends_with("ThumbMetacarpal") ||
@@ -1327,8 +1347,7 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 						bone_name.ends_with("RingDistal") ||
 						bone_name.ends_with("LittleProximal") ||
 						bone_name.ends_with("LittleIntermediate") ||
-						bone_name.ends_with("LittleDistal") ||
-						bone_name.ends_with("Eye");
+						bone_name.ends_with("LittleDistal");
 		if (isFinger) {
 			continue;
 		}
