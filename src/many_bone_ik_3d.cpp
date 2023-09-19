@@ -371,15 +371,32 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			set_kusudama_resistance(index, p_value);
 			return true;
 		} else if (what == "twist_from") {
-			Vector2 twist_from = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(p_value, twist_from.y));
+			float new_twist_from = p_value;
+			Vector2 twist = get_kusudama_twist(index);
+			float new_twist_current = get_kusudama_twist_current(index);
+			if (new_twist_current < twist.x || new_twist_current > twist.x + twist.y) {
+				twist.x = MIN(new_twist_current, twist.x);
+				twist.y = MAX(new_twist_current, twist.y);
+			}
+			set_kusudama_twist(index, Vector2(new_twist_from, twist.y));
+			set_kusudama_twist_current(index, new_twist_current);
 			return true;
 		} else if (what == "twist_range") {
-			Vector2 twist_range = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
+			float new_twist_range = p_value;
+			Vector2 twist = get_kusudama_twist(index);
+			float new_twist_current = get_kusudama_twist_current(index);
+			if (new_twist_current < twist.x || new_twist_current > twist.x + twist.y) {
+				twist.x = MIN(new_twist_current, twist.x);
+				twist.y = MAX(new_twist_current, twist.y);
+			}
+			set_kusudama_twist(index, Vector2(twist.x, new_twist_range));
+			set_kusudama_twist_current(index, new_twist_current);
 			return true;
 		} else if (what == "twist_current") {
-			set_kusudama_twist_current(index, p_value);
+			float new_twist_current = p_value;
+			Vector2 twist = get_kusudama_twist(index);
+			set_kusudama_twist(index, Vector2(new_twist_current, twist.y));
+			set_kusudama_twist_current(index, new_twist_current);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
@@ -1309,9 +1326,11 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	}
 	skeleton_changed(get_skeleton());
 	set_constraint_count(0);
-	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
-		String bone_name = humanoid_profile->get_bone_name(bone_i);
-		if (skeleton->find_bone(bone_name) == -1) {
+	for (int bone_i = 0; bone_i < get_bone_list().size(); bone_i++) {
+		int32_t matched_bone_i = get_bone_list()[bone_i]->get_bone_id();
+		String bone_name = skeleton->get_bone_name(matched_bone_i);
+		int32_t humanoid_bone_i = humanoid_profile->find_bone(bone_name);
+		if (humanoid_bone_i == -1) {
 			continue;
 		}
 		bool isFinger = bone_name.ends_with("ThumbMetacarpal") ||
