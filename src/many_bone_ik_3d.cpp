@@ -371,32 +371,15 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			set_kusudama_resistance(index, p_value);
 			return true;
 		} else if (what == "twist_from") {
-			float new_twist_from = p_value;
-			Vector2 twist = get_kusudama_twist(index);
-			float new_twist_current = get_kusudama_twist_current(index);
-			if (new_twist_current < twist.x || new_twist_current > twist.x + twist.y) {
-				twist.x = MIN(new_twist_current, twist.x);
-				twist.y = MAX(new_twist_current, twist.y);
-			}
-			set_kusudama_twist(index, Vector2(new_twist_from, twist.y));
-			set_kusudama_twist_current(index, new_twist_current);
+			Vector2 twist_from = get_kusudama_twist(index);
+			set_kusudama_twist(index, Vector2(p_value, twist_from.y));
 			return true;
 		} else if (what == "twist_range") {
-			float new_twist_range = p_value;
-			Vector2 twist = get_kusudama_twist(index);
-			float new_twist_current = get_kusudama_twist_current(index);
-			if (new_twist_current < twist.x || new_twist_current > twist.x + twist.y) {
-				twist.x = MIN(new_twist_current, twist.x);
-				twist.y = MAX(new_twist_current, twist.y);
-			}
-			set_kusudama_twist(index, Vector2(twist.x, new_twist_range));
-			set_kusudama_twist_current(index, new_twist_current);
+			Vector2 twist_range = get_kusudama_twist(index);
+			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
 			return true;
 		} else if (what == "twist_current") {
-			float new_twist_current = p_value;
-			Vector2 twist = get_kusudama_twist(index);
-			set_kusudama_twist(index, Vector2(new_twist_current, twist.y));
-			set_kusudama_twist_current(index, new_twist_current);
+			set_kusudama_twist_current(index, p_value);
 			return true;
 		} else if (what == "kusudama_limit_cone_count") {
 			set_kusudama_limit_cone_count(index, p_value);
@@ -1326,11 +1309,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	}
 	skeleton_changed(get_skeleton());
 	set_constraint_count(0);
-	for (int bone_i = 0; bone_i < get_bone_list().size(); bone_i++) {
-		int32_t matched_bone_i = get_bone_list()[bone_i]->get_bone_id();
-		String bone_name = skeleton->get_bone_name(matched_bone_i);
-		int32_t humanoid_bone_i = humanoid_profile->find_bone(bone_name);
-		if (humanoid_bone_i == -1) {
+	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
+		String bone_name = humanoid_profile->get_bone_name(bone_i);
+		if (skeleton->find_bone(bone_name) == -1) {
 			continue;
 		}
 		bool isFinger = bone_name.ends_with("ThumbMetacarpal") ||
@@ -1455,4 +1436,28 @@ void ManyBoneIK3D::set_kusudama_twist_current(int32_t p_index, real_t p_rotation
 		ik_bone->set_skeleton_bone_pose(get_skeleton());
 		notify_property_list_changed();
 	}
+}
+
+Vector3 ManyBoneIK3D::convert_attitude_azimuth_to_coordinate(float attitude, float azimuth) {
+	Vector3 p_center;
+	p_center.x = sin(attitude) * cos(azimuth);
+	p_center.y = sin(attitude) * sin(azimuth);
+	p_center.z = cos(attitude);
+	return p_center;
+}
+
+Vector2 ManyBoneIK3D::convert_coordinate_to_attitude_azimuth(Vector3 p_center) {
+	float attitude = acos(CLAMP(p_center.z, -1.0f, 1.0f));
+	float azimuth = 0.0f;
+
+	if (ABS(p_center.z) < 1.0f) {
+		azimuth = atan2(p_center.y, p_center.x);
+		if (azimuth < 0.0f) {
+			azimuth += Math_TAU;
+		}
+	} else {
+		azimuth = 0.0f;
+	}
+
+	return Vector2(attitude, azimuth);
 }
