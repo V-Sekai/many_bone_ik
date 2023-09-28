@@ -1315,20 +1315,20 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 			continue;
 		}
 		bool isFinger = bone_name.ends_with("ThumbMetacarpal") ||
-				bone_name.ends_with("ThumbProximal") ||
-				bone_name.ends_with("ThumbDistal") ||
-				bone_name.ends_with("IndexProximal") ||
-				bone_name.ends_with("IndexIntermediate") ||
-				bone_name.ends_with("IndexDistal") ||
-				bone_name.ends_with("MiddleProximal") ||
-				bone_name.ends_with("MiddleIntermediate") ||
-				bone_name.ends_with("MiddleDistal") ||
-				bone_name.ends_with("RingProximal") ||
-				bone_name.ends_with("RingIntermediate") ||
-				bone_name.ends_with("RingDistal") ||
-				bone_name.ends_with("LittleProximal") ||
-				bone_name.ends_with("LittleIntermediate") ||
-				bone_name.ends_with("LittleDistal");
+						bone_name.ends_with("ThumbProximal") ||
+						bone_name.ends_with("ThumbDistal") ||
+						bone_name.ends_with("IndexProximal") ||
+						bone_name.ends_with("IndexIntermediate") ||
+						bone_name.ends_with("IndexDistal") ||
+						bone_name.ends_with("MiddleProximal") ||
+						bone_name.ends_with("MiddleIntermediate") ||
+						bone_name.ends_with("MiddleDistal") ||
+						bone_name.ends_with("RingProximal") ||
+						bone_name.ends_with("RingIntermediate") ||
+						bone_name.ends_with("RingDistal") ||
+						bone_name.ends_with("LittleProximal") ||
+						bone_name.ends_with("LittleIntermediate") ||
+						bone_name.ends_with("LittleDistal");
 		if (isFinger) {
 			continue;
 		}
