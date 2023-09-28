@@ -100,28 +100,8 @@ protected:
 	void _notification(int p_what);
 
 public:
-	static Vector3 convert_attitude_azimuth_to_coordinate(float attitude, float azimuth) {
-		Vector3 p_center;
-		p_center.x = sin(attitude) * cos(azimuth);
-		p_center.y = sin(attitude) * sin(azimuth);
-		p_center.z = cos(attitude);
-		return p_center;
-	}
-	static Vector2 convert_coordinate_to_attitude_azimuth(Vector3 p_center) {
-		float attitude = acos(CLAMP(p_center.z, -1.0f, 1.0f));
-		float azimuth = 0.0f;
-
-		if (ABS(p_center.z) < 1.0f) {
-			azimuth = atan2(p_center.y, p_center.x);
-			if (azimuth < 0.0f) {
-				azimuth += Math_TAU;
-			}
-		} else {
-			azimuth = 0.0f;
-		}
-
-		return Vector2(attitude, azimuth);
-	}
+	static Vector3 convert_attitude_azimuth_to_coordinate(float attitude, float azimuth);
+	static Vector2 convert_coordinate_to_attitude_azimuth(Vector3 p_center);
 	void add_constraint();
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes();

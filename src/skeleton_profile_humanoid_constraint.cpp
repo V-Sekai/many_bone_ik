@@ -52,7 +52,7 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 			twist_range = Math::deg_to_rad(40.0f);
 			resistance = 0.5f;
 		} else if (bone_name == "Spine") {
-			twist_from = Math::deg_to_rad(10.0f);
+			twist_from = Math::deg_to_rad(4.0f);
 			twist_range = Math::deg_to_rad(4.0f);
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(3.0f)));
 			resistance = 0.5f;
@@ -81,23 +81,23 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 			twist_range = Math::deg_to_rad(10.0f);
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(25.0f)));
 			resistance = 0.8f;
-		} else if (bone_name == "LeftLowerLeg" || bone_name == "RightLowerLeg") {
-			twist_from = Math::deg_to_rad(180.0f);
-			twist_range = Math::deg_to_rad(10.0f);
+		} else if (bone_name == "LeftLowerLeg") {
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(MODEL_REAR, Math::deg_to_rad(2.5f)));
 			swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
-		} else if (bone_name == "LeftUpperLeg" || bone_name == "RightUpperLeg") {
-			twist_from = Math::deg_to_rad(180.0f);
+		} else if (bone_name == "RightUpperLeg") {
+			twist_from = Math::deg_to_rad(300.0f);
 			twist_range = Math::deg_to_rad(10.0f);
 			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(25.0f)));
 			resistance = 0.8f;
+		} else if ( bone_name == "RightLowerLeg") {
+			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(2.5f)));
+			swing_limit_cones.push_back(LimitCone(MODEL_REAR, Math::deg_to_rad(2.5f)));
+			swing_limit_cones.push_back(LimitCone(y_up_backwards, Math::deg_to_rad(2.5f)));
 		} else if (bone_name == "LeftFoot" || bone_name == "RightFoot") {
-			twist_from = Math::deg_to_rad(180.0f);
-			twist_range = Math::deg_to_rad(10.0f);
 			swing_limit_cones.push_back(LimitCone(MODEL_BOTTOM, Math::deg_to_rad(5.0f)));
 		} else if (bone_name == "LeftShoulder" || bone_name == "RightShoulder") {
-			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(225.0f)));
+			swing_limit_cones.push_back(LimitCone(y_up, Math::deg_to_rad(30.0f)));
 		} else if (bone_name == "LeftUpperArm" || bone_name == "RightUpperArm") {
 			twist_from = Math::deg_to_rad(80.0f);
 			twist_range = Math::deg_to_rad(12.0f);
