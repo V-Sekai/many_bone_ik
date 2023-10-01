@@ -48,8 +48,6 @@
 #include "scene/resources/skeleton_profile.h"
 #include "scene/scene_string_names.h"
 
-#include "skeleton_profile_humanoid_constraint.h"
-
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
 #endif
@@ -1265,8 +1263,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	ERR_FAIL_NULL(skeleton);
 	skeleton->set_show_rest_only(true);
 	skeleton->reset_bone_poses();
-	Ref<SkeletonProfileHumanoidConstraint> humanoid_profile;
-	humanoid_profile.instantiate();
 	PackedStringArray humanoid_bones;
 	if (!p_set_targets) {
 		return;
@@ -1304,53 +1300,6 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	}
 	skeleton_changed(get_skeleton());
 	set_constraint_count(0);
-	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
-		String bone_name = humanoid_profile->get_bone_name(bone_i);
-		if (skeleton->find_bone(bone_name) == -1) {
-			continue;
-		}
-		bool isFinger = bone_name.ends_with("ThumbMetacarpal") ||
-						bone_name.ends_with("ThumbProximal") ||
-						bone_name.ends_with("ThumbDistal") ||
-						bone_name.ends_with("IndexProximal") ||
-						bone_name.ends_with("IndexIntermediate") ||
-						bone_name.ends_with("IndexDistal") ||
-						bone_name.ends_with("MiddleProximal") ||
-						bone_name.ends_with("MiddleIntermediate") ||
-						bone_name.ends_with("MiddleDistal") ||
-						bone_name.ends_with("RingProximal") ||
-						bone_name.ends_with("RingIntermediate") ||
-						bone_name.ends_with("RingDistal") ||
-						bone_name.ends_with("LittleProximal") ||
-						bone_name.ends_with("LittleIntermediate") ||
-						bone_name.ends_with("LittleDistal");
-		if (isFinger) {
-			continue;
-		}
-		SkeletonProfileHumanoidConstraint::BoneConstraint constraint = humanoid_profile->get_bone_constraint(bone_name);
-		int32_t constraint_i = get_constraint_count();
-		add_constraint();
-		set_constraint_name(constraint_i, bone_name);
-		set_kusudama_resistance(constraint_i, 1.0);
-	}
-	for (int bone_i = 0; bone_i < humanoid_profile->get_bone_size(); bone_i++) {
-		String bone_name = humanoid_profile->get_bone_name(bone_i);
-		SkeletonProfileHumanoidConstraint::BoneConstraint constraint = humanoid_profile->get_bone_constraint(bone_name);
-		int32_t constraint_i = find_constraint(bone_name);
-		if (constraint_i == -1) {
-			set_kusudama_limit_cone_count(constraint_i,  0.0f);
-			set_kusudama_twist_from_range(constraint_i, 0.0f, Math_TAU);
-			set_kusudama_resistance(constraint_i, 0.0f);
-			continue;
-		}
-		Vector<SkeletonProfileHumanoidConstraint::LimitCone> cones = constraint.swing_limit_cones;
-		for (int32_t cone_i = 0; cone_i < cones.size(); cone_i++) {
-			set_kusudama_limit_cone_count(constraint_i, cones.size());
-			set_kusudama_limit_cone(constraint_i, cone_i, cones[cone_i].center, cones[cone_i].radius);
-		}
-		set_kusudama_twist_from_range(constraint_i, constraint.twist_from, constraint.twist_range);
-		set_kusudama_resistance(constraint_i, constraint.resistance);
-	}
 	is_setup_humanoid_bones = false;
 	skeleton->set_show_rest_only(is_setup_humanoid_bones);
 }
