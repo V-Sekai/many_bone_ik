@@ -32,6 +32,7 @@
 #include "core/core_string_names.h"
 #include "core/error/error_macros.h"
 #include "core/io/json.h"
+#include "core/math/math_defs.h"
 #include "core/object/class_db.h"
 #include "core/string/string_name.h"
 #include "core/variant/typed_array.h"
@@ -1273,15 +1274,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 	Vector<String> bones = {
 		"Root",
 		"Head",
-		"UpperChest",
-		"LeftLowerArm",
 		"LeftHand",
-		"RightLowerArm",
 		"RightHand",
-		"Spine",
-		"LeftLowerLeg",
 		"LeftFoot",
-		"RightLowerLeg",
 		"RightFoot",
 	};
 	set_pin_count(0);
@@ -1343,6 +1338,9 @@ void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
 		SkeletonProfileHumanoidConstraint::BoneConstraint constraint = humanoid_profile->get_bone_constraint(bone_name);
 		int32_t constraint_i = find_constraint(bone_name);
 		if (constraint_i == -1) {
+			set_kusudama_limit_cone_count(constraint_i,  0.0f);
+			set_kusudama_twist_from_range(constraint_i, 0.0f, Math_TAU);
+			set_kusudama_resistance(constraint_i, 0.0f);
 			continue;
 		}
 		Vector<SkeletonProfileHumanoidConstraint::LimitCone> cones = constraint.swing_limit_cones;

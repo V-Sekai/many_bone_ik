@@ -44,8 +44,8 @@ SkeletonProfileHumanoidConstraint::SkeletonProfileHumanoidConstraint() {
 		Vector3 y_up = reference_pose.basis.get_column(Vector3::AXIS_Y).normalized();
 		Vector3 y_up_backwards = y_up;
 		y_up_backwards.y = -y_up_backwards.y;
-		float twist_range = Math::deg_to_rad(180.0f);
-		float twist_from = Math_TAU;
+		float twist_range = Math_TAU;
+		float twist_from = 0;
 		float resistance = 0;
 		if (bone_name == "Hips") {
 			twist_from = Math::deg_to_rad(0.0f);
