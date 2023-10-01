@@ -467,7 +467,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_count"), &ManyBoneIK3D::get_bone_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enabled"), &ManyBoneIK3D::set_constraint_mode);
 	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &ManyBoneIK3D::get_constraint_mode);
-	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current"), &ManyBoneIK3D::get_kusudama_twist_current);
+	ClassDB::bind_method(D_METHOD("get_kusudama_twist_current", "index"), &ManyBoneIK3D::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_kusudama_twist_current", "twist_current"), &ManyBoneIK3D::get_kusudama_twist_current);
 	ClassDB::bind_method(D_METHOD("set_ui_selected_bone", "bone"), &ManyBoneIK3D::set_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
