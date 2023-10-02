@@ -49,18 +49,6 @@ void IKRay3D::set_heading(const Vector3 &p_new_head) {
 	point_2 = p_new_head;
 }
 
-real_t IKRay3D::get_scaled_projection(const Vector3 p_input) {
-	working_vector = p_input;
-	working_vector = working_vector - point_1;
-	Vector3 heading = get_heading();
-	real_t headingMag = heading.length();
-	real_t workingVectorMag = working_vector.length();
-	if (workingVectorMag == 0 || headingMag == 0) {
-		return 0;
-	}
-	return (working_vector.dot(heading) / (headingMag * workingVectorMag)) * (workingVectorMag / headingMag);
-}
-
 void IKRay3D::elongate(real_t amt) {
 	Vector3 midPoint = (point_1 + point_2) * 0.5f;
 	Vector3 p1Heading = point_1 - midPoint;
@@ -207,6 +195,5 @@ void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 *u
 
 void IKRay3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_heading"), &IKRay3D::get_heading);
-	ClassDB::bind_method(D_METHOD("get_scaled_projection", "input"), &IKRay3D::get_scaled_projection);
 	ClassDB::bind_method(D_METHOD("get_intersects_plane", "a", "b", "c"), &IKRay3D::get_intersects_plane);
 }

@@ -49,6 +49,11 @@
 #include "editor/editor_undo_redo_manager.h"
 #endif
 
+class ManyBoneIK3DState : public Resource {
+	GDCLASS(ManyBoneIK3DState, Resource);
+
+};
+
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
 
@@ -79,6 +84,7 @@ private:
 	bool is_gizmo_dirty = false;
 	bool is_setup_humanoid_bones = false;
 	Ref<SceneTreeTimer> timer;
+	Ref<ManyBoneIK3DState> ik_state = memnew(ManyBoneIK3DState);
 	void _on_timer_timeout();
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
@@ -100,6 +106,8 @@ protected:
 	void _notification(int p_what);
 
 public:
+	void set_state(Ref<ManyBoneIK3DState> p_state);
+	Ref<ManyBoneIK3DState> get_state() const;
 	static Vector3 convert_attitude_azimuth_to_coordinate(float attitude, float azimuth);
 	static Vector2 convert_coordinate_to_attitude_azimuth(Vector3 p_center);
 	void add_constraint();

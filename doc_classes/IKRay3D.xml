@@ -15,21 +15,5 @@
 				Returns the heading of the ray as a Vector3.
 			</description>
 		</method>
-		<method name="get_intersects_plane">
-			<return type="Vector3" />
-			<param index="0" name="a" type="Vector3" />
-			<param index="1" name="b" type="Vector3" />
-			<param index="2" name="c" type="Vector3" />
-			<description>
-				Checks if the ray intersects a plane defined by three points (a, b, c). Returns the intersection point as a Vector3, or null if there is no intersection.
-			</description>
-		</method>
-		<method name="get_scaled_projection">
-			<return type="float" />
-			<param index="0" name="input" type="Vector3" />
-			<description>
-				Returns the scaled projection of the ray onto the input vector.
-			</description>
-		</method>
 	</methods>
 </class>
