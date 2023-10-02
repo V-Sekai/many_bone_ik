@@ -50,11 +50,6 @@
 #include "editor/editor_undo_redo_manager.h"
 #endif
 
-class ManyBoneIK3DState : public Resource {
-	GDCLASS(ManyBoneIK3DState, Resource);
-
-};
-
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
 
