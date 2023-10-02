@@ -24,12 +24,5 @@
 				Checks if the ray intersects a plane defined by three points (a, b, c). Returns the intersection point as a Vector3, or null if there is no intersection.
 			</description>
 		</method>
-		<method name="get_scaled_projection">
-			<return type="float" />
-			<param index="0" name="input" type="Vector3" />
-			<description>
-				Returns the scaled projection of the ray onto the input vector.
-			</description>
-		</method>
 	</methods>
 </class>
