@@ -57,32 +57,6 @@ public:
 	void set_heading(const Vector3 &p_new_head);
 
 	/**
-	 * Returns the scalar projection of the input vector on this
-	 * ray. In other words, if this ray goes from (5, 0) to (10, 0),
-	 * and the input vector is (7.5, 7), this function
-	 * would output 0.5. Because that is amount the ray would need
-	 * to be scaled by so that its tip is where the vector would project onto
-	 * this ray.
-	 * <p>
-	 * Due to floating point errors, the intended properties of this function might
-	 * not be entirely consistent with its output under summation.
-	 * <p>
-	 * To help spare programmer cognitive cycles debugging in such circumstances,
-	 * the intended properties
-	 * are listed for reference here (despite their being easily inferred).
-	 * <p>
-	 * 1. calling get_scaled_projection(someVector) should return the same value as
-	 * calling
-	 * get_scaled_projection(closestPointTo(someVector).
-	 * 2. calling getMultipliedBy(get_scaled_projection(someVector)) should return the
-	 * same
-	 * vector as calling closestPointTo(someVector)
-	 *
-	 * @param p_input a vector to project onto this ray
-	 */
-	real_t get_scaled_projection(const Vector3 p_input);
-
-	/**
 	 * adds the specified length to the ray in both directions.
 	 */
 	void elongate(real_t p_amount);
