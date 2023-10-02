@@ -1310,9 +1310,3 @@ Vector2 ManyBoneIK3D::convert_coordinate_to_attitude_azimuth(Vector3 p_center) {
 
 	return Vector2(attitude, azimuth);
 }
-void ManyBoneIK3D::set_state(Ref<ManyBoneIK3DState> p_state) {
-	ik_state = p_state;
-}
-Ref<ManyBoneIK3DState> ManyBoneIK3D::get_state() const {
-	return ik_state;
-}
