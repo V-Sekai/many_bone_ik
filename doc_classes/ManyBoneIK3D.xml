@@ -9,6 +9,19 @@
 	<tutorials>
 	</tutorials>
 	<methods>
+		<method name="convert_attitude_azimuth_to_coordinate" qualifiers="static">
+			<return type="Vector3" />
+			<param index="0" name="atitude" type="float" />
+			<param index="1" name="azimuth" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="convert_coordinate_to_attitude_azimuth" qualifiers="static">
+			<return type="Vector2" />
+			<param index="0" name="center" type="Vector3" />
+			<description>
+			</description>
+		</method>
 		<method name="find_constraint" qualifiers="const">
 			<return type="int" />
 			<param index="0" name="name" type="String" />
@@ -91,6 +104,12 @@
 			<param index="0" name="index" type="int" />
 			<description>
 				Returns the twist of the kusudama at the specified index.
+			</description>
+		</method>
+		<method name="get_kusudama_twist_current" qualifiers="const">
+			<return type="float" />
+			<param index="0" name="index" type="int" />
+			<description>
 			</description>
 		</method>
 		<method name="get_pin_bone_name" qualifiers="const">
@@ -236,6 +255,12 @@
 			<param index="1" name="limit" type="Vector2" />
 			<description>
 				Sets the twist of the kusudama at the specified index.
+			</description>
+		</method>
+		<method name="set_kusudama_twist_current" qualifiers="const">
+			<return type="float" />
+			<param index="0" name="twist_current" type="int" />
+			<description>
 			</description>
 		</method>
 		<method name="set_pin_direction_priorities">
