@@ -49,11 +49,6 @@
 #include "editor/editor_undo_redo_manager.h"
 #endif
 
-class ManyBoneIK3DState : public Resource {
-	GDCLASS(ManyBoneIK3DState, Resource);
-
-};
-
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
 
@@ -83,7 +78,6 @@ private:
 	int32_t ui_selected_bone = -1, stabilize_passes = 4;
 	bool is_gizmo_dirty = false;
 	Ref<SceneTreeTimer> timer;
-	Ref<ManyBoneIK3DState> ik_state = memnew(ManyBoneIK3DState);
 	void _on_timer_timeout();
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
