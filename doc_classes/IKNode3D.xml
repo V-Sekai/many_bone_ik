@@ -38,7 +38,7 @@
 			<param index="0" name="p_basis" type="Basis" />
 			<param index="1" name="p_propagate" type="bool" default="false" />
 			<description>
-				Rotates the local transform of this node with a global basis. If propagate is true, the rotation is also applied to the children of this node immediately.
+				Rotates the local transform of this node with a global basis. If propagate is true, the rotation is also applied to the children of this node.
 			</description>
 		</method>
 		<method name="set_disable_scale">

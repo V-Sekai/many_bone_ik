@@ -124,41 +124,43 @@ void IKKusudama3D::set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKN
 }
 
 void IKKusudama3D::get_swing_twist(
-    Quaternion p_rotation,
-    Vector3 p_axis,
-    Quaternion &r_swing,
-    Quaternion &r_twist) {
+		Quaternion p_rotation,
+		Vector3 p_axis,
+		Quaternion &r_swing,
+		Quaternion &r_twist) {
+	if (p_axis.length_squared() == 0) {
+		return;
+	}
 
-    real_t axis_length_squared = p_axis.length_squared();
-    if (axis_length_squared == 0) {
-        return;
-    }
+	Quaternion rotation = p_rotation;
+	if (rotation.w < 0.0) {
+		rotation *= -1;
+	}
 
-    if (p_rotation.w < 0.0) {
-        p_rotation *= -1;
-    }
+	Vector3 p = p_axis * (rotation.x * p_axis.x + rotation.y * p_axis.y + rotation.z * p_axis.z);
+	r_twist = Quaternion(p.x, p.y, p.z, rotation.w);
 
-    // Swing-twist decomposition in Clifford algebra
-    // https://arxiv.org/abs/1506.05481
-    Vector3 p = p_axis * (p_rotation.x * p_axis.x + p_rotation.y * p_axis.y + p_rotation.z * p_axis.z);
-    r_twist = Quaternion(p.x, p.y, p.z, p_rotation.w);
+	real_t d = Vector3(r_twist.x, r_twist.y, r_twist.z).dot(p_axis);
+	if (d < real_t(0.0)) {
+		r_twist *= real_t(-1.0);
+	}
 
-    real_t twist_length_squared = r_twist.length_squared();
-    if (twist_length_squared != 0) {
-        r_twist /= sqrt(twist_length_squared);
-    } else {
-        return;
-    }
+	if (r_twist.length_squared() != 0) {
+		r_twist = r_twist.normalized();
+	} else {
+		return;
+	}
 
-    if (!r_twist.is_finite()) {
-        r_twist = Quaternion();
-    }
+	if (!r_twist.is_finite()) {
+		r_twist = Quaternion();
+	}
 
-    r_swing = p_rotation * r_twist.inverse();
+	r_swing = rotation * r_twist.inverse();
 
-    if (!r_swing.is_finite()) {
-        r_swing = Quaternion();
-    }
+	if (!r_swing.is_finite()) {
+		r_swing = Quaternion();
+		return;
+	}
 }
 
 void IKKusudama3D::add_limit_cone(Vector3 new_cone_local_point, double radius) {
