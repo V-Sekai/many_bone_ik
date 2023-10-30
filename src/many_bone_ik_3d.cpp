@@ -479,13 +479,6 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK3D::set_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK3D::get_stabilization_passes);
 
-	ClassDB::bind_method(D_METHOD("setup_humanoid_bones", "enable"), &ManyBoneIK3D::setup_humanoid_bones);
-
-	ClassDB::bind_method(D_METHOD("set_setup_humanoid_bones", "set_targets"), &ManyBoneIK3D::set_setup_humanoid_bones);
-	ClassDB::bind_method(D_METHOD("get_setup_humanoid_bones"), &ManyBoneIK3D::get_setup_humanoid_bones);
-
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "initialize_humanoid_bones"), "set_setup_humanoid_bones", "get_setup_humanoid_bones");
-
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.1,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
@@ -1213,95 +1206,6 @@ Transform3D ManyBoneIK3D::get_godot_skeleton_transform_inverse() {
 
 Ref<IKNode3D> ManyBoneIK3D::get_godot_skeleton_transform() {
 	return godot_skeleton_transform;
-}
-
-void ManyBoneIK3D::set_setup_humanoid_bones(bool set_targets) {
-	is_setup_humanoid_bones = set_targets;
-	setup_humanoid_bones(is_setup_humanoid_bones);
-	set_dirty();
-}
-
-bool ManyBoneIK3D::get_setup_humanoid_bones() const {
-	return is_setup_humanoid_bones;
-}
-
-void ManyBoneIK3D::setup_humanoid_bones(bool p_set_targets) {
-	// **Rotation Twist**
-	// | Body Part       | Description                                                                                                                                                                                                                   |
-	// |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-	// | Head            | The head can rotate side-to-side up to 60-70 degrees, enabling the character to look left and right.                                                                                                   |
-	// | Neck            | The neck can rotate side-to-side up to 50-60 degrees for looking left and right.                                                                                                       |
-	// | [Side]UpperLeg  | The upper leg can rotate slightly up to 5-10 degrees for sitting.                                                                                                  |
-	// | [Side]UpperArm  | The upper arm can also rotate slightly up to 30-40 degrees for more natural arm movement.                                                                             |
-	// | [Side]Hand      | The wrist can also rotate slightly up to 20-30 degrees, enabling the hand to twist inward or outward for grasping and gesturing.                             |
-	// | Hips            | The hips can rotate up to 45-55 degrees, allowing for twisting and turning movements.                                                                                                      |
-	// | Spine           | The spine can rotate up to 20-30 degrees, providing flexibility for bending and twisting.                                                                                                 |
-	// | Chest           | The chest can rotate up to 15-25 degrees, contributing to the twisting motion of the upper body.                                                                                       |
-	// | UpperChest      | The upper chest can rotate up to 10-20 degrees, aiding in the overall rotation of the torso.
-	// | [Side]UpperLeg  | The upper leg can rotate up to 30-40 degrees, allowing for movements such as kicking or stepping.                                                                                                  |
-	// | [Side]LowerLeg  | The lower leg can rotate slightly up to 10-15 degrees, providing flexibility for running or jumping.                                                                                                 |
-	// | [Side]Foot      | The foot can rotate inward or outward (inversion and eversion) up to 20-30 degrees, enabling balance and various stances.         |
-	// | [Side]Shoulder  | The shoulder can rotate up to 90 degrees in a normal range of motion. This allows for movements such as lifting an arm or throwing. However, with forced movement, it can rotate beyond this limit. |
-
-	// **Rotation Swing**
-	// | Body Part       | Description                                                                                                                                                                                                                   |
-	// |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-	// | Hips            | The hips can tilt forward and backward up to 20-30 degrees, allowing the legs to swing in a wide arc during walking or running. They can also move side-to-side up to 10-20 degrees, enabling the legs to spread apart or come together.                               |
-	// | UpperChest      | The upper chest can tilt forward and backward up to 10-20 degrees, allowing for natural breathing and posture adjustments.                                                                                                                         |
-	// | Chest           | The chest can tilt forward and backward up to 10-20 degrees, allowing for natural breathing and posture adjustments.                                                                                                                               |
-	// | Spine           | The spine can tilt forward and backward up to 35-45 degrees, allowing for bending and straightening of the torso.                                                                                                                                  |
-	// | [Side]UpperLeg  | The upper leg can swing forward and backward up to 80-90 degrees, allowing for steps during walking and running.                                                                                                  |
-	// | [Side]LowerLeg  | The knee can bend and straighten up to 110-120 degrees, allowing the lower leg to move towards or away from the upper leg during walking, running, and stepping.                                                                                     |
-	// | [Side]Foot      | The ankle can tilt up (dorsiflexion) up to 10-20 degrees and down (plantarflexion) up to 35-40 degrees, allowing the foot to step and adjust during walking and running.          |
-	// | [Side]Shoulder  | The shoulder can tilt forward and backward up to 160 degrees, allowing the arms to swing in a wide arc. They can also move side-to-side up to 40-50 degrees, enabling the arms to extend outwards or cross over the chest.                                       |
-	// | [Side]UpperArm  | The upper arm can swing forward and backward up to 110-120 degrees, allowing for reaching and swinging motions.                                                                             |
-	// | [Side]LowerArm  | The elbow can bend and straighten up to 120-130 degrees, allowing the forearm to move towards or away from the upper arm during reaching and swinging motions.                                                                                       |
-	// | [Side]Hand      | The wrist can tilt up and down up to 50-60 degrees, allowing the hand to move towards or away from the forearm.
-	set_process_thread_group(PROCESS_THREAD_GROUP_SUB_THREAD);
-	set_process_thread_group_order(100);
-	Skeleton3D *skeleton = cast_to<Skeleton3D>(get_node_or_null(get_skeleton_node_path()));
-	ERR_FAIL_NULL(skeleton);
-	skeleton->set_show_rest_only(true);
-	skeleton->reset_bone_poses();
-	PackedStringArray humanoid_bones;
-	if (!p_set_targets) {
-		return;
-	}
-	Vector<String> bones = {
-		"Root",
-		"Head",
-		"LeftHand",
-		"RightHand",
-		"LeftFoot",
-		"RightFoot",
-	};
-	set_pin_count(0);
-	set_pin_count(bones.size());
-	TypedArray<Node> children = find_children("*", "Marker3D");
-	for (int i = 0; i < children.size(); ++i) {
-		Node *node = cast_to<Node>(children[i]);
-		node->queue_free();
-	}
-	for (int pin_i = 0; pin_i < bones.size(); pin_i++) {
-		String bone_name = bones[pin_i];
-		Marker3D *marker_3d = memnew(Marker3D);
-		marker_3d->set_name(bone_name);
-		add_child(marker_3d, true);
-		marker_3d->set_owner(get_owner());
-		int32_t bone_i = skeleton->find_bone(bone_name);
-		Transform3D pose = skeleton->get_global_transform().affine_inverse() * skeleton->get_bone_global_pose_no_override(bone_i);
-		marker_3d->set_global_transform(pose);
-		set_pin_nodepath(pin_i, get_path_to(marker_3d));
-		set_pin_bone_name(pin_i, bone_name);
-		if (bone_name == "Root") {
-			continue;
-		}
-		set_pin_passthrough_factor(pin_i, 1.0f);
-	}
-	skeleton_changed(get_skeleton());
-	set_constraint_count(0);
-	is_setup_humanoid_bones = false;
-	skeleton->set_show_rest_only(is_setup_humanoid_bones);
 }
 
 void ManyBoneIK3D::set_kusudama_resistance(int32_t p_index, real_t p_resistance) {

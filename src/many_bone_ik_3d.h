@@ -77,7 +77,6 @@ private:
 	NodePath skeleton_node_path = NodePath("..");
 	int32_t ui_selected_bone = -1, stabilize_passes = 4;
 	bool is_gizmo_dirty = false;
-	bool is_setup_humanoid_bones = false;
 	Ref<SceneTreeTimer> timer;
 	void _on_timer_timeout();
 	void update_ik_bones_transform();
@@ -171,9 +170,6 @@ public:
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();
-	void setup_humanoid_bones(bool set_targets);
-	void set_setup_humanoid_bones(bool set_targets);
-	bool get_setup_humanoid_bones() const;
 	real_t get_kusudama_twist_current(int32_t p_index) const;
 	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
 };
