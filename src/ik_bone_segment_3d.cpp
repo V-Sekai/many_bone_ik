@@ -164,7 +164,7 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 		update_tip_headings(p_for_bone, &tip_headings);
 		if (!p_constraint_mode) {
 			// Solved the ik transform and apply it.
-			QCP qcp = QCP(evec_prec, eval_prec);
+			QCP qcp = QCP(evec_prec);
 			Quaternion rot = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 			Vector3 translation = qcp.get_translation();
 			double dampening = (p_dampening != -1.0) ? p_dampening : bone_damp;
@@ -283,10 +283,6 @@ void IKBoneSegment3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_ik_bone", "bone"), &IKBoneSegment3D::get_ik_bone);
 }
 
-Ref<IKBoneSegment3D> IKBoneSegment3D::get_parent_segment() {
-	return parent_segment;
-}
-
 IKBoneSegment3D::IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent,
 		BoneId p_root, BoneId p_tip, int32_t p_stabilizing_pass_count) {
 	root = p_root;
@@ -312,10 +308,6 @@ void IKBoneSegment3D::enable_pinned_descendants() {
 
 bool IKBoneSegment3D::has_pinned_descendants() {
 	return pinned_descendants;
-}
-
-Vector<Ref<IKBone3D>> IKBoneSegment3D::get_bone_list() const {
-	return bones;
 }
 
 Ref<IKBone3D> IKBoneSegment3D::get_ik_bone(BoneId p_bone) const {
@@ -467,14 +459,6 @@ void IKBoneSegment3D::_finalize_segment(Ref<IKBone3D> p_current_tip) {
 	set_name(vformat("IKBoneSegment%sRoot%sTip", root->get_name(), tip->get_name()));
 	bones.clear();
 	create_bone_list(bones, false);
-}
-
-int32_t IKBoneSegment3D::get_stabilization_passes() const {
-	return default_stabilizing_pass_count;
-}
-
-void IKBoneSegment3D::set_stabilization_passes(int32_t p_passes) {
-	default_stabilizing_pass_count = p_passes;
 }
 
 void IKBoneSegment3D::update_returnfulness_damp(int32_t p_iterations) {

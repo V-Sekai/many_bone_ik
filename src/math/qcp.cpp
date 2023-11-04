@@ -30,25 +30,15 @@
 
 #include "qcp.h"
 
-QCP::QCP(double p_evec_prec, double p_eval_prec) {
-	eigenvector_precision = p_eval_prec;
-	eigenvalue_precision = p_evec_prec;
+QCP::QCP(double p_evec_prec) {
+	eigenvector_precision = p_evec_prec;
 }
 
 void QCP::set(PackedVector3Array &r_target, PackedVector3Array &r_moved) {
 	target = r_target;
 	moved = r_moved;
-	rmsd_calculated = false;
 	transformation_calculated = false;
 	inner_product_calculated = false;
-}
-
-double QCP::get_rmsd() {
-	if (!rmsd_calculated) {
-		calculate_rmsd(moved, target);
-		rmsd_calculated = true;
-	}
-	return rmsd;
 }
 
 Quaternion QCP::get_rotation() {
@@ -61,10 +51,6 @@ Quaternion QCP::get_rotation() {
 		transformation_calculated = true;
 	}
 	return result;
-}
-
-void QCP::calculate_rmsd(double r_length) {
-	rmsd = Math::sqrt(Math::abs(2.0f * (e0 - max_eigenvalue) / r_length));
 }
 
 Quaternion QCP::calculate_rotation() {
@@ -139,11 +125,6 @@ Quaternion QCP::calculate_rotation() {
 	}
 
 	return result;
-}
-
-double QCP::get_rmsd(PackedVector3Array &r_fixed, PackedVector3Array &r_moved) {
-	set(r_fixed, r_moved);
-	return get_rmsd();
 }
 
 void QCP::translate(Vector3 r_translate, PackedVector3Array &r_x) {
@@ -237,27 +218,12 @@ void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2
 	inner_product_calculated = true;
 }
 
-void QCP::calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y) {
-	// QCP doesn't handle alignment of single values, so if we only have one point
-	// we just compute regular distance.
-	if (x.size() == 1) {
-		rmsd = x[0].distance_to(y[0]);
-		rmsd_calculated = true;
-	} else {
-		if (!inner_product_calculated) {
-			inner_product(y, x);
-		}
-		calculate_rmsd(w_sum);
-	}
-}
-
 Quaternion QCP::weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate) {
 	set(p_moved, p_target, p_weight, translate);
 	return get_rotation();
 }
 
 void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate) {
-	rmsd_calculated = false;
 	transformation_calculated = false;
 	inner_product_calculated = false;
 

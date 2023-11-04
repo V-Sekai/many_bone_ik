@@ -69,7 +69,6 @@
 
 class QCP {
 	double eigenvector_precision = 1E-6;
-	double eigenvalue_precision = 1E-11;
 
 	PackedVector3Array target, moved;
 	Vector<double> weight;
@@ -77,25 +76,21 @@ class QCP {
 
 	Vector3 target_center, moved_center;
 
-	double e0 = 0, rmsd = 0, sum_xy = 0, sum_xz = 0, sum_yx = 0, sum_yz = 0, sum_zx = 0, sum_zy = 0;
+	double sum_xy = 0, sum_xz = 0, sum_yx = 0, sum_yz = 0, sum_zx = 0, sum_zy = 0;
 	double sum_xx_plus_yy = 0, sum_zz = 0, max_eigenvalue = 0, sum_yz_minus_zy = 0, sum_xz_minus_zx = 0, sum_xy_minus_yx = 0;
 	double sum_xx_minus_yy = 0, sum_xy_plus_yx = 0, sum_xz_plus_zx = 0;
 	double sum_yy = 0, sum_xx = 0, sum_yz_plus_zy = 0;
-	bool rmsd_calculated = false, transformation_calculated = false, inner_product_calculated = false;
+	bool transformation_calculated = false, inner_product_calculated = false;
 
-	void calculate_rmsd(PackedVector3Array &x, PackedVector3Array &y);
 	void inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2);
-	void calculate_rmsd(double r_length);
 	void set(PackedVector3Array &r_target, PackedVector3Array &r_moved);
 	Quaternion calculate_rotation();
 	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate);
 	static void translate(Vector3 r_translate, PackedVector3Array &r_x);
-	double get_rmsd(PackedVector3Array &r_fixed, PackedVector3Array &r_moved);
 	Vector3 move_to_weighted_center(PackedVector3Array &r_to_center, Vector<double> &r_weight);
 
 public:
-	QCP(double p_evec_prec, double p_eval_prec);
-	double get_rmsd();
+	QCP(double p_evec_prec);
 	Quaternion weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate);
 	Quaternion get_rotation();
 	Vector3 get_translation();

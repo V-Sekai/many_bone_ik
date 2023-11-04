@@ -58,8 +58,6 @@ class IKBoneSegment3D : public Resource {
 	PackedVector3Array tip_headings;
 	PackedVector3Array tip_headings_uniform;
 	Vector<double> heading_weights;
-	BoneId many_bone_ik_tip_bone = -1;
-	int32_t idx_eff_i = -1, idx_eff_f = -1;
 	Skeleton3D *skeleton = nullptr;
 	bool pinned_descendants = false;
 	double previous_deviation = INFINITY;
@@ -85,22 +83,17 @@ protected:
 
 public:
 	const double evec_prec = static_cast<double>(1E-6);
-	const double eval_prec = static_cast<double>(1E-11);
 	void update_pinned_list(Vector<Vector<double>> &r_weights);
-	void set_stabilization_passes(int32_t p_passes);
-	int32_t get_stabilization_passes() const;
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_quat, double p_cos_half_angle);
 	static void recursive_create_headings_arrays_for(Ref<IKBoneSegment3D> p_bone_segment);
 	void create_headings_arrays();
 	void recursive_create_penalty_array(Ref<IKBoneSegment3D> p_bone_segment, Vector<Vector<double>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, double p_falloff);
-	Ref<IKBoneSegment3D> get_parent_segment();
 	void segment_solver(const Vector<float> &p_damp, float p_default_damp, bool p_constraint_mode, int32_t p_current_iteration, int32_t p_total_iteration);
 	Ref<IKBone3D> get_root() const;
 	Ref<IKBone3D> get_tip() const;
 	bool is_pinned() const;
 	Vector<Ref<IKBoneSegment3D>> get_child_segments() const;
 	void create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
-	Vector<Ref<IKBone3D>> get_bone_list() const;
 	Ref<IKBone3D> get_ik_bone(BoneId p_bone) const;
 	void update_returnfulness_damp(int32_t p_iterations);
 	void generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
