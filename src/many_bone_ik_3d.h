@@ -102,8 +102,6 @@ public:
 	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
 	void set_state(Ref<ManyBoneIK3DState> p_state);
 	Ref<ManyBoneIK3DState> get_state() const;
-	static Vector3 convert_attitude_azimuth_to_coordinate(float attitude, float azimuth);
-	static Vector2 convert_coordinate_to_attitude_azimuth(Vector3 p_center);
 	void add_constraint();
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes();
