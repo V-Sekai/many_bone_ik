@@ -50,6 +50,7 @@
 #include "editor/editor_undo_redo_manager.h"
 #endif
 
+class ManyBoneIK3DState;
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
 
@@ -174,8 +175,9 @@ public:
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();
-	real_t get_kusudama_twist_current(int32_t p_index) const;
-	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
 };
 
+class ManyBoneIK3DState : RefCounted {
+	GDCLASS(ManyBoneIK3DState, RefCounted);
+};
 #endif // MANY_BONE_IK_3D_H
