@@ -82,7 +82,6 @@ private:
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();
 	Vector<Ref<IKEffectorTemplate3D>> get_bone_effectors() const;
-	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
 	void set_constraint_name(int32_t p_index, String p_name);
 	void set_pin_count(int32_t p_value);
 	void set_constraint_count(int32_t p_count);
@@ -99,6 +98,7 @@ protected:
 	void _notification(int p_what);
 
 public:
+	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
 	static Vector3 convert_attitude_azimuth_to_coordinate(float attitude, float azimuth);
 	static Vector2 convert_coordinate_to_attitude_azimuth(Vector3 p_center);
 	void add_constraint();
