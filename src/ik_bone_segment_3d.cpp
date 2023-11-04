@@ -390,21 +390,17 @@ void IKBoneSegment3D::recursive_create_headings_arrays_for(Ref<IKBoneSegment3D> 
 
 void IKBoneSegment3D::generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
 	Ref<IKBone3D> current_tip = root;
+	Vector<BoneId> children;
 
-	while (true) {
-		if (_is_parent_of_tip(current_tip, p_tip_bone)) {
-			break;
-		}
+	while (!_is_parent_of_tip(current_tip, p_tip_bone)) {
+		children = skeleton->get_bone_children(current_tip->get_bone_id());
 
-		Vector<BoneId> children = skeleton->get_bone_children(current_tip->get_bone_id());
-
-		if (_has_multiple_children_or_pinned(children, current_tip)) {
+		if (children.is_empty() || _has_multiple_children_or_pinned(children, current_tip)) {
 			_process_children(children, current_tip, p_pins, p_root_bone, p_tip_bone, p_many_bone_ik);
 			break;
-		} else if (children.size() == 1) {
-			current_tip = _create_next_bone(children[0], current_tip, p_pins, p_many_bone_ik);
 		} else {
-			break;
+			Vector<BoneId>::Iterator bone_id_iterator = children.begin();
+			current_tip = _create_next_bone(*bone_id_iterator, current_tip, p_pins, p_many_bone_ik);
 		}
 	}
 
