@@ -1,4 +1,4 @@
-# Overcoming a V-Sekai limit with ewb-ik 
+# Overcoming a V-Sekai limit with ewb-ik
 
 ## Metadata
 
@@ -16,7 +16,7 @@ The current system has multiple plausible solutions, which can lead to unpredict
 
 ## The Strategy
 
-We propose to overcome this limitation by implementing an energy minimization approach in the ewb-ik version of the system. This approach will automatically define 0 cost regions along with hard boundary (high cost regions), resulting in the optimal solution with minimal effort from the user. 
+We propose to overcome this limitation by implementing an energy minimization approach in the ewb-ik version of the system. This approach will automatically define 0 cost regions along with hard boundary (high cost regions), resulting in the optimal solution with minimal effort from the user.
 
 Additionally, we propose to add a requirement for zero configuration to make the system more user-friendly and efficient.
 
