@@ -399,6 +399,8 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void ManyBoneIK3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_constraint_name", "index", "name"), &ManyBoneIK3D::set_constraint_name);
+	ClassDB::bind_method(D_METHOD("set_pin_count", "count"), &ManyBoneIK3D::set_pin_count);
 	ClassDB::bind_method(D_METHOD("set_kusudama_resistance", "index", "resistance"), &ManyBoneIK3D::set_kusudama_resistance);
 	ClassDB::bind_method(D_METHOD("get_kusudama_resistance", "index"), &ManyBoneIK3D::get_kusudama_resistance);
 	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
@@ -437,6 +439,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_iterations_per_frame", "count"), &ManyBoneIK3D::set_iterations_per_frame);
 	ClassDB::bind_method(D_METHOD("find_constraint", "name"), &ManyBoneIK3D::find_constraint);
 	ClassDB::bind_method(D_METHOD("get_constraint_count"), &ManyBoneIK3D::get_constraint_count);
+	ClassDB::bind_method(D_METHOD("set_constraint_count", "count"), &ManyBoneIK3D::set_constraint_count);
 	ClassDB::bind_method(D_METHOD("queue_print_skeleton"), &ManyBoneIK3D::queue_print_skeleton);
 	ClassDB::bind_method(D_METHOD("get_default_damp"), &ManyBoneIK3D::get_default_damp);
 	ClassDB::bind_method(D_METHOD("set_default_damp", "damp"), &ManyBoneIK3D::set_default_damp);
@@ -557,7 +560,7 @@ void ManyBoneIK3D::set_kusudama_limit_cone(int32_t p_constraint_index, int32_t p
 	if (Math::is_zero_approx(p_center.length_squared())) {
 		p_center = Vector3(0.0f, 1.0f, 0.0f);
 	}
-	Vector3 center = p_center;
+	Vector3 center = p_center.normalized();
 	Vector4 cone;
 	cone.x = center.x;
 	cone.y = center.y;
@@ -566,23 +569,6 @@ void ManyBoneIK3D::set_kusudama_limit_cone(int32_t p_constraint_index, int32_t p
 	cones.write[p_index] = cone;
 	kusudama_limit_cones.write[p_constraint_index] = cones;
 	set_dirty();
-}
-
-Vector3 ManyBoneIK3D::get_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index) const {
-	if (unlikely((p_constraint_index) < 0 || (p_constraint_index) >= (kusudama_limit_cones.size()))) {
-		ERR_PRINT_ONCE("Can't get limit cone center.");
-		return Vector3(0.0, 1.0, 0.0);
-	}
-	if (unlikely((p_index) < 0 || (p_index) >= (kusudama_limit_cones[p_constraint_index].size()))) {
-		ERR_PRINT_ONCE("Can't get limit cone center.");
-		return Vector3(0.0, 1.0, 0.0);
-	}
-	const Vector4 &cone = kusudama_limit_cones[p_constraint_index][p_index];
-	Vector3 ret;
-	ret.x = cone.x;
-	ret.y = cone.y;
-	ret.z = cone.z;
-	return ret;
 }
 
 float ManyBoneIK3D::get_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index) const {
@@ -646,16 +632,42 @@ void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int3
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
 	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
+	Basis basis;
+	basis.set_column(0, Vector3(1, 0, 0));
+	basis.set_column(1, Vector3(0, 0, -1));
+	basis.set_column(2, Vector3(0, 1, 0));
 	if (Math::is_zero_approx(p_center.length_squared())) {
 		cone.x = 0;
-		cone.y = 1;
-		cone.z = 0;
+		cone.y = 0;
+		cone.z = 1;
 	} else {
+		p_center = basis.xform(p_center);
 		cone.x = p_center.x;
 		cone.y = p_center.y;
 		cone.z = p_center.z;
 	}
 	set_dirty();
+}
+
+Vector3 ManyBoneIK3D::get_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index) const {
+	if (unlikely((p_constraint_index) < 0 || (p_constraint_index) >= (kusudama_limit_cones.size()))) {
+		ERR_PRINT_ONCE("Can't get limit cone center.");
+		return Vector3(0.0, 0.0, 1.0);
+	}
+	if (unlikely((p_index) < 0 || (p_index) >= (kusudama_limit_cones[p_constraint_index].size()))) {
+		ERR_PRINT_ONCE("Can't get limit cone center.");
+		return Vector3(0.0, 0.0, 1.0);
+	}
+	const Vector4 &cone = kusudama_limit_cones[p_constraint_index][p_index];
+	Vector3 ret;
+	ret.x = cone.x;
+	ret.y = cone.y;
+	ret.z = cone.z;
+	Basis basis;
+	basis.set_column(0, Vector3(1, 0, 0));
+	basis.set_column(1, Vector3(0, 0, -1));
+	basis.set_column(2, Vector3(0, 1, 0));
+	return basis.xform_inv(ret);
 }
 
 void ManyBoneIK3D::set_constraint_name(int32_t p_index, String p_name) {
