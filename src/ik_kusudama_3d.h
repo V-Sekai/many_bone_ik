@@ -117,8 +117,6 @@ public:
 			Quaternion &r_twist);
 
 public:
-	real_t get_current_twist_rotation(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform);
-	void set_current_twist_rotation(Ref<IKNode3D> p_godot_skeleton_aligned_transform, Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_twist_transform, real_t p_rotation);
 	double angle_to_twist_center(Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes);
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
