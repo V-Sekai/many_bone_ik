@@ -75,7 +75,7 @@ class ManyBoneIK3D : public Node3D {
 	Ref<IKNode3D> ik_origin;
 	bool is_dirty = true;
 	NodePath skeleton_node_path = NodePath("..");
-	int32_t ui_selected_bone = -1, stabilize_passes = 4;
+	int32_t stabilize_passes = 4;
 	bool is_gizmo_dirty = false;
 	Ref<SceneTreeTimer> timer = memnew(SceneTreeTimer);
 	void _on_timer_timeout();
@@ -106,8 +106,6 @@ public:
 	int32_t get_stabilization_passes();
 	Transform3D get_godot_skeleton_transform_inverse();
 	Ref<IKNode3D> get_godot_skeleton_transform();
-	void set_ui_selected_bone(int32_t p_ui_selected_bone);
-	int32_t get_ui_selected_bone() const;
 	void set_constraint_mode(bool p_enabled);
 	bool get_constraint_mode() const;
 	bool get_pin_enabled(int32_t p_effector_index) const;
