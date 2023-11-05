@@ -70,9 +70,8 @@ func _run():
 
 	skeleton.show_rest_only = true
 	skeleton.reset_bone_poses()
-
+	many_bone_ik.set_constraint_count(0)
 	var skeleton_profile: SkeletonProfileHumanoid = SkeletonProfileHumanoid.new()
-	many_bone_ik.reset_constraints()
 	for bone_name_i in skeleton.get_bone_count():
 		var bone_name = skeleton.get_bone_name(bone_name_i)
 		var swing_limit_cones = []
@@ -87,6 +86,25 @@ func _run():
 			twist_range = deg_to_rad(360)
 			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_FRONT, deg_to_rad(3.0)))
 			resistance = 0.5
+		elif bone_name in ["LeftFoot", "RightFoot"]:
+			# up down 2.5
+			# left 23
+			# right 24
+			# MODEL_REAR is front
+			# MODEL_FRONT is back
+			# MODEL_BOTTOM is up
+			# MODEL_TOP is down
+			# MODEL_LEFT is right
+			# MODEL_RIGHT is left
+			swing_limit_cones.append(LimitCone.new(((Vector3.MODEL_BOTTOM + Vector3.MODEL_REAR) / 2.0).normalized(), deg_to_rad(2.5)))
+			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_REAR, deg_to_rad(0)))
+			swing_limit_cones.append(LimitCone.new(((Vector3.MODEL_TOP + Vector3.MODEL_REAR) / 2.0).normalized(), deg_to_rad(2.5)))
+			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_REAR, deg_to_rad(0)))
+			#
+			swing_limit_cones.append(LimitCone.new(((Vector3.MODEL_RIGHT + Vector3.MODEL_REAR) / 2.0).normalized(), deg_to_rad(23.0)))
+			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_REAR, deg_to_rad(0.0)))
+			swing_limit_cones.append(LimitCone.new(((Vector3.MODEL_LEFT + Vector3.MODEL_REAR) / 2.0).normalized(), deg_to_rad(24.0)))
+			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_REAR, deg_to_rad(0.0)))
 		elif bone_name == "Spine":
 			twist_from = deg_to_rad(4.0)
 			twist_range = deg_to_rad(360)
@@ -132,8 +150,6 @@ func _run():
 			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_FRONT, deg_to_rad(2.5)))
 			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_TOP, deg_to_rad(2.5)))
 			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_REAR, deg_to_rad(2.5)))
-		elif bone_name in ["LeftFoot", "RightFoot"]:
-			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_REAR, deg_to_rad(5.0)))
 		elif bone_name in ["LeftShoulder", "RightShoulder"]:
 			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_FRONT, deg_to_rad(30.0)))
 		elif bone_name in ["LeftUpperArm", "RightUpperArm"]:
@@ -156,7 +172,14 @@ func _run():
 			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_REAR, deg_to_rad(2.5)))
 			resistance = 0.4
 		elif bone_name in ["LeftHand", "RightHand"]:
-			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_FRONT, deg_to_rad(60.0)))
+			swing_limit_cones.append(LimitCone.new(((Vector3.MODEL_TOP + Vector3.MODEL_FRONT) / 2.0).normalized(), deg_to_rad(65.0)))
+			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_FRONT, deg_to_rad(0.0)))
+			swing_limit_cones.append(LimitCone.new(((Vector3.MODEL_BOTTOM + Vector3.MODEL_FRONT) / 2.0).normalized(), deg_to_rad(70.0)))
+			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_FRONT, deg_to_rad(0.0)))
+			swing_limit_cones.append(LimitCone.new(((Vector3.MODEL_LEFT + Vector3.MODEL_FRONT) / 2.0).normalized(), deg_to_rad(40.0)))
+			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_FRONT, deg_to_rad(0.0)))
+			swing_limit_cones.append(LimitCone.new(((Vector3.MODEL_RIGHT + Vector3.MODEL_FRONT) / 2.0).normalized(), deg_to_rad(45.0)))
+			swing_limit_cones.append(LimitCone.new(Vector3.MODEL_FRONT, deg_to_rad(0.0)))
 		#elif bone_name in ["LeftThumb", "RightThumb"]:
 			#swing_limit_cones.append(LimitCone.new(y_up, deg_to_rad(90.0)))
 		else:
@@ -182,8 +205,8 @@ func _run():
 	var children: Array[Node] = root.find_children("*", "Marker3D")
 	for i in range(children.size()):
 		var node: Node = children[i] as Node
-		node.free()
-
+		node.queue_free()
+	
 	for pin_i in range(bones.size()):
 		var bone_name: String = bones[pin_i]
 		var marker_3d: Marker3D = Marker3D.new()
@@ -193,7 +216,7 @@ func _run():
 		var bone_i: int = skeleton.find_bone(bone_name)
 		if bone_i == -1:
 			continue
-		var pose: Transform3D = skeleton.global_transform.affine_inverse() * skeleton.get_bone_global_pose_no_override(bone_i)
+		var pose: Transform3D =  skeleton.get_bone_global_rest(bone_i)
 		marker_3d.global_transform = pose
 		many_bone_ik.set_pin_nodepath(pin_i, many_bone_ik.get_path_to(marker_3d))
 		many_bone_ik.set_pin_bone_name(pin_i, bone_name)
