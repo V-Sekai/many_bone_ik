@@ -632,16 +632,11 @@ void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int3
 	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
 	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
 	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
-	Basis basis;
-	basis.set_column(0, Vector3(1, 0, 0));
-	basis.set_column(1, Vector3(0, 0, -1));
-	basis.set_column(2, Vector3(0, 1, 0));
 	if (Math::is_zero_approx(p_center.length_squared())) {
 		cone.x = 0;
 		cone.y = 0;
 		cone.z = 1;
 	} else {
-		p_center = basis.xform(p_center);
 		cone.x = p_center.x;
 		cone.y = p_center.y;
 		cone.z = p_center.z;
@@ -663,11 +658,7 @@ Vector3 ManyBoneIK3D::get_kusudama_limit_cone_center(int32_t p_constraint_index,
 	ret.x = cone.x;
 	ret.y = cone.y;
 	ret.z = cone.z;
-	Basis basis;
-	basis.set_column(0, Vector3(1, 0, 0));
-	basis.set_column(1, Vector3(0, 0, -1));
-	basis.set_column(2, Vector3(0, 1, 0));
-	return basis.xform_inv(ret);
+	return ret;
 }
 
 void ManyBoneIK3D::set_constraint_name(int32_t p_index, String p_name) {
