@@ -54,7 +54,6 @@ class ManyBoneIK3DState;
 class ManyBoneIK3D : public Node3D {
 	GDCLASS(ManyBoneIK3D, Node3D);
 
-	Dictionary twist_constraint_defaults, orientation_constraint_defaults, bone_direction_constraint_defaults;
 	bool is_constraint_mode = false;
 	NodePath skeleton_path;
 	Vector<Ref<IKBoneSegment3D>> segmented_skeletons;
@@ -105,12 +104,6 @@ public:
 	void add_constraint();
 	void set_stabilization_passes(int32_t p_passes);
 	int32_t get_stabilization_passes();
-	void set_twist_constraint_defaults(Dictionary p_defaults);
-	Dictionary get_twist_constraint_defaults();
-	void set_orientation_constraint_defaults(Dictionary p_defaults);
-	Dictionary get_orientation_constraint_defaults();
-	void set_bone_direction_constraint_defaults(Dictionary p_defaults);
-	Dictionary get_bone_direction_constraint_defaults();
 	Transform3D get_godot_skeleton_transform_inverse();
 	Ref<IKNode3D> get_godot_skeleton_transform();
 	void set_ui_selected_bone(int32_t p_ui_selected_bone);
