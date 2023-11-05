@@ -450,7 +450,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "constraint_mode"), "set_constraint_mode", "get_constraint_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "ui_selected_bone", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_ui_selected_bone", "get_ui_selected_bone");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "stabilization_passes"), "set_stabilization_passes", "get_stabilization_passes");
-	}
+}
 
 ManyBoneIK3D::ManyBoneIK3D() {
 }
@@ -1166,4 +1166,3 @@ void ManyBoneIK3D::add_constraint() {
 	bone_resistance.write[old_count] = 0.0f;
 	set_dirty();
 }
-
