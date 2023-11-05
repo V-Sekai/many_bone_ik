@@ -193,8 +193,7 @@ void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton) {
 		bone_to_parent.basis = Basis();
 	}
 	p_skeleton->set_bone_pose_rotation(bone_id, bone_to_parent.basis.get_rotation_quaternion());
-	// The ik solver doesn't modify scale, and if we do it'll be to orthonormalize which will break the underlying skeleton.
-	// p_skeleton->set_bone_pose_scale(bone_id, bone_to_parent.basis.get_scale());
+	p_skeleton->set_bone_pose_scale(bone_id, bone_to_parent.basis.get_scale());
 }
 
 void IKBone3D::create_pin() {
