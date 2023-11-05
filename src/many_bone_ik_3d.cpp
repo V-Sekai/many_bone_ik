@@ -438,6 +438,8 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_count"), &ManyBoneIK3D::get_bone_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_mode", "enabled"), &ManyBoneIK3D::set_constraint_mode);
 	ClassDB::bind_method(D_METHOD("get_constraint_mode"), &ManyBoneIK3D::get_constraint_mode);
+	ClassDB::bind_method(D_METHOD("set_ui_selected_bone", "bone"), &ManyBoneIK3D::set_ui_selected_bone);
+	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK3D::set_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK3D::get_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &ManyBoneIK3D::set_pin_bone_name);
@@ -1099,6 +1101,14 @@ bool ManyBoneIK3D::get_constraint_mode() const {
 
 void ManyBoneIK3D::set_constraint_mode(bool p_enabled) {
 	is_constraint_mode = p_enabled;
+}
+
+int32_t ManyBoneIK3D::get_ui_selected_bone() const {
+	return ui_selected_bone;
+}
+
+void ManyBoneIK3D::set_ui_selected_bone(int32_t p_ui_selected_bone) {
+	ui_selected_bone = p_ui_selected_bone;
 }
 
 void ManyBoneIK3D::set_stabilization_passes(int32_t p_passes) {
