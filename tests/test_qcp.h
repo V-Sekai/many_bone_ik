@@ -48,7 +48,7 @@ TEST_CASE("[Modules][QCP] Weighted Translation") {
 	CHECK(abs(result.w - expected.w) < epsilon);
 
 	// Check if translation occurred
-	CHECK(translate == true);
+	CHECK(translate);
 	Vector3 translation_result = expected.xform_inv(qcp.get_translation());
 	CHECK(abs(translation_result.x - translation_vector.x) < epsilon);
 	CHECK(abs(translation_result.y - translation_vector.y) < epsilon);
@@ -76,7 +76,7 @@ TEST_CASE("[Modules][QCP] Weighted Translation Shortest Path") {
 	CHECK(abs(result.w - expected.w) > epsilon);
 
 	// Check if translation occurred
-	CHECK(translate == true);
+	CHECK(translate);
 	Vector3 translation_result = expected.xform_inv(qcp.get_translation());
 	CHECK(abs(translation_result.x - translation_vector.x) > epsilon);
 	CHECK(abs(translation_result.y - translation_vector.y) > epsilon);

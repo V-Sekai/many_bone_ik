@@ -54,7 +54,7 @@ class BoneConstraint:
 		# | [Side]Hand      | The wrist can tilt up and down up to 50-60 degrees, allowing the hand to move towards or away from the forearm.
 
 var bone_names = ["Hips", "Spine", "Chest", "UpperChest", "Neck", "Head", "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftFoot", "RightFoot", "LeftShoulder", "RightShoulder", "LeftUpperArm", "RightUpperArm", "LeftLowerArm", "RightLowerArm", "LeftHand", "RightHand", "LeftThumb", "RightThumb"]
-	
+
 func _run():
 	var root: Node = get_scene()
 	var nodes : Array[Node] = root.find_children("*", "ManyBoneIK3D")
@@ -206,7 +206,7 @@ func _run():
 	for i in range(children.size()):
 		var node: Node = children[i] as Node
 		node.queue_free()
-	
+
 	for pin_i in range(bones.size()):
 		var bone_name: String = bones[pin_i]
 		var marker_3d: Marker3D = Marker3D.new()

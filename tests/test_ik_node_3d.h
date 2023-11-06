@@ -28,7 +28,7 @@ TEST_CASE("[Modules][IKNode3D] Scale operations") {
 
 	// Test set_disable_scale and is_scale_disabled
 	node->set_disable_scale(true);
-	CHECK(node->is_scale_disabled() == true);
+	CHECK(node->is_scale_disabled());
 }
 
 TEST_CASE("[Modules][IKNode3D] Parent operations") {
