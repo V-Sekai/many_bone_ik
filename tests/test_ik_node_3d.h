@@ -1,5 +1,6 @@
-#ifndef TEST_IKNODE3D_H
-#define TEST_IKNODE3D_H
+
+#ifndef TEST_IK_NODE_3D_H
+#define TEST_IK_NODE_3D_H
 
 #include "modules/many_bone_ik/src/math/ik_node_3d.h"
 #include "tests/test_macros.h"
@@ -69,4 +70,4 @@ TEST_CASE("[Modules][IKNode3D] Test local transform calculation") {
 }
 } // namespace TestIKNode3D
 
-#endif // TEST_IKNODE3D_H
+#endif // TEST_IK_NODE_3D_H
