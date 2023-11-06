@@ -31,6 +31,7 @@
 #ifndef IK_NODE_3D_H
 #define IK_NODE_3D_H
 
+#include "core/object/ref_counted.h"
 #include "core/templates/list.h"
 
 #include "core/io/resource.h"
@@ -53,7 +54,7 @@ class IKNode3D : public RefCounted {
 
 	mutable int dirty = DIRTY_NONE;
 
-	Ref<IKNode3D> parent;
+	WeakRef parent;
 	List<Ref<IKNode3D>> children;
 
 	bool disable_scale = false;

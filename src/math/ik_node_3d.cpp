@@ -54,10 +54,11 @@ void IKNode3D::_update_local_transform() const {
 }
 
 void IKNode3D::rotate_local_with_global(const Basis &p_basis, bool p_propagate) {
-	if (parent.is_null()) {
+	if (parent.get_ref().is_null()) {
 		return;
 	}
-	const Basis &new_rot = parent->get_global_transform().basis;
+	Ref<IKNode3D> parent_ik_node = parent.get_ref();
+	const Basis &new_rot = parent_ik_node->get_global_transform().basis;
 	local_transform.basis = new_rot.inverse() * p_basis * new_rot * local_transform.basis;
 	dirty |= DIRTY_GLOBAL;
 	if (p_propagate) {
@@ -74,7 +75,8 @@ void IKNode3D::set_transform(const Transform3D &p_transform) {
 }
 
 void IKNode3D::set_global_transform(const Transform3D &p_transform) {
-	Transform3D xform = parent.is_valid() ? parent->get_global_transform().affine_inverse() * p_transform : p_transform;
+	Ref<IKNode3D> ik_node = parent.get_ref();
+	Transform3D xform = ik_node.is_valid() ? ik_node->get_global_transform().affine_inverse() * p_transform : p_transform;
 	local_transform = xform;
 	dirty |= DIRTY_VECTORS;
 	_propagate_transform_changed();
@@ -93,9 +95,9 @@ Transform3D IKNode3D::get_global_transform() const {
 		if (dirty & DIRTY_LOCAL) {
 			_update_local_transform();
 		}
-
-		if (parent.is_valid()) {
-			global_transform = parent->get_global_transform() * local_transform;
+		Ref<IKNode3D> ik_node = parent.get_ref();
+		if (ik_node.is_valid()) {
+			global_transform = ik_node->get_global_transform() * local_transform;
 		} else {
 			global_transform = local_transform;
 		}
@@ -119,18 +121,18 @@ bool IKNode3D::is_scale_disabled() const {
 }
 
 void IKNode3D::set_parent(Ref<IKNode3D> p_parent) {
-	if (parent.is_valid()) {
-		parent->children.erase(this);
-	}
-	parent = p_parent;
 	if (p_parent.is_valid()) {
-		parent->children.push_back(this);
+		p_parent->children.erase(this);
+	}
+	parent.set_ref(p_parent);
+	if (p_parent.is_valid()) {
+		p_parent->children.push_back(this);
 	}
 	_propagate_transform_changed();
 }
 
 Ref<IKNode3D> IKNode3D::get_parent() const {
-	return parent;
+	return parent.get_ref();
 }
 
 Vector3 IKNode3D::to_local(const Vector3 &p_global) const {

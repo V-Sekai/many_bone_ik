@@ -37,7 +37,8 @@
 namespace TestIKNode3D {
 
 TEST_CASE("[Modules][IKNode3D] Transform operations") {
-	Ref<IKNode3D> node = memnew(IKNode3D);
+	Ref<IKNode3D> node;
+	node.instantiate();
 
 	// Test set_transform and get_transform
 	Transform3D t;
@@ -53,7 +54,8 @@ TEST_CASE("[Modules][IKNode3D] Transform operations") {
 }
 
 TEST_CASE("[Modules][IKNode3D] Scale operations") {
-	Ref<IKNode3D> node = memnew(IKNode3D);
+	Ref<IKNode3D> node;
+	node.instantiate();
 
 	// Test set_disable_scale and is_scale_disabled
 	node->set_disable_scale(true);
@@ -61,8 +63,10 @@ TEST_CASE("[Modules][IKNode3D] Scale operations") {
 }
 
 TEST_CASE("[Modules][IKNode3D] Parent operations") {
-	Ref<IKNode3D> node = memnew(IKNode3D);
-	Ref<IKNode3D> parent = memnew(IKNode3D);
+	Ref<IKNode3D> node;
+	node.instantiate();
+	Ref<IKNode3D> parent;
+	parent.instantiate();
 
 	// Test set_parent and get_parent
 	node->set_parent(parent);
@@ -70,7 +74,8 @@ TEST_CASE("[Modules][IKNode3D] Parent operations") {
 }
 
 TEST_CASE("[Modules][IKNode3D] Coordinate transformations") {
-	Ref<IKNode3D> node = memnew(IKNode3D);
+	Ref<IKNode3D> node;
+	node.instantiate();
 
 	// Test to_local and to_global
 	Vector3 global(1, 2, 3);
@@ -79,13 +84,15 @@ TEST_CASE("[Modules][IKNode3D] Coordinate transformations") {
 }
 
 TEST_CASE("[Modules][IKNode3D] Test local transform calculation") {
-	Ref<IKNode3D> node = memnew(IKNode3D);
+	Ref<IKNode3D> node;
+	node.instantiate();
 
 	Transform3D node_transform;
 	node_transform.origin = Vector3(1.0, 2.0, 3.0); // Translation by (1, 2, 3)
 	node->set_global_transform(node_transform);
 
-	Ref<IKNode3D> parent_node = memnew(IKNode3D);
+	Ref<IKNode3D> parent_node;
+	parent_node.instantiate();
 
 	Transform3D parent_transform;
 	parent_transform.origin = Vector3(4.0, 5.0, 6.0); // Translation by (4, 5, 6)
