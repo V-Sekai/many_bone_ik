@@ -77,7 +77,6 @@ class ManyBoneIK3D : public Node3D {
 	NodePath skeleton_node_path = NodePath("..");
 	int32_t ui_selected_bone = -1, stabilize_passes = 4;
 	bool is_gizmo_dirty = false;
-	Ref<SceneTreeTimer> timer = memnew(SceneTreeTimer);
 	void _on_timer_timeout();
 	void update_ik_bones_transform();
 	void update_skeleton_bones_transform();

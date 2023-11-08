@@ -202,7 +202,7 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
-		effector_name.usage = pin_usage | PROPERTY_USAGE_READ_ONLY;
+		effector_name.usage = pin_usage;
 		if (get_skeleton()) {
 			String names;
 			for (int bone_i = 0; bone_i < get_skeleton()->get_bone_count(); bone_i++) {
@@ -849,12 +849,6 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 void ManyBoneIK3D::set_dirty() {
 	is_dirty = true;
 	is_gizmo_dirty = true;
-	if (timer.is_valid()) {
-		timer->set_time_left(0.5f);
-	}
-}
-
-void ManyBoneIK3D::_on_timer_timeout() {
 	notify_property_list_changed();
 }
 
@@ -892,13 +886,9 @@ void ManyBoneIK3D::_notification(int p_what) {
 			set_notify_transform(true);
 		} break;
 		case NOTIFICATION_ENTER_TREE: {
-			timer.instantiate();
-			timer->set_time_left(0.5);
-			timer->connect("timeout", callable_mp(this, &ManyBoneIK3D::_on_timer_timeout));
 			set_process_internal(true);
 		} break;
 		case NOTIFICATION_EXIT_TREE: {
-			set_process_internal(false);
 		} break;
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			update_gizmos();
