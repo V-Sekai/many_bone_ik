@@ -148,6 +148,7 @@ void IKKusudama3D::get_swing_twist(
 	if (r_twist.length_squared() != 0) {
 		r_twist = r_twist.normalized();
 	} else {
+		r_twist = Quaternion();
 		return;
 	}
 

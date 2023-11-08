@@ -704,9 +704,6 @@ NodePath ManyBoneIK3D::get_pin_nodepath(int32_t p_effector_index) const {
 }
 
 void ManyBoneIK3D::execute(real_t delta) {
-	if (!is_enabled()) {
-		return;
-	}
 	if (!get_skeleton()) {
 		return;
 	}
@@ -738,6 +735,12 @@ void ManyBoneIK3D::execute(real_t delta) {
 		}
 	}
 	if (!has_pins) {
+		return;
+	}
+	if (!is_enabled()) {
+		return;
+	}
+	if (!is_visible()) {
 		return;
 	}
 	update_ik_bones_transform();

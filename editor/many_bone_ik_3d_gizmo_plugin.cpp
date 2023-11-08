@@ -183,16 +183,12 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	if (parent_idx <= -1) {
 		return;
 	}
-	real_t dist = 0.04f;
-	float radius = dist;
 	// Code copied from the SphereMesh.
-	float height = dist;
 	int rings = 8;
 
 	int i = 0, j = 0, prevrow = 0, thisrow = 0, point = 0;
 	float x, y, z;
 
-	float scale = height;
 
 	Vector<Vector3> points;
 	Vector<Vector3> normals;
@@ -208,7 +204,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 
 		v /= (rings + 1);
 		w = sin(Math_PI * v);
-		y = scale * cos(Math_PI * v);
+		y = cos(Math_PI * v);
 
 		for (i = 0; i <= radial_segments; i++) {
 			float u = i;
@@ -217,9 +213,9 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 			x = sin(u * Math_TAU);
 			z = cos(u * Math_TAU);
 
-			Vector3 p = Vector3(x * scale * w, y, z * scale * w);
+			Vector3 p = Vector3(x  * w, y, z  * w) * 0.02f;
 			points.push_back(p);
-			Vector3 normal = Vector3(x * w * scale, radius * (y / scale), z * w * scale);
+			Vector3 normal = Vector3(x * w, y, z * w);
 			normals.push_back(normal.normalized());
 			point++;
 
