@@ -211,6 +211,9 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 				if (existing_pins.has(string_name)) {
 					continue;
 				}
+				name += ",";
+				names += name;
+				existing_pins.insert(name);
 			}
 			effector_name.hint = PROPERTY_HINT_ENUM_SUGGESTION;
 			effector_name.hint_string = names;
