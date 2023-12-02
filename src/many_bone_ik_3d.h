@@ -160,8 +160,6 @@ public:
 	void set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count);
 	void set_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index, Vector3 p_center);
 	void set_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index, float p_radius);
-	real_t get_kusudama_twist_current(int32_t p_index) const;
-	void set_kusudama_twist_current(int32_t p_index, real_t p_rotation);
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();
