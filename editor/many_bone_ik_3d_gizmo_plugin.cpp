@@ -189,7 +189,6 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	int i = 0, j = 0, prevrow = 0, thisrow = 0, point = 0;
 	float x, y, z;
 
-
 	Vector<Vector3> points;
 	Vector<Vector3> normals;
 	Vector<int> indices;
@@ -213,7 +212,7 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 			x = sin(u * Math_TAU);
 			z = cos(u * Math_TAU);
 
-			Vector3 p = Vector3(x  * w, y, z  * w) * 0.02f;
+			Vector3 p = Vector3(x * w, y, z * w) * 0.02f;
 			points.push_back(p);
 			Vector3 normal = Vector3(x * w, y, z * w);
 			normals.push_back(normal.normalized());
