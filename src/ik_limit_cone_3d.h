@@ -46,8 +46,8 @@ class IKLimitCone3D : public Resource {
 	// Radius stored as cosine to save on the acos call necessary for the angle between.
 	double radius_cosine = 0;
 	double radius = 0;
-	Vector3 closest_cone(Ref<IKLimitCone3D> next, Vector3 input) const;
-	void set_tangent_circle_radius_next(double rad);
+	Vector3 _closest_cone(Ref<IKLimitCone3D> next, Vector3 input) const;
+	void _set_tangent_circle_radius_next(double rad);
 	Ref<IKKusudama3D> parent_kusudama;
 
 	Vector3 tangent_circle_center_next_1;
@@ -70,7 +70,7 @@ class IKLimitCone3D : public Resource {
 	 * @return null if the input point is already in bounds, or the point's rectified position
 	 * if the point was out of bounds.
 	 */
-	Vector3 get_closest_collision(Ref<IKLimitCone3D> next, Vector3 input) const;
+	Vector3 _get_closest_collision(Ref<IKLimitCone3D> next, Vector3 input) const;
 
 	/**
 	 * Determines if a ray emanating from the origin to given point in local space
@@ -82,8 +82,8 @@ class IKLimitCone3D : public Resource {
 	 * @param input
 	 * @return
 	 */
-	bool determine_if_in_bounds(Ref<IKLimitCone3D> next, Vector3 input) const;
-	Vector3 get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 input) const;
+	bool _determine_if_in_bounds(Ref<IKLimitCone3D> next, Vector3 input) const;
+	Vector3 _get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 input) const;
 
 	/**
 	 * returns null if no rectification is required.
@@ -92,10 +92,10 @@ class IKLimitCone3D : public Resource {
 	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 closest_point_on_closest_cone(Ref<IKLimitCone3D> next, Vector3 input, Vector<double> *in_bounds) const;
+	Vector3 _closest_point_on_closest_cone(Ref<IKLimitCone3D> next, Vector3 input, Vector<double> *in_bounds) const;
 
-	double get_tangent_circle_radius_next_cos();
-	static Vector3 get_orthogonal(Vector3 p_in);
+	double _get_tangent_circle_radius_next_cos();
+	static Vector3 _get_orthogonal(Vector3 p_in);
 
 protected:
 	double _get_radius();
