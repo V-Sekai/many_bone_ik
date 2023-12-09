@@ -195,7 +195,7 @@ void IKBoneSegment3D::set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVecto
 						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);
 						p_for_bone->get_constraint()->set_axes_to_returnfulled(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), cos_half_angle, scaled_dampened_angle);
 					} else {
-						p_for_bone->get_constraint()->set_axes_to_returnfulled(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), p_for_bone->getCosHalfReturnfullnessDampened()[current_iteration], p_for_bone->getCosHalfReturnfullnessDampened()[current_iteration]);
+						p_for_bone->get_constraint()->set_axes_to_returnfulled(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), p_for_bone->get_cos_half_returnfullness_dampened()[current_iteration], p_for_bone->get_cos_half_returnfullness_dampened()[current_iteration]);
 					}
 					update_tip_headings(p_for_bone, &tip_headings);
 					current_msd = get_manual_msd(tip_headings, target_headings, heading_weights);

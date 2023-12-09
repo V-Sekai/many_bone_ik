@@ -75,28 +75,12 @@ protected:
 	static void _bind_methods();
 
 public:
-	Vector<float> &getCosHalfReturnfullnessDampened() {
-		return cos_half_returnfulness_dampened;
-	}
-
-	void setCosHalfReturnfullnessDampened(const Vector<float> &value) {
-		cos_half_returnfulness_dampened = value;
-	}
-
-	Vector<float> &getHalfReturnfullnessDampened() {
-		return half_returnfulness_dampened;
-	}
-
-	void setHalfReturnfullnessDampened(const Vector<float> &value) {
-		half_returnfulness_dampened = value;
-	}
-	void set_stiffness(double p_stiffness) {
-		stiffness = p_stiffness;
-	}
-
-	double get_stiffness() const {
-		return stiffness;
-	}
+	Vector<float> &get_cos_half_returnfullness_dampened();
+	void set_cos_half_returnfullness_dampened(const Vector<float> &p_value);
+	Vector<float> &get_half_returnfullness_dampened();
+	void set_half_returnfullness_dampened(const Vector<float> &p_value);
+	void set_stiffness(double p_stiffness);
+	double get_stiffness() const;
 	void pull_back_toward_allowable_region();
 	bool is_axially_constrained();
 	bool is_orientationally_constrained();
