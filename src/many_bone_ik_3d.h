@@ -39,16 +39,8 @@
 #include "math/ik_node_3d.h"
 
 #include "core/object/ref_counted.h"
-#include "core/os/memory.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/main/scene_tree.h"
-#include "scene/main/timer.h"
-#include "scene/resources/skeleton_profile.h"
-
-#ifdef TOOLS_ENABLED
-#include "editor/editor_node.h"
-#include "editor/editor_undo_redo_manager.h"
-#endif
 
 class ManyBoneIK3DState;
 class ManyBoneIK3D : public Node3D {
