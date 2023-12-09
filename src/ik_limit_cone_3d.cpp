@@ -337,7 +337,7 @@ Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Ve
 Vector3 IKLimitCone3D::_closest_cone(Ref<IKLimitCone3D> next, Vector3 input) const {
 	if (next.is_null()) {
 		return control_point;
-	} 
+	}
 	if (input.dot(control_point) > input.dot(next->control_point)) {
 		return control_point;
 	} else {
@@ -405,7 +405,7 @@ void IKLimitCone3D::set_tangent_circle_center_next_2(Vector3 point) {
 Vector3 IKLimitCone3D::_get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 input) const {
 	if (next.is_null()) {
 		return Vector3(NAN, NAN, NAN);
-	} 
+	}
 	Vector3 c1xc2 = get_control_point().cross(next->control_point).normalized();
 	double c1c2dir = input.dot(c1xc2);
 	if (c1c2dir < 0.0) {
