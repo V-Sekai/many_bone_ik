@@ -30,12 +30,10 @@
 
 #include "ik_limit_cone_3d.h"
 
-#include "core/error/error_macros.h"
 #include "core/math/quaternion.h"
 #include "ik_kusudama_3d.h"
 
 #include "core/io/resource.h"
-#include "core/object/ref_counted.h"
 
 void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	if (p_next.is_valid()) {
@@ -109,10 +107,10 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 
 		set_tangent_circle_center_next_1(sphereIntersect1);
 		set_tangent_circle_center_next_2(sphereIntersect2);
-		set_tangent_circle_radius_next(tRadius);
+		_set_tangent_circle_radius_next(tRadius);
 	}
 	if (tangent_circle_center_next_1 == Vector3(NAN, NAN, NAN)) {
-		tangent_circle_center_next_1 = get_orthogonal(control_point).normalized();
+		tangent_circle_center_next_1 = _get_orthogonal(control_point).normalized();
 	}
 	if (tangent_circle_center_next_2 == Vector3(NAN, NAN, NAN)) {
 		tangent_circle_center_next_2 = (tangent_circle_center_next_1 * -1).normalized();
@@ -122,7 +120,7 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	}
 }
 
-void IKLimitCone3D::set_tangent_circle_radius_next(double rad) {
+void IKLimitCone3D::_set_tangent_circle_radius_next(double rad) {
 	tangent_circle_radius_next = rad;
 	tangent_circle_radius_next_cos = cos(tangent_circle_radius_next);
 }
@@ -135,7 +133,7 @@ double IKLimitCone3D::get_tangent_circle_radius_next() {
 	return tangent_circle_radius_next;
 }
 
-double IKLimitCone3D::get_tangent_circle_radius_next_cos() {
+double IKLimitCone3D::_get_tangent_circle_radius_next_cos() {
 	return tangent_circle_radius_next_cos;
 }
 
@@ -186,7 +184,7 @@ void IKLimitCone3D::set_radius(double p_radius) {
 	radius_cosine = cos(p_radius);
 }
 
-bool IKLimitCone3D::determine_if_in_bounds(Ref<IKLimitCone3D> next, Vector3 input) const {
+bool IKLimitCone3D::_determine_if_in_bounds(Ref<IKLimitCone3D> next, Vector3 input) const {
 	/**
 	 * Procedure : Check if input is contained in this cone, or the next cone
 	 * 	if it is, then we're finished and in bounds. otherwise,
@@ -241,26 +239,26 @@ bool IKLimitCone3D::determine_if_in_bounds(Ref<IKLimitCone3D> next, Vector3 inpu
 }
 
 Vector3 IKLimitCone3D::get_closest_path_point(Ref<IKLimitCone3D> next, Vector3 input) const {
-	Vector3 result = get_on_path_sequence(next, input);
+	Vector3 result = _get_on_path_sequence(next, input);
 	bool is_number = !(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z));
 	if (!is_number) {
-		result = closest_cone(next, input);
+		result = _closest_cone(next, input);
 	}
 	return result;
 }
 
-Vector3 IKLimitCone3D::get_closest_collision(Ref<IKLimitCone3D> next, Vector3 input) const {
+Vector3 IKLimitCone3D::_get_closest_collision(Ref<IKLimitCone3D> next, Vector3 input) const {
 	Vector3 result = get_on_great_tangent_triangle(next, input);
 
 	bool is_number = !(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z));
 	if (!is_number) {
 		Vector<double> in_bounds = { 0.0 };
-		result = closest_point_on_closest_cone(next, input, &in_bounds);
+		result = _closest_point_on_closest_cone(next, input, &in_bounds);
 	}
 	return result;
 }
 
-Vector3 IKLimitCone3D::get_orthogonal(Vector3 p_in) {
+Vector3 IKLimitCone3D::_get_orthogonal(Vector3 p_in) {
 	Vector3 result;
 	float threshold = p_in.length() * 0.6f;
 	if (threshold > 0.f) {
@@ -323,7 +321,7 @@ Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Ve
 	}
 }
 
-Vector3 IKLimitCone3D::closest_cone(Ref<IKLimitCone3D> next, Vector3 input) const {
+Vector3 IKLimitCone3D::_closest_cone(Ref<IKLimitCone3D> next, Vector3 input) const {
 	if (input.dot(control_point) > input.dot(next->control_point)) {
 		return control_point;
 	} else {
@@ -331,7 +329,7 @@ Vector3 IKLimitCone3D::closest_cone(Ref<IKLimitCone3D> next, Vector3 input) cons
 	}
 }
 
-Vector3 IKLimitCone3D::closest_point_on_closest_cone(Ref<IKLimitCone3D> next, Vector3 input, Vector<double> *in_bounds) const {
+Vector3 IKLimitCone3D::_closest_point_on_closest_cone(Ref<IKLimitCone3D> next, Vector3 input, Vector<double> *in_bounds) const {
 	Vector3 closestToFirst = closest_to_cone(input, in_bounds);
 	if ((*in_bounds)[0] > 0.0) {
 		return closestToFirst;
@@ -379,7 +377,7 @@ void IKLimitCone3D::set_tangent_circle_center_next_2(Vector3 point) {
 	tangent_circle_center_next_2 = point.normalized();
 }
 
-Vector3 IKLimitCone3D::get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 input) const {
+Vector3 IKLimitCone3D::_get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 input) const {
 	Vector3 c1xc2 = get_control_point().cross(next->control_point).normalized();
 	double c1c2dir = input.dot(c1xc2);
 	if (c1c2dir < 0.0) {
