@@ -85,6 +85,7 @@ protected:
 
 public:
 	~IKKusudama3D() {
+        limit_cones.clear();
 	}
 
 	IKKusudama3D() {}
