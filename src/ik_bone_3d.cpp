@@ -323,20 +323,20 @@ void IKBone3D::pull_back_toward_allowable_region() {
 	}
 }
 
-Vector<float> &IKBone3D::getCosHalfReturnfullnessDampened() {
+Vector<float> &IKBone3D::get_cos_half_returnfullness_dampened() {
 	return cos_half_returnfulness_dampened;
 }
 
-void IKBone3D::setCosHalfReturnfullnessDampened(const Vector<float> &value) {
-	cos_half_returnfulness_dampened = value;
+void IKBone3D::set_cos_half_returnfullness_dampened(const Vector<float> &p_value) {
+	cos_half_returnfulness_dampened = p_value;
 }
 
-Vector<float> &IKBone3D::getHalfReturnfullnessDampened() {
+Vector<float> &IKBone3D::get_half_returnfullness_dampened() {
 	return half_returnfulness_dampened;
 }
 
-void IKBone3D::setHalfReturnfullnessDampened(const Vector<float> &value) {
-	half_returnfulness_dampened = value;
+void IKBone3D::set_half_returnfullness_dampened(const Vector<float> &p_value) {
+	half_returnfulness_dampened = p_value;
 }
 
 void IKBone3D::set_stiffness(double p_stiffness) {

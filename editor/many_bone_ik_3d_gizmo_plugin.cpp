@@ -55,6 +55,11 @@
 #include "../src/many_bone_ik_3d.h"
 #include "many_bone_ik_3d_gizmo_plugin.h"
 
+#ifdef TOOLS_ENABLED
+#include "editor/editor_node.h"
+#include "editor/editor_undo_redo_manager.h"
+#endif
+
 void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &ManyBoneIK3DGizmoPlugin::get_gizmo_name);
 }

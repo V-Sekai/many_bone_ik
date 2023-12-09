@@ -32,7 +32,6 @@
 #define IK_EFFECTOR_TEMPLATE_3D_H
 
 #include "core/io/resource.h"
-#include "core/object/ref_counted.h"
 #include "core/string/node_path.h"
 
 class IKEffectorTemplate3D : public Resource {

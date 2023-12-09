@@ -75,10 +75,10 @@ protected:
 	static void _bind_methods();
 
 public:
-	Vector<float> &getCosHalfReturnfullnessDampened();
-	void setCosHalfReturnfullnessDampened(const Vector<float> &value);
-	Vector<float> &getHalfReturnfullnessDampened();
-	void setHalfReturnfullnessDampened(const Vector<float> &value);
+	Vector<float> &get_cos_half_returnfullness_dampened();
+	void set_cos_half_returnfullness_dampened(const Vector<float> &p_value);
+	Vector<float> &get_half_returnfullness_dampened();
+	void set_half_returnfullness_dampened(const Vector<float> &p_value);
 	void set_stiffness(double p_stiffness);
 	double get_stiffness() const;
 	void pull_back_toward_allowable_region();
