@@ -9,5 +9,3 @@ Lyuma also agreed that energy minimization is a good concept, as it results in t
 Eron explained that with the latest ewb-ik version, energy minimization is handled by defining 0 cost regions in kusudama constraints along with hard boundary (high cost regions).
 
 Joints always negotiate between moving toward their own 0 cost region and toward the goal, with the former being less important than the latter. The "goal" here refers to whatever orientation allows descendant joints to reach their target.
-
-Migrated to https://github.com/godotengine/godot/pull/70887.
