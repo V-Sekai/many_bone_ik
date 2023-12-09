@@ -322,3 +322,27 @@ void IKBone3D::pull_back_toward_allowable_region() {
 		current_constraint->set_axes_to_returnfulled(get_bone_direction_transform(), get_ik_transform(), get_constraint_orientation_transform(), cos_half_return_damp, return_damp);
 	}
 }
+
+Vector<float> &IKBone3D::getCosHalfReturnfullnessDampened() {
+	return cos_half_returnfulness_dampened;
+}
+
+void IKBone3D::setCosHalfReturnfullnessDampened(const Vector<float> &value) {
+	cos_half_returnfulness_dampened = value;
+}
+
+Vector<float> &IKBone3D::getHalfReturnfullnessDampened() {
+	return half_returnfulness_dampened;
+}
+
+void IKBone3D::setHalfReturnfullnessDampened(const Vector<float> &value) {
+	half_returnfulness_dampened = value;
+}
+
+void IKBone3D::set_stiffness(double p_stiffness) {
+	stiffness = p_stiffness;
+}
+
+double IKBone3D::get_stiffness() const {
+	return stiffness;
+}
