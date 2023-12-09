@@ -93,12 +93,6 @@
 				Returns the twist of the kusudama at the specified index.
 			</description>
 		</method>
-		<method name="get_kusudama_twist_current" qualifiers="const">
-			<return type="float" />
-			<param index="0" name="index" type="int" />
-			<description>
-			</description>
-		</method>
 		<method name="get_pin_bone_name" qualifiers="const">
 			<return type="StringName" />
 			<param index="0" name="index" type="int" />
@@ -255,12 +249,6 @@
 			<param index="1" name="limit" type="Vector2" />
 			<description>
 				Sets the twist of the kusudama at the specified index.
-			</description>
-		</method>
-		<method name="set_kusudama_twist_current" qualifiers="const">
-			<return type="float" />
-			<param index="0" name="twist_current" type="int" />
-			<description>
 			</description>
 		</method>
 		<method name="set_pin_bone_name" qualifiers="const">
