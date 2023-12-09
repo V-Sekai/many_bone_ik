@@ -344,47 +344,51 @@ Vector3 IKLimitCone3D::_closest_cone(Ref<IKLimitCone3D> next, Vector3 input) con
 }
 
 Vector3 IKLimitCone3D::_closest_point_on_closest_cone(Ref<IKLimitCone3D> next, Vector3 input, Vector<double> *in_bounds) const {
-	Vector3 closestToFirst = closest_to_cone(input, in_bounds);
-	if ((*in_bounds)[0] > 0.0) {
-		return closestToFirst;
-	}
-	if (next.is_null()) {
-		return closestToFirst;
-	} else {
-		Vector3 closestToSecond = next->closest_to_cone(input, in_bounds);
-		if ((*in_bounds)[0] > 0.0) {
-			return closestToSecond;
-		}
-		double cosToFirst = input.dot(closestToFirst);
-		double cosToSecond = input.dot(closestToSecond);
+    Vector3 closestToFirst = closest_to_cone(input, in_bounds);
+    if (in_bounds != nullptr && (*in_bounds)[0] > 0.0) {
+        return closestToFirst;
+    }
+    if (next.is_null()) {
+        return closestToFirst;
+    } else {
+        Vector3 closestToSecond = next->closest_to_cone(input, in_bounds);
+        if (in_bounds != nullptr && (*in_bounds)[0] > 0.0) {
+            return closestToSecond;
+        }
+        double cosToFirst = input.dot(closestToFirst);
+        double cosToSecond = input.dot(closestToSecond);
 
-		if (cosToFirst > cosToSecond) {
-			return closestToFirst;
-		} else {
-			return closestToSecond;
-		}
-	}
+        if (cosToFirst > cosToSecond) {
+            return closestToFirst;
+        } else {
+            return closestToSecond;
+        }
+    }
 }
 
 Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds) const {
-	Vector3 normalized_input = input.normalized();
-	Vector3 normalized_control_point = get_control_point().normalized();
-	if (normalized_input.dot(normalized_control_point) > get_radius_cosine()) {
-		in_bounds->write[0] = 1.0;
-		return Vector3(NAN, NAN, NAN);
-	}
-	Vector3 axis = normalized_control_point.cross(normalized_input).normalized();
-	if (Math::is_zero_approx(axis.length_squared()) || !axis.is_finite()) {
-		axis = Vector3(0, 1, 0);
-	}
-	Quaternion rot_to = Quaternion(axis, get_radius());
-	Vector3 axis_control_point = normalized_control_point;
-	if (Math::is_zero_approx(axis_control_point.length_squared())) {
-		axis_control_point = Vector3(0, 1, 0);
-	}
-	Vector3 result = rot_to.xform(axis_control_point);
-	in_bounds->write[0] = -1;
-	return result;
+    Vector3 normalized_input = input.normalized();
+    Vector3 normalized_control_point = get_control_point().normalized();
+    if (normalized_input.dot(normalized_control_point) > get_radius_cosine()) {
+        if (in_bounds != nullptr) {
+            in_bounds->write[0] = 1.0;
+        }
+        return Vector3(NAN, NAN, NAN);
+    }
+    Vector3 axis = normalized_control_point.cross(normalized_input).normalized();
+    if (Math::is_zero_approx(axis.length_squared()) || !axis.is_finite()) {
+        axis = Vector3(0, 1, 0);
+    }
+    Quaternion rot_to = Quaternion(axis, get_radius());
+    Vector3 axis_control_point = normalized_control_point;
+    if (Math::is_zero_approx(axis_control_point.length_squared())) {
+        axis_control_point = Vector3(0, 1, 0);
+    }
+    Vector3 result = rot_to.xform(axis_control_point);
+    if (in_bounds != nullptr) {
+        in_bounds->write[0] = -1;
+    }
+    return result;
 }
 
 void IKLimitCone3D::set_tangent_circle_center_next_1(Vector3 point) {
