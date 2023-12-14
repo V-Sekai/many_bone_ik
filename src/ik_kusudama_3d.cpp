@@ -149,6 +149,7 @@ void IKKusudama3D::add_limit_cone(Vector3 new_cone_local_point, double radius) {
 }
 
 void IKKusudama3D::remove_limit_cone(Ref<IKLimitCone3D> limitCone) {
+	ERR_FAIL_COND(limitCone.is_null());
 	limit_cones.erase(limitCone);
 }
 
