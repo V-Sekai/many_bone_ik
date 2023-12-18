@@ -422,9 +422,11 @@ Vector3 IKLimitCone3D::_get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 in
 		}
 	}
 }
+
 void IKLimitCone3D::set_attached_to(Ref<IKKusudama3D> p_attached_to) {
 	parent_kusudama = p_attached_to;
 }
+
 Ref<IKKusudama3D> IKLimitCone3D::get_attached_to() {
 	return parent_kusudama;
 }
