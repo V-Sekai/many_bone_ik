@@ -288,14 +288,6 @@ Vector3 IKLimitCone3D::_get_orthogonal(Vector3 p_in) {
 	return result;
 }
 
-IKLimitCone3D::IKLimitCone3D(Vector3 direction, double rad, Ref<IKKusudama3D> attached_to) {
-	parent_kusudama = attached_to;
-	tangent_circle_center_next_1 = Vector3(0.0f, -1.0f, 0.0f);
-	tangent_circle_center_next_2 = Vector3(0.0f, 1.0f, 0.0f);
-	set_radius(MAX(1.0e-38, rad));
-	control_point = direction.normalized();
-}
-
 Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Vector3 input) const {
 	ERR_FAIL_COND_V(next.is_null(), input);
 	Vector3 c1xc2 = control_point.cross(next->control_point);
@@ -429,4 +421,10 @@ Vector3 IKLimitCone3D::_get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 in
 			return Vector3(NAN, NAN, NAN);
 		}
 	}
+}
+void IKLimitCone3D::set_attached_to(Ref<IKKusudama3D> p_attached_to) {
+	parent_kusudama = p_attached_to;
+}
+Ref<IKKusudama3D> IKLimitCone3D::get_attached_to() {
+	return parent_kusudama;
 }

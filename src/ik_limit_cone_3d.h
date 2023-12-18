@@ -105,7 +105,8 @@ protected:
 public:
 	IKLimitCone3D() {}
 	virtual ~IKLimitCone3D() {}
-	IKLimitCone3D(Vector3 direction, double rad, Ref<IKKusudama3D> attached_to);
+	void set_attached_to(Ref<IKKusudama3D> p_attached_to);
+	Ref<IKKusudama3D> get_attached_to();
 	void update_tangent_handles(Ref<IKLimitCone3D> p_next);
 	void set_tangent_circle_center_next_1(Vector3 point);
 	void set_tangent_circle_center_next_2(Vector3 point);
