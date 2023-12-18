@@ -40,10 +40,10 @@ void IKKusudama3D::_update_constraint() {
 
 void IKKusudama3D::update_tangent_radii() {
 	for (int i = 0; i < limit_cones.size(); i++) {
-		Ref<IKLimitCone3D> current = limit_cones[i];
+		Ref<IKLimitCone3D> current = limit_cones.write[i];
 		Ref<IKLimitCone3D> next;
 		if (i < limit_cones.size() - 1) {
-			next = limit_cones[i + 1];
+			next = limit_cones.write[i + 1];
 		}
 		Ref<IKLimitCone3D> cone = limit_cones[i];
 		cone->update_tangent_handles(next);
@@ -208,7 +208,11 @@ void IKKusudama3D::enable() {
 }
 
 TypedArray<IKLimitCone3D> IKKusudama3D::get_limit_cones() const {
-	return limit_cones;
+	TypedArray<IKLimitCone3D> cones;
+	for (Ref<IKLimitCone3D> cone : limit_cones) {
+		cones.append(cone);
+	}
+	return cones;
 }
 
 Vector3 IKKusudama3D::local_point_on_path_sequence(Vector3 in_point, Ref<IKNode3D> limiting_axes) {
@@ -299,7 +303,11 @@ void IKKusudama3D::_bind_methods() {
 }
 
 void IKKusudama3D::set_limit_cones(TypedArray<IKLimitCone3D> p_cones) {
-	limit_cones = p_cones;
+	limit_cones.clear();
+	limit_cones.resize(p_cones.size());
+	for(int32_t i = 0; i < p_cones.size(); i++) {
+		limit_cones.write[i] = p_cones[i];
+	}
 }
 
 void IKKusudama3D::set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen) {

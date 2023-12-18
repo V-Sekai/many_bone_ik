@@ -53,7 +53,7 @@ class IKKusudama3D : public Resource {
 	 * with the expectation that any limitCone in the array is connected to the cone at the previous element in the array,
 	 * and the cone at the next element in the array.
 	 */
-	TypedArray<IKLimitCone3D> limit_cones;
+	Vector<Ref<IKLimitCone3D>> limit_cones;
 
 	Quaternion twist_min_rot;
 	Vector3 twist_min_vec;
@@ -195,20 +195,6 @@ public:
 	bool is_enabled();
 	void disable();
 	void enable();
-
-	/**
-	 * TODO: This functionality is not yet fully implemented It always returns an overly simplistic representation
-	 * not in line with what is described below.
-	 *
-	 * @return an (approximate) measure of the amount of rotational
-	 * freedom afforded by this kusudama, with 0 meaning no rotational
-	 * freedom, and 1 meaning total unconstrained freedom.
-	 *
-	 * This is approximately computed as a ratio between the orientations the bone can be in
-	 * vs the orientations it cannot be in. Note that unfortunately this function double counts
-	 * the orientations a bone can be in between two limit cones in a sequence if those limit
-	 * cones intersect with a previous sequence.
-	 */
 	TypedArray<IKLimitCone3D> get_limit_cones() const;
 	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
 	float get_resistance();
