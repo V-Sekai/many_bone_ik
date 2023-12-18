@@ -144,7 +144,13 @@ void IKKusudama3D::get_swing_twist(
 }
 
 void IKKusudama3D::add_limit_cone(Vector3 new_cone_local_point, double radius) {
-	Ref<IKLimitCone3D> cone = Ref<IKLimitCone3D>(memnew(IKLimitCone3D(new_cone_local_point, radius, Ref<IKKusudama3D>(this))));
+	Ref<IKLimitCone3D> cone;
+	cone.instantiate();
+	cone->set_parent( Ref<IKKusudama3D>(this));
+	cone->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
+	cone->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
+	cone->set_radius(MAX(1.0e-38, radius));
+	cone->set_control_point(new_cone_local_point.normalized());
 	limit_cones.push_back(cone);
 }
 
