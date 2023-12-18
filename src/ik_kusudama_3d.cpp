@@ -146,7 +146,7 @@ void IKKusudama3D::get_swing_twist(
 void IKKusudama3D::add_limit_cone(Vector3 new_cone_local_point, double radius) {
 	Ref<IKLimitCone3D> cone;
 	cone.instantiate();
-	cone->set_parent( Ref<IKKusudama3D>(this));
+	cone->set_parent(Ref<IKKusudama3D>(this));
 	cone->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 	cone->set_radius(MAX(1.0e-38, radius));
@@ -311,7 +311,7 @@ void IKKusudama3D::_bind_methods() {
 void IKKusudama3D::set_limit_cones(TypedArray<IKLimitCone3D> p_cones) {
 	limit_cones.clear();
 	limit_cones.resize(p_cones.size());
-	for(int32_t i = 0; i < p_cones.size(); i++) {
+	for (int32_t i = 0; i < p_cones.size(); i++) {
 		limit_cones.write[i] = p_cones[i];
 	}
 }
