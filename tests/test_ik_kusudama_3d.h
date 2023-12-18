@@ -114,8 +114,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 	TypedArray<IKLimitCone3D> limit_cones = kusudama->get_limit_cones();
 	REQUIRE(limit_cones.size() == 3);
 
-	// Clear all limit cones
-	limit_cones.clear();
+	kusudama->clear_limit_cones();
 
 	// Re-check limit cones - there should be none
 	limit_cones = kusudama->get_limit_cones();

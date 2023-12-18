@@ -195,6 +195,7 @@ public:
 	bool is_enabled();
 	void disable();
 	void enable();
+	void clear_limit_cones();
 	TypedArray<IKLimitCone3D> get_limit_cones() const;
 	void set_limit_cones(TypedArray<IKLimitCone3D> p_cones);
 	float get_resistance();

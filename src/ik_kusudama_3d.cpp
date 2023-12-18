@@ -423,3 +423,6 @@ Quaternion IKKusudama3D::clamp_to_quadrance_angle(Quaternion p_rotation, double 
 	}
 	return rotation.slerp(clamped_rotation, over_limit);
 }
+void IKKusudama3D::clear_limit_cones() {
+	limit_cones.clear();
+}
