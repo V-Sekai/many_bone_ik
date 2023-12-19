@@ -84,13 +84,9 @@ protected:
 	static void _bind_methods();
 
 public:
-	~IKKusudama3D() {
-		limit_cones.clear();
-	}
+	~IKKusudama3D() {}
 
 	IKKusudama3D() {}
-
-	IKKusudama3D(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, real_t cos_half_angle_dampen);
 
 	void _update_constraint();
 
@@ -174,7 +170,7 @@ public:
 	 * @param new_point where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
 	 * @param radius the radius of the limitCone
 	 */
-	void add_limit_cone(Vector3 new_point, double radius);
+	void add_limit_cone(Ref<IKLimitCone3D> p_limit_cone);
 	void remove_limit_cone(Ref<IKLimitCone3D> limitCone);
 
 	/**

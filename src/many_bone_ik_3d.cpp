@@ -796,7 +796,14 @@ void ManyBoneIK3D::skeleton_changed(Skeleton3D *p_skeleton) {
 			const Vector<Vector4> &cones = kusudama_limit_cones[constraint_i];
 			for (int32_t cone_i = 0; cone_i < cone_count; ++cone_i) {
 				const Vector4 &cone = cones[cone_i];
-				constraint->add_limit_cone(Vector3(cone.x, cone.y, cone.z), cone.w);
+				Ref<IKLimitCone3D> new_cone;
+				new_cone.instantiate();
+				new_cone->set_attached_to(constraint);
+				new_cone->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
+				new_cone->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
+				new_cone->set_radius(MAX(1.0e-38, cone.w));
+				new_cone->set_control_point(Vector3(cone.x, cone.y, cone.z).normalized());
+				constraint->add_limit_cone(new_cone);
 			}
 
 			const Vector2 axial_limit = get_kusudama_twist(constraint_i);

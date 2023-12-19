@@ -50,10 +50,6 @@ void IKKusudama3D::update_tangent_radii() {
 	}
 }
 
-IKKusudama3D::IKKusudama3D(Ref<IKNode3D> to_set, Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes, real_t cos_half_angle_dampen) {
-	Vector<real_t> in_bounds = { 1 };
-}
-
 void IKKusudama3D::set_axial_limits(real_t min_angle, real_t in_range) {
 	min_axial_angle = min_angle;
 	range_angle = in_range;
@@ -143,15 +139,10 @@ void IKKusudama3D::get_swing_twist(
 	r_swing = (rotation * r_twist.inverse()).normalized();
 }
 
-void IKKusudama3D::add_limit_cone(Vector3 new_cone_local_point, double radius) {
-	Ref<IKLimitCone3D> cone;
-	cone.instantiate();
-	cone->set_attached_to(Ref<IKKusudama3D>(this));
-	cone->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
-	cone->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
-	cone->set_radius(MAX(1.0e-38, radius));
-	cone->set_control_point(new_cone_local_point.normalized());
-	limit_cones.push_back(cone);
+void IKKusudama3D::add_limit_cone(
+		Ref<IKLimitCone3D> p_cone) {
+	ERR_FAIL_COND(p_cone.is_null());
+	limit_cones.push_back(p_cone);
 }
 
 void IKKusudama3D::remove_limit_cone(Ref<IKLimitCone3D> limitCone) {
