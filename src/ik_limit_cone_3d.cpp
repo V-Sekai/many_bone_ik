@@ -239,18 +239,17 @@ bool IKLimitCone3D::_determine_if_in_bounds(Ref<IKLimitCone3D> next, Vector3 inp
 }
 
 Vector3 IKLimitCone3D::get_closest_path_point(Ref<IKLimitCone3D> next, Vector3 input) const {
-	ERR_FAIL_COND_V(next.is_null(), input);
-	Vector3 result;
-	if (next.is_null()) {
-		result = _closest_cone(Ref<IKLimitCone3D>(this), input);
-	} else {
-		result = _get_on_path_sequence(next, input);
-		bool is_number = !(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z));
-		if (!is_number) {
-			result = _closest_cone(next, input);
-		}
-	}
-	return result;
+    Vector3 result;
+    if (next.is_null()) {
+        result = _closest_cone(Ref<IKLimitCone3D>(this), input);
+    } else {
+        result = _get_on_path_sequence(next, input);
+        bool is_number = !(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z));
+        if (!is_number) {
+            result = _closest_cone(next, input);
+        }
+    }
+    return result;
 }
 
 Vector3 IKLimitCone3D::_get_closest_collision(Ref<IKLimitCone3D> next, Vector3 input) const {
