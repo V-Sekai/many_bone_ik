@@ -1,8 +1,8 @@
 #include "modules/many_bone_ik/src/ik_kusudama_3d.h"
 #include "tests/test_macros.h"
 
-#ifndef TEST_IK_KUDUSAMA_3D_H
-#define TEST_IK_KUDUSAMA_3D_H
+#ifndef TEST_IK_KUSUDAMA_3D_H
+#define TEST_IK_KUSUDAMA_3D_H
 
 namespace TestIKKusudama3D {
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Verify limit cone containment") {
@@ -186,4 +186,4 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 }
 } // namespace TestIKKusudama3D
 
-#endif
+#endif // TEST_IK_KUSUDAMA_3D_H
