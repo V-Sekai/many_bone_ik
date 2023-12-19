@@ -239,9 +239,6 @@ bool IKLimitCone3D::_determine_if_in_bounds(Ref<IKLimitCone3D> next, Vector3 inp
 }
 
 Vector3 IKLimitCone3D::get_closest_path_point(Ref<IKLimitCone3D> next, Vector3 input) const {
-	if (Math::is_zero_approx(control_point.length_squared())) {
-		return Vector3(NAN, NAN, NAN);
-	}
 	Vector3 result;
 	if (next.is_null()) {
 		result = _closest_cone(Ref<IKLimitCone3D>(this), input);
