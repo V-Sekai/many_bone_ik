@@ -162,7 +162,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 	cone_6->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_6->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 	cone_6->set_radius(MAX(1.0e-38, Math_PI / 6));
-	cone_6->set_control_point(Vector3(0, 1, 0)).normalized());
+	cone_6->set_control_point(Vector3(0, 1, 0).normalized());
 	kusudama->add_limit_cone(cone_6); // 30 degrees
 
 	Ref<IKLimitCone3D> cone_7;
@@ -171,7 +171,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 	cone_7->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_7->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 	cone_7->set_radius(MAX(1.0e-38, Math_PI / 3));
-	cone_7->set_control_point(Vector3(0, 1, 0)).normalized());
+	cone_7->set_control_point(Vector3(0, 1, 0).normalized());
 	kusudama->add_limit_cone(cone_7); // 60 degrees
 
 	// Initial checks (three limit cones expected)
