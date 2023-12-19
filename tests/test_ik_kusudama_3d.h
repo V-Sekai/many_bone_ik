@@ -57,7 +57,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Adding and retrieving Limit Cones
 
 	Ref<IKLimitCone3D> cone;
 	cone.instantiate();
-	cone->set_attached_to(constraint);
+	cone->set_attached_to(kusudama);
 	cone->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 	cone->set_radius(MAX(1.0e-38, radius));
@@ -78,7 +78,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Adding and retrieving Limit Cones
 
 	Ref<IKLimitCone3D> cone_2;
 	cone_2.instantiate();
-	cone_2->set_attached_to(constraint);
+	cone_2->set_attached_to(kusudama);
 	cone_2->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_2->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 	cone_2->set_radius(MAX(1.0e-38, radius));
@@ -104,7 +104,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Verify limit cone removal") {
 
 	Ref<IKLimitCone3D> cone_3;
 	cone_3.instantiate();
-	cone_3->set_attached_to(constraint);
+	cone_3->set_attached_to(kusudama);
 	cone_3->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_3->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 	cone_3->set_radius(MAX(1.0e-38, first_radius));
@@ -117,11 +117,11 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Verify limit cone removal") {
 
 	Ref<IKLimitCone3D> cone_4;
 	cone_4.instantiate();
-	cone_4->set_attached_to(constraint);
+	cone_4->set_attached_to(kusudama);
 	cone_4->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_4->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
-	cone_4->set_radius(MAX(1.0e-38, first_radius));
-	cone_4->set_control_point(first_control_point.normalized());
+	cone_4->set_radius(MAX(1.0e-38, second_radius));
+	cone_4->set_control_point(second_control_point.normalized());
 
 	kusudama->add_limit_cone(cone_4);
 
@@ -148,17 +148,17 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 
 	Ref<IKLimitCone3D> cone_5;
 	cone_5.instantiate();
-	cone_5->set_attached_to(constraint);
+	cone_5->set_attached_to(kusudama);
 	cone_5->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_5->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 	cone_5->set_radius(MAX(1.0e-38, Math_PI / 4));
-	cone_5->set_control_point(Vector3(1, 0, 0)).normalized());
+	cone_5->set_control_point(Vector3(1, 0, 0).normalized());
 
 	kusudama->add_limit_cone(cone_5); // 45 degrees
 
 	Ref<IKLimitCone3D> cone_6;
 	cone_6.instantiate();
-	cone_6->set_attached_to(constraint);
+	cone_6->set_attached_to(kusudama);
 	cone_6->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_6->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 	cone_6->set_radius(MAX(1.0e-38, Math_PI / 6));
@@ -167,7 +167,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 
 	Ref<IKLimitCone3D> cone_7;
 	cone_7.instantiate();
-	cone_7->set_attached_to(constraint);
+	cone_7->set_attached_to(kusudama);
 	cone_7->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_7->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 	cone_7->set_radius(MAX(1.0e-38, Math_PI / 3));

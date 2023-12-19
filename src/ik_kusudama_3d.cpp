@@ -142,6 +142,11 @@ void IKKusudama3D::get_swing_twist(
 void IKKusudama3D::add_limit_cone(
 		Ref<IKLimitCone3D> p_cone) {
 	ERR_FAIL_COND(p_cone.is_null());
+	ERR_FAIL_COND(p_cone->get_attached_to().is_null());
+	ERR_FAIL_COND(Math::is_zero_approx(p_cone->get_tangent_circle_center_next_1().length_squared()));
+	ERR_FAIL_COND(Math::is_zero_approx(p_cone->get_tangent_circle_center_next_2().length_squared()));
+	ERR_FAIL_COND(Math::is_zero_approx(p_cone->get_radius()));
+	ERR_FAIL_COND(Math::is_zero_approx(p_cone->get_control_point().length_squared()));
 	limit_cones.push_back(p_cone);
 }
 
