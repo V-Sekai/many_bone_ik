@@ -124,6 +124,52 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Adding and retrieving Limit Cones
 	CHECK(second_retrieved_cone->get_closest_path_point(Ref<IKLimitCone3D>(), different_point_on_sphere) == different_point_on_sphere);
 }
 
+TEST_CASE("[Modules][ManyBoneIK][IKLimitCone3D] get_closest_path_point") {
+	Ref<IKLimitCone3D> cone;
+	cone.instantiate();
+	double radius = Math_PI / 4; // 45 degrees
+
+	cone->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
+	cone->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
+	cone->set_radius(MAX(1.0e-38, radius)); // Set radius
+
+	Vector3 input_inside(1, 0, 0); // Input vector inside the cone
+	Vector3 input_outside(-1, 0, 0); // Input vector outside the cone
+
+	// Test when next is null
+	Vector3 result = cone->get_closest_path_point(Ref<IKLimitCone3D>(), input_inside);
+	CHECK(!(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z))); // Result should be a number
+	CHECK(Math::acos(cone->get_control_point().dot(result.normalized())) <= radius); // Result should be inside the cone
+
+	result = cone->get_closest_path_point(Ref<IKLimitCone3D>(), input_outside);
+	CHECK(!(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z))); // Result should be a number
+	CHECK(Math::acos(cone->get_control_point().dot(result.normalized())) <= radius); // Result should be inside the cone
+
+	// Test when next is not null
+	Ref<IKLimitCone3D> next;
+	next.instantiate();
+
+	next->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
+	next->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
+	next->set_radius(MAX(1.0e-38, radius)); // Set radius for next cone
+	Vector3 control_point_next(0, 1, 0); // Control point for next cone
+	next->set_control_point(control_point_next.normalized()); // Set control point for next cone
+
+	result = cone->get_closest_path_point(next, input_inside);
+	CHECK(!(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z))); // Result should be a number
+	CHECK(Math::acos(cone->get_control_point().dot(result.normalized())) <= radius); // Result should be inside the cone
+	CHECK(Math::acos(next->get_control_point().dot(result.normalized())) <= radius); // Result should be inside the next cone
+
+	// TODO: If the point is in the tangents of the cone sequence.
+
+	result = cone->get_closest_path_point(next, input_outside);
+	CHECK(!(Math::is_nan(result.x) && Math::is_nan(result.y) && Math::is_nan(result.z))); // Result should be a number
+	CHECK(Math::acos(cone->get_control_point().dot(result.normalized())) <= radius); // Result should be inside the cone
+	CHECK(Math::acos(next->get_control_point().dot(result.normalized())) <= radius); // Result should be inside the next cone
+
+	// TODO: If the point is in the tangents of the cone sequence.
+}
+
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Verify limit cone removal") {
 	Ref<IKKusudama3D> kusudama;
 	kusudama.instantiate();

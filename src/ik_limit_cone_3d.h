@@ -40,7 +40,7 @@ class IKLimitCone3D : public Resource {
 	GDCLASS(IKLimitCone3D, Resource);
 	void compute_triangles(Ref<IKLimitCone3D> p_next);
 
-	Vector3 control_point;
+	Vector3 control_point = Vector3(0, 1, 0);
 	Vector3 radial_point;
 
 	// Radius stored as cosine to save on the acos call necessary for the angle between.
