@@ -29,28 +29,16 @@
 /**************************************************************************/
 
 #include "many_bone_ik_3d.h"
-#include "core/core_string_names.h"
 #include "core/error/error_macros.h"
-#include "core/io/json.h"
 #include "core/math/math_defs.h"
 #include "core/object/class_db.h"
 #include "core/string/string_name.h"
-#include "core/variant/typed_array.h"
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
 #include "ik_limit_cone_3d.h"
-#include "scene/3d/marker_3d.h"
-#include "scene/3d/node_3d.h"
-#include "scene/3d/physics_body_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
-#include "scene/resources/skeleton_profile.h"
-#include "scene/scene_string_names.h"
-
-#ifdef TOOLS_ENABLED
-#include "editor/editor_node.h"
-#endif
 
 void ManyBoneIK3D::set_pin_count(int32_t p_value) {
 	int32_t old_count = pins.size();
@@ -856,8 +844,6 @@ void ManyBoneIK3D::set_pin_direction_priorities(int32_t p_pin_index, const Vecto
 
 void ManyBoneIK3D::set_dirty() {
 	is_dirty = true;
-	is_gizmo_dirty = true;
-	notify_property_list_changed();
 }
 
 int32_t ManyBoneIK3D::find_constraint(String p_string) const {
