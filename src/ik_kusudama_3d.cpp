@@ -145,7 +145,6 @@ void IKKusudama3D::add_limit_cone(
 	ERR_FAIL_COND(p_cone->get_attached_to().is_null());
 	ERR_FAIL_COND(Math::is_zero_approx(p_cone->get_tangent_circle_center_next_1().length_squared()));
 	ERR_FAIL_COND(Math::is_zero_approx(p_cone->get_tangent_circle_center_next_2().length_squared()));
-	ERR_FAIL_COND(Math::is_zero_approx(p_cone->get_radius()));
 	ERR_FAIL_COND(Math::is_zero_approx(p_cone->get_control_point().length_squared()));
 	limit_cones.push_back(p_cone);
 }
@@ -420,7 +419,7 @@ Quaternion IKKusudama3D::clamp_to_quadrance_angle(Quaternion p_rotation, double 
 	clamped_rotation.x *= compositeCoeff;
 	clamped_rotation.y *= compositeCoeff;
 	clamped_rotation.z *= compositeCoeff;
-	if (!rotation.is_finite()) {
+	if (!rotation.is_finite() || !clamped_rotation.is_finite()) {
 		return Quaternion();
 	}
 	return rotation.slerp(clamped_rotation, over_limit);
