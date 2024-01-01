@@ -274,7 +274,7 @@ void IKBoneSegment3D::_qcp_solver(const Vector<float> &p_damp, float p_default_d
 		if (is_non_default_damp) {
 			damp = p_default_damp;
 		}
-		_update_optimal_rotation(current_bone, damp, p_translate && current_bone == root, p_constraint_mode, p_current_iteration, p_total_iterations);
+		_update_optimal_rotation(current_bone, damp, p_translate, p_constraint_mode, p_current_iteration, p_total_iterations);
 	}
 }
 
