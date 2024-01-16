@@ -34,7 +34,6 @@
 #include "editor/editor_interface.h"
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
-#include "editor/editor_scale.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/node_3d_editor_gizmos.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
