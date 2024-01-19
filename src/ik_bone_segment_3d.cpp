@@ -168,10 +168,9 @@ void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVect
 			Basis rotation = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 			Vector3 translation = qcp.get_translation();
 			double dampening = (p_dampening != -1.0) ? p_dampening : bone_damp;
-			rotation = clamp_to_quadrance_angle(rotation.get_rotation_quaternion(), cos(dampening / 2.0)).normalized();
+			rotation = clamp_to_quadrance_angle(rotation.get_rotation_quaternion(), cos(dampening / 2.0));
 			p_for_bone->get_ik_transform()->rotate_local_with_global(rotation.get_rotation_quaternion());
 			Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
-			result.orthonormalize();
 			p_for_bone->set_global_pose(result);
 		}
 		// Calculate orientation before twist to avoid exceeding the twist bound when updating the rotation.
