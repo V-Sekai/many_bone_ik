@@ -114,14 +114,14 @@ public:
 			Quaternion &r_twist);
 
 public:
-	double angle_to_twist_center(Ref<IKNode3D> bone_direction, Ref<IKNode3D> limiting_axes);
+	double angle_to_twist_center(Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_limiting_axes);
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
 	 *
 	 * @param to_set
 	 */
-	void set_axes_to_orientation_snap(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen);
+	void set_axes_to_orientation_snap(Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_to_set, Ref<IKNode3D> p_limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen);
 
 	bool is_nan_vector(const Vector3 &vec);
 
@@ -136,7 +136,7 @@ public:
 	 * This value is always interpreted as being in the positive direction. For example, if this value is -PI/2, the entire range_angle from min_angle to min_angle + 3PI/4 is
 	 * considered valid.
 	 */
-	void set_axial_limits(real_t min_angle, real_t in_range);
+	void set_axial_limits(real_t p_min_angle, real_t p_in_range);
 
 	/**
 	 *
@@ -144,7 +144,7 @@ public:
 	 * @param limiting_axes
 	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
 	 */
-	void set_snap_to_twist_limit(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, real_t p_dampening, real_t p_cos_half_dampen);
+	void set_snap_to_twist_limit(Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_to_set, Ref<IKNode3D> p_limiting_axes, real_t p_dampening, real_t p_cos_half_dampen);
 
 	/**
 	 * Given a point (in local coordinates), checks to see if a ray can be extended from the Kusudama's
