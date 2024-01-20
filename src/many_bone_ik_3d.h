@@ -156,8 +156,4 @@ public:
 	void set_dirty();
 };
 
-class ManyBoneIK3DState : RefCounted {
-	GDCLASS(ManyBoneIK3DState, RefCounted);
-};
-
 #endif // MANY_BONE_IK_3D_H
