@@ -114,7 +114,6 @@ public:
 			Quaternion &r_twist);
 
 public:
-	double angle_to_twist_center(Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_limiting_axes);
 	/**
 	 * Presumes the input axes are the bone's localAxes, and rotates
 	 * them to satisfy the snap limits.
@@ -197,7 +196,6 @@ public:
 	float get_resistance();
 	void set_resistance(float p_resistance);
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_rotation, double p_cos_half_angle);
-	void set_axes_to_returnfulled(Ref<IKNode3D> bone_direction, Ref<IKNode3D> to_set, Ref<IKNode3D> limiting_axes, float cos_half_returnfullness, float angle_returnfullness);
 };
 
 #endif // IK_KUSUDAMA_3D_H

@@ -37,6 +37,7 @@
 class IKEffectorTemplate3D : public Resource {
 	GDCLASS(IKEffectorTemplate3D, Resource);
 
+	StringName root_bone;
 	NodePath target_node;
 	real_t passthrough_factor = 0.0f;
 	real_t weight = 1.0f;
@@ -45,6 +46,8 @@ protected:
 	static void _bind_methods();
 
 public:
+	String get_root_bone() const;
+	void set_root_bone(String p_root_bone);
 	NodePath get_target_node() const;
 	void set_target_node(NodePath p_node_path);
 	float get_passthrough_factor() const;

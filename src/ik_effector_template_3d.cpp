@@ -33,6 +33,9 @@
 #include "many_bone_ik_3d.h"
 
 void IKEffectorTemplate3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_root_bone"), &IKEffectorTemplate3D::get_root_bone);
+	ClassDB::bind_method(D_METHOD("set_root_bone", "target_node"), &IKEffectorTemplate3D::set_root_bone);
+
 	ClassDB::bind_method(D_METHOD("get_target_node"), &IKEffectorTemplate3D::get_target_node);
 	ClassDB::bind_method(D_METHOD("set_target_node", "target_node"), &IKEffectorTemplate3D::set_target_node);
 
@@ -49,6 +52,7 @@ void IKEffectorTemplate3D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "weight"), "set_weight", "get_weight");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "direction_priorities"), "set_direction_priorities", "get_direction_priorities");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "target_node"), "set_target_node", "get_target_node");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
 }
 
 NodePath IKEffectorTemplate3D::get_target_node() const {
@@ -68,4 +72,12 @@ void IKEffectorTemplate3D::set_passthrough_factor(float p_passthrough_factor) {
 }
 
 IKEffectorTemplate3D::IKEffectorTemplate3D() {
+}
+
+String IKEffectorTemplate3D::get_root_bone() const {
+	return root_bone;
+}
+
+void IKEffectorTemplate3D::set_root_bone(String p_node_path) {
+	root_bone = p_node_path;
 }

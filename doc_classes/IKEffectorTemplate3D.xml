@@ -15,6 +15,8 @@
 		<member name="passthrough_factor" type="float" setter="set_passthrough_factor" getter="get_passthrough_factor" default="0.0">
 			Determines how much the effector influences its parent bones. A value of 1 means full influence, while a value of 0 means no influence.
 		</member>
+		<member name="root_bone" type="String" setter="set_root_bone" getter="get_root_bone" default="&quot;&quot;">
+		</member>
 		<member name="target_node" type="NodePath" setter="set_target_node" getter="get_target_node" default="NodePath(&quot;&quot;)">
 			The NodePath of the target node that the effector aims to reach.
 		</member>
