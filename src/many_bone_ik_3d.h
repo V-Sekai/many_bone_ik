@@ -38,9 +38,9 @@
 #include "ik_effector_template_3d.h"
 #include "math/ik_node_3d.h"
 
-#include "scene/3d/skeleton_modifier_3d.h"
 #include "core/object/ref_counted.h"
 #include "scene/3d/skeleton_3d.h"
+#include "scene/3d/skeleton_modifier_3d.h"
 #include "scene/main/scene_tree.h"
 
 class ManyBoneIK3DState;
