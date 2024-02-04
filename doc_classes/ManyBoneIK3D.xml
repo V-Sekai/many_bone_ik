@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="ManyBoneIK3D" inherits="Node3D" is_experimental="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+<class name="ManyBoneIK3D" inherits="SkeletonModifier3D" is_experimental="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
 		A general inverse kinematics system with constraints.
 	</brief_description>
@@ -291,9 +291,6 @@
 		</member>
 		<member name="iterations_per_frame" type="float" setter="set_iterations_per_frame" getter="get_iterations_per_frame" default="10.0">
 			The number of iterations performed by the solver per frame. A higher value will result in more accurate poses but may impact performance.
-		</member>
-		<member name="skeleton_node_path" type="NodePath" setter="set_skeleton_node_path" getter="get_skeleton_node_path" default="NodePath(&quot;..&quot;)">
-			The NodePath pointing to the skeleton associated with the IK system.
 		</member>
 		<member name="stabilization_passes" type="int" setter="set_stabilization_passes" getter="get_stabilization_passes" default="4">
 			The number of stabilization passes performed by the solver. This can help to improve the stability of the IK solution.
