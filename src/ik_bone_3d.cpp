@@ -95,11 +95,11 @@ void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
 void IKBone3D::update_default_constraint_transform() {
 	Ref<IKBone3D> parent_bone = get_parent();
 	if (parent_bone.is_valid()) {
-		Transform3D parent_bone_aligned_transform = parent_bone->get_ik_transform()->get_global_transform();
-		parent_bone_aligned_transform.origin = get_bone_direction_transform()->get_global_transform().origin;
+		Transform3D parent_bone_aligned_transform = get_parent_bone_aligned_transform();
 		constraint_orientation_transform->set_global_transform(parent_bone_aligned_transform);
 	}
-	Transform3D set_constraint_twist_transform = constraint_orientation_transform->get_global_transform();
+
+	Transform3D set_constraint_twist_transform = get_set_constraint_twist_transform();
 	constraint_twist_transform->set_global_transform(set_constraint_twist_transform);
 
 	if (constraint.is_null()) {
@@ -108,33 +108,15 @@ void IKBone3D::update_default_constraint_transform() {
 
 	TypedArray<IKLimitCone3D> cones = constraint->get_limit_cones();
 	Vector3 direction;
-
 	if (cones.size() == 0) {
 		direction = bone_direction_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
 	} else {
-		float total_radius_sum = 0.0f;
-		for (int32_t cone_i = 0; cone_i < cones.size(); cone_i++) {
-			const Ref<IKLimitCone3D> &cone = cones[cone_i];
-			if (cone.is_null()) {
-				break;
-			}
-			total_radius_sum += cone->get_radius();
-		}
-
-		for (int32_t cone_i = 0; cone_i < cones.size(); cone_i++) {
-			const Ref<IKLimitCone3D> &cone = cones[cone_i];
-			if (cone.is_null()) {
-				break;
-			}
-			float weight = cone->get_radius() / total_radius_sum;
-			direction += cone->get_control_point() * weight;
-		}
-		direction.normalize();
-		direction = constraint_orientation_transform->get_global_transform().xform(direction);
+		float total_radius_sum = calculate_total_radius_sum(cones);
+		direction = calculate_weighted_direction(cones, total_radius_sum);
 		direction -= constraint_orientation_transform->get_global_transform().origin;
 	}
 
-	Vector3 twist_axis = constraint_twist_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+	Vector3 twist_axis = set_constraint_twist_transform.basis.get_column(Vector3::AXIS_Y);
 	Quaternion align_dir = Quaternion(twist_axis, direction);
 	constraint_twist_transform->rotate_local_with_global(align_dir);
 }
@@ -338,4 +320,45 @@ void IKBone3D::set_stiffness(double p_stiffness) {
 
 double IKBone3D::get_stiffness() const {
 	return stiffness;
+}
+
+Transform3D IKBone3D::get_parent_bone_aligned_transform() {
+	Ref<IKBone3D> parent_bone = get_parent();
+	if (parent_bone.is_null()) {
+		return Transform3D();
+	}
+	Transform3D parent_bone_aligned_transform = parent_bone->get_ik_transform()->get_global_transform();
+	parent_bone_aligned_transform.origin = get_bone_direction_transform()->get_global_transform().origin;
+	return parent_bone_aligned_transform;
+}
+
+Transform3D IKBone3D::get_set_constraint_twist_transform() const {
+	return constraint_orientation_transform->get_global_transform();
+}
+
+float IKBone3D::calculate_total_radius_sum(const TypedArray<IKLimitCone3D> &p_cones) const {
+	float total_radius_sum = 0.0f;
+	for (int32_t i = 0; i < p_cones.size(); ++i) {
+		const Ref<IKLimitCone3D> &cone = p_cones[i];
+		if (cone.is_null()) {
+			break;
+		}
+		total_radius_sum += cone->get_radius();
+	}
+	return total_radius_sum;
+}
+
+Vector3 IKBone3D::calculate_weighted_direction(const TypedArray<IKLimitCone3D> &p_cones, float p_total_radius_sum) const {
+	Vector3 direction = Vector3();
+	for (int32_t i = 0; i < p_cones.size(); ++i) {
+		const Ref<IKLimitCone3D> &cone = p_cones[i];
+		if (cone.is_null()) {
+			break;
+		}
+		float weight = cone->get_radius() / p_total_radius_sum;
+		direction += cone->get_control_point() * weight;
+	}
+	direction.normalize();
+	direction = constraint_orientation_transform->get_global_transform().basis.xform(direction);
+	return direction;
 }
