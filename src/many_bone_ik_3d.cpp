@@ -122,11 +122,6 @@ void ManyBoneIK3D::_update_skeleton_bones_transform() {
 
 void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	const Vector<Ref<IKBone3D>> ik_bones = get_bone_list();
-	RBSet<StringName> existing_pins;
-	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
-		const String name = get_pin_bone_name(pin_i);
-		existing_pins.insert(name);
-	}
 	const uint32_t pin_usage = PROPERTY_USAGE_DEFAULT;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
@@ -220,7 +215,6 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		const String name = get_pin_bone_name(pin_i);
 		existing_pins.insert(name);
 	}
-	const uint32_t pin_usage = PROPERTY_USAGE_DEFAULT;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
 					PROPERTY_HINT_RANGE, "0,65536,or_greater", pin_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
