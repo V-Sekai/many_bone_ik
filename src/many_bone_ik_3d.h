@@ -44,8 +44,8 @@
 #include "scene/main/scene_tree.h"
 
 class ManyBoneIK3DState;
-class ManyBoneIK3D : public SkeletonModifier3D {
-	GDCLASS(ManyBoneIK3D, SkeletonModifier3D);
+class ManyBoneIK3D : public Node3D {
+	GDCLASS(ManyBoneIK3D, Node3D);
 
 	bool is_constraint_mode = false;
 	NodePath skeleton_path;
@@ -88,9 +88,9 @@ protected:
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
-	virtual void _process_modification(double delta) override;
+	virtual void _skeleton_changed(Skeleton3D *skeleton);
+	virtual void _execute(real_t delta);
 	void _notification(int p_what);
-	virtual void _reload();
 
 public:
 	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
@@ -106,8 +106,11 @@ public:
 	void set_constraint_mode(bool p_enabled);
 	bool get_constraint_mode() const;
 	bool get_pin_enabled(int32_t p_effector_index) const;
+	void set_skeleton_node_path(NodePath p_skeleton_node_path);
 	void register_skeleton();
 	void reset_constraints();
+	NodePath get_skeleton_node_path();
+	Skeleton3D *get_skeleton() const;
 	Vector<Ref<IKBone3D>> get_bone_list() const;
 	Vector<Ref<IKBoneSegment3D>> get_segmented_skeletons();
 	float get_iterations_per_frame() const;
