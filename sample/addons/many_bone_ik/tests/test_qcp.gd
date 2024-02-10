@@ -39,8 +39,9 @@ func test_weighted_superpose_with_translation():
 
 	var weight := [1.0, 1.0, 1.0]  # Equal weights
 	var translate := true
+	gut.p("Expected rotation: %s" % expected)
 	var result: Quaternion = qcp.weighted_superpose(moved, target, weight, translate)
-
+	gut.p("Result rotation: %s" % result)
 	# Quaternion checks
 	assert_almost_eq(result.x, expected.x, epsilon)
 	assert_almost_eq(result.y, expected.y, epsilon)
@@ -50,7 +51,9 @@ func test_weighted_superpose_with_translation():
 	# Translation checks
 	assert_eq(translate, true)
 	var inverted_expected := expected.inverse()
+	gut.p("Expected translation: %s" % translation_vector)
 	var translation_result: Vector3 = inverted_expected * qcp.get_translation()
+	gut.p("Result translation: %s" % translation_result)
 	assert_almost_eq(translation_result.x, translation_vector.x, epsilon)
 	assert_almost_eq(translation_result.y, translation_vector.y, epsilon)
 	assert_almost_eq(translation_result.z, translation_vector.z, epsilon)
