@@ -37,8 +37,8 @@
 extends RefCounted
 
 var eigenvector_precision: float
-var target = PackedVector3Array()
 var moved = PackedVector3Array()
+var target = PackedVector3Array()
 var weight = PackedFloat64Array()
 var transformation_calculated = false
 var inner_product_calculated = false
@@ -66,22 +66,33 @@ var sum_xy_minus_yx: float = 0
 var sum_xx_plus_yy: float = 0
 var sum_xx_minus_yy: float = 0
 
+func weighted_superpose(
+	p_moved: PackedVector3Array,
+	p_target: PackedVector3Array,
+	p_weights: PackedFloat64Array,
+	translate: bool
+) -> Quaternion:
+	_set_qcp(p_moved, p_target, p_weights, translate)
+	return get_rotation()
+	
+
+func get_translation() -> Vector3:
+	return target_center - moved_center
+
+
+func get_rotation() -> Quaternion:
+	if not transformation_calculated:
+		if not inner_product_calculated:
+			_inner_product(target, moved)
+		transformation_calculated = true
+	return _calculate_rotation()
+
 
 func _init(p_evec_prec: float):
 	self.eigenvector_precision = p_evec_prec
 
 
-func get_rotation() -> Quaternion:
-	var result: Quaternion
-	if not transformation_calculated:
-		if not inner_product_calculated:
-			inner_product(target, moved)
-		result = calculate_rotation()
-		transformation_calculated = true
-	return result
-
-
-func calculate_rotation() -> Quaternion:
+func _calculate_rotation() -> Quaternion:
 	var result: Quaternion
 
 	if moved.size() == 1:
@@ -157,16 +168,12 @@ func calculate_rotation() -> Quaternion:
 	return result
 
 
-func translate(translation_vector: Vector3, x: PackedVector3Array) -> void:
+func _translate(translation_vector: Vector3, x: PackedVector3Array) -> void:
 	for i in range(x.size()):
 		x[i] += translation_vector
 
 
-func get_translation() -> Vector3:
-	return target_center - moved_center
-
-
-func move_to_weighted_center(to_center: PackedVector3Array, weights: PackedFloat64Array) -> Vector3:
+func _move_to_weighted_center(to_center: PackedVector3Array, weights: PackedFloat64Array) -> Vector3:
 	var center: Vector3 = Vector3.ZERO
 	var total_weight: float = 0
 	var size = to_center.size()
@@ -188,7 +195,7 @@ func move_to_weighted_center(to_center: PackedVector3Array, weights: PackedFloat
 	return center
 
 
-func inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> void:
+func _inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> void:
 	var weighted_coord1: Vector3
 	var weighted_coord2: Vector3
 	var sum_of_squares1: float = 0.0
@@ -248,17 +255,7 @@ func inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> 
 	inner_product_calculated = true
 
 
-func weighted_superpose(
-	p_moved: PackedVector3Array,
-	p_target: PackedVector3Array,
-	p_weights: PackedFloat64Array,
-	translate: bool
-) -> Quaternion:
-	set_qcp(p_moved, p_target, p_weights, translate)
-	return get_rotation()
-
-
-func set_qcp(
+func _set_qcp(
 	p_moved: PackedVector3Array,
 	p_target: PackedVector3Array,
 	p_weights: PackedFloat64Array,
@@ -267,16 +264,16 @@ func set_qcp(
 	transformation_calculated = false
 	inner_product_calculated = false
 
-	moved = p_moved
-	target = p_target
-	weight = p_weights
+	moved = p_moved.duplicate()
+	target = p_target.duplicate()
+	weight = p_weights.duplicate()
 
 	if p_translate:
-		moved_center = move_to_weighted_center(moved, weight)
-		target_center = move_to_weighted_center(target, weight)
+		moved_center = _move_to_weighted_center(moved, weight)
+		target_center = _move_to_weighted_center(target, weight)
 		w_sum = 0  # Initialize to 0 so we don't double up
-		translate(-moved_center, moved)
-		translate(-target_center, target)
+		_translate(-moved_center, moved)
+		_translate(-target_center, target)
 	else:
 		if weight.size() > 0:
 			w_sum = 0

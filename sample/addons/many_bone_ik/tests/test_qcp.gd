@@ -58,41 +58,48 @@ func test_weighted_superpose_with_translation():
 	assert_almost_eq(translation_result.z, translation_vector.z, epsilon)
 
 
-func rotate_target_headings_basis(tipHeadings: PackedVector3Array, targetHeadings: PackedVector3Array, basis: Basis):
+func rotate_target_headings_basis(
+	tipHeadings: PackedVector3Array, targetHeadings: PackedVector3Array, basis: Basis
+):
 	for i in range(tipHeadings.size()):
 		targetHeadings[i] = basis * tipHeadings[i]
 
 
-func test_rotation():
+func test_get_rotation():
 	var qcp := qcp_const.new(epsilon)
-	var localizedTipHeadings := PackedVector3Array([
-		Vector3(-14.739, -18.673, 15.040),
-		Vector3(-12.473, -15.810, 16.074),
-		Vector3(-14.802, -13.307, 14.408),
-		Vector3(-17.782, -14.852, 16.171),
-		Vector3(-16.124, -14.617, 19.584),
-		Vector3(-15.029, -11.037, 18.902),
-		Vector3(-18.577, -10.001, 17.996)
-	])
+	# Arrange
+	var moved = PackedVector3Array([Vector3(0, 1, 0)])
+	var expected_rotation = Quaternion(0.3826834323650898, 0, 0, 0.9238795325112867)
+	var target = PackedVector3Array([expected_rotation * Vector3(1, 0, 0)])
+	gut.p("Expected Rotation: %s" % str(expected_rotation))
+	gut.p("Target: %s" % target[0])
+	qcp.weighted_superpose(moved, target, PackedFloat64Array([1, 1, 1]), false)
 
-	var localizedTargetHeadings: PackedVector3Array = localizedTipHeadings.duplicate()
-	var originalTargetHeadings: PackedVector3Array = localizedTargetHeadings.duplicate()
+	# Act
+	var result: Quaternion = qcp.get_rotation()
 
-	var basis_x := Basis(Quaternion(Vector3(1.0, 0.0, 0.0), PI / 2.0))
-	var basis_y := Basis(Quaternion(Vector3(0.0, 1., 0.0), PI / 2.0))
-	var basis_z := Basis(Quaternion(Vector3(0.0, 0.0, 1.), PI / 2.0))
+	# Log the result
+	gut.p("Result of calculate_rotation: %s" % result)
 
-	gut.p("Before rotation around x-axis: %s" % localizedTargetHeadings)
-	rotate_target_headings_basis(localizedTipHeadings, localizedTargetHeadings, basis_x)
-	gut.p("After rotation around x-axis: %s" % localizedTargetHeadings)
-	assert_ne_deep(localizedTargetHeadings, originalTargetHeadings)
+	# Assert
+	assert_eq(result, expected_rotation)
 
-	gut.p("Before rotation around y-axis: %s" % localizedTargetHeadings)
-	rotate_target_headings_basis(localizedTipHeadings, localizedTargetHeadings, basis_y)
-	gut.p("After rotation around y-axis: %s" % localizedTargetHeadings)
-	assert_ne_deep(localizedTargetHeadings, originalTargetHeadings)
+func test_get_rotation_xform():
+	# Arrange
+	var moved = [Vector3(0, 1, 0)]
+	var expected_rotation = Quaternion(0.3826834323650898, 0, 0, 0.9238795325112867)
+	var expected_vector = Vector3(1, 0, 0)
+	var target = expected_rotation * expected_vector 
+	gut.p("Expected Rotation: %s" % str(expected_rotation))
+	gut.p("Target: %s" % target[0])
 
-	gut.p("Before rotation around z-axis: %s" % localizedTargetHeadings)
-	rotate_target_headings_basis(localizedTipHeadings, localizedTargetHeadings, basis_z)
-	gut.p("After rotation around z-axis: %s" % localizedTargetHeadings)
-	assert_ne_deep(localizedTargetHeadings, originalTargetHeadings)
+	# Act
+	var result = expected_rotation.inverse() * target
+
+	# Log the result
+	gut.p("Result of calculate_rotation: %s" % result)
+
+	# Assert
+	assert_eq(result, expected_vector)
+	
+	
