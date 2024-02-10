@@ -71,22 +71,18 @@ func _init(p_evec_prec: float):
 	self.eigenvector_precision = p_evec_prec
 
 
-func qcp_set(r_target: PackedVector3Array, r_moved: PackedVector3Array) -> void:
-	target = r_target
-	moved = r_moved
-	transformation_calculated = false
-	inner_product_calculated = false
-
-
 func get_rotation() -> Quaternion:
+	var result: Quaternion
 	if not transformation_calculated:
 		if not inner_product_calculated:
 			inner_product(target, moved)
-	return calculate_rotation()
+		result = calculate_rotation()
+		transformation_calculated = true
+	return result
 
 
 func calculate_rotation() -> Quaternion:
-	var result = Quaternion()
+	var result: Quaternion
 
 	if moved.size() == 1:
 		var u = moved[0]
@@ -198,7 +194,6 @@ func inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> 
 	var sum_of_squares1: float = 0.0
 	var sum_of_squares2: float = 0.0
 
-	# Initialize sums to zero
 	var sum_xx: float = 0.0
 	var sum_xy: float = 0.0
 	var sum_xz: float = 0.0
@@ -209,9 +204,7 @@ func inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> 
 	var sum_zy: float = 0.0
 	var sum_zz: float = 0.0
 
-	# Check if weight is empty (assuming 'weight' is defined elsewhere)
-	# You'll need to define 'weight' similarly to the original C++ code
-	var weight_is_empty: bool = weight.is_empty()  # replace with correct method call if available
+	var weight_is_empty: bool = weight.is_empty()
 	var size: int = coords1.size()
 
 	for i in range(size):
@@ -242,7 +235,6 @@ func inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> 
 
 	var initial_eigenvalue: float = (sum_of_squares1 + sum_of_squares2) * 0.5
 
-	# Additional variables must be declared and properly scoped in GDScript
 	var sum_xz_plus_zx: float = sum_xz + sum_zx
 	var sum_yz_plus_zy: float = sum_yz + sum_zy
 	var sum_xy_plus_yx: float = sum_xy + sum_yx
@@ -252,8 +244,6 @@ func inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> 
 	var sum_xx_plus_yy: float = sum_xx + sum_yy
 	var sum_xx_minus_yy: float = sum_xx - sum_yy
 
-	# These values seem to be used outside this function, so they should be properties of the class.
-	# Make sure these are class properties or provide them with proper scope.
 	max_eigenvalue = initial_eigenvalue
 	inner_product_calculated = true
 
@@ -264,11 +254,11 @@ func weighted_superpose(
 	p_weights: PackedFloat64Array,
 	translate: bool
 ) -> Quaternion:
-	set_qcp_(p_moved, p_target, p_weights, translate)
+	set_qcp(p_moved, p_target, p_weights, translate)
 	return get_rotation()
 
 
-func set_qcp_(
+func set_qcp(
 	p_moved: PackedVector3Array,
 	p_target: PackedVector3Array,
 	p_weights: PackedFloat64Array,
