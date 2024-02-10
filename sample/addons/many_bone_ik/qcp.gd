@@ -1,7 +1,38 @@
 # Copyright (c) 2018-present. This file is part of V-Sekai https://v-sekai.org/.
 # SaracenOne & K. S. Ernest (Fire) Lee & Lyuma & MMMaellon & Contributors
-# qcp.gd   
+# qcp.gd
 # SPDX-License-Identifier: MIT
+
+# Implementation of the Quaternion-Based Characteristic Polynomial algorithm
+# for RMSD and Superposition calculations.
+#
+# Usage:
+# 1. Create a QCP object with two Vector3 arrays of equal length as input.
+#    The input coordinates are not changed.
+# 2. Optionally, provide weighting factors [0 - 1] for each point.
+# 3. For maximum efficiency, create a QCP object once and reuse it.
+#
+# A. Calculate rmsd only: double rmsd = qcp.getRmsd();
+# B. Calculate a 4x4 transformation (Quaternion and translation) matrix: Matrix4f trans = qcp.getTransformationMatrix();
+# C. Get transformed points (y superposed onto the reference x): Vector3[] ySuperposed = qcp.getTransformedCoordinates();
+#
+# Citations:
+# - Liu P, Agrafiotis DK, & Theobald DL (2011) Reply to comment on: "Fast determination of the optimal quaternionation matrix for macromolecular superpositions." Journal of Computational Chemistry 32(1):185-186. [http://dx.doi.org/10.1002/jcc.21606]
+# - Liu P, Agrafiotis DK, & Theobald DL (2010) "Fast determination of the optimal quaternionation matrix for macromolecular superpositions." Journal of Computational Chemistry 31(7):1561-1563. [http://dx.doi.org/10.1002/jcc.21439]
+# - Douglas L Theobald (2005) "Rapid calculation of RMSDs using a quaternion-based characteristic polynomial." Acta Crystallogr A 61(4):478-480. [http://dx.doi.org/10.1107/S0108767305015266]
+#
+# This is an adaptation of the original C code QCPQuaternion 1.4 (2012, October 10) to C++.
+# The original C source code is available from http://theobald.brandeis.edu/qcp/ and was developed by:
+# - Douglas L. Theobald, Department of Biochemistry, Brandeis University
+# - Pu Liu, Johnson & Johnson Pharmaceutical Research and Development, L.L.C.
+#
+# Authors:
+# - Douglas L. Theobald (original C code)
+# - Pu Liu (original C code)
+# - Peter Rose (adapted to Java)
+# - Aleix Lafita (adapted to Java)
+# - Eron Gjoni (adapted to EWB IK)
+# - K. S. Ernest (iFire) Lee (adapted to ManyBoneIK)
 
 extends RefCounted
 
@@ -180,7 +211,7 @@ func inner_product(coords1: PackedVector3Array, coords2: PackedVector3Array) -> 
 
 	# Check if weight is empty (assuming 'weight' is defined elsewhere)
 	# You'll need to define 'weight' similarly to the original C++ code
-	var weight_is_empty: bool = weight.empty()  # replace with correct method call if available
+	var weight_is_empty: bool = weight.is_empty()  # replace with correct method call if available
 	var size: int = coords1.size()
 
 	for i in range(size):
@@ -258,10 +289,8 @@ func set_qcp_(
 		translate(-target_center, target)
 	else:
 		if weight.size() > 0:
-			w_sum = weight.reduce(0, sum_accumulate)
+			w_sum = 0
+			for i in weight:
+				w_sum += i
 		else:
 			w_sum = p_moved.size()
-
-
-func sum_accumulate(accumulated: float, current: float) -> float:
-	return accumulated + current
