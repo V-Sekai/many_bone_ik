@@ -1129,4 +1129,3 @@ bool ManyBoneIK3D::_is_ancestor_of(int potential_ancestor, int bone_idx) const {
 	}
 	return false;
 }
-
