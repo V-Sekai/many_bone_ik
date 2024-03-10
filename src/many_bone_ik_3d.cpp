@@ -469,6 +469,7 @@ void ManyBoneIK3D::_set_constraint_count(int32_t p_count) {
 		kusudama_twist.write[constraint_i] = Vector2(0, 0.01745f);
 	}
 	set_dirty();
+	notify_property_list_changed();
 }
 
 int32_t ManyBoneIK3D::get_constraint_count() const {
@@ -870,6 +871,8 @@ void ManyBoneIK3D::_set_bone_count(int32_t p_count) {
 		bone_damp.write[bone_i] = get_default_damp();
 	}
 	bone_count = p_count;
+	set_dirty();
+	notify_property_list_changed();
 }
 
 int32_t ManyBoneIK3D::get_bone_count() const {
