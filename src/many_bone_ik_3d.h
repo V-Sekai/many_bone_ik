@@ -131,6 +131,7 @@ public:
 	real_t get_default_damp() const;
 	void set_default_damp(float p_default_damp);
 	int32_t find_constraint(String p_string) const;
+	int32_t find_pin(String p_string) const;
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
 	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);

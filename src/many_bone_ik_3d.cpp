@@ -409,6 +409,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_iterations_per_frame"), &ManyBoneIK3D::get_iterations_per_frame);
 	ClassDB::bind_method(D_METHOD("set_iterations_per_frame", "count"), &ManyBoneIK3D::set_iterations_per_frame);
 	ClassDB::bind_method(D_METHOD("find_constraint", "name"), &ManyBoneIK3D::find_constraint);
+	ClassDB::bind_method(D_METHOD("find_pin", "name"), &ManyBoneIK3D::find_pin);
 	ClassDB::bind_method(D_METHOD("get_constraint_count"), &ManyBoneIK3D::get_constraint_count);
 	ClassDB::bind_method(D_METHOD("set_constraint_count", "count"), &ManyBoneIK3D::_set_constraint_count);
 	ClassDB::bind_method(D_METHOD("queue_print_skeleton"), &ManyBoneIK3D::queue_print_skeleton);
@@ -1110,4 +1111,12 @@ bool ManyBoneIK3D::_is_ancestor_of(int potential_ancestor, int bone_idx) const {
 		bone_idx = get_skeleton()->get_bone_parent(bone_idx);
 	}
 	return false;
+}
+int32_t ManyBoneIK3D::find_pin(String p_string) const {
+	for (int32_t pin_i = 0; pin_i < pin_count; pin_i++) {
+		if (get_pin_bone_name(pin_i) == p_string) {
+			return pin_i;
+		}
+	}
+	return -1;
 }
