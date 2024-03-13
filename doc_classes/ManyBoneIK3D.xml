@@ -16,6 +16,12 @@
 				Returns the index of the constraint with the given name. If no such constraint exists, returns -1.
 			</description>
 		</method>
+		<method name="find_pin" qualifiers="const">
+			<return type="int" />
+			<param index="0" name="name" type="String" />
+			<description>
+			</description>
+		</method>
 		<method name="get_bone_count" qualifiers="const">
 			<return type="int" />
 			<description>
