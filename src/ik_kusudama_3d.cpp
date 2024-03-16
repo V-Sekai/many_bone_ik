@@ -35,7 +35,6 @@
 #include "math/ik_node_3d.h"
 
 void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {
-	update_tangent_radii();
 	// Avoiding antipodal singularities by reorienting the axes
 	Vector<Vector3> directions;
 
@@ -77,6 +76,7 @@ void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {
 		transformed_control_point = p_limiting_axes->get_global_transform().basis.xform(transformed_control_point);
 		limit_cone->set_control_point(transformed_control_point.normalized());
 	}
+	update_tangent_radii();
 }
 
 void IKKusudama3D::update_tangent_radii() {
