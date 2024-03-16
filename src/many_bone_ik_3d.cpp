@@ -779,7 +779,7 @@ void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_skeleton) {
 			constraint->enable_axial_limits();
 			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
 			ik_bone_3d->add_constraint(constraint);
-			constraint->_update_constraint();
+			constraint->_update_constraint(ik_bone_3d->get_constraint_twist_transform());
 			break;
 		}
 	}
