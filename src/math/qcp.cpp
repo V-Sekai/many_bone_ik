@@ -108,6 +108,9 @@ Quaternion QCP::calculate_rotation() {
 		if (qsqr < eigenvector_precision) {
 			result = Quaternion();
 		} else {
+			quaternion_x *= -1;
+			quaternion_y *= -1;
+			quaternion_z *= -1;
 			double min = quaternion_w;
 			min = quaternion_x < min ? quaternion_x : min;
 			min = quaternion_y < min ? quaternion_y : min;
@@ -116,7 +119,7 @@ Quaternion QCP::calculate_rotation() {
 			quaternion_x /= min;
 			quaternion_y /= min;
 			quaternion_z /= min;
-			result = Quaternion(quaternion_x, quaternion_y, quaternion_z, -quaternion_w).normalized();
+			result = Quaternion(quaternion_x, quaternion_y, quaternion_z, quaternion_w).normalized();
 		}
 	}
 
