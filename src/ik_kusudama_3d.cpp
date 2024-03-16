@@ -36,7 +36,6 @@
 
 void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {
 	update_tangent_radii();
-
 	// Avoiding antipodal singularities by reorienting the axes
 	Vector<Vector3> directions;
 
@@ -44,12 +43,12 @@ void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {
 		directions.push_back(limit_cones[0]->get_control_point());
 	} else {
 		for (int i = 0; i < limit_cones.size() - 1; i++) {
-			Vector3 thisC = limit_cones[i]->get_control_point();
-			Vector3 nextC = limit_cones[i + 1]->get_control_point();
-			Quaternion this_to_next = Quaternion(thisC, nextC);
+			Vector3 this_control_point = limit_cones[i]->get_control_point();
+			Vector3 next_control_point = limit_cones[i + 1]->get_control_point();
+			Quaternion this_to_next = Quaternion(this_control_point, next_control_point);
 
 			Quaternion half_this_to_next = Quaternion(this_to_next.get_axis(), this_to_next.get_angle() / 2.0f);
-			Vector3 half_angle = half_this_to_next.xform(thisC);
+			Vector3 half_angle = half_this_to_next.xform(this_control_point);
 			half_angle.normalize();
 			half_angle *= this_to_next.get_angle();
 			directions.push_back(half_angle);
@@ -71,9 +70,7 @@ void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {
 
 	Transform3D new_y_ray = Transform3D(Basis(), new_y);
 	Quaternion old_y_to_new_y = Quaternion(p_limiting_axes->get_global_transform().get_basis().get_column(Vector3::AXIS_Y).normalized(), p_limiting_axes->get_global_transform().get_basis().xform(new_y_ray.origin).normalized());
-	Transform3D new_rotation = p_limiting_axes->get_global_transform();
-	new_rotation.basis = new_rotation.basis.rotated(old_y_to_new_y);
-	p_limiting_axes->set_global_transform(new_rotation);
+	p_limiting_axes->rotate_local_with_global(old_y_to_new_y);
 
 	for (Ref<IKLimitCone3D> limit_cone : limit_cones) {
 		Vector3 transformed_control_point = p_limiting_axes->get_global_transform().basis.xform_inv(limit_cone->get_control_point());
