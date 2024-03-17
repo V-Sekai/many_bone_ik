@@ -184,14 +184,11 @@ void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVect
 				break;
 			} else {
 				got_closer = false;
+				p_for_bone->set_pose(prev_transform);
 			}
 		}
 		i++;
 	} while (i < default_stabilizing_pass_count && !got_closer);
-
-	if (!got_closer) {
-		p_for_bone->set_pose(prev_transform);
-	}
 
 	if (root == p_for_bone) {
 		previous_deviation = INFINITY;
