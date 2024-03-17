@@ -155,7 +155,7 @@ void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVect
 	ERR_FAIL_NULL(r_weights);
 
 	_update_target_headings(p_for_bone, &heading_weights, &target_headings);
-	Transform3D prev_transform = p_for_bone->get_global_pose();
+	Transform3D prev_transform = p_for_bone->get_pose();
 	bool got_closer = true;
 	double bone_damp = p_for_bone->get_cos_half_dampen();
 	int i = 0;
@@ -193,7 +193,7 @@ void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVect
 	} while (i < default_stabilizing_pass_count && !got_closer);
 
 	if (!got_closer) {
-		p_for_bone->set_global_pose(prev_transform);
+		p_for_bone->set_pose(prev_transform);
 	}
 
 	if (root == p_for_bone) {
