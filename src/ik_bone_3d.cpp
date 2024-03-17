@@ -234,7 +234,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 	half_returnfulness_dampened.resize(1);
 	cos_half_returnfulness_dampened.resize(1);
 	float iterations_pow = Math::pow(1, falloff * 1 * returnfulness);
-	float iteration_scalar = ((iterations_pow)-Math::pow(1, falloff  * returnfulness)) / (iterations_pow);
+	float iteration_scalar = ((iterations_pow)-Math::pow(1, falloff * returnfulness)) / (iterations_pow);
 	float iteration_return_clamp = iteration_scalar * returnfulness * dampening;
 	float cos_iteration_return_clamp = Math::cos(iteration_return_clamp / 2.0);
 	half_returnfulness_dampened.write[0] = iteration_return_clamp;
