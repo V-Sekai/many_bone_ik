@@ -67,7 +67,7 @@ class ManyBoneIK3D : public SkeletonModifier3D {
 	Ref<IKNode3D> ik_origin;
 	bool is_dirty = true;
 	NodePath skeleton_node_path = NodePath("..");
-	int32_t ui_selected_bone = -1, stabilize_passes = 1;
+	int32_t ui_selected_bone = -1, stabilize_passes = 4;
 
 	void _on_timer_timeout();
 	void _update_ik_bones_transform();
