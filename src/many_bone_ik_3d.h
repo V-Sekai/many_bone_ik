@@ -55,7 +55,6 @@ class ManyBoneIK3D : public SkeletonModifier3D {
 	Vector<Ref<IKBone3D>> bone_list;
 	Vector<Vector2> kusudama_twist;
 	Vector<float> bone_damp;
-	Vector<float> bone_resistance;
 	Vector<Vector<Vector4>> kusudama_limit_cones;
 	Vector<int> kusudama_limit_cone_count;
 	float MAX_KUSUDAMA_LIMIT_CONES = 10;
@@ -133,8 +132,6 @@ public:
 	int32_t find_pin(String p_string) const;
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
-	void set_kusudama_resistance(int32_t p_index, real_t p_resistance);
-	real_t get_kusudama_resistance(int32_t p_index) const;
 	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_constraint_twist_transform(int32_t p_index) const;
 	void set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform);

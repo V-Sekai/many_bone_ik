@@ -95,7 +95,6 @@ public:
 	Vector<Ref<IKBoneSegment3D>> get_child_segments() const;
 	void create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
 	Ref<IKBone3D> get_ik_bone(BoneId p_bone) const;
-	void update_returnfulness_damp(int32_t p_iterations);
 	void generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
 	IKBoneSegment3D() {}
 	IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent = nullptr,

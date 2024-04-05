@@ -81,7 +81,6 @@ public:
 	void set_half_returnfullness_dampened(const Vector<float> &p_value);
 	void set_stiffness(double p_stiffness);
 	double get_stiffness() const;
-	void pull_back_toward_allowable_region();
 	bool is_axially_constrained();
 	bool is_orientationally_constrained();
 	Transform3D get_bone_direction_global_pose() const;

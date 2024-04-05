@@ -298,13 +298,6 @@ bool IKBone3D::is_axially_constrained() {
 	return get_constraint()->is_axially_constrained();
 }
 
-void IKBone3D::pull_back_toward_allowable_region() {
-	Ref<IKKusudama3D> current_constraint = get_constraint();
-	if (current_constraint.is_valid()) {
-		current_constraint->set_axes_to_returnfulled(get_bone_direction_transform(), get_ik_transform(), get_constraint_orientation_transform(), cos_half_return_damp, return_damp);
-	}
-}
-
 Vector<float> &IKBone3D::get_cos_half_returnfullness_dampened() {
 	return cos_half_returnfulness_dampened;
 }
