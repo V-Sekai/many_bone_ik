@@ -182,6 +182,20 @@ void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVect
 			_update_tip_headings(p_for_bone, &tip_headings_uniform);
 			double current_msd = _get_manual_msd(tip_headings_uniform, target_headings, heading_weights);
 			if (current_msd <= previous_deviation * 1.0001) {
+				if (p_for_bone->get_constraint().is_valid() && !Math::is_zero_approx(p_for_bone->get_constraint()->get_resistance())) {
+					if (bone_damp != -1) {
+						float returnfulness = p_for_bone->get_constraint()->get_resistance();
+						float dampened_angle = p_for_bone->get_stiffness() * bone_damp * returnfulness;
+						float total_iterations_square = total_iterations * total_iterations;
+						float scaled_dampened_angle = dampened_angle * ((total_iterations_square - (current_iteration * current_iteration)) / total_iterations_square);
+						float cos_half_angle = Math::cos(0.5f * scaled_dampened_angle);
+						p_for_bone->get_constraint()->set_axes_to_returnfulled(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), cos_half_angle, scaled_dampened_angle);
+					} else {
+						p_for_bone->get_constraint()->set_axes_to_returnfulled(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), p_for_bone->get_cos_half_returnfullness_dampened()[current_iteration], p_for_bone->get_cos_half_returnfullness_dampened()[current_iteration]);
+					}
+					_update_tip_headings(p_for_bone, &tip_headings);
+					current_msd = _get_manual_msd(tip_headings, target_headings, heading_weights);
+				}
 				previous_deviation = current_msd;
 				got_closer = true;
 				break;
@@ -434,4 +448,14 @@ void IKBoneSegment3D::_finalize_segment(Ref<IKBone3D> p_current_tip) {
 	set_name(vformat("IKBoneSegment%sRoot%sTip", root->get_name(), tip->get_name()));
 	bones.clear();
 	create_bone_list(bones, false);
+}
+
+void IKBoneSegment3D::update_returnfulness_damp(int32_t p_iterations) {
+	for (Ref<IKBone3D> bone : bones) {
+		if (bone.is_null()) {
+			continue;
+		}
+		bone->pull_back_toward_allowable_region();
+		previous_deviation = INFINITY;
+	}
 }
