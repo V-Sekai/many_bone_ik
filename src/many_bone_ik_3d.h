@@ -89,7 +89,6 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
 	virtual void _process_modification() override;
-	void _notification(int p_what);
 
 public:
 	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;

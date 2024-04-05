@@ -833,26 +833,6 @@ int32_t ManyBoneIK3D::find_constraint(String p_string) const {
 	return -1;
 }
 
-void ManyBoneIK3D::_notification(int p_what) {
-	switch (p_what) {
-		case NOTIFICATION_READY: {
-			set_process_priority(1);
-			set_notify_transform(true);
-		} break;
-		case NOTIFICATION_ENTER_TREE: {
-			set_process_internal(true);
-		} break;
-		case NOTIFICATION_EXIT_TREE: {
-		} break;
-		case NOTIFICATION_TRANSFORM_CHANGED: {
-			update_gizmos();
-		} break;
-		case NOTIFICATION_INTERNAL_PROCESS: {
-			update_gizmos();
-		} break;
-	}
-}
-
 void ManyBoneIK3D::remove_constraint(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 
