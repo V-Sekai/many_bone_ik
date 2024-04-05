@@ -678,7 +678,6 @@ void ManyBoneIK3D::_process_modification() {
 		set_dirty();
 	}
 	if (is_dirty) {
-		_reload();
 		is_dirty = false;
 	}
 	if (bone_list.size()) {
@@ -720,7 +719,7 @@ void ManyBoneIK3D::_process_modification() {
 	_update_skeleton_bones_transform();
 }
 
-void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_skeleton) {
+void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_skeleton, Skeleton3D *p_new) {
 	if (!p_skeleton) {
 		return;
 	}
@@ -838,7 +837,6 @@ void ManyBoneIK3D::_notification(int p_what) {
 		case NOTIFICATION_READY: {
 			set_process_priority(1);
 			set_notify_transform(true);
-			_reload();
 		} break;
 		case NOTIFICATION_ENTER_TREE: {
 			set_process_internal(true);
