@@ -709,29 +709,30 @@ void ManyBoneIK3D::_process_modification() {
 	}
 	_update_ik_bones_transform();
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
+		real_t adjusted_damp = get_default_damp() / get_iterations_per_frame();
 		for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
 			if (segmented_skeleton.is_null()) {
 				continue;
 			}
-			segmented_skeleton->segment_solver(bone_damp, get_default_damp(), get_constraint_mode(), i, get_iterations_per_frame());
+			segmented_skeleton->segment_solver(bone_damp, adjusted_damp, get_constraint_mode(), i, get_iterations_per_frame());
 		}
 	}
 	_update_skeleton_bones_transform();
 }
 
-void ManyBoneIK3D::_reload() {
-	if (!get_skeleton()) {
+void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_skeleton) {
+	if (!p_skeleton) {
 		return;
 	}
-	Vector<int32_t> roots = get_skeleton()->get_parentless_bones();
+	Vector<int32_t> roots = p_skeleton->get_parentless_bones();
 	if (roots.is_empty()) {
 		return;
 	}
 	bone_list.clear();
 	segmented_skeletons.clear();
 	for (BoneId root_bone_index : roots) {
-		String parentless_bone = get_skeleton()->get_bone_name(root_bone_index);
-		Ref<IKBoneSegment3D> segmented_skeleton = Ref<IKBoneSegment3D>(memnew(IKBoneSegment3D(get_skeleton(), parentless_bone, pins, this, nullptr, root_bone_index, -1, stabilize_passes)));
+		String parentless_bone = p_skeleton->get_bone_name(root_bone_index);
+		Ref<IKBoneSegment3D> segmented_skeleton = Ref<IKBoneSegment3D>(memnew(IKBoneSegment3D(p_skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1, stabilize_passes)));
 		ik_origin.instantiate();
 		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
 		segmented_skeleton->generate_default_segments(pins, root_bone_index, -1, this);
@@ -745,11 +746,11 @@ void ManyBoneIK3D::_reload() {
 	}
 	_update_ik_bones_transform();
 	for (Ref<IKBone3D> &ik_bone_3d : bone_list) {
-		ik_bone_3d->update_default_bone_direction_transform(get_skeleton());
+		ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
 	}
 	for (int constraint_i = 0; constraint_i < constraint_count; ++constraint_i) {
 		String bone = constraint_names[constraint_i];
-		BoneId bone_id = get_skeleton()->find_bone(bone);
+		BoneId bone_id = p_skeleton->find_bone(bone);
 		for (Ref<IKBone3D> &ik_bone_3d : bone_list) {
 			if (ik_bone_3d->get_bone_id() != bone_id) {
 				continue;
