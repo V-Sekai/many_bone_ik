@@ -34,12 +34,12 @@
 #include "core/math/math_defs.h"
 #include "core/math/transform_3d.h"
 #include "core/math/vector3.h"
+#include "core/object/ref_counted.h"
 #include "ik_bone_3d.h"
 #include "ik_effector_template_3d.h"
 #include "math/ik_node_3d.h"
-
-#include "core/object/ref_counted.h"
 #include "scene/3d/skeleton_3d.h"
+#include "scene/3d/skeleton_modifier_3d.h"
 #include "scene/main/scene_tree.h"
 
 class ManyBoneIK3DState;
@@ -87,7 +87,7 @@ protected:
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
-	virtual void _process_modification(double delta) override;
+	virtual void _process_modification() override;
 	void _notification(int p_what);
 	virtual void _reload();
 

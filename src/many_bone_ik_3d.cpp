@@ -667,7 +667,7 @@ NodePath ManyBoneIK3D::get_pin_nodepath(int32_t p_effector_index) const {
 	return effector_template->get_target_node();
 }
 
-void ManyBoneIK3D::_process_modification(double delta) {
+void ManyBoneIK3D::_process_modification() {
 	if (!get_skeleton()) {
 		return;
 	}
