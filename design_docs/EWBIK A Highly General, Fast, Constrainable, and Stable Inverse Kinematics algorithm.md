@@ -14,6 +14,17 @@ available on the \*Everything WIll Be IK\* Java library github page^[^1]^,
 a Processing demo implementation of the library is also available^[^2]^
 for quick visualization and use-case testing.
 
+## 0. Preamble and Authors:
+
+The Godot Engine many bone IK project is a port from a Java project by Eron Gjoni [Everything-Will-Be-IK](https://github.com/EGjoni/Everything-Will-Be-IK).
+
+The authors' GitHub usernames are indicated in parentheses.
+
+- Eron Gjoni (EGjoni)
+- K. S. Ernest (iFire) Lee (fire)
+- rafallus Rafael M. G. (rafallus)
+- lyuma (lyuma)
+
 ## 1. Introduction and Motivation:
 
 The two most popular approaches to the Inverse Kinematics problem for
