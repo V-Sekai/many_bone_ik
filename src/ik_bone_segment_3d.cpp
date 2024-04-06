@@ -431,7 +431,15 @@ void IKBoneSegment3D::_finalize_segment(Ref<IKBone3D> p_current_tip) {
 		_enable_pinned_descendants();
 	}
 
-	set_name(vformat("IKBoneSegment%sRoot%sTip", root->get_name(), tip->get_name()));
+	StringBuilder name_builder;
+	name_builder.append("IKBoneSegment");
+	nameBuilder.append(root->get_name());
+	name_builder.append("Root");
+	nameBuilder.append(tip->get_name());
+	name_builder.append("Tip");
+
+	String name = nameBuilder.as_string();
+	set_name(name);
 	bones.clear();
 	create_bone_list(bones, false);
 }
