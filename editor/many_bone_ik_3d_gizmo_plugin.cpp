@@ -81,11 +81,6 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (handles_mesh_instance && !handles_mesh_instance->is_inside_tree()) {
 		skeleton->call_deferred("add_child", handles_mesh_instance);
 		handles_mesh_instance->set_skeleton_path(NodePath(""));
-		Callable bone_pose_changed_callable = callable_mp(this, &ManyBoneIK3DGizmoPlugin::redraw);
-		bone_pose_changed_callable = bone_pose_changed_callable.bind(p_gizmo);
-		if (!skeleton->is_connected("pose_updated", bone_pose_changed_callable)) {
-			skeleton->connect("pose_updated", bone_pose_changed_callable);
-		}
 	}
 	int selected = -1;
 	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();

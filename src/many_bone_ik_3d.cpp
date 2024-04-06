@@ -718,6 +718,7 @@ void ManyBoneIK3D::_process_modification() {
 		}
 	}
 	_update_skeleton_bones_transform();
+	update_gizmos();
 }
 
 void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new_) {
