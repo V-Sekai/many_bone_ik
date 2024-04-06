@@ -291,121 +291,46 @@ cones, these operate on the principle that any point which resides
 outside of the polygonal region should be transformed so as to reside on
 the edge or vertex to which it is closest (see _figure 3.1 for a planar
 representation_).
+Unfortunately, the fewer edges the polygonal region is specified by, the greater the probability that it is closest to a vertex of the polygon than to an edge, which often results in the point getting "stuck" in corners (see _Figure 3.2 for a planar representation_).
 
-Unfortunately, the fewer edges the polygonal region is specified by, the
-greater the probability that it is closest to a vertex of the polygon
-than to an edge, which often results in the point getting "stuck" in
-corners (see _figure 3.2 for a planar representation_).
+![Figure 3.1](./Pictures/10000000000002C900000278AEBB2DF17488D353.png)
+![Figure 3.2](./Pictures/10000000000002C90000027876C8370C9358FB94.png)
 
-![](./Pictures/10000000000002C900000278AEBB2DF17488D353.png){width="3.1925in"
-height="2.8354in"}![](./Pictures/10000000000002C90000027876C8370C9358FB94.png){width="3.1402in"
-height="2.7929in"}
+_Figure 3.1 (left): A sampling of points outside of the bounding region, with dotted lines indicating the area on the bounding region to which the constraint would transform them._
 
-</div>
+_Figure 3.2 (right): Colored areas indicate the edge to which any point within that area would be transformed so as to reside within the bounding polygon. Red regions indicate areas where all points would be transformed onto a single vertex._
 
-<div>
+These discontinuous corners can cause problems for an IK solver because they create local minima that are very difficult for solvers to find a way out of. Worse still, if the solver does get out, it tends to do so very suddenly, leading to jarring and unnatural "pops" between solutions.
 
-_Fig 3.1 (left) A sampling of points outside of the bounding region,
-with dotted lines indicating the area on the bounding region to which
-the constraint would transform them._
+A common workaround is to smooth these corners out using splines or bezier curves, (see _Figure 4_ for a planar representation). However, while this solves the discontinuity problem, it does so at a significant performance penalty, because the only way to check whether or not a point on a sphere lies within the bounding spline is by segmenting the spline into very tiny linear segments, which then each have to be checked individually.
 
-_Fig 3.2 (right) Colored areas indicate the edge to which any point
-within that area would be transformed so as to reside within the
-bounding polygon. Red regions indicate areas where all points would be
-transformed onto a single vertex.._
+![Figure 4](./Pictures/10000000000002C900000278EEE925F5104E07BE.png)
+_Figure 4: A sampling of points outside of a continuous, spline-based bounding region, with dotted lines indicating the area on the bounding region to which the constraint would transform the point._
 
-</div>
+Aside from the performance penalty, the spline scheme is also somewhat strange conceptually in that it attempts to overcome the consequences of relying on a polygonal specification by adding an approximation of curvature by an increase in the number of line segments, and then mapping that approximation onto a sphere -- a domain in which curvature is already the rule, and linearity is inherently unnatural.
 
-<div>
+If we start from scratch, and develop our bounding scheme with the upfront understanding that it will be mapped onto a sphere, instead of using points and lines as the fundamental units of our bounding region, we should prefer instead to think in terms of circles. Under such a scheme, a bounding region similar to that defined by the seven parameters (vertices) of Figure 5.1 might be represented as that defined by the six parameters (three circle centers, and three radii) of Figure 5.2.
 
-These discontinuous corners can cause problems for an IK solver because
-they create local minima that are very difficult for solvers to find a
-way out of. Worse still, if the solver does get out, it tends to do so
-very suddenly, leading to jarring and unnatural "pops" between
-solutions.
+![Figure 5.1](./Pictures/10000000000002070000018EA6B7A87AEB9D9F40.png)
+![Figure 5.2](./Pictures/10000000000002070000018EDE8A6B18141900B0.png)
 
-A common workaround is to smooth these corners out using splines or
-bezier curves, (see *figure 4 *for a planar representation). However,
-while this solves the discontinuity problem, it does so at a significant
-performance penalty, because the only way to check whether or not a
-point on a sphere lies within the bounding spline is by segmenting the
-spline into very tiny linear segments, which then each have to be
-checked individually.
+_Figure 5.1 (left): A polygonal bounding region, specified in terms of points and lines._
 
-![](./Pictures/10000000000002C900000278EEE925F5104E07BE.png){width="3.3126in"
-height="2.9299in"}
+_Figure 5.2 (right): An approximation of the polygonal bounding region in Figure 5.1, specified as a connected sequence of circles of varying radii._
 
-_Figure 4: A sampling of points outside of a continuous, spline-based
-bounding region, with dotted lines indicating the area on the bounding
-region to which the constraint would transform the point. _
+Note that because the bounding "lines" connecting any pair of circles are tangent to both circles, the entire boundary remains continuous. Of course, since we're mapping onto a sphere, these tangent "lines" are actually themselves circles of whatever radius is sufficient to contact both circle pairs (see Figure 6). Because there are an infinite number of circles which can contact two circles (both on the plane and on a sphere) we are also free to specify varying degrees of curvature to the regions bounding any two circles, as depicted in Figures 7.1 and 7.2.
 
-Aside from the performance penalty, the spline scheme is also somewhat
-strange conceptually in that it attempts to overcome the consequences of
-relying on a polygonal specification by adding an approximation of
-curvature by an increase in the number of line segments, and then
-mapping that approximation onto a sphere \-- a domain in which curvature
-is already the rule, and linearity is inherently unnatural.
+![Figure 6](./Pictures/100000000000016C000002AAA2059A0E43B2B468.png)
+![Figure 7.1](./Pictures/10000201000002020000018EF75E743EDC6A705E.png)
+![Figure 7.2](./Pictures/1000000000000139000000CB360C51B9B2145043.png)
+![Figure 7.3](./Pictures/1000000000000139000000CBF393B4C3206D97F3.png)
+![Figure 7.4](./Pictures/1000000000000139000000CB22CAE13E99E3E24B.png)
 
-If we start from scratch, and develop our bounding scheme with the
-upfront understanding that it will be mapped onto a sphere, instead of
-using points and lines as the fundamental units of our bounding region,
-we should prefer instead to think in terms of circles. Under such a
-scheme, a bounding region similar to that defined by the seven
-parameters (vertices) of Figure 5.1 might be represented as that defined
-by the six parameters (three circle centers, and three radii) of Figure
-5.2.
+_Figure 6: Spherical representation of bounding regions._
 
-![](./Pictures/10000000000002070000018EA6B7A87AEB9D9F40.png){width="3.0209in"
-height="1.6772in"}![](./Pictures/10000000000002070000018EDE8A6B18141900B0.png){width="2.1874in"
-height="1.7138in"}
+_Figure 7.1 (middle): Two circles (dark outline) and a sampling of the circles which lie tangent to both._
 
-</div>
-
-<div>
-
-_Fig 5.1 (left) A polygonal bounding region, specified in terms of
-points and lines._
-
-\*Fig 5.2 (right) An approximation of the polygonal bounding region in
-Fig 5.1, specified as a connected sequence of circles of varying radii.
-
--
-
-</div>
-
-<div>
-
-Note that because the bounding "lines" connecting any pair of circles
-are tangent to both circles, the entire boundary remains continuous.
-Of course, since we're mapping onto a sphere, these tangent "lines"
-are actually themselves circles of whatever radius is sufficient to
-contact both circle pairs (see Figure 6). Because there are an
-infinite number of circles which can contact two circles (both on the
-plane and on a sphere) we are also free to specify varying degrees of
-curvature to the regions bounding any two circles, as depicted in
-Figures 7.1 and 7.2.
-
-</div>
-
-<div>
-
-_Figure 6 Spherical representation of bounding
-regions._![](./Pictures/100000000000016C000002AAA2059A0E43B2B468.png){width="1.7291in"
-height="3.2299in"}![](./Pictures/10000201000002020000018EF75E743EDC6A705E.png){width="3.1457in"
-height="3.6354in"}
-
-_Fig 7.1 (middle) Two circles (dark outline) and a sampling of the
-circles which lie tangent to both._
-
-_Fig 7.2 (right) result of choosing connecting circles of various
-radii._![](./Pictures/1000000000000139000000CB360C51B9B2145043.png){width="1.8228in"
-height="1.1862in"}![](./Pictures/1000000000000139000000CBF393B4C3206D97F3.png){width="1.8228in"
-height="1.1839in"}![](./Pictures/1000000000000139000000CB22CAE13E99E3E24B.png){width="1.839in"
-height="1.1874in"}
-
-</div>
-
-<div>
+_Figure 7.2 (right): Result of choosing connecting circles of various radii._
 
 These optional curvatures give us similar flexibility to that of the
 spline approach, but need specify only one additional radius value per
