@@ -785,6 +785,7 @@ void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new_) {
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
 	}
+	update_gizmos();
 }
 
 real_t ManyBoneIK3D::get_pin_weight(int32_t p_pin_index) const {
@@ -1093,6 +1094,7 @@ bool ManyBoneIK3D::_is_ancestor_of(int potential_ancestor, int bone_idx) const {
 	}
 	return false;
 }
+
 int32_t ManyBoneIK3D::find_pin(String p_string) const {
 	for (int32_t pin_i = 0; pin_i < pin_count; pin_i++) {
 		if (get_pin_bone_name(pin_i) == p_string) {
