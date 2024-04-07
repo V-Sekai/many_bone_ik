@@ -113,24 +113,21 @@ void IKBoneSegment3D::_update_optimal_rotation(Ref<IKBone3D> p_for_bone, double 
 	_set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
 }
 
-Quaternion IKBoneSegment3D::clamp_to_quadrance_angle(Quaternion p_quat, double p_cos_half_angle) {
-	double newCoeff = double(1.0) - (p_cos_half_angle * Math::abs(p_cos_half_angle));
-	Quaternion rot = p_quat;
-	double currentCoeff = rot.x * rot.x + rot.y * rot.y + rot.z * rot.z;
-
-	if (newCoeff >= currentCoeff) {
-		return rot;
-	} else {
-		// Calculate how much over the limit the rotation is, between 0 and 1
-		double over_limit = (currentCoeff - newCoeff) / (1.0 - newCoeff);
-		Quaternion clamped_rotation = rot;
-		clamped_rotation.w = rot.w < double(0.0) ? -p_cos_half_angle : p_cos_half_angle;
-		double compositeCoeff = Math::sqrt(newCoeff / currentCoeff);
-		clamped_rotation.x *= compositeCoeff;
-		clamped_rotation.y *= compositeCoeff;
-		clamped_rotation.z *= compositeCoeff;
-		return rot.slerp(clamped_rotation, over_limit);
+Quaternion IKBoneSegment3D::clamp_to_cos_angle(Quaternion p_quat, double p_cos_half_angle) {
+	if (p_quat.w < 0.0) {
+		p_quat = p_quat * -1;
 	}
+	double previous_coefficient = (1.0 - (p_quat.w * p_quat.w));
+	if (p_cos_half_angle <= p_quat.w || previous_coefficient == 0.0) {
+		return p_quat;
+	} else {
+		double composite_coefficient = Math::sqrt((1.0 - (p_cos_half_angle * p_cos_half_angle)) / previous_coefficient);
+		p_quat.w = p_cos_half_angle;
+		p_quat.x *= composite_coefficient;
+		p_quat.y *= composite_coefficient;
+		p_quat.z *= composite_coefficient;
+	}
+	return p_quat;
 }
 
 float IKBoneSegment3D::_get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<double> &p_weights) {
@@ -166,7 +163,7 @@ void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVect
 			Basis rotation = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 			Vector3 translation = qcp.get_translation();
 			double dampening = (p_dampening != -1.0) ? p_dampening : bone_damp;
-			rotation = clamp_to_quadrance_angle(rotation.get_rotation_quaternion(), cos(dampening / 2.0));
+			rotation = clamp_to_cos_angle(rotation.get_rotation_quaternion(), cos(dampening / 2.0));
 			p_for_bone->get_ik_transform()->rotate_local_with_global(rotation.get_rotation_quaternion());
 			Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 			p_for_bone->set_global_pose(result);
