@@ -47,8 +47,6 @@ protected:
 	static void _bind_methods();
 
 public:
-	bool get_target_static() const;
-	void set_target_static(bool p_target_static);
 	String get_root_bone() const;
 	void set_root_bone(String p_root_bone);
 	NodePath get_target_node() const;

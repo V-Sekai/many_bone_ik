@@ -52,6 +52,7 @@ class IKEffector3D : public Resource {
 	ObjectID target_node_cache;
 	Node *target_node_reference = nullptr;
 	bool target_static = false;
+	Transform3D target_transform;
 
 	Transform3D target_relative_to_skeleton_origin;
 	int32_t num_headings = 7;
@@ -70,8 +71,6 @@ public:
 	IKEffector3D() = default;
 	void set_weight(real_t p_weight);
 	real_t get_weight() const;
-	void set_target_static(bool p_target_static);
-	bool get_target_static() const;
 	void set_direction_priorities(Vector3 p_direction_priorities);
 	Vector3 get_direction_priorities() const;
 	void update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK3D *p_modification = nullptr);

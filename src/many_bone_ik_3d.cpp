@@ -244,7 +244,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 			r_ret = effector_template->get_target_node();
 			return true;
 		} else if (what == "target_static") {
-			r_ret = effector_template->get_target_static();
+			r_ret = effector_template->get_target_node().is_empty();
 			return true;
 		} else if (what == "passthrough_factor") {
 			r_ret = get_pin_passthrough_factor(index);
@@ -318,16 +318,10 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		} else if (what == "target_node") {
 			set_pin_target_nodepath(index, p_value);
-			String existing_bone = get_pin_bone_name(index);
-			if (existing_bone.is_empty()) {
-				return false;
-			}
 			return true;
 		} else if (what == "target_static") {
-			set_pin_target_static(index, p_value);
-			String existing_bone = get_pin_bone_name(index);
-			if (existing_bone.is_empty()) {
-				return false;
+			if (p_value) {
+				set_pin_target_nodepath(index, NodePath());
 			}
 			return true;
 		} else if (what == "passthrough_factor") {
@@ -1059,6 +1053,9 @@ void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p
 bool ManyBoneIK3D::get_pin_enabled(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
+	if (effector_template->get_target_node().is_empty()) {
+		return true;
+	}
 	return !effector_template->get_target_node().is_empty();
 }
 
@@ -1155,4 +1152,20 @@ int32_t ManyBoneIK3D::find_pin(String p_string) const {
 		}
 	}
 	return -1;
+}
+
+bool ManyBoneIK3D::get_pin_target_static(int32_t p_effector_index) {
+	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
+	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
+	return get_pin_nodepath(p_effector_index).is_empty();
+}
+
+void ManyBoneIK3D::set_pin_target_static(int32_t p_effector_index, bool p_force_ignore) {
+	ERR_FAIL_INDEX(p_effector_index, pins.size());
+	if (!p_force_ignore) {
+		return;
+	}
+	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
+	effector_template->set_target_node(NodePath());
+	set_dirty();
 }
