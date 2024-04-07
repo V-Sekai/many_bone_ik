@@ -391,6 +391,8 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_direction_transform", "index"), &ManyBoneIK3D::get_bone_direction_transform);
 	ClassDB::bind_method(D_METHOD("set_bone_direction_transform", "index", "transform"), &ManyBoneIK3D::set_bone_direction_transform);
 	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &ManyBoneIK3D::remove_constraint);
+	ClassDB::bind_method(D_METHOD("set_skeleton_node_path", "path"), &ManyBoneIK3D::set_skeleton_node_path);
+	ClassDB::bind_method(D_METHOD("get_skeleton_node_path"), &ManyBoneIK3D::get_skeleton_node_path);
 	ClassDB::bind_method(D_METHOD("register_skeleton"), &ManyBoneIK3D::register_skeleton);
 	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK3D::register_skeleton);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &ManyBoneIK3D::set_dirty);
@@ -432,6 +434,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK3D::get_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &ManyBoneIK3D::set_pin_bone_name);
 
+	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton_node_path"), "set_skeleton_node_path", "get_skeleton_node_path");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.1,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "constraint_mode"), "set_constraint_mode", "get_constraint_mode");
@@ -675,7 +678,7 @@ NodePath ManyBoneIK3D::get_pin_nodepath(int32_t p_effector_index) const {
 	return effector_template->get_target_node();
 }
 
-void ManyBoneIK3D::_process_modification() {
+void ManyBoneIK3D::_execute(real_t delta) {
 	if (!get_skeleton()) {
 		return;
 	}
@@ -686,8 +689,8 @@ void ManyBoneIK3D::_process_modification() {
 		set_dirty();
 	}
 	if (is_dirty) {
+		_skeleton_changed(get_skeleton());
 		is_dirty = false;
-		_bone_list_changed();
 	}
 	if (bone_list.size()) {
 		Ref<IKNode3D> root_ik_bone = bone_list.write[0]->get_ik_transform();
@@ -726,15 +729,65 @@ void ManyBoneIK3D::_process_modification() {
 	_update_skeleton_bones_transform();
 }
 
-void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
-	if (p_old) {
-		if (p_old->is_connected(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed))) {
-			p_old->disconnect(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed));
-		}
+void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_skeleton) {
+	if (!p_skeleton) {
+		return;
 	}
-	if (p_new) {
-		if (!p_new->is_connected(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed))) {
-			p_new->connect(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed));
+	Vector<int32_t> roots = p_skeleton->get_parentless_bones();
+	if (roots.is_empty()) {
+		return;
+	}
+	bone_list.clear();
+	segmented_skeletons.clear();
+	for (BoneId root_bone_index : roots) {
+		String parentless_bone = p_skeleton->get_bone_name(root_bone_index);
+		Ref<IKBoneSegment3D> segmented_skeleton = Ref<IKBoneSegment3D>(memnew(IKBoneSegment3D(p_skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1, stabilize_passes)));
+		ik_origin.instantiate();
+		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
+		segmented_skeleton->generate_default_segments(pins, root_bone_index, -1, this);
+		Vector<Ref<IKBone3D>> new_bone_list;
+		segmented_skeleton->create_bone_list(new_bone_list, true, queue_debug_skeleton);
+		bone_list.append_array(new_bone_list);
+		Vector<Vector<double>> weight_array;
+		segmented_skeleton->update_pinned_list(weight_array);
+		segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
+		segmented_skeletons.push_back(segmented_skeleton);
+	}
+	_update_ik_bones_transform();
+	for (Ref<IKBone3D> &ik_bone_3d : bone_list) {
+		ik_bone_3d->update_default_bone_direction_transform(p_skeleton);
+	}
+	for (int constraint_i = 0; constraint_i < constraint_count; ++constraint_i) {
+		String bone = constraint_names[constraint_i];
+		BoneId bone_id = p_skeleton->find_bone(bone);
+		for (Ref<IKBone3D> &ik_bone_3d : bone_list) {
+			if (ik_bone_3d->get_bone_id() != bone_id) {
+				continue;
+			}
+			Ref<IKKusudama3D> constraint;
+			constraint.instantiate();
+			constraint->enable_orientational_limits();
+
+			int32_t cone_count = kusudama_limit_cone_count[constraint_i];
+			const Vector<Vector4> &cones = kusudama_limit_cones[constraint_i];
+			for (int32_t cone_i = 0; cone_i < cone_count; ++cone_i) {
+				const Vector4 &cone = cones[cone_i];
+				Ref<IKLimitCone3D> new_cone;
+				new_cone.instantiate();
+				new_cone->set_attached_to(constraint);
+				new_cone->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
+				new_cone->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
+				new_cone->set_radius(MAX(1.0e-38, cone.w));
+				new_cone->set_control_point(Vector3(cone.x, cone.y, cone.z).normalized());
+				constraint->add_limit_cone(new_cone);
+			}
+
+			const Vector2 axial_limit = get_kusudama_twist(constraint_i);
+			constraint->enable_axial_limits();
+			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
+			ik_bone_3d->add_constraint(constraint);
+			constraint->_update_constraint(ik_bone_3d->get_constraint_twist_transform());
+			break;
 		}
 	}
 	if (is_connected(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform))) {
@@ -789,6 +842,45 @@ int32_t ManyBoneIK3D::find_constraint(String p_string) const {
 		}
 	}
 	return -1;
+}
+
+Skeleton3D *ManyBoneIK3D::get_skeleton() const {
+	Node *node = get_node_or_null(skeleton_node_path);
+	if (!node) {
+		return nullptr;
+	}
+	return cast_to<Skeleton3D>(node);
+}
+
+NodePath ManyBoneIK3D::get_skeleton_node_path() {
+	return skeleton_node_path;
+}
+
+void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
+	skeleton_node_path = p_skeleton_node_path;
+	register_skeleton();
+	set_dirty(); // Duplicated for ease of verification.
+}
+
+void ManyBoneIK3D::_notification(int p_what) {
+	switch (p_what) {
+		case NOTIFICATION_READY: {
+			set_process_priority(1);
+			set_notify_transform(true);
+		} break;
+		case NOTIFICATION_ENTER_TREE: {
+			set_process_internal(true);
+		} break;
+		case NOTIFICATION_EXIT_TREE: {
+		} break;
+		case NOTIFICATION_TRANSFORM_CHANGED: {
+			update_gizmos();
+		} break;
+		case NOTIFICATION_INTERNAL_PROCESS: {
+			_execute(get_process_delta_time());
+			update_gizmos();
+		} break;
+	}
 }
 
 void ManyBoneIK3D::remove_constraint(int32_t p_index) {
