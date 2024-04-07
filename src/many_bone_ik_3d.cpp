@@ -1149,10 +1149,9 @@ void ManyBoneIK3D::_notification(int32_t p_what) {
 			set_notify_local_transform(true);
 			break;
 		}
-		case NOTIFICATION_LOCAL_TRANSFORM_CHANGED:{
+		case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
 			process_modification();
 			break;
 		}
-	
 	}
 }
