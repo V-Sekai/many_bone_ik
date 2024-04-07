@@ -731,16 +731,10 @@ void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
 		if (p_old->is_connected(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed))) {
 			p_old->disconnect(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed));
 		}
-		if (p_old->is_connected(SNAME("pose_updated"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform))) {
-			p_old->disconnect(SNAME("pose_updated"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
-		}
 	}
 	if (p_new) {
 		if (!p_new->is_connected(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed))) {
 			p_new->connect(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed));
-		}
-		if (!p_new->is_connected(SNAME("pose_updated"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform))) {
-			p_new->connect(SNAME("pose_updated"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
 		}
 	}
 	if (is_connected(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform))) {
