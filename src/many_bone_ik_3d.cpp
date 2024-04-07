@@ -709,12 +709,11 @@ void ManyBoneIK3D::_process_modification() {
 	}
 	_update_ik_bones_transform();
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
-		real_t adjusted_damp = get_default_damp() / get_iterations_per_frame();
 		for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
 			if (segmented_skeleton.is_null()) {
 				continue;
 			}
-			segmented_skeleton->segment_solver(bone_damp, adjusted_damp, get_constraint_mode(), i, get_iterations_per_frame());
+			segmented_skeleton->segment_solver(bone_damp, get_default_damp(), get_constraint_mode(), i, get_iterations_per_frame());
 		}
 	}
 	_update_skeleton_bones_transform();
