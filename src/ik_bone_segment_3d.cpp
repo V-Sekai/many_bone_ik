@@ -113,7 +113,7 @@ void IKBoneSegment3D::_update_optimal_rotation(Ref<IKBone3D> p_for_bone, double 
 	_set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
 }
 
-Quaternion IKBoneSegment3D::clamp_to_cos_angle(Quaternion p_quat, double p_cos_half_angle) {
+Quaternion IKBoneSegment3D::clamp_to_cos_half_angle(Quaternion p_quat, double p_cos_half_angle) {
 	if (p_quat.w < 0.0) {
 		p_quat = p_quat * -1;
 	}
@@ -163,7 +163,7 @@ void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVect
 			Basis rotation = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
 			Vector3 translation = qcp.get_translation();
 			double dampening = (p_dampening != -1.0) ? p_dampening : bone_damp;
-			rotation = clamp_to_cos_angle(rotation.get_rotation_quaternion(), cos(dampening / 2.0));
+			rotation = clamp_to_cos_half_angle(rotation.get_rotation_quaternion(), cos(dampening / 2.0));
 			p_for_bone->get_ik_transform()->rotate_local_with_global(rotation.get_rotation_quaternion());
 			Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
 			p_for_bone->set_global_pose(result);
