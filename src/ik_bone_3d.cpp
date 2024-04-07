@@ -217,6 +217,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 			effector->set_passthrough_factor(elem->get_passthrough_factor());
 			effector->set_weight(elem->get_weight());
 			effector->set_direction_priorities(elem->get_direction_priorities());
+			effector->set_target_static(elem->get_target_static());
 			break;
 		}
 	}

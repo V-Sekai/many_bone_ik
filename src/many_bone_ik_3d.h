@@ -92,6 +92,17 @@ protected:
 	void _notification(int p_what);
 
 public:
+	void set_pin_target_static(int32_t p_effector_index, bool p_force_ignore) {
+		ERR_FAIL_INDEX(p_effector_index, pins.size());
+		Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
+		effector_template->set_target_static(p_force_ignore);
+	}
+	bool get_pin_target_static(int32_t p_effector_index) {
+		ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
+		Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
+		return effector_template->get_target_static();
+	}
+
 	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
 	void set_state(Ref<ManyBoneIK3DState> p_state);
 	Ref<ManyBoneIK3DState> get_state() const;

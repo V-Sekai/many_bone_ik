@@ -32,6 +32,7 @@
 #include "core/error/error_macros.h"
 #include "core/math/math_defs.h"
 #include "core/object/class_db.h"
+#include "core/object/object.h"
 #include "core/string/string_name.h"
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
@@ -159,6 +160,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D", pin_usage));
 		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/target_static", PROPERTY_HINT_NONE, "", pin_usage));
+		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.1,or_greater", pin_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/weight", PROPERTY_HINT_RANGE, "0,1,0.1,or_greater", pin_usage));
@@ -240,6 +243,9 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		} else if (what == "target_node") {
 			r_ret = effector_template->get_target_node();
 			return true;
+		} else if (what == "target_static") {
+			r_ret = effector_template->get_target_static();
+			return true;
 		} else if (what == "passthrough_factor") {
 			r_ret = get_pin_passthrough_factor(index);
 			return true;
@@ -312,6 +318,13 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		} else if (what == "target_node") {
 			set_pin_target_nodepath(index, p_value);
+			String existing_bone = get_pin_bone_name(index);
+			if (existing_bone.is_empty()) {
+				return false;
+			}
+			return true;
+		} else if (what == "target_static") {
+			set_pin_target_static(index, p_value);
 			String existing_bone = get_pin_bone_name(index);
 			if (existing_bone.is_empty()) {
 				return false;
@@ -787,7 +800,6 @@ void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_skeleton) {
 	if (queue_debug_skeleton) {
 		queue_debug_skeleton = false;
 	}
-	update_gizmos();
 }
 
 real_t ManyBoneIK3D::get_pin_weight(int32_t p_pin_index) const {

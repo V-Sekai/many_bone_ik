@@ -39,6 +39,9 @@ void IKEffectorTemplate3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_target_node"), &IKEffectorTemplate3D::get_target_node);
 	ClassDB::bind_method(D_METHOD("set_target_node", "target_node"), &IKEffectorTemplate3D::set_target_node);
 
+	ClassDB::bind_method(D_METHOD("get_target_static"), &IKEffectorTemplate3D::get_target_static);
+	ClassDB::bind_method(D_METHOD("set_target_static", "target_static"), &IKEffectorTemplate3D::set_target_static);
+
 	ClassDB::bind_method(D_METHOD("get_passthrough_factor"), &IKEffectorTemplate3D::get_passthrough_factor);
 	ClassDB::bind_method(D_METHOD("set_passthrough_factor", "passthrough_factor"), &IKEffectorTemplate3D::set_passthrough_factor);
 
@@ -80,4 +83,12 @@ String IKEffectorTemplate3D::get_root_bone() const {
 
 void IKEffectorTemplate3D::set_root_bone(String p_node_path) {
 	root_bone = p_node_path;
+}
+
+bool IKEffectorTemplate3D::get_target_static() const {
+	return target_static;
+}
+
+void IKEffectorTemplate3D::set_target_static(bool p_target_static) {
+	target_static = p_target_static;
 }
