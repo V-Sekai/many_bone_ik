@@ -119,6 +119,7 @@ void ManyBoneIK3D::_update_skeleton_bones_transform() {
 		}
 		bone->set_skeleton_bone_pose(get_skeleton());
 	}
+	update_gizmos();
 }
 
 void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
@@ -714,7 +715,6 @@ void ManyBoneIK3D::_process_modification() {
 	if (!is_visible()) {
 		return;
 	}
-	_update_ik_bones_transform();
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
 		for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
 			if (segmented_skeleton.is_null()) {
@@ -724,7 +724,6 @@ void ManyBoneIK3D::_process_modification() {
 		}
 	}
 	_update_skeleton_bones_transform();
-	update_gizmos();
 }
 
 void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
@@ -744,6 +743,10 @@ void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
 			p_new->connect(SNAME("pose_updated"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
 		}
 	}
+	if (is_connected(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform))) {
+		disconnect(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
+	}
+	connect(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
 	_bone_list_changed();
 }
 
@@ -1147,4 +1150,15 @@ void ManyBoneIK3D::_bone_list_changed() {
 }
 
 void ManyBoneIK3D::_notification(int32_t p_what) {
+	switch (p_what) {
+		case NOTIFICATION_ENTER_TREE: {
+			set_notify_local_transform(true);
+			break;
+		}
+		case NOTIFICATION_LOCAL_TRANSFORM_CHANGED:{
+			process_modification();
+			break;
+		}
+	
+	}
 }
