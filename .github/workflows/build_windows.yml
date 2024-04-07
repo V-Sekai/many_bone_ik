@@ -1,0 +1,47 @@
+name: Build Windows
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - precision: single
+            arch: x86_32
+            opencl_arch: Win32
+          - precision: single
+            arch: x86_64
+            opencl_arch: x64
+          - precision: double
+            arch: x86_32
+            opencl_arch: Win32
+          - precision: double
+            arch: x86_64
+            opencl_arch: x64
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: 🔗 GDExtension Build
+        uses: godotengine/godot-cpp-template/.github/actions/build@main
+        with:
+          platform: windows
+          arch: ${{ matrix.arch }}
+          float-precision: ${{ matrix.precision }}
+          build-target-type: template_release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Godot_Many_Bones_IK
+          path: |
+            ${{ github.workspace }}/bin/**/*.dll
+            ${{ github.workspace }}/bin/addons/godot_many_bones_ik/godot_many_bones_ik.gdextension
+          if-no-files-found: error
