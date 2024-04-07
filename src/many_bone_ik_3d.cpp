@@ -790,11 +790,6 @@ void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_skeleton) {
 			break;
 		}
 	}
-	if (is_connected(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform))) {
-		disconnect(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
-	}
-	connect(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
-	_bone_list_changed();
 }
 
 real_t ManyBoneIK3D::get_pin_weight(int32_t p_pin_index) const {
@@ -1169,81 +1164,4 @@ void ManyBoneIK3D::set_pin_target_static(int32_t p_effector_index, bool p_force_
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
 	effector_template->set_target_node(NodePath());
 	set_dirty();
-}
-
-void ManyBoneIK3D::_bone_list_changed() {
-	Skeleton3D *skeleton = get_skeleton();
-	Vector<int32_t> roots = skeleton->get_parentless_bones();
-	if (roots.is_empty()) {
-		return;
-	}
-	bone_list.clear();
-	segmented_skeletons.clear();
-	for (BoneId root_bone_index : roots) {
-		String parentless_bone = skeleton->get_bone_name(root_bone_index);
-		Ref<IKBoneSegment3D> segmented_skeleton = Ref<IKBoneSegment3D>(memnew(IKBoneSegment3D(skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1, stabilize_passes)));
-		ik_origin.instantiate();
-		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
-		segmented_skeleton->generate_default_segments(pins, root_bone_index, -1, this);
-		Vector<Ref<IKBone3D>> new_bone_list;
-		segmented_skeleton->create_bone_list(new_bone_list, true, queue_debug_skeleton);
-		bone_list.append_array(new_bone_list);
-		Vector<Vector<double>> weight_array;
-		segmented_skeleton->update_pinned_list(weight_array);
-		segmented_skeleton->recursive_create_headings_arrays_for(segmented_skeleton);
-		segmented_skeletons.push_back(segmented_skeleton);
-	}
-	_update_ik_bones_transform();
-	for (Ref<IKBone3D> &ik_bone_3d : bone_list) {
-		ik_bone_3d->update_default_bone_direction_transform(skeleton);
-	}
-	for (int constraint_i = 0; constraint_i < constraint_count; ++constraint_i) {
-		String bone = constraint_names[constraint_i];
-		BoneId bone_id = skeleton->find_bone(bone);
-		for (Ref<IKBone3D> &ik_bone_3d : bone_list) {
-			if (ik_bone_3d->get_bone_id() != bone_id) {
-				continue;
-			}
-			Ref<IKKusudama3D> constraint;
-			constraint.instantiate();
-			constraint->enable_orientational_limits();
-
-			int32_t cone_count = kusudama_limit_cone_count[constraint_i];
-			const Vector<Vector4> &cones = kusudama_limit_cones[constraint_i];
-			for (int32_t cone_i = 0; cone_i < cone_count; ++cone_i) {
-				const Vector4 &cone = cones[cone_i];
-				Ref<IKLimitCone3D> new_cone;
-				new_cone.instantiate();
-				new_cone->set_attached_to(constraint);
-				new_cone->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
-				new_cone->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
-				new_cone->set_radius(MAX(1.0e-38, cone.w));
-				new_cone->set_control_point(Vector3(cone.x, cone.y, cone.z).normalized());
-				constraint->add_limit_cone(new_cone);
-			}
-
-			const Vector2 axial_limit = get_kusudama_twist(constraint_i);
-			constraint->enable_axial_limits();
-			constraint->set_axial_limits(axial_limit.x, axial_limit.y);
-			ik_bone_3d->add_constraint(constraint);
-			constraint->_update_constraint(ik_bone_3d->get_constraint_twist_transform());
-			break;
-		}
-	}
-	if (queue_debug_skeleton) {
-		queue_debug_skeleton = false;
-	}
-}
-
-void ManyBoneIK3D::_notification(int32_t p_what) {
-	switch (p_what) {
-		case NOTIFICATION_ENTER_TREE: {
-			set_notify_local_transform(true);
-			break;
-		}
-		case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
-			process_modification();
-			break;
-		}
-	}
 }
