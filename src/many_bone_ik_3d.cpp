@@ -724,6 +724,7 @@ void ManyBoneIK3D::_process_modification() {
 		}
 	}
 	_update_skeleton_bones_transform();
+	update_gizmos();
 }
 
 void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
@@ -1146,12 +1147,4 @@ void ManyBoneIK3D::_bone_list_changed() {
 }
 
 void ManyBoneIK3D::_notification(int32_t p_what) {
-	switch (p_what) {
-		case NOTIFICATION_READY: {
-			set_notify_transform(true);
-		} break;
-		case NOTIFICATION_TRANSFORM_CHANGED: {
-			_process_modification();
-		}
-	}
 }
