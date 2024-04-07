@@ -81,7 +81,9 @@ class ManyBoneIK3D : public SkeletonModifier3D {
 	String _get_pin_root_bone(int32_t p_pin_index) const;
 	bool _is_descendant_of(int bone_i, int parent_bone_i) const;
 	bool _is_ancestor_of(int potential_ancestor, int bone_idx) const;
-	void _skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) override;
+	void _bone_list_changed();
+	void _pose_updated();
+	void _update_ik_bone_pose(int32_t p_bone_idx);
 
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -89,6 +91,8 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
 	virtual void _process_modification() override;
+	void _skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) override;
+	void _notification(int32_t p_what);
 
 public:
 	void set_pin_target_static(int32_t p_effector_index, bool p_force_ignore);
