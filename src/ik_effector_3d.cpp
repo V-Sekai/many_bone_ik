@@ -130,7 +130,7 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	p_headings->write[index] = tip_xform_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
 	double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
-	double scale_by = distance + 1.0f;
+	double scale_by = MIN(distance, 1.0f);
 
 	const Vector3 priority = get_direction_priorities();
 
