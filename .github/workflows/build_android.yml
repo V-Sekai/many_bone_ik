@@ -1,0 +1,51 @@
+name: Build Android
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - precision: single
+            arch: arm64
+          - precision: single
+            arch: arm32
+          - precision: single
+            arch: x86_64
+          - precision: single
+            arch: x86_32
+
+          - precision: double
+            arch: arm64
+          - precision: double
+            arch: arm32
+          - precision: double
+            arch: x86_64
+          - precision: double
+            arch: x86_32
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: 🔗 GDExtension Build
+        uses: godotengine/godot-cpp-template/.github/actions/build@main
+        with:
+          platform: android
+          arch: ${{ matrix.arch }}
+          float-precision: ${{ matrix.precision }}
+          build-target-type: template_release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Godot_Many_Bones_IK
+          path: |
+            ${{ github.workspace }}/bin/**/*.so
+          if-no-files-found: error
