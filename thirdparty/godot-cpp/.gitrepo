@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/Ughuuu/godot-cpp
-	branch = master
-	commit = b02124595f46ec9bf35d6b0636c9bf16750fbfb6
-	parent = 624639ba7e24b9fc8bddece89a30636ad0ce0ef3
+	branch = compat-layer
+	commit = 841edd2d476028ba5f33780d871c01651ae59d41
+	parent = 1a5bfdc1f8b02fc6de02605b1d466c77cdf26592
 	method = merge
 	cmdver = 0.4.6
