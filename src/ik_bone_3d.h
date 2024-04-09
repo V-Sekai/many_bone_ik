@@ -36,9 +36,12 @@
 #include "ik_open_cone_3d.h"
 #include "math/ik_node_3d.h"
 
-#include "core/io/resource.h"
-#include "core/object/ref_counted.h"
-#include "scene/3d/skeleton_3d.h"
+#include <godot_compat/classes/resource.hpp>
+#include <godot_compat/classes/ref.hpp>
+#include <godot_compat/classes/weak_ref.hpp>
+#include <godot_compat/classes/ref_counted.hpp>
+#include <godot_compat/classes/skeleton3d.hpp>
+#include <godot_compat/classes/skin_reference.hpp>
 
 class IKEffector3D;
 class ManyBoneIK3D;

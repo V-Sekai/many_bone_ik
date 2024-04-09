@@ -33,7 +33,7 @@
 
 #include "core/math/basis.h"
 #include "core/math/vector3.h"
-#include "core/variant/variant.h"
+#include <godot_compat/variant/variant.hpp>
 
 /**
  * Implementation of the Quaternion-Based Characteristic Polynomial algorithm

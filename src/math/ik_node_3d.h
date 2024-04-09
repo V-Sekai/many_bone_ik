@@ -31,10 +31,28 @@
 #ifndef IK_NODE_3D_H
 #define IK_NODE_3D_H
 
-#include "core/object/ref_counted.h"
-#include "core/templates/list.h"
+#include <godot_compat/classes/ref.hpp>
+#include <godot_compat/classes/weak_ref.hpp>
+#include <godot_compat/classes/ref_counted.hpp>
+#include <godot_compat/templates/rb_set.hpp>
+#include <godot_compat/templates/self_list.hpp>
+#include <godot_compat/templates/vector.hpp>
+#include <godot_compat/templates/hash_set.hpp>
+#include <godot_compat/templates/local_vector.hpp>
+#include <godot_compat/templates/list.hpp>
+#include <godot_compat/templates/hash_map.hpp>
+#include <godot_compat/templates/rb_map.hpp>
+#include <godot_compat/variant/packed_float64_array.hpp>
+#include <godot_compat/variant/packed_float32_array.hpp>
+#include <godot_compat/variant/packed_color_array.hpp>
+#include <godot_compat/variant/packed_vector2_array.hpp>
+#include <godot_compat/variant/packed_int64_array.hpp>
+#include <godot_compat/variant/packed_vector3_array.hpp>
+#include <godot_compat/variant/packed_int32_array.hpp>
+#include <godot_compat/variant/packed_byte_array.hpp>
+#include <godot_compat/variant/packed_string_array.hpp>
 
-#include "core/io/resource.h"
+#include <godot_compat/classes/resource.hpp>
 #include "core/math/transform_3d.h"
 
 class IKNode3D : public RefCounted {

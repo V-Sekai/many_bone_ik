@@ -31,7 +31,7 @@
 #ifndef MANY_BONE_IK_3D_H
 #define MANY_BONE_IK_3D_H
 
-#include "core/math/math_defs.h"
+#include <godot_compat/core/math.hpp>
 #include "core/math/transform_3d.h"
 #include "core/math/vector3.h"
 #include "core/object/ref_counted.h"
@@ -41,6 +41,14 @@
 #include "scene/3d/skeleton_3d.h"
 #include "scene/3d/skeleton_modifier_3d.h"
 #include "scene/main/scene_tree.h"
+
+#include <godot_compat/classes/ref.hpp>
+#include <godot_compat/classes/weak_ref.hpp>
+#include <godot_compat/classes/ref_counted.hpp>
+#include <godot_compat/classes/skeleton3d.hpp>
+#include <godot_compat/classes/skin_reference.hpp>
+#include <godot_compat/classes/scene_tree.hpp>
+#include <godot_compat/classes/scene_tree_timer.hpp>
 
 class ManyBoneIK3DState;
 class ManyBoneIK3D : public SkeletonModifier3D {

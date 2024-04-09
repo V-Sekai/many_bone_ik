@@ -30,14 +30,18 @@
 
 #include "ik_effector_3d.h"
 
-#include "core/typedefs.h"
+#include <godot_compat/core/math.hpp>
+#include <godot_compat/core/memory.hpp>
+#include <godot_compat/core/defs.hpp>
 #include "ik_bone_3d.h"
 #include "many_bone_ik_3d.h"
 #include "math/ik_node_3d.h"
-#include "scene/3d/node_3d.h"
+#include <godot_compat/variant/callable_method_pointer.hpp>
+#include <godot_compat/classes/node3d_gizmo.hpp>
+#include <godot_compat/classes/node3d.hpp>
 
 #ifdef TOOLS_ENABLED
-#include "editor/editor_data.h"
+#include <godot_compat/classes/editor_selection.hpp>
 #include "editor/editor_node.h"
 #endif
 

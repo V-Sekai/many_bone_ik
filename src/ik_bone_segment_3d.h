@@ -35,10 +35,13 @@
 #include "ik_effector_3d.h"
 #include "ik_effector_template_3d.h"
 #include "math/qcp.h"
-#include "scene/3d/skeleton_3d.h"
+#include <godot_compat/classes/skeleton3d.hpp>
+#include <godot_compat/classes/skin_reference.hpp>
 
-#include "core/io/resource.h"
-#include "core/object/ref_counted.h"
+#include <godot_compat/classes/resource.hpp>
+#include <godot_compat/classes/ref.hpp>
+#include <godot_compat/classes/weak_ref.hpp>
+#include <godot_compat/classes/ref_counted.hpp>
 
 class IKEffector3D;
 class IKBone3D;

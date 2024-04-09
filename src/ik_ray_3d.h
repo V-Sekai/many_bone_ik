@@ -31,7 +31,7 @@
 #ifndef IK_RAY_3D_H
 #define IK_RAY_3D_H
 
-#include "core/io/resource.h"
+#include <godot_compat/classes/resource.hpp>
 #include "core/math/vector3.h"
 
 class IKRay3D : public RefCounted {

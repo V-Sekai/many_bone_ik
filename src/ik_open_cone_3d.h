@@ -31,9 +31,11 @@
 #ifndef IK_OPEN_CONE_3D_H
 #define IK_OPEN_CONE_3D_H
 
-#include "core/io/resource.h"
+#include <godot_compat/classes/resource.hpp>
 #include "core/math/vector3.h"
-#include "core/object/ref_counted.h"
+#include <godot_compat/classes/ref.hpp>
+#include <godot_compat/classes/weak_ref.hpp>
+#include <godot_compat/classes/ref_counted.hpp>
 
 class IKKusudama3D;
 class IKLimitCone3D : public Resource {

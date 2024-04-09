@@ -28,25 +28,55 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "core/io/resource_saver.h"
+#include <godot_compat/classes/resource_format_saver.hpp>
+#include <godot_compat/classes/resource_saver.hpp>
 #include "core/math/transform_3d.h"
-#include "core/templates/local_vector.h"
-#include "editor/editor_interface.h"
+#include <godot_compat/templates/rb_set.hpp>
+#include <godot_compat/templates/vector.hpp>
+#include <godot_compat/templates/hash_set.hpp>
+#include <godot_compat/templates/local_vector.hpp>
+#include <godot_compat/templates/list.hpp>
+#include <godot_compat/templates/hash_map.hpp>
+#include <godot_compat/templates/rb_map.hpp>
+#include <godot_compat/variant/packed_float64_array.hpp>
+#include <godot_compat/variant/packed_float32_array.hpp>
+#include <godot_compat/variant/packed_color_array.hpp>
+#include <godot_compat/variant/packed_vector2_array.hpp>
+#include <godot_compat/variant/packed_int64_array.hpp>
+#include <godot_compat/variant/packed_vector3_array.hpp>
+#include <godot_compat/variant/packed_int32_array.hpp>
+#include <godot_compat/variant/packed_byte_array.hpp>
+#include <godot_compat/variant/packed_string_array.hpp>
+#include <godot_compat/classes/editor_interface.hpp>
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
-#include "editor/plugins/node_3d_editor_gizmos.h"
+#include <godot_compat/classes/editor_node3d_gizmo_plugin.hpp>
+#include <godot_compat/classes/editor_node3d_gizmo.hpp>
 #include "editor/plugins/node_3d_editor_plugin.h"
-#include "scene/3d/label_3d.h"
-#include "scene/3d/mesh_instance_3d.h"
-#include "scene/3d/physics/collision_shape_3d.h"
-#include "scene/3d/physics/joints/joint_3d.h"
-#include "scene/3d/physics/physics_body_3d.h"
-#include "scene/3d/skeleton_3d.h"
-#include "scene/resources/3d/capsule_shape_3d.h"
-#include "scene/resources/3d/primitive_meshes.h"
-#include "scene/resources/3d/sphere_shape_3d.h"
-#include "scene/resources/surface_tool.h"
+#include <godot_compat/classes/label3d.hpp>
+#include <godot_compat/classes/mesh_instance3d.hpp>
+#include <godot_compat/classes/collision_shape3d.hpp>
+#include <godot_compat/classes/joint3d.hpp>
+#include <godot_compat/classes/physics_body3d.hpp>
+#include <godot_compat/classes/skeleton3d.hpp>
+#include <godot_compat/classes/skin_reference.hpp>
+#include <godot_compat/classes/capsule_shape3d.hpp>
+#include <godot_compat/classes/quad_mesh.hpp>
+#include <godot_compat/classes/cylinder_mesh.hpp>
+#include <godot_compat/classes/plane_mesh.hpp>
+#include <godot_compat/classes/text_mesh.hpp>
+#include <godot_compat/classes/sphere_mesh.hpp>
+#include <godot_compat/classes/torus_mesh.hpp>
+#include <godot_compat/classes/tube_trail_mesh.hpp>
+#include <godot_compat/classes/prism_mesh.hpp>
+#include <godot_compat/classes/primitive_mesh.hpp>
+#include <godot_compat/classes/box_mesh.hpp>
+#include <godot_compat/classes/point_mesh.hpp>
+#include <godot_compat/classes/ribbon_trail_mesh.hpp>
+#include <godot_compat/classes/capsule_mesh.hpp>
+#include <godot_compat/classes/sphere_shape3d.hpp>
+#include <godot_compat/classes/surface_tool.hpp>
 #include "scene/scene_string_names.h"
 
 #include "../src/ik_bone_3d.h"
@@ -56,7 +86,7 @@
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
-#include "editor/editor_undo_redo_manager.h"
+#include <godot_compat/classes/editor_undo_redo_manager.hpp>
 #endif
 
 void ManyBoneIK3DGizmoPlugin::_bind_methods() {

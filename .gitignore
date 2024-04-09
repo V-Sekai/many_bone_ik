@@ -380,3 +380,4 @@ $RECYCLE.BIN/
 *.generated.props
 
 .DS_Store
+.sconsign.dblite

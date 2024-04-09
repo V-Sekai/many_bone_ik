@@ -31,8 +31,9 @@
 #ifndef IK_EFFECTOR_TEMPLATE_3D_H
 #define IK_EFFECTOR_TEMPLATE_3D_H
 
-#include "core/io/resource.h"
-#include "core/string/node_path.h"
+#include <godot_compat/classes/resource.hpp>
+#include <godot_compat/variant/callable_method_pointer.hpp>
+#include <godot_compat/variant/node_path.hpp>
 
 class IKEffectorTemplate3D : public Resource {
 	GDCLASS(IKEffectorTemplate3D, Resource);
