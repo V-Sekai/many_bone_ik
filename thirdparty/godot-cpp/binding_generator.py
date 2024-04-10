@@ -1479,6 +1479,7 @@ def generate_compat_includes(output_dir: Path, target_dir: Path):
             result.append(f"#include <{file_godot_name}>")
         result.append(f"#else")
         result.append(f"#include <{file_godot_cpp_name}>")
+        result.append(f"using namespace godot;")
         result.append(f"#endif")
         result.append("")
         result.append(f"#endif // ! {header_guard}")
