@@ -33,8 +33,11 @@
 
 #include "math/ik_node_3d.h"
 
-#include "core/object/ref_counted.h"
-#include "scene/3d/skeleton_3d.h"
+#include <godot_compat/classes/ref.hpp>
+#include <godot_compat/classes/weak_ref.hpp>
+#include <godot_compat/classes/ref_counted.hpp>
+#include <godot_compat/classes/skeleton3d.hpp>
+#include <godot_compat/classes/skin_reference.hpp>
 
 #define MIN_SCALE 0.1
 

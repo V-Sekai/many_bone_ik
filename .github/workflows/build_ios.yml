@@ -1,0 +1,40 @@
+name: Build iOS
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - precision: single
+            arch: arm64
+            ios_precision_extension:
+          - precision: double
+            arch: arm64
+            ios_precision_extension: .double
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: 🔗 GDExtension Build
+        uses: godotengine/godot-cpp-template/.github/actions/build@main
+        with:
+          platform: ios
+          arch: ${{ matrix.arch }}
+          float-precision: ${{ matrix.precision }}
+          build-target-type: template_release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Godot_Many_Bones_IK
+          path: |
+            ${{ github.workspace }}/bin/**/libgodot_many_bones_ik.ios.template_release${{ matrix.ios_precision_extension }}.arm64.framework/**
+          if-no-files-found: error
