@@ -29,16 +29,23 @@
 /**************************************************************************/
 
 #include "many_bone_ik_3d.h"
-#include "core/error/error_macros.h"
-#include "core/math/math_defs.h"
-#include "core/object/class_db.h"
-#include "core/string/string_name.h"
+#include <godot_compat/core/error_macros.hpp>
+#include <godot_compat/core/math.hpp>
+#include <godot_compat/core/class_db.hpp>
+#include <godot_compat/templates/rb_set.hpp>
+#include <godot_compat/templates/list.hpp>
+#include <godot_compat/templates/rb_map.hpp>
+#include <godot_compat/variant/string_name.hpp>
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
 #include "ik_limit_cone_3d.h"
-#include "scene/3d/skeleton_3d.h"
-#include "scene/main/node.h"
-#include "scene/main/scene_tree.h"
+#include <godot_compat/classes/skeleton3d.hpp>
+#include <godot_compat/classes/skin_reference.hpp>
+#include <godot_compat/core/memory.hpp>
+#include <godot_compat/variant/callable_method_pointer.hpp>
+#include <godot_compat/classes/node.hpp>
+#include <godot_compat/classes/scene_tree.hpp>
+#include <godot_compat/classes/scene_tree_timer.hpp>
 
 void ManyBoneIK3D::_set_pin_count(int32_t p_value) {
 	int32_t old_count = pins.size();
@@ -118,6 +125,7 @@ void ManyBoneIK3D::_update_skeleton_bones_transform() {
 		}
 		bone->set_skeleton_bone_pose(get_skeleton());
 	}
+	update_gizmos();
 }
 
 void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
@@ -158,6 +166,8 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(effector_name);
 		p_list->push_back(
 				PropertyInfo(Variant::NODE_PATH, "pins/" + itos(pin_i) + "/target_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node3D", pin_usage));
+		p_list->push_back(
+				PropertyInfo(Variant::BOOL, "pins/" + itos(pin_i) + "/target_static", PROPERTY_HINT_NONE, "", pin_usage));
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "pins/" + itos(pin_i) + "/passthrough_factor", PROPERTY_HINT_RANGE, "0,1,0.1,or_greater", pin_usage));
 		p_list->push_back(
@@ -240,6 +250,9 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		} else if (what == "target_node") {
 			r_ret = effector_template->get_target_node();
 			return true;
+		} else if (what == "target_static") {
+			r_ret = effector_template->get_target_node().is_empty();
+			return true;
 		} else if (what == "passthrough_factor") {
 			r_ret = get_pin_passthrough_factor(index);
 			return true;
@@ -312,9 +325,10 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		} else if (what == "target_node") {
 			set_pin_target_nodepath(index, p_value);
-			String existing_bone = get_pin_bone_name(index);
-			if (existing_bone.is_empty()) {
-				return false;
+			return true;
+		} else if (what == "target_static") {
+			if (p_value) {
+				set_pin_target_nodepath(index, NodePath());
 			}
 			return true;
 		} else if (what == "passthrough_factor") {
@@ -720,7 +734,6 @@ void ManyBoneIK3D::_execute(real_t delta) {
 		}
 	}
 	_update_skeleton_bones_transform();
-	update_gizmos();
 }
 
 void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_skeleton) {
@@ -784,10 +797,6 @@ void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_skeleton) {
 			break;
 		}
 	}
-	if (queue_debug_skeleton) {
-		queue_debug_skeleton = false;
-	}
-	update_gizmos();
 }
 
 real_t ManyBoneIK3D::get_pin_weight(int32_t p_pin_index) const {
@@ -857,16 +866,13 @@ void ManyBoneIK3D::set_skeleton_node_path(NodePath p_skeleton_node_path) {
 
 void ManyBoneIK3D::_notification(int p_what) {
 	switch (p_what) {
-		case NOTIFICATION_READY: {
-			set_process_priority(1);
-			set_notify_transform(true);
-		} break;
 		case NOTIFICATION_ENTER_TREE: {
 			set_process_internal(true);
+			set_process_priority(1);
+			set_notify_local_transform(true);
 		} break;
-		case NOTIFICATION_EXIT_TREE: {
-		} break;
-		case NOTIFICATION_TRANSFORM_CHANGED: {
+		case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
+			_execute(get_process_delta_time());
 			update_gizmos();
 		} break;
 		case NOTIFICATION_INTERNAL_PROCESS: {
@@ -1047,6 +1053,9 @@ void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p
 bool ManyBoneIK3D::get_pin_enabled(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
+	if (effector_template->get_target_node().is_empty()) {
+		return true;
+	}
 	return !effector_template->get_target_node().is_empty();
 }
 
@@ -1143,4 +1152,20 @@ int32_t ManyBoneIK3D::find_pin(String p_string) const {
 		}
 	}
 	return -1;
+}
+
+bool ManyBoneIK3D::get_pin_target_static(int32_t p_effector_index) {
+	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
+	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
+	return get_pin_nodepath(p_effector_index).is_empty();
+}
+
+void ManyBoneIK3D::set_pin_target_static(int32_t p_effector_index, bool p_force_ignore) {
+	ERR_FAIL_INDEX(p_effector_index, pins.size());
+	if (!p_force_ignore) {
+		return;
+	}
+	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
+	effector_template->set_target_node(NodePath());
+	set_dirty();
 }

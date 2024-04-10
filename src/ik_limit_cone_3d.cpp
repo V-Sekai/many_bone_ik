@@ -33,7 +33,7 @@
 #include "core/math/quaternion.h"
 #include "ik_kusudama_3d.h"
 
-#include "core/io/resource.h"
+#include <godot_compat/classes/resource.hpp>
 
 void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	if (p_next.is_valid()) {

@@ -33,8 +33,11 @@
 
 #include "math/ik_node_3d.h"
 
-#include "core/object/ref_counted.h"
-#include "scene/3d/skeleton_3d.h"
+#include <godot_compat/classes/ref.hpp>
+#include <godot_compat/classes/weak_ref.hpp>
+#include <godot_compat/classes/ref_counted.hpp>
+#include <godot_compat/classes/skeleton3d.hpp>
+#include <godot_compat/classes/skin_reference.hpp>
 
 #define MIN_SCALE 0.1
 
@@ -51,6 +54,8 @@ class IKEffector3D : public Resource {
 	NodePath target_node_path;
 	ObjectID target_node_cache;
 	Node *target_node_reference = nullptr;
+	bool target_static = false;
+	Transform3D target_transform;
 
 	Transform3D target_relative_to_skeleton_origin;
 	int32_t num_headings = 7;

@@ -31,14 +31,16 @@
 #ifndef IK_EFFECTOR_TEMPLATE_3D_H
 #define IK_EFFECTOR_TEMPLATE_3D_H
 
-#include "core/io/resource.h"
-#include "core/string/node_path.h"
+#include <godot_compat/classes/resource.hpp>
+#include <godot_compat/variant/callable_method_pointer.hpp>
+#include <godot_compat/variant/node_path.hpp>
 
 class IKEffectorTemplate3D : public Resource {
 	GDCLASS(IKEffectorTemplate3D, Resource);
 
 	StringName root_bone;
 	NodePath target_node;
+	bool target_static = false;
 	real_t passthrough_factor = 0.0f;
 	real_t weight = 0.0f;
 	Vector3 priority_direction = Vector3(0.2f, 0.0f, 0.2f); // Purported ideal values are 1.0 / 3.0 for one direction, 1.0 / 5.0 for two directions and 1.0 / 7.0 for three directions.
