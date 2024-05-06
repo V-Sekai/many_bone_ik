@@ -92,7 +92,6 @@ protected:
 	static void _bind_methods();
 	virtual void _process_modification() override;
 	void _skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) override;
-	void _notification(int p_what);
 
 public:
 	void set_pin_target_static(int32_t p_effector_index, bool p_force_ignore);

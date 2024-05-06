@@ -1126,17 +1126,6 @@ void ManyBoneIK3D::_bone_list_changed() {
 	}
 }
 
-void ManyBoneIK3D::_notification(int p_what) {
-	switch (p_what) {
-		case NOTIFICATION_ENTER_TREE: {
-			set_notify_local_transform(true);
-		} break;
-		case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
-			update_gizmos();
-		} break;
-	}
-}
-
 void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
 	if (p_old) {
 		if (p_old->is_connected(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed))) {
