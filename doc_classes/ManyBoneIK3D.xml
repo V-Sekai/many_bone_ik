@@ -302,7 +302,7 @@
 		<member name="iterations_per_frame" type="float" setter="set_iterations_per_frame" getter="get_iterations_per_frame" default="15.0">
 			The number of iterations performed by the solver per frame.
 		</member>
-		<member name="stabilization_passes" type="int" setter="set_stabilization_passes" getter="get_stabilization_passes" default="4">
+		<member name="stabilization_passes" type="int" setter="set_stabilization_passes" getter="get_stabilization_passes" default="0">
 			The number of stabilization passes performed by the solver. This can help to improve the stability of the IK solution.
 		</member>
 		<member name="ui_selected_bone" type="int" setter="set_ui_selected_bone" getter="get_ui_selected_bone" default="-1">
