@@ -727,19 +727,6 @@ void ManyBoneIK3D::_process_modification() {
 	_update_skeleton_bones_transform();
 }
 
-void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
-	if (p_old) {
-		if (p_old->is_connected(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed))) {
-			p_old->disconnect(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed));
-		}
-	}
-	if (p_new) {
-		if (!p_new->is_connected(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed))) {
-			p_new->connect(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed));
-		}
-	}
-}
-
 real_t ManyBoneIK3D::get_pin_weight(int32_t p_pin_index) const {
 	ERR_FAIL_INDEX_V(p_pin_index, pins.size(), 0.0);
 	const Ref<IKEffectorTemplate3D> effector_template = pins[p_pin_index];
@@ -1145,8 +1132,25 @@ void ManyBoneIK3D::_notification(int p_what) {
 			set_notify_local_transform(true);
 		} break;
 		case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
-			_process_modification();
 			update_gizmos();
 		} break;
 	}
+}
+
+void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
+	if (p_old) {
+		if (p_old->is_connected(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed))) {
+			p_old->disconnect(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed));
+		}
+	}
+	if (p_new) {
+		if (!p_new->is_connected(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed))) {
+			p_new->connect(SNAME("bone_list_changed"), callable_mp(this, &ManyBoneIK3D::_bone_list_changed));
+		}
+	}
+	if (is_connected(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform))) {
+		disconnect(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
+	}
+	connect(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
+	_bone_list_changed();
 }
