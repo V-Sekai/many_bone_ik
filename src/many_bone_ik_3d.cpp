@@ -41,7 +41,7 @@
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
 
-void ManyBoneIK3D::_set_pin_count(int32_t p_value) {
+void ManyBoneIK3D::set_total_effector_count(int32_t p_value) {
 	int32_t old_count = pins.size();
 	pin_count = p_value;
 	pins.resize(p_value);
@@ -51,22 +51,11 @@ void ManyBoneIK3D::_set_pin_count(int32_t p_value) {
 	set_dirty();
 }
 
-int32_t ManyBoneIK3D::get_pin_count() const {
+int32_t ManyBoneIK3D::get_effector_count() const {
 	return pin_count;
 }
 
-void ManyBoneIK3D::set_pin_bone(int32_t p_pin_index, const String &p_bone) {
-	ERR_FAIL_INDEX(p_pin_index, pins.size());
-	Ref<IKEffectorTemplate3D> effector_template = pins[p_pin_index];
-	if (effector_template.is_null()) {
-		effector_template.instantiate();
-		pins.write[p_pin_index] = effector_template;
-	}
-	effector_template->set_name(p_bone);
-	set_dirty();
-}
-
-void ManyBoneIK3D::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &p_target_node) {
+void ManyBoneIK3D::set_effector_target_node_path(int32_t p_pin_index, const NodePath &p_target_node) {
 	ERR_FAIL_INDEX(p_pin_index, pins.size());
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_pin_index];
 	if (effector_template.is_null()) {
@@ -77,7 +66,7 @@ void ManyBoneIK3D::set_pin_target_nodepath(int32_t p_pin_index, const NodePath &
 	set_dirty();
 }
 
-NodePath ManyBoneIK3D::get_pin_target_nodepath(int32_t p_pin_index) {
+NodePath ManyBoneIK3D::get_effector_target_node_path(int32_t p_pin_index) {
 	ERR_FAIL_INDEX_V(p_pin_index, pins.size(), NodePath());
 	const Ref<IKEffectorTemplate3D> effector_template = pins[p_pin_index];
 	return effector_template->get_target_node();
@@ -125,16 +114,16 @@ void ManyBoneIK3D::_update_skeleton_bones_transform() {
 void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 	const Vector<Ref<IKBone3D>> ik_bones = get_bone_list();
 	RBSet<StringName> existing_pins;
-	for (int32_t pin_i = 0; pin_i < get_pin_count(); pin_i++) {
-		const String name = get_pin_bone_name(pin_i);
-		existing_pins.insert(name);
+	for (int32_t pin_i = 0; pin_i < get_effector_count(); pin_i++) {
+		const String bone_name = get_effector_bone_name(pin_i);
+		existing_pins.insert(bone_name);
 	}
 	const uint32_t pin_usage = PROPERTY_USAGE_DEFAULT;
 	p_list->push_back(
 			PropertyInfo(Variant::INT, "pin_count",
 					PROPERTY_HINT_RANGE, "0,65536,or_greater", pin_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
 					"Pins,pins/"));
-	for (int pin_i = 0; pin_i < get_pin_count(); pin_i++) {
+	for (int pin_i = 0; pin_i < get_effector_count(); pin_i++) {
 		PropertyInfo effector_name;
 		effector_name.type = Variant::STRING_NAME;
 		effector_name.name = "pins/" + itos(pin_i) + "/bone_name";
@@ -227,7 +216,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		r_ret = get_constraint_count();
 		return true;
 	} else if (name == "pin_count") {
-		r_ret = get_pin_count();
+		r_ret = get_effector_count();
 		return true;
 	} else if (name == "bone_count") {
 		r_ret = get_bone_count();
@@ -287,13 +276,13 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 				return true;
 			}
 		} else if (what == "bone_direction") {
-			r_ret = get_bone_direction_transform(index);
+			r_ret = get_direction_transform_of_bone(index);
 			return true;
 		} else if (what == "kusudama_orientation") {
-			r_ret = get_constraint_orientation_transform(index);
+			r_ret = get_orientation_transform_of_constraint(index);
 			return true;
 		} else if (what == "kusudama_twist") {
-			r_ret = get_constraint_twist_transform(index);
+			r_ret = get_twist_transform_of_constraint(index);
 			return true;
 		}
 	}
@@ -306,23 +295,23 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 		_set_constraint_count(p_value);
 		return true;
 	} else if (name == "pin_count") {
-		_set_pin_count(p_value);
+		set_total_effector_count(p_value);
 		return true;
 	} else if (name.begins_with("pins/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		if (index >= pins.size()) {
-			_set_pin_count(constraint_count);
+			set_total_effector_count(constraint_count);
 		}
 		if (what == "bone_name") {
-			set_pin_bone(index, p_value);
+			set_effector_bone_name(index, p_value);
 			return true;
 		} else if (what == "target_node") {
-			set_pin_target_nodepath(index, p_value);
+			set_effector_target_node_path(index, p_value);
 			return true;
 		} else if (what == "target_static") {
 			if (p_value) {
-				set_pin_target_nodepath(index, NodePath());
+				set_effector_target_node_path(index, NodePath());
 			}
 			return true;
 		} else if (what == "passthrough_factor") {
@@ -343,7 +332,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			_set_constraint_count(constraint_count);
 		}
 		if (what == "bone_name") {
-			_set_constraint_name(index, p_value);
+			set_constraint_name_at_index(index, p_value);
 			return true;
 		} else if (what == "twist_from") {
 			Vector2 twist_from = get_joint_twist(index);
@@ -367,13 +356,13 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 				return true;
 			}
 		} else if (what == "bone_direction") {
-			set_bone_direction_transform(index, p_value);
+			set_direction_transform_of_bone(index, p_value);
 			return true;
 		} else if (what == "kusudama_orientation") {
-			set_constraint_orientation_transform(index, p_value);
+			set_orientation_transform_of_constraint(index, p_value);
 			return true;
 		} else if (what == "kusudama_twist") {
-			set_constraint_twist_transform(index, p_value);
+			set_twist_transform_of_constraint(index, p_value);
 			return true;
 		}
 	}
@@ -382,17 +371,17 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 void ManyBoneIK3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_constraint_name", "index", "name"), &ManyBoneIK3D::_set_constraint_name);
-	ClassDB::bind_method(D_METHOD("set_pin_count", "count"), &ManyBoneIK3D::_set_pin_count);
-	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform", "index"), &ManyBoneIK3D::get_constraint_twist_transform);
-	ClassDB::bind_method(D_METHOD("set_constraint_twist_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_twist_transform);
-	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform", "index"), &ManyBoneIK3D::get_constraint_orientation_transform);
-	ClassDB::bind_method(D_METHOD("set_constraint_orientation_transform", "index", "transform"), &ManyBoneIK3D::set_constraint_orientation_transform);
-	ClassDB::bind_method(D_METHOD("get_bone_direction_transform", "index"), &ManyBoneIK3D::get_bone_direction_transform);
-	ClassDB::bind_method(D_METHOD("set_bone_direction_transform", "index", "transform"), &ManyBoneIK3D::set_bone_direction_transform);
-	ClassDB::bind_method(D_METHOD("remove_constraint", "index"), &ManyBoneIK3D::remove_constraint);
+	ClassDB::bind_method(D_METHOD("set_constraint_name_at_index", "index", "name"), &ManyBoneIK3D::set_constraint_name_at_index);
+	ClassDB::bind_method(D_METHOD("set_total_effector_count", "count"), &ManyBoneIK3D::set_total_effector_count);
+	ClassDB::bind_method(D_METHOD("get_twist_transform_of_constraint", "index"), &ManyBoneIK3D::get_twist_transform_of_constraint);
+	ClassDB::bind_method(D_METHOD("set_twist_transform_of_constraint", "index", "transform"), &ManyBoneIK3D::set_twist_transform_of_constraint);
+	ClassDB::bind_method(D_METHOD("get_orientation_transform_of_constraint", "index"), &ManyBoneIK3D::get_orientation_transform_of_constraint);
+	ClassDB::bind_method(D_METHOD("set_orientation_transform_of_constraint", "index", "transform"), &ManyBoneIK3D::set_orientation_transform_of_constraint);
+	ClassDB::bind_method(D_METHOD("get_direction_transform_of_bone", "index"), &ManyBoneIK3D::get_direction_transform_of_bone);
+	ClassDB::bind_method(D_METHOD("set_direction_transform_of_bone", "index", "transform"), &ManyBoneIK3D::set_direction_transform_of_bone);
+	ClassDB::bind_method(D_METHOD("remove_constraint_at_index", "index"), &ManyBoneIK3D::remove_constraint_at_index);
 	ClassDB::bind_method(D_METHOD("register_skeleton"), &ManyBoneIK3D::register_skeleton);
-	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK3D::register_skeleton);
+	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK3D::reset_constraints);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &ManyBoneIK3D::set_dirty);
 	ClassDB::bind_method(D_METHOD("set_kusudama_open_cone_radius", "index", "cone_index", "radius"), &ManyBoneIK3D::set_kusudama_open_cone_radius);
 	ClassDB::bind_method(D_METHOD("get_kusudama_open_cone_radius", "index", "cone_index"), &ManyBoneIK3D::get_kusudama_open_cone_radius);
@@ -404,12 +393,12 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_joint_twist", "index"), &ManyBoneIK3D::get_joint_twist);
 	ClassDB::bind_method(D_METHOD("set_pin_passthrough_factor", "index", "falloff"), &ManyBoneIK3D::set_pin_passthrough_factor);
 	ClassDB::bind_method(D_METHOD("get_pin_passthrough_factor", "index"), &ManyBoneIK3D::get_pin_passthrough_factor);
-	ClassDB::bind_method(D_METHOD("get_pin_count"), &ManyBoneIK3D::get_pin_count);
-	ClassDB::bind_method(D_METHOD("get_pin_bone_name", "index"), &ManyBoneIK3D::get_pin_bone_name);
+	ClassDB::bind_method(D_METHOD("get_pin_count"), &ManyBoneIK3D::get_effector_count);
+	ClassDB::bind_method(D_METHOD("get_effector_bone_name", "index"), &ManyBoneIK3D::get_effector_bone_name);
 	ClassDB::bind_method(D_METHOD("get_pin_direction_priorities", "index"), &ManyBoneIK3D::get_pin_direction_priorities);
 	ClassDB::bind_method(D_METHOD("set_pin_direction_priorities", "index", "priority"), &ManyBoneIK3D::set_pin_direction_priorities);
-	ClassDB::bind_method(D_METHOD("get_pin_nodepath", "index"), &ManyBoneIK3D::get_pin_nodepath);
-	ClassDB::bind_method(D_METHOD("set_pin_nodepath", "index", "nodepath"), &ManyBoneIK3D::set_pin_nodepath);
+	ClassDB::bind_method(D_METHOD("get_effector_pin_node_path", "index"), &ManyBoneIK3D::get_effector_pin_node_path);
+	ClassDB::bind_method(D_METHOD("set_effector_pin_node_path", "index", "nodepath"), &ManyBoneIK3D::set_effector_pin_node_path);
 	ClassDB::bind_method(D_METHOD("set_pin_weight", "index", "weight"), &ManyBoneIK3D::set_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_weight", "index"), &ManyBoneIK3D::get_pin_weight);
 	ClassDB::bind_method(D_METHOD("get_pin_enabled", "index"), &ManyBoneIK3D::get_pin_enabled);
@@ -430,7 +419,7 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_ui_selected_bone"), &ManyBoneIK3D::get_ui_selected_bone);
 	ClassDB::bind_method(D_METHOD("set_stabilization_passes", "passes"), &ManyBoneIK3D::set_stabilization_passes);
 	ClassDB::bind_method(D_METHOD("get_stabilization_passes"), &ManyBoneIK3D::get_stabilization_passes);
-	ClassDB::bind_method(D_METHOD("set_pin_bone_name", "index", "name"), &ManyBoneIK3D::set_pin_bone_name);
+	ClassDB::bind_method(D_METHOD("set_effector_bone_name", "index", "name"), &ManyBoneIK3D::set_effector_bone_name);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_frame", PROPERTY_HINT_RANGE, "1,150,1,or_greater"), "set_iterations_per_frame", "get_iterations_per_frame");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_damp", PROPERTY_HINT_RANGE, "0.01,180.0,0.1,radians,exp", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_default_damp", "get_default_damp");
@@ -491,14 +480,14 @@ inline StringName ManyBoneIK3D::get_constraint_name(int32_t p_index) const {
 }
 
 Vector2 ManyBoneIK3D::get_joint_twist(int32_t p_index) const {
-    ERR_FAIL_INDEX_V(p_index, joint_twist.size(), Vector2());
-    return joint_twist[p_index];
+	ERR_FAIL_INDEX_V(p_index, joint_twist.size(), Vector2());
+	return joint_twist[p_index];
 }
 
 void ManyBoneIK3D::set_joint_twist(int32_t p_index, Vector2 p_to) {
-    ERR_FAIL_INDEX(p_index, constraint_count);
-    joint_twist.write[p_index] = p_to;
-    set_dirty();
+	ERR_FAIL_INDEX(p_index, constraint_count);
+	joint_twist.write[p_index] = p_to;
+	set_dirty();
 }
 
 int32_t ManyBoneIK3D::find_effector_id(StringName p_bone_name) {
@@ -547,7 +536,7 @@ void ManyBoneIK3D::set_kusudama_open_cone_count(int32_t p_constraint_index, int3
 	Vector<Vector4> &cones = kusudama_open_cones.write[p_constraint_index];
 	cones.resize(p_count);
 	String bone_name = get_constraint_name(p_constraint_index);
-	Transform3D bone_transform = get_bone_direction_transform(p_constraint_index);
+	Transform3D bone_transform = get_direction_transform_of_bone(p_constraint_index);
 	Vector3 forward_axis = -bone_transform.basis.get_column(Vector3::AXIS_Y).normalized();
 	for (int32_t cone_i = p_count; cone_i-- > old_cone_count;) {
 		Vector4 &cone = cones.write[cone_i];
@@ -569,7 +558,7 @@ void ManyBoneIK3D::set_default_damp(float p_default_damp) {
 	set_dirty();
 }
 
-StringName ManyBoneIK3D::get_pin_bone_name(int32_t p_effector_index) const {
+StringName ManyBoneIK3D::get_effector_bone_name(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), "");
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
 	return effector_template->get_name();
@@ -627,7 +616,7 @@ Vector3 ManyBoneIK3D::get_kusudama_open_cone_center(int32_t p_constraint_index, 
 	return basis.xform_inv(ret);
 }
 
-void ManyBoneIK3D::_set_constraint_name(int32_t p_index, String p_name) {
+void ManyBoneIK3D::set_constraint_name_at_index(int32_t p_index, String p_name) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	constraint_names.write[p_index] = p_name;
 	set_dirty();
@@ -636,6 +625,7 @@ void ManyBoneIK3D::_set_constraint_name(int32_t p_index, String p_name) {
 Vector<Ref<IKBoneSegment3D>> ManyBoneIK3D::get_segmented_skeletons() {
 	return segmented_skeletons;
 }
+
 float ManyBoneIK3D::get_iterations_per_frame() const {
 	return iterations_per_frame;
 }
@@ -644,13 +634,7 @@ void ManyBoneIK3D::set_iterations_per_frame(const float &p_iterations_per_frame)
 	iterations_per_frame = p_iterations_per_frame;
 }
 
-void ManyBoneIK3D::set_pin_bone_name(int32_t p_effector_index, StringName p_name) const {
-	ERR_FAIL_INDEX(p_effector_index, pins.size());
-	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
-	effector_template->set_name(p_name);
-}
-
-void ManyBoneIK3D::set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path) {
+void ManyBoneIK3D::set_effector_pin_node_path(int32_t p_effector_index, NodePath p_node_path) {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
 	Node *node = get_node_or_null(p_node_path);
 	if (!node) {
@@ -660,7 +644,7 @@ void ManyBoneIK3D::set_pin_nodepath(int32_t p_effector_index, NodePath p_node_pa
 	effector_template->set_target_node(p_node_path);
 }
 
-NodePath ManyBoneIK3D::get_pin_nodepath(int32_t p_effector_index) const {
+NodePath ManyBoneIK3D::get_effector_pin_node_path(int32_t p_effector_index) const {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), NodePath());
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
 	return effector_template->get_target_node();
@@ -670,7 +654,7 @@ void ManyBoneIK3D::_process_modification() {
 	if (!get_skeleton()) {
 		return;
 	}
-	if (get_pin_count() == 0) {
+	if (get_effector_count() == 0) {
 		return;
 	}
 	if (!segmented_skeletons.size()) {
@@ -764,7 +748,7 @@ int32_t ManyBoneIK3D::find_constraint(String p_string) const {
 	return -1;
 }
 
-void ManyBoneIK3D::remove_constraint(int32_t p_index) {
+void ManyBoneIK3D::remove_constraint_at_index(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 
 	constraint_names.remove_at(p_index);
@@ -795,7 +779,7 @@ Vector<Ref<IKBone3D>> ManyBoneIK3D::get_bone_list() const {
 	return bone_list;
 }
 
-void ManyBoneIK3D::set_bone_direction_transform(int32_t p_index, Transform3D p_transform) {
+void ManyBoneIK3D::set_direction_transform_of_bone(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	if (!get_skeleton()) {
 		return;
@@ -818,7 +802,7 @@ void ManyBoneIK3D::set_bone_direction_transform(int32_t p_index, Transform3D p_t
 	}
 }
 
-Transform3D ManyBoneIK3D::get_bone_direction_transform(int32_t p_index) const {
+Transform3D ManyBoneIK3D::get_direction_transform_of_bone(int32_t p_index) const {
 	if (p_index < 0 || p_index >= constraint_names.size() || get_skeleton() == nullptr) {
 		return Transform3D();
 	}
@@ -838,7 +822,7 @@ Transform3D ManyBoneIK3D::get_bone_direction_transform(int32_t p_index) const {
 	return Transform3D();
 }
 
-Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) const {
+Transform3D ManyBoneIK3D::get_orientation_transform_of_constraint(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
 	String bone_name = constraint_names[p_index];
 	if (!segmented_skeletons.size()) {
@@ -863,7 +847,7 @@ Transform3D ManyBoneIK3D::get_constraint_orientation_transform(int32_t p_index) 
 	return Transform3D();
 }
 
-void ManyBoneIK3D::set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform) {
+void ManyBoneIK3D::set_orientation_transform_of_constraint(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
 	if (!get_skeleton()) {
@@ -885,7 +869,7 @@ void ManyBoneIK3D::set_constraint_orientation_transform(int32_t p_index, Transfo
 	}
 }
 
-Transform3D ManyBoneIK3D::get_constraint_twist_transform(int32_t p_index) const {
+Transform3D ManyBoneIK3D::get_twist_transform_of_constraint(int32_t p_index) const {
 	ERR_FAIL_INDEX_V(p_index, constraint_names.size(), Transform3D());
 	String bone_name = constraint_names[p_index];
 	if (!segmented_skeletons.size()) {
@@ -910,7 +894,7 @@ Transform3D ManyBoneIK3D::get_constraint_twist_transform(int32_t p_index) const 
 	return Transform3D();
 }
 
-void ManyBoneIK3D::set_constraint_twist_transform(int32_t p_index, Transform3D p_transform) {
+void ManyBoneIK3D::set_twist_transform_of_constraint(int32_t p_index, Transform3D p_transform) {
 	ERR_FAIL_INDEX(p_index, constraint_names.size());
 	String bone_name = constraint_names[p_index];
 	if (!get_skeleton()) {
@@ -942,7 +926,7 @@ bool ManyBoneIK3D::get_pin_enabled(int32_t p_effector_index) const {
 }
 
 void ManyBoneIK3D::register_skeleton() {
-	if (!get_pin_count() && !get_constraint_count()) {
+	if (!get_effector_count() && !get_constraint_count()) {
 		reset_constraints();
 	}
 	set_dirty();
@@ -951,9 +935,9 @@ void ManyBoneIK3D::register_skeleton() {
 void ManyBoneIK3D::reset_constraints() {
 	Skeleton3D *skeleton = get_skeleton();
 	if (skeleton) {
-		int32_t saved_pin_count = get_pin_count();
-		_set_pin_count(0);
-		_set_pin_count(saved_pin_count);
+		int32_t saved_pin_count = get_effector_count();
+		set_total_effector_count(0);
+		set_total_effector_count(saved_pin_count);
 		int32_t saved_constraint_count = constraint_names.size();
 		_set_constraint_count(0);
 		_set_constraint_count(saved_constraint_count);
@@ -1009,20 +993,20 @@ void ManyBoneIK3D::add_constraint() {
 
 int32_t ManyBoneIK3D::find_pin(String p_string) const {
 	for (int32_t pin_i = 0; pin_i < pin_count; pin_i++) {
-		if (get_pin_bone_name(pin_i) == p_string) {
+		if (get_effector_bone_name(pin_i) == p_string) {
 			return pin_i;
 		}
 	}
 	return -1;
 }
 
-bool ManyBoneIK3D::get_pin_target_static(int32_t p_effector_index) {
+bool ManyBoneIK3D::get_effector_target_fixed(int32_t p_effector_index) {
 	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
-	return get_pin_nodepath(p_effector_index).is_empty();
+	return get_effector_pin_node_path(p_effector_index).is_empty();
 }
 
-void ManyBoneIK3D::set_pin_target_static(int32_t p_effector_index, bool p_force_ignore) {
+void ManyBoneIK3D::set_effector_target_fixed(int32_t p_effector_index, bool p_force_ignore) {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
 	if (!p_force_ignore) {
 		return;
@@ -1112,4 +1096,15 @@ void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
 	}
 	connect(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
 	_bone_list_changed();
+}
+
+void ManyBoneIK3D::set_effector_bone_name(int32_t p_pin_index, const String &p_bone) {
+	ERR_FAIL_INDEX(p_pin_index, pins.size());
+	Ref<IKEffectorTemplate3D> effector_template = pins[p_pin_index];
+	if (effector_template.is_null()) {
+		effector_template.instantiate();
+		pins.write[p_pin_index] = effector_template;
+	}
+	effector_template->set_name(p_bone);
+	set_dirty();
 }

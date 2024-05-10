@@ -72,8 +72,8 @@ class ManyBoneIK3D : public SkeletonModifier3D {
 	void _update_ik_bones_transform();
 	void _update_skeleton_bones_transform();
 	Vector<Ref<IKEffectorTemplate3D>> _get_bone_effectors() const;
-	void _set_constraint_name(int32_t p_index, String p_name);
-	void _set_pin_count(int32_t p_value);
+	void set_constraint_name_at_index(int32_t p_index, String p_name);
+	void set_total_effector_count(int32_t p_value);
 	void _set_constraint_count(int32_t p_count);
 	void _remove_pin(int32_t p_index);
 	void _set_bone_count(int32_t p_count);
@@ -92,9 +92,8 @@ protected:
 	void _skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) override;
 
 public:
-	void set_pin_target_static(int32_t p_effector_index, bool p_force_ignore);
-	bool get_pin_target_static(int32_t p_effector_index);
-	void set_pin_bone_name(int32_t p_effector_index, StringName p_name) const;
+	void set_effector_target_fixed(int32_t p_effector_index, bool p_force_ignore);
+	bool get_effector_target_fixed(int32_t p_effector_index);
 	void set_state(Ref<ManyBoneIK3DState> p_state);
 	Ref<ManyBoneIK3DState> get_state() const;
 	void add_constraint();
@@ -114,19 +113,19 @@ public:
 	float get_iterations_per_frame() const;
 	void set_iterations_per_frame(const float &p_iterations_per_frame);
 	void queue_print_skeleton();
-	int32_t get_pin_count() const;
-	void remove_constraint(int32_t p_index);
-	void set_pin_bone(int32_t p_pin_index, const String &p_bone);
-	StringName get_pin_bone_name(int32_t p_effector_index) const;
-	void set_pin_nodepath(int32_t p_effector_index, NodePath p_node_path);
-	NodePath get_pin_nodepath(int32_t p_effector_index) const;
+	int32_t get_effector_count() const;
+	void remove_constraint_at_index(int32_t p_index);
+	void set_effector_bone_name(int32_t p_pin_index, const String &p_bone);
+	StringName get_effector_bone_name(int32_t p_effector_index) const;
+	void set_effector_pin_node_path(int32_t p_effector_index, NodePath p_node_path);
+	NodePath get_effector_pin_node_path(int32_t p_effector_index) const;
 	int32_t find_effector_id(StringName p_bone_name);
-	void set_pin_target_nodepath(int32_t p_effector_index, const NodePath &p_target_node);
+	void set_effector_target_node_path(int32_t p_effector_index, const NodePath &p_target_node);
 	void set_pin_weight(int32_t p_pin_index, const real_t &p_weight);
 	real_t get_pin_weight(int32_t p_pin_index) const;
 	void set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p_priority_direction);
 	Vector3 get_pin_direction_priorities(int32_t p_pin_index) const;
-	NodePath get_pin_target_nodepath(int32_t p_pin_index);
+	NodePath get_effector_target_node_path(int32_t p_pin_index);
 	void set_pin_passthrough_factor(int32_t p_effector_index, const float p_passthrough_factor);
 	float get_pin_passthrough_factor(int32_t p_effector_index) const;
 	real_t get_default_damp() const;
@@ -135,12 +134,12 @@ public:
 	int32_t find_pin(String p_string) const;
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
-	void set_constraint_twist_transform(int32_t p_index, Transform3D p_transform);
-	Transform3D get_constraint_twist_transform(int32_t p_index) const;
-	void set_constraint_orientation_transform(int32_t p_index, Transform3D p_transform);
-	Transform3D get_constraint_orientation_transform(int32_t p_index) const;
-	void set_bone_direction_transform(int32_t p_index, Transform3D p_transform);
-	Transform3D get_bone_direction_transform(int32_t p_index) const;
+	void set_twist_transform_of_constraint(int32_t p_index, Transform3D p_transform);
+	Transform3D get_twist_transform_of_constraint(int32_t p_index) const;
+	void set_orientation_transform_of_constraint(int32_t p_index, Transform3D p_transform);
+	Transform3D get_orientation_transform_of_constraint(int32_t p_index) const;
+	void set_direction_transform_of_bone(int32_t p_index, Transform3D p_transform);
+	Transform3D get_direction_transform_of_bone(int32_t p_index) const;
 	Vector2 get_joint_twist(int32_t p_index) const;
 	void set_joint_twist(int32_t p_index, Vector2 p_twist);
 	void set_kusudama_open_cone(int32_t p_bone, int32_t p_index,
