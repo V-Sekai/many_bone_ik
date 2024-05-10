@@ -1007,26 +1007,6 @@ void ManyBoneIK3D::add_constraint() {
 	set_dirty();
 }
 
-bool ManyBoneIK3D::_is_descendant_of(int bone_i, int parent_bone_i) const {
-	while (bone_i != -1) {
-		if (bone_i == parent_bone_i) {
-			return true;
-		}
-		bone_i = get_skeleton()->get_bone_parent(bone_i);
-	}
-	return false;
-}
-
-bool ManyBoneIK3D::_is_ancestor_of(int potential_ancestor, int bone_idx) const {
-	while (bone_idx != -1) {
-		if (get_skeleton()->get_bone_parent(bone_idx) == potential_ancestor) {
-			return true;
-		}
-		bone_idx = get_skeleton()->get_bone_parent(bone_idx);
-	}
-	return false;
-}
-
 int32_t ManyBoneIK3D::find_pin(String p_string) const {
 	for (int32_t pin_i = 0; pin_i < pin_count; pin_i++) {
 		if (get_pin_bone_name(pin_i) == p_string) {
