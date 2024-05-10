@@ -62,7 +62,7 @@
 				Returns the twist transform of the constraint at the specified index.
 			</description>
 		</method>
-		<method name="get_kusudama_limit_cone_center" qualifiers="const">
+		<method name="get_kusudama_open_cone_center" qualifiers="const">
 			<return type="Vector3" />
 			<param index="0" name="index" type="int" />
 			<param index="1" name="cone_index" type="int" />
@@ -70,14 +70,14 @@
 				Returns the center of the limit cone for the kusudama at the specified index.
 			</description>
 		</method>
-		<method name="get_kusudama_limit_cone_count" qualifiers="const">
+		<method name="get_kusudama_open_cone_count" qualifiers="const">
 			<return type="int" />
 			<param index="0" name="index" type="int" />
 			<description>
 				Returns the count of limit cones for the kusudama at the specified index.
 			</description>
 		</method>
-		<method name="get_kusudama_limit_cone_radius" qualifiers="const">
+		<method name="get_kusudama_open_cone_radius" qualifiers="const">
 			<return type="float" />
 			<param index="0" name="index" type="int" />
 			<param index="1" name="cone_index" type="int" />
@@ -210,7 +210,7 @@
 				Marks the IK system as dirty, indicating that it needs to be updated. This should be called whenever a significant change is made to the system.
 			</description>
 		</method>
-		<method name="set_kusudama_limit_cone_center">
+		<method name="set_kusudama_open_cone_center">
 			<return type="void" />
 			<param index="0" name="index" type="int" />
 			<param index="1" name="cone_index" type="int" />
@@ -219,7 +219,7 @@
 				Sets the center of the limit cone for the kusudama at the specified index.
 			</description>
 		</method>
-		<method name="set_kusudama_limit_cone_count">
+		<method name="set_kusudama_open_cone_count">
 			<return type="void" />
 			<param index="0" name="index" type="int" />
 			<param index="1" name="count" type="int" />
@@ -227,7 +227,7 @@
 				Sets the count of limit cones for the kusudama at the specified index.
 			</description>
 		</method>
-		<method name="set_kusudama_limit_cone_radius">
+		<method name="set_kusudama_open_cone_radius">
 			<return type="void" />
 			<param index="0" name="index" type="int" />
 			<param index="1" name="cone_index" type="int" />

@@ -36,7 +36,7 @@
 #include "core/string/string_name.h"
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
-#include "ik_limit_cone_3d.h"
+#include "ik_open_cone_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
@@ -203,14 +203,14 @@ void ManyBoneIK3D::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(
 				PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/twist_range", PROPERTY_HINT_RANGE, "-359.9,359.9,0.1,radians,exp", constraint_usage));
 		p_list->push_back(
-				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone_count", PROPERTY_HINT_RANGE, "0,10,1", constraint_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
-						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_limit_cone/"));
-		for (int cone_i = 0; cone_i < get_kusudama_limit_cone_count(constraint_i); cone_i++) {
+				PropertyInfo(Variant::INT, "constraints/" + itos(constraint_i) + "/kusudama_open_cone_count", PROPERTY_HINT_RANGE, "0,10,1", constraint_usage | PROPERTY_USAGE_ARRAY | PROPERTY_USAGE_READ_ONLY,
+						"Limit Cones,constraints/" + itos(constraint_i) + "/kusudama_open_cone/"));
+		for (int cone_i = 0; cone_i < get_kusudama_open_cone_count(constraint_i); cone_i++) {
 			p_list->push_back(
-					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1,1,0.1,exp", constraint_usage));
+					PropertyInfo(Variant::VECTOR3, "constraints/" + itos(constraint_i) + "/kusudama_open_cone/" + itos(cone_i) + "/center", PROPERTY_HINT_RANGE, "-1,1,0.1,exp", constraint_usage));
 
 			p_list->push_back(
-					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_limit_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians,exp", constraint_usage));
+					PropertyInfo(Variant::FLOAT, "constraints/" + itos(constraint_i) + "/kusudama_open_cone/" + itos(cone_i) + "/radius", PROPERTY_HINT_RANGE, "0,180,0.1,radians,exp", constraint_usage));
 		}
 		p_list->push_back(
 				PropertyInfo(Variant::TRANSFORM3D, "constraints/" + itos(constraint_i) + "/kusudama_twist", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE));
@@ -261,7 +261,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, constraint_count, false);
-		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone";
+		String begins = "constraints/" + itos(index) + "/kusudama_open_cone";
 		if (what == "bone_name") {
 			ERR_FAIL_INDEX_V(index, constraint_names.size(), false);
 			r_ret = constraint_names[index];
@@ -272,18 +272,18 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		} else if (what == "twist_range") {
 			r_ret = get_kusudama_twist(index).y;
 			return true;
-		} else if (what == "kusudama_limit_cone_count") {
-			r_ret = get_kusudama_limit_cone_count(index);
+		} else if (what == "kusudama_open_cone_count") {
+			r_ret = get_kusudama_open_cone_count(index);
 			return true;
 		} else if (name.begins_with(begins)) {
 			int32_t cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
 			if (cone_what == "center") {
-				Vector3 center = get_kusudama_limit_cone_center(index, cone_index);
+				Vector3 center = get_kusudama_open_cone_center(index, cone_index);
 				r_ret = center;
 				return true;
 			} else if (cone_what == "radius") {
-				r_ret = get_kusudama_limit_cone_radius(index, cone_index);
+				r_ret = get_kusudama_open_cone_radius(index, cone_index);
 				return true;
 			}
 		} else if (what == "bone_direction") {
@@ -338,7 +338,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 	} else if (name.begins_with("constraints/")) {
 		int index = name.get_slicec('/', 1).to_int();
 		String what = name.get_slicec('/', 2);
-		String begins = "constraints/" + itos(index) + "/kusudama_limit_cone/";
+		String begins = "constraints/" + itos(index) + "/kusudama_open_cone/";
 		if (index >= constraint_names.size()) {
 			_set_constraint_count(constraint_count);
 		}
@@ -353,17 +353,17 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 			Vector2 twist_range = get_kusudama_twist(index);
 			set_kusudama_twist(index, Vector2(twist_range.x, p_value));
 			return true;
-		} else if (what == "kusudama_limit_cone_count") {
-			set_kusudama_limit_cone_count(index, p_value);
+		} else if (what == "kusudama_open_cone_count") {
+			set_kusudama_open_cone_count(index, p_value);
 			return true;
 		} else if (name.begins_with(begins)) {
 			int cone_index = name.get_slicec('/', 3).to_int();
 			String cone_what = name.get_slicec('/', 4);
 			if (cone_what == "center") {
-				set_kusudama_limit_cone_center(index, cone_index, p_value);
+				set_kusudama_open_cone_center(index, cone_index, p_value);
 				return true;
 			} else if (cone_what == "radius") {
-				set_kusudama_limit_cone_radius(index, cone_index, p_value);
+				set_kusudama_open_cone_radius(index, cone_index, p_value);
 				return true;
 			}
 		} else if (what == "bone_direction") {
@@ -394,12 +394,12 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("register_skeleton"), &ManyBoneIK3D::register_skeleton);
 	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK3D::register_skeleton);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &ManyBoneIK3D::set_dirty);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_radius", "index", "cone_index", "radius"), &ManyBoneIK3D::set_kusudama_limit_cone_radius);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_radius", "index", "cone_index"), &ManyBoneIK3D::get_kusudama_limit_cone_radius);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_center", "index", "cone_index", "center"), &ManyBoneIK3D::set_kusudama_limit_cone_center);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_center", "index", "cone_index"), &ManyBoneIK3D::get_kusudama_limit_cone_center);
-	ClassDB::bind_method(D_METHOD("set_kusudama_limit_cone_count", "index", "count"), &ManyBoneIK3D::set_kusudama_limit_cone_count);
-	ClassDB::bind_method(D_METHOD("get_kusudama_limit_cone_count", "index"), &ManyBoneIK3D::get_kusudama_limit_cone_count);
+	ClassDB::bind_method(D_METHOD("set_kusudama_open_cone_radius", "index", "cone_index", "radius"), &ManyBoneIK3D::set_kusudama_open_cone_radius);
+	ClassDB::bind_method(D_METHOD("get_kusudama_open_cone_radius", "index", "cone_index"), &ManyBoneIK3D::get_kusudama_open_cone_radius);
+	ClassDB::bind_method(D_METHOD("set_kusudama_open_cone_center", "index", "cone_index", "center"), &ManyBoneIK3D::set_kusudama_open_cone_center);
+	ClassDB::bind_method(D_METHOD("get_kusudama_open_cone_center", "index", "cone_index"), &ManyBoneIK3D::get_kusudama_open_cone_center);
+	ClassDB::bind_method(D_METHOD("set_kusudama_open_cone_count", "index", "count"), &ManyBoneIK3D::set_kusudama_open_cone_count);
+	ClassDB::bind_method(D_METHOD("get_kusudama_open_cone_count", "index"), &ManyBoneIK3D::get_kusudama_open_cone_count);
 	ClassDB::bind_method(D_METHOD("set_kusudama_twist", "index", "limit"), &ManyBoneIK3D::set_kusudama_twist);
 	ClassDB::bind_method(D_METHOD("get_kusudama_twist", "index"), &ManyBoneIK3D::get_kusudama_twist);
 	ClassDB::bind_method(D_METHOD("set_pin_passthrough_factor", "index", "falloff"), &ManyBoneIK3D::set_pin_passthrough_factor);
@@ -468,13 +468,13 @@ void ManyBoneIK3D::_set_constraint_count(int32_t p_count) {
 	constraint_count = p_count;
 	constraint_names.resize(p_count);
 	kusudama_twist.resize(p_count);
-	kusudama_limit_cone_count.resize(p_count);
-	kusudama_limit_cones.resize(p_count);
+	kusudama_open_cone_count.resize(p_count);
+	kusudama_open_cones.resize(p_count);
 	for (int32_t constraint_i = p_count; constraint_i-- > old_count;) {
 		constraint_names.write[constraint_i] = String();
-		kusudama_limit_cone_count.write[constraint_i] = 0;
-		kusudama_limit_cones.write[constraint_i].resize(1);
-		kusudama_limit_cones.write[constraint_i].write[0] = Vector4(0, 1, 0, 0.01745f);
+		kusudama_open_cone_count.write[constraint_i] = 0;
+		kusudama_open_cones.write[constraint_i].resize(1);
+		kusudama_open_cones.write[constraint_i].write[0] = Vector4(0, 1, 0, 0.01745f);
 		kusudama_twist.write[constraint_i] = Vector2(0, 0.01745f);
 	}
 	set_dirty();
@@ -519,10 +519,10 @@ int32_t ManyBoneIK3D::find_effector_id(StringName p_bone_name) {
 	return -1;
 }
 
-void ManyBoneIK3D::set_kusudama_limit_cone(int32_t p_constraint_index, int32_t p_index,
+void ManyBoneIK3D::set_kusudama_open_cone(int32_t p_constraint_index, int32_t p_index,
 		Vector3 p_center, float p_radius) {
-	ERR_FAIL_INDEX(p_constraint_index, kusudama_limit_cones.size());
-	Vector<Vector4> cones = kusudama_limit_cones.write[p_constraint_index];
+	ERR_FAIL_INDEX(p_constraint_index, kusudama_open_cones.size());
+	Vector<Vector4> cones = kusudama_open_cones.write[p_constraint_index];
 	if (Math::is_zero_approx(p_center.length_squared())) {
 		p_center = Vector3(0.0f, 1.0f, 0.0f);
 	}
@@ -533,27 +533,27 @@ void ManyBoneIK3D::set_kusudama_limit_cone(int32_t p_constraint_index, int32_t p
 	cone.z = center.z;
 	cone.w = p_radius;
 	cones.write[p_index] = cone;
-	kusudama_limit_cones.write[p_constraint_index] = cones;
+	kusudama_open_cones.write[p_constraint_index] = cones;
 	set_dirty();
 }
 
-float ManyBoneIK3D::get_kusudama_limit_cone_radius(int32_t p_constraint_index, int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_constraint_index, kusudama_limit_cones.size(), Math_TAU);
-	ERR_FAIL_INDEX_V(p_index, kusudama_limit_cones[p_constraint_index].size(), Math_TAU);
-	return kusudama_limit_cones[p_constraint_index][p_index].w;
+float ManyBoneIK3D::get_kusudama_open_cone_radius(int32_t p_constraint_index, int32_t p_index) const {
+	ERR_FAIL_INDEX_V(p_constraint_index, kusudama_open_cones.size(), Math_TAU);
+	ERR_FAIL_INDEX_V(p_index, kusudama_open_cones[p_constraint_index].size(), Math_TAU);
+	return kusudama_open_cones[p_constraint_index][p_index].w;
 }
 
-int32_t ManyBoneIK3D::get_kusudama_limit_cone_count(int32_t p_constraint_index) const {
-	ERR_FAIL_INDEX_V(p_constraint_index, kusudama_limit_cone_count.size(), 0);
-	return kusudama_limit_cone_count[p_constraint_index];
+int32_t ManyBoneIK3D::get_kusudama_open_cone_count(int32_t p_constraint_index) const {
+	ERR_FAIL_INDEX_V(p_constraint_index, kusudama_open_cone_count.size(), 0);
+	return kusudama_open_cone_count[p_constraint_index];
 }
 
-void ManyBoneIK3D::set_kusudama_limit_cone_count(int32_t p_constraint_index, int32_t p_count) {
-	ERR_FAIL_INDEX(p_constraint_index, kusudama_limit_cone_count.size());
-	ERR_FAIL_INDEX(p_constraint_index, kusudama_limit_cones.size());
-	int32_t old_cone_count = kusudama_limit_cones[p_constraint_index].size();
-	kusudama_limit_cone_count.write[p_constraint_index] = p_count;
-	Vector<Vector4> &cones = kusudama_limit_cones.write[p_constraint_index];
+void ManyBoneIK3D::set_kusudama_open_cone_count(int32_t p_constraint_index, int32_t p_count) {
+	ERR_FAIL_INDEX(p_constraint_index, kusudama_open_cone_count.size());
+	ERR_FAIL_INDEX(p_constraint_index, kusudama_open_cones.size());
+	int32_t old_cone_count = kusudama_open_cones[p_constraint_index].size();
+	kusudama_open_cone_count.write[p_constraint_index] = p_count;
+	Vector<Vector4> &cones = kusudama_open_cones.write[p_constraint_index];
 	cones.resize(p_count);
 	String bone_name = get_constraint_name(p_constraint_index);
 	Transform3D bone_transform = get_bone_direction_transform(p_constraint_index);
@@ -584,20 +584,20 @@ StringName ManyBoneIK3D::get_pin_bone_name(int32_t p_effector_index) const {
 	return effector_template->get_name();
 }
 
-void ManyBoneIK3D::set_kusudama_limit_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius) {
-	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cone_count.size());
-	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
-	ERR_FAIL_INDEX(p_index, kusudama_limit_cone_count[p_effector_index]);
-	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
-	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
+void ManyBoneIK3D::set_kusudama_open_cone_radius(int32_t p_effector_index, int32_t p_index, float p_radius) {
+	ERR_FAIL_INDEX(p_effector_index, kusudama_open_cone_count.size());
+	ERR_FAIL_INDEX(p_effector_index, kusudama_open_cones.size());
+	ERR_FAIL_INDEX(p_index, kusudama_open_cone_count[p_effector_index]);
+	ERR_FAIL_INDEX(p_index, kusudama_open_cones[p_effector_index].size());
+	Vector4 &cone = kusudama_open_cones.write[p_effector_index].write[p_index];
 	cone.w = p_radius;
 	set_dirty();
 }
 
-void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
-	ERR_FAIL_INDEX(p_effector_index, kusudama_limit_cones.size());
-	ERR_FAIL_INDEX(p_index, kusudama_limit_cones[p_effector_index].size());
-	Vector4 &cone = kusudama_limit_cones.write[p_effector_index].write[p_index];
+void ManyBoneIK3D::set_kusudama_open_cone_center(int32_t p_effector_index, int32_t p_index, Vector3 p_center) {
+	ERR_FAIL_INDEX(p_effector_index, kusudama_open_cones.size());
+	ERR_FAIL_INDEX(p_index, kusudama_open_cones[p_effector_index].size());
+	Vector4 &cone = kusudama_open_cones.write[p_effector_index].write[p_index];
 	Basis basis;
 	basis.set_column(0, Vector3(1, 0, 0));
 	basis.set_column(1, Vector3(0, 0, -1));
@@ -615,16 +615,16 @@ void ManyBoneIK3D::set_kusudama_limit_cone_center(int32_t p_effector_index, int3
 	set_dirty();
 }
 
-Vector3 ManyBoneIK3D::get_kusudama_limit_cone_center(int32_t p_constraint_index, int32_t p_index) const {
-	if (unlikely((p_constraint_index) < 0 || (p_constraint_index) >= (kusudama_limit_cones.size()))) {
+Vector3 ManyBoneIK3D::get_kusudama_open_cone_center(int32_t p_constraint_index, int32_t p_index) const {
+	if (unlikely((p_constraint_index) < 0 || (p_constraint_index) >= (kusudama_open_cones.size()))) {
 		ERR_PRINT_ONCE("Can't get limit cone center.");
 		return Vector3(0.0, 0.0, 1.0);
 	}
-	if (unlikely((p_index) < 0 || (p_index) >= (kusudama_limit_cones[p_constraint_index].size()))) {
+	if (unlikely((p_index) < 0 || (p_index) >= (kusudama_open_cones[p_constraint_index].size()))) {
 		ERR_PRINT_ONCE("Can't get limit cone center.");
 		return Vector3(0.0, 0.0, 1.0);
 	}
-	const Vector4 &cone = kusudama_limit_cones[p_constraint_index][p_index];
+	const Vector4 &cone = kusudama_open_cones[p_constraint_index][p_index];
 	Vector3 ret;
 	ret.x = cone.x;
 	ret.y = cone.y;
@@ -777,8 +777,8 @@ void ManyBoneIK3D::remove_constraint(int32_t p_index) {
 	ERR_FAIL_INDEX(p_index, constraint_count);
 
 	constraint_names.remove_at(p_index);
-	kusudama_limit_cone_count.remove_at(p_index);
-	kusudama_limit_cones.remove_at(p_index);
+	kusudama_open_cone_count.remove_at(p_index);
+	kusudama_open_cones.remove_at(p_index);
 	kusudama_twist.remove_at(p_index);
 
 	constraint_count--;
@@ -1009,9 +1009,9 @@ void ManyBoneIK3D::add_constraint() {
 	int32_t old_count = constraint_count;
 	_set_constraint_count(constraint_count + 1);
 	constraint_names.write[old_count] = String();
-	kusudama_limit_cone_count.write[old_count] = 0;
-	kusudama_limit_cones.write[old_count].resize(1);
-	kusudama_limit_cones.write[old_count].write[0] = Vector4(0, 1, 0, Math_PI);
+	kusudama_open_cone_count.write[old_count] = 0;
+	kusudama_open_cones.write[old_count].resize(1);
+	kusudama_open_cones.write[old_count].write[0] = Vector4(0, 1, 0, Math_PI);
 	kusudama_twist.write[old_count] = Vector2(0, Math_PI);
 	set_dirty();
 }
@@ -1098,18 +1098,18 @@ void ManyBoneIK3D::_bone_list_changed() {
 			constraint.instantiate();
 			constraint->enable_orientational_limits();
 
-			int32_t cone_count = kusudama_limit_cone_count[constraint_i];
-			const Vector<Vector4> &cones = kusudama_limit_cones[constraint_i];
+			int32_t cone_count = kusudama_open_cone_count[constraint_i];
+			const Vector<Vector4> &cones = kusudama_open_cones[constraint_i];
 			for (int32_t cone_i = 0; cone_i < cone_count; ++cone_i) {
 				const Vector4 &cone = cones[cone_i];
-				Ref<IKLimitCone3D> new_cone;
+				Ref<IKOpenCone3D> new_cone;
 				new_cone.instantiate();
 				new_cone->set_attached_to(constraint);
 				new_cone->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 				new_cone->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
 				new_cone->set_radius(MAX(1.0e-38, cone.w));
 				new_cone->set_control_point(Vector3(cone.x, cone.y, cone.z).normalized());
-				constraint->add_limit_cone(new_cone);
+				constraint->add_open_cone(new_cone);
 			}
 
 			const Vector2 axial_limit = get_kusudama_twist(constraint_i);
