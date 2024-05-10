@@ -378,8 +378,8 @@ void ManyBoneIK3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo,
 	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE) {
 		for (int i = 0; i < p_ids.size(); i++) {
 			int32_t constraint_i = many_bone_ik->find_constraint(skeleton->get_bone_name(p_ids[i]));
-			float from_original = many_bone_ik->get_kusudama_twist(constraint_i).x;
-			float range = many_bone_ik->get_kusudama_twist(constraint_i).y;
+			float from_original = many_bone_ik->get_joint_twist(constraint_i).x;
+			float range = many_bone_ik->get_joint_twist(constraint_i).y;
 			ur->add_do_method(many_bone_ik, "set_kusudama_twist", constraint_i, Vector2(skeleton->get_bone_pose(p_ids[i]).get_basis().get_euler().y, range));
 			ur->add_undo_method(many_bone_ik, "set_kusudama_twist", constraint_i, Vector2(from_original, range));
 			ur->add_do_method(many_bone_ik, "set_dirty");

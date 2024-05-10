@@ -62,6 +62,12 @@
 				Returns the twist transform of the constraint at the specified index.
 			</description>
 		</method>
+		<method name="get_joint_twist" qualifiers="const">
+			<return type="Vector2" />
+			<param index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="get_kusudama_open_cone_center" qualifiers="const">
 			<return type="Vector3" />
 			<param index="0" name="index" type="int" />
@@ -83,13 +89,6 @@
 			<param index="1" name="cone_index" type="int" />
 			<description>
 				Returns the radius of the limit cone for the kusudama at the specified index.
-			</description>
-		</method>
-		<method name="get_kusudama_twist" qualifiers="const">
-			<return type="Vector2" />
-			<param index="0" name="index" type="int" />
-			<description>
-				Returns the twist of the kusudama at the specified index.
 			</description>
 		</method>
 		<method name="get_pin_bone_name" qualifiers="const">
@@ -210,6 +209,13 @@
 				Marks the IK system as dirty, indicating that it needs to be updated. This should be called whenever a significant change is made to the system.
 			</description>
 		</method>
+		<method name="set_joint_twist">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="limit" type="Vector2" />
+			<description>
+			</description>
+		</method>
 		<method name="set_kusudama_open_cone_center">
 			<return type="void" />
 			<param index="0" name="index" type="int" />
@@ -234,14 +240,6 @@
 			<param index="2" name="radius" type="float" />
 			<description>
 				Sets the radius of the limit cone for the kusudama at the specified index.
-			</description>
-		</method>
-		<method name="set_kusudama_twist">
-			<return type="void" />
-			<param index="0" name="index" type="int" />
-			<param index="1" name="limit" type="Vector2" />
-			<description>
-				Sets the twist of the kusudama at the specified index.
 			</description>
 		</method>
 		<method name="set_pin_bone_name" qualifiers="const">

@@ -53,7 +53,7 @@ class ManyBoneIK3D : public SkeletonModifier3D {
 	Vector<StringName> constraint_names;
 	Vector<Ref<IKEffectorTemplate3D>> pins;
 	Vector<Ref<IKBone3D>> bone_list;
-	Vector<Vector2> kusudama_twist;
+	Vector<Vector2> joint_twist;
 	Vector<float> bone_damp;
 	Vector<Vector<Vector4>> kusudama_open_cones;
 	Vector<int> kusudama_open_cone_count;
@@ -143,15 +143,15 @@ public:
 	Transform3D get_constraint_orientation_transform(int32_t p_index) const;
 	void set_bone_direction_transform(int32_t p_index, Transform3D p_transform);
 	Transform3D get_bone_direction_transform(int32_t p_index) const;
-	Vector2 get_kusudama_twist(int32_t p_index) const;
+	Vector2 get_joint_twist(int32_t p_index) const;
+	void set_joint_twist(int32_t p_index, Vector2 p_twist);
 	void set_kusudama_open_cone(int32_t p_bone, int32_t p_index,
 			Vector3 p_center, float p_radius);
 	Vector3 get_kusudama_open_cone_center(int32_t p_constraint_index, int32_t p_index) const;
 	float get_kusudama_open_cone_radius(int32_t p_constraint_index, int32_t p_index) const;
 	int32_t get_kusudama_open_cone_count(int32_t p_constraint_index) const;
 	int32_t get_bone_count() const;
-	void set_kusudama_twist_from_range(int32_t p_index, float from, float range);
-	void set_kusudama_twist(int32_t p_index, Vector2 p_limit);
+	void set_kusudama_twist_from_to(int32_t p_index, float from, float to);
 	void set_kusudama_open_cone_count(int32_t p_constraint_index, int32_t p_count);
 	void set_kusudama_open_cone_center(int32_t p_constraint_index, int32_t p_index, Vector3 p_center);
 	void set_kusudama_open_cone_radius(int32_t p_constraint_index, int32_t p_index, float p_radius);
