@@ -715,7 +715,6 @@ void ManyBoneIK3D::_process_modification() {
 	if (!is_visible()) {
 		return;
 	}
-	_update_ik_bones_transform();
 	for (int32_t i = 0; i < get_iterations_per_frame(); i++) {
 		for (Ref<IKBoneSegment3D> segmented_skeleton : segmented_skeletons) {
 			if (segmented_skeleton.is_null()) {
