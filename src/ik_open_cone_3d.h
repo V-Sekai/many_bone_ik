@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  ik_open_cone_3d.h                                                    */
+/*  ik_open_cone_3d.h                                                     */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef IK_open_cone_3D_H
-#define IK_open_cone_3D_H
+#ifndef IK_OPEN_CONE_3D_H
+#define IK_OPEN_CONE_3D_H
 
 #include "core/io/resource.h"
 #include "core/math/vector3.h"
@@ -137,4 +137,4 @@ public:
 	void set_radius(double radius);
 };
 
-#endif // IK_open_cone_3D_H
+#endif // IK_OPEN_CONE_3D_H

@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
+#ifndef TEST_IK_KUSUDAMA_3D_H
+#define TEST_IK_KUSUDAMA_3D_H
 #include "modules/many_bone_ik/src/ik_kusudama_3d.h"
 #include "tests/test_macros.h"
 
-#ifndef TEST_IK_KUSUDAMA_3D_H
-#define TEST_IK_KUSUDAMA_3D_H
 
 namespace TestIKKusudama3D {
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Verify limit cone containment") {
