@@ -1,3 +1,8 @@
+// Copyright (c) 2018-present. This file is part of V-Sekai https://v-sekai.org/.
+// K. S. Ernest (Fire) Lee & Contributors
+// many_bone_ik_shader.gdshader
+// SPDX-License-Identifier: MIT
+
 // Skeleton 3D gizmo kusudama constraint shader.
 shader_type spatial;
 render_mode depth_draw_always;

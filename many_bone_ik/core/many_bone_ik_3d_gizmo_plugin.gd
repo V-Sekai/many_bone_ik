@@ -1,3 +1,8 @@
+# Copyright (c) 2018-present. This file is part of V-Sekai https://v-sekai.org/.
+# K. S. Ernest (Fire) Lee & Contributors
+# many_bone_ik_3d_gizmo_plugin.gd
+# SPDX-License-Identifier: MIT
+
 class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(ManyBoneIK3DGizmoPlugin, EditorNode3DGizmoPlugin);
 	Ref<Shader> kusudama_shader = memnew(Shader);
