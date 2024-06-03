@@ -1,6 +1,6 @@
 # Copyright (c) 2018-present. This file is part of V-Sekai https://v-sekai.org/.
 # K. S. Ernest (Fire) Lee & Contributors
-# qcp.gd
+# ik_node_3d.gd
 # SPDX-License-Identifier: MIT
 
 extends RefCounted
