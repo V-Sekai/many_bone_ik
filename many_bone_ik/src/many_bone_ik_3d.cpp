@@ -1180,3 +1180,1141 @@ void ManyBoneIK3D::set_effector_bone_name(int32_t p_pin_index, const String &p_b
 	effector_template->set_name(p_bone);
 	set_dirty();
 }
+
+
+class IKEffectorTemplate3D : public Resource {
+	GDCLASS(IKEffectorTemplate3D, Resource);
+
+	StringName root_bone;
+	NodePath target_node;
+	bool target_static = false;
+	real_t passthrough_factor = 0.0f;
+	real_t weight = 0.0f;
+	Vector3 priority_direction = Vector3(0.2f, 0.0f, 0.2f); // Purported ideal values are 1.0 / 3.0 for one direction, 1.0 / 5.0 for two directions and 1.0 / 7.0 for three directions.
+protected:
+	static void _bind_methods();
+
+public:
+	String get_root_bone() const;
+	void set_root_bone(String p_root_bone);
+	NodePath get_target_node() const;
+	void set_target_node(NodePath p_node_path);
+	float get_passthrough_factor() const;
+	void set_passthrough_factor(float p_passthrough_factor);
+	real_t get_weight() const { return weight; }
+	void set_weight(real_t p_weight) { weight = p_weight; }
+	Vector3 get_direction_priorities() const { return priority_direction; }
+	void set_direction_priorities(Vector3 p_priority_direction) { priority_direction = p_priority_direction; }
+
+	IKEffectorTemplate3D();
+};
+
+
+void IKEffectorTemplate3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_root_bone"), &IKEffectorTemplate3D::get_root_bone);
+	ClassDB::bind_method(D_METHOD("set_root_bone", "target_node"), &IKEffectorTemplate3D::set_root_bone);
+
+	ClassDB::bind_method(D_METHOD("get_target_node"), &IKEffectorTemplate3D::get_target_node);
+	ClassDB::bind_method(D_METHOD("set_target_node", "target_node"), &IKEffectorTemplate3D::set_target_node);
+
+	ClassDB::bind_method(D_METHOD("get_passthrough_factor"), &IKEffectorTemplate3D::get_passthrough_factor);
+	ClassDB::bind_method(D_METHOD("set_passthrough_factor", "passthrough_factor"), &IKEffectorTemplate3D::set_passthrough_factor);
+
+	ClassDB::bind_method(D_METHOD("get_weight"), &IKEffectorTemplate3D::get_weight);
+	ClassDB::bind_method(D_METHOD("set_weight", "weight"), &IKEffectorTemplate3D::set_weight);
+
+	ClassDB::bind_method(D_METHOD("get_direction_priorities"), &IKEffectorTemplate3D::get_direction_priorities);
+	ClassDB::bind_method(D_METHOD("set_direction_priorities", "direction_priorities"), &IKEffectorTemplate3D::set_direction_priorities);
+
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "passthrough_factor"), "set_passthrough_factor", "get_passthrough_factor");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "weight"), "set_weight", "get_weight");
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "direction_priorities"), "set_direction_priorities", "get_direction_priorities");
+	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "target_node"), "set_target_node", "get_target_node");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
+}
+
+NodePath IKEffectorTemplate3D::get_target_node() const {
+	return target_node;
+}
+
+void IKEffectorTemplate3D::set_target_node(NodePath p_node_path) {
+	target_node = p_node_path;
+}
+
+float IKEffectorTemplate3D::get_passthrough_factor() const {
+	return passthrough_factor;
+}
+
+void IKEffectorTemplate3D::set_passthrough_factor(float p_passthrough_factor) {
+	passthrough_factor = p_passthrough_factor;
+}
+
+IKEffectorTemplate3D::IKEffectorTemplate3D() {
+}
+
+String IKEffectorTemplate3D::get_root_bone() const {
+	return root_bone;
+}
+
+void IKEffectorTemplate3D::set_root_bone(String p_node_path) {
+	root_bone = p_node_path;
+}
+
+class IKEffector3D : public Resource {
+	GDCLASS(IKEffector3D, Resource);
+	friend class IKBone3D;
+	friend class IKBoneSegment3D;
+
+	Ref<IKBone3D> for_bone;
+	bool use_target_node_rotation = true;
+	NodePath target_node_path;
+	ObjectID target_node_cache;
+	Node *target_node_reference = nullptr;
+	bool target_static = false;
+	Transform3D target_transform;
+
+	Transform3D target_relative_to_skeleton_origin;
+	int32_t num_headings = 7;
+	// See IKEffectorTemplate to change the defaults.
+	real_t weight = 0.0;
+	real_t passthrough_factor = 0.0;
+	PackedVector3Array target_headings;
+	PackedVector3Array tip_headings;
+	Vector<real_t> heading_weights;
+	Vector3 direction_priorities;
+
+protected:
+	static void _bind_methods();
+
+public:
+	IKEffector3D() = default;
+	void set_weight(real_t p_weight);
+	real_t get_weight() const;
+	void set_direction_priorities(Vector3 p_direction_priorities);
+	Vector3 get_direction_priorities() const;
+	void update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK3D *p_modification = nullptr);
+	const float MAX_KUSUDAMA_OPEN_CONES = 30;
+	float get_passthrough_factor() const;
+	void set_passthrough_factor(float p_passthrough_factor);
+	void set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path);
+	NodePath get_target_node() const;
+	Transform3D get_target_global_transform() const;
+	void set_target_node_rotation(bool p_use);
+	bool get_target_node_rotation() const;
+	Ref<IKBone3D> get_ik_bone_3d() const;
+	bool is_following_translation_only() const;
+	int32_t update_effector_target_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone, const Vector<double> *p_weights) const;
+	int32_t update_effector_tip_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone) const;
+	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
+};
+
+
+void IKEffector3D::set_target_node(Skeleton3D *p_skeleton, const NodePath &p_target_node_path) {
+	ERR_FAIL_NULL(p_skeleton);
+	target_node_path = p_target_node_path;
+}
+
+NodePath IKEffector3D::get_target_node() const {
+	return target_node_path;
+}
+
+void IKEffector3D::set_target_node_rotation(bool p_use) {
+	use_target_node_rotation = p_use;
+}
+
+bool IKEffector3D::get_target_node_rotation() const {
+	return use_target_node_rotation;
+}
+
+Ref<IKBone3D> IKEffector3D::get_ik_bone_3d() const {
+	return for_bone;
+}
+
+bool IKEffector3D::is_following_translation_only() const {
+	return Math::is_zero_approx(direction_priorities.length_squared());
+}
+
+void IKEffector3D::set_direction_priorities(Vector3 p_direction_priorities) {
+	direction_priorities = p_direction_priorities;
+}
+
+Vector3 IKEffector3D::get_direction_priorities() const {
+	return direction_priorities;
+}
+
+void IKEffector3D::update_target_global_transform(Skeleton3D *p_skeleton, ManyBoneIK3D *p_many_bone_ik) {
+	ERR_FAIL_NULL(p_skeleton);
+	ERR_FAIL_NULL(for_bone);
+	Node3D *current_target_node = cast_to<Node3D>(p_many_bone_ik->get_node_or_null(target_node_path));
+	if (current_target_node && current_target_node->is_visible_in_tree()) {
+		target_relative_to_skeleton_origin = p_skeleton->get_global_transform().affine_inverse() * current_target_node->get_global_transform();
+	}
+}
+
+Transform3D IKEffector3D::get_target_global_transform() const {
+	return target_relative_to_skeleton_origin;
+}
+
+int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone, const Vector<double> *p_weights) const {
+	ERR_FAIL_COND_V(p_index == -1, -1);
+	ERR_FAIL_NULL_V(p_headings, -1);
+	ERR_FAIL_NULL_V(p_for_bone, -1);
+	ERR_FAIL_NULL_V(p_weights, -1);
+
+	int32_t index = p_index;
+	Vector3 bone_origin_relative_to_skeleton_origin = for_bone->get_bone_direction_global_pose().origin;
+	p_headings->write[index] = target_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
+	index++;
+	Vector3 priority = get_direction_priorities();
+	for (int axis = Vector3::AXIS_X; axis <= Vector3::AXIS_Z; ++axis) {
+		if (priority[axis] > 0.0) {
+			real_t w = p_weights->get(index);
+			Vector3 column = target_relative_to_skeleton_origin.basis.get_column(axis);
+
+			p_headings->write[index] = (column + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+			p_headings->write[index] *= Vector3(w, w, w);
+			index++;
+			p_headings->write[index] = (target_relative_to_skeleton_origin.origin - column) - bone_origin_relative_to_skeleton_origin;
+			p_headings->write[index] *= Vector3(w, w, w);
+			index++;
+		}
+	}
+
+	return index;
+}
+
+int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone) const {
+	ERR_FAIL_COND_V(p_index == -1, -1);
+	ERR_FAIL_NULL_V(p_headings, -1);
+	ERR_FAIL_NULL_V(p_for_bone, -1);
+
+	Transform3D tip_xform_relative_to_skeleton_origin = for_bone->get_bone_direction_global_pose();
+	Basis tip_basis = tip_xform_relative_to_skeleton_origin.basis;
+	Vector3 bone_origin_relative_to_skeleton_origin = p_for_bone->get_bone_direction_global_pose().origin;
+
+	int32_t index = p_index;
+	p_headings->write[index] = tip_xform_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
+	index++;
+	double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
+	double scale_by = MIN(distance, 1.0f);
+	const Vector3 priority = get_direction_priorities();
+
+	for (int axis = Vector3::AXIS_X; axis <= Vector3::AXIS_Z; ++axis) {
+		if (priority[axis] > 0.0) {
+			Vector3 column = tip_basis.get_column(axis) * priority[axis];
+
+			p_headings->write[index] = (column + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+			p_headings->write[index] *= scale_by;
+			index++;
+
+			p_headings->write[index] = (tip_xform_relative_to_skeleton_origin.origin - column) - bone_origin_relative_to_skeleton_origin;
+			p_headings->write[index] *= scale_by;
+			index++;
+		}
+	}
+
+	return index;
+}
+
+void IKEffector3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_target_node", "skeleton", "node"),
+			&IKEffector3D::set_target_node);
+	ClassDB::bind_method(D_METHOD("get_target_node"),
+			&IKEffector3D::get_target_node);
+	ClassDB::bind_method(D_METHOD("set_passthrough_factor", "amount"),
+			&IKEffector3D::set_passthrough_factor);
+	ClassDB::bind_method(D_METHOD("get_passthrough_factor"),
+			&IKEffector3D::get_passthrough_factor);
+
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "passthrough_factor"), "set_passthrough_factor", "get_passthrough_factor");
+}
+
+void IKEffector3D::set_weight(real_t p_weight) {
+	weight = p_weight;
+}
+
+real_t IKEffector3D::get_weight() const {
+	return weight;
+}
+
+IKEffector3D::IKEffector3D(const Ref<IKBone3D> &p_current_bone) {
+	ERR_FAIL_NULL(p_current_bone);
+	for_bone = p_current_bone;
+}
+
+void IKEffector3D::set_passthrough_factor(float p_passthrough_factor) {
+	passthrough_factor = CLAMP(p_passthrough_factor, 0.0, 1.0);
+}
+
+float IKEffector3D::get_passthrough_factor() const {
+	return passthrough_factor;
+}
+
+class IKBoneSegment3D : public Resource {
+	GDCLASS(IKBoneSegment3D, Resource);
+	Ref<IKBone3D> root;
+	Ref<IKBone3D> tip;
+	Vector<Ref<IKBone3D>> bones;
+	Vector<Ref<IKBone3D>> pinned_bones;
+	Vector<Ref<IKBoneSegment3D>> child_segments; // Contains only direct child chains that end with effectors or have child that end with effectors
+	Ref<IKBoneSegment3D> parent_segment;
+	Ref<IKBoneSegment3D> root_segment;
+	Vector<Ref<IKEffector3D>> effector_list;
+	PackedVector3Array target_headings;
+	PackedVector3Array tip_headings;
+	PackedVector3Array tip_headings_uniform;
+	Vector<double> heading_weights;
+	Skeleton3D *skeleton = nullptr;
+	bool pinned_descendants = false;
+	double previous_deviation = INFINITY;
+	int32_t default_stabilizing_pass_count = 0; // Move to the stabilizing pass to the ik solver. Set it free.
+	bool _has_pinned_descendants();
+	void _enable_pinned_descendants();
+	void _update_target_headings(Ref<IKBone3D> p_for_bone, Vector<double> *r_weights, PackedVector3Array *r_htarget);
+	void _update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip);
+	void _set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_heading_tip, Vector<double> *r_weights, float p_dampening = -1, bool p_translate = false, bool p_constraint_mode = false, int32_t current_iteration = 0, int32_t total_iterations = 0);
+	void _qcp_solver(const Vector<float> &p_damp, float p_default_damp, bool p_translate, bool p_constraint_mode, int32_t p_current_iteration, int32_t p_total_iterations);
+	void _update_optimal_rotation(Ref<IKBone3D> p_for_bone, double p_damp, bool p_translate, bool p_constraint_mode, int32_t current_iteration, int32_t total_iterations);
+	float _get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<double> &p_weights);
+	HashMap<BoneId, Ref<IKBone3D>> bone_map;
+	bool _is_parent_of_tip(Ref<IKBone3D> p_current_tip, BoneId p_tip_bone);
+	bool _has_multiple_children_or_pinned(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip);
+	void _process_children(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &r_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
+	Ref<IKBoneSegment3D> _create_child_segment(String &p_child_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik, Ref<IKBoneSegment3D> &p_parent);
+	Ref<IKBone3D> _create_next_bone(BoneId p_bone_id, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik);
+	void _finalize_segment(Ref<IKBone3D> p_current_tip);
+
+protected:
+	static void _bind_methods();
+
+public:
+	const double evec_prec = static_cast<double>(1E-6);
+	void update_pinned_list(Vector<Vector<double>> &r_weights);
+	static Quaternion clamp_to_cos_half_angle(Quaternion p_quat, double p_cos_half_angle);
+	static void recursive_create_headings_arrays_for(Ref<IKBoneSegment3D> p_bone_segment);
+	void create_headings_arrays();
+	void recursive_create_penalty_array(Ref<IKBoneSegment3D> p_bone_segment, Vector<Vector<double>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, double p_falloff);
+	void segment_solver(const Vector<float> &p_damp, float p_default_damp, bool p_constraint_mode, int32_t p_current_iteration, int32_t p_total_iteration);
+	Ref<IKBone3D> get_root() const;
+	Ref<IKBone3D> get_tip() const;
+	bool is_pinned() const;
+	Vector<Ref<IKBoneSegment3D>> get_child_segments() const;
+	void create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive = false, bool p_debug_skeleton = false) const;
+	Ref<IKBone3D> get_ik_bone(BoneId p_bone) const;
+	void generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik);
+	IKBoneSegment3D() {}
+	IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent = nullptr,
+			BoneId root = -1, BoneId tip = -1, int32_t p_stabilizing_pass_count = 0);
+	~IKBoneSegment3D() {}
+};
+
+
+Ref<IKBone3D> IKBoneSegment3D::get_root() const {
+	return root;
+}
+
+Ref<IKBone3D> IKBoneSegment3D::get_tip() const {
+	return tip;
+}
+
+bool IKBoneSegment3D::is_pinned() const {
+	ERR_FAIL_NULL_V(tip, false);
+	return tip->is_pinned();
+}
+
+Vector<Ref<IKBoneSegment3D>> IKBoneSegment3D::get_child_segments() const {
+	return child_segments;
+}
+
+void IKBoneSegment3D::create_bone_list(Vector<Ref<IKBone3D>> &p_list, bool p_recursive, bool p_debug_skeleton) const {
+	if (p_recursive) {
+		for (int32_t child_i = 0; child_i < child_segments.size(); child_i++) {
+			child_segments[child_i]->create_bone_list(p_list, p_recursive, p_debug_skeleton);
+		}
+	}
+	Ref<IKBone3D> current_bone = tip;
+	Vector<Ref<IKBone3D>> list;
+	while (current_bone.is_valid()) {
+		list.push_back(current_bone);
+		if (current_bone == root) {
+			break;
+		}
+		current_bone = current_bone->get_parent();
+	}
+	if (p_debug_skeleton) {
+		for (int32_t name_i = 0; name_i < list.size(); name_i++) {
+			BoneId bone = list[name_i]->get_bone_id();
+
+			String bone_name = skeleton->get_bone_name(bone);
+			String effector;
+			if (list[name_i]->is_pinned()) {
+				effector += "Effector ";
+			}
+			String prefix;
+			if (list[name_i] == root) {
+				prefix += "(" + effector + "Root) ";
+			}
+			if (list[name_i] == tip) {
+				prefix += "(" + effector + "Tip) ";
+			}
+			print_line(vformat("%s%s (%s)", prefix, bone_name, itos(bone)));
+		}
+	}
+	p_list.append_array(list);
+}
+
+void IKBoneSegment3D::update_pinned_list(Vector<Vector<double>> &r_weights) {
+	for (int32_t chain_i = 0; chain_i < child_segments.size(); chain_i++) {
+		Ref<IKBoneSegment3D> chain = child_segments[chain_i];
+		chain->update_pinned_list(r_weights);
+	}
+	if (is_pinned()) {
+		effector_list.push_back(tip->get_pin());
+	}
+	double passthrough_factor = is_pinned() ? tip->get_pin()->passthrough_factor : 1.0;
+	if (passthrough_factor > 0.0) {
+		for (Ref<IKBoneSegment3D> child : child_segments) {
+			effector_list.append_array(child->effector_list);
+		}
+	}
+}
+
+void IKBoneSegment3D::_update_optimal_rotation(Ref<IKBone3D> p_for_bone, double p_damp, bool p_translate, bool p_constraint_mode, int32_t current_iteration, int32_t total_iterations) {
+	ERR_FAIL_NULL(p_for_bone);
+	_update_target_headings(p_for_bone, &heading_weights, &target_headings);
+	_update_tip_headings(p_for_bone, &tip_headings);
+	_set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
+}
+
+Quaternion IKBoneSegment3D::clamp_to_cos_half_angle(Quaternion p_quat, double p_cos_half_angle) {
+	if (p_quat.w < 0.0) {
+		p_quat = p_quat * -1;
+	}
+	double previous_coefficient = (1.0 - (p_quat.w * p_quat.w));
+	if (p_cos_half_angle <= p_quat.w || previous_coefficient == 0.0) {
+		return p_quat;
+	} else {
+		double composite_coefficient = Math::sqrt((1.0 - (p_cos_half_angle * p_cos_half_angle)) / previous_coefficient);
+		p_quat.w = p_cos_half_angle;
+		p_quat.x *= composite_coefficient;
+		p_quat.y *= composite_coefficient;
+		p_quat.z *= composite_coefficient;
+	}
+	return p_quat;
+}
+
+float IKBoneSegment3D::_get_manual_msd(const PackedVector3Array &r_htip, const PackedVector3Array &r_htarget, const Vector<double> &p_weights) {
+	float manual_RMSD = 0.0f;
+	float w_sum = 0.0f;
+	for (int i = 0; i < r_htarget.size(); i++) {
+		float x_d = r_htarget[i].x - r_htip[i].x;
+		float y_d = r_htarget[i].y - r_htip[i].y;
+		float z_d = r_htarget[i].z - r_htip[i].z;
+		float mag_sq = p_weights[i] * (x_d * x_d + y_d * y_d + z_d * z_d);
+		manual_RMSD += mag_sq;
+		w_sum += p_weights[i];
+	}
+	manual_RMSD /= w_sum * w_sum;
+	return manual_RMSD;
+}
+
+void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<double> *r_weights, float p_dampening, bool p_translate, bool p_constraint_mode, int32_t current_iteration, int32_t total_iterations) {
+	ERR_FAIL_NULL(p_for_bone);
+	ERR_FAIL_NULL(r_htip);
+	ERR_FAIL_NULL(r_htarget);
+	ERR_FAIL_NULL(r_weights);
+
+	_update_target_headings(p_for_bone, &heading_weights, &target_headings);
+	Transform3D prev_transform = p_for_bone->get_pose();
+	bool got_closer = true;
+	double bone_damp = p_for_bone->get_cos_half_dampen();
+	int i = 0;
+	do {
+		_update_tip_headings(p_for_bone, &tip_headings);
+		if (!p_constraint_mode) {
+			QCP qcp = QCP(evec_prec);
+			Basis rotation = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
+			Vector3 translation = qcp.get_translation();
+			double dampening = (p_dampening != -1.0) ? p_dampening : bone_damp;
+			rotation = clamp_to_cos_half_angle(rotation.get_rotation_quaternion(), cos(dampening / 2.0));
+			p_for_bone->get_ik_transform()->rotate_local_with_global(rotation.get_rotation_quaternion());
+			Transform3D result = Transform3D(p_for_bone->get_global_pose().basis, p_for_bone->get_global_pose().origin + translation);
+			p_for_bone->set_global_pose(result);
+		}
+		bool is_parent_valid = p_for_bone->get_parent().is_valid();
+		if (is_parent_valid && p_for_bone->is_orientationally_constrained()) {
+			p_for_bone->get_constraint()->snap_to_orientation_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_orientation_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+		}
+		if (is_parent_valid && p_for_bone->is_axially_constrained()) {
+			p_for_bone->get_constraint()->set_snap_to_twist_limit(p_for_bone->get_bone_direction_transform(), p_for_bone->get_ik_transform(), p_for_bone->get_constraint_twist_transform(), bone_damp, p_for_bone->get_cos_half_dampen());
+		}
+		if (default_stabilizing_pass_count > 0) {
+			_update_tip_headings(p_for_bone, &tip_headings_uniform);
+			double current_msd = _get_manual_msd(tip_headings_uniform, target_headings, heading_weights);
+			if (current_msd <= previous_deviation * 1.0001) {
+				previous_deviation = current_msd;
+				got_closer = true;
+				break;
+			} else {
+				got_closer = false;
+				p_for_bone->set_pose(prev_transform);
+			}
+		}
+		i++;
+	} while (i < default_stabilizing_pass_count && !got_closer);
+
+	if (root == p_for_bone) {
+		previous_deviation = INFINITY;
+	}
+}
+
+void IKBoneSegment3D::_update_target_headings(Ref<IKBone3D> p_for_bone, Vector<double> *r_weights, PackedVector3Array *r_target_headings) {
+	ERR_FAIL_NULL(p_for_bone);
+	ERR_FAIL_NULL(r_weights);
+	ERR_FAIL_NULL(r_target_headings);
+	int32_t last_index = 0;
+	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
+		Ref<IKEffector3D> effector = effector_list[effector_i];
+		if (effector.is_null()) {
+			continue;
+		}
+		last_index = effector->update_effector_target_headings(r_target_headings, last_index, p_for_bone, &heading_weights);
+	}
+}
+
+void IKBoneSegment3D::_update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip) {
+	ERR_FAIL_NULL(r_heading_tip);
+	ERR_FAIL_NULL(p_for_bone);
+	int32_t last_index = 0;
+	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
+		Ref<IKEffector3D> effector = effector_list[effector_i];
+		if (effector.is_null()) {
+			continue;
+		}
+		last_index = effector->update_effector_tip_headings(r_heading_tip, last_index, p_for_bone);
+	}
+}
+
+void IKBoneSegment3D::segment_solver(const Vector<float> &p_damp, float p_default_damp, bool p_constraint_mode, int32_t p_current_iteration, int32_t p_total_iteration) {
+	for (Ref<IKBoneSegment3D> child : child_segments) {
+		if (child.is_null()) {
+			continue;
+		}
+		child->segment_solver(p_damp, p_default_damp, p_constraint_mode, p_current_iteration, p_total_iteration);
+	}
+	bool is_translate = parent_segment.is_null();
+	if (is_translate) {
+		Vector<float> damp = p_damp;
+		damp.fill(Math_PI);
+		_qcp_solver(damp, Math_PI, is_translate, p_constraint_mode, p_current_iteration, p_total_iteration);
+		return;
+	}
+	_qcp_solver(p_damp, p_default_damp, is_translate, p_constraint_mode, p_current_iteration, p_total_iteration);
+}
+
+void IKBoneSegment3D::_qcp_solver(const Vector<float> &p_damp, float p_default_damp, bool p_translate, bool p_constraint_mode, int32_t p_current_iteration, int32_t p_total_iterations) {
+	for (Ref<IKBone3D> current_bone : bones) {
+		float damp = p_default_damp;
+		bool is_valid_access = !(unlikely((p_damp.size()) < 0 || (current_bone->get_bone_id()) >= (p_damp.size())));
+		if (is_valid_access) {
+			damp = p_damp[current_bone->get_bone_id()];
+		}
+		bool is_non_default_damp = p_default_damp < damp;
+		if (is_non_default_damp) {
+			damp = p_default_damp;
+		}
+		_update_optimal_rotation(current_bone, damp, p_translate, p_constraint_mode, p_current_iteration, p_total_iterations);
+	}
+}
+
+void IKBoneSegment3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBoneSegment3D::is_pinned);
+	ClassDB::bind_method(D_METHOD("get_ik_bone", "bone"), &IKBoneSegment3D::get_ik_bone);
+}
+
+IKBoneSegment3D::IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik, const Ref<IKBoneSegment3D> &p_parent,
+		BoneId p_root, BoneId p_tip, int32_t p_stabilizing_pass_count) {
+	root = p_root;
+	tip = p_tip;
+	skeleton = p_skeleton;
+	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, Math_PI, p_many_bone_ik)));
+	if (p_parent.is_valid()) {
+		root_segment = p_parent->root_segment;
+	} else {
+		root_segment = Ref<IKBoneSegment3D>(this);
+	}
+	root_segment->bone_map[root->get_bone_id()] = root;
+	if (p_parent.is_valid()) {
+		parent_segment = p_parent;
+		root->set_parent(p_parent->get_tip());
+	}
+	default_stabilizing_pass_count = p_stabilizing_pass_count;
+}
+
+void IKBoneSegment3D::_enable_pinned_descendants() {
+	pinned_descendants = true;
+}
+
+bool IKBoneSegment3D::_has_pinned_descendants() {
+	return pinned_descendants;
+}
+
+Ref<IKBone3D> IKBoneSegment3D::get_ik_bone(BoneId p_bone) const {
+	if (!bone_map.has(p_bone)) {
+		return Ref<IKBone3D>();
+	}
+	return bone_map[p_bone];
+}
+
+void IKBoneSegment3D::create_headings_arrays() {
+	Vector<Vector<double>> penalty_array;
+	Vector<Ref<IKBone3D>> new_pinned_bones;
+	recursive_create_penalty_array(this, penalty_array, new_pinned_bones, 1.0);
+	pinned_bones.resize(new_pinned_bones.size());
+	int32_t total_headings = 0;
+	for (const Vector<double> &current_penalty_array : penalty_array) {
+		total_headings += current_penalty_array.size();
+	}
+	for (int32_t bone_i = 0; bone_i < new_pinned_bones.size(); bone_i++) {
+		pinned_bones.write[bone_i] = new_pinned_bones[bone_i];
+	}
+	target_headings.resize(total_headings);
+	tip_headings.resize(total_headings);
+	tip_headings_uniform.resize(total_headings);
+	heading_weights.resize(total_headings);
+	int currentHeading = 0;
+	for (const Vector<double> &current_penalty_array : penalty_array) {
+		for (double ad : current_penalty_array) {
+			heading_weights.write[currentHeading] = ad;
+			target_headings.write[currentHeading] = Vector3();
+			tip_headings.write[currentHeading] = Vector3();
+			tip_headings_uniform.write[currentHeading] = Vector3();
+			currentHeading++;
+		}
+	}
+}
+
+void IKBoneSegment3D::recursive_create_penalty_array(Ref<IKBoneSegment3D> p_bone_segment, Vector<Vector<double>> &r_penalty_array, Vector<Ref<IKBone3D>> &r_pinned_bones, double p_falloff) {
+	if (p_falloff <= 0.0) {
+		return;
+	}
+
+	double current_falloff = 1.0;
+
+	if (p_bone_segment->is_pinned()) {
+		Ref<IKBone3D> current_tip = p_bone_segment->get_tip();
+		Ref<IKEffector3D> pin = current_tip->get_pin();
+		double weight = pin->get_weight();
+		Vector<double> inner_weight_array;
+		inner_weight_array.push_back(weight * p_falloff);
+
+		double max_pin_weight = MAX(MAX(pin->get_direction_priorities().x, pin->get_direction_priorities().y), pin->get_direction_priorities().z);
+		max_pin_weight = max_pin_weight == 0.0 ? 1.0 : max_pin_weight;
+
+		for (int i = 0; i < 3; ++i) {
+			double priority = pin->get_direction_priorities()[i];
+			if (priority > 0.0) {
+				double sub_target_weight = weight * (priority / max_pin_weight) * p_falloff;
+				inner_weight_array.push_back(sub_target_weight);
+				inner_weight_array.push_back(sub_target_weight);
+			}
+		}
+
+		r_penalty_array.push_back(inner_weight_array);
+		r_pinned_bones.push_back(current_tip);
+		current_falloff = pin->get_passthrough_factor();
+	}
+
+	for (Ref<IKBoneSegment3D> s : p_bone_segment->get_child_segments()) {
+		recursive_create_penalty_array(s, r_penalty_array, r_pinned_bones, p_falloff * current_falloff);
+	}
+}
+
+void IKBoneSegment3D::recursive_create_headings_arrays_for(Ref<IKBoneSegment3D> p_bone_segment) {
+	p_bone_segment->create_headings_arrays();
+	for (Ref<IKBoneSegment3D> segments : p_bone_segment->get_child_segments()) {
+		recursive_create_headings_arrays_for(segments);
+	}
+}
+
+void IKBoneSegment3D::generate_default_segments(Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
+	Ref<IKBone3D> current_tip = root;
+	Vector<BoneId> children;
+
+	while (!_is_parent_of_tip(current_tip, p_tip_bone)) {
+		children = skeleton->get_bone_children(current_tip->get_bone_id());
+
+		if (children.is_empty() || _has_multiple_children_or_pinned(children, current_tip)) {
+			_process_children(children, current_tip, p_pins, p_root_bone, p_tip_bone, p_many_bone_ik);
+			break;
+		} else {
+			Vector<BoneId>::Iterator bone_id_iterator = children.begin();
+			current_tip = _create_next_bone(*bone_id_iterator, current_tip, p_pins, p_many_bone_ik);
+		}
+	}
+
+	_finalize_segment(current_tip);
+}
+
+bool IKBoneSegment3D::_is_parent_of_tip(Ref<IKBone3D> p_current_tip, BoneId p_tip_bone) {
+	return skeleton->get_bone_parent(p_current_tip->get_bone_id()) >= p_tip_bone && p_tip_bone != -1;
+}
+
+bool IKBoneSegment3D::_has_multiple_children_or_pinned(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip) {
+	return r_children.size() > 1 || p_current_tip->is_pinned();
+}
+
+void IKBoneSegment3D::_process_children(Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &r_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
+	tip = p_current_tip;
+	Ref<IKBoneSegment3D> parent(this);
+
+	for (int32_t child_i = 0; child_i < r_children.size(); child_i++) {
+		BoneId child_bone = r_children[child_i];
+		String child_name = skeleton->get_bone_name(child_bone);
+		Ref<IKBoneSegment3D> child_segment = _create_child_segment(child_name, r_pins, p_root_bone, p_tip_bone, p_many_bone_ik, parent);
+
+		child_segment->generate_default_segments(r_pins, p_root_bone, p_tip_bone, p_many_bone_ik);
+
+		if (child_segment->_has_pinned_descendants()) {
+			_enable_pinned_descendants();
+			child_segments.push_back(child_segment);
+		}
+	}
+}
+
+Ref<IKBoneSegment3D> IKBoneSegment3D::_create_child_segment(String &p_child_name, Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone, BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik, Ref<IKBoneSegment3D> &p_parent) {
+	return Ref<IKBoneSegment3D>(memnew(IKBoneSegment3D(skeleton, p_child_name, p_pins, p_many_bone_ik, p_parent, p_root_bone, p_tip_bone)));
+}
+
+Ref<IKBone3D> IKBoneSegment3D::_create_next_bone(BoneId p_bone_id, Ref<IKBone3D> p_current_tip, Vector<Ref<IKEffectorTemplate3D>> &p_pins, ManyBoneIK3D *p_many_bone_ik) {
+	String bone_name = skeleton->get_bone_name(p_bone_id);
+	Ref<IKBone3D> next_bone = Ref<IKBone3D>(memnew(IKBone3D(bone_name, skeleton, p_current_tip, p_pins, p_many_bone_ik->get_default_damp(), p_many_bone_ik)));
+	root_segment->bone_map[p_bone_id] = next_bone;
+
+	return next_bone;
+}
+
+void IKBoneSegment3D::_finalize_segment(Ref<IKBone3D> p_current_tip) {
+	tip = p_current_tip;
+
+	if (tip->is_pinned()) {
+		_enable_pinned_descendants();
+	}
+
+	StringBuilder name_builder;
+	name_builder.append("IKBoneSegment");
+	name_builder.append(root->get_name());
+	name_builder.append("Root");
+	name_builder.append(tip->get_name());
+	name_builder.append("Tip");
+
+	String ik_bone_name = name_builder.as_string();
+	set_name(ik_bone_name);
+	bones.clear();
+	create_bone_list(bones, false);
+}
+
+class IKBone3D : public Resource {
+	GDCLASS(IKBone3D, Resource);
+
+	BoneId bone_id = -1;
+	Ref<IKBone3D> parent;
+	Vector<Ref<IKBone3D>> children;
+	Ref<IKEffector3D> pin;
+
+	float default_dampening = Math_PI;
+	float dampening = get_parent().is_null() ? Math_PI : default_dampening;
+	float cos_half_dampen = Math::cos(dampening / 2.0f);
+	double cos_half_return_damp = 0.0f;
+	double return_damp = 0.0f;
+	Vector<float> cos_half_returnfulness_dampened;
+	Vector<float> half_returnfulness_dampened;
+	double stiffness = 0.0;
+	Ref<IKKusudama3D> constraint;
+	// In the space of the local parent bone transform.
+	// The origin is the origin of the bone direction transform
+	// Can be independent and should be calculated
+	// to keep -y to be the opposite of its bone forward orientation
+	// To avoid singularity that is ambiguous.
+	Ref<IKNode3D> constraint_orientation_transform = Ref<IKNode3D>(memnew(IKNode3D()));
+	Ref<IKNode3D> constraint_twist_transform = Ref<IKNode3D>(memnew(IKNode3D()));
+	Ref<IKNode3D> godot_skeleton_aligned_transform = Ref<IKNode3D>(memnew(IKNode3D())); // The bone's actual transform.
+	Ref<IKNode3D> bone_direction_transform = Ref<IKNode3D>(memnew(IKNode3D())); // Physical direction of the bone. Calculate Y is the bone up.
+
+protected:
+	static void _bind_methods();
+
+public:
+	Vector<float> &get_cos_half_returnfullness_dampened();
+	void set_cos_half_returnfullness_dampened(const Vector<float> &p_value);
+	Vector<float> &get_half_returnfullness_dampened();
+	void set_half_returnfullness_dampened(const Vector<float> &p_value);
+	void set_stiffness(double p_stiffness);
+	double get_stiffness() const;
+	bool is_axially_constrained();
+	bool is_orientationally_constrained();
+	Transform3D get_bone_direction_global_pose() const;
+	Ref<IKNode3D> get_bone_direction_transform();
+	void set_bone_direction_transform(Ref<IKNode3D> p_bone_direction);
+	void update_default_bone_direction_transform(Skeleton3D *p_skeleton);
+	void set_constraint_orientation_transform(Ref<IKNode3D> p_transform);
+	Ref<IKNode3D> get_constraint_orientation_transform();
+	Ref<IKNode3D> get_constraint_twist_transform();
+	void update_default_constraint_transform();
+	void add_constraint(Ref<IKKusudama3D> p_constraint);
+	Ref<IKKusudama3D> get_constraint() const;
+	void set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton = nullptr);
+	BoneId get_bone_id() const;
+	void set_parent(const Ref<IKBone3D> &p_parent);
+	Ref<IKBone3D> get_parent() const;
+	void set_pin(const Ref<IKEffector3D> &p_pin);
+	Ref<IKEffector3D> get_pin() const;
+	void set_global_pose(const Transform3D &p_transform);
+	Transform3D get_global_pose() const;
+	void set_pose(const Transform3D &p_transform);
+	Transform3D get_pose() const;
+	void set_initial_pose(Skeleton3D *p_skeleton);
+	void set_skeleton_bone_pose(Skeleton3D *p_skeleton);
+	void create_pin();
+	bool is_pinned() const;
+	Ref<IKNode3D> get_ik_transform();
+	IKBone3D() {}
+	IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate3D>> &p_pins, float p_default_dampening = Math_PI, ManyBoneIK3D *p_many_bone_ik = nullptr);
+	~IKBone3D() {}
+	float get_cos_half_dampen() const;
+	void set_cos_half_dampen(float p_cos_half_dampen);
+	Transform3D get_parent_bone_aligned_transform();
+	Transform3D get_set_constraint_twist_transform() const;
+	float calculate_total_radius_sum(const TypedArray<IKOpenCone3D> &p_cones) const;
+	Vector3 calculate_weighted_direction(const TypedArray<IKOpenCone3D> &p_cones, float p_total_radius_sum) const;
+};
+
+
+void IKBone3D::set_bone_id(BoneId p_bone_id, Skeleton3D *p_skeleton) {
+	ERR_FAIL_NULL(p_skeleton);
+	bone_id = p_bone_id;
+}
+
+BoneId IKBone3D::get_bone_id() const {
+	return bone_id;
+}
+
+void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
+	ERR_FAIL_NULL(p_parent);
+	parent = p_parent;
+	if (parent.is_valid()) {
+		parent->children.push_back(this);
+		godot_skeleton_aligned_transform->set_parent(parent->godot_skeleton_aligned_transform);
+		constraint_orientation_transform->set_parent(parent->godot_skeleton_aligned_transform);
+		constraint_twist_transform->set_parent(parent->godot_skeleton_aligned_transform);
+	}
+}
+
+void IKBone3D::update_default_bone_direction_transform(Skeleton3D *p_skeleton) {
+	Vector3 child_centroid;
+	int child_count = 0;
+
+	for (Ref<IKBone3D> &ik_bone : children) {
+		child_centroid += ik_bone->get_ik_transform()->get_global_transform().origin;
+		child_count++;
+	}
+
+	if (child_count > 0) {
+		child_centroid /= child_count;
+	} else {
+		const PackedInt32Array &bone_children = p_skeleton->get_bone_children(bone_id);
+		for (BoneId child_bone_idx : bone_children) {
+			child_centroid += p_skeleton->get_bone_global_pose(child_bone_idx).origin;
+		}
+		child_centroid /= bone_children.size();
+	}
+
+	const Vector3 &godot_bone_origin = godot_skeleton_aligned_transform->get_global_transform().origin;
+	child_centroid -= godot_bone_origin;
+
+	if (Math::is_zero_approx(child_centroid.length_squared())) {
+		if (parent.is_valid()) {
+			child_centroid = parent->get_bone_direction_transform()->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+		} else {
+			child_centroid = get_bone_direction_transform()->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+		}
+	}
+
+	if (!Math::is_zero_approx(child_centroid.length_squared()) && (children.size() || p_skeleton->get_bone_children(bone_id).size())) {
+		child_centroid.normalize();
+		Vector3 bone_direction = bone_direction_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+		bone_direction.normalize();
+		bone_direction_transform->rotate_local_with_global(Quaternion(child_centroid, bone_direction));
+	}
+}
+
+void IKBone3D::update_default_constraint_transform() {
+	Ref<IKBone3D> parent_bone = get_parent();
+	if (parent_bone.is_valid()) {
+		Transform3D parent_bone_aligned_transform = get_parent_bone_aligned_transform();
+		constraint_orientation_transform->set_global_transform(parent_bone_aligned_transform);
+	}
+
+	Transform3D set_constraint_twist_transform = get_set_constraint_twist_transform();
+	constraint_twist_transform->set_global_transform(set_constraint_twist_transform);
+
+	if (constraint.is_null()) {
+		return;
+	}
+
+	TypedArray<IKOpenCone3D> cones = constraint->get_open_cones();
+	Vector3 direction;
+	if (cones.size() == 0) {
+		direction = bone_direction_transform->get_global_transform().basis.get_column(Vector3::AXIS_Y);
+	} else {
+		float total_radius_sum = calculate_total_radius_sum(cones);
+		direction = calculate_weighted_direction(cones, total_radius_sum);
+		direction -= constraint_orientation_transform->get_global_transform().origin;
+	}
+
+	Vector3 twist_axis = set_constraint_twist_transform.basis.get_column(Vector3::AXIS_Y);
+	Quaternion align_dir = Quaternion(twist_axis, direction);
+	constraint_twist_transform->rotate_local_with_global(align_dir);
+}
+
+Ref<IKBone3D> IKBone3D::get_parent() const {
+	return parent;
+}
+
+void IKBone3D::set_pin(const Ref<IKEffector3D> &p_pin) {
+	ERR_FAIL_NULL(p_pin);
+	pin = p_pin;
+}
+
+Ref<IKEffector3D> IKBone3D::get_pin() const {
+	return pin;
+}
+
+void IKBone3D::set_pose(const Transform3D &p_transform) {
+	godot_skeleton_aligned_transform->set_transform(p_transform);
+}
+
+Transform3D IKBone3D::get_pose() const {
+	return godot_skeleton_aligned_transform->get_transform();
+}
+
+void IKBone3D::set_global_pose(const Transform3D &p_transform) {
+	godot_skeleton_aligned_transform->set_global_transform(p_transform);
+	Transform3D transform = constraint_orientation_transform->get_transform();
+	transform.origin = godot_skeleton_aligned_transform->get_transform().origin;
+	constraint_orientation_transform->set_transform(transform);
+	constraint_orientation_transform->_propagate_transform_changed();
+}
+
+Transform3D IKBone3D::get_global_pose() const {
+	return godot_skeleton_aligned_transform->get_global_transform();
+}
+
+Transform3D IKBone3D::get_bone_direction_global_pose() const {
+	return bone_direction_transform->get_global_transform();
+}
+
+void IKBone3D::set_initial_pose(Skeleton3D *p_skeleton) {
+	ERR_FAIL_NULL(p_skeleton);
+	if (bone_id == -1) {
+		return;
+	}
+	Transform3D bone_origin_to_parent_origin = p_skeleton->get_bone_pose(bone_id);
+	set_pose(bone_origin_to_parent_origin);
+}
+
+void IKBone3D::set_skeleton_bone_pose(Skeleton3D *p_skeleton) {
+	ERR_FAIL_NULL(p_skeleton);
+	Transform3D bone_to_parent = get_pose();
+	p_skeleton->set_bone_pose_position(bone_id, bone_to_parent.origin);
+	if (!bone_to_parent.basis.is_finite()) {
+		bone_to_parent.basis = Basis();
+	}
+	p_skeleton->set_bone_pose_rotation(bone_id, bone_to_parent.basis.get_rotation_quaternion());
+	p_skeleton->set_bone_pose_scale(bone_id, bone_to_parent.basis.get_scale());
+}
+
+void IKBone3D::create_pin() {
+	pin = Ref<IKEffector3D>(memnew(IKEffector3D(this)));
+}
+
+bool IKBone3D::is_pinned() const {
+	return pin.is_valid();
+}
+
+void IKBone3D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_pin"), &IKBone3D::get_pin);
+	ClassDB::bind_method(D_METHOD("set_pin", "pin"), &IKBone3D::set_pin);
+	ClassDB::bind_method(D_METHOD("is_pinned"), &IKBone3D::is_pinned);
+	ClassDB::bind_method(D_METHOD("get_constraint"), &IKBone3D::get_constraint);
+	ClassDB::bind_method(D_METHOD("get_constraint_orientation_transform"), &IKBone3D::get_constraint_orientation_transform);
+	ClassDB::bind_method(D_METHOD("get_constraint_twist_transform"), &IKBone3D::get_constraint_twist_transform);
+}
+
+IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D> &p_parent, Vector<Ref<IKEffectorTemplate3D>> &p_pins, float p_default_dampening,
+		ManyBoneIK3D *p_many_bone_ik) {
+	ERR_FAIL_NULL(p_skeleton);
+
+	default_dampening = p_default_dampening;
+	cos_half_dampen = cos(default_dampening / real_t(2.0));
+	set_name(p_bone);
+	bone_id = p_skeleton->find_bone(p_bone);
+	if (p_parent.is_valid()) {
+		set_parent(p_parent);
+	}
+	for (Ref<IKEffectorTemplate3D> elem : p_pins) {
+		if (elem.is_null()) {
+			continue;
+		}
+		if (elem->get_name() == p_bone) {
+			create_pin();
+			Ref<IKEffector3D> effector = get_pin();
+			effector->set_target_node(p_skeleton, elem->get_target_node());
+			effector->set_passthrough_factor(elem->get_passthrough_factor());
+			effector->set_weight(elem->get_weight());
+			effector->set_direction_priorities(elem->get_direction_priorities());
+			break;
+		}
+	}
+	bone_direction_transform->set_parent(godot_skeleton_aligned_transform);
+
+	float predamp = 1.0 - get_stiffness();
+	dampening = get_parent().is_null() ? Math_PI : predamp * p_default_dampening;
+	float iterations = p_many_bone_ik->get_iterations_per_frame();
+	if (get_constraint().is_null()) {
+		Ref<IKKusudama3D> new_constraint;
+		new_constraint.instantiate();
+		add_constraint(new_constraint);
+	}
+	float returnfulness = get_constraint()->get_resistance();
+	float falloff = 0.2f;
+	half_returnfulness_dampened.resize(iterations);
+	cos_half_returnfulness_dampened.resize(iterations);
+	float iterations_pow = Math::pow(iterations, falloff * iterations * returnfulness);
+	for (float i = 0; i < iterations; i++) {
+		float iteration_scalar = ((iterations_pow)-Math::pow(i, falloff * iterations * returnfulness)) / (iterations_pow);
+		float iteration_return_clamp = iteration_scalar * returnfulness * dampening;
+		float cos_iteration_return_clamp = Math::cos(iteration_return_clamp / 2.0);
+		half_returnfulness_dampened.write[i] = iteration_return_clamp;
+		cos_half_returnfulness_dampened.write[i] = cos_iteration_return_clamp;
+	}
+}
+
+float IKBone3D::get_cos_half_dampen() const {
+	return cos_half_dampen;
+}
+
+void IKBone3D::set_cos_half_dampen(float p_cos_half_dampen) {
+	cos_half_dampen = p_cos_half_dampen;
+}
+
+Ref<IKKusudama3D> IKBone3D::get_constraint() const {
+	return constraint;
+}
+
+void IKBone3D::add_constraint(Ref<IKKusudama3D> p_constraint) {
+	constraint = p_constraint;
+}
+
+Ref<IKNode3D> IKBone3D::get_ik_transform() {
+	return godot_skeleton_aligned_transform;
+}
+
+Ref<IKNode3D> IKBone3D::get_constraint_orientation_transform() {
+	return constraint_orientation_transform;
+}
+
+Ref<IKNode3D> IKBone3D::get_constraint_twist_transform() {
+	return constraint_twist_transform;
+}
+
+void IKBone3D::set_constraint_orientation_transform(Ref<IKNode3D> p_transform) {
+	constraint_orientation_transform = p_transform;
+}
+
+void IKBone3D::set_bone_direction_transform(Ref<IKNode3D> p_bone_direction) {
+	bone_direction_transform = p_bone_direction;
+}
+
+Ref<IKNode3D> IKBone3D::get_bone_direction_transform() {
+	return bone_direction_transform;
+}
+
+bool IKBone3D::is_orientationally_constrained() {
+	if (get_constraint().is_null()) {
+		return false;
+	}
+	return get_constraint()->is_orientationally_constrained();
+}
+
+bool IKBone3D::is_axially_constrained() {
+	if (get_constraint().is_null()) {
+		return false;
+	}
+	return get_constraint()->is_axially_constrained();
+}
+
+Vector<float> &IKBone3D::get_cos_half_returnfullness_dampened() {
+	return cos_half_returnfulness_dampened;
+}
+
+void IKBone3D::set_cos_half_returnfullness_dampened(const Vector<float> &p_value) {
+	cos_half_returnfulness_dampened = p_value;
+}
+
+Vector<float> &IKBone3D::get_half_returnfullness_dampened() {
+	return half_returnfulness_dampened;
+}
+
+void IKBone3D::set_half_returnfullness_dampened(const Vector<float> &p_value) {
+	half_returnfulness_dampened = p_value;
+}
+
+void IKBone3D::set_stiffness(double p_stiffness) {
+	stiffness = p_stiffness;
+}
+
+double IKBone3D::get_stiffness() const {
+	return stiffness;
+}
+
+Transform3D IKBone3D::get_parent_bone_aligned_transform() {
+	Ref<IKBone3D> parent_bone = get_parent();
+	if (parent_bone.is_null()) {
+		return Transform3D();
+	}
+	Transform3D parent_bone_aligned_transform = parent_bone->get_ik_transform()->get_global_transform();
+	parent_bone_aligned_transform.origin = get_bone_direction_transform()->get_global_transform().origin;
+	return parent_bone_aligned_transform;
+}
+
+Transform3D IKBone3D::get_set_constraint_twist_transform() const {
+	return constraint_orientation_transform->get_global_transform();
+}
+
+float IKBone3D::calculate_total_radius_sum(const TypedArray<IKOpenCone3D> &p_cones) const {
+	float total_radius_sum = 0.0f;
+	for (int32_t i = 0; i < p_cones.size(); ++i) {
+		const Ref<IKOpenCone3D> &cone = p_cones[i];
+		if (cone.is_null()) {
+			break;
+		}
+		total_radius_sum += cone->get_radius();
+	}
+	return total_radius_sum;
+}
+
+Vector3 IKBone3D::calculate_weighted_direction(const TypedArray<IKOpenCone3D> &p_cones, float p_total_radius_sum) const {
+	Vector3 direction = Vector3();
+	for (int32_t i = 0; i < p_cones.size(); ++i) {
+		const Ref<IKOpenCone3D> &cone = p_cones[i];
+		if (cone.is_null()) {
+			break;
+		}
+		float weight = cone->get_radius() / p_total_radius_sum;
+		direction += cone->get_control_point() * weight;
+	}
+	direction.normalize();
+	direction = constraint_orientation_transform->get_global_transform().basis.xform(direction);
+	return direction;
+}
