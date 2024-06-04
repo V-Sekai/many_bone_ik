@@ -15,10 +15,10 @@ var kusudama_open_cones: Array = []
 var kusudama_open_cone_count: Array = []
 var max_kusudama_open_cones = 10
 var iterations_per_frame = 15
-var default_damp = deg2rad(5.0)
+var default_damp = deg_to_rad(5.0)
 var queue_debug_skeleton = false
 var godot_skeleton_transform = null
-var godot_skeleton_transform_inverse = Transform()
+var godot_skeleton_transform_inverse = Transform3D()
 var ik_origin = null
 var is_dirty = true
 var skeleton_node_path = NodePath("..")
@@ -26,252 +26,250 @@ var ui_selected_bone = -1
 var stabilize_passes = 0
 
 func _on_timer_timeout():
-    pass
+	pass
 
 func _update_ik_bones_transform():
-    pass
+	pass
 
 func _update_skeleton_bones_transform():
-    pass
+	pass
 
 func _get_bone_effectors() -> Array:
-    return []
+	return []
 
 func set_constraint_name_at_index(p_index: int, p_name: String):
-    pass
+	pass
 
 func set_total_effector_count(p_value: int):
-    pass
+	pass
 
 func _set_constraint_count(p_count: int):
-    pass
+	pass
 
 func _remove_pin(p_index: int):
-    pass
+	pass
 
 func _set_bone_count(p_count: int):
-    pass
+	pass
 
 func _set_pin_root_bone(p_pin_index: int, p_root_bone: String):
-    pass
+	pass
 
 func _get_pin_root_bone(p_pin_index: int) -> String:
-    return ""
+	return ""
 
 func _bone_list_changed():
-    pass
+	pass
 
 func _pose_updated():
-    pass
+	pass
 
 func _update_ik_bone_pose(p_bone_idx: int):
-    pass
-
+	pass
 
 func _set(p_name: StringName, p_value) -> bool:
-    pass
+	return false
 
 func _get(p_name: StringName) -> Variant:
-    return null
+	return null
 
 func _get_property_list() -> Array:
-    return []
+	return []
 
-@staticmethod
-func _bind_methods():
-    pass
+static func _bind_methods():
+	pass
 
 func _process_modification():
-    pass
+	pass
 
 func _skeleton_changed(p_old, p_new):
-    pass
+	pass
 
 func set_effector_target_fixed(p_effector_index: int, p_force_ignore: bool):
-    pass
+	pass
 
 func get_effector_target_fixed(p_effector_index: int) -> bool:
-    return false
+	return false
 
 func set_state(p_state):
-    pass
+	pass
 
 func get_state():
-    return null
+	return null
 
 func add_constraint():
-    pass
+	pass
 
 func set_stabilization_passes(p_passes: int):
-    pass
+	pass
 
 func get_stabilization_passes() -> int:
-    return 0
+	return 0
 
 func get_godot_skeleton_transform_inverse():
-    return Transform3D()
+	return Transform3D()
 
 func get_godot_skeleton_transform():
-    return null
+	return null
 
 func set_ui_selected_bone(p_ui_selected_bone: int):
-    pass
+	pass
 
 func get_ui_selected_bone() -> int:
-    return 0
+	return 0
 
 func set_constraint_mode(p_enabled: bool):
-    pass
+	pass
 
 func get_constraint_mode() -> bool:
-    return false
+	return false
 
 func get_pin_enabled(p_effector_index: int) -> bool:
-    return false
+	return false
 
 func register_skeleton():
-    pass
+	pass
 
 func reset_constraints():
-    pass
+	pass
 
 func get_bone_list():
-    return []
+	return []
 
 func get_segmented_skeletons():
-    return []
+	return []
 
 func get_iterations_per_frame() -> float:
-    return 0.0
+	return 0.0
 
 func set_iterations_per_frame(p_iterations_per_frame: float):
-    pass
+	pass
 
 func queue_print_skeleton():
-    pass
+	pass
 
 func get_effector_count() -> int:
-    return 0
+	return 0
 
 func remove_constraint_at_index(p_index: int):
-    pass
+	pass
 
 func set_effector_bone_name(p_pin_index: int, p_bone: String):
-    pass
+	pass
 
 func get_effector_bone_name(p_effector_index: int) -> StringName:
-    return ""
+	return ""
 
 func set_effector_pin_node_path(p_effector_index: int, p_node_path):
-    pass
+	pass
 
 func get_effector_pin_node_path(p_effector_index: int) -> NodePath:
-    return NodePath()
+	return NodePath()
 
 func find_effector_id(p_bone_name: StringName) -> int:
-    return 0
+	return 0
 
 func set_effector_target_node_path(p_effector_index: int, p_target_node):
-    pass
+	pass
 
 func set_pin_weight(p_pin_index: int, p_weight: float):
-    pass
+	pass
 
 func get_pin_weight(p_pin_index: int) -> float:
-    return 0.0
+	return 0.0
 
 func set_pin_direction_priorities(p_pin_index: int, p_priority_direction):
-    pass
+	pass
 
 func get_pin_direction_priorities(p_pin_index: int) -> Vector3:
-    return Vector3()
+	return Vector3()
 
 func get_effector_target_node_path(p_pin_index: int) -> NodePath:
-    return NodePath()
+	return NodePath()
 
 func set_pin_passthrough_factor(p_effector_index: int, p_passthrough_factor: float):
-    pass
+	pass
 
 func get_pin_passthrough_factor(p_effector_index: int) -> float:
-    return 0.0
+	return 0.0
 
 func get_default_damp() -> float:
-    return 0.0
+	return 0.0
 
 func set_default_damp(p_default_damp: float):
-    pass
+	pass
 
 func find_constraint(p_string: String) -> int:
-    return 0
+	return 0
 
 func find_pin(p_string: String) -> int:
-    return 0
+	return 0
 
 func get_constraint_count() -> int:
-    return 0
+	return 0
 
 func get_constraint_name(p_index: int) -> StringName:
-    return ""
+	return ""
 
 func set_twist_transform_of_constraint(p_index: int, p_transform):
-    pass
+	pass
 
 func get_twist_transform_of_constraint(p_index: int) -> Transform3D:
-    return Transform3D()
+	return Transform3D()
 
 func set_orientation_transform_of_constraint(p_index: int, p_transform):
-    pass
+	pass
 
 func get_orientation_transform_of_constraint(p_index: int) -> Transform3D:
-    return Transform3D()
+	return Transform3D()
 
 func set_direction_transform_of_bone(p_index: int, p_transform):
-    pass
+	pass
 
 func get_direction_transform_of_bone(p_index: int) -> Transform3D:
-    return Transform3D()
+	return Transform3D()
 
 func get_joint_twist(p_index: int) -> Vector2:
-    return Vector2()
+	return Vector2()
 
 func set_joint_twist(p_index: int, p_twist):
-    pass
+	pass
 
 func set_kusudama_open_cone(p_bone: int, p_index: int, p_center, p_radius: float):
-    pass
+	pass
 
 func get_kusudama_open_cone_center(p_constraint_index: int, p_index: int) -> Vector3:
-    return Vector3()
+	return Vector3()
 
 func get_kusudama_open_cone_radius(p_constraint_index: int, p_index: int) -> float:
-    return 0.0
+	return 0.0
 
 func get_kusudama_open_cone_count(p_constraint_index: int) -> int:
-    return 0
+	return 0
 
 func get_bone_count() -> int:
-    return 0
+	return 0
 
 func set_kusudama_twist_from_to(p_index: int, from: float, to: float):
-    pass
+	pass
 
 func set_kusudama_open_cone_count(p_constraint_index: int, p_count: int):
-    pass
+	pass
 
 func set_kusudama_open_cone_center(p_constraint_index: int, p_index: int, p_center):
-    pass
+	pass
 
 func set_kusudama_open_cone_radius(p_constraint_index: int, p_index: int, p_radius: float):
-    pass
+	pass
 
 func _init():
-    pass
+	pass
 
 func _exit_tree():
-    pass
+	pass
 
 func set_dirty():
-    pass
+	pass
 
 # void ManyBoneIK3D::set_total_effector_count(int32_t p_value) {
 # 	int32_t old_count = pins.size();
@@ -1249,4 +1247,3 @@ func set_dirty():
 # 	effector_template->set_name(p_bone);
 # 	set_dirty();
 # }
-
