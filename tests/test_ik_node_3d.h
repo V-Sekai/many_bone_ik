@@ -100,7 +100,9 @@ TEST_CASE("[Modules][IKNode3D] Test local transform calculation") {
 
 	node->set_parent(parent_node);
 
-	Transform3D expected_local_transform = parent_node->get_global_transform().affine_inverse() * node->get_global_transform();
+	Transform3D expected_local_transform =
+			parent_node->get_global_transform().affine_inverse() *
+			node->get_global_transform();
 
 	CHECK(node->get_transform() == expected_local_transform);
 }

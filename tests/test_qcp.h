@@ -31,9 +31,9 @@
 #ifndef TEST_QCP_H
 #define TEST_QCP_H
 
-#include <godot_cpp/variant/quaternion.hpp>
 #include "modules/many_bone_ik/src/math/qcp.h"
 #include "tests/test_macros.h"
+#include <godot_cpp/variant/quaternion.hpp>
 
 namespace TestQCP {
 
@@ -42,7 +42,8 @@ TEST_CASE("[Modules][QCP] Weighted Superpose") {
 	QCP qcp(epsilon);
 
 	Quaternion expected = Quaternion(0, 0, sqrt(2) / 2, sqrt(2) / 2);
-	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9), Vector3(1, 2, 3) };
+	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9),
+		Vector3(1, 2, 3) };
 	PackedVector3Array target = moved;
 	for (Vector3 &element : target) {
 		element = expected.xform(element);
@@ -61,7 +62,8 @@ TEST_CASE("[Modules][QCP] Weighted Translation") {
 	QCP qcp(epsilon);
 
 	Quaternion expected;
-	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9), Vector3(1, 2, 3) };
+	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9),
+		Vector3(1, 2, 3) };
 	PackedVector3Array target = moved;
 	Vector3 translation_vector = Vector3(1, 2, 3);
 	for (Vector3 &element : target) {
@@ -89,7 +91,8 @@ TEST_CASE("[Modules][QCP] Weighted Translation Shortest Path") {
 	QCP qcp(epsilon);
 
 	Quaternion expected = Quaternion(1, 2, 3, 4).normalized();
-	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9), Vector3(1, 2, 3) };
+	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9),
+		Vector3(1, 2, 3) };
 	PackedVector3Array target = moved;
 	Vector3 translation_vector = Vector3(1, 2, 3);
 	for (Vector3 &element : target) {

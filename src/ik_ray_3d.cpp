@@ -30,8 +30,7 @@
 
 #include "ik_ray_3d.h"
 
-IKRay3D::IKRay3D() {
-}
+IKRay3D::IKRay3D() {}
 
 IKRay3D::IKRay3D(Vector3 p_p1, Vector3 p_p2) {
 	working_vector = p_p1;
@@ -58,7 +57,8 @@ real_t IKRay3D::get_scaled_projection(const Vector3 p_input) {
 	if (workingVectorMag == 0 || headingMag == 0) {
 		return 0;
 	}
-	return (working_vector.dot(heading) / (headingMag * workingVectorMag)) * (workingVectorMag / headingMag);
+	return (working_vector.dot(heading) / (headingMag * workingVectorMag)) *
+			(workingVectorMag / headingMag);
 }
 
 void IKRay3D::elongate(real_t amt) {
@@ -84,7 +84,8 @@ Vector3 IKRay3D::get_intersects_plane(Vector3 ta, Vector3 tb, Vector3 tc) {
 	return result + point_1;
 }
 
-int IKRay3D::intersects_sphere(Vector3 sphereCenter, real_t radius, Vector3 *S1, Vector3 *S2) {
+int IKRay3D::intersects_sphere(Vector3 sphereCenter, real_t radius, Vector3 *S1,
+		Vector3 *S2) {
 	Vector3 tp1 = point_1 - sphereCenter;
 	Vector3 tp2 = point_2 - sphereCenter;
 	int result = intersects_sphere(tp1, tp2, radius, S1, S2);
@@ -93,23 +94,16 @@ int IKRay3D::intersects_sphere(Vector3 sphereCenter, real_t radius, Vector3 *S1,
 	return result;
 }
 
-void IKRay3D::set_point_1(Vector3 in) {
-	point_1 = in;
-}
+void IKRay3D::set_point_1(Vector3 in) { point_1 = in; }
 
-void IKRay3D::set_point_2(Vector3 in) {
-	point_2 = in;
-}
+void IKRay3D::set_point_2(Vector3 in) { point_2 = in; }
 
-Vector3 IKRay3D::get_point_2() {
-	return point_2;
-}
+Vector3 IKRay3D::get_point_2() { return point_2; }
 
-Vector3 IKRay3D::get_point_1() {
-	return point_1;
-}
+Vector3 IKRay3D::get_point_1() { return point_1; }
 
-int IKRay3D::intersects_sphere(Vector3 rp1, Vector3 rp2, real_t radius, Vector3 *S1, Vector3 *S2) {
+int IKRay3D::intersects_sphere(Vector3 rp1, Vector3 rp2, real_t radius,
+		Vector3 *S1, Vector3 *S2) {
 	Vector3 direction = rp2 - rp1;
 	Vector3 e = direction; // e=ray.dir
 	e.normalize(); // e=g/|g|
@@ -143,7 +137,8 @@ int IKRay3D::intersects_sphere(Vector3 rp1, Vector3 rp2, real_t radius, Vector3 
 	return result;
 }
 
-Vector3 IKRay3D::plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc, Vector3 *uvw) {
+Vector3 IKRay3D::plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc,
+		Vector3 *uvw) {
 	u = tb;
 	v = tc;
 	n = Vector3(0, 0, 0);
@@ -165,11 +160,13 @@ Vector3 IKRay3D::plane_intersect_test(Vector3 ta, Vector3 tb, Vector3 tc, Vector
 	return I;
 }
 
-real_t IKRay3D::triangle_area_2d(real_t x1, real_t y1, real_t x2, real_t y2, real_t x3, real_t y3) {
+real_t IKRay3D::triangle_area_2d(real_t x1, real_t y1, real_t x2, real_t y2,
+		real_t x3, real_t y3) {
 	return (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2);
 }
 
-void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 *uvw) {
+void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p,
+		Vector3 *uvw) {
 	bc = b;
 	ca = a;
 	at = a;
@@ -207,6 +204,8 @@ void IKRay3D::barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, Vector3 *u
 
 void IKRay3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_heading"), &IKRay3D::get_heading);
-	ClassDB::bind_method(D_METHOD("get_scaled_projection", "input"), &IKRay3D::get_scaled_projection);
-	ClassDB::bind_method(D_METHOD("get_intersects_plane", "a", "b", "c"), &IKRay3D::get_intersects_plane);
+	ClassDB::bind_method(D_METHOD("get_scaled_projection", "input"),
+			&IKRay3D::get_scaled_projection);
+	ClassDB::bind_method(D_METHOD("get_intersects_plane", "a", "b", "c"),
+			&IKRay3D::get_intersects_plane);
 }

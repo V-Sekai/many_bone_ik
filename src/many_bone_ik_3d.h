@@ -31,27 +31,27 @@
 #ifndef MANY_BONE_IK_3D_H
 #define MANY_BONE_IK_3D_H
 
-#include <godot_compat/core/math.hpp>
 #include "core/math/transform_3d.h"
 #include "core/math/vector3.h"
 #include "core/object/ref_counted.h"
-#include <godot_cpp/core/math.hpp>
-#include <godot_cpp/variant/transform3d.hpp>
-#include <godot_cpp/variant/vector3.hpp>
 #include "ik_bone_3d.h"
 #include "ik_effector_template_3d.h"
 #include "math/ik_node_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/3d/skeleton_modifier_3d.h"
 #include "scene/main/scene_tree.h"
+#include <godot_compat/core/math.hpp>
+#include <godot_cpp/core/math.hpp>
+#include <godot_cpp/variant/transform3d.hpp>
+#include <godot_cpp/variant/vector3.hpp>
 
 #include <godot_cpp/classes/ref.hpp>
-#include <godot_cpp/classes/weak_ref.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/classes/skeleton3d.hpp>
-#include <godot_cpp/classes/skin_reference.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/scene_tree_timer.hpp>
+#include <godot_cpp/classes/skeleton3d.hpp>
+#include <godot_cpp/classes/skin_reference.hpp>
+#include <godot_cpp/classes/weak_ref.hpp>
 
 using namespace godot;
 
@@ -130,16 +130,21 @@ public:
 	void remove_constraint_at_index(int32_t p_index);
 	void set_effector_bone_name(int32_t p_pin_index, const String &p_bone);
 	StringName get_effector_bone_name(int32_t p_effector_index) const;
-	void set_effector_pin_node_path(int32_t p_effector_index, NodePath p_node_path);
+	void set_effector_pin_node_path(int32_t p_effector_index,
+			NodePath p_node_path);
 	NodePath get_effector_pin_node_path(int32_t p_effector_index) const;
 	int32_t find_effector_id(StringName p_bone_name);
-	void set_effector_target_node_path(int32_t p_effector_index, const NodePath &p_target_node);
+	void set_effector_target_node_path(int32_t p_effector_index,
+			const NodePath &p_target_node);
 	void set_pin_weight(int32_t p_pin_index, const real_t &p_weight);
 	real_t get_pin_weight(int32_t p_pin_index) const;
-	void set_pin_direction_priorities(int32_t p_pin_index, const Vector3 &p_priority_direction);
+	void set_pin_direction_priorities(int32_t p_pin_index,
+			const Vector3 &p_priority_direction);
 	Vector3 get_pin_direction_priorities(int32_t p_pin_index) const;
 	NodePath get_effector_target_node_path(int32_t p_pin_index);
-	void set_pin_motion_propagation_factor(int32_t p_effector_index, const float p_motion_propagation_factor);
+	void
+	set_pin_motion_propagation_factor(int32_t p_effector_index,
+			const float p_motion_propagation_factor);
 	float get_pin_motion_propagation_factor(int32_t p_effector_index) const;
 	real_t get_default_damp() const;
 	void set_default_damp(float p_default_damp);
@@ -147,24 +152,32 @@ public:
 	int32_t find_pin(String p_string) const;
 	int32_t get_constraint_count() const;
 	StringName get_constraint_name(int32_t p_index) const;
-	void set_twist_transform_of_constraint(int32_t p_index, Transform3D p_transform);
+	void set_twist_transform_of_constraint(int32_t p_index,
+			Transform3D p_transform);
 	Transform3D get_twist_transform_of_constraint(int32_t p_index) const;
-	void set_orientation_transform_of_constraint(int32_t p_index, Transform3D p_transform);
+	void set_orientation_transform_of_constraint(int32_t p_index,
+			Transform3D p_transform);
 	Transform3D get_orientation_transform_of_constraint(int32_t p_index) const;
-	void set_direction_transform_of_bone(int32_t p_index, Transform3D p_transform);
+	void set_direction_transform_of_bone(int32_t p_index,
+			Transform3D p_transform);
 	Transform3D get_direction_transform_of_bone(int32_t p_index) const;
 	Vector2 get_joint_twist(int32_t p_index) const;
 	void set_joint_twist(int32_t p_index, Vector2 p_twist);
-	void set_kusudama_open_cone(int32_t p_bone, int32_t p_index,
-			Vector3 p_center, float p_radius);
-	Vector3 get_kusudama_open_cone_center(int32_t p_constraint_index, int32_t p_index) const;
-	float get_kusudama_open_cone_radius(int32_t p_constraint_index, int32_t p_index) const;
+	void set_kusudama_open_cone(int32_t p_bone, int32_t p_index, Vector3 p_center,
+			float p_radius);
+	Vector3 get_kusudama_open_cone_center(int32_t p_constraint_index,
+			int32_t p_index) const;
+	float get_kusudama_open_cone_radius(int32_t p_constraint_index,
+			int32_t p_index) const;
 	int32_t get_kusudama_open_cone_count(int32_t p_constraint_index) const;
 	int32_t get_bone_count() const;
 	void set_kusudama_twist_from_to(int32_t p_index, float from, float to);
-	void set_kusudama_open_cone_count(int32_t p_constraint_index, int32_t p_count);
-	void set_kusudama_open_cone_center(int32_t p_constraint_index, int32_t p_index, Vector3 p_center);
-	void set_kusudama_open_cone_radius(int32_t p_constraint_index, int32_t p_index, float p_radius);
+	void set_kusudama_open_cone_count(int32_t p_constraint_index,
+			int32_t p_count);
+	void set_kusudama_open_cone_center(int32_t p_constraint_index,
+			int32_t p_index, Vector3 p_center);
+	void set_kusudama_open_cone_radius(int32_t p_constraint_index,
+			int32_t p_index, float p_radius);
 	ManyBoneIK3D();
 	~ManyBoneIK3D();
 	void set_dirty();

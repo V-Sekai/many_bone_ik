@@ -37,16 +37,16 @@
 #include "ik_ray_3d.h"
 #include "math/ik_node_3d.h"
 
-#include <godot_cpp/classes/resource.hpp>
-#include <godot_cpp/variant/quaternion.hpp>
-#include <godot_cpp/classes/ref.hpp>
-#include <godot_cpp/classes/weak_ref.hpp>
-#include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/core/type_info.hpp>
-#include <godot_cpp/variant/typed_array.hpp>
-#include <godot_cpp/variant/callable_method_pointer.hpp>
-#include <godot_cpp/classes/node3d_gizmo.hpp>
 #include <godot_cpp/classes/node3d.hpp>
+#include <godot_cpp/classes/node3d_gizmo.hpp>
+#include <godot_cpp/classes/ref.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/classes/resource.hpp>
+#include <godot_cpp/classes/weak_ref.hpp>
+#include <godot_cpp/core/type_info.hpp>
+#include <godot_cpp/variant/callable_method_pointer.hpp>
+#include <godot_cpp/variant/quaternion.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
 
 using namespace godot;
 
@@ -56,9 +56,10 @@ class IKKusudama3D : public Resource {
 	GDCLASS(IKKusudama3D, Resource);
 
 	/**
-	 * An array containing all of the Kusudama's open_cones. The kusudama is built up
-	 * with the expectation that any limitCone in the array is connected to the cone at the previous element in the array,
-	 * and the cone at the next element in the array.
+	 * An array containing all of the Kusudama's open_cones. The kusudama is built
+	 * up with the expectation that any limitCone in the array is connected to the
+	 * cone at the previous element in the array, and the cone at the next element
+	 * in the array.
 	 */
 	Vector<Ref<IKLimitCone3D>> open_cones;
 
@@ -74,13 +75,13 @@ class IKKusudama3D : public Resource {
 	real_t resistance = 0;
 
 	/**
-	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
-	 * limiting_axes Z axis.
+	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being
+	 * equivalent to the limiting_axes Z axis.
 	 */
 	real_t min_axial_angle = 0.0;
 	/**
-	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
-	 * min_axial_angle
+	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being
+	 * equivalent to the min_axial_angle
 	 */
 	real_t range_angle = Math_TAU;
 
@@ -105,22 +106,25 @@ public:
 	double unit_area = 4 * Math_PI;
 
 	/**
-	 * Get the swing rotation and twist rotation for the specified axis. The twist rotation represents the rotation around the specified axis. The swing rotation represents the rotation of the specified
-	 * axis itself, which is the rotation around an axis perpendicular to the specified axis. The swing and twist rotation can be
-	 * used to reconstruct the original quaternion: this = swing * twist
+	 * Get the swing rotation and twist rotation for the specified axis. The twist
+	 * rotation represents the rotation around the specified axis. The swing
+	 * rotation represents the rotation of the specified axis itself, which is the
+	 * rotation around an axis perpendicular to the specified axis. The swing and
+	 * twist rotation can be used to reconstruct the original quaternion: this =
+	 * swing * twist
 	 *
-	 * @param p_axis the X, Y, Z component of the normalized axis for which to get the swing and twist rotation
+	 * @param p_axis the X, Y, Z component of the normalized axis for which to get
+	 * the swing and twist rotation
 	 * @return twist represent the rotational twist
 	 * @return swing represent the rotational swing
-	 * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
+	 * @see <a
+	 * href="http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
 	 */
-	static void get_swing_twist(
-			Quaternion p_rotation,
-			Vector3 p_axis,
-			Quaternion &r_swing,
-			Quaternion &r_twist);
+	static void get_swing_twist(Quaternion p_rotation, Vector3 p_axis,
+			Quaternion &r_swing, Quaternion &r_twist);
 
-	static Quaternion get_quaternion_axis_angle(const Vector3 &p_axis, real_t p_angle);
+	static Quaternion get_quaternion_axis_angle(const Vector3 &p_axis,
+			real_t p_angle);
 
 public:
 	/**
@@ -129,20 +133,29 @@ public:
 	 *
 	 * @param to_set
 	 */
-	void snap_to_orientation_limit(Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_to_set, Ref<IKNode3D> p_limiting_axes, real_t p_dampening, real_t p_cos_half_angle_dampen);
+	void snap_to_orientation_limit(Ref<IKNode3D> p_bone_direction,
+			Ref<IKNode3D> p_to_set,
+			Ref<IKNode3D> p_limiting_axes,
+			real_t p_dampening,
+			real_t p_cos_half_angle_dampen);
 
 	bool is_nan_vector(const Vector3 &vec);
 
 	/**
-	 * Kusudama constraints decompose the bone orientation into a swing component, and a twist component.
-	 * The "Swing" component is the final direction of the bone. The "Twist" component represents how much
-	 * the bone is rotated about its own final direction. Where limit cones allow you to constrain the "Swing"
-	 * component, this method lets you constrain the "twist" component.
+	 * Kusudama constraints decompose the bone orientation into a swing component,
+	 * and a twist component. The "Swing" component is the final direction of the
+	 * bone. The "Twist" component represents how much the bone is rotated about
+	 * its own final direction. Where limit cones allow you to constrain the
+	 * "Swing" component, this method lets you constrain the "twist" component.
 	 *
-	 * @param min_angle some angle in radians about the major rotation frame's y-axis to serve as the first angle within the range_angle that the bone is allowed to twist.
-	 * @param in_range some angle in radians added to the min_angle. if the bone's local Z goes maxAngle radians beyond the min_angle, it is considered past the limit.
-	 * This value is always interpreted as being in the positive direction. For example, if this value is -PI/2, the entire range_angle from min_angle to min_angle + 3PI/4 is
-	 * considered valid.
+	 * @param min_angle some angle in radians about the major rotation frame's
+	 * y-axis to serve as the first angle within the range_angle that the bone is
+	 * allowed to twist.
+	 * @param in_range some angle in radians added to the min_angle. if the bone's
+	 * local Z goes maxAngle radians beyond the min_angle, it is considered past
+	 * the limit. This value is always interpreted as being in the positive
+	 * direction. For example, if this value is -PI/2, the entire range_angle from
+	 * min_angle to min_angle + 3PI/4 is considered valid.
 	 */
 	void set_axial_limits(real_t p_min_angle, real_t p_in_range);
 
@@ -150,32 +163,47 @@ public:
 	 *
 	 * @param to_set
 	 * @param limiting_axes
-	 * @return radians of the twist required to snap bone into twist limits (0 if bone is already in twist limits)
+	 * @return radians of the twist required to snap bone into twist limits (0 if
+	 * bone is already in twist limits)
 	 */
-	void set_snap_to_twist_limit(Ref<IKNode3D> p_bone_direction, Ref<IKNode3D> p_to_set, Ref<IKNode3D> p_limiting_axes, real_t p_dampening, real_t p_cos_half_dampen);
+	void set_snap_to_twist_limit(Ref<IKNode3D> p_bone_direction,
+			Ref<IKNode3D> p_to_set,
+			Ref<IKNode3D> p_limiting_axes,
+			real_t p_dampening, real_t p_cos_half_dampen);
 
 	/**
-	 * Given a point (in local coordinates), checks to see if a ray can be extended from the Kusudama's
-	 * origin to that point, such that the ray in the Kusudama's reference frame is within the range_angle allowed by the Kusudama's
-	 * coneLimits.
-	 * If such a ray exists, the original point is returned (the point is within the limits).
-	 * If it cannot exist, the tip of the ray within the kusudama's limits that would require the least rotation
-	 * to arrive at the input point is returned.
+	 * Given a point (in local coordinates), checks to see if a ray can be
+	 * extended from the Kusudama's origin to that point, such that the ray in the
+	 * Kusudama's reference frame is within the range_angle allowed by the
+	 * Kusudama's coneLimits. If such a ray exists, the original point is returned
+	 * (the point is within the limits). If it cannot exist, the tip of the ray
+	 * within the kusudama's limits that would require the least rotation to
+	 * arrive at the input point is returned.
 	 * @param in_point the point to test.
-	 * @param in_bounds should be an array with at least 2 elements. The first element will be set to  a number from -1 to 1 representing the point's distance from the boundary, 0 means the point is right on
-	 * the boundary, 1 means the point is within the boundary and on the path furthest from the boundary. any negative number means
-	 * the point is outside of the boundary, but does not signify anything about how far from the boundary the point is.
-	 * The second element will be given a value corresponding to the limit cone whose bounds were exceeded. If the bounds were exceeded on a segment between two limit cones,
-	 * this value will be set to a non-integer value between the two indices of the limitcone comprising the segment whose bounds were exceeded.
-	 * @return the original point, if it's in limits, or the closest point which is in limits.
+	 * @param in_bounds should be an array with at least 2 elements. The first
+	 * element will be set to  a number from -1 to 1 representing the point's
+	 * distance from the boundary, 0 means the point is right on the boundary, 1
+	 * means the point is within the boundary and on the path furthest from the
+	 * boundary. any negative number means the point is outside of the boundary,
+	 * but does not signify anything about how far from the boundary the point is.
+	 * The second element will be given a value corresponding to the limit cone
+	 * whose bounds were exceeded. If the bounds were exceeded on a segment
+	 * between two limit cones, this value will be set to a non-integer value
+	 * between the two indices of the limitcone comprising the segment whose
+	 * bounds were exceeded.
+	 * @return the original point, if it's in limits, or the closest point which
+	 * is in limits.
 	 */
-	Vector3 get_local_point_in_limits(Vector3 in_point, Vector<double> *in_bounds);
+	Vector3 get_local_point_in_limits(Vector3 in_point,
+			Vector<double> *in_bounds);
 
-	Vector3 local_point_on_path_sequence(Vector3 in_point, Ref<IKNode3D> limiting_axes);
+	Vector3 local_point_on_path_sequence(Vector3 in_point,
+			Ref<IKNode3D> limiting_axes);
 
 	/**
 	 * Add a IKLimitCone to the Kusudama.
-	 * @param new_point where on the Kusudama to add the LimitCone (in Kusudama's local coordinate frame defined by its bone's majorRotationAxes))
+	 * @param new_point where on the Kusudama to add the LimitCone (in Kusudama's
+	 * local coordinate frame defined by its bone's majorRotationAxes))
 	 * @param radius the radius of the limitCone
 	 */
 	void add_open_cone(Ref<IKLimitCone3D> p_open_cone);
@@ -204,7 +232,8 @@ public:
 	void set_open_cones(TypedArray<IKLimitCone3D> p_cones);
 	float get_resistance();
 	void set_resistance(float p_resistance);
-	static Quaternion clamp_to_quadrance_angle(Quaternion p_rotation, double p_cos_half_angle);
+	static Quaternion clamp_to_quadrance_angle(Quaternion p_rotation,
+			double p_cos_half_angle);
 };
 
 #endif // IK_KUSUDAMA_3D_H

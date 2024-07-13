@@ -45,7 +45,10 @@ class IKEffectorTemplate3D : public Resource {
 	bool target_static = false;
 	real_t motion_propagation_factor = 1.0f;
 	real_t weight = 0.0f;
-	Vector3 priority_direction = Vector3(0.2f, 0.0f, 0.2f); // Purported ideal values are 1.0 / 3.0 for one direction, 1.0 / 5.0 for two directions and 1.0 / 7.0 for three directions.
+	Vector3 priority_direction = Vector3(
+			0.2f, 0.0f,
+			0.2f); // Purported ideal values are 1.0 / 3.0 for one direction, 1.0
+				   // / 5.0 for two directions and 1.0 / 7.0 for three directions.
 protected:
 	static void _bind_methods();
 
@@ -59,7 +62,9 @@ public:
 	real_t get_weight() const { return weight; }
 	void set_weight(real_t p_weight) { weight = p_weight; }
 	Vector3 get_direction_priorities() const { return priority_direction; }
-	void set_direction_priorities(Vector3 p_priority_direction) { priority_direction = p_priority_direction; }
+	void set_direction_priorities(Vector3 p_priority_direction) {
+		priority_direction = p_priority_direction;
+	}
 
 	IKEffectorTemplate3D();
 };

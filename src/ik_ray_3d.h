@@ -66,19 +66,15 @@ public:
 	 * to be scaled by so that its tip is where the vector would project onto
 	 * this ray.
 	 * <p>
-	 * Due to floating point errors, the intended properties of this function might
-	 * not be entirely consistent with its output under summation.
-	 * <p>
-	 * To help spare programmer cognitive cycles debugging in such circumstances,
-	 * the intended properties
-	 * are listed for reference here (despite their being easily inferred).
-	 * <p>
-	 * 1. calling get_scaled_projection(someVector) should return the same value as
-	 * calling
-	 * get_scaled_projection(closestPointTo(someVector).
-	 * 2. calling getMultipliedBy(get_scaled_projection(someVector)) should return the
-	 * same
-	 * vector as calling closestPointTo(someVector)
+	 * Due to floating point errors, the intended properties of this function
+	 * might not be entirely consistent with its output under summation. <p> To
+	 * help spare programmer cognitive cycles debugging in such circumstances, the
+	 * intended properties are listed for reference here (despite their being
+	 * easily inferred). <p>
+	 * 1. calling get_scaled_projection(someVector) should return the same value
+	 * as calling get_scaled_projection(closestPointTo(someVector).
+	 * 2. calling getMultipliedBy(get_scaled_projection(someVector)) should return
+	 * the same vector as calling closestPointTo(someVector)
 	 *
 	 * @param p_input a vector to project onto this ray
 	 */
@@ -96,7 +92,8 @@ public:
 	 * @return the point where this ray intersects the plane specified by the
 	 *         triangle ta,tb,tc.
 	 */
-	Vector3 get_intersects_plane(Vector3 p_vertex_a, Vector3 p_vertex_b, Vector3 p_vertex_c);
+	Vector3 get_intersects_plane(Vector3 p_vertex_a, Vector3 p_vertex_b,
+			Vector3 p_vertex_c);
 
 	/*
 	 * Find where this ray intersects a sphere
@@ -113,17 +110,26 @@ public:
 	 *
 	 * @return number of intersections found;
 	 */
-	int intersects_sphere(Vector3 p_sphere_center, real_t p_radius, Vector3 *r_first_intersection, Vector3 *r_second_intersection);
+	int intersects_sphere(Vector3 p_sphere_center, real_t p_radius,
+			Vector3 *r_first_intersection,
+			Vector3 *r_second_intersection);
 	void set_point_1(Vector3 p_point);
 	void set_point_2(Vector3 p_point);
 	Vector3 get_point_2();
 	Vector3 get_point_1();
-	int intersects_sphere(Vector3 p_rp1, Vector3 p_rp2, real_t p_radius, Vector3 *r_first_intersection, Vector3 *r_second_intersection);
-	real_t triangle_area_2d(real_t p_x1, real_t p_y1, real_t p_x2, real_t p_y2, real_t p_x3, real_t p_y3);
-	void barycentric(Vector3 p_a, Vector3 p_b, Vector3 p_c, Vector3 p_p, Vector3 *r_uvw);
-	Vector3 plane_intersect_test(Vector3 p_vertex_a, Vector3 p_vertex_b, Vector3 p_vertex_c, Vector3 *uvw);
+	int intersects_sphere(Vector3 p_rp1, Vector3 p_rp2, real_t p_radius,
+			Vector3 *r_first_intersection,
+			Vector3 *r_second_intersection);
+	real_t triangle_area_2d(real_t p_x1, real_t p_y1, real_t p_x2, real_t p_y2,
+			real_t p_x3, real_t p_y3);
+	void barycentric(Vector3 p_a, Vector3 p_b, Vector3 p_c, Vector3 p_p,
+			Vector3 *r_uvw);
+	Vector3 plane_intersect_test(Vector3 p_vertex_a, Vector3 p_vertex_b,
+			Vector3 p_vertex_c, Vector3 *uvw);
 	operator String() const {
-		return String(L"(") + point_1.x + L" ->  " + point_2.x + L") \n " + L"(" + point_1.y + L" ->  " + point_2.y + L") \n " + L"(" + point_1.z + L" ->  " + point_2.z + L") \n ";
+		return String(L"(") + point_1.x + L" ->  " + point_2.x + L") \n " + L"(" +
+				point_1.y + L" ->  " + point_2.y + L") \n " + L"(" + point_1.z +
+				L" ->  " + point_2.z + L") \n ";
 	}
 };
 

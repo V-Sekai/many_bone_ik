@@ -31,11 +31,11 @@
 #ifndef IK_OPEN_CONE_3D_H
 #define IK_OPEN_CONE_3D_H
 
-#include <godot_cpp/classes/resource.hpp>
-#include <godot_cpp/variant/vector3.hpp>
 #include <godot_cpp/classes/ref.hpp>
-#include <godot_cpp/classes/weak_ref.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/classes/resource.hpp>
+#include <godot_cpp/classes/weak_ref.hpp>
+#include <godot_cpp/variant/vector3.hpp>
 
 using namespace godot;
 
@@ -47,7 +47,8 @@ class IKLimitCone3D : public Resource {
 	Vector3 control_point = Vector3(0, 1, 0);
 	Vector3 radial_point;
 
-	// Radius stored as cosine to save on the acos call necessary for the angle between.
+	// Radius stored as cosine to save on the acos call necessary for the angle
+	// between.
 	double radius_cosine = 0;
 	double radius = 0;
 	Vector3 _closest_cone(Ref<IKLimitCone3D> next, Vector3 input) const;
@@ -61,8 +62,8 @@ class IKLimitCone3D : public Resource {
 
 	/**
 	 * A triangle where the [1] is the tangent_circle_next_n, and [0] and [2]
-	 * are the points at which the tangent circle intersects this IKLimitCone and the
-	 * next IKLimitCone.
+	 * are the points at which the tangent circle intersects this IKLimitCone and
+	 * the next IKLimitCone.
 	 */
 	Vector<Vector3> first_triangle_next = { Vector3(), Vector3(), Vector3() };
 	Vector<Vector3> second_triangle_next = { Vector3(), Vector3(), Vector3() };
@@ -71,17 +72,17 @@ class IKLimitCone3D : public Resource {
 	 *
 	 * @param next
 	 * @param input
-	 * @return null if the input point is already in bounds, or the point's rectified position
-	 * if the point was out of bounds.
+	 * @return null if the input point is already in bounds, or the point's
+	 * rectified position if the point was out of bounds.
 	 */
 	Vector3 _get_closest_collision(Ref<IKLimitCone3D> next, Vector3 input) const;
 
 	/**
 	 * Determines if a ray emanating from the origin to given point in local space
-	 * lies within the path from this cone to the next cone. This function relies on
-	 * an optimization trick for a performance boost, but the trick ruins everything
-	 * if the input isn't normalized. So it is ABSOLUTELY VITAL
-	 * that @param input have unit length in order for this function to work correctly.
+	 * lies within the path from this cone to the next cone. This function relies
+	 * on an optimization trick for a performance boost, but the trick ruins
+	 * everything if the input isn't normalized. So it is ABSOLUTELY VITAL that
+	 * @param input have unit length in order for this function to work correctly.
 	 * @param next
 	 * @param input
 	 * @return
@@ -96,13 +97,14 @@ class IKLimitCone3D : public Resource {
 	 * @param in_bounds
 	 * @return
 	 */
-	Vector3 _closest_point_on_closest_cone(Ref<IKLimitCone3D> next, Vector3 input, Vector<double> *in_bounds) const;
+	Vector3 _closest_point_on_closest_cone(Ref<IKLimitCone3D> next, Vector3 input,
+			Vector<double> *in_bounds) const;
 
 	double _get_tangent_circle_radius_next_cos();
 	static Vector3 _get_orthogonal(Vector3 p_in);
 
 protected:
-	static void _bind_methods(){}
+	static void _bind_methods() {}
 	double _get_radius();
 
 	double _get_radius_cosine();
@@ -119,10 +121,13 @@ public:
 	 *
 	 * @param next
 	 * @param input
-	 * @return null if inapplicable for rectification. the original point if in bounds, or the point rectified to the closest boundary on the path sequence
-	 * between two cones if the point is out of bounds and applicable for rectification.
+	 * @return null if inapplicable for rectification. the original point if in
+	 * bounds, or the point rectified to the closest boundary on the path sequence
+	 * between two cones if the point is out of bounds and applicable for
+	 * rectification.
 	 */
-	Vector3 get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Vector3 input) const;
+	Vector3 get_on_great_tangent_triangle(Ref<IKLimitCone3D> next,
+			Vector3 input) const;
 	double get_tangent_circle_radius_next();
 	Vector3 get_tangent_circle_center_next_1();
 	Vector3 get_tangent_circle_center_next_2();

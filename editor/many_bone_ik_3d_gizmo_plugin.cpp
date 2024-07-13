@@ -28,56 +28,56 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include <godot_cpp/classes/resource_format_saver.hpp>
-#include <godot_cpp/classes/resource_saver.hpp>
-#include <godot_cpp/variant/transform3d.hpp>
-#include <godot_cpp/templates/rb_set.hpp>
-#include <godot_cpp/templates/vector.hpp>
-#include <godot_cpp/templates/hash_set.hpp>
-#include <godot_cpp/templates/local_vector.hpp>
-#include <godot_cpp/templates/list.hpp>
-#include <godot_cpp/templates/hash_map.hpp>
-#include <godot_cpp/templates/rb_map.hpp>
-#include <godot_cpp/variant/packed_float64_array.hpp>
-#include <godot_cpp/variant/packed_float32_array.hpp>
-#include <godot_cpp/variant/packed_color_array.hpp>
-#include <godot_cpp/variant/packed_vector2_array.hpp>
-#include <godot_cpp/variant/packed_int64_array.hpp>
-#include <godot_cpp/variant/packed_vector3_array.hpp>
-#include <godot_cpp/variant/packed_int32_array.hpp>
-#include <godot_cpp/variant/packed_byte_array.hpp>
-#include <godot_cpp/variant/packed_string_array.hpp>
-#include <godot_cpp/classes/editor_interface.hpp>
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
-#include <godot_cpp/classes/editor_node3d_gizmo_plugin.hpp>
-#include <godot_cpp/classes/editor_node3d_gizmo.hpp>
 #include "editor/plugins/node_3d_editor_plugin.h"
+#include "scene/scene_string_names.h"
+#include <godot_cpp/classes/box_mesh.hpp>
+#include <godot_cpp/classes/capsule_mesh.hpp>
+#include <godot_cpp/classes/capsule_shape3d.hpp>
+#include <godot_cpp/classes/collision_shape3d.hpp>
+#include <godot_cpp/classes/cylinder_mesh.hpp>
+#include <godot_cpp/classes/editor_interface.hpp>
+#include <godot_cpp/classes/editor_node3d_gizmo.hpp>
+#include <godot_cpp/classes/editor_node3d_gizmo_plugin.hpp>
+#include <godot_cpp/classes/joint3d.hpp>
 #include <godot_cpp/classes/label3d.hpp>
 #include <godot_cpp/classes/mesh_instance3d.hpp>
-#include <godot_cpp/classes/collision_shape3d.hpp>
-#include <godot_cpp/classes/joint3d.hpp>
 #include <godot_cpp/classes/physics_body3d.hpp>
+#include <godot_cpp/classes/plane_mesh.hpp>
+#include <godot_cpp/classes/point_mesh.hpp>
+#include <godot_cpp/classes/primitive_mesh.hpp>
+#include <godot_cpp/classes/prism_mesh.hpp>
+#include <godot_cpp/classes/quad_mesh.hpp>
+#include <godot_cpp/classes/resource_format_saver.hpp>
+#include <godot_cpp/classes/resource_saver.hpp>
+#include <godot_cpp/classes/ribbon_trail_mesh.hpp>
 #include <godot_cpp/classes/skeleton3d.hpp>
 #include <godot_cpp/classes/skin_reference.hpp>
-#include <godot_cpp/classes/capsule_shape3d.hpp>
-#include <godot_cpp/classes/quad_mesh.hpp>
-#include <godot_cpp/classes/cylinder_mesh.hpp>
-#include <godot_cpp/classes/plane_mesh.hpp>
-#include <godot_cpp/classes/text_mesh.hpp>
 #include <godot_cpp/classes/sphere_mesh.hpp>
-#include <godot_cpp/classes/torus_mesh.hpp>
-#include <godot_cpp/classes/tube_trail_mesh.hpp>
-#include <godot_cpp/classes/prism_mesh.hpp>
-#include <godot_cpp/classes/primitive_mesh.hpp>
-#include <godot_cpp/classes/box_mesh.hpp>
-#include <godot_cpp/classes/point_mesh.hpp>
-#include <godot_cpp/classes/ribbon_trail_mesh.hpp>
-#include <godot_cpp/classes/capsule_mesh.hpp>
 #include <godot_cpp/classes/sphere_shape3d.hpp>
 #include <godot_cpp/classes/surface_tool.hpp>
-#include "scene/scene_string_names.h"
+#include <godot_cpp/classes/text_mesh.hpp>
+#include <godot_cpp/classes/torus_mesh.hpp>
+#include <godot_cpp/classes/tube_trail_mesh.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
+#include <godot_cpp/templates/hash_set.hpp>
+#include <godot_cpp/templates/list.hpp>
+#include <godot_cpp/templates/local_vector.hpp>
+#include <godot_cpp/templates/rb_map.hpp>
+#include <godot_cpp/templates/rb_set.hpp>
+#include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
+#include <godot_cpp/variant/packed_color_array.hpp>
+#include <godot_cpp/variant/packed_float32_array.hpp>
+#include <godot_cpp/variant/packed_float64_array.hpp>
+#include <godot_cpp/variant/packed_int32_array.hpp>
+#include <godot_cpp/variant/packed_int64_array.hpp>
+#include <godot_cpp/variant/packed_string_array.hpp>
+#include <godot_cpp/variant/packed_vector2_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
+#include <godot_cpp/variant/transform3d.hpp>
 
 #include "../src/ik_bone_3d.h"
 #include "../src/ik_kusudama_3d.h"
@@ -90,7 +90,8 @@
 #endif
 
 void ManyBoneIK3DGizmoPlugin::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("_get_gizmo_name"), &ManyBoneIK3DGizmoPlugin::get_gizmo_name);
+	ClassDB::bind_method(D_METHOD("_get_gizmo_name"),
+			&ManyBoneIK3DGizmoPlugin::get_gizmo_name);
 }
 
 bool ManyBoneIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
@@ -103,7 +104,8 @@ String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
 
 void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	many_bone_ik = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+	Skeleton3D *skeleton =
+			Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	p_gizmo->clear();
 	if (!skeleton || !skeleton->get_bone_count()) {
 		return;
@@ -117,7 +119,8 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (se) {
 		selected = se->get_selected_bone();
 	}
-	Color selected_bone_color = EDITOR_GET("editors/3d_gizmos/gizmo_colors/selected_bone");
+	Color selected_bone_color =
+			EDITOR_GET("editors/3d_gizmos/gizmo_colors/selected_bone");
 
 	int current_bone_index = 0;
 	PackedInt32Array bones_to_process = skeleton->get_parentless_bones();
@@ -125,9 +128,11 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	while (bones_to_process.size() > current_bone_index) {
 		int current_bone_idx = bones_to_process[current_bone_index];
 
-		Color current_bone_color = (current_bone_idx == selected) ? selected_bone_color : bone_color;
+		Color current_bone_color =
+				(current_bone_idx == selected) ? selected_bone_color : bone_color;
 
-		for (const Ref<IKBoneSegment3D> &segmented_skeleton : many_bone_ik->get_segmented_skeletons()) {
+		for (const Ref<IKBoneSegment3D> &segmented_skeleton :
+				many_bone_ik->get_segmented_skeletons()) {
 			if (segmented_skeleton.is_null()) {
 				continue;
 			}
@@ -135,12 +140,14 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			if (ik_bone.is_null() || ik_bone->get_constraint().is_null()) {
 				continue;
 			}
-			create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color, skeleton, many_bone_ik);
+			create_gizmo_mesh(current_bone_idx, ik_bone, p_gizmo, current_bone_color,
+					skeleton, many_bone_ik);
 		}
 
 		current_bone_index++;
 
-		PackedInt32Array child_bones_vector = skeleton->get_bone_children(current_bone_idx);
+		PackedInt32Array child_bones_vector =
+				skeleton->get_bone_children(current_bone_idx);
 		int child_bones_size = child_bones_vector.size();
 		for (int i = 0; i < child_bones_size; i++) {
 			// Something wrong.
@@ -153,7 +160,10 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	}
 }
 
-void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
+void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(
+		BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo,
+		Color current_bone_color, Skeleton3D *many_bone_ik_skeleton,
+		ManyBoneIK3D *p_many_bone_ik) {
 	Ref<IKKusudama3D> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
@@ -174,7 +184,13 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	bones[0] = parent_idx;
 	weights[0] = 1;
 
-	Transform3D constraint_relative_to_the_skeleton = p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner()).affine_inverse() * many_bone_ik_skeleton->get_relative_transform(many_bone_ik_skeleton->get_owner()) * p_many_bone_ik->get_godot_skeleton_transform_inverse() * ik_bone->get_constraint_orientation_transform()->get_global_transform();
+	Transform3D constraint_relative_to_the_skeleton =
+			p_many_bone_ik->get_relative_transform(p_many_bone_ik->get_owner())
+					.affine_inverse() *
+			many_bone_ik_skeleton->get_relative_transform(
+					many_bone_ik_skeleton->get_owner()) *
+			p_many_bone_ik->get_godot_skeleton_transform_inverse() *
+			ik_bone->get_constraint_orientation_transform()->get_global_transform();
 	PackedFloat32Array kusudama_open_cones;
 	Ref<IKKusudama3D> kusudama = ik_bone->get_constraint();
 	for (int32_t cone_i = 0; cone_i < open_cones.size(); cone_i++) {
@@ -272,7 +288,8 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 	surface_tool.instantiate();
 	surface_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
 	const int32_t MESH_CUSTOM_0 = 0;
-	surface_tool->set_custom_format(MESH_CUSTOM_0, SurfaceTool::CustomFormat::CUSTOM_RGBA_HALF);
+	surface_tool->set_custom_format(MESH_CUSTOM_0,
+			SurfaceTool::CustomFormat::CUSTOM_RGBA_HALF);
 	for (int32_t point_i = 0; point_i < points.size(); point_i++) {
 		surface_tool->set_bones(bones);
 		surface_tool->set_weights(weights);
@@ -304,9 +321,7 @@ ManyBoneIK3DGizmoPlugin::ManyBoneIK3DGizmoPlugin() {
 	kusudama_shader->set_code(MANY_BONE_IKKUSUDAMA_SHADER);
 }
 
-int32_t ManyBoneIK3DGizmoPlugin::get_priority() const {
-	return -1;
-}
+int32_t ManyBoneIK3DGizmoPlugin::get_priority() const { return -1; }
 
 EditorPluginManyBoneIK::EditorPluginManyBoneIK() {
 	Ref<ManyBoneIK3DGizmoPlugin> many_bone_ik_gizmo_plugin;
@@ -314,15 +329,19 @@ EditorPluginManyBoneIK::EditorPluginManyBoneIK() {
 	Node3DEditor::get_singleton()->add_gizmo_plugin(many_bone_ik_gizmo_plugin);
 }
 
-int ManyBoneIK3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const {
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+int ManyBoneIK3DGizmoPlugin::subgizmos_intersect_ray(
+		const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera,
+		const Vector2 &p_point) const {
+	Skeleton3D *skeleton =
+			Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND_V(!skeleton, -1);
 
 	if (!edit_mode) {
 		return -1;
 	}
 
-	if (Node3DEditor::get_singleton()->get_tool_mode() != Node3DEditor::TOOL_MODE_SELECT) {
+	if (Node3DEditor::get_singleton()->get_tool_mode() !=
+			Node3DEditor::TOOL_MODE_SELECT) {
 		return -1;
 	}
 
@@ -354,17 +373,25 @@ int ManyBoneIK3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_
 	return -1;
 }
 
-Transform3D ManyBoneIK3DGizmoPlugin::get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const {
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+Transform3D ManyBoneIK3DGizmoPlugin::get_subgizmo_transform(
+		const EditorNode3DGizmo *p_gizmo, int p_id) const {
+	Skeleton3D *skeleton =
+			Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND_V(!skeleton, Transform3D());
 
-	Transform3D constraint_relative_to_the_skeleton = many_bone_ik->get_relative_transform(many_bone_ik->get_owner()).affine_inverse() *
-			skeleton->get_relative_transform(skeleton->get_owner()) * many_bone_ik->get_godot_skeleton_transform_inverse();
-	return constraint_relative_to_the_skeleton * skeleton->get_bone_global_pose(p_id);
+	Transform3D constraint_relative_to_the_skeleton =
+			many_bone_ik->get_relative_transform(many_bone_ik->get_owner())
+					.affine_inverse() *
+			skeleton->get_relative_transform(skeleton->get_owner()) *
+			many_bone_ik->get_godot_skeleton_transform_inverse();
+	return constraint_relative_to_the_skeleton *
+			skeleton->get_bone_global_pose(p_id);
 }
 
-void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) {
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(
+		const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) {
+	Skeleton3D *skeleton =
+			Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND(!skeleton);
 	// Prepare for global to local.
 	Transform3D original_to_local;
@@ -380,12 +407,17 @@ void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_
 	// Basis.
 	t.basis = to_local * p_transform.get_basis();
 
-	Transform3D constraint_relative_to_the_skeleton = many_bone_ik->get_relative_transform(many_bone_ik->get_owner()).affine_inverse() *
-			skeleton->get_relative_transform(skeleton->get_owner()) * many_bone_ik->get_godot_skeleton_transform_inverse();
-	p_transform = constraint_relative_to_the_skeleton.affine_inverse() * p_transform;
+	Transform3D constraint_relative_to_the_skeleton =
+			many_bone_ik->get_relative_transform(many_bone_ik->get_owner())
+					.affine_inverse() *
+			skeleton->get_relative_transform(skeleton->get_owner()) *
+			many_bone_ik->get_godot_skeleton_transform_inverse();
+	p_transform =
+			constraint_relative_to_the_skeleton.affine_inverse() * p_transform;
 	// Origin.
 	Vector3 orig = skeleton->get_bone_pose(p_id).origin;
-	Vector3 sub = p_transform.origin - skeleton->get_bone_global_pose(p_id).origin;
+	Vector3 sub =
+			p_transform.origin - skeleton->get_bone_global_pose(p_id).origin;
 	t.origin = orig + to_local.xform(sub);
 
 	// Apply transform.
@@ -395,8 +427,11 @@ void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_
 	many_bone_ik->update_gizmos();
 }
 
-void ManyBoneIK3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) {
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+void ManyBoneIK3DGizmoPlugin::commit_subgizmos(
+		const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids,
+		const Vector<Transform3D> &p_restore, bool p_cancel) {
+	Skeleton3D *skeleton =
+			Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND(!skeleton);
 
 	Node3DEditor *ne = Node3DEditor::get_singleton();
@@ -404,13 +439,19 @@ void ManyBoneIK3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo,
 
 	EditorUndoRedoManager *ur = EditorUndoRedoManager::get_singleton();
 	ur->create_action(TTR("Set Bone Transform"));
-	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE) {
+	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT ||
+			ne->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE) {
 		for (int i = 0; i < p_ids.size(); i++) {
-			int32_t constraint_i = many_bone_ik->find_constraint(skeleton->get_bone_name(p_ids[i]));
+			int32_t constraint_i =
+					many_bone_ik->find_constraint(skeleton->get_bone_name(p_ids[i]));
 			float from_original = many_bone_ik->get_joint_twist(constraint_i).x;
 			float range = many_bone_ik->get_joint_twist(constraint_i).y;
-			ur->add_do_method(many_bone_ik, "set_kusudama_twist", constraint_i, Vector2(skeleton->get_bone_pose(p_ids[i]).get_basis().get_euler().y, range));
-			ur->add_undo_method(many_bone_ik, "set_kusudama_twist", constraint_i, Vector2(from_original, range));
+			ur->add_do_method(
+					many_bone_ik, "set_kusudama_twist", constraint_i,
+					Vector2(skeleton->get_bone_pose(p_ids[i]).get_basis().get_euler().y,
+							range));
+			ur->add_undo_method(many_bone_ik, "set_kusudama_twist", constraint_i,
+					Vector2(from_original, range));
 			ur->add_do_method(many_bone_ik, "set_dirty");
 			ur->add_undo_method(many_bone_ik, "set_dirty");
 		}
@@ -460,9 +501,9 @@ void ManyBoneIK3DGizmoPlugin::_draw_gizmo() {
 		return;
 	}
 
-	// If you call get_bone_global_pose() while drawing the surface, such as toggle rest mode,
-	// the skeleton update will be done first and
-	// the drawing surface will be interrupted once and an error will occur.
+	// If you call get_bone_global_pose() while drawing the surface, such as
+	// toggle rest mode, the skeleton update will be done first and the drawing
+	// surface will be interrupted once and an error will occur.
 	skeleton->force_update_all_dirty_bones();
 
 	// Handles.
@@ -490,7 +531,8 @@ void ManyBoneIK3DGizmoPlugin::_update_gizmo_visible() {
 #endif
 		} else {
 #ifdef TOOLS_ENABLED
-			if (skeleton->is_bone_enabled(selected_bone) && !skeleton->is_show_rest_only()) {
+			if (skeleton->is_bone_enabled(selected_bone) &&
+					!skeleton->is_show_rest_only()) {
 				skeleton->set_transform_gizmo_visible(true);
 			} else {
 				skeleton->set_transform_gizmo_visible(false);
@@ -513,7 +555,8 @@ void ManyBoneIK3DGizmoPlugin::_subgizmo_selection_change() {
 	if (!skeleton) {
 		return;
 	}
-	// Once validated by subgizmos_intersect_ray, but required if through inspector's bones tree.
+	// Once validated by subgizmos_intersect_ray, but required if through
+	// inspector's bones tree.
 	if (!edit_mode) {
 		skeleton->clear_subgizmo_selection();
 		return;
@@ -534,7 +577,8 @@ void ManyBoneIK3DGizmoPlugin::_subgizmo_selection_change() {
 			if (!plugin.is_valid()) {
 				continue;
 			}
-			skeleton->set_subgizmo_selection(gizmo, selected, skeleton->get_bone_global_pose(selected));
+			skeleton->set_subgizmo_selection(
+					gizmo, selected, skeleton->get_bone_global_pose(selected));
 			break;
 		}
 	} else {
@@ -547,9 +591,7 @@ void ManyBoneIK3DGizmoPlugin::edit_mode_toggled(const bool pressed) {
 	_update_gizmo_visible();
 }
 
-void ManyBoneIK3DGizmoPlugin::_hide_handles() {
-	handles_mesh_instance->hide();
-}
+void ManyBoneIK3DGizmoPlugin::_hide_handles() { handles_mesh_instance->hide(); }
 
 void ManyBoneIK3DGizmoPlugin::_notifications(int32_t p_what) {
 	switch (p_what) {
@@ -582,27 +624,36 @@ void fragment() {
 }
 )");
 			handle_material->set_shader(handle_shader);
-			Ref<Texture2D> handle = EditorNode::get_singleton()->get_gui_base()->get_theme_icon(SNAME("EditorBoneHandle"), SNAME("EditorIcons"));
+			Ref<Texture2D> handle =
+					EditorNode::get_singleton()->get_gui_base()->get_theme_icon(
+							SNAME("EditorBoneHandle"), SNAME("EditorIcons"));
 			handle_material->set_shader_parameter("point_size", handle->get_width());
 			handle_material->set_shader_parameter("texture_albedo", handle);
 
 			handles_mesh_instance = memnew(MeshInstance3D);
-			handles_mesh_instance->set_cast_shadows_setting(GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
+			handles_mesh_instance->set_cast_shadows_setting(
+					GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
 			handles_mesh_instance->set_mesh(handles_mesh);
 			edit_mode_button = memnew(Button);
 			edit_mode_button->set_text(TTR("Edit Mode"));
 			edit_mode_button->set_flat(true);
 			edit_mode_button->set_toggle_mode(true);
 			edit_mode_button->set_focus_mode(Control::FOCUS_NONE);
-			edit_mode_button->set_tooltip_text(TTR("Edit Mode\nShow buttons on joints."));
-			edit_mode_button->connect("toggled", callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
+			edit_mode_button->set_tooltip_text(
+					TTR("Edit Mode\nShow buttons on joints."));
+			edit_mode_button->connect(
+					"toggled",
+					callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
 			edit_mode = false;
-			create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
+			create_material("lines_primary",
+					Color(0.93725490570068, 0.19215686619282, 0.22352941334248),
+					true, true, true);
 
 			unselected_mat = Ref<StandardMaterial3D>(memnew(StandardMaterial3D));
 			unselected_mat->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
 			unselected_mat->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA);
-			unselected_mat->set_flag(StandardMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+			unselected_mat->set_flag(StandardMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR,
+					true);
 			unselected_mat->set_flag(StandardMaterial3D::FLAG_SRGB_VERTEX_COLOR, true);
 
 			selected_mat = Ref<ShaderMaterial>(memnew(ShaderMaterial));
@@ -629,14 +680,18 @@ void fragment() {
 
 			// Register properties in editor settings.
 			EDITOR_DEF("editors/3d_gizmos/gizmo_colors/skeleton", Color(1, 0.8, 0.4));
-			EDITOR_DEF("editors/3d_gizmos/gizmo_colors/selected_bone", Color(0.8, 0.3, 0.0));
+			EDITOR_DEF("editors/3d_gizmos/gizmo_colors/selected_bone",
+					Color(0.8, 0.3, 0.0));
 			EDITOR_DEF("editors/3d_gizmos/gizmo_settings/bone_axis_length", (float)0.1);
 			EDITOR_DEF("editors/3d_gizmos/gizmo_settings/bone_shape", 1);
-			EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "editors/3d_gizmos/gizmo_settings/bone_shape", PROPERTY_HINT_ENUM, "Wire,Octahedron"));
+			EditorSettings::get_singleton()->add_property_hint(PropertyInfo(
+					Variant::INT, "editors/3d_gizmos/gizmo_settings/bone_shape",
+					PROPERTY_HINT_ENUM, "Wire,Octahedron"));
 			Node3DEditor::get_singleton()->add_control_to_menu_panel(edit_mode_button);
 		} break;
 		case EditorNode3DGizmoPlugin::NOTIFICATION_PREDELETE: {
-			Node3DEditor::get_singleton()->remove_control_from_menu_panel(edit_mode_button);
+			Node3DEditor::get_singleton()->remove_control_from_menu_panel(
+					edit_mode_button);
 		} break;
 	}
 }

@@ -30,9 +30,7 @@
 
 #include "qcp.h"
 
-QCP::QCP(double p_evec_prec) {
-	eigenvector_precision = p_evec_prec;
-}
+QCP::QCP(double p_evec_prec) { eigenvector_precision = p_evec_prec; }
 
 void QCP::set(PackedVector3Array &r_target, PackedVector3Array &r_moved) {
 	target = r_target;
@@ -74,7 +72,8 @@ Quaternion QCP::calculate_rotation() {
 			double q0 = Math::sqrt(0.5 * (1.0 + dot / norm_product));
 			double coeff = 1.0 / (2.0 * q0 * norm_product);
 			Vector3 q = v.cross(u).normalized();
-			result = Quaternion(coeff * q.x, coeff * q.y, coeff * q.z, q0).normalized();
+			result =
+					Quaternion(coeff * q.x, coeff * q.y, coeff * q.z, q0).normalized();
 		}
 	} else {
 		double a13 = -sum_xz_minus_zx;
@@ -99,11 +98,16 @@ Quaternion QCP::calculate_rotation() {
 		double a3144_4134 = a31 * a44 - a41 * a34;
 		double a3142_4132 = a31 * a42 - a41 * a32;
 
-		double quaternion_w = a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
-		double quaternion_x = -a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
-		double quaternion_y = a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
-		double quaternion_z = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
-		double qsqr = quaternion_w * quaternion_w + quaternion_x * quaternion_x + quaternion_y * quaternion_y + quaternion_z * quaternion_z;
+		double quaternion_w =
+				a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
+		double quaternion_x =
+				-a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
+		double quaternion_y =
+				a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
+		double quaternion_z =
+				-a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
+		double qsqr = quaternion_w * quaternion_w + quaternion_x * quaternion_x +
+				quaternion_y * quaternion_y + quaternion_z * quaternion_z;
 
 		if (qsqr < eigenvector_precision) {
 			result = Quaternion();
@@ -119,7 +123,9 @@ Quaternion QCP::calculate_rotation() {
 			quaternion_x /= min;
 			quaternion_y /= min;
 			quaternion_z /= min;
-			result = Quaternion(quaternion_x, quaternion_y, quaternion_z, quaternion_w).normalized();
+			result =
+					Quaternion(quaternion_x, quaternion_y, quaternion_z, quaternion_w)
+							.normalized();
 		}
 	}
 
@@ -132,11 +138,10 @@ void QCP::translate(Vector3 r_translate, PackedVector3Array &r_x) {
 	}
 }
 
-Vector3 QCP::get_translation() {
-	return target_center - moved_center;
-}
+Vector3 QCP::get_translation() { return target_center - moved_center; }
 
-Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<double> &r_weight) {
+Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center,
+		Vector<double> &r_weight) {
 	Vector3 center;
 	double total_weight = 0;
 	bool weight_is_empty = r_weight.is_empty();
@@ -159,7 +164,8 @@ Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<dou
 	return center;
 }
 
-void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2) {
+void QCP::inner_product(PackedVector3Array &coords1,
+		PackedVector3Array &coords2) {
 	Vector3 weighted_coord1, weighted_coord2;
 	double sum_of_squares1 = 0, sum_of_squares2 = 0;
 
@@ -187,7 +193,9 @@ void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2
 
 		weighted_coord2 = coords2[i];
 
-		sum_of_squares2 += weight_is_empty ? weighted_coord2.dot(weighted_coord2) : (weight[i] * weighted_coord2.dot(weighted_coord2));
+		sum_of_squares2 += weight_is_empty
+				? weighted_coord2.dot(weighted_coord2)
+				: (weight[i] * weighted_coord2.dot(weighted_coord2));
 
 		sum_xx += (weighted_coord1.x * weighted_coord2.x);
 		sum_xy += (weighted_coord1.x * weighted_coord2.y);
@@ -217,12 +225,15 @@ void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2
 	inner_product_calculated = true;
 }
 
-Quaternion QCP::weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate) {
+Quaternion QCP::weighted_superpose(PackedVector3Array &p_moved,
+		PackedVector3Array &p_target,
+		Vector<double> &p_weight, bool translate) {
 	set(p_moved, p_target, p_weight, translate);
 	return get_rotation();
 }
 
-void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate) {
+void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target,
+		Vector<double> &p_weight, bool p_translate) {
 	transformation_calculated = false;
 	inner_product_calculated = false;
 

@@ -35,61 +35,45 @@
 #include "../src/many_bone_ik_3d.h"
 #include "many_bone_ik_shader.h"
 
-#include <godot_cpp/templates/rb_set.hpp>
-#include <godot_cpp/templates/vector.hpp>
-#include <godot_cpp/templates/hash_set.hpp>
-#include <godot_cpp/templates/local_vector.hpp>
-#include <godot_cpp/templates/list.hpp>
-#include <godot_cpp/templates/hash_map.hpp>
-#include <godot_cpp/templates/rb_map.hpp>
-#include <godot_cpp/variant/packed_float64_array.hpp>
-#include <godot_cpp/variant/packed_float32_array.hpp>
-#include <godot_cpp/variant/packed_color_array.hpp>
-#include <godot_cpp/variant/packed_vector2_array.hpp>
-#include <godot_cpp/variant/packed_int64_array.hpp>
-#include <godot_cpp/variant/packed_vector3_array.hpp>
-#include <godot_cpp/variant/packed_int32_array.hpp>
-#include <godot_cpp/variant/packed_byte_array.hpp>
-#include <godot_cpp/variant/packed_string_array.hpp>
-#include <godot_cpp/templates/rb_set.hpp>
-#include <godot_cpp/templates/vector.hpp>
-#include <godot_cpp/templates/hash_set.hpp>
-#include <godot_cpp/templates/local_vector.hpp>
-#include <godot_cpp/templates/list.hpp>
-#include <godot_cpp/templates/hash_map.hpp>
-#include <godot_cpp/templates/rb_map.hpp>
-#include <godot_cpp/variant/packed_float64_array.hpp>
-#include <godot_cpp/variant/packed_float32_array.hpp>
-#include <godot_cpp/variant/packed_color_array.hpp>
-#include <godot_cpp/variant/packed_vector2_array.hpp>
-#include <godot_cpp/variant/packed_int64_array.hpp>
-#include <godot_cpp/variant/packed_vector3_array.hpp>
-#include <godot_cpp/variant/packed_int32_array.hpp>
-#include <godot_cpp/variant/packed_byte_array.hpp>
-#include <godot_cpp/variant/packed_string_array.hpp>
-#include <godot_cpp/classes/editor_inspector_plugin.hpp>
-#include <godot_cpp/classes/editor_inspector.hpp>
-#include <godot_cpp/classes/editor_property.hpp>
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
-#include <godot_cpp/classes/editor_settings.hpp>
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/plugins/skeleton_3d_editor_plugin.h"
-#include <godot_cpp/classes/camera3d.hpp>
-#include <godot_cpp/classes/label3d.hpp>
-#include <godot_cpp/classes/mesh_instance3d.hpp>
-#include <godot_cpp/variant/callable_method_pointer.hpp>
-#include <godot_cpp/classes/node3d_gizmo.hpp>
-#include <godot_cpp/classes/node3d.hpp>
-#include <godot_cpp/classes/skeleton3d.hpp>
-#include <godot_cpp/classes/skin_reference.hpp>
-#include <godot_cpp/classes/immediate_mesh.hpp>
-#include <godot_cpp/classes/standard_material3d.hpp>
-#include <godot_cpp/classes/material.hpp>
 #include <godot_cpp/classes/base_material3d.hpp>
+#include <godot_cpp/classes/camera3d.hpp>
+#include <godot_cpp/classes/editor_inspector.hpp>
+#include <godot_cpp/classes/editor_inspector_plugin.hpp>
+#include <godot_cpp/classes/editor_property.hpp>
+#include <godot_cpp/classes/editor_settings.hpp>
+#include <godot_cpp/classes/immediate_mesh.hpp>
+#include <godot_cpp/classes/label3d.hpp>
+#include <godot_cpp/classes/material.hpp>
+#include <godot_cpp/classes/mesh_instance3d.hpp>
+#include <godot_cpp/classes/node3d.hpp>
+#include <godot_cpp/classes/node3d_gizmo.hpp>
+#include <godot_cpp/classes/orm_material3d.hpp>
 #include <godot_cpp/classes/placeholder_material.hpp>
 #include <godot_cpp/classes/shader_material.hpp>
-#include <godot_cpp/classes/orm_material3d.hpp>
+#include <godot_cpp/classes/skeleton3d.hpp>
+#include <godot_cpp/classes/skin_reference.hpp>
+#include <godot_cpp/classes/standard_material3d.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
+#include <godot_cpp/templates/hash_set.hpp>
+#include <godot_cpp/templates/list.hpp>
+#include <godot_cpp/templates/local_vector.hpp>
+#include <godot_cpp/templates/rb_map.hpp>
+#include <godot_cpp/templates/rb_set.hpp>
+#include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/variant/callable_method_pointer.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
+#include <godot_cpp/variant/packed_color_array.hpp>
+#include <godot_cpp/variant/packed_float32_array.hpp>
+#include <godot_cpp/variant/packed_float64_array.hpp>
+#include <godot_cpp/variant/packed_int32_array.hpp>
+#include <godot_cpp/variant/packed_int64_array.hpp>
+#include <godot_cpp/variant/packed_string_array.hpp>
+#include <godot_cpp/variant/packed_vector2_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
 
 using namespace godot;
 
@@ -119,18 +103,29 @@ protected:
 	void _notifications(int32_t p_what);
 
 public:
-	const Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
+	const Color bone_color = EditorSettings::get_singleton()->get(
+			"editors/3d_gizmos/gizmo_colors/skeleton");
 	const int32_t KUSUDAMA_MAX_CONES = 10;
 	bool has_gizmo(Node3D *p_spatial) override;
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	ManyBoneIK3DGizmoPlugin();
 	int32_t get_priority() const override;
-	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
-	int subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const override;
-	Transform3D get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const override;
-	void set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) override;
-	void commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) override;
+	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone,
+			EditorNode3DGizmo *p_gizmo, Color current_bone_color,
+			Skeleton3D *many_bone_ik_skeleton,
+			ManyBoneIK3D *p_many_bone_ik);
+	int subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo,
+			Camera3D *p_camera,
+			const Vector2 &p_point) const override;
+	Transform3D get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo,
+			int p_id) const override;
+	void set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id,
+			Transform3D p_transform) override;
+	void commit_subgizmos(const EditorNode3DGizmo *p_gizmo,
+			const Vector<int> &p_ids,
+			const Vector<Transform3D> &p_restore,
+			bool p_cancel) override;
 
 	void edit_mode_toggled(const bool pressed);
 	void _subgizmo_selection_change();

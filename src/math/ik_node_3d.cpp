@@ -55,21 +55,24 @@ void IKNode3D::_update_local_transform() const {
 	dirty &= ~DIRTY_LOCAL;
 }
 
-Ref<IKNode3D*> get_node(ObjectID parent){
-	#ifdef GODOT_MODULE_COMPAT
-	return Ref<IKNode3D>(static_cast<IKNode3D*>(ObjectDB::get_instance(parent)));
-	#else
-	return Ref<IKNode3D>(static_cast<IKNode3D*>(UtilityFunctions::instance_from_id(parent)));
-	#endif
+Ref<IKNode3D *> get_node(ObjectID parent) {
+#ifdef GODOT_MODULE_COMPAT
+	return Ref<IKNode3D>(static_cast<IKNode3D *>(ObjectDB::get_instance(parent)));
+#else
+	return Ref<IKNode3D>(
+			static_cast<IKNode3D *>(UtilityFunctions::instance_from_id(parent)));
+#endif
 }
 
-void IKNode3D::rotate_local_with_global(const Basis &p_basis, bool p_propagate) {
+void IKNode3D::rotate_local_with_global(const Basis &p_basis,
+		bool p_propagate) {
 	if (parent.is_null()) {
 		return;
 	}
 	Ref<IKNode3D> parent_ik_node = get_node(parent);
 	const Basis &new_rot = parent_ik_node->get_global_transform().basis;
-	local_transform.basis = new_rot.inverse() * p_basis * new_rot * local_transform.basis;
+	local_transform.basis =
+			new_rot.inverse() * p_basis * new_rot * local_transform.basis;
 	dirty |= DIRTY_GLOBAL;
 	if (p_propagate) {
 		_propagate_transform_changed();
@@ -86,7 +89,10 @@ void IKNode3D::set_transform(const Transform3D &p_transform) {
 
 void IKNode3D::set_global_transform(const Transform3D &p_transform) {
 	Ref<IKNode3D> ik_node = get_node(parent);
-	Transform3D xform = ik_node.is_valid() ? ik_node->get_global_transform().affine_inverse() * p_transform : p_transform;
+	Transform3D xform =
+			ik_node.is_valid()
+			? ik_node->get_global_transform().affine_inverse() * p_transform
+			: p_transform;
 	local_transform = xform;
 	dirty |= DIRTY_VECTORS;
 	_propagate_transform_changed();
@@ -122,29 +128,23 @@ Transform3D IKNode3D::get_global_transform() const {
 	return global_transform;
 }
 
-void IKNode3D::set_disable_scale(bool p_enabled) {
-	disable_scale = p_enabled;
-}
+void IKNode3D::set_disable_scale(bool p_enabled) { disable_scale = p_enabled; }
 
-bool IKNode3D::is_scale_disabled() const {
-	return disable_scale;
-}
+bool IKNode3D::is_scale_disabled() const { return disable_scale; }
 
 void IKNode3D::set_parent(Ref<IKNode3D> p_parent) {
 	if (p_parent.is_valid()) {
 		p_parent->children.erase(this);
 	}
 	parent = ObjectID(p_parent->get_instance_id());
-	//parent.set_ref(p_parent);
+	// parent.set_ref(p_parent);
 	if (p_parent.is_valid()) {
 		p_parent->children.push_back(this);
 	}
 	_propagate_transform_changed();
 }
 
-Ref<IKNode3D> IKNode3D::get_parent() const {
-	return get_node(parent);
-}
+Ref<IKNode3D> IKNode3D::get_parent() const { return get_node(parent); }
 
 Vector3 IKNode3D::to_local(const Vector3 &p_global) const {
 	return get_global_transform().affine_inverse().xform(p_global);
@@ -154,9 +154,7 @@ Vector3 IKNode3D::to_global(const Vector3 &p_local) const {
 	return get_global_transform().xform(p_local);
 }
 
-IKNode3D::~IKNode3D() {
-	cleanup();
-}
+IKNode3D::~IKNode3D() { cleanup(); }
 
 void IKNode3D::_notification(int p_what) {
 	if (p_what == NOTIFICATION_PREDELETE) {
