@@ -36,6 +36,8 @@
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/vector3.hpp>
 
+using namespace godot;
+
 /**
  * Implementation of the Quaternion-Based Characteristic Polynomial algorithm
  * for RMSD and Superposition calculations.
