@@ -30,18 +30,18 @@
 
 #include "ik_effector_3d.h"
 
-#include <godot_compat/core/math.hpp>
-#include <godot_compat/core/memory.hpp>
-#include <godot_compat/core/defs.hpp>
+#include <godot_cpp/core/math.hpp>
+#include <godot_cpp/core/memory.hpp>
+#include <godot_cpp/core/defs.hpp>
 #include "ik_bone_3d.h"
 #include "many_bone_ik_3d.h"
 #include "math/ik_node_3d.h"
-#include <godot_compat/variant/callable_method_pointer.hpp>
-#include <godot_compat/classes/node3d_gizmo.hpp>
-#include <godot_compat/classes/node3d.hpp>
+#include <godot_cpp/variant/callable_method_pointer.hpp>
+#include <godot_cpp/classes/node3d_gizmo.hpp>
+#include <godot_cpp/classes/node3d.hpp>
 
 #ifdef TOOLS_ENABLED
-#include <godot_compat/classes/editor_selection.hpp>
+#include <godot_cpp/classes/editor_selection.hpp>
 #include "editor/editor_node.h"
 #endif
 
@@ -98,8 +98,9 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 	ERR_FAIL_NULL_V(p_weights, -1);
 
 	int32_t index = p_index;
+	PackedVector3Array headings = *p_headings;
 	Vector3 bone_origin_relative_to_skeleton_origin = for_bone->get_bone_direction_global_pose().origin;
-	p_headings->write[index] = target_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
+	headings[index] = target_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
 	Vector3 priority = get_direction_priorities();
 	for (int axis = Vector3::AXIS_X; axis <= Vector3::AXIS_Z; ++axis) {
@@ -107,11 +108,11 @@ int32_t IKEffector3D::update_effector_target_headings(PackedVector3Array *p_head
 			real_t w = p_weights->get(index);
 			Vector3 column = target_relative_to_skeleton_origin.basis.get_column(axis);
 
-			p_headings->write[index] = (column + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
-			p_headings->write[index] *= Vector3(w, w, w);
+			headings[index] = (column + target_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+			headings[index] *= Vector3(w, w, w);
 			index++;
-			p_headings->write[index] = (target_relative_to_skeleton_origin.origin - column) - bone_origin_relative_to_skeleton_origin;
-			p_headings->write[index] *= Vector3(w, w, w);
+			headings[index] = (target_relative_to_skeleton_origin.origin - column) - bone_origin_relative_to_skeleton_origin;
+			headings[index] *= Vector3(w, w, w);
 			index++;
 		}
 	}
@@ -124,12 +125,13 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 	ERR_FAIL_NULL_V(p_headings, -1);
 	ERR_FAIL_NULL_V(p_for_bone, -1);
 
+	PackedVector3Array headings = *p_headings;
 	Transform3D tip_xform_relative_to_skeleton_origin = for_bone->get_bone_direction_global_pose();
 	Basis tip_basis = tip_xform_relative_to_skeleton_origin.basis;
 	Vector3 bone_origin_relative_to_skeleton_origin = p_for_bone->get_bone_direction_global_pose().origin;
 
 	int32_t index = p_index;
-	p_headings->write[index] = tip_xform_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
+	headings[index] = tip_xform_relative_to_skeleton_origin.origin - bone_origin_relative_to_skeleton_origin;
 	index++;
 	double distance = target_relative_to_skeleton_origin.origin.distance_to(bone_origin_relative_to_skeleton_origin);
 	double scale_by = MIN(distance, 1.0f);
@@ -139,12 +141,12 @@ int32_t IKEffector3D::update_effector_tip_headings(PackedVector3Array *p_heading
 		if (priority[axis] > 0.0) {
 			Vector3 column = tip_basis.get_column(axis) * priority[axis];
 
-			p_headings->write[index] = (column + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
-			p_headings->write[index] *= scale_by;
+			headings[index] = (column + tip_xform_relative_to_skeleton_origin.origin) - bone_origin_relative_to_skeleton_origin;
+			headings[index] *= scale_by;
 			index++;
 
-			p_headings->write[index] = (tip_xform_relative_to_skeleton_origin.origin - column) - bone_origin_relative_to_skeleton_origin;
-			p_headings->write[index] *= scale_by;
+			headings[index] = (tip_xform_relative_to_skeleton_origin.origin - column) - bone_origin_relative_to_skeleton_origin;
+			headings[index] *= scale_by;
 			index++;
 		}
 	}

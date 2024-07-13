@@ -35,6 +35,9 @@
 #include "core/math/transform_3d.h"
 #include "core/math/vector3.h"
 #include "core/object/ref_counted.h"
+#include <godot_cpp/core/math.hpp>
+#include <godot_cpp/variant/transform3d.hpp>
+#include <godot_cpp/variant/vector3.hpp>
 #include "ik_bone_3d.h"
 #include "ik_effector_template_3d.h"
 #include "math/ik_node_3d.h"
@@ -42,13 +45,15 @@
 #include "scene/3d/skeleton_modifier_3d.h"
 #include "scene/main/scene_tree.h"
 
-#include <godot_compat/classes/ref.hpp>
-#include <godot_compat/classes/weak_ref.hpp>
-#include <godot_compat/classes/ref_counted.hpp>
-#include <godot_compat/classes/skeleton3d.hpp>
-#include <godot_compat/classes/skin_reference.hpp>
-#include <godot_compat/classes/scene_tree.hpp>
-#include <godot_compat/classes/scene_tree_timer.hpp>
+#include <godot_cpp/classes/ref.hpp>
+#include <godot_cpp/classes/weak_ref.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/classes/skeleton3d.hpp>
+#include <godot_cpp/classes/skin_reference.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
+#include <godot_cpp/classes/scene_tree_timer.hpp>
+
+using namespace godot;
 
 class ManyBoneIK3DState;
 class ManyBoneIK3D : public SkeletonModifier3D {

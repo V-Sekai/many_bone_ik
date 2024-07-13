@@ -35,17 +35,21 @@
 #include "ik_effector_3d.h"
 #include "ik_effector_template_3d.h"
 #include "math/qcp.h"
-#include <godot_compat/classes/skeleton3d.hpp>
-#include <godot_compat/classes/skin_reference.hpp>
+#include <godot_cpp/classes/skeleton3d.hpp>
+#include <godot_cpp/classes/skin_reference.hpp>
 
-#include <godot_compat/classes/resource.hpp>
-#include <godot_compat/classes/ref.hpp>
-#include <godot_compat/classes/weak_ref.hpp>
-#include <godot_compat/classes/ref_counted.hpp>
+#include <godot_cpp/classes/resource.hpp>
+#include <godot_cpp/classes/ref.hpp>
+#include <godot_cpp/classes/weak_ref.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
+
+using namespace godot;
 
 class IKEffector3D;
 class IKBone3D;
 class IKLimitCone3D;
+// Why is this needed here, it should be imported from ik_bone_3d.h
+typedef int BoneId;
 
 class IKBoneSegment3D : public Resource {
 	GDCLASS(IKBoneSegment3D, Resource);

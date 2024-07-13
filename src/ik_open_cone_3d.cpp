@@ -30,10 +30,10 @@
 
 #include "ik_open_cone_3d.h"
 
-#include "core/math/quaternion.h"
+#include <godot_cpp/variant/quaternion.hpp>
 #include "ik_kusudama_3d.h"
 
-#include <godot_compat/classes/resource.hpp>
+#include <godot_cpp/classes/resource.hpp>
 
 void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	if (p_next.is_null()) {

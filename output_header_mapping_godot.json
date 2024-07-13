@@ -399,12 +399,16 @@
             "MODE_SIMPLE_COPY",
             "USE_COPY_SECTION",
             "MODE_SIMPLE_COPY",
+            "USE_COPY_SECTION",
+            "MODE_SIMPLE_COPY",
+            "MODE_COPY_FROM",
             "MODE_GAUSSIAN_BLUR",
             "MODE_MIPMAP",
             "MODE_SIMPLE_COLOR",
             "USE_COPY_SECTION",
             "CUBE_TO_OCTAHEDRAL",
-            "USE_COPY_SECTION"
+            "USE_COPY_SECTION",
+            "CUBE_TO_PANORAMA"
         ]
     },
     "drivers/gles3/shaders/particles.glsl.gen.h": {
@@ -425,62 +429,6 @@
         "defines": [
             "PARTICLES_COPY_GLSL_GEN_HGLES3_GLES3",
             "_FU"
-        ]
-    },
-    "drivers/gles3/shaders/effects/post.glsl.gen.h": {
-        "classes": [
-            "PostShaderGLES3"
-        ],
-        "structs": [],
-        "defines": [
-            "POST_GLSL_GEN_HGLES3_GLES3",
-            "_FU",
-            "MODE_DEFAULT",
-            "MODE_GLOW"
-        ]
-    },
-    "drivers/gles3/shaders/effects/glow.glsl.gen.h": {
-        "classes": [
-            "GlowShaderGLES3"
-        ],
-        "structs": [],
-        "defines": [
-            "GLOW_GLSL_GEN_HGLES3_GLES3",
-            "_FU",
-            "MODE_FILTER",
-            "MODE_DOWNSAMPLE",
-            "MODE_UPSAMPLE"
-        ]
-    },
-    "drivers/gles3/shaders/effects/copy.glsl.gen.h": {
-        "classes": [
-            "CopyShaderGLES3"
-        ],
-        "structs": [],
-        "defines": [
-            "COPY_GLSL_GEN_HGLES3_GLES3",
-            "_FU",
-            "MODE_SIMPLE_COPY",
-            "USE_COPY_SECTION",
-            "MODE_SIMPLE_COPY",
-            "USE_COPY_SECTION",
-            "MODE_SIMPLE_COPY",
-            "MODE_COPY_FROM",
-            "USE_COPY_SECTION",
-            "MODE_SIMPLE_COPY",
-            "USE_TEXTURE_3D",
-            "USE_COPY_SECTION",
-            "MODE_SIMPLE_COPY",
-            "USE_TEXTURE_2D_ARRAY",
-            "MODE_SIMPLE_COPY",
-            "MODE_MULTIPLY",
-            "MODE_GAUSSIAN_BLUR",
-            "MODE_MIPMAP",
-            "MODE_SIMPLE_COLOR",
-            "USE_COPY_SECTION",
-            "CUBE_TO_OCTAHEDRAL",
-            "USE_COPY_SECTION",
-            "CUBE_TO_PANORAMA"
         ]
     },
     "drivers/gles3/environment/fog.h": {
@@ -4366,16 +4314,6 @@
             "EXTENSION_API_DUMP_H"
         ]
     },
-    "core/extension/gdnative_interface_dump.gen.h": {
-        "classes": [
-            "GDNativeInterfaceDump"
-        ],
-        "structs": [],
-        "defines": [
-            "GDNATIVE_INTERFACE_DUMP_H",
-            "GDNATIVE_INTERFACE_H"
-        ]
-    },
     "core/extension/gdextension_interface.h": {
         "classes": [],
         "structs": [],
@@ -5039,7 +4977,9 @@
     },
     "core/math/basis.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Basis"
+        ],
         "defines": [
             "BASIS_H"
         ]
@@ -5106,14 +5046,18 @@
     },
     "core/math/projection.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Projection"
+        ],
         "defines": [
             "PROJECTION_H"
         ]
     },
     "core/math/face3.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Face3"
+        ],
         "defines": [
             "FACE3_H",
             "TEST_AXIS"
@@ -5142,7 +5086,9 @@
     },
     "core/math/vector2.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Vector2"
+        ],
         "defines": [
             "VECTOR2_H"
         ]
@@ -5169,35 +5115,45 @@
     },
     "core/math/quaternion.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Quaternion"
+        ],
         "defines": [
             "QUATERNION_H"
         ]
     },
     "core/math/color.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Color"
+        ],
         "defines": [
             "COLOR_H"
         ]
     },
     "core/math/plane.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Plane"
+        ],
         "defines": [
             "PLANE_H"
         ]
     },
     "core/math/rect2.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Rect2"
+        ],
         "defines": [
             "RECT2_H"
         ]
     },
     "core/math/vector4i.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Vector4i"
+        ],
         "defines": [
             "VECTOR4I_H"
         ]
@@ -5211,7 +5167,9 @@
     },
     "core/math/vector3i.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Vector3i"
+        ],
         "defines": [
             "VECTOR3I_H"
         ]
@@ -5255,7 +5213,9 @@
     },
     "core/math/rect2i.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Rect2i"
+        ],
         "defines": [
             "RECT2I_H"
         ]
@@ -5282,14 +5242,18 @@
     },
     "core/math/vector4.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Vector4"
+        ],
         "defines": [
             "VECTOR4_H"
         ]
     },
     "core/math/vector2i.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Vector2i"
+        ],
         "defines": [
             "VECTOR2I_H"
         ]
@@ -5395,14 +5359,18 @@
     },
     "core/math/transform_2d.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Transform2D"
+        ],
         "defines": [
             "TRANSFORM_2D_H"
         ]
     },
     "core/math/transform_3d.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Transform3D"
+        ],
         "defines": [
             "TRANSFORM_3D_H"
         ]
@@ -5424,14 +5392,18 @@
     },
     "core/math/aabb.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "AABB"
+        ],
         "defines": [
             "AABB_H"
         ]
     },
     "core/math/vector3.h": {
         "classes": [],
-        "structs": [],
+        "structs": [
+            "Vector3"
+        ],
         "defines": [
             "VECTOR3_H"
         ]
@@ -6967,11 +6939,6 @@
             "DIR_ACCESS_MACOS_H"
         ]
     },
-    "platform/macos/logo_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/macos/godot_open_save_delegate.h": {
         "classes": [],
         "structs": [],
@@ -7023,11 +6990,6 @@
         "defines": [
             "GODOT_WINDOW_H"
         ]
-    },
-    "platform/macos/run_icon_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
     },
     "platform/macos/os_macos.h": {
         "classes": [
@@ -7095,11 +7057,6 @@
         "defines": [
             "GL_MANAGER_MACOS_ANGLE_H"
         ]
-    },
-    "platform/macos/logo.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
     },
     "platform/macos/godot_content_view.h": {
         "classes": [],
@@ -7243,11 +7200,6 @@
             "OS_WEB_H"
         ]
     },
-    "platform/web/logo_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/web/godot_js.h": {
         "classes": [],
         "structs": [],
@@ -7277,11 +7229,6 @@
             "GODOT_AUDIO_H"
         ]
     },
-    "platform/web/run_icon_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/web/display_server_web.h": {
         "classes": [
             "DisplayServerWeb"
@@ -7294,16 +7241,6 @@
         "defines": [
             "DISPLAY_SERVER_WEB_H"
         ]
-    },
-    "platform/web/run_icon.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
-    "platform/web/logo.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
     },
     "platform/web/http_client_web.h": {
         "classes": [
@@ -7451,11 +7388,6 @@
         "structs": [],
         "defines": []
     },
-    "platform/ios/logo_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/ios/view_controller.h": {
         "classes": [],
         "structs": [],
@@ -7499,11 +7431,6 @@
         "defines": [
             "RENDERING_CONTEXT_DRIVER_VULKAN_IOS_H"
         ]
-    },
-    "platform/ios/logo.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
     },
     "platform/ios/tts_ios.h": {
         "classes": [],
@@ -7625,11 +7552,6 @@
             "JAVA_GODOT_WRAPPER_H"
         ]
     },
-    "platform/android/logo_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/android/android_keys_utils.h": {
         "classes": [],
         "structs": [
@@ -7686,11 +7608,6 @@
             "JNI_UTILS_H"
         ]
     },
-    "platform/android/run_icon_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/android/java_godot_lib_jni.h": {
         "classes": [],
         "structs": [],
@@ -7735,16 +7652,6 @@
         "defines": [
             "FILE_ACCESS_ANDROID_H"
         ]
-    },
-    "platform/android/run_icon.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
-    "platform/android/logo.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
     },
     "platform/android/java_godot_io_wrapper.h": {
         "classes": [
@@ -7932,11 +7839,6 @@
             "WM_POINTERLEAVE"
         ]
     },
-    "platform/windows/logo_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/windows/rendering_context_driver_vulkan_windows.h": {
         "classes": [
             "RenderingContextDriverVulkanWindows"
@@ -8022,11 +7924,6 @@
             "WIN32_LEAN_AND_MEAN"
         ]
     },
-    "platform/windows/run_icon_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/windows/lang_table.h": {
         "classes": [],
         "structs": [
@@ -8035,11 +7932,6 @@
         "defines": [
             "LANG_TABLE_H"
         ]
-    },
-    "platform/windows/logo.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
     },
     "platform/windows/wgl_detect_version.h": {
         "classes": [],
@@ -8528,11 +8420,6 @@
             "PTHREAD_BSD_SET_NAME"
         ]
     },
-    "platform/linuxbsd/logo_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/linuxbsd/freedesktop_portal_desktop.h": {
         "classes": [
             "FreeDesktopPortalDesktop"
@@ -8720,11 +8607,6 @@
         "defines": [
             "TTS_LINUX_H"
         ]
-    },
-    "platform/linuxbsd/run_icon_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
     },
     "platform/linuxbsd/xkbcommon-so_wrap.h": {
         "classes": [],
@@ -9595,11 +9477,6 @@
             "dbus_threads_init_default"
         ]
     },
-    "platform/linuxbsd/logo.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "platform/linuxbsd/os_linuxbsd.h": {
         "classes": [
             "OS_LinuxBSD"
@@ -9631,7 +9508,9 @@
             "OfferState",
             "SeatState",
             "CustomCursor",
-            "ThreadData"
+            "ThreadData",
+            "frame_wl_callback_listener",
+            "cursor_frame_callback_listener"
         ],
         "defines": [
             "WAYLAND_THREAD_H",
@@ -11718,21 +11597,6 @@
         "structs": [],
         "defines": []
     },
-    "platform/uwp/logo_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
-    "platform/uwp/logo.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
-    "platform/uwp/export/logo_svg.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": []
-    },
     "scene/property_list_helper.h": {
         "classes": [
             "PropertyListHelper"
@@ -13426,20 +13290,6 @@
         "structs": [],
         "defines": [
             "WORLD_3D_H"
-        ]
-    },
-    "scene/resources/default_theme/default_theme_icons.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": [
-            "_DEFAULT_THEME_ICONS_H"
-        ]
-    },
-    "scene/resources/default_theme/default_font.gen.h": {
-        "classes": [],
-        "structs": [],
-        "defines": [
-            "_DEFAULT_FONTS_H"
         ]
     },
     "scene/resources/2d/capsule_shape_2d.h": {
@@ -15334,7 +15184,6 @@
             "MODULE_GLSLANG_ENABLED",
             "MODULE_GDSCRIPT_ENABLED",
             "MODULE_FREETYPE_ENABLED",
-            "MODULE_FBX_ENABLED",
             "MODULE_ETCPAK_ENABLED",
             "MODULE_ENET_ENABLED",
             "MODULE_DDS_ENABLED",
@@ -19930,15 +19779,6 @@
             "SKELETON_GLSL_GEN_H_RD"
         ]
     },
-    "servers/rendering/renderer_rd/shaders/roughness_limiter.glsl.gen.h": {
-        "classes": [
-            "RoughnessLimiterShaderRD"
-        ],
-        "structs": [],
-        "defines": [
-            "ROUGHNESS_LIMITER_GLSL_GEN_H_RD"
-        ]
-    },
     "servers/rendering/renderer_rd/shaders/cluster_render.glsl.gen.h": {
         "classes": [
             "ClusterRenderShaderRD"
@@ -19955,24 +19795,6 @@
         "structs": [],
         "defines": [
             "BLIT_GLSL_GEN_H_RD"
-        ]
-    },
-    "servers/rendering/renderer_rd/shaders/luminance_reduce_raster.glsl.gen.h": {
-        "classes": [
-            "LuminanceReduceRasterShaderRD"
-        ],
-        "structs": [],
-        "defines": [
-            "LUMINANCE_REDUCE_RASTER_GLSL_GEN_H_RD"
-        ]
-    },
-    "servers/rendering/renderer_rd/shaders/luminance_reduce.glsl.gen.h": {
-        "classes": [
-            "LuminanceReduceShaderRD"
-        ],
-        "structs": [],
-        "defines": [
-            "LUMINANCE_REDUCE_GLSL_GEN_H_RD"
         ]
     },
     "servers/rendering/renderer_rd/shaders/cluster_store.glsl.gen.h": {
@@ -20000,15 +19822,6 @@
         "structs": [],
         "defines": [
             "CANVAS_SDF_GLSL_GEN_H_RD"
-        ]
-    },
-    "servers/rendering/renderer_rd/shaders/sort.glsl.gen.h": {
-        "classes": [
-            "SortShaderRD"
-        ],
-        "structs": [],
-        "defines": [
-            "SORT_GLSL_GEN_H_RD"
         ]
     },
     "servers/rendering/renderer_rd/shaders/giprobe_write.glsl.gen.h": {
@@ -21945,15 +21758,6 @@
         "structs": [],
         "defines": [
             "GROUPS_EDITOR_H"
-        ]
-    },
-    "editor/extractable_translations.gen.h": {
-        "classes": [],
-        "structs": [
-            "ExtractableTranslationList"
-        ],
-        "defines": [
-            "_EXTRACTABLE_TRANSLATIONS_H"
         ]
     },
     "editor/editor_undo_redo_manager.h": {

@@ -34,8 +34,8 @@
 #include "ik_effector_3d.h"
 #include "ik_kusudama_3d.h"
 #include "many_bone_ik_3d.h"
-#include <godot_compat/classes/skeleton3d.hpp>
-#include <godot_compat/classes/skin_reference.hpp>
+#include <godot_cpp/classes/skeleton3d.hpp>
+#include <godot_cpp/classes/skin_reference.hpp>
 
 Ref<IKBone3D> IKBoneSegment3D::get_root() const {
 	return root;

@@ -30,6 +30,8 @@
 
 #include "ik_node_3d.h"
 
+#include <godot_cpp/variant/utility_functions.hpp>
+
 void IKNode3D::_propagate_transform_changed() {
 	Vector<Ref<IKNode3D>> to_remove;
 
@@ -53,11 +55,19 @@ void IKNode3D::_update_local_transform() const {
 	dirty &= ~DIRTY_LOCAL;
 }
 
+Ref<IKNode3D*> get_node(ObjectID parent){
+	#ifdef GODOT_MODULE_COMPAT
+	return Ref<IKNode3D>(static_cast<IKNode3D*>(ObjectDB::get_instance(parent)));
+	#else
+	return Ref<IKNode3D>(static_cast<IKNode3D*>(UtilityFunctions::instance_from_id(parent)));
+	#endif
+}
+
 void IKNode3D::rotate_local_with_global(const Basis &p_basis, bool p_propagate) {
-	if (parent.get_ref().is_null()) {
+	if (parent.is_null()) {
 		return;
 	}
-	Ref<IKNode3D> parent_ik_node = parent.get_ref();
+	Ref<IKNode3D> parent_ik_node = get_node(parent);
 	const Basis &new_rot = parent_ik_node->get_global_transform().basis;
 	local_transform.basis = new_rot.inverse() * p_basis * new_rot * local_transform.basis;
 	dirty |= DIRTY_GLOBAL;
@@ -75,7 +85,7 @@ void IKNode3D::set_transform(const Transform3D &p_transform) {
 }
 
 void IKNode3D::set_global_transform(const Transform3D &p_transform) {
-	Ref<IKNode3D> ik_node = parent.get_ref();
+	Ref<IKNode3D> ik_node = get_node(parent);
 	Transform3D xform = ik_node.is_valid() ? ik_node->get_global_transform().affine_inverse() * p_transform : p_transform;
 	local_transform = xform;
 	dirty |= DIRTY_VECTORS;
@@ -95,7 +105,7 @@ Transform3D IKNode3D::get_global_transform() const {
 		if (dirty & DIRTY_LOCAL) {
 			_update_local_transform();
 		}
-		Ref<IKNode3D> ik_node = parent.get_ref();
+		Ref<IKNode3D> ik_node = get_node(parent);
 		if (ik_node.is_valid()) {
 			global_transform = ik_node->get_global_transform() * local_transform;
 		} else {
@@ -124,7 +134,8 @@ void IKNode3D::set_parent(Ref<IKNode3D> p_parent) {
 	if (p_parent.is_valid()) {
 		p_parent->children.erase(this);
 	}
-	parent.set_ref(p_parent);
+	parent = ObjectID(p_parent->get_instance_id());
+	//parent.set_ref(p_parent);
 	if (p_parent.is_valid()) {
 		p_parent->children.push_back(this);
 	}
@@ -132,7 +143,7 @@ void IKNode3D::set_parent(Ref<IKNode3D> p_parent) {
 }
 
 Ref<IKNode3D> IKNode3D::get_parent() const {
-	return parent.get_ref();
+	return get_node(parent);
 }
 
 Vector3 IKNode3D::to_local(const Vector3 &p_global) const {

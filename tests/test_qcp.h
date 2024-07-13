@@ -31,7 +31,7 @@
 #ifndef TEST_QCP_H
 #define TEST_QCP_H
 
-#include "core/math/quaternion.h"
+#include <godot_cpp/variant/quaternion.hpp>
 #include "modules/many_bone_ik/src/math/qcp.h"
 #include "tests/test_macros.h"
 

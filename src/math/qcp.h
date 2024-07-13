@@ -31,9 +31,10 @@
 #ifndef QCP_H
 #define QCP_H
 
-#include "core/math/basis.h"
-#include "core/math/vector3.h"
-#include <godot_compat/variant/variant.hpp>
+#include <godot_cpp/variant/basis.hpp>
+#include <godot_cpp/variant/vector3.hpp>
+#include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/variant/variant.hpp>
 
 /**
  * Implementation of the Quaternion-Based Characteristic Polynomial algorithm

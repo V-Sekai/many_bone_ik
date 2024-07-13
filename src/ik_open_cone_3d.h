@@ -31,11 +31,13 @@
 #ifndef IK_OPEN_CONE_3D_H
 #define IK_OPEN_CONE_3D_H
 
-#include <godot_compat/classes/resource.hpp>
-#include "core/math/vector3.h"
-#include <godot_compat/classes/ref.hpp>
-#include <godot_compat/classes/weak_ref.hpp>
-#include <godot_compat/classes/ref_counted.hpp>
+#include <godot_cpp/classes/resource.hpp>
+#include <godot_cpp/variant/vector3.hpp>
+#include <godot_cpp/classes/ref.hpp>
+#include <godot_cpp/classes/weak_ref.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
+
+using namespace godot;
 
 class IKKusudama3D;
 class IKLimitCone3D : public Resource {
@@ -97,6 +99,13 @@ class IKLimitCone3D : public Resource {
 	Vector3 _closest_point_on_closest_cone(Ref<IKLimitCone3D> next, Vector3 input, Vector<double> *in_bounds) const;
 
 	double _get_tangent_circle_radius_next_cos();
+	static Vector3 _get_orthogonal(Vector3 p_in);
+
+protected:
+	static void _bind_methods(){}
+	double _get_radius();
+
+	double _get_radius_cosine();
 
 public:
 	IKLimitCone3D() {}

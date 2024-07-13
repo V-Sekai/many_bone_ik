@@ -32,6 +32,8 @@
 
 #include "core/math/quaternion.h"
 #include "ik_open_cone_3d.h"
+#include <godot_cpp/variant/quaternion.hpp>
+#include "ik_limit_cone_3d.h"
 #include "math/ik_node_3d.h"
 
 void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {

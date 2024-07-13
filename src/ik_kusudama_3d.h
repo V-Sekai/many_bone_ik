@@ -37,16 +37,18 @@
 #include "ik_ray_3d.h"
 #include "math/ik_node_3d.h"
 
-#include <godot_compat/classes/resource.hpp>
-#include "core/math/quaternion.h"
-#include <godot_compat/classes/ref.hpp>
-#include <godot_compat/classes/weak_ref.hpp>
-#include <godot_compat/classes/ref_counted.hpp>
-#include <godot_compat/core/type_info.hpp>
-#include <godot_compat/variant/typed_array.hpp>
-#include <godot_compat/variant/callable_method_pointer.hpp>
-#include <godot_compat/classes/node3d_gizmo.hpp>
-#include <godot_compat/classes/node3d.hpp>
+#include <godot_cpp/classes/resource.hpp>
+#include <godot_cpp/variant/quaternion.hpp>
+#include <godot_cpp/classes/ref.hpp>
+#include <godot_cpp/classes/weak_ref.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/core/type_info.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
+#include <godot_cpp/variant/callable_method_pointer.hpp>
+#include <godot_cpp/classes/node3d_gizmo.hpp>
+#include <godot_cpp/classes/node3d.hpp>
+
+using namespace godot;
 
 class IKBone3D;
 class IKLimitCone3D;

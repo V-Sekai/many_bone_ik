@@ -31,8 +31,10 @@
 #ifndef IK_RAY_3D_H
 #define IK_RAY_3D_H
 
-#include <godot_compat/classes/resource.hpp>
-#include "core/math/vector3.h"
+#include <godot_cpp/classes/resource.hpp>
+#include <godot_cpp/variant/vector3.hpp>
+
+using namespace godot;
 
 class IKRay3D : public RefCounted {
 	GDCLASS(IKRay3D, RefCounted);

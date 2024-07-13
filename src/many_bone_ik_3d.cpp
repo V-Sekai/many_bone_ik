@@ -29,13 +29,13 @@
 /**************************************************************************/
 
 #include "many_bone_ik_3d.h"
-#include <godot_compat/core/error_macros.hpp>
-#include <godot_compat/core/math.hpp>
-#include <godot_compat/core/class_db.hpp>
-#include <godot_compat/templates/rb_set.hpp>
-#include <godot_compat/templates/list.hpp>
-#include <godot_compat/templates/rb_map.hpp>
-#include <godot_compat/variant/string_name.hpp>
+#include <godot_cpp/core/error_macros.hpp>
+#include <godot_cpp/core/math.hpp>
+#include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/templates/rb_set.hpp>
+#include <godot_cpp/templates/list.hpp>
+#include <godot_cpp/templates/rb_map.hpp>
+#include <godot_cpp/variant/string_name.hpp>
 #include "ik_bone_3d.h"
 #include "ik_kusudama_3d.h"
 #include "ik_open_cone_3d.h"
@@ -43,13 +43,13 @@
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
 #include "ik_limit_cone_3d.h"
-#include <godot_compat/classes/skeleton3d.hpp>
-#include <godot_compat/classes/skin_reference.hpp>
-#include <godot_compat/core/memory.hpp>
-#include <godot_compat/variant/callable_method_pointer.hpp>
-#include <godot_compat/classes/node.hpp>
-#include <godot_compat/classes/scene_tree.hpp>
-#include <godot_compat/classes/scene_tree_timer.hpp>
+#include <godot_cpp/classes/skeleton3d.hpp>
+#include <godot_cpp/classes/skin_reference.hpp>
+#include <godot_cpp/core/memory.hpp>
+#include <godot_cpp/variant/callable_method_pointer.hpp>
+#include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
+#include <godot_cpp/classes/scene_tree_timer.hpp>
 
 void ManyBoneIK3D::set_total_effector_count(int32_t p_value) {
 	int32_t old_count = pins.size();

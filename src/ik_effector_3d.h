@@ -33,13 +33,15 @@
 
 #include "math/ik_node_3d.h"
 
-#include <godot_compat/classes/ref.hpp>
-#include <godot_compat/classes/weak_ref.hpp>
-#include <godot_compat/classes/ref_counted.hpp>
-#include <godot_compat/classes/skeleton3d.hpp>
-#include <godot_compat/classes/skin_reference.hpp>
+#include <godot_cpp/classes/ref.hpp>
+#include <godot_cpp/classes/weak_ref.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/classes/skeleton3d.hpp>
+#include <godot_cpp/classes/skin_reference.hpp>
 
 #define MIN_SCALE 0.1
+
+using namespace godot;
 
 class ManyBoneIK3D;
 class IKBone3D;

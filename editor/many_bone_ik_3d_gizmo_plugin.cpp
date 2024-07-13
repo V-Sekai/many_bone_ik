@@ -28,55 +28,55 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include <godot_compat/classes/resource_format_saver.hpp>
-#include <godot_compat/classes/resource_saver.hpp>
-#include "core/math/transform_3d.h"
-#include <godot_compat/templates/rb_set.hpp>
-#include <godot_compat/templates/vector.hpp>
-#include <godot_compat/templates/hash_set.hpp>
-#include <godot_compat/templates/local_vector.hpp>
-#include <godot_compat/templates/list.hpp>
-#include <godot_compat/templates/hash_map.hpp>
-#include <godot_compat/templates/rb_map.hpp>
-#include <godot_compat/variant/packed_float64_array.hpp>
-#include <godot_compat/variant/packed_float32_array.hpp>
-#include <godot_compat/variant/packed_color_array.hpp>
-#include <godot_compat/variant/packed_vector2_array.hpp>
-#include <godot_compat/variant/packed_int64_array.hpp>
-#include <godot_compat/variant/packed_vector3_array.hpp>
-#include <godot_compat/variant/packed_int32_array.hpp>
-#include <godot_compat/variant/packed_byte_array.hpp>
-#include <godot_compat/variant/packed_string_array.hpp>
-#include <godot_compat/classes/editor_interface.hpp>
+#include <godot_cpp/classes/resource_format_saver.hpp>
+#include <godot_cpp/classes/resource_saver.hpp>
+#include <godot_cpp/variant/transform3d.hpp>
+#include <godot_cpp/templates/rb_set.hpp>
+#include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/templates/hash_set.hpp>
+#include <godot_cpp/templates/local_vector.hpp>
+#include <godot_cpp/templates/list.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
+#include <godot_cpp/templates/rb_map.hpp>
+#include <godot_cpp/variant/packed_float64_array.hpp>
+#include <godot_cpp/variant/packed_float32_array.hpp>
+#include <godot_cpp/variant/packed_color_array.hpp>
+#include <godot_cpp/variant/packed_vector2_array.hpp>
+#include <godot_cpp/variant/packed_int64_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
+#include <godot_cpp/variant/packed_int32_array.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
+#include <godot_cpp/variant/packed_string_array.hpp>
+#include <godot_cpp/classes/editor_interface.hpp>
 #include "editor/editor_node.h"
 #include "editor/editor_properties.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
-#include <godot_compat/classes/editor_node3d_gizmo_plugin.hpp>
-#include <godot_compat/classes/editor_node3d_gizmo.hpp>
+#include <godot_cpp/classes/editor_node3d_gizmo_plugin.hpp>
+#include <godot_cpp/classes/editor_node3d_gizmo.hpp>
 #include "editor/plugins/node_3d_editor_plugin.h"
-#include <godot_compat/classes/label3d.hpp>
-#include <godot_compat/classes/mesh_instance3d.hpp>
-#include <godot_compat/classes/collision_shape3d.hpp>
-#include <godot_compat/classes/joint3d.hpp>
-#include <godot_compat/classes/physics_body3d.hpp>
-#include <godot_compat/classes/skeleton3d.hpp>
-#include <godot_compat/classes/skin_reference.hpp>
-#include <godot_compat/classes/capsule_shape3d.hpp>
-#include <godot_compat/classes/quad_mesh.hpp>
-#include <godot_compat/classes/cylinder_mesh.hpp>
-#include <godot_compat/classes/plane_mesh.hpp>
-#include <godot_compat/classes/text_mesh.hpp>
-#include <godot_compat/classes/sphere_mesh.hpp>
-#include <godot_compat/classes/torus_mesh.hpp>
-#include <godot_compat/classes/tube_trail_mesh.hpp>
-#include <godot_compat/classes/prism_mesh.hpp>
-#include <godot_compat/classes/primitive_mesh.hpp>
-#include <godot_compat/classes/box_mesh.hpp>
-#include <godot_compat/classes/point_mesh.hpp>
-#include <godot_compat/classes/ribbon_trail_mesh.hpp>
-#include <godot_compat/classes/capsule_mesh.hpp>
-#include <godot_compat/classes/sphere_shape3d.hpp>
-#include <godot_compat/classes/surface_tool.hpp>
+#include <godot_cpp/classes/label3d.hpp>
+#include <godot_cpp/classes/mesh_instance3d.hpp>
+#include <godot_cpp/classes/collision_shape3d.hpp>
+#include <godot_cpp/classes/joint3d.hpp>
+#include <godot_cpp/classes/physics_body3d.hpp>
+#include <godot_cpp/classes/skeleton3d.hpp>
+#include <godot_cpp/classes/skin_reference.hpp>
+#include <godot_cpp/classes/capsule_shape3d.hpp>
+#include <godot_cpp/classes/quad_mesh.hpp>
+#include <godot_cpp/classes/cylinder_mesh.hpp>
+#include <godot_cpp/classes/plane_mesh.hpp>
+#include <godot_cpp/classes/text_mesh.hpp>
+#include <godot_cpp/classes/sphere_mesh.hpp>
+#include <godot_cpp/classes/torus_mesh.hpp>
+#include <godot_cpp/classes/tube_trail_mesh.hpp>
+#include <godot_cpp/classes/prism_mesh.hpp>
+#include <godot_cpp/classes/primitive_mesh.hpp>
+#include <godot_cpp/classes/box_mesh.hpp>
+#include <godot_cpp/classes/point_mesh.hpp>
+#include <godot_cpp/classes/ribbon_trail_mesh.hpp>
+#include <godot_cpp/classes/capsule_mesh.hpp>
+#include <godot_cpp/classes/sphere_shape3d.hpp>
+#include <godot_cpp/classes/surface_tool.hpp>
 #include "scene/scene_string_names.h"
 
 #include "../src/ik_bone_3d.h"
@@ -86,7 +86,7 @@
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
-#include <godot_compat/classes/editor_undo_redo_manager.hpp>
+#include <godot_cpp/classes/editor_undo_redo_manager.hpp>
 #endif
 
 void ManyBoneIK3DGizmoPlugin::_bind_methods() {
@@ -120,7 +120,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	Color selected_bone_color = EDITOR_GET("editors/3d_gizmos/gizmo_colors/selected_bone");
 
 	int current_bone_index = 0;
-	Vector<int> bones_to_process = skeleton->get_parentless_bones();
+	PackedInt32Array bones_to_process = skeleton->get_parentless_bones();
 
 	while (bones_to_process.size() > current_bone_index) {
 		int current_bone_idx = bones_to_process[current_bone_index];
@@ -140,8 +140,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 
 		current_bone_index++;
 
-		Vector<int> child_bones_vector;
-		child_bones_vector = skeleton->get_bone_children(current_bone_idx);
+		PackedInt32Array child_bones_vector = skeleton->get_bone_children(current_bone_idx);
 		int child_bones_size = child_bones_vector.size();
 		for (int i = 0; i < child_bones_size; i++) {
 			// Something wrong.
