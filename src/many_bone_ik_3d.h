@@ -31,16 +31,9 @@
 #ifndef MANY_BONE_IK_3D_H
 #define MANY_BONE_IK_3D_H
 
-#include "core/math/transform_3d.h"
-#include "core/math/vector3.h"
-#include "core/object/ref_counted.h"
 #include "ik_bone_3d.h"
 #include "ik_effector_template_3d.h"
 #include "math/ik_node_3d.h"
-#include "scene/3d/skeleton_3d.h"
-#include "scene/3d/skeleton_modifier_3d.h"
-#include "scene/main/scene_tree.h"
-#include <godot_compat/core/math.hpp>
 #include <godot_cpp/core/math.hpp>
 #include <godot_cpp/variant/transform3d.hpp>
 #include <godot_cpp/variant/vector3.hpp>

@@ -55,13 +55,9 @@ void IKNode3D::_update_local_transform() const {
 	dirty &= ~DIRTY_LOCAL;
 }
 
-Ref<IKNode3D *> get_node(ObjectID parent) {
-#ifdef GODOT_MODULE_COMPAT
-	return Ref<IKNode3D>(static_cast<IKNode3D *>(ObjectDB::get_instance(parent)));
-#else
+Ref<IKNode3D> get_node(ObjectID parent) {
 	return Ref<IKNode3D>(
 			static_cast<IKNode3D *>(UtilityFunctions::instance_from_id(parent)));
-#endif
 }
 
 void IKNode3D::rotate_local_with_global(const Basis &p_basis,

@@ -99,9 +99,9 @@ class IKBoneSegment3D : public Resource {
 			const Vector<double> &p_weights);
 	HashMap<BoneId, Ref<IKBone3D>> bone_map;
 	bool _is_parent_of_tip(Ref<IKBone3D> p_current_tip, BoneId p_tip_bone);
-	bool _has_multiple_children_or_pinned(Vector<BoneId> &r_children,
+	bool _has_multiple_children_or_pinned(PackedInt32Array &r_children,
 			Ref<IKBone3D> p_current_tip);
-	void _process_children(Vector<BoneId> &r_children,
+	void _process_children(PackedInt32Array &r_children,
 			Ref<IKBone3D> p_current_tip,
 			Vector<Ref<IKEffectorTemplate3D>> &r_pins,
 			BoneId p_root_bone, BoneId p_tip_bone,

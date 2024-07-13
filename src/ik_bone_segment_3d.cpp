@@ -30,7 +30,6 @@
 
 #include "ik_bone_segment_3d.h"
 
-#include "core/string/string_builder.h"
 #include "ik_effector_3d.h"
 #include "ik_kusudama_3d.h"
 #include "many_bone_ik_3d.h"
@@ -352,9 +351,9 @@ void IKBoneSegment3D::create_headings_arrays() {
 	for (const Vector<double> &current_penalty_array : penalty_array) {
 		for (double ad : current_penalty_array) {
 			heading_weights.write[currentHeading] = ad;
-			target_headings.write[currentHeading] = Vector3();
-			tip_headings.write[currentHeading] = Vector3();
-			tip_headings_uniform.write[currentHeading] = Vector3();
+			target_headings[currentHeading] = Vector3();
+			tip_headings[currentHeading] = Vector3();
+			tip_headings_uniform[currentHeading] = Vector3();
 			currentHeading++;
 		}
 	}
@@ -415,7 +414,7 @@ void IKBoneSegment3D::generate_default_segments(
 		Vector<Ref<IKEffectorTemplate3D>> &p_pins, BoneId p_root_bone,
 		BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
 	Ref<IKBone3D> current_tip = root;
-	Vector<BoneId> children;
+	PackedInt32Array children;
 
 	while (!_is_parent_of_tip(current_tip, p_tip_bone)) {
 		children = skeleton->get_bone_children(current_tip->get_bone_id());
@@ -426,7 +425,7 @@ void IKBoneSegment3D::generate_default_segments(
 					p_many_bone_ik);
 			break;
 		} else {
-			Vector<BoneId>::Iterator bone_id_iterator = children.begin();
+			PackedInt32Array::Iterator bone_id_iterator = children.begin();
 			current_tip = _create_next_bone(*bone_id_iterator, current_tip, p_pins,
 					p_many_bone_ik);
 		}
@@ -443,12 +442,12 @@ bool IKBoneSegment3D::_is_parent_of_tip(Ref<IKBone3D> p_current_tip,
 }
 
 bool IKBoneSegment3D::_has_multiple_children_or_pinned(
-		Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip) {
+		PackedInt32Array &r_children, Ref<IKBone3D> p_current_tip) {
 	return r_children.size() > 1 || p_current_tip->is_pinned();
 }
 
 void IKBoneSegment3D::_process_children(
-		Vector<BoneId> &r_children, Ref<IKBone3D> p_current_tip,
+		PackedInt32Array &r_children, Ref<IKBone3D> p_current_tip,
 		Vector<Ref<IKEffectorTemplate3D>> &r_pins, BoneId p_root_bone,
 		BoneId p_tip_bone, ManyBoneIK3D *p_many_bone_ik) {
 	tip = p_current_tip;
@@ -498,14 +497,14 @@ void IKBoneSegment3D::_finalize_segment(Ref<IKBone3D> p_current_tip) {
 		_enable_pinned_descendants();
 	}
 
-	StringBuilder name_builder;
-	name_builder.append("IKBoneSegment");
-	name_builder.append(root->get_name());
-	name_builder.append("Root");
-	name_builder.append(tip->get_name());
-	name_builder.append("Tip");
+	String name_builder;
+	name_builder += ("IKBoneSegment");
+	name_builder += (root->get_name());
+	name_builder += ("Root");
+	name_builder += (tip->get_name());
+	name_builder += ("Tip");
 
-	String ik_bone_name = name_builder.as_string();
+	String ik_bone_name = name_builder;
 	set_name(ik_bone_name);
 	bones.clear();
 	create_bone_list(bones, false);
