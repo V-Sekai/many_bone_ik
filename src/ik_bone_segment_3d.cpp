@@ -45,7 +45,7 @@ Ref<IKBone3D> IKBoneSegment3D::get_tip() const {
 }
 
 bool IKBoneSegment3D::is_pinned() const {
-	ERR_FAIL_NULL_V(tip, false);
+	ERR_FAIL_COND_V(tip.is_null(), false);
 	return tip->is_pinned();
 }
 
@@ -88,7 +88,7 @@ void IKBoneSegment3D::update_pinned_list(Vector<Vector<double>> &r_weights) {
 }
 
 void IKBoneSegment3D::_update_optimal_rotation(Ref<IKBone3D> p_for_bone, double p_damp, bool p_translate, bool p_constraint_mode, int32_t current_iteration, int32_t total_iterations) {
-	ERR_FAIL_NULL(p_for_bone);
+	ERR_FAIL_COND(p_for_bone.is_null());
 	_update_target_headings(p_for_bone, &heading_weights, &target_headings);
 	_update_tip_headings(p_for_bone, &tip_headings);
 	_set_optimal_rotation(p_for_bone, &tip_headings, &target_headings, &heading_weights, p_damp, p_translate, p_constraint_mode);
@@ -127,7 +127,7 @@ float IKBoneSegment3D::_get_manual_msd(const PackedVector3Array &r_htip, const P
 }
 
 void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_htip, PackedVector3Array *r_htarget, Vector<double> *r_weights, float p_dampening, bool p_translate, bool p_constraint_mode, double current_iteration, double total_iterations) {
-	ERR_FAIL_NULL(p_for_bone);
+	ERR_FAIL_COND(p_for_bone.is_null());
 	ERR_FAIL_NULL(r_htip);
 	ERR_FAIL_NULL(r_htarget);
 	ERR_FAIL_NULL(r_weights);
@@ -181,7 +181,7 @@ void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVect
 }
 
 void IKBoneSegment3D::_update_target_headings(Ref<IKBone3D> p_for_bone, Vector<double> *r_weights, PackedVector3Array *r_target_headings) {
-	ERR_FAIL_NULL(p_for_bone);
+	ERR_FAIL_COND(p_for_bone.is_null());
 	ERR_FAIL_NULL(r_weights);
 	ERR_FAIL_NULL(r_target_headings);
 	int32_t last_index = 0;
@@ -196,7 +196,7 @@ void IKBoneSegment3D::_update_target_headings(Ref<IKBone3D> p_for_bone, Vector<d
 
 void IKBoneSegment3D::_update_tip_headings(Ref<IKBone3D> p_for_bone, PackedVector3Array *r_heading_tip) {
 	ERR_FAIL_NULL(r_heading_tip);
-	ERR_FAIL_NULL(p_for_bone);
+	ERR_FAIL_COND(p_for_bone.is_null());
 	int32_t last_index = 0;
 	for (int32_t effector_i = 0; effector_i < effector_list.size(); effector_i++) {
 		Ref<IKEffector3D> effector = effector_list[effector_i];

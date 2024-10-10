@@ -230,7 +230,7 @@ bool ManyBoneIK3D::_get(const StringName &p_name, Variant &r_ret) const {
 		String what = name.get_slicec('/', 2);
 		ERR_FAIL_INDEX_V(index, pins.size(), false);
 		Ref<IKEffectorTemplate3D> effector_template = pins[index];
-		ERR_FAIL_NULL_V(effector_template, false);
+		ERR_FAIL_COND_V(effector_template.is_null(), false);
 		if (what == "bone_name") {
 			r_ret = effector_template->get_name();
 			return true;
@@ -448,7 +448,7 @@ float ManyBoneIK3D::get_pin_motion_propagation_factor(int32_t p_effector_index) 
 void ManyBoneIK3D::set_pin_motion_propagation_factor(int32_t p_effector_index, const float p_motion_propagation_factor) {
 	ERR_FAIL_INDEX(p_effector_index, pins.size());
 	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
-	ERR_FAIL_NULL(effector_template);
+	ERR_FAIL_COND(effector_template.is_null());
 	effector_template->set_motion_propagation_factor(p_motion_propagation_factor);
 	set_dirty();
 }

@@ -44,7 +44,7 @@ BoneId IKBone3D::get_bone_id() const {
 }
 
 void IKBone3D::set_parent(const Ref<IKBone3D> &p_parent) {
-	ERR_FAIL_NULL(p_parent);
+	ERR_FAIL_COND(p_parent.is_null());
 	parent = p_parent;
 	if (parent.is_valid()) {
 		parent->children.push_back(this);
@@ -126,7 +126,7 @@ Ref<IKBone3D> IKBone3D::get_parent() const {
 }
 
 void IKBone3D::set_pin(const Ref<IKEffector3D> &p_pin) {
-	ERR_FAIL_NULL(p_pin);
+	ERR_FAIL_COND(p_pin.is_null());
 	pin = p_pin;
 }
 

@@ -38,11 +38,11 @@ void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {
 	// Avoiding antipodal singularities by reorienting the axes.
 	Vector<Vector3> directions;
 
-	if (open_cones.size() == 1 && open_cones[0] != nullptr) {
+	if (open_cones.size() == 1 && open_cones[0].is_valid()) {
 		directions.push_back(open_cones[0]->get_control_point());
 	} else {
 		for (int i = 0; i < open_cones.size() - 1; i++) {
-			if (open_cones[i] == nullptr || open_cones[i + 1] == nullptr) {
+			if (open_cones[i].is_null() || open_cones[i + 1].is_null()) {
 				continue;
 			}
 
@@ -77,7 +77,7 @@ void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {
 	p_limiting_axes->rotate_local_with_global(old_y_to_new_y);
 
 	for (Ref<IKLimitCone3D> open_cone : open_cones) {
-		if (open_cone == nullptr) {
+		if (open_cone.is_null()) {
 			continue;
 		}
 
