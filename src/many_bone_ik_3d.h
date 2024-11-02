@@ -113,7 +113,6 @@ public:
 	void queue_print_skeleton();
 	int32_t get_pin_count() const;
 	void set_pin_count(int32_t p_pin_count);
-	void remove_pin_at_index(int32_t p_index);
 	void set_pin_bone_name(int32_t p_pin_index, const String &p_bone);
 	StringName get_pin_bone_name(int32_t p_effector_index) const;
 	void set_pin_node_path(int32_t p_effector_index, NodePath p_node_path);

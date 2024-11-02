@@ -380,7 +380,6 @@ void ManyBoneIK3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_orientation_transform_of_constraint", "index", "transform"), &ManyBoneIK3D::set_orientation_transform_of_constraint);
 	ClassDB::bind_method(D_METHOD("get_direction_transform_of_bone", "index"), &ManyBoneIK3D::get_direction_transform_of_bone);
 	ClassDB::bind_method(D_METHOD("set_direction_transform_of_bone", "index", "transform"), &ManyBoneIK3D::set_direction_transform_of_bone);
-	ClassDB::bind_method(D_METHOD("remove_constraint_at_index", "index"), &ManyBoneIK3D::remove_pin_at_index);
 	ClassDB::bind_method(D_METHOD("register_skeleton"), &ManyBoneIK3D::register_skeleton);
 	ClassDB::bind_method(D_METHOD("reset_constraints"), &ManyBoneIK3D::reset_constraints);
 	ClassDB::bind_method(D_METHOD("set_dirty"), &ManyBoneIK3D::set_dirty);
@@ -735,19 +734,6 @@ int32_t ManyBoneIK3D::find_constraint(String p_string) const {
 		}
 	}
 	return -1;
-}
-
-void ManyBoneIK3D::remove_pin_at_index(int32_t p_index) {
-	ERR_FAIL_INDEX(p_index, constraint_count);
-
-	constraint_names.remove_at(p_index);
-	kusudama_open_cone_count.remove_at(p_index);
-	kusudama_open_cones.remove_at(p_index);
-	joint_twist.remove_at(p_index);
-
-	constraint_count--;
-
-	set_dirty();
 }
 
 void ManyBoneIK3D::_set_bone_count(int32_t p_count) {
