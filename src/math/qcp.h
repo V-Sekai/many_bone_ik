@@ -31,8 +31,9 @@
 #ifndef QCP_H
 #define QCP_H
 
-#include "core/math/basis.h"
 #include "core/math/vector3.h"
+#include "core/object/class_db.h"
+#include "core/object/object.h"
 #include "core/variant/variant.h"
 
 /**
@@ -67,7 +68,8 @@
  * @author K. S. Ernest (iFire) Lee (adapted to ManyBoneIK)
  */
 
-class QCP {
+class QuaternionCharacteristicPolynomial : Object {
+	GDCLASS(QuaternionCharacteristicPolynomial, Object);
 	double eigenvector_precision = 1E-6;
 
 	PackedVector3Array target, moved;
@@ -88,12 +90,19 @@ class QCP {
 	void set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate);
 	static void translate(Vector3 r_translate, PackedVector3Array &r_x);
 	Vector3 move_to_weighted_center(PackedVector3Array &r_to_center, Vector<double> &r_weight);
+	QuaternionCharacteristicPolynomial(double p_evec_prec);
+	Quaternion _weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate);
+	Quaternion _get_rotation();
+	Vector3 _get_translation();
+
+protected:
+	static void _bind_methods();
 
 public:
-	QCP(double p_evec_prec);
-	Quaternion weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate);
-	Quaternion get_rotation();
-	Vector3 get_translation();
+	static Array weighted_superpose(PackedVector3Array p_moved,
+			PackedVector3Array p_target,
+			Vector<double> p_weight, bool p_translate,
+			double p_precision = 1E-6);
 };
 
 #endif // QCP_H

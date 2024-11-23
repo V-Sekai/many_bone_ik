@@ -140,11 +140,11 @@ void IKBoneSegment3D::_set_optimal_rotation(Ref<IKBone3D> p_for_bone, PackedVect
 	do {
 		_update_tip_headings(p_for_bone, &tip_headings);
 		if (!p_constraint_mode) {
-			QCP qcp = QCP(evec_prec);
-			Basis rotation = qcp.weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate);
-			Vector3 translation = qcp.get_translation();
+			Array superpose_result = QuaternionCharacteristicPolynomial::weighted_superpose(*r_htip, *r_htarget, *r_weights, p_translate, evec_prec);
+			Quaternion rotation = superpose_result[0];
+			Vector3 translation = superpose_result[1];
 			double dampening = (p_dampening != -1.0) ? p_dampening : bone_damp;
-			rotation = clamp_to_cos_half_angle(rotation.get_rotation_quaternion(), cos(dampening / 2.0));
+			rotation = clamp_to_cos_half_angle(rotation, cos(dampening / 2.0));
 			if (current_iteration == 0) {
 				current_iteration = 0.0001;
 			}

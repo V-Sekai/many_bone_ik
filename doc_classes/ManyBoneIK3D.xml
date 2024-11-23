@@ -140,6 +140,12 @@
 				Registers the skeleton to the IK system. This should be called after all bones and constraints have been added to the system.
 			</description>
 		</method>
+		<method name="remove_constraint_at_index">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="reset_constraints">
 			<return type="void" />
 			<description>

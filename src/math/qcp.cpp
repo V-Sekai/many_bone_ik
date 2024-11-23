@@ -30,18 +30,18 @@
 
 #include "qcp.h"
 
-QCP::QCP(double p_evec_prec) {
+QuaternionCharacteristicPolynomial::QuaternionCharacteristicPolynomial(double p_evec_prec) {
 	eigenvector_precision = p_evec_prec;
 }
 
-void QCP::set(PackedVector3Array &r_target, PackedVector3Array &r_moved) {
+void QuaternionCharacteristicPolynomial::set(PackedVector3Array &r_target, PackedVector3Array &r_moved) {
 	target = r_target;
 	moved = r_moved;
 	transformation_calculated = false;
 	inner_product_calculated = false;
 }
 
-Quaternion QCP::get_rotation() {
+Quaternion QuaternionCharacteristicPolynomial::_get_rotation() {
 	Quaternion result;
 	if (!transformation_calculated) {
 		if (!inner_product_calculated) {
@@ -53,7 +53,7 @@ Quaternion QCP::get_rotation() {
 	return result;
 }
 
-Quaternion QCP::calculate_rotation() {
+Quaternion QuaternionCharacteristicPolynomial::calculate_rotation() {
 	Quaternion result;
 
 	if (moved.size() == 1) {
@@ -126,17 +126,17 @@ Quaternion QCP::calculate_rotation() {
 	return result;
 }
 
-void QCP::translate(Vector3 r_translate, PackedVector3Array &r_x) {
+void QuaternionCharacteristicPolynomial::translate(Vector3 r_translate, PackedVector3Array &r_x) {
 	for (Vector3 &p : r_x) {
 		p += r_translate;
 	}
 }
 
-Vector3 QCP::get_translation() {
+Vector3 QuaternionCharacteristicPolynomial::_get_translation() {
 	return target_center - moved_center;
 }
 
-Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<double> &r_weight) {
+Vector3 QuaternionCharacteristicPolynomial::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<double> &r_weight) {
 	Vector3 center;
 	double total_weight = 0;
 	bool weight_is_empty = r_weight.is_empty();
@@ -159,7 +159,7 @@ Vector3 QCP::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<dou
 	return center;
 }
 
-void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2) {
+void QuaternionCharacteristicPolynomial::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2) {
 	Vector3 weighted_coord1, weighted_coord2;
 	double sum_of_squares1 = 0, sum_of_squares2 = 0;
 
@@ -217,12 +217,12 @@ void QCP::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2
 	inner_product_calculated = true;
 }
 
-Quaternion QCP::weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate) {
+Quaternion QuaternionCharacteristicPolynomial::_weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate) {
 	set(p_moved, p_target, p_weight, translate);
-	return get_rotation();
+	return _get_rotation();
 }
 
-void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate) {
+void QuaternionCharacteristicPolynomial::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate) {
 	transformation_calculated = false;
 	inner_product_calculated = false;
 
@@ -245,4 +245,25 @@ void QCP::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<
 			w_sum = p_moved.size();
 		}
 	}
+}
+
+void QuaternionCharacteristicPolynomial::_bind_methods() {
+	ClassDB::bind_static_method("QuaternionCharacteristicPolynomial",
+			D_METHOD("weighted_superpose", "moved", "target",
+					"weight", "translate", "precision"),
+			&QuaternionCharacteristicPolynomial::weighted_superpose);
+}
+
+Array QuaternionCharacteristicPolynomial::weighted_superpose(PackedVector3Array p_moved,
+                              PackedVector3Array p_target,
+                              Vector<double> p_weight, bool p_translate,
+                              double p_precision) {
+  QuaternionCharacteristicPolynomial qcp(p_precision);
+  Quaternion rotation =
+      qcp._weighted_superpose(p_moved, p_target, p_weight, p_translate);
+  Vector3 translation = qcp._get_translation();
+  Array result;
+  result.push_back(rotation);
+  result.push_back(translation);
+  return result;
 }
