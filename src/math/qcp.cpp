@@ -255,15 +255,15 @@ void QuaternionCharacteristicPolynomial::_bind_methods() {
 }
 
 Array QuaternionCharacteristicPolynomial::weighted_superpose(PackedVector3Array p_moved,
-                              PackedVector3Array p_target,
-                              Vector<double> p_weight, bool p_translate,
-                              double p_precision) {
-  QuaternionCharacteristicPolynomial qcp(p_precision);
-  Quaternion rotation =
-      qcp._weighted_superpose(p_moved, p_target, p_weight, p_translate);
-  Vector3 translation = qcp._get_translation();
-  Array result;
-  result.push_back(rotation);
-  result.push_back(translation);
-  return result;
+		PackedVector3Array p_target,
+		Vector<double> p_weight, bool p_translate,
+		double p_precision) {
+	QuaternionCharacteristicPolynomial qcp(p_precision);
+	Quaternion rotation =
+			qcp._weighted_superpose(p_moved, p_target, p_weight, p_translate);
+	Vector3 translation = qcp._get_translation();
+	Array result;
+	result.push_back(rotation);
+	result.push_back(translation);
+	return result;
 }
