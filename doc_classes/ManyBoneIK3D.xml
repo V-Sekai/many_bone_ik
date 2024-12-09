@@ -253,7 +253,7 @@
 			<param index="0" name="index" type="int" />
 			<param index="1" name="falloff" type="float" />
 			<description>
-				Sets the passthrough factor of the pin at the specified index.
+				The motion propagation factor of the pin at the specified index determines how much the motion of the pin affects the surrounding bones.
 			</description>
 		</method>
 		<method name="set_pin_weight">
