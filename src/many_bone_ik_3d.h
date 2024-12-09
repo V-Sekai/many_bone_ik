@@ -89,8 +89,6 @@ protected:
 	void _skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) override;
 
 public:
-	void set_pin_target_fixed(int32_t p_effector_index, bool p_force_ignore);
-	bool get_pin_target_fixed(int32_t p_effector_index);
 	void set_state(Ref<ManyBoneIK3DState> p_state);
 	Ref<ManyBoneIK3DState> get_state() const;
 	void add_constraint();

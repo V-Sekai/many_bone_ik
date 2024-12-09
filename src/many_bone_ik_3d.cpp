@@ -991,22 +991,6 @@ int32_t ManyBoneIK3D::find_pin(String p_string) const {
 	return -1;
 }
 
-bool ManyBoneIK3D::get_pin_target_fixed(int32_t p_effector_index) {
-	ERR_FAIL_INDEX_V(p_effector_index, pins.size(), false);
-	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
-	return get_pin_node_path(p_effector_index).is_empty();
-}
-
-void ManyBoneIK3D::set_pin_target_fixed(int32_t p_effector_index, bool p_force_ignore) {
-	ERR_FAIL_INDEX(p_effector_index, pins.size());
-	if (!p_force_ignore) {
-		return;
-	}
-	Ref<IKEffectorTemplate3D> effector_template = pins[p_effector_index];
-	effector_template->set_target_node(NodePath());
-	set_dirty();
-}
-
 void ManyBoneIK3D::_bone_list_changed() {
 	Skeleton3D *skeleton = get_skeleton();
 	Vector<int32_t> roots = skeleton->get_parentless_bones();
