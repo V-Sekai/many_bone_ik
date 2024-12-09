@@ -144,6 +144,7 @@ void IKKusudama3D::get_swing_twist(
 		r_twist = Quaternion();
 		return;
 	}
+	p_axis.normalize();
 	Quaternion rotation = p_rotation;
 	if (rotation.w < real_t(0.0)) {
 		rotation *= -1;
