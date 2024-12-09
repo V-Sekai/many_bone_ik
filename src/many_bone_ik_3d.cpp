@@ -49,9 +49,35 @@ void ManyBoneIK3D::set_pin_count(int32_t p_value) {
 	for (int32_t pin_i = p_value; pin_i-- > old_count;) {
 		pins.write[pin_i].instantiate();
 	}
+
+	Skeleton3D *skeleton = get_skeleton();
+	ERR_FAIL_NULL(skeleton);
+
+	Vector<int32_t> roots = skeleton->get_parentless_bones();
+	if (!get_pin_count()) {
+		int pin_index = 0;
+		for (int root_i = 0; root_i < roots.size(); root_i++) {
+			int root_bone_index = roots[root_i];
+			String root_bone_name = skeleton->get_bone_name(root_bone_index);
+			set_pin_count(get_pin_count() + 1);
+			set_pin_bone_name(pin_index, root_bone_name);
+			set_pin_weight(pin_index, 1.0f);
+			pin_index++;
+
+			if (skeleton->get_bone_children(root_bone_index).size() > 0) {
+				int first_child_index = skeleton->get_bone_children(root_bone_index)[0];
+				String first_child_name = skeleton->get_bone_name(first_child_index);
+				set_pin_count(get_pin_count() + 1);
+				set_pin_bone_name(pin_index, first_child_name);
+				set_pin_weight(pin_index, 1.0f);
+				pin_index++;
+			}
+		}
+	}
 	set_dirty();
 	notify_property_list_changed();
 }
+
 
 int32_t ManyBoneIK3D::get_pin_count() const {
 	return pin_count;
@@ -1068,45 +1094,6 @@ void ManyBoneIK3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) {
 	}
 	connect(SNAME("modification_processed"), callable_mp(this, &ManyBoneIK3D::_update_ik_bones_transform));
 	_bone_list_changed();
-	if (p_new) {
-		if (!p_new) {
-			return;
-		}
-		Vector<int32_t> roots = p_new->get_parentless_bones();
-		if (roots.is_empty()) {
-			return;
-		}
-		if (get_pin_count()) {
-			return;
-		}
-		int pin_index = 0;
-		for (int root_i = 0; root_i < roots.size(); root_i++) {
-			int root_bone_index = roots[root_i];
-			String root_bone_name = p_new->get_bone_name(root_bone_index);
-			Transform3D root_bone_transform = p_new->get_bone_pose(root_bone_index);
-
-			set_pin_count(get_pin_count() + 1);
-			set_pin_bone_name(pin_index, root_bone_name);
-
-			Marker3D *root_marker = memnew(Marker3D);
-			root_marker->set_transform(root_bone_transform);
-			root_marker->set_name(root_bone_name + "_root");
-			get_skeleton()->add_child(root_marker);
-			root_marker->set_owner(get_skeleton());
-			set_pin_node_path(pin_index, String(".."));
-			set_pin_weight(pin_index, 1.0f);
-			pin_index++;
-
-			if (p_new->get_bone_children(root_bone_index).size() > 0) {
-				int first_child_index = p_new->get_bone_children(root_bone_index)[0];
-				String first_child_name = p_new->get_bone_name(first_child_index);
-				set_pin_count(get_pin_count() + 1);
-				set_pin_bone_name(pin_index, first_child_name);
-				set_pin_node_path(pin_index, first_child_name + "_child");
-				pin_index++;
-			}
-		}
-	}
 }
 
 void ManyBoneIK3D::set_pin_bone_name(int32_t p_pin_index, const String &p_bone) {
