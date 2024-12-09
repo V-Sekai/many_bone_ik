@@ -70,6 +70,7 @@ protected:
 	void _notifications(int32_t p_what);
 
 public:
+	ManyBoneIK3DGizmoPlugin();
 	const Color bone_color = EditorSettings::get_singleton()->get("editors/3d_gizmos/gizmo_colors/skeleton");
 	const int32_t KUSUDAMA_MAX_CONES = 10;
 	bool has_gizmo(Node3D *p_spatial) override;
