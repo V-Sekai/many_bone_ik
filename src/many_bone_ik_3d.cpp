@@ -61,7 +61,6 @@ void ManyBoneIK3D::set_pin_count(int32_t p_value) {
 			String root_bone_name = skeleton->get_bone_name(root_bone_index);
 			set_pin_count(get_pin_count() + 1);
 			set_pin_bone_name(pin_index, root_bone_name);
-			set_pin_weight(pin_index, 1.0f);
 			pin_index++;
 
 			if (skeleton->get_bone_children(root_bone_index).size() > 0) {
@@ -69,7 +68,6 @@ void ManyBoneIK3D::set_pin_count(int32_t p_value) {
 				String first_child_name = skeleton->get_bone_name(first_child_index);
 				set_pin_count(get_pin_count() + 1);
 				set_pin_bone_name(pin_index, first_child_name);
-				set_pin_weight(pin_index, 1.0f);
 				pin_index++;
 			}
 		}

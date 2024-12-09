@@ -41,7 +41,7 @@ class IKEffectorTemplate3D : public Resource {
 	NodePath target_node;
 	bool target_static = false;
 	real_t motion_propagation_factor = 0.0f;
-	real_t weight = 0.0f;
+	real_t weight = 1.0f;
 	Vector3 priority_direction = Vector3(0.2f, 0.0f, 0.2f); // Purported ideal values are 1.0 / 3.0 for one direction, 1.0 / 5.0 for two directions and 1.0 / 7.0 for three directions.
 protected:
 	static void _bind_methods();
