@@ -167,4 +167,37 @@ TEST_CASE("[Modules][QCP] Simple 90-degree Rotation around Z AND Translation") {
 	CHECK((translation_qcp - expected_translation_component).length() < epsilon);
 }
 
+TEST_CASE("[Modules][QCP] 45-degree Rotation around Y AND Translation") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 0, 0));
+	moved_points.push_back(Vector3(0, 1, 0));
+	moved_points.push_back(Vector3(0, 0, 1));
+	moved_points.push_back(Vector3(2, -1, 3));
+
+	Quaternion expected_rotation = Quaternion(Vector3(0, 1, 0), Math::PI / 4.0); // 45 degrees around Y
+	Vector3 expected_translation_component = Vector3(-2, 3, -4);
+
+	PackedVector3Array target_points;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		target_points.push_back(expected_rotation.xform(moved_points[i]) + expected_translation_component);
+	}
+
+	Vector<double> weights;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		weights.push_back(1.0);
+	}
+
+	bool translate = true;
+	double epsilon = 1e-6;
+
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Quaternion rotation_result = result[0];
+	Vector3 translation_qcp = result[1];
+
+	rotation_result.normalize();
+
+	CHECK(Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon);
+	CHECK((translation_qcp - expected_translation_component).length() < epsilon);
+}
+
 } // namespace TestQCP

@@ -68,9 +68,15 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (!skeleton || !skeleton->get_bone_count()) {
 		return;
 	}
-	if (handles_mesh_instance && !handles_mesh_instance->is_inside_tree()) {
-		skeleton->call_deferred("add_child", handles_mesh_instance);
-		handles_mesh_instance->set_skeleton_path(NodePath(""));
+	if (handles_mesh_instance) {
+		Node *current_parent = handles_mesh_instance->get_parent();
+		if (current_parent != skeleton) {
+			if (current_parent) {
+				current_parent->remove_child(handles_mesh_instance);
+			}
+			skeleton->call_deferred("add_child", handles_mesh_instance);
+		}
+		handles_mesh_instance->set_skeleton_path(NodePath(".."));
 	}
 	int selected = -1;
 	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();
