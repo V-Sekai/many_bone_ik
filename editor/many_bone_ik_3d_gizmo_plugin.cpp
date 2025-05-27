@@ -72,7 +72,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		Node *current_parent = handles_mesh_instance->get_parent();
 		if (current_parent != skeleton) {
 			if (current_parent) {
-				current_parent->remove_child(handles_mesh_instance);
+				current_parent->call_deferred("remove_child", handles_mesh_instance);
 			}
 			skeleton->call_deferred("add_child", handles_mesh_instance);
 		}
