@@ -73,8 +73,13 @@ void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {
 	}
 
 	Transform3D new_y_ray = Transform3D(Basis(), new_y);
-	Quaternion old_y_to_new_y = Quaternion(p_limiting_axes->get_global_transform().get_basis().get_column(Vector3::AXIS_Y).normalized(), p_limiting_axes->get_global_transform().get_basis().xform(new_y_ray.origin).normalized());
-	p_limiting_axes->rotate_local_with_global(old_y_to_new_y);
+	Vector3 old_y_norm = p_limiting_axes->get_global_transform().get_basis().get_column(Vector3::AXIS_Y).normalized();
+	Vector3 new_y_global_norm = p_limiting_axes->get_global_transform().get_basis().xform(new_y_ray.origin).normalized();
+
+	if (!(old_y_norm.is_zero_approx() || new_y_global_norm.is_zero_approx())) {
+		Quaternion old_y_to_new_y = Quaternion(old_y_norm, new_y_global_norm);
+		p_limiting_axes->rotate_local_with_global(old_y_to_new_y);
+	}
 
 	for (Ref<IKLimitCone3D> open_cone : open_cones) {
 		if (open_cone.is_null()) {
