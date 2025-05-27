@@ -66,18 +66,25 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	p_gizmo->clear();
 	if (!skeleton || !skeleton->get_bone_count()) {
+		current_many_bone_ik_id = ObjectID(); // Reset if no valid skeleton
 		return;
 	}
-	if (handles_mesh_instance) {
-		Node *current_parent = handles_mesh_instance->get_parent();
-		if (current_parent != skeleton) {
-			if (current_parent) {
-				current_parent->call_deferred("remove_child", handles_mesh_instance);
+
+	ObjectID new_ik_id = many_bone_ik->get_instance_id();
+	if (new_ik_id != current_many_bone_ik_id) {
+		if (handles_mesh_instance && !handles_mesh_instance->is_queued_for_deletion()) {
+			Node *current_parent = handles_mesh_instance->get_parent();
+			if (current_parent != skeleton) {
+				if (current_parent) {
+					current_parent->remove_child(handles_mesh_instance);
+				}
+				skeleton->add_child(handles_mesh_instance);
 			}
-			skeleton->call_deferred("add_child", handles_mesh_instance);
+			handles_mesh_instance->set_skeleton_path(NodePath(".."));
 		}
-		handles_mesh_instance->set_skeleton_path(NodePath(".."));
+		current_many_bone_ik_id = new_ik_id;
 	}
+
 	int selected = -1;
 	Skeleton3DEditor *se = Skeleton3DEditor::get_singleton();
 	if (se) {
