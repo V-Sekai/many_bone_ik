@@ -99,25 +99,27 @@ Quaternion QuaternionCharacteristicPolynomial::calculate_rotation() {
 		double a3142_4132 = a31 * a42 - a41 * a32;
 
 		double quaternion_w = a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
-		double quaternion_x = -a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
-		double quaternion_y = a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
-		double quaternion_z = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
+		double quaternion_x = a21 * a3344_4334 - a23 * a3144_4134 + a24 * a3143_4133;
+		double quaternion_y = -a21 * a3244_4234 + a22 * a3144_4134 - a24 * a3142_4132;
+		double quaternion_z = a21 * a3243_4233 - a22 * a3143_4133 + a23 * a3142_4132;
+
+		double min_comp_val = quaternion_w;
+		min_comp_val = quaternion_x < min_comp_val ? quaternion_x : min_comp_val;
+		min_comp_val = quaternion_y < min_comp_val ? quaternion_y : min_comp_val;
+		min_comp_val = quaternion_z < min_comp_val ? quaternion_z : min_comp_val;
+
+		if (!Math::is_zero_approx(min_comp_val)) {
+			quaternion_w /= min_comp_val;
+			quaternion_x /= min_comp_val;
+			quaternion_y /= min_comp_val;
+			quaternion_z /= min_comp_val;
+		}
+
 		double qsqr = quaternion_w * quaternion_w + quaternion_x * quaternion_x + quaternion_y * quaternion_y + quaternion_z * quaternion_z;
 
 		if (qsqr < eigenvector_precision) {
 			result = Quaternion();
 		} else {
-			quaternion_x *= -1;
-			quaternion_y *= -1;
-			quaternion_z *= -1;
-			double min = quaternion_w;
-			min = quaternion_x < min ? quaternion_x : min;
-			min = quaternion_y < min ? quaternion_y : min;
-			min = quaternion_z < min ? quaternion_z : min;
-			quaternion_w /= min;
-			quaternion_x /= min;
-			quaternion_y /= min;
-			quaternion_z /= min;
 			result = Quaternion(quaternion_x, quaternion_y, quaternion_z, quaternion_w).normalized();
 		}
 	}
@@ -252,7 +254,7 @@ void QuaternionCharacteristicPolynomial::set(PackedVector3Array &p_moved_param, 
 
 	} else {
 		moved_center = Vector3();
-		target_center = Vector3(); 
+		target_center = Vector3();
 		w_sum = 0;
 		if (!weight.is_empty()) {
 			for (int i = 0; i < weight.size(); i++) {
