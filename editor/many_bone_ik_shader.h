@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef MANY_BONE_IK_SHADER_H
-#define MANY_BONE_IK_SHADER_H
+#pragma once
 
 // Skeleton 3D gizmo kusudama constraint shader.
 static constexpr char MANY_BONE_IKKUSUDAMA_SHADER[] = R"(
@@ -203,5 +202,3 @@ void fragment() {
 	ALPHA = 0.8;
 }
 )";
-
-#endif // MANY_BONE_IK_SHADER_H

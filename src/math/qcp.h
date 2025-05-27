@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef QCP_H
-#define QCP_H
+#pragma once
 
 #include "core/math/vector3.h"
 #include "core/object/class_db.h"
@@ -104,5 +103,3 @@ public:
 			Vector<double> p_weight, bool p_translate,
 			double p_precision = 1E-6);
 };
-
-#endif // QCP_H

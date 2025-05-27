@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef IK_BONE_SEGMENT_3D_H
-#define IK_BONE_SEGMENT_3D_H
+#pragma once
 
 #include "ik_bone_3d.h"
 #include "ik_effector_3d.h"
@@ -101,5 +100,3 @@ public:
 			BoneId root = -1, BoneId tip = -1, int32_t p_stabilizing_pass_count = 0);
 	~IKBoneSegment3D() {}
 };
-
-#endif // IK_BONE_SEGMENT_3D_H

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef MANY_BONE_IK_3D_GIZMO_PLUGIN_H
-#define MANY_BONE_IK_3D_GIZMO_PLUGIN_H
+#pragma once
 
 #include "../src/ik_bone_3d.h"
 #include "../src/many_bone_ik_3d.h"
@@ -98,5 +97,3 @@ class EditorPluginManyBoneIK : public EditorPlugin {
 public:
 	EditorPluginManyBoneIK();
 };
-
-#endif // MANY_BONE_IK_3D_GIZMO_PLUGIN_H

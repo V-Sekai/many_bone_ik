@@ -61,7 +61,7 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	 * but their radii remain constant), we want our tangentCircle's diameter to be precisely that distance,
 	 * and so, our tangent circles radius should be precisely half of that distance.
 	 */
-	double tRadius = (Math_PI - (radA + radB)) / 2;
+	double tRadius = (Math::PI - (radA + radB)) / 2;
 
 	/**
 	 * Once we have the desired radius for our tangent circle, we may find the solution for its
@@ -76,7 +76,7 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	Quaternion temp_var = IKKusudama3D::get_quaternion_axis_angle(arc_normal, boundaryPlusTangentRadiusA);
 	Vector3 planeDir1A = temp_var.xform(A);
 	// another point on the same plane
-	Quaternion tempVar2 = IKKusudama3D::get_quaternion_axis_angle(A, Math_PI / 2);
+	Quaternion tempVar2 = IKKusudama3D::get_quaternion_axis_angle(A, Math::PI / 2);
 	Vector3 planeDir2A = tempVar2.xform(planeDir1A);
 
 	Vector3 scaledAxisB = B * cos(boundaryPlusTangentRadiusB);
@@ -84,7 +84,7 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	Quaternion tempVar3 = IKKusudama3D::get_quaternion_axis_angle(arc_normal, boundaryPlusTangentRadiusB);
 	Vector3 planeDir1B = tempVar3.xform(B);
 	// another point on the same plane
-	Quaternion tempVar4 = IKKusudama3D::get_quaternion_axis_angle(B, Math_PI / 2);
+	Quaternion tempVar4 = IKKusudama3D::get_quaternion_axis_angle(B, Math::PI / 2);
 	Vector3 planeDir2B = tempVar4.xform(planeDir1B);
 
 	// ray from scaled center of next cone to half way point between the circumference of this cone and the next cone.

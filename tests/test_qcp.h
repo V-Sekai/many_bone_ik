@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef TEST_QCP_H
-#define TEST_QCP_H
+#pragma once
 
 #include "core/math/quaternion.h"
 #include "modules/many_bone_ik/src/math/qcp.h"
@@ -139,5 +138,3 @@ TEST_CASE("[Modules][QCP] Random Rotation and Translation") {
 }
 
 } // namespace TestQCP
-
-#endif // TEST_QCP_H

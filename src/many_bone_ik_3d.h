@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef MANY_BONE_IK_3D_H
-#define MANY_BONE_IK_3D_H
+#pragma once
 
 #include "core/math/math_defs.h"
 #include "core/math/transform_3d.h"
@@ -85,7 +84,7 @@ protected:
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	static void _bind_methods();
-	virtual void _process_modification() override;
+	virtual void _process_modification(double p_delta) override;
 	void _skeleton_changed(Skeleton3D *p_old, Skeleton3D *p_new) override;
 
 public:
@@ -152,5 +151,3 @@ public:
 	~ManyBoneIK3D();
 	void set_dirty();
 };
-
-#endif // MANY_BONE_IK_3D_H

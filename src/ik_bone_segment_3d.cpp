@@ -217,8 +217,8 @@ void IKBoneSegment3D::segment_solver(const Vector<float> &p_damp, float p_defaul
 	bool is_translate = parent_segment.is_null();
 	if (is_translate) {
 		Vector<float> damp = p_damp;
-		damp.fill(Math_PI);
-		_qcp_solver(damp, Math_PI, is_translate, p_constraint_mode, p_current_iteration, p_total_iteration);
+		damp.fill(Math::PI);
+		_qcp_solver(damp, Math::PI, is_translate, p_constraint_mode, p_current_iteration, p_total_iteration);
 		return;
 	}
 	_qcp_solver(p_damp, p_default_damp, is_translate, p_constraint_mode, p_current_iteration, p_total_iteration);
@@ -249,7 +249,7 @@ IKBoneSegment3D::IKBoneSegment3D(Skeleton3D *p_skeleton, StringName p_root_bone_
 	root = p_root;
 	tip = p_tip;
 	skeleton = p_skeleton;
-	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, Math_PI, p_many_bone_ik)));
+	root = Ref<IKBone3D>(memnew(IKBone3D(p_root_bone_name, p_skeleton, p_parent, p_pins, Math::PI, p_many_bone_ik)));
 	if (p_parent.is_valid()) {
 		root_segment = p_parent->root_segment;
 	} else {

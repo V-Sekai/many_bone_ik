@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef IK_OPEN_CONE_3D_H
-#define IK_OPEN_CONE_3D_H
+#pragma once
 
 #include "core/io/resource.h"
 #include "core/math/vector3.h"
@@ -131,5 +130,3 @@ public:
 	void set_radius(double radius);
 	static Vector3 get_orthogonal(Vector3 p_input);
 };
-
-#endif // IK_OPEN_CONE_3D_H

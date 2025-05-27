@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef TEST_IK_KUSUDAMA_3D_H
-#define TEST_IK_KUSUDAMA_3D_H
+#pragma once
 #include "modules/many_bone_ik/src/ik_kusudama_3d.h"
 #include "tests/test_macros.h"
 
@@ -40,7 +39,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Test a point inside or on the bou
 	kusudama.instantiate();
 
 	Vector3 limit_cone_control_point = Vector3(0, 0, 1);
-	real_t limit_cone_radius = Math_PI / 6; // 30 degrees
+	real_t limit_cone_radius = Math::PI / 6; // 30 degrees
 
 	Ref<IKLimitCone3D> cone;
 	cone.instantiate();
@@ -160,7 +159,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Adding and retrieving Limit Cones
 	kusudama.instantiate();
 
 	Vector3 point_on_sphere(1, 0, 0); // Unit sphere point
-	double radius = Math_PI / 4; // 45 degrees
+	double radius = Math::PI / 4; // 45 degrees
 
 	Ref<IKLimitCone3D> cone;
 	cone.instantiate();
@@ -207,7 +206,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Verify limit cone removal") {
 
 	// Add a couple of limit cones
 	Vector3 first_control_point = Vector3(1, 0, 0);
-	real_t first_radius = Math_PI / 4; // 45 degrees
+	real_t first_radius = Math::PI / 4; // 45 degrees
 
 	Ref<IKLimitCone3D> cone_3;
 	cone_3.instantiate();
@@ -220,7 +219,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Verify limit cone removal") {
 	kusudama->add_open_cone(cone_3);
 
 	Vector3 second_control_point = Vector3(0, 1, 0);
-	real_t second_radius = Math_PI / 6; // 30 degrees
+	real_t second_radius = Math::PI / 6; // 30 degrees
 
 	Ref<IKLimitCone3D> cone_4;
 	cone_4.instantiate();
@@ -258,7 +257,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 	cone_5->set_attached_to(kusudama);
 	cone_5->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_5->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
-	cone_5->set_radius(MAX(1.0e-38, Math_PI / 4));
+	cone_5->set_radius(MAX(1.0e-38, Math::PI / 4));
 	cone_5->set_control_point(Vector3(1, 0, 0).normalized());
 
 	kusudama->add_open_cone(cone_5); // 45 degrees
@@ -268,7 +267,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 	cone_6->set_attached_to(kusudama);
 	cone_6->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_6->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
-	cone_6->set_radius(MAX(1.0e-38, Math_PI / 6));
+	cone_6->set_radius(MAX(1.0e-38, Math::PI / 6));
 	cone_6->set_control_point(Vector3(0, 1, 0).normalized());
 	kusudama->add_open_cone(cone_6); // 30 degrees
 
@@ -277,7 +276,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 	cone_7->set_attached_to(kusudama);
 	cone_7->set_tangent_circle_center_next_1(Vector3(0.0f, -1.0f, 0.0f));
 	cone_7->set_tangent_circle_center_next_2(Vector3(0.0f, 1.0f, 0.0f));
-	cone_7->set_radius(MAX(1.0e-38, Math_PI / 3));
+	cone_7->set_radius(MAX(1.0e-38, Math::PI / 3));
 	cone_7->set_control_point(Vector3(0, 1, 0).normalized());
 	kusudama->add_open_cone(cone_7); // 60 degrees
 
@@ -292,5 +291,3 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Check limit cones clear functiona
 	CHECK(open_cones.size() == 0); // Expect no limit cones to remain
 }
 } // namespace TestIKKusudama3D
-
-#endif // TEST_IK_KUSUDAMA_3D_H

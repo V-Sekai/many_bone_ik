@@ -76,7 +76,6 @@ void ManyBoneIK3D::set_pin_count(int32_t p_value) {
 	notify_property_list_changed();
 }
 
-
 int32_t ManyBoneIK3D::get_pin_count() const {
 	return pin_count;
 }
@@ -531,8 +530,8 @@ void ManyBoneIK3D::set_kusudama_open_cone(int32_t p_constraint_index, int32_t p_
 }
 
 float ManyBoneIK3D::get_kusudama_open_cone_radius(int32_t p_constraint_index, int32_t p_index) const {
-	ERR_FAIL_INDEX_V(p_constraint_index, kusudama_open_cones.size(), Math_TAU);
-	ERR_FAIL_INDEX_V(p_index, kusudama_open_cones[p_constraint_index].size(), Math_TAU);
+	ERR_FAIL_INDEX_V(p_constraint_index, kusudama_open_cones.size(), Math::TAU);
+	ERR_FAIL_INDEX_V(p_index, kusudama_open_cones[p_constraint_index].size(), Math::TAU);
 	return kusudama_open_cones[p_constraint_index][p_index].w;
 }
 
@@ -654,7 +653,7 @@ NodePath ManyBoneIK3D::get_pin_node_path(int32_t p_effector_index) const {
 	return effector_template->get_target_node();
 }
 
-void ManyBoneIK3D::_process_modification() {
+void ManyBoneIK3D::_process_modification(double p_delta) {
 	if (!get_skeleton()) {
 		return;
 	}
@@ -977,8 +976,8 @@ void ManyBoneIK3D::add_constraint() {
 	constraint_names.write[old_count] = String();
 	kusudama_open_cone_count.write[old_count] = 0;
 	kusudama_open_cones.write[old_count].resize(1);
-	kusudama_open_cones.write[old_count].write[0] = Vector4(0, 1, 0, Math_PI);
-	joint_twist.write[old_count] = Vector2(0, Math_PI);
+	kusudama_open_cones.write[old_count].write[0] = Vector4(0, 1, 0, Math::PI);
+	joint_twist.write[old_count] = Vector2(0, Math::PI);
 	set_dirty();
 }
 

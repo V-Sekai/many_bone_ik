@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef IK_RAY_3D_H
-#define IK_RAY_3D_H
+#pragma once
 
 #include "core/io/resource.h"
 #include "core/math/vector3.h"
@@ -124,5 +123,3 @@ public:
 		return String(L"(") + point_1.x + L" ->  " + point_2.x + L") \n " + L"(" + point_1.y + L" ->  " + point_2.y + L") \n " + L"(" + point_1.z + L" ->  " + point_2.z + L") \n ";
 	}
 };
-
-#endif // IK_RAY_3D_H

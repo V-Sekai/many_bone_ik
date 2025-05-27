@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef IK_KUSUDAMA_3D_H
-#define IK_KUSUDAMA_3D_H
+#pragma once
 
 #include "ik_bone_3d.h"
 #include "ik_bone_segment_3d.h"
@@ -75,7 +74,7 @@ class IKKusudama3D : public Resource {
 	 * Defined as some Angle in radians about the limiting_axes Y axis, 0 being equivalent to the
 	 * min_axial_angle
 	 */
-	real_t range_angle = Math_TAU;
+	real_t range_angle = Math::TAU;
 
 	bool orientationally_constrained = false;
 	bool axially_constrained = false;
@@ -94,8 +93,8 @@ public:
 
 	Ref<IKRay3D> bone_ray = Ref<IKRay3D>(memnew(IKRay3D()));
 	Ref<IKRay3D> constrained_ray = Ref<IKRay3D>(memnew(IKRay3D()));
-	double unit_hyper_area = 2 * Math::pow(Math_PI, 2);
-	double unit_area = 4 * Math_PI;
+	double unit_hyper_area = 2 * Math::pow(Math::PI, 2);
+	double unit_area = 4 * Math::PI;
 
 	/**
 	 * Get the swing rotation and twist rotation for the specified axis. The twist rotation represents the rotation around the specified axis. The swing rotation represents the rotation of the specified
@@ -199,5 +198,3 @@ public:
 	void set_resistance(float p_resistance);
 	static Quaternion clamp_to_quadrance_angle(Quaternion p_rotation, double p_cos_half_angle);
 };
-
-#endif // IK_KUSUDAMA_3D_H

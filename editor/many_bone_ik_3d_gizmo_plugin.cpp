@@ -196,15 +196,15 @@ void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKB
 		float w;
 
 		v /= (rings + 1);
-		w = sin(Math_PI * v);
-		y = cos(Math_PI * v);
+		w = sin(Math::PI * v);
+		y = cos(Math::PI * v);
 
 		for (i = 0; i <= radial_segments; i++) {
 			float u = i;
 			u /= radial_segments;
 
-			x = sin(u * Math_TAU);
-			z = cos(u * Math_TAU);
+			x = sin(u * Math::TAU);
+			z = cos(u * Math::TAU);
 
 			Vector3 p = Vector3(x * w, y, z * w) * 0.02f;
 			points.push_back(p);

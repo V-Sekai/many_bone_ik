@@ -223,7 +223,7 @@ IKBone3D::IKBone3D(StringName p_bone, Skeleton3D *p_skeleton, const Ref<IKBone3D
 	bone_direction_transform->set_parent(godot_skeleton_aligned_transform);
 
 	float predamp = 1.0 - get_stiffness();
-	dampening = get_parent().is_null() ? Math_PI : predamp * p_default_dampening;
+	dampening = get_parent().is_null() ? Math::PI : predamp * p_default_dampening;
 	float iterations = p_many_bone_ik->get_iterations_per_frame();
 	if (get_constraint().is_null()) {
 		Ref<IKKusudama3D> new_constraint;

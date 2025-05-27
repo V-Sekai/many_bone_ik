@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef IK_EFFECTOR_3D_H
-#define IK_EFFECTOR_3D_H
+#pragma once
 
 #include "math/ik_node_3d.h"
 
@@ -88,5 +87,3 @@ public:
 	int32_t update_effector_tip_headings(PackedVector3Array *p_headings, int32_t p_index, Ref<IKBone3D> p_for_bone) const;
 	IKEffector3D(const Ref<IKBone3D> &p_current_bone);
 };
-
-#endif // IK_EFFECTOR_3D_H

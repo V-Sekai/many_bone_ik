@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef IK_NODE_3D_H
-#define IK_NODE_3D_H
+#pragma once
 
 #include "core/object/ref_counted.h"
 #include "core/templates/list.h"
@@ -98,5 +97,3 @@ public:
 	void cleanup();
 	~IKNode3D();
 };
-
-#endif // IK_NODE_3D_H
