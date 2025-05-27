@@ -42,15 +42,14 @@ void QuaternionCharacteristicPolynomial::set(PackedVector3Array &r_target, Packe
 }
 
 Quaternion QuaternionCharacteristicPolynomial::_get_rotation() {
-	Quaternion result;
 	if (!transformation_calculated) {
 		if (!inner_product_calculated) {
 			inner_product(target, moved);
 		}
-		result = calculate_rotation();
+		rotation = calculate_rotation();
 		transformation_calculated = true;
 	}
-	return result;
+	return rotation;
 }
 
 Quaternion QuaternionCharacteristicPolynomial::calculate_rotation() {
@@ -133,7 +132,11 @@ void QuaternionCharacteristicPolynomial::translate(Vector3 r_translate, PackedVe
 }
 
 Vector3 QuaternionCharacteristicPolynomial::_get_translation() {
-	return target_center - moved_center;
+	if (translate_enabled) {
+		return target_center - rotation.xform(moved_center);
+	} else {
+		return Vector3();
+	}
 }
 
 Vector3 QuaternionCharacteristicPolynomial::move_to_weighted_center(PackedVector3Array &r_to_center, Vector<double> &r_weight) {
@@ -159,7 +162,7 @@ Vector3 QuaternionCharacteristicPolynomial::move_to_weighted_center(PackedVector
 	return center;
 }
 
-void QuaternionCharacteristicPolynomial::inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2) {
+void QuaternionCharacteristicPolynomial::inner_product(PackedVector3Array &r_coords1, PackedVector3Array &r_coords2) {
 	Vector3 weighted_coord1, weighted_coord2;
 	double sum_of_squares1 = 0, sum_of_squares2 = 0;
 
@@ -174,18 +177,18 @@ void QuaternionCharacteristicPolynomial::inner_product(PackedVector3Array &coord
 	sum_zz = 0;
 
 	bool weight_is_empty = weight.is_empty();
-	int size = coords1.size();
+	int size = r_coords1.size();
 
 	for (int i = 0; i < size; i++) {
 		if (!weight_is_empty) {
-			weighted_coord1 = weight[i] * coords1[i];
-			sum_of_squares1 += weighted_coord1.dot(coords1[i]);
+			weighted_coord1 = weight[i] * r_coords1[i];
+			sum_of_squares1 += weighted_coord1.dot(r_coords1[i]);
 		} else {
-			weighted_coord1 = coords1[i];
+			weighted_coord1 = r_coords1[i];
 			sum_of_squares1 += weighted_coord1.dot(weighted_coord1);
 		}
 
-		weighted_coord2 = coords2[i];
+		weighted_coord2 = r_coords2[i];
 
 		sum_of_squares2 += weight_is_empty ? weighted_coord2.dot(weighted_coord2) : (weight[i] * weighted_coord2.dot(weighted_coord2));
 
@@ -217,32 +220,46 @@ void QuaternionCharacteristicPolynomial::inner_product(PackedVector3Array &coord
 	inner_product_calculated = true;
 }
 
-Quaternion QuaternionCharacteristicPolynomial::_weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool translate) {
-	set(p_moved, p_target, p_weight, translate);
+Quaternion QuaternionCharacteristicPolynomial::_weighted_superpose(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate) {
+	set(p_moved, p_target, p_weight, p_translate);
 	return _get_rotation();
 }
 
-void QuaternionCharacteristicPolynomial::set(PackedVector3Array &p_moved, PackedVector3Array &p_target, Vector<double> &p_weight, bool p_translate) {
+void QuaternionCharacteristicPolynomial::set(PackedVector3Array &p_moved_param, PackedVector3Array &p_target_param, Vector<double> &p_weight_param, bool p_translate_param) {
 	transformation_calculated = false;
 	inner_product_calculated = false;
 
-	moved = p_moved;
-	target = p_target;
-	weight = p_weight;
+	moved = p_moved_param;
+	target = p_target_param;
+	weight = p_weight_param;
+	translate_enabled = p_translate_param;
 
-	if (p_translate) {
-		moved_center = move_to_weighted_center(moved, weight);
-		w_sum = 0; // set wsum to 0 so we don't double up.
-		target_center = move_to_weighted_center(target, weight);
+	if (translate_enabled) {
+		moved_center = move_to_weighted_center(p_moved_param, p_weight_param);
+		target_center = move_to_weighted_center(p_target_param, p_weight_param);
+
 		translate(moved_center * -1, moved);
 		translate(target_center * -1, target);
-	} else {
-		if (!p_weight.is_empty()) {
-			for (int i = 0; i < p_weight.size(); i++) {
-				w_sum += p_weight[i];
+
+		w_sum = 0;
+		if (!weight.is_empty()) {
+			for (int i = 0; i < weight.size(); i++) {
+				w_sum += weight[i];
 			}
 		} else {
-			w_sum = p_moved.size();
+			w_sum = moved.size();
+		}
+
+	} else {
+		moved_center = Vector3();
+		target_center = Vector3(); 
+		w_sum = 0;
+		if (!weight.is_empty()) {
+			for (int i = 0; i < weight.size(); i++) {
+				w_sum += weight[i];
+			}
+		} else {
+			w_sum = moved.size();
 		}
 	}
 }

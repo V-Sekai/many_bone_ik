@@ -76,6 +76,8 @@ class QuaternionCharacteristicPolynomial : Object {
 	double w_sum = 0;
 
 	Vector3 target_center, moved_center;
+	Quaternion rotation;
+	bool translate_enabled = false;
 
 	double sum_xy = 0, sum_xz = 0, sum_yx = 0, sum_yz = 0, sum_zx = 0, sum_zy = 0;
 	double sum_xx_plus_yy = 0, sum_zz = 0, max_eigenvalue = 0, sum_yz_minus_zy = 0, sum_xz_minus_zx = 0, sum_xy_minus_yx = 0;

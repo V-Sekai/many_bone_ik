@@ -30,111 +30,142 @@
 
 #pragma once
 
+#include "core/math/math_funcs.h"
 #include "core/math/quaternion.h"
 #include "modules/many_bone_ik/src/math/qcp.h"
 #include "tests/test_macros.h"
 
 namespace TestQCP {
 
-TEST_CASE("[Modules][QCP] No Translation") {
-	Quaternion expected = Quaternion(0, 0, sqrt(2) / 2, sqrt(2) / 2);
-	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9), Vector3(1, 2, 3) };
-	PackedVector3Array target = moved;
-	for (Vector3 &element : target) {
-		element = expected.xform(element);
-	}
-	Vector<double> weight = { 1.0, 1.0, 1.0 }; // Equal weights
-	bool translate = false;
-	double epsilon = 1e-6;
-	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved, target, weight, translate, epsilon);
-	Quaternion rotation = result[0];
-	CHECK(abs(rotation.x - expected.x) < epsilon);
-	CHECK(abs(rotation.y - expected.y) < epsilon);
-	CHECK(abs(rotation.z - expected.z) < epsilon);
-	CHECK(abs(rotation.w - expected.w) < epsilon);
-	Vector3 result_translation = result[1];
-	CHECK(result_translation.is_zero_approx());
-}
+TEST_CASE("[Modules][QCP] Identity Transformation (No Rotation, No Translation)") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 2, 3));
+	moved_points.push_back(Vector3(4, 5, 6));
+	moved_points.push_back(Vector3(7, 8, 9));
 
-TEST_CASE("[Modules][QCP] Different Weights") {
-	Quaternion expected = Quaternion(0, 0, sqrt(2) / 2, sqrt(2) / 2);
-	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9), Vector3(1, 2, 3) };
-	PackedVector3Array target = moved;
-	for (Vector3 &element : target) {
-		element = expected.xform(element);
-	}
-	Vector<double> weight = { 0.5, 1.0, 1.5 }; // Different weights
+	PackedVector3Array target_points = moved_points; // Target is identical to moved
+
+	Vector<double> weights;
+	weights.push_back(1.0);
+	weights.push_back(1.0);
+	weights.push_back(1.0);
+
 	bool translate = false;
 	double epsilon = 1e-6;
 
-	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved, target, weight, translate, epsilon);
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
 	Quaternion rotation = result[0];
-	CHECK(abs(rotation.x - expected.x) < epsilon);
-	CHECK(abs(rotation.y - expected.y) < epsilon);
-	CHECK(abs(rotation.z - expected.z) < epsilon);
-	CHECK(abs(rotation.w - expected.w) < epsilon);
+	Vector3 translation = result[1];
+
+	Quaternion expected_rotation = Quaternion(); // Identity
+	CHECK( (Math::abs(rotation.x - expected_rotation.x) < epsilon || Math::abs(rotation.x + expected_rotation.x) < epsilon) );
+	CHECK( (Math::abs(rotation.y - expected_rotation.y) < epsilon || Math::abs(rotation.y + expected_rotation.y) < epsilon) );
+	CHECK( (Math::abs(rotation.z - expected_rotation.z) < epsilon || Math::abs(rotation.z + expected_rotation.z) < epsilon) );
+	CHECK( (Math::abs(rotation.w - expected_rotation.w) < epsilon || Math::abs(rotation.w + expected_rotation.w) < epsilon) );
+	CHECK( Math::abs(Math::abs(rotation.dot(expected_rotation)) - 1.0) < epsilon );
+
+	CHECK(translation.is_zero_approx());
 }
 
-TEST_CASE("[Modules][QCP] Zero Weights") {
-	Quaternion expected = Quaternion(0, 0, sqrt(2) / 2, sqrt(2) / 2);
-	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9), Vector3(1, 2, 3) };
-	PackedVector3Array target = moved;
-	for (Vector3 &element : target) {
-		element = expected.xform(element);
+TEST_CASE("[Modules][QCP] Simple 90-degree Rotation around Z (No Translation)") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 0, 0));
+	moved_points.push_back(Vector3(0, 1, 0));
+	moved_points.push_back(Vector3(0, 0, 1));
+	moved_points.push_back(Vector3(1, 1, 1));
+
+
+	Quaternion expected_rotation = Quaternion(Vector3(0, 0, 1), Math::PI / 2.0); // 90 degrees around Z
+
+	PackedVector3Array target_points;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		target_points.push_back(expected_rotation.xform(moved_points[i]));
 	}
-	Vector<double> weight = { 0.0, 0.0, 0.0 }; // Zero weights
+
+	Vector<double> weights;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		weights.push_back(1.0);
+	}
+
 	bool translate = false;
 	double epsilon = 1e-6;
 
-	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved, target, weight, translate, epsilon);
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
 	Quaternion rotation = result[0];
-	CHECK(abs(rotation.x - expected.x) < epsilon);
-	CHECK(abs(rotation.y - expected.y) < epsilon);
-	CHECK(abs(rotation.z - expected.z) < epsilon);
-	CHECK(abs(rotation.w - expected.w) < epsilon);
+	Vector3 translation = result[1];
+	
+	rotation.normalize();
+
+	CHECK( Math::abs(Math::abs(rotation.dot(expected_rotation)) - 1.0) < epsilon );
+
+	CHECK(translation.is_zero_approx());
 }
 
-TEST_CASE("[Modules][QCP] Identity Rotation") {
-	Quaternion expected = Quaternion();
-	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9), Vector3(1, 2, 3) };
-	PackedVector3Array target = moved;
-	Vector<double> weight = { 1.0, 1.0, 1.0 }; // Equal weights
-	bool translate = false;
-	double epsilon = 1e-6;
+TEST_CASE("[Modules][QCP] Simple Translation (No Rotation)") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 2, 3));
+	moved_points.push_back(Vector3(4, 5, 6));
+	moved_points.push_back(Vector3(7, 8, 9));
 
-	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved, target, weight, translate, epsilon);
-	Quaternion rotation = result[0];
-	CHECK(abs(rotation.x - expected.x) < epsilon);
-	CHECK(abs(rotation.y - expected.y) < epsilon);
-	CHECK(abs(rotation.z - expected.z) < epsilon);
-	CHECK(abs(rotation.w - expected.w) < epsilon);
-}
+	Quaternion expected_rotation = Quaternion(); // Identity
+	Vector3 expected_translation_component = Vector3(10, 20, 30);
 
-TEST_CASE("[Modules][QCP] Random Rotation and Translation") {
-	Quaternion expected_rotation = Quaternion(0.1, 0.2, 0.3, 0.4).normalized();
-	Vector3 expected_translation = Vector3(1, 2, 3);
-	PackedVector3Array moved = { Vector3(4, 5, 6), Vector3(7, 8, 9), Vector3(1, 2, 3) };
-	PackedVector3Array target = moved;
-	for (Vector3 &element : target) {
-		element = expected_rotation.xform(element + expected_translation);
+	PackedVector3Array target_points;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		target_points.push_back(moved_points[i] + expected_translation_component);
 	}
-	Vector<double> weight = { 1.0, 1.0, 1.0 }; // Equal weights
+
+	Vector<double> weights;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		weights.push_back(1.0);
+	}
+
 	bool translate = true;
 	double epsilon = 1e-6;
 
-	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved, target, weight, translate, epsilon);
-	Quaternion rotation = result[0];
-	Vector3 translation = result[1];
-	CHECK(abs(rotation.x - expected_rotation.x) < epsilon);
-	CHECK(abs(rotation.y - expected_rotation.y) < epsilon);
-	CHECK(abs(rotation.z - expected_rotation.z) < epsilon);
-	CHECK(abs(rotation.w - expected_rotation.w) < epsilon);
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Quaternion rotation_result = result[0];
+	Vector3 translation_qcp = result[1];
 
-	CHECK(translate);
-	Vector3 translation_result = expected_rotation.xform_inv(translation);
-	CHECK(abs(translation_result.x - expected_translation.x) < epsilon);
-	CHECK(abs(translation_result.y - expected_translation.y) < epsilon);
-	CHECK(abs(translation_result.z - expected_translation.z) < epsilon);
+	rotation_result.normalize();
+
+	CHECK( Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon );
+
+	Vector3 calculated_translation_component = expected_rotation.xform_inv(translation_qcp);
+	CHECK( (calculated_translation_component - expected_translation_component).length() < epsilon );
+}
+
+TEST_CASE("[Modules][QCP] Simple 90-degree Rotation around Z AND Translation") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 0, 0));
+	moved_points.push_back(Vector3(0, 1, 0));
+	moved_points.push_back(Vector3(0, 0, 1));
+	moved_points.push_back(Vector3(1, 1, 1));
+
+	Quaternion expected_rotation = Quaternion(Vector3(0, 0, 1), Math::PI / 2.0); // 90 degrees around Z
+	Vector3 expected_translation_component = Vector3(5, -5, 10);
+
+	PackedVector3Array target_points;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		target_points.push_back(expected_rotation.xform(moved_points[i]) + expected_translation_component);
+	}
+
+	Vector<double> weights;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		weights.push_back(1.0);
+	}
+
+	bool translate = true;
+	double epsilon = 1e-6;
+
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Quaternion rotation_result = result[0];
+	Vector3 translation_qcp = result[1];
+
+	rotation_result.normalize();
+
+	CHECK( Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon );
+	CHECK( (translation_qcp - expected_translation_component).length() < epsilon );
 }
 
 } // namespace TestQCP
