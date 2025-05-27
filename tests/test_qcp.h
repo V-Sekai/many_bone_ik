@@ -58,11 +58,11 @@ TEST_CASE("[Modules][QCP] Identity Transformation (No Rotation, No Translation)"
 	Vector3 translation = result[1];
 
 	Quaternion expected_rotation = Quaternion(); // Identity
-	CHECK( (Math::abs(rotation.x - expected_rotation.x) < epsilon || Math::abs(rotation.x + expected_rotation.x) < epsilon) );
-	CHECK( (Math::abs(rotation.y - expected_rotation.y) < epsilon || Math::abs(rotation.y + expected_rotation.y) < epsilon) );
-	CHECK( (Math::abs(rotation.z - expected_rotation.z) < epsilon || Math::abs(rotation.z + expected_rotation.z) < epsilon) );
-	CHECK( (Math::abs(rotation.w - expected_rotation.w) < epsilon || Math::abs(rotation.w + expected_rotation.w) < epsilon) );
-	CHECK( Math::abs(Math::abs(rotation.dot(expected_rotation)) - 1.0) < epsilon );
+	CHECK((Math::abs(rotation.x - expected_rotation.x) < epsilon || Math::abs(rotation.x + expected_rotation.x) < epsilon));
+	CHECK((Math::abs(rotation.y - expected_rotation.y) < epsilon || Math::abs(rotation.y + expected_rotation.y) < epsilon));
+	CHECK((Math::abs(rotation.z - expected_rotation.z) < epsilon || Math::abs(rotation.z + expected_rotation.z) < epsilon));
+	CHECK((Math::abs(rotation.w - expected_rotation.w) < epsilon || Math::abs(rotation.w + expected_rotation.w) < epsilon));
+	CHECK(Math::abs(Math::abs(rotation.dot(expected_rotation)) - 1.0) < epsilon);
 
 	CHECK(translation.is_zero_approx());
 }
@@ -73,7 +73,6 @@ TEST_CASE("[Modules][QCP] Simple 90-degree Rotation around Z (No Translation)") 
 	moved_points.push_back(Vector3(0, 1, 0));
 	moved_points.push_back(Vector3(0, 0, 1));
 	moved_points.push_back(Vector3(1, 1, 1));
-
 
 	Quaternion expected_rotation = Quaternion(Vector3(0, 0, 1), Math::PI / 2.0); // 90 degrees around Z
 
@@ -93,10 +92,10 @@ TEST_CASE("[Modules][QCP] Simple 90-degree Rotation around Z (No Translation)") 
 	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
 	Quaternion rotation = result[0];
 	Vector3 translation = result[1];
-	
+
 	rotation.normalize();
 
-	CHECK( Math::abs(Math::abs(rotation.dot(expected_rotation)) - 1.0) < epsilon );
+	CHECK(Math::abs(Math::abs(rotation.dot(expected_rotation)) - 1.0) < epsilon);
 
 	CHECK(translation.is_zero_approx());
 }
@@ -129,10 +128,10 @@ TEST_CASE("[Modules][QCP] Simple Translation (No Rotation)") {
 
 	rotation_result.normalize();
 
-	CHECK( Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon );
+	CHECK(Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon);
 
 	Vector3 calculated_translation_component = expected_rotation.xform_inv(translation_qcp);
-	CHECK( (calculated_translation_component - expected_translation_component).length() < epsilon );
+	CHECK((calculated_translation_component - expected_translation_component).length() < epsilon);
 }
 
 TEST_CASE("[Modules][QCP] Simple 90-degree Rotation around Z AND Translation") {
@@ -164,8 +163,8 @@ TEST_CASE("[Modules][QCP] Simple 90-degree Rotation around Z AND Translation") {
 
 	rotation_result.normalize();
 
-	CHECK( Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon );
-	CHECK( (translation_qcp - expected_translation_component).length() < epsilon );
+	CHECK(Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon);
+	CHECK((translation_qcp - expected_translation_component).length() < epsilon);
 }
 
 } // namespace TestQCP
