@@ -85,6 +85,30 @@ class QuaternionCharacteristicPolynomial : Object {
 	double sum_yy = 0, sum_xx = 0, sum_yz_plus_zy = 0;
 	bool transformation_calculated = false, inner_product_calculated = false;
 
+	// Enhanced validation and error handling
+	enum ValidationError {
+		VALIDATION_OK = 0,
+		ERROR_MISMATCHED_SIZES,
+		ERROR_TOO_MANY_POINTS,
+		ERROR_INVALID_WEIGHTS,
+		ERROR_DEGENERATE_POINTS,
+		ERROR_NUMERICAL_INSTABILITY
+	};
+
+	// Input validation methods
+	ValidationError validate_inputs(const PackedVector3Array &p_moved, const PackedVector3Array &p_target, const Vector<double> &p_weight);
+	ValidationError validate_point_sets(const PackedVector3Array &p_moved, const PackedVector3Array &p_target);
+	ValidationError validate_weights(const Vector<double> &p_weight, int point_count);
+	bool is_finite_vector(const Vector3 &v);
+	bool are_points_degenerate(const PackedVector3Array &points);
+	double calculate_point_span(const PackedVector3Array &points);
+
+	// Enhanced single point rotation calculation
+	Quaternion calculate_single_point_rotation(const Vector3 &moved_point, const Vector3 &target_point);
+	
+	// Quaternion canonicalization
+	Quaternion apply_canonical_form(const Quaternion &q);
+
 	void inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2);
 	void set(PackedVector3Array &r_target, PackedVector3Array &r_moved);
 	Quaternion calculate_rotation();
