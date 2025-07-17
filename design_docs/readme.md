@@ -14,7 +14,7 @@ available on the \*Everything WIll Be IK\* Java library github page^[^1]^,
 a Processing demo implementation of the library is also available^[^2]^
 for quick visualization and use-case testing.
 
-## 0. Preamble and Authors:
+## 0. Preamble and Authors
 
 The Godot Engine many bone IK project is a port from a Java project by Eron Gjoni [Everything-Will-Be-IK](https://github.com/EGjoni/Everything-Will-Be-IK).
 
@@ -25,7 +25,7 @@ The authors' GitHub usernames are indicated in parentheses.
 - rafallus Rafael M. G. (rafallus)
 - lyuma (lyuma)
 
-## 1. Introduction and Motivation:
+## 1. Introduction and Motivation
 
 The two most popular approaches to the Inverse Kinematics problem for
 interactive or real-time use cases are Cyclic Coordinate Descent^[^3]^
@@ -58,7 +58,7 @@ can result in extremely unnatural pose solutions where the
 end-effector must be rotated post-hoc to bear the brunt of orientation
 alignment.
 
-## 2. The Importance of Orientation Targets:
+## 2. The Importance of Orientation Targets
 
 Consider a humanoid (perhaps yourself, if you happen to be
 approximately humanoid in shape) sitting at a table, with the back of
@@ -74,9 +74,9 @@ If we treat the humanoid's pelvis as one effector and the chair as
 that effector's target, and treat its knuckle bone as another
 effector, and the spot on the table to which the knuckle bone must
 remain affixed as the knuckle bone's target, we observe that even if
-the *positions *of the targets do not change at all, there can be
+the *positions*of the targets do not change at all, there can be
 massive differences in the poses an armature must adopt based solely
-on the *orientations *of its targets.
+on the *orientations*of its targets.
 
 This should illustrate the importance of treating target orientations
 as first class citizens throughout the entire IK procedure. If we
@@ -88,37 +88,37 @@ joints that look like they're painfully hyperextending), or else
 strictly obeying the joint constraints but failing to solve for an
 otherwise reachable target.
 
-## 3. The Basic Idea:
+## 3. The Basic Idea
 
 EWBIK can be thought of as a "blockwise" generalization of Inverse
 Kinematics by CCD. The primary distinction is that, where CCD seeks to
 iteratively minimize the angular discrepancy between a bone-chain's
 end-effector and its corresponding target from the perspective of
 every bone in the chain, EWBIK instead seeks to minimize an _average_
-discrepancy between _all_ effector-target pairs for *every *bone in
+discrepancy between _all_ effector-target pairs for *every*bone in
 the chain.
 
 Broadly EWBIK starts from the outermost bones of an armature, and
 proceeds rootward as follows:
 
-1.  Create working copies of the origin and basis vectors and origins of
+1. Create working copies of the origin and basis vectors and origins of
 
     all target and effector transforms relevant to a given bone, and
     translate them along with the given bone transform's origin such
     that the bone transform's origin is at (0,0,0).
 
-2.  Find the rotation that minimizes the average of the discrepancy
+2. Find the rotation that minimizes the average of the discrepancy
 
     between each effector-target pair, and apply that rotation to the
     bone.
 
-3.  Rectify the bone's orientation to reside back within an allowable
+3. Rectify the bone's orientation to reside back within an allowable
 
     orientation as per any limits imposed by dampening parameters or
     joint constraint on the bone if necessary, then proceed to the
     next bone.
 
-4.  Once the root bone has been reached, repeat the process starting
+4. Once the root bone has been reached, repeat the process starting
     from the outermost bones until convergence or budget exhaustion.
 
 \*Figure 1.1 - 1.2: A simplified sketch of a step in the algorithm.
@@ -136,10 +136,10 @@ height="2.6457in"}
 
 Figure 1.1 (left): \*Armature prior to rotation about **\*⊕** so as to
 _minimize average discrepancies between effector points and
-corresponding target points. _
+corresponding target points._
 
-Figure 1.2 (right): *Armature *after rotation about **⊕** so as to
-minimize average *discrepancies *between all descendant effector points
+Figure 1.2 (right): *Armature*after rotation about **⊕** so as to
+minimize average *discrepancies*between all descendant effector points
 and their corresponding target points.
 
 </div>
@@ -168,7 +168,7 @@ and the rest of this document will refer to whatever algorithm you
 choose for the purpose of minimizing the discrepancy between
 point-pairs as _The Minimizer_.
 
-## 4. Role of The Minimizer:
+## 4. Role of The Minimizer
 
 Chief among EWBIK's strengths is that no distinction is made by the
 solver between position and orientation targets. Both orientation and
@@ -184,7 +184,7 @@ way. These 7 point-pairs are then fed to the minimizer, which attempts
 to find the orthogonal transformation (usually just rotation) that
 minimizes the average distance between all effector-target pairs.
 
-## 5. Multiple End and Intermediary-Effectors:
+## 5. Multiple End and Intermediary-Effectors
 
 \*\* \*\*Since the Minimizer blindly operates on point-pairs, generalizing
 to solve for multiple effectors is trivial. We simply feed the Minimizer
@@ -202,7 +202,7 @@ Additionally, we can weigh a target\'s orientation more or less
 strongly than its position by scaling the basis vectors of the target
 and/or effector about their respective origins.
 
-## 6. Preprocessing:
+## 6. Preprocessing
 
 When using EWBIK to solve for a single effector-target pair, no
 preprocessing of the armature is required. However, if solving for
@@ -226,7 +226,7 @@ _Figure 2.1 (left): An example armature, with effectored bones indicated in oran
 ![Figure 2.2](./Pictures/100002010000030D0000026B7F70BE2E85BEF4BE.png)
 _Figure 2.2 (right): Segmented representation of the example armature in 2.1._
 
-## 7. Solving:
+## 7. Solving
 
 Once the segments have been created, we create working copies of the
 basis vectors and origins representing all descendant target and
@@ -242,17 +242,17 @@ From there, the simplest and fastest version of the EWBIK procedure
 starts from the outermost segments and works inward to the root segment,
 doing as follows for each bone in each segment:
 
-1.  Reset the working copies of the targets and effector to correspond
+1. Reset the working copies of the targets and effector to correspond
 
     to their original values. Subtract the current bone's origin from
-    all _c_basisTarget_, *c_basisEffector, c_originTarget, *and*
-    c_originEffector * points.
+    all _c_basisTarget_, *c_basisEffector, c_originTarget,*and*
+c_originEffector* points.
 
-    a. Scale any *c_basisTargets *about their corresponding *c_originTargets *such that their distance from their corresponding _c_originTarget_ is no less than 1, and also no less than the magnitude of their corresponding _c_originTarget, _
+    a. Scale any *c_basisTargets*about their corresponding *c_originTargets*such that their distance from their corresponding _c_originTarget_ is no less than 1, and also no less than the magnitude of their corresponding _c_originTarget,_
 
-    b. Scale any *c_basisEffectors *about their corresponding _c_originEffectors_ such that their distance from their corresponding _c_originEffectors_ is no less than 1, and no less than the magnitude of their corresponding _c_originTargets._
+    b. Scale any *c_basisEffectors*about their corresponding _c_originEffectors_ such that their distance from their corresponding _c_originEffectors_ is no less than 1, and no less than the magnitude of their corresponding _c_originTargets._
 
-2.  Use The Minimizer to compute the rotation that brings all
+2. Use The Minimizer to compute the rotation that brings all
 
     _c\_\*Effector_ points as close as possible to their corresponding
     _c\_\*Target_ points.
@@ -261,19 +261,19 @@ doing as follows for each bone in each segment:
 
     b. Apply the clamped rotation to the bone.
 
-3.  Check if the bone has violated any of its orientation constraints as
+3. Check if the bone has violated any of its orientation constraints as
 
     a result of this rotation. If it has, rotate the bone to reside
     within a valid region of its orientation constraint.
 
-4.  If the bone's parent is contained in the current segment, repeat
+4. If the bone's parent is contained in the current segment, repeat
     this process for the parent bone. Otherwise, traversal for this
     segment is complete.
 
 Repeat the whole process until the armature has converged or the
 computation budget has been exceeded.
 
-## 8. Constraints:
+## 8. Constraints
 
 \*\* \*\*In theory, EWBIK should work well with any type of commonly used
 joint constraint (doing so requires no more than implementing step 3 in
@@ -281,15 +281,15 @@ the introductory section). Unfortunately, in practice, most commonly
 used joint constraints come with their own set of tradeoffs. An ideal
 orientation constraint system would provide the following
 
-1.  **Continuity**: No sharp concave corners for a bone to get "stuck" in.
+1. **Continuity**: No sharp concave corners for a bone to get "stuck" in.
 
-2.  **Versatility**: It should be possible to specify any conceivable orientation region.
+2. **Versatility**: It should be possible to specify any conceivable orientation region.
 
-3.  **Expressiveness**: The desired shape of the allowable orientation region should be fully specifiable with as few parameters as possible.
+3. **Expressiveness**: The desired shape of the allowable orientation region should be fully specifiable with as few parameters as possible.
 
-4.  **Speed**: as few operations as possible should be required to determine if a Bone is within the valid orientation region, or to determine the smallest rotation that brings it back within a valid orientation (note that this follows naturally from the previous criterion).
+4. **Speed**: as few operations as possible should be required to determine if a Bone is within the valid orientation region, or to determine the smallest rotation that brings it back within a valid orientation (note that this follows naturally from the previous criterion).
 
-5.  **Extensibility**: The constraints should be amenable to specification of any number of additional properties that may vary continuously throughout or beyond the allowable orientations region (hard vs soft boundaries, high vs low friction regions, etc).
+5. **Extensibility**: The constraints should be amenable to specification of any number of additional properties that may vary continuously throughout or beyond the allowable orientations region (hard vs soft boundaries, high vs low friction regions, etc).
 
 The simplest conceivable systems for orientation constraints are Euler
 angles, which offer speed, but not much else; and Reach cones, which
@@ -357,27 +357,27 @@ We will presume our bounding region is made up of the three full circles
 line depicted in _figure 8(a),_ and the six tangent-circles depicted in
 light gray outlines in _figure_ _8(a2)_.
 
-1.  We check to see if the point is within the two sequence-circles depicted in blue and green in _figure 8(b)_.
+1. We check to see if the point is within the two sequence-circles depicted in blue and green in _figure 8(b)_.
 
     a. If the point is within either sequence-circle, we terminate, as the point is within the allowable region.
 
     b. Otherwise, we proceed to step 2.
 
-2.  We check to see if the point is within either of the two triangles depicted in amethyst in figure 8(c), which are formed by the centers of our pair of sequence-circle with the centers of the adjacent pair of tangent-circles.
+2. We check to see if the point is within either of the two triangles depicted in amethyst in figure 8(c), which are formed by the centers of our pair of sequence-circle with the centers of the adjacent pair of tangent-circles.
 
     a. If the point is within either triangle, we proceed to step 3
 
     b. Otherwise, we skip to step 4.
 
-3.  We check to see if the point is within either of the adjacent tangent circles as depicted in _figure 8(d)_.
+3. We check to see if the point is within either of the adjacent tangent circles as depicted in _figure 8(d)_.
 
     a. If it is within one of the tangent-circles, then we transform it away from the center of the tangent-circle within which it resides such that its distance from the tangent-circle's center is equal to the radius of that tangent-circle (_figure 8(d2)_). Then terminate, as we have finished moving the point to the boundary of the allowable region.
 
     b. If it isn't within either circle, then proceed to step 4.
 
-4.  Proceed to the next pair in the sequence (_figure 8(f)_), treating the blue sequence-circle from the previous steps as if it were the new green sequence-circle, and treating the next circle in the sequence as being the new blue sequence-circle. Repeat steps 1 through 4 (_figure 8(g)_) until the blue sequence-circle under consideration is the last one in the sequence, then proceed to step 6.
+4. Proceed to the next pair in the sequence (_figure 8(f)_), treating the blue sequence-circle from the previous steps as if it were the new green sequence-circle, and treating the next circle in the sequence as being the new blue sequence-circle. Repeat steps 1 through 4 (_figure 8(g)_) until the blue sequence-circle under consideration is the last one in the sequence, then proceed to step 6.
 
-5.  If the point wasn't in any of the regions checked so far, then by process of elimination, it resides outside of any of the sequence circles, and the regions connecting the sequence circles, and anywhere which should be transformed to the regions connecting the sequence circles. So we just iterate through each sequence-circle individually, store the translation that would bring us (h) to its boundary, and apply whichever of the translations was smallest (i).
+5. If the point wasn't in any of the regions checked so far, then by process of elimination, it resides outside of any of the sequence circles, and the regions connecting the sequence circles, and anywhere which should be transformed to the regions connecting the sequence circles. So we just iterate through each sequence-circle individually, store the translation that would bring us (h) to its boundary, and apply whichever of the translations was smallest (i).
 
 | ![a](./Pictures/10000000000002070000018E853FACED42A51700.png) | ![a2](./Pictures/10000000000002070000018E1025A91C2576C186.png) |
 | :-----------------------------------------------------------: | :------------------------------------------------------------: |
@@ -407,7 +407,7 @@ light gray outlines in _figure_ _8(a2)_.
 _Figure 8 (black regions indicate areas which have been eliminated from
 further consideration by previous steps in the algorithm)_
 
-## 9. Kusudamas:
+## 9. Kusudamas
 
 The spherical representation of such a bounding region uses cones
 instead of circles. We replace the centers of the circles with vectors
@@ -424,12 +424,12 @@ therefore the curvature of the bounding region connecting our
 sequence-cones) however we wish, so long as the following properties
 are met.
 
-1.  As the sum of the apex angles of our pair of sequence-cones
+1. As the sum of the apex angles of our pair of sequence-cones
 
     approaches zero, the apex angles of the tangent cones must
     approach π.
 
-2.  As the sum of the apex angles of our pair of sequence-cones
+2. As the sum of the apex angles of our pair of sequence-cones
     approaches π, the apex angles of the tangent cones must approach 0.
 
 A straightforward function for automatically determining a reasonable
@@ -458,7 +458,7 @@ Our full procedure for checking collisions is much the same as in the
 planar case, with only minor modifications to account for the change in
 topology. It goes as follows:
 
-1.  We check to see if the angle between the bone's direction and the
+1. We check to see if the angle between the bone's direction and the
 
     direction of the axis of each sequence-cone is less than the apex
     angle of the sequence cones under consideration.
@@ -467,7 +467,7 @@ topology. It goes as follows:
 
     b. Otherwise, we proceed to step 2.
 
-2.  For each adjacent pair of sequence cones, we check to see if the
+2. For each adjacent pair of sequence cones, we check to see if the
 
     bone direction is within either of the tetrahedrons formed by the
     constraint origin, the line connecting the vectors representing
@@ -478,17 +478,17 @@ topology. It goes as follows:
 
     b. Otherwise, we skip to step 4.
 
-3.  We check to see if the angle between the bone's direction and the direction of the axis of the tangent-cone coinciding with this tetrahedron is less than the apex half-angle of the tangent-cone under consideration.
+3. We check to see if the angle between the bone's direction and the direction of the axis of the tangent-cone coinciding with this tetrahedron is less than the apex half-angle of the tangent-cone under consideration.
 
     a. If it is, then we find the rotation which would transform the bone direction away from the tangent-cone in which it resides such that the angle between the bone direction and the tangent-cone's direction is equal to the apex half-angle of that tangent-cone. We do not terminate or apply this rotation. If the angle of this rotation is less than any currently stored rotation, we replace that rotation with this rotation, otherwise, we ignore this rotation. We then proceed to step 4.
 
     b. If it isn't, then proceed to step 4.
 
-4.  We shift to the next pair of adjacent sequence cones and repeat steps 1 through 4 until one of the sequence cones under consideration is the last cone defined. Then proceed to step 5
+4. We shift to the next pair of adjacent sequence cones and repeat steps 1 through 4 until one of the sequence cones under consideration is the last cone defined. Then proceed to step 5
 
-5.  We iterate again through each sequence-cone individually, and for each sequence-cone find the rotation which would transform the bone such that its angle from that sequence-cone axis is less than half the apex-angle of that sequence cone. We update the currently stored smallest rotation whenever we find a smaller rotation. (In effect, preferring to rotate the bone to the nearest constraint boundary)
+5. We iterate again through each sequence-cone individually, and for each sequence-cone find the rotation which would transform the bone such that its angle from that sequence-cone axis is less than half the apex-angle of that sequence cone. We update the currently stored smallest rotation whenever we find a smaller rotation. (In effect, preferring to rotate the bone to the nearest constraint boundary)
 
-6.  We apply the currently stored smallest rotation, and terminate.
+6. We apply the currently stored smallest rotation, and terminate.
 
 Note that as presented above, Kusudamas are only constraining the
 direction (aka swing) of the bone. To constrain their axial orientation
