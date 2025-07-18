@@ -285,25 +285,26 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Numerical Stability
 	}
 }
 
-TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Mixed Precision Scenarios") {
-	// Test mixed precision scenarios using our new precision functions
-	Vector3 axis = Vector3(0, 1, 0);
+TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Zero Vector Input Handling") {
+	// Test that functions properly handle Vector3() (zero vector) input
+	Vector3 zero_vector = Vector3();
 	Quaternion rotation = Quaternion(Vector3(1, 0, 0), Math::PI / 4);
 	
-	Quaternion high_prec_swing, high_prec_twist;
-	Quaternion low_prec_swing, low_prec_twist;
+	// Test get_swing_twist with zero axis - should return identity quaternions
+	Quaternion swing, twist;
+	IKKusudama3D::get_swing_twist(rotation, zero_vector, swing, twist);
 	
-	// Use different precision levels
-	IKKusudama3D::get_swing_twist_high_precision(rotation, axis, high_prec_swing, high_prec_twist);
-	IKKusudama3D::get_swing_twist_low_precision(rotation, axis, low_prec_swing, low_prec_twist);
+	check_quaternion_valid(swing, "zero vector swing");
+	check_quaternion_valid(twist, "zero vector twist");
 	
-	check_quaternion_valid(high_prec_swing, "high precision swing");
-	check_quaternion_valid(high_prec_twist, "high precision twist");
-	check_quaternion_valid(low_prec_swing, "low precision swing");
-	check_quaternion_valid(low_prec_twist, "low precision twist");
+	// Should return identity quaternions for zero-length axis
+	CHECK(swing.is_equal_approx(Quaternion()));
+	CHECK(twist.is_equal_approx(Quaternion()));
 	
-	// High and low precision should produce different results in edge cases
-	CHECK(!high_prec_swing.is_equal_approx(low_prec_swing));
+	// Test get_quaternion_axis_angle with zero axis - should return identity
+	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(zero_vector, Math::PI / 4);
+	check_quaternion_valid(result, "zero vector quaternion");
+	CHECK(result.is_equal_approx(Quaternion()));
 }
 
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion Normalization Edge Cases") {
