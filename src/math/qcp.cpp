@@ -470,6 +470,94 @@ void QuaternionCharacteristicPolynomial::set(PackedVector3Array &p_moved_param, 
 	}
 }
 
+// Geometric validation functions (similar to Elixir implementation)
+bool QuaternionCharacteristicPolynomial::validate_rotation_normalization(const Quaternion &rotation, double tolerance) {
+	double magnitude = Math::sqrt(rotation.x * rotation.x + rotation.y * rotation.y + 
+								 rotation.z * rotation.z + rotation.w * rotation.w);
+	return Math::abs(magnitude - 1.0) < tolerance;
+}
+
+bool QuaternionCharacteristicPolynomial::validate_point_alignment(const Quaternion &rotation, const Vector3 &translation,
+		const PackedVector3Array &moved, const PackedVector3Array &target, double tolerance) {
+	if (moved.size() != target.size()) {
+		return false;
+	}
+
+	for (int i = 0; i < moved.size(); i++) {
+		// Apply transformation: rotated = rotation * moved[i] + translation
+		Vector3 rotated = rotation.xform(moved[i]) + translation;
+		Vector3 target_point = target[i];
+		
+		// Check if transformed point is close to target
+		Vector3 diff = rotated - target_point;
+		if (diff.length() > tolerance) {
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+bool QuaternionCharacteristicPolynomial::validate_distance_preservation(const Quaternion &rotation, 
+		const PackedVector3Array &moved, double tolerance) {
+	if (moved.size() < 2) {
+		return true; // Trivially true for single points
+	}
+
+	// Check that rotation preserves distances between points
+	for (int i = 0; i < moved.size(); i++) {
+		for (int j = i + 1; j < moved.size(); j++) {
+			double original_distance = moved[i].distance_to(moved[j]);
+			
+			Vector3 rotated_i = rotation.xform(moved[i]);
+			Vector3 rotated_j = rotation.xform(moved[j]);
+			double rotated_distance = rotated_i.distance_to(rotated_j);
+			
+			if (Math::abs(original_distance - rotated_distance) > tolerance) {
+				return false;
+			}
+		}
+	}
+	
+	return true;
+}
+
+bool QuaternionCharacteristicPolynomial::validate_orthogonality(const Quaternion &rotation, double tolerance) {
+	// Check that rotation preserves orthogonality by testing standard basis vectors
+	Vector3 i_rotated = rotation.xform(Vector3(1.0, 0.0, 0.0));
+	Vector3 j_rotated = rotation.xform(Vector3(0.0, 1.0, 0.0));
+	Vector3 k_rotated = rotation.xform(Vector3(0.0, 0.0, 1.0));
+
+	// Check orthogonality
+	if (Math::abs(i_rotated.dot(j_rotated)) > tolerance) return false;
+	if (Math::abs(i_rotated.dot(k_rotated)) > tolerance) return false;
+	if (Math::abs(j_rotated.dot(k_rotated)) > tolerance) return false;
+
+	// Check normalization
+	if (Math::abs(i_rotated.length() - 1.0) > tolerance) return false;
+	if (Math::abs(j_rotated.length() - 1.0) > tolerance) return false;
+	if (Math::abs(k_rotated.length() - 1.0) > tolerance) return false;
+
+	return true;
+}
+
+double QuaternionCharacteristicPolynomial::calculate_rmsd(const Quaternion &rotation, const Vector3 &translation,
+		const PackedVector3Array &moved, const PackedVector3Array &target) {
+	if (moved.size() != target.size() || moved.size() == 0) {
+		return -1.0; // Error case
+	}
+
+	double sum_squared_distances = 0.0;
+	
+	for (int i = 0; i < moved.size(); i++) {
+		Vector3 transformed = rotation.xform(moved[i]) + translation;
+		Vector3 diff = transformed - target[i];
+		sum_squared_distances += diff.length_squared();
+	}
+	
+	return Math::sqrt(sum_squared_distances / moved.size());
+}
+
 void QuaternionCharacteristicPolynomial::_bind_methods() {
 	ClassDB::bind_static_method("QuaternionCharacteristicPolynomial",
 			D_METHOD("weighted_superpose", "moved", "target",
@@ -495,20 +583,10 @@ Array QuaternionCharacteristicPolynomial::weighted_superpose(PackedVector3Array 
 	
 	Quaternion rotation;
 	
-	// Use enhanced single point algorithm for single point case
+	// Use consistent algorithm for both single and multi-point cases
 	if (p_moved.size() == 1) {
-		Vector3 moved_point = p_moved[0];
-		Vector3 target_point = p_target[0];
-		
-		// Apply centering if translation is enabled
-		if (p_translate) {
-			// For single point, centering means both points become zero vectors
-			// So rotation should be identity
-			rotation = Quaternion();
-		} else {
-			// Use enhanced single point rotation calculation
-			rotation = qcp.calculate_single_point_rotation(moved_point, target_point);
-		}
+		// For single point, use the standard QCP algorithm with proper centering
+		rotation = qcp._weighted_superpose(p_moved, p_target, p_weight, p_translate);
 	} else {
 		// Use standard multi-point algorithm
 		rotation = qcp._weighted_superpose(p_moved, p_target, p_weight, p_translate);

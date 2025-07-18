@@ -58,12 +58,10 @@ TEST_CASE("[Modules][QCP] Identity Transformation (No Rotation, No Translation)"
 	Vector3 translation = result[1];
 
 	Quaternion expected_rotation = Quaternion(); // Identity
-	CHECK((Math::abs(rotation.x - expected_rotation.x) < epsilon || Math::abs(rotation.x + expected_rotation.x) < epsilon));
-	CHECK((Math::abs(rotation.y - expected_rotation.y) < epsilon || Math::abs(rotation.y + expected_rotation.y) < epsilon));
-	CHECK((Math::abs(rotation.z - expected_rotation.z) < epsilon || Math::abs(rotation.z + expected_rotation.z) < epsilon));
-	CHECK((Math::abs(rotation.w - expected_rotation.w) < epsilon || Math::abs(rotation.w + expected_rotation.w) < epsilon));
-	CHECK(Math::abs(Math::abs(rotation.dot(expected_rotation)) - 1.0) < epsilon);
-
+	
+	// Use geometric validation instead of brittle component comparisons
+	CHECK(rotation.is_normalized()); // Ensure quaternion is unit length
+	CHECK(Math::abs(Math::abs(rotation.dot(expected_rotation)) - 1.0) < epsilon); // Test mathematical equivalence
 	CHECK(translation.is_zero_approx());
 }
 
@@ -130,8 +128,17 @@ TEST_CASE("[Modules][QCP] Simple Translation (No Rotation)") {
 
 	CHECK(Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon);
 
-	Vector3 calculated_translation_component = expected_rotation.xform_inv(translation_qcp);
-	CHECK((calculated_translation_component - expected_translation_component).length() < epsilon);
+	// Use geometric validation: verify the transformation actually works
+	// Apply the computed transformation and check if points align correctly
+	bool points_align = true;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		Vector3 transformed_point = rotation_result.xform(moved_points[i]) + translation_qcp;
+		if ((transformed_point - target_points[i]).length() > epsilon) {
+			points_align = false;
+			break;
+		}
+	}
+	CHECK(points_align);
 }
 
 TEST_CASE("[Modules][QCP] Simple 90-degree Rotation around Z AND Translation") {
@@ -164,7 +171,17 @@ TEST_CASE("[Modules][QCP] Simple 90-degree Rotation around Z AND Translation") {
 	rotation_result.normalize();
 
 	CHECK(Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon);
-	CHECK((translation_qcp - expected_translation_component).length() < epsilon);
+	
+	// Use geometric validation: verify the transformation actually works
+	bool points_align = true;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		Vector3 transformed_point = rotation_result.xform(moved_points[i]) + translation_qcp;
+		if ((transformed_point - target_points[i]).length() > epsilon) {
+			points_align = false;
+			break;
+		}
+	}
+	CHECK(points_align);
 }
 
 TEST_CASE("[Modules][QCP] 45-degree Rotation around Y AND Translation") {
@@ -197,7 +214,17 @@ TEST_CASE("[Modules][QCP] 45-degree Rotation around Y AND Translation") {
 	rotation_result.normalize();
 
 	CHECK(Math::abs(Math::abs(rotation_result.dot(expected_rotation)) - 1.0) < epsilon);
-	CHECK((translation_qcp - expected_translation_component).length() < epsilon);
+	
+	// Use geometric validation: verify the transformation actually works
+	bool points_align = true;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		Vector3 transformed_point = rotation_result.xform(moved_points[i]) + translation_qcp;
+		if ((transformed_point - target_points[i]).length() > epsilon) {
+			points_align = false;
+			break;
+		}
+	}
+	CHECK(points_align);
 }
 
 // ========================================
@@ -692,6 +719,219 @@ TEST_CASE("[Modules][QCP] Regression - Performance Validation") {
 	// Should handle large point sets efficiently and accurately
 	CHECK(Math::abs(Math::abs(rotation.dot(expected_rotation)) - 1.0) < epsilon);
 	CHECK((translation - expected_translation).length() < epsilon);
+}
+
+// ========================================
+// PHASE 5: GEOMETRIC VALIDATION TESTS
+// ========================================
+
+TEST_CASE("[Modules][QCP] Geometric Validation - Rotation Normalization") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 0, 0));
+	moved_points.push_back(Vector3(0, 1, 0));
+	moved_points.push_back(Vector3(0, 0, 1));
+
+	PackedVector3Array target_points;
+	target_points.push_back(Vector3(0, 1, 0));
+	target_points.push_back(Vector3(-1, 0, 0));
+	target_points.push_back(Vector3(0, 0, 1));
+
+	Vector<double> weights;
+	weights.push_back(1.0);
+	weights.push_back(1.0);
+	weights.push_back(1.0);
+
+	bool translate = false;
+	double epsilon = 1e-6;
+
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Quaternion rotation = result[0];
+	Vector3 translation = result[1];
+
+	// Use geometric validation functions
+	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation));
+	CHECK(QuaternionCharacteristicPolynomial::validate_orthogonality(rotation));
+	CHECK(QuaternionCharacteristicPolynomial::validate_distance_preservation(rotation, moved_points));
+}
+
+TEST_CASE("[Modules][QCP] Geometric Validation - Point Alignment") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 2, 3));
+	moved_points.push_back(Vector3(4, 5, 6));
+	moved_points.push_back(Vector3(7, 8, 9));
+
+	Quaternion expected_rotation = Quaternion(Vector3(1, 1, 1).normalized(), Math::PI / 4.0);
+	Vector3 expected_translation = Vector3(10, 20, 30);
+
+	PackedVector3Array target_points;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		target_points.push_back(expected_rotation.xform(moved_points[i]) + expected_translation);
+	}
+
+	Vector<double> weights;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		weights.push_back(1.0);
+	}
+
+	bool translate = true;
+	double epsilon = 1e-6;
+
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Quaternion rotation = result[0];
+	Vector3 translation = result[1];
+
+	// Use geometric validation to verify the transformation actually works
+	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation));
+	CHECK(QuaternionCharacteristicPolynomial::validate_point_alignment(rotation, translation, moved_points, target_points));
+	CHECK(QuaternionCharacteristicPolynomial::validate_distance_preservation(rotation, moved_points));
+	CHECK(QuaternionCharacteristicPolynomial::validate_orthogonality(rotation));
+}
+
+TEST_CASE("[Modules][QCP] Geometric Validation - RMSD Calculation") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(0, 0, 0));
+	moved_points.push_back(Vector3(1, 0, 0));
+	moved_points.push_back(Vector3(0, 1, 0));
+	moved_points.push_back(Vector3(0, 0, 1));
+
+	// Perfect alignment case - RMSD should be near zero
+	PackedVector3Array target_points = moved_points;
+
+	Vector<double> weights;
+	for (int i = 0; i < moved_points.size(); ++i) {
+		weights.push_back(1.0);
+	}
+
+	bool translate = false;
+	double epsilon = 1e-6;
+
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Quaternion rotation = result[0];
+	Vector3 translation = result[1];
+
+	// Calculate RMSD using geometric validation function
+	double rmsd = QuaternionCharacteristicPolynomial::calculate_rmsd(rotation, translation, moved_points, target_points);
+	
+	CHECK(rmsd >= 0.0); // RMSD should be non-negative
+	CHECK(rmsd < epsilon); // Should be near zero for perfect alignment
+	CHECK(QuaternionCharacteristicPolynomial::validate_point_alignment(rotation, translation, moved_points, target_points));
+}
+
+TEST_CASE("[Modules][QCP] Geometric Validation - Single Point with Translation") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 2, 3));
+
+	PackedVector3Array target_points;
+	target_points.push_back(Vector3(4, 5, 6));
+
+	Vector<double> weights;
+	weights.push_back(1.0);
+
+	bool translate = true;
+	double epsilon = 1e-6;
+
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Quaternion rotation = result[0];
+	Vector3 translation = result[1];
+
+	// For single point with translation, should use identity rotation
+	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation));
+	CHECK(QuaternionCharacteristicPolynomial::validate_point_alignment(rotation, translation, moved_points, target_points));
+	
+	// Verify it's close to identity rotation
+	Quaternion identity = Quaternion();
+	CHECK(Math::abs(Math::abs(rotation.dot(identity)) - 1.0) < epsilon);
+}
+
+TEST_CASE("[Modules][QCP] Geometric Validation - Opposite Vectors") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 0, 0));
+
+	PackedVector3Array target_points;
+	target_points.push_back(Vector3(-1, 0, 0));
+
+	Vector<double> weights;
+	weights.push_back(1.0);
+
+	bool translate = false;
+	double epsilon = 1e-6;
+
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Quaternion rotation = result[0];
+	Vector3 translation = result[1];
+
+	// Should handle 180-degree rotation correctly
+	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation));
+	CHECK(QuaternionCharacteristicPolynomial::validate_point_alignment(rotation, translation, moved_points, target_points));
+	CHECK(QuaternionCharacteristicPolynomial::validate_orthogonality(rotation));
+	
+	// Verify the rotation angle is approximately 180 degrees
+	double angle = 2.0 * Math::acos(Math::abs(rotation.w));
+	CHECK(Math::abs(angle - Math::PI) < 0.1); // Allow some tolerance for 180-degree rotation
+}
+
+TEST_CASE("[Modules][QCP] Geometric Validation - Zero Length Vectors") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(0, 0, 0));
+
+	PackedVector3Array target_points;
+	target_points.push_back(Vector3(1, 0, 0));
+
+	Vector<double> weights;
+	weights.push_back(1.0);
+
+	bool translate = false;
+	double epsilon = 1e-6;
+
+	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Quaternion rotation = result[0];
+	Vector3 translation = result[1];
+
+	// Should return identity rotation for zero-length input
+	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation));
+	
+	Quaternion identity = Quaternion();
+	CHECK(Math::abs(Math::abs(rotation.dot(identity)) - 1.0) < epsilon);
+}
+
+TEST_CASE("[Modules][QCP] Geometric Validation - Canonical Form Consistency") {
+	PackedVector3Array moved_points;
+	moved_points.push_back(Vector3(1, 0, 0));
+	moved_points.push_back(Vector3(0, 1, 0));
+
+	PackedVector3Array target_points;
+	target_points.push_back(Vector3(0, 1, 0));
+	target_points.push_back(Vector3(-1, 0, 0));
+
+	Vector<double> weights;
+	weights.push_back(1.0);
+	weights.push_back(1.0);
+
+	bool translate = false;
+	double epsilon = 1e-6;
+
+	// Run multiple times to check consistency
+	Array result1 = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Array result2 = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+	Array result3 = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
+
+	Quaternion rotation1 = result1[0];
+	Quaternion rotation2 = result2[0];
+	Quaternion rotation3 = result3[0];
+
+	// All should be in canonical form (w >= 0) and consistent
+	CHECK(rotation1.w >= -epsilon);
+	CHECK(rotation2.w >= -epsilon);
+	CHECK(rotation3.w >= -epsilon);
+	
+	// All should be equivalent rotations
+	CHECK(Math::abs(Math::abs(rotation1.dot(rotation2)) - 1.0) < epsilon);
+	CHECK(Math::abs(Math::abs(rotation1.dot(rotation3)) - 1.0) < epsilon);
+	
+	// All should pass geometric validation
+	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation1));
+	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation2));
+	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation3));
 }
 
 } // namespace TestQCP
