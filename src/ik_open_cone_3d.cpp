@@ -32,6 +32,9 @@
 
 #include "core/math/quaternion.h"
 #include "ik_kusudama_3d.h"
+#include "math/interval_math.h"
+
+using namespace IntervalMath;
 
 void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	if (p_next.is_null()) {
@@ -43,7 +46,28 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	Vector3 A = get_control_point();
 	Vector3 B = p_next->get_control_point();
 
-	Vector3 arc_normal = A.cross(B).normalized();
+	// Use interval arithmetic for robust parallel detection and cross product
+	Interval3D A_interval(A);
+	Interval3D B_interval(B);
+	
+	Vector3 arc_normal;
+	if (are_parallel(A_interval, B_interval)) {
+		// Handle singularity case - use interval-based safe cross product
+		Interval3D safe_cross = safe_cross_product(A_interval, B_interval);
+		arc_normal = safe_cross.to_vector3();
+		
+		// Additional validation - if still degenerate, use a completely different approach
+		if (!arc_normal.is_finite() || arc_normal.is_zero_approx()) {
+			// For parallel vectors, create a perpendicular plane using the most orthogonal axis
+			Vector3 reference_axis = get_orthogonal(A);
+			if (reference_axis.is_zero_approx()) {
+				reference_axis = Vector3(0, 1, 0); // Ultimate fallback
+			}
+			arc_normal = reference_axis.normalized();
+		}
+	} else {
+		arc_normal = A.cross(B).normalized();
+	}
 
 	/**
 	 * There are an infinite number of circles co-tangent with A and B, every other
@@ -284,16 +308,24 @@ Vector3 IKLimitCone3D::get_orthogonal(Vector3 p_in) {
 
 Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Vector3 input) const {
 	ERR_FAIL_COND_V(next.is_null(), input);
-	Vector3 c1xc2 = control_point.cross(next->control_point);
+	
+	// Use interval arithmetic for robust cross products
+	Interval3D control_interval(control_point);
+	Interval3D next_control_interval(next->control_point);
+	Interval3D input_interval(input);
+	Interval3D tan1_interval(tangent_circle_center_next_1);
+	Interval3D tan2_interval(tangent_circle_center_next_2);
+	
+	Vector3 c1xc2 = safe_cross_product(control_interval, next_control_interval).to_vector3();
 	double c1c2dir = input.dot(c1xc2);
+	
 	if (c1c2dir < 0.0) {
-		Vector3 c1xt1 = control_point.cross(tangent_circle_center_next_1).normalized();
-		Vector3 t1xc2 = tangent_circle_center_next_1.cross(next->control_point).normalized();
+		Vector3 c1xt1 = safe_cross_product(control_interval, tan1_interval).to_vector3();
+		Vector3 t1xc2 = safe_cross_product(tan1_interval, next_control_interval).to_vector3();
 		if (input.dot(c1xt1) > 0 && input.dot(t1xc2) > 0) {
 			double to_next_cos = input.dot(tangent_circle_center_next_1);
 			if (to_next_cos > tangent_circle_radius_next_cos) {
-				Vector3 plane_normal = tangent_circle_center_next_1.cross(input).normalized();
-				plane_normal.normalize();
+				Vector3 plane_normal = safe_cross_product(tan1_interval, input_interval).to_vector3();
 				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next);
 				return rotate_about_by.xform(tangent_circle_center_next_1);
 			} else {
@@ -303,12 +335,11 @@ Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Ve
 			return Vector3(NAN, NAN, NAN);
 		}
 	} else {
-		Vector3 t2xc1 = tangent_circle_center_next_2.cross(control_point).normalized();
-		Vector3 c2xt2 = next->control_point.cross(tangent_circle_center_next_2).normalized();
+		Vector3 t2xc1 = safe_cross_product(tan2_interval, control_interval).to_vector3();
+		Vector3 c2xt2 = safe_cross_product(next_control_interval, tan2_interval).to_vector3();
 		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
 			if (input.dot(tangent_circle_center_next_2) > tangent_circle_radius_next_cos) {
-				Vector3 plane_normal = tangent_circle_center_next_2.cross(input).normalized();
-				plane_normal.normalize();
+				Vector3 plane_normal = safe_cross_product(tan2_interval, input_interval).to_vector3();
 				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next);
 				return rotate_about_by.xform(tangent_circle_center_next_2);
 			} else {
@@ -364,10 +395,22 @@ Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds)
 		}
 		return Vector3(NAN, NAN, NAN);
 	}
-	Vector3 axis = normalized_control_point.cross(normalized_input).normalized();
-	if (Math::is_zero_approx(axis.length_squared()) || !axis.is_finite()) {
-		axis = Vector3(0, 1, 0);
+	
+	// Use interval arithmetic for safe cross product when input is aligned with control point
+	Interval3D control_interval(normalized_control_point);
+	Interval3D input_interval(normalized_input);
+	Vector3 axis = safe_cross_product(control_interval, input_interval).to_vector3();
+	
+	// Additional validation for the axis
+	if (!axis.is_finite() || Math::is_zero_approx(axis.length_squared())) {
+		// Fallback: use the most orthogonal axis to the control point
+		axis = get_orthogonal(normalized_control_point);
+		if (Math::is_zero_approx(axis.length_squared())) {
+			axis = Vector3(0, 1, 0);
+		}
+		axis.normalize();
 	}
+	
 	Quaternion rot_to = IKKusudama3D::get_quaternion_axis_angle(axis, get_radius());
 	Vector3 axis_control_point = normalized_control_point;
 	if (Math::is_zero_approx(axis_control_point.length_squared())) {
@@ -392,11 +435,19 @@ Vector3 IKLimitCone3D::_get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 in
 	if (next.is_null()) {
 		return Vector3(NAN, NAN, NAN);
 	}
-	Vector3 c1xc2 = get_control_point().cross(next->control_point).normalized();
+	
+	// Use interval arithmetic for robust cross products
+	Interval3D control_interval(get_control_point());
+	Interval3D next_control_interval(next->control_point);
+	Interval3D tan1_interval(tangent_circle_center_next_1);
+	Interval3D tan2_interval(tangent_circle_center_next_2);
+	
+	Vector3 c1xc2 = safe_cross_product(control_interval, next_control_interval).to_vector3();
 	double c1c2dir = input.dot(c1xc2);
+	
 	if (c1c2dir < 0.0) {
-		Vector3 c1xt1 = get_control_point().cross(tangent_circle_center_next_1).normalized();
-		Vector3 t1xc2 = tangent_circle_center_next_1.cross(next->get_control_point()).normalized();
+		Vector3 c1xt1 = safe_cross_product(control_interval, tan1_interval).to_vector3();
+		Vector3 t1xc2 = safe_cross_product(tan1_interval, next_control_interval).to_vector3();
 		if (input.dot(c1xt1) > 0.0f && input.dot(t1xc2) > 0.0f) {
 			Ref<IKRay3D> tan1ToInput = Ref<IKRay3D>(memnew(IKRay3D(tangent_circle_center_next_1, input)));
 			Vector3 result = tan1ToInput->get_intersects_plane(Vector3(0.0f, 0.0f, 0.0f), get_control_point(), next->get_control_point());
@@ -405,8 +456,8 @@ Vector3 IKLimitCone3D::_get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 in
 			return Vector3(NAN, NAN, NAN);
 		}
 	} else {
-		Vector3 t2xc1 = tangent_circle_center_next_2.cross(control_point).normalized();
-		Vector3 c2xt2 = next->get_control_point().cross(tangent_circle_center_next_2).normalized();
+		Vector3 t2xc1 = safe_cross_product(tan2_interval, control_interval).to_vector3();
+		Vector3 c2xt2 = safe_cross_product(next_control_interval, tan2_interval).to_vector3();
 		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
 			Ref<IKRay3D> tan2ToInput = Ref<IKRay3D>(memnew(IKRay3D(tangent_circle_center_next_2, input)));
 			Vector3 result = tan2ToInput->get_intersects_plane(Vector3(0.0f, 0.0f, 0.0f), get_control_point(), next->get_control_point());

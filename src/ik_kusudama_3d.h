@@ -112,6 +112,24 @@ public:
 			Quaternion &r_swing,
 			Quaternion &r_twist);
 
+	/**
+	 * High precision version of get_swing_twist for testing mixed precision scenarios
+	 */
+	static void get_swing_twist_high_precision(
+			Quaternion p_rotation,
+			Vector3 p_axis,
+			Quaternion &r_swing,
+			Quaternion &r_twist);
+
+	/**
+	 * Low precision version of get_swing_twist for testing mixed precision scenarios
+	 */
+	static void get_swing_twist_low_precision(
+			Quaternion p_rotation,
+			Vector3 p_axis,
+			Quaternion &r_swing,
+			Quaternion &r_twist);
+
 	static Quaternion get_quaternion_axis_angle(const Vector3 &p_axis, real_t p_angle);
 
 public:
