@@ -64,7 +64,7 @@ void check_value_finite(real_t value, const String &context = "") {
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion From Zero Length Axis") {
 	// Test get_quaternion_axis_angle with zero-length axis
 	Vector3 zero_axis = Vector3(0, 0, 0);
-	real_t angle = Math::PI / 4;
+	real_t angle = real_t(Math::PI / 4);
 
 	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(zero_axis, angle);
 
@@ -76,7 +76,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion From Zer
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion From Very Small Axis") {
 	// Test get_quaternion_axis_angle with very small axis
 	Vector3 tiny_axis = Vector3(1e-10, 1e-10, 1e-10);
-	real_t angle = Math::PI / 4;
+	real_t angle = real_t(Math::PI / 4);
 
 	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(tiny_axis, angle);
 
@@ -99,7 +99,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion From Ver
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion From Large Values") {
 	// Test get_quaternion_axis_angle with large axis values
 	Vector3 large_axis = Vector3(1e6, 1e6, 1e6);
-	real_t angle = Math::PI / 3;
+	real_t angle = real_t(Math::PI / 3);
 
 	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(large_axis, angle);
 
@@ -166,7 +166,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Swing Twist Decompo
 	Vector3 axis = Vector3(0, 1, 0);
 
 	// Test with various rotation angles
-	real_t test_angles[] = { 0.0, Math::PI / 6, Math::PI / 4, Math::PI / 2, Math::PI, 3 * Math::PI / 2 };
+	real_t test_angles[] = { real_t(0.0), real_t(Math::PI / 6), real_t(Math::PI / 4), real_t(Math::PI / 2), real_t(Math::PI), real_t(3 * Math::PI / 2) };
 
 	for (int i = 0; i < 6; i++) {
 		Quaternion original_rotation = Quaternion(Vector3(1, 1, 1).normalized(), test_angles[i]);
@@ -217,7 +217,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Clamp To Quadrance 
 
 	// Test with identity quaternion
 	Quaternion identity = Quaternion();
-	double cos_half_angle = Math::cos(Math::PI / 8);
+	real_t cos_half_angle = real_t(Math::cos(Math::PI / 8));
 	Quaternion clamped_identity = IKKusudama3D::clamp_to_quadrance_angle(identity, cos_half_angle);
 	check_quaternion_valid(clamped_identity, "clamped identity quaternion");
 
@@ -318,7 +318,7 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion Normaliz
 
 	// Test with very large quaternion components (before normalization)
 	Vector3 huge_axis = Vector3(1e20, 1e20, 1e20);
-	real_t normal_angle = Math::PI / 4;
+	real_t normal_angle = real_t(Math::PI / 4);
 	Quaternion huge_result = IKKusudama3D::get_quaternion_axis_angle(huge_axis, normal_angle);
 	check_quaternion_valid(huge_result, "huge components quaternion");
 }
