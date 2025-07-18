@@ -92,7 +92,7 @@ QuaternionCharacteristicPolynomial::ValidationError QuaternionCharacteristicPoly
 	double total_weight = 0.0;
 	for (int i = 0; i < p_weight.size(); i++) {
 		double w = p_weight[i];
-		
+
 		// Check for finite weight values
 		if (!Math::is_finite(w)) {
 			return ERROR_INVALID_WEIGHTS;
@@ -184,7 +184,7 @@ Quaternion QuaternionCharacteristicPolynomial::calculate_single_point_rotation(c
 		// Vectors are opposite (180-degree rotation needed)
 		// Find a perpendicular axis for 180-degree rotation
 		Vector3 perp_axis;
-		
+
 		// Choose the axis that gives the largest cross product component
 		if (Math::abs(u_norm.x) < 0.9) {
 			perp_axis = Vector3(1.0, 0.0, 0.0);
@@ -205,20 +205,20 @@ Quaternion QuaternionCharacteristicPolynomial::calculate_single_point_rotation(c
 		// Calculate the half-way vector (bisector)
 		Vector3 half_way = (u_norm + v_norm);
 		double half_way_length = half_way.length();
-		
+
 		if (half_way_length > 1.0e-15) {
 			half_way = half_way / half_way_length; // Normalize
-			
+
 			// Calculate quaternion using half-way vector method
 			// q = [cross(u, half_way), dot(u, half_way)]
 			Vector3 cross = u_norm.cross(half_way);
 			double w = u_norm.dot(half_way);
-			
+
 			// This should already be normalized, but verify
-			double quat_magnitude = Math::sqrt(cross.x*cross.x + cross.y*cross.y + cross.z*cross.z + w*w);
+			double quat_magnitude = Math::sqrt(cross.x * cross.x + cross.y * cross.y + cross.z * cross.z + w * w);
 			if (quat_magnitude > 1.0e-15) {
-				result = Quaternion(cross.x / quat_magnitude, cross.y / quat_magnitude, 
-								  cross.z / quat_magnitude, w / quat_magnitude);
+				result = Quaternion(cross.x / quat_magnitude, cross.y / quat_magnitude,
+						cross.z / quat_magnitude, w / quat_magnitude);
 			} else {
 				result = Quaternion(); // Identity
 			}
@@ -226,11 +226,11 @@ Quaternion QuaternionCharacteristicPolynomial::calculate_single_point_rotation(c
 			// Fallback to standard method if half-way vector fails
 			Vector3 cross = u_norm.cross(v_norm);
 			double w = 1.0 + dot;
-			
-			double quat_magnitude = Math::sqrt(cross.x*cross.x + cross.y*cross.y + cross.z*cross.z + w*w);
+
+			double quat_magnitude = Math::sqrt(cross.x * cross.x + cross.y * cross.y + cross.z * cross.z + w * w);
 			if (quat_magnitude > 1.0e-15) {
-				result = Quaternion(cross.x / quat_magnitude, cross.y / quat_magnitude, 
-								  cross.z / quat_magnitude, w / quat_magnitude);
+				result = Quaternion(cross.x / quat_magnitude, cross.y / quat_magnitude,
+						cross.z / quat_magnitude, w / quat_magnitude);
 			} else {
 				result = Quaternion(); // Identity
 			}
@@ -262,7 +262,7 @@ void QuaternionCharacteristicPolynomial::set(PackedVector3Array &r_target, Packe
 Quaternion QuaternionCharacteristicPolynomial::_get_rotation() {
 	if (!transformation_calculated) {
 		if (!inner_product_calculated) {
-			inner_product(moved, target);
+			inner_product(target, moved);
 		}
 		rotation = calculate_rotation();
 		transformation_calculated = true;
@@ -271,109 +271,101 @@ Quaternion QuaternionCharacteristicPolynomial::_get_rotation() {
 }
 
 Quaternion QuaternionCharacteristicPolynomial::calculate_rotation() {
-	Quaternion result;
+	// Use standard QCP algorithm for all cases - no special handling
+	// Build 4x4 characteristic matrix elements exactly as in Elixir
+	double sxz_p_szx = sum_xz_plus_zx;
+	double syz_p_szy = sum_yz_plus_zy;
+	double sxy_p_syx = sum_xy_plus_yx;
+	double syz_m_szy = sum_yz_minus_zy;
+	double sxz_m_szx = sum_xz_minus_zx;
+	double sxy_m_syx = sum_xy_minus_yx;
+	double sxx_p_syy = sum_xx_plus_yy;
+	double sxx_m_syy = sum_xx_minus_yy;
 
-	if (moved.size() == 1) {
-		// Single point case - use direct vector alignment
-		Vector3 u = moved[0];
-		Vector3 v = target[0];
-		result = calculate_single_point_rotation(u, v);
-	} else {
-		// Multi-point case using characteristic polynomial method
-		// Build 4x4 characteristic matrix elements exactly as in Elixir
-		double sxz_p_szx = sum_xz_plus_zx;
-		double syz_p_szy = sum_yz_plus_zy;
-		double sxy_p_syx = sum_xy_plus_yx;
-		double syz_m_szy = sum_yz_minus_zy;
-		double sxz_m_szx = sum_xz_minus_zx;
-		double sxy_m_syx = sum_xy_minus_yx;
-		double sxx_p_syy = sum_xx_plus_yy;
-		double sxx_m_syy = sum_xx_minus_yy;
+	// Build the 4x4 characteristic matrix elements exactly as in Elixir
+	double a11 = sxx_p_syy + sum_zz - max_eigenvalue;
+	double a12 = syz_m_szy;
+	double a13 = -sxz_m_szx;
+	double a14 = sxy_m_syx;
+	double a21 = syz_m_szy;
+	double a22 = sxx_m_syy - sum_zz - max_eigenvalue;
+	double a23 = sxy_p_syx;
+	double a24 = sxz_p_szx;
+	double a31 = a13;
+	double a32 = a23;
+	double a33 = sum_yy - sum_xx - sum_zz - max_eigenvalue;
+	double a34 = syz_p_szy;
+	double a41 = a14;
+	double a42 = a24;
+	double a43 = a34;
+	double a44 = sum_zz - sxx_p_syy - max_eigenvalue;
 
-		// Build the 4x4 characteristic matrix elements exactly as in Elixir
-		double a11 = sxx_p_syy + sum_zz - max_eigenvalue;
-		double a12 = syz_m_szy;
-		double a13 = -sxz_m_szx;
-		double a14 = sxy_m_syx;
-		double a21 = syz_m_szy;
-		double a22 = sxx_m_syy - sum_zz - max_eigenvalue;
-		double a23 = sxy_p_syx;
-		double a24 = sxz_p_szx;
-		double a31 = a13;
-		double a32 = a23;
-		double a33 = sum_yy - sum_xx - sum_zz - max_eigenvalue;
-		double a34 = syz_p_szy;
-		double a41 = a14;
-		double a42 = a24;
-		double a43 = a34;
-		double a44 = sum_zz - sxx_p_syy - max_eigenvalue;
+	// Calculate cofactor determinants exactly as in Elixir
+	double a3344_4334 = a33 * a44 - a43 * a34;
+	double a3244_4234 = a32 * a44 - a42 * a34;
+	double a3243_4233 = a32 * a43 - a42 * a33;
+	double a3143_4133 = a31 * a43 - a41 * a33;
+	double a3144_4134 = a31 * a44 - a41 * a34;
+	double a3142_4132 = a31 * a42 - a41 * a32;
 
-		// Calculate cofactor determinants exactly as in Elixir
-		double a3344_4334 = a33 * a44 - a43 * a34;
-		double a3244_4234 = a32 * a44 - a42 * a34;
-		double a3243_4233 = a32 * a43 - a42 * a33;
-		double a3143_4133 = a31 * a43 - a41 * a33;
-		double a3144_4134 = a31 * a44 - a41 * a34;
-		double a3142_4132 = a31 * a42 - a41 * a32;
+	// Calculate quaternion components exactly as in Elixir
+	double q1 = a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
+	double q2 = -a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
+	double q3 = a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
+	double q4 = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
 
-		// Calculate quaternion components exactly as in Elixir
-		double q1 = a22 * a3344_4334 - a23 * a3244_4234 + a24 * a3243_4233;
-		double q2 = -a21 * a3344_4334 + a23 * a3144_4134 - a24 * a3143_4133;
-		double q3 = a21 * a3244_4234 - a22 * a3144_4134 + a24 * a3142_4132;
-		double q4 = -a21 * a3243_4233 + a22 * a3143_4133 - a23 * a3142_4132;
+	double qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
-		double qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
+	// Handle small qsqr case exactly as in Elixir
+	double evecprec = eigenvector_precision;
+	if (qsqr < evecprec) {
+		// Try second column of adjoint matrix
+		q1 = a12 * a3344_4334 - a13 * a3244_4234 + a14 * a3243_4233;
+		q2 = -a11 * a3344_4334 + a13 * a3144_4134 - a14 * a3143_4133;
+		q3 = a11 * a3244_4234 - a12 * a3144_4134 + a14 * a3142_4132;
+		q4 = -a11 * a3243_4233 + a12 * a3143_4133 - a13 * a3142_4132;
+		qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
-		// Handle small qsqr case exactly as in Elixir
-		double evecprec = eigenvector_precision;
 		if (qsqr < evecprec) {
-			// Try second column of adjoint matrix
-			q1 = a12 * a3344_4334 - a13 * a3244_4234 + a14 * a3243_4233;
-			q2 = -a11 * a3344_4334 + a13 * a3144_4134 - a14 * a3143_4133;
-			q3 = a11 * a3244_4234 - a12 * a3144_4134 + a14 * a3142_4132;
-			q4 = -a11 * a3243_4233 + a12 * a3143_4133 - a13 * a3142_4132;
+			// Try third column
+			double a1324_1423 = a13 * a24 - a14 * a23;
+			double a1224_1422 = a12 * a24 - a14 * a22;
+			double a1223_1322 = a12 * a23 - a13 * a22;
+			double a1124_1421 = a11 * a24 - a14 * a21;
+			double a1123_1321 = a11 * a23 - a13 * a21;
+			double a1122_1221 = a11 * a22 - a12 * a21;
+
+			q1 = a42 * a1324_1423 - a43 * a1224_1422 + a44 * a1223_1322;
+			q2 = -a41 * a1324_1423 + a43 * a1124_1421 - a44 * a1123_1321;
+			q3 = a41 * a1224_1422 - a42 * a1124_1421 + a44 * a1122_1221;
+			q4 = -a41 * a1223_1322 + a42 * a1123_1321 - a43 * a1122_1221;
 			qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
 
 			if (qsqr < evecprec) {
-				// Try third column
-				double a1324_1423 = a13 * a24 - a14 * a23;
-				double a1224_1422 = a12 * a24 - a14 * a22;
-				double a1223_1322 = a12 * a23 - a13 * a22;
-				double a1124_1421 = a11 * a24 - a14 * a21;
-				double a1123_1321 = a11 * a23 - a13 * a21;
-				double a1122_1221 = a11 * a22 - a12 * a21;
-
-				q1 = a42 * a1324_1423 - a43 * a1224_1422 + a44 * a1223_1322;
-				q2 = -a41 * a1324_1423 + a43 * a1124_1421 - a44 * a1123_1321;
-				q3 = a41 * a1224_1422 - a42 * a1124_1421 + a44 * a1122_1221;
-				q4 = -a41 * a1223_1322 + a42 * a1123_1321 - a43 * a1122_1221;
+				// Try fourth column
+				q1 = a32 * a1324_1423 - a33 * a1224_1422 + a34 * a1223_1322;
+				q2 = -a31 * a1324_1423 + a33 * a1124_1421 - a34 * a1123_1321;
+				q3 = a31 * a1224_1422 - a32 * a1124_1421 + a34 * a1122_1221;
+				q4 = -a31 * a1223_1322 + a32 * a1123_1321 - a33 * a1122_1221;
 				qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
-
-				if (qsqr < evecprec) {
-					// Try fourth column
-					q1 = a32 * a1324_1423 - a33 * a1224_1422 + a34 * a1223_1322;
-					q2 = -a31 * a1324_1423 + a33 * a1124_1421 - a34 * a1123_1321;
-					q3 = a31 * a1224_1422 - a32 * a1124_1421 + a34 * a1122_1221;
-					q4 = -a31 * a1223_1322 + a32 * a1123_1321 - a33 * a1122_1221;
-					qsqr = q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4;
-				}
 			}
 		}
+	}
 
-		if (qsqr < evecprec) {
-			// Return identity quaternion as in Elixir
-			result = Quaternion();
-		} else {
-			// Normalize quaternion
-			double normq = Math::sqrt(qsqr);
-			double normalized_q1 = q1 / normq;
-			double normalized_q2 = q2 / normq;
-			double normalized_q3 = q3 / normq;
-			double normalized_q4 = q4 / normq;
+	Quaternion result;
+	if (qsqr < evecprec) {
+		// Return identity quaternion as in Elixir
+		result = Quaternion();
+	} else {
+		// Normalize quaternion
+		double normq = Math::sqrt(qsqr);
+		double normalized_q1 = q1 / normq;
+		double normalized_q2 = q2 / normq;
+		double normalized_q3 = q3 / normq;
+		double normalized_q4 = q4 / normq;
 
-			// Return in (x,y,z,w) order for Godot (Elixir uses q1=w, q2=x, q3=y, q4=z)
-			result = Quaternion(normalized_q2, normalized_q3, normalized_q4, normalized_q1);
-		}
+		// Return in (x,y,z,w) order for Godot (Elixir uses q1=w, q2=x, q3=y, q4=z)
+		result = Quaternion(normalized_q2, normalized_q3, normalized_q4, normalized_q1);
 	}
 
 	// Apply canonical form to ensure consistent quaternion representation
@@ -435,18 +427,18 @@ void QuaternionCharacteristicPolynomial::inner_product(PackedVector3Array &r_coo
 	int size = r_coords1.size();
 
 	for (int i = 0; i < size; i++) {
-		double current_weight = weight_is_empty ? 1.0 : weight[i];
-		
-		// Apply weight to moved point (r_coords1)
-		weighted_coord1 = current_weight * r_coords1[i];
-		// Target point (r_coords2) is not weighted in the cross-correlation matrix
+		if (!weight_is_empty) {
+			weighted_coord1 = weight[i] * r_coords1[i];
+			sum_of_squares1 += weighted_coord1.dot(r_coords1[i]);
+		} else {
+			weighted_coord1 = r_coords1[i];
+			sum_of_squares1 += weighted_coord1.dot(weighted_coord1);
+		}
+
 		weighted_coord2 = r_coords2[i];
 
-		// Calculate sum of squares exactly as in Elixir
-		sum_of_squares1 += weighted_coord1.dot(r_coords1[i]);
-		sum_of_squares2 += current_weight * weighted_coord2.dot(weighted_coord2);
+		sum_of_squares2 += weight_is_empty ? weighted_coord2.dot(weighted_coord2) : (weight[i] * weighted_coord2.dot(weighted_coord2));
 
-		// Build cross-correlation matrix: weighted_moved * target
 		sum_xx += (weighted_coord1.x * weighted_coord2.x);
 		sum_xy += (weighted_coord1.x * weighted_coord2.y);
 		sum_xz += (weighted_coord1.x * weighted_coord2.z);
@@ -460,7 +452,6 @@ void QuaternionCharacteristicPolynomial::inner_product(PackedVector3Array &r_coo
 		sum_zz += (weighted_coord1.z * weighted_coord2.z);
 	}
 
-	// Calculate maximum eigenvalue exactly as in Elixir
 	double initial_eigenvalue = (sum_of_squares1 + sum_of_squares2) * 0.5;
 
 	sum_xz_plus_zx = sum_xz + sum_zx;
@@ -522,9 +513,12 @@ void QuaternionCharacteristicPolynomial::set(PackedVector3Array &p_moved_param, 
 
 // Geometric validation functions (similar to Elixir implementation)
 bool QuaternionCharacteristicPolynomial::validate_rotation_normalization(const Quaternion &rotation, double tolerance) {
-	double magnitude = Math::sqrt(rotation.x * rotation.x + rotation.y * rotation.y + 
-								 rotation.z * rotation.z + rotation.w * rotation.w);
-	return Math::abs(magnitude - 1.0) < tolerance;
+	// Use more reasonable default tolerance if none provided
+	double effective_tolerance = (tolerance <= 0.0) ? 1e-5 : tolerance;
+
+	double magnitude = Math::sqrt(rotation.x * rotation.x + rotation.y * rotation.y +
+			rotation.z * rotation.z + rotation.w * rotation.w);
+	return Math::abs(magnitude - 1.0) < effective_tolerance;
 }
 
 bool QuaternionCharacteristicPolynomial::validate_point_alignment(const Quaternion &rotation, const Vector3 &translation,
@@ -540,18 +534,18 @@ bool QuaternionCharacteristicPolynomial::validate_point_alignment(const Quaterni
 		// Apply transformation: rotated = rotation * moved[i] + translation
 		Vector3 rotated = rotation.xform(moved[i]) + translation;
 		Vector3 target_point = target[i];
-		
+
 		// Check if transformed point is close to target
 		Vector3 diff = rotated - target_point;
 		if (diff.length() > effective_tolerance) {
 			return false;
 		}
 	}
-	
+
 	return true;
 }
 
-bool QuaternionCharacteristicPolynomial::validate_distance_preservation(const Quaternion &rotation, 
+bool QuaternionCharacteristicPolynomial::validate_distance_preservation(const Quaternion &rotation,
 		const PackedVector3Array &moved, double tolerance) {
 	if (moved.size() < 2) {
 		return true; // Trivially true for single points
@@ -564,11 +558,11 @@ bool QuaternionCharacteristicPolynomial::validate_distance_preservation(const Qu
 	for (int i = 0; i < moved.size(); i++) {
 		for (int j = i + 1; j < moved.size(); j++) {
 			double original_distance = moved[i].distance_to(moved[j]);
-			
+
 			Vector3 rotated_i = rotation.xform(moved[i]);
 			Vector3 rotated_j = rotation.xform(moved[j]);
 			double rotated_distance = rotated_i.distance_to(rotated_j);
-			
+
 			// Use relative tolerance for better numerical stability
 			double relative_tolerance = effective_tolerance * MAX(1.0, original_distance);
 			if (Math::abs(original_distance - rotated_distance) > relative_tolerance) {
@@ -576,7 +570,7 @@ bool QuaternionCharacteristicPolynomial::validate_distance_preservation(const Qu
 			}
 		}
 	}
-	
+
 	return true;
 }
 
@@ -590,14 +584,26 @@ bool QuaternionCharacteristicPolynomial::validate_orthogonality(const Quaternion
 	Vector3 k_rotated = rotation.xform(Vector3(0.0, 0.0, 1.0));
 
 	// Check orthogonality
-	if (Math::abs(i_rotated.dot(j_rotated)) > effective_tolerance) return false;
-	if (Math::abs(i_rotated.dot(k_rotated)) > effective_tolerance) return false;
-	if (Math::abs(j_rotated.dot(k_rotated)) > effective_tolerance) return false;
+	if (Math::abs(i_rotated.dot(j_rotated)) > effective_tolerance) {
+		return false;
+	}
+	if (Math::abs(i_rotated.dot(k_rotated)) > effective_tolerance) {
+		return false;
+	}
+	if (Math::abs(j_rotated.dot(k_rotated)) > effective_tolerance) {
+		return false;
+	}
 
 	// Check normalization
-	if (Math::abs(i_rotated.length() - 1.0) > effective_tolerance) return false;
-	if (Math::abs(j_rotated.length() - 1.0) > effective_tolerance) return false;
-	if (Math::abs(k_rotated.length() - 1.0) > effective_tolerance) return false;
+	if (Math::abs(i_rotated.length() - 1.0) > effective_tolerance) {
+		return false;
+	}
+	if (Math::abs(j_rotated.length() - 1.0) > effective_tolerance) {
+		return false;
+	}
+	if (Math::abs(k_rotated.length() - 1.0) > effective_tolerance) {
+		return false;
+	}
 
 	return true;
 }
@@ -609,13 +615,13 @@ double QuaternionCharacteristicPolynomial::calculate_rmsd(const Quaternion &rota
 	}
 
 	double sum_squared_distances = 0.0;
-	
+
 	for (int i = 0; i < moved.size(); i++) {
 		Vector3 transformed = rotation.xform(moved[i]) + translation;
 		Vector3 diff = transformed - target[i];
 		sum_squared_distances += diff.length_squared();
 	}
-	
+
 	return Math::sqrt(sum_squared_distances / moved.size());
 }
 
@@ -631,27 +637,54 @@ Array QuaternionCharacteristicPolynomial::weighted_superpose(PackedVector3Array 
 		Vector<double> p_weight, bool p_translate,
 		double p_precision) {
 	QuaternionCharacteristicPolynomial qcp(p_precision);
-	
+
 	// Enhanced input validation
 	ValidationError validation_result = qcp.validate_inputs(p_moved, p_target, p_weight);
 	if (validation_result != VALIDATION_OK) {
-		// Return error result - identity rotation and zero translation
+		// For degenerate cases, try to handle them gracefully
+		if (validation_result == ERROR_DEGENERATE_POINTS && p_moved.size() > 0) {
+			// For identical points, just compute the translation
+			Quaternion rotation = Quaternion(); // Identity rotation
+			Vector3 translation = Vector3();
+
+			if (p_translate && p_moved.size() > 0) {
+				// Calculate translation as difference between centroids
+				Vector3 moved_center = Vector3();
+				Vector3 target_center = Vector3();
+
+				for (int i = 0; i < p_moved.size(); i++) {
+					moved_center += p_moved[i];
+					target_center += p_target[i];
+				}
+
+				moved_center /= p_moved.size();
+				target_center /= p_target.size();
+				translation = target_center - moved_center;
+			}
+
+			Array result;
+			result.push_back(rotation);
+			result.push_back(translation);
+			return result;
+		}
+
+		// Return error result for other validation failures
 		Array error_result;
 		error_result.push_back(Quaternion()); // Identity quaternion
 		error_result.push_back(Vector3()); // Zero translation
 		return error_result;
 	}
-	
+
 	Quaternion rotation;
 	Vector3 translation;
-	
+
 	// Use consistent algorithm for both single and multi-point cases
 	rotation = qcp._weighted_superpose(p_moved, p_target, p_weight, p_translate);
 	translation = qcp._get_translation();
-	
+
 	// Apply canonical form to ensure consistent quaternion representation
 	rotation = qcp.apply_canonical_form(rotation);
-	
+
 	Array result;
 	result.push_back(rotation);
 	result.push_back(translation);

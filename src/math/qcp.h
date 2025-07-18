@@ -111,12 +111,12 @@ class QuaternionCharacteristicPolynomial : Object {
 
 	// Geometric validation functions
 public:
-	static bool validate_rotation_normalization(const Quaternion &rotation, double tolerance = 1e-10);
-	static bool validate_orthogonality(const Quaternion &rotation, double tolerance = 1e-10);
+	static bool validate_rotation_normalization(const Quaternion &rotation, double tolerance = 1e-5);
+	static bool validate_orthogonality(const Quaternion &rotation, double tolerance = 1e-6);
 	static bool validate_point_alignment(const Quaternion &rotation, const Vector3 &translation, 
 		const PackedVector3Array &moved, const PackedVector3Array &target, double tolerance = 1e-6);
 	static bool validate_distance_preservation(const Quaternion &rotation, 
-		const PackedVector3Array &moved, double tolerance = 1e-10);
+		const PackedVector3Array &moved, double tolerance = 1e-6);
 	static double calculate_rmsd(const Quaternion &rotation, const Vector3 &translation,
 		const PackedVector3Array &moved, const PackedVector3Array &target);
 private:

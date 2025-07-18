@@ -160,7 +160,7 @@ TEST_CASE("[Modules][QCP] Combined Rotation and Translation Matrix") {
 			
 			PackedVector3Array target_points = apply_transformation(moved_points, rot_fixture.rotation, expected_translation);
 			
-			Array result = compute_qcp_transformation(moved_points, target_points, true);
+			Array result = compute_qcp_transformation(moved_points, target_points, true, CMP_EPSILON2);
 			Quaternion rotation = result[0];
 			Vector3 translation = result[1];
 			

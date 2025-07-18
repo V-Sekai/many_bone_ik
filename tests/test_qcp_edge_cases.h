@@ -48,7 +48,7 @@ TEST_CASE("[Modules][QCP] Edge Case - All Points Identical") {
 	target_points.push_back(Vector3(2, 2, 2));
 	target_points.push_back(Vector3(2, 2, 2));
 
-	Array result = compute_qcp_transformation(moved_points, target_points, true);
+	Array result = compute_qcp_transformation(moved_points, target_points, true, CMP_EPSILON2);
 	Quaternion rotation = result[0];
 	Vector3 translation = result[1];
 
@@ -63,7 +63,7 @@ TEST_CASE("[Modules][QCP] Edge Case - Collinear Points") {
 	target_points.push_back(Vector3(0, 2, 0));
 	target_points.push_back(Vector3(0, 3, 0));
 
-	Array result = compute_qcp_transformation(moved_points, target_points, false);
+	Array result = compute_qcp_transformation(moved_points, target_points, false, CMP_EPSILON2);
 	Quaternion rotation = result[0];
 	Vector3 translation = result[1];
 

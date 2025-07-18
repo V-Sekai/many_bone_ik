@@ -115,7 +115,7 @@ TEST_CASE("[Modules][QCP] Geometric Validation - Rotation Normalization") {
 	target_points.push_back(Vector3(-1, 0, 0));
 	target_points.push_back(Vector3(0, 0, 1));
 
-	Array result = compute_qcp_transformation(moved_points, target_points, false);
+	Array result = compute_qcp_transformation(moved_points, target_points, false, CMP_EPSILON2);
 	Quaternion rotation = result[0];
 
 	// Use geometric validation functions
@@ -130,7 +130,7 @@ TEST_CASE("[Modules][QCP] Geometric Validation - Point Alignment") {
 	Vector3 expected_translation = Vector3(10, 20, 30);
 	PackedVector3Array target_points = apply_transformation(moved_points, expected_rotation, expected_translation);
 
-	Array result = compute_qcp_transformation(moved_points, target_points, true);
+	Array result = compute_qcp_transformation(moved_points, target_points, true, CMP_EPSILON2);
 	Quaternion rotation = result[0];
 	Vector3 translation = result[1];
 
