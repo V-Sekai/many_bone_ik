@@ -57,7 +57,12 @@ void IKKusudama3D::_update_constraint(Ref<IKNode3D> p_limiting_axes) {
 			Vector3 axis = this_to_next.get_axis();
 			double angle = this_to_next.get_angle() / 2.0;
 
-			Vector3 half_angle = this_control_point.rotated(axis, angle);
+			Vector3 half_angle;
+			if (Math::is_zero_approx(axis.length_squared())) {
+				half_angle = this_control_point;
+			} else {
+				half_angle = this_control_point.rotated(axis, angle);
+			}
 			half_angle *= this_to_next.get_angle();
 			half_angle.normalize();
 

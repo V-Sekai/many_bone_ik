@@ -97,18 +97,30 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	// the axis of this cone, scaled to minimize its distance to the tangent contact points.
 	Vector3 scaledAxisA = A * Math::cos(boundaryPlusTangentRadiusA);
 	// a point on the plane running through the tangent contact points
-	Quaternion temp_var = IKKusudama3D::get_quaternion_axis_angle(arc_normal, boundaryPlusTangentRadiusA);
+	Vector3 safe_arc_normal = arc_normal;
+	if (Math::is_zero_approx(safe_arc_normal.length_squared())) {
+		safe_arc_normal = Vector3(0, 1, 0);
+	}
+	Quaternion temp_var = IKKusudama3D::get_quaternion_axis_angle(safe_arc_normal, boundaryPlusTangentRadiusA);
 	Vector3 planeDir1A = temp_var.xform(A);
 	// another point on the same plane
-	Quaternion tempVar2 = IKKusudama3D::get_quaternion_axis_angle(A, Math::PI / 2);
+	Vector3 safe_A = A;
+	if (Math::is_zero_approx(safe_A.length_squared())) {
+		safe_A = Vector3(0, 0, 1);
+	}
+	Quaternion tempVar2 = IKKusudama3D::get_quaternion_axis_angle(safe_A, Math::PI / 2);
 	Vector3 planeDir2A = tempVar2.xform(planeDir1A);
 
 	Vector3 scaledAxisB = B * cos(boundaryPlusTangentRadiusB);
 	// a point on the plane running through the tangent contact points
-	Quaternion tempVar3 = IKKusudama3D::get_quaternion_axis_angle(arc_normal, boundaryPlusTangentRadiusB);
+	Quaternion tempVar3 = IKKusudama3D::get_quaternion_axis_angle(safe_arc_normal, boundaryPlusTangentRadiusB);
 	Vector3 planeDir1B = tempVar3.xform(B);
 	// another point on the same plane
-	Quaternion tempVar4 = IKKusudama3D::get_quaternion_axis_angle(B, Math::PI / 2);
+	Vector3 safe_B = B;
+	if (Math::is_zero_approx(safe_B.length_squared())) {
+		safe_B = Vector3(0, 0, 1);
+	}
+	Quaternion tempVar4 = IKKusudama3D::get_quaternion_axis_angle(safe_B, Math::PI / 2);
 	Vector3 planeDir2B = tempVar4.xform(planeDir1B);
 
 	// ray from scaled center of next cone to half way point between the circumference of this cone and the next cone.
@@ -337,6 +349,11 @@ Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Ve
 			double to_next_cos = input.dot(tangent_circle_center_next_1);
 			if (to_next_cos > tangent_circle_radius_next_cos) {
 				Vector3 plane_normal = safe_cross_product(tan1_interval, input_interval).to_vector3();
+				// Ensure plane_normal is valid before creating quaternion
+				if (!plane_normal.is_finite() || Math::is_zero_approx(plane_normal.length_squared())) {
+					plane_normal = Vector3(0, 1, 0);
+				}
+				plane_normal.normalize();
 				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next);
 				return rotate_about_by.xform(tangent_circle_center_next_1);
 			} else {
@@ -351,6 +368,11 @@ Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Ve
 		if (input.dot(t2xc1) > 0 && input.dot(c2xt2) > 0) {
 			if (input.dot(tangent_circle_center_next_2) > tangent_circle_radius_next_cos) {
 				Vector3 plane_normal = safe_cross_product(tan2_interval, input_interval).to_vector3();
+				// Ensure plane_normal is valid before creating quaternion
+				if (!plane_normal.is_finite() || Math::is_zero_approx(plane_normal.length_squared())) {
+					plane_normal = Vector3(0, 1, 0);
+				}
+				plane_normal.normalize();
 				Quaternion rotate_about_by = Quaternion(plane_normal, tangent_circle_radius_next);
 				return rotate_about_by.xform(tangent_circle_center_next_2);
 			} else {
