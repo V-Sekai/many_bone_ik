@@ -132,11 +132,22 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	set_tangent_circle_center_next_1(sphereIntersect1);
 	set_tangent_circle_center_next_2(sphereIntersect2);
 	set_tangent_circle_radius_next(tRadius);
-	if (Math::is_zero_approx(tangent_circle_center_next_1.length_squared())) {
-		tangent_circle_center_next_1 = get_orthogonal(control_point).normalized();
+	
+	// Handle degenerate tangent centers (NaN or zero)
+	if (!tangent_circle_center_next_1.is_finite() || Math::is_zero_approx(tangent_circle_center_next_1.length_squared())) {
+		tangent_circle_center_next_1 = get_orthogonal(control_point);
+		if (Math::is_zero_approx(tangent_circle_center_next_1.length_squared())) {
+			tangent_circle_center_next_1 = Vector3(0, 1, 0);
+		}
+		tangent_circle_center_next_1.normalize();
 	}
-	if (Math::is_zero_approx(tangent_circle_center_next_2.length_squared())) {
-		tangent_circle_center_next_2 = get_orthogonal(tangent_circle_center_next_1 * -1).normalized();
+	if (!tangent_circle_center_next_2.is_finite() || Math::is_zero_approx(tangent_circle_center_next_2.length_squared())) {
+		Vector3 orthogonal_base = tangent_circle_center_next_1.is_finite() ? tangent_circle_center_next_1 : control_point;
+		tangent_circle_center_next_2 = get_orthogonal(orthogonal_base);
+		if (Math::is_zero_approx(tangent_circle_center_next_2.length_squared())) {
+			tangent_circle_center_next_2 = Vector3(1, 0, 0);
+		}
+		tangent_circle_center_next_2.normalize();
 	}
 	if (p_next.is_valid()) {
 		compute_triangles(p_next);
