@@ -349,7 +349,7 @@ bool ManyBoneIK3D::_set(const StringName &p_name, const Variant &p_value) {
 		if (what == "bone_name") {
 			set_constraint_name_at_index(index, p_value);
 			return true;
-			
+
 		} else if (what == "twist_start") {
 			Vector2 twist_from = get_joint_twist(index);
 			set_joint_twist(index, Vector2(p_value, twist_from.y));
