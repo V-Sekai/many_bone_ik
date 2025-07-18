@@ -30,9 +30,9 @@
 
 #pragma once
 
+#include "test_qcp_fixtures.h"
 #include "test_qcp_helpers.h"
 #include "test_qcp_validation.h"
-#include "test_qcp_fixtures.h"
 #include "tests/test_macros.h"
 
 using namespace TestQCPHelpers;
@@ -70,7 +70,7 @@ TEST_CASE("[Modules][QCP] Edge Case - Collinear Points") {
 	// Should handle collinear points gracefully
 	CHECK_ROTATION_NORMALIZED(rotation);
 	CHECK_FINITE_VALUES(rotation, translation);
-	
+
 	// For collinear points, any valid rotation that transforms the points correctly is acceptable
 	// We just need to verify it's a valid rotation and produces reasonable results
 	CHECK_ROTATION_NORMALIZED(rotation);
@@ -109,7 +109,7 @@ TEST_CASE("[Modules][QCP] Edge Case - Opposite Vector Pairs") {
 	// Should handle opposite vectors gracefully
 	CHECK_ROTATION_NORMALIZED(rotation);
 	CHECK_TRANSLATION_ZERO(translation);
-	
+
 	// Verify rotation is approximately 90 degrees around Z
 	Quaternion expected_rotation = Quaternion(Vector3(0, 0, 1), Math::PI / 2.0);
 	CHECK_ROTATION_EQUIVALENT(rotation, expected_rotation, 0.1);
@@ -174,12 +174,12 @@ TEST_CASE("[Modules][QCP] Edge Case - Single Point Opposite Vectors") {
 	// Should handle 180-degree rotation correctly
 	CHECK_ROTATION_NORMALIZED(rotation);
 	CHECK_ORTHOGONALITY(rotation);
-	
+
 	// For opposite vectors, verify the transformation works geometrically
 	Vector3 transformed = rotation.xform(moved_points[0]) + translation;
 	Vector3 target_normalized = target_points[0].normalized();
 	Vector3 transformed_normalized = transformed.normalized();
-	
+
 	// Check that the transformed vector points in the opposite direction (within tolerance)
 	double dot_product = transformed_normalized.dot(target_normalized);
 	CHECK(Math::abs(dot_product - (-1.0)) < 0.2); // Should be close to -1 (opposite direction)
@@ -208,9 +208,9 @@ TEST_CASE("[Modules][QCP] Edge Case - Planar Point Sets") {
 
 TEST_CASE("[Modules][QCP] Edge Case - Points with Mixed Scales") {
 	PackedVector3Array moved_points;
-	moved_points.push_back(Vector3(1e-3, 0, 0));     // Very small
-	moved_points.push_back(Vector3(0, 1e3, 0));      // Very large
-	moved_points.push_back(Vector3(0, 0, 1));        // Normal scale
+	moved_points.push_back(Vector3(1e-3, 0, 0)); // Very small
+	moved_points.push_back(Vector3(0, 1e3, 0)); // Very large
+	moved_points.push_back(Vector3(0, 0, 1)); // Normal scale
 
 	Quaternion expected_rotation = Quaternion(Vector3(1, 0, 0), Math::PI / 6.0);
 	PackedVector3Array target_points = apply_transformation(moved_points, expected_rotation);
@@ -268,12 +268,12 @@ TEST_CASE("[Modules][QCP] Edge Case - Symmetric Point Configurations") {
 
 TEST_CASE("[Modules][QCP] Edge Case - Points at Coordinate System Extremes") {
 	PackedVector3Array moved_points;
-	moved_points.push_back(Vector3(1, 0, 0));   // X-axis
-	moved_points.push_back(Vector3(0, 1, 0));   // Y-axis
-	moved_points.push_back(Vector3(0, 0, 1));   // Z-axis
-	moved_points.push_back(Vector3(-1, 0, 0));  // -X-axis
-	moved_points.push_back(Vector3(0, -1, 0));  // -Y-axis
-	moved_points.push_back(Vector3(0, 0, -1));  // -Z-axis
+	moved_points.push_back(Vector3(1, 0, 0)); // X-axis
+	moved_points.push_back(Vector3(0, 1, 0)); // Y-axis
+	moved_points.push_back(Vector3(0, 0, 1)); // Z-axis
+	moved_points.push_back(Vector3(-1, 0, 0)); // -X-axis
+	moved_points.push_back(Vector3(0, -1, 0)); // -Y-axis
+	moved_points.push_back(Vector3(0, 0, -1)); // -Z-axis
 
 	Quaternion expected_rotation = Quaternion(Vector3(1, 1, 0).normalized(), Math::PI / 4.0);
 	PackedVector3Array target_points = apply_transformation(moved_points, expected_rotation);
@@ -294,10 +294,10 @@ TEST_CASE("[Modules][QCP] Edge Case - Weighted Points with Extreme Weights") {
 	PackedVector3Array target_points = apply_transformation(moved_points, expected_rotation);
 
 	Vector<double> weights;
-	weights.push_back(1e10);  // Extremely high weight
+	weights.push_back(1e10); // Extremely high weight
 	weights.push_back(1e-10); // Extremely low weight
-	weights.push_back(1.0);   // Normal weight
-	weights.push_back(1e5);   // High weight
+	weights.push_back(1.0); // Normal weight
+	weights.push_back(1e5); // High weight
 
 	Array result = compute_qcp_transformation_weighted(moved_points, target_points, weights, false);
 	Quaternion rotation = result[0];

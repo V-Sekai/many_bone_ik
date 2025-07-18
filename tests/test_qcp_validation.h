@@ -168,15 +168,15 @@ inline void validate_single_point_behavior(const Vector3 &moved_point,
 		// Should calculate the rotation needed to align the points
 		CHECK_ROTATION_NORMALIZED(rotation);
 		CHECK_TRANSLATION_ZERO(translation_result);
-		
+
 		// Direct geometric test: does the rotation actually transform the point correctly?
 		Vector3 transformed_point = rotation.xform(moved_point);
-		
+
 		// For unit vectors, check if they align after transformation
 		if (moved_point.length() > 1e-10 && target_point.length() > 1e-10) {
 			Vector3 transformed_normalized = transformed_point.normalized();
 			Vector3 target_normalized = target_point.normalized();
-			
+
 			// Use more reasonable geometric tolerance for single point rotations
 			double geometric_tolerance = 0.1; // 10cm tolerance for normalized vectors
 			CHECK((transformed_normalized - target_normalized).length() < geometric_tolerance);

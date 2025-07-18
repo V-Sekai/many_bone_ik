@@ -43,7 +43,7 @@ struct RotationFixture {
 	Quaternion rotation;
 	Vector3 axis;
 	double angle;
-	const char* description;
+	const char *description;
 };
 
 static const RotationFixture STANDARD_ROTATIONS[] = {
@@ -56,11 +56,11 @@ static const RotationFixture STANDARD_ROTATIONS[] = {
 
 // Standard translation fixtures
 static const Vector3 STANDARD_TRANSLATIONS[] = {
-	Vector3(0, 0, 0),      // No translation
-	Vector3(10, 20, 30),   // Simple translation
-	Vector3(5, -5, 10),    // Mixed signs
-	Vector3(-2, 3, -4),    // All negative/positive mix
-	Vector3(1, 2, 3)       // Small translation
+	Vector3(0, 0, 0), // No translation
+	Vector3(10, 20, 30), // Simple translation
+	Vector3(5, -5, 10), // Mixed signs
+	Vector3(-2, 3, -4), // All negative/positive mix
+	Vector3(1, 2, 3) // Small translation
 };
 
 // Edge case point sets
@@ -103,10 +103,9 @@ inline PackedVector3Array create_performance_test_points(int count = 100) {
 	PackedVector3Array points;
 	for (int i = 0; i < count; ++i) {
 		Vector3 point = Vector3(
-			Math::sin(i * 0.1) * 10,
-			Math::cos(i * 0.1) * 10,
-			i * 0.1
-		);
+				Math::sin(i * 0.1) * 10,
+				Math::cos(i * 0.1) * 10,
+				i * 0.1);
 		points.push_back(point);
 	}
 	return points;
@@ -126,7 +125,7 @@ struct ToleranceConfig {
 	double standard;
 	double loose;
 	double strict;
-	const char* description;
+	const char *description;
 };
 
 static const ToleranceConfig TOLERANCE_CONFIGS[] = {

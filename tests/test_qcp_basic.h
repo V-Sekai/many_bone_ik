@@ -30,9 +30,9 @@
 
 #pragma once
 
+#include "test_qcp_fixtures.h"
 #include "test_qcp_helpers.h"
 #include "test_qcp_validation.h"
-#include "test_qcp_fixtures.h"
 #include "tests/test_macros.h"
 
 using namespace TestQCPHelpers;
@@ -117,15 +117,15 @@ TEST_CASE("[Modules][QCP] 45-degree Rotation around Y AND Translation") {
 
 TEST_CASE("[Modules][QCP] Multiple Standard Rotations") {
 	PackedVector3Array moved_points = create_basic_point_set();
-	
+
 	for (int i = 0; i < 5; ++i) {
 		const RotationFixture &fixture = STANDARD_ROTATIONS[i];
 		PackedVector3Array target_points = apply_transformation(moved_points, fixture.rotation);
-		
+
 		Array result = compute_qcp_transformation(moved_points, target_points, false);
 		Quaternion rotation = result[0];
 		Vector3 translation = result[1];
-		
+
 		rotation.normalize();
 		CHECK_ROTATION_EQUIVALENT(rotation, fixture.rotation, 1e-6);
 		CHECK_TRANSLATION_ZERO(translation);
@@ -135,15 +135,15 @@ TEST_CASE("[Modules][QCP] Multiple Standard Rotations") {
 
 TEST_CASE("[Modules][QCP] Multiple Standard Translations") {
 	PackedVector3Array moved_points = create_simple_point_set();
-	
+
 	for (int i = 0; i < 5; ++i) {
 		const Vector3 &expected_translation = STANDARD_TRANSLATIONS[i];
 		PackedVector3Array target_points = apply_translation_only(moved_points, expected_translation);
-		
+
 		Array result = compute_qcp_transformation(moved_points, target_points, true);
 		Quaternion rotation = result[0];
 		Vector3 translation = result[1];
-		
+
 		rotation.normalize();
 		CHECK_IDENTITY_ROTATION(rotation, 1e-6);
 		validate_transformation_accuracy(rotation, translation, moved_points, target_points);
@@ -152,18 +152,18 @@ TEST_CASE("[Modules][QCP] Multiple Standard Translations") {
 
 TEST_CASE("[Modules][QCP] Combined Rotation and Translation Matrix") {
 	PackedVector3Array moved_points = create_extended_point_set();
-	
+
 	for (int rot_idx = 1; rot_idx < 4; ++rot_idx) { // Skip identity rotation
 		for (int trans_idx = 1; trans_idx < 4; ++trans_idx) { // Skip zero translation
 			const RotationFixture &rot_fixture = STANDARD_ROTATIONS[rot_idx];
 			const Vector3 &expected_translation = STANDARD_TRANSLATIONS[trans_idx];
-			
+
 			PackedVector3Array target_points = apply_transformation(moved_points, rot_fixture.rotation, expected_translation);
-			
+
 			Array result = compute_qcp_transformation(moved_points, target_points, true, CMP_EPSILON2);
 			Quaternion rotation = result[0];
 			Vector3 translation = result[1];
-			
+
 			rotation.normalize();
 			CHECK_ROTATION_EQUIVALENT(rotation, rot_fixture.rotation, 1e-6);
 			validate_transformation_accuracy(rotation, translation, moved_points, target_points);
@@ -175,14 +175,14 @@ TEST_CASE("[Modules][QCP] Precision Validation with Different Tolerances") {
 	PackedVector3Array moved_points = create_basic_point_set();
 	Quaternion expected_rotation = Quaternion(Vector3(0, 0, 1), Math::PI / 3.0);
 	PackedVector3Array target_points = apply_transformation(moved_points, expected_rotation);
-	
+
 	for (int i = 0; i < 3; ++i) {
 		const ToleranceConfig &config = TOLERANCE_CONFIGS[i];
-		
+
 		Array result = compute_qcp_transformation(moved_points, target_points, false, config.standard);
 		Quaternion rotation = result[0];
 		Vector3 translation = result[1];
-		
+
 		rotation.normalize();
 		CHECK_ROTATION_EQUIVALENT(rotation, expected_rotation, config.loose);
 		CHECK_TRANSLATION_ZERO(translation);
@@ -195,7 +195,7 @@ TEST_CASE("[Modules][QCP] Consistency Across Multiple Runs") {
 	Quaternion expected_rotation = Quaternion(Vector3(1, 1, 1).normalized(), Math::PI / 4.0);
 	Vector3 expected_translation = Vector3(1, 2, 3);
 	PackedVector3Array target_points = apply_transformation(moved_points, expected_rotation, expected_translation);
-	
+
 	Vector<double> weights = create_uniform_weights(moved_points.size());
 	validate_canonical_form_consistency(moved_points, target_points, weights, true);
 }

@@ -152,27 +152,25 @@ void IKKusudama3D::get_swing_twist(
 #ifdef MATH_CHECKS
 	ERR_FAIL_COND_MSG(!p_rotation.is_normalized(), "The quaternion must be normalized.");
 #endif
-	
+
 	// Handle zero-length axis case
 	if (p_axis.length_squared() < CMP_EPSILON2) {
 		r_swing = Quaternion();
 		r_twist = Quaternion();
 		return;
 	}
-	
+
 	// Use interval arithmetic for robust swing-twist decomposition
 	IntervalQuaternion rotation_interval(p_rotation);
 	Interval3D axis_interval(p_axis);
-	
+
 	IntervalQuaternion swing_interval, twist_interval;
 	safe_swing_twist_decomposition(rotation_interval, axis_interval, swing_interval, twist_interval);
-	
+
 	// Convert back to regular quaternions
 	r_swing = swing_interval.to_quaternion();
 	r_twist = twist_interval.to_quaternion();
 }
-
-
 
 void IKKusudama3D::add_open_cone(
 		Ref<IKLimitCone3D> p_cone) {
@@ -436,16 +434,16 @@ Quaternion IKKusudama3D::get_quaternion_axis_angle(const Vector3 &p_axis, real_t
 	if (p_axis.length_squared() < CMP_EPSILON2) {
 		return Quaternion(); // Return identity quaternion
 	}
-	
+
 	// Handle very small angle case
 	if (Math::abs(p_angle) < CMP_EPSILON) {
 		return Quaternion(); // Return identity quaternion
 	}
-	
+
 	// Use interval arithmetic for robust quaternion creation
 	Interval3D axis_interval(p_axis);
 	Interval angle_interval(p_angle);
-	
+
 	IntervalQuaternion result_interval = safe_quaternion_from_axis_angle(axis_interval, angle_interval);
 	return result_interval.to_quaternion();
 }

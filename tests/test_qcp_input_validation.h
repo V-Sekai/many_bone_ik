@@ -30,9 +30,9 @@
 
 #pragma once
 
+#include "test_qcp_fixtures.h"
 #include "test_qcp_helpers.h"
 #include "test_qcp_validation.h"
-#include "test_qcp_fixtures.h"
 #include "tests/test_macros.h"
 
 using namespace TestQCPHelpers;
@@ -77,10 +77,10 @@ TEST_CASE("[Modules][QCP] Input Validation - Empty Arrays") {
 TEST_CASE("[Modules][QCP] Input Validation - Single Point") {
 	Vector3 moved_point = Vector3(1, 2, 3);
 	Vector3 target_point = Vector3(4, 5, 6);
-	
+
 	// Test without translation
 	validate_single_point_behavior(moved_point, target_point, false);
-	
+
 	// Test with translation
 	validate_single_point_behavior(moved_point, target_point, true);
 }
@@ -184,10 +184,10 @@ TEST_CASE("[Modules][QCP] Input Validation - Mixed Valid and Invalid Weights") {
 	PackedVector3Array target_points = apply_transformation(moved_points, expected_rotation);
 
 	Vector<double> weights;
-	weights.push_back(1.0);    // Valid
-	weights.push_back(0.0);    // Zero weight
-	weights.push_back(-1.0);   // Negative weight
-	weights.push_back(1e-15);  // Very small weight
+	weights.push_back(1.0); // Valid
+	weights.push_back(0.0); // Zero weight
+	weights.push_back(-1.0); // Negative weight
+	weights.push_back(1e-15); // Very small weight
 
 	Array result = compute_qcp_transformation_weighted(moved_points, target_points, weights, false);
 	Quaternion rotation = result[0];
@@ -225,7 +225,7 @@ TEST_CASE("[Modules][QCP] Input Validation - NaN and Infinite Values in Weights"
 
 	Vector<double> weights;
 	weights.push_back(1.0);
-	weights.push_back(NAN);      // Invalid weight
+	weights.push_back(NAN); // Invalid weight
 	weights.push_back(INFINITY); // Invalid weight
 
 	Array result = compute_qcp_transformation_weighted(moved_points, target_points, weights, false);

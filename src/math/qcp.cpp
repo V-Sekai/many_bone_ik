@@ -159,7 +159,6 @@ double QuaternionCharacteristicPolynomial::calculate_point_span(const PackedVect
 	return MAX(span.x, MAX(span.y, span.z));
 }
 
-
 // Quaternion canonicalization - ensures w >= 0 for consistent representation
 Quaternion QuaternionCharacteristicPolynomial::apply_canonical_form(const Quaternion &q) {
 	// Ensure w >= 0 for canonical quaternion representation
@@ -454,7 +453,7 @@ bool QuaternionCharacteristicPolynomial::validate_point_alignment(const Quaterni
 			return false;
 		}
 	}
-	
+
 	return true;
 }
 

@@ -110,14 +110,14 @@ class QuaternionCharacteristicPolynomial : Object {
 public:
 	static bool validate_rotation_normalization(const Quaternion &rotation, double tolerance = 1e-5);
 	static bool validate_orthogonality(const Quaternion &rotation, double tolerance = 1e-6);
-	static bool validate_point_alignment(const Quaternion &rotation, const Vector3 &translation, 
-		const PackedVector3Array &moved, const PackedVector3Array &target, double tolerance = 1e-6);
-	static bool validate_distance_preservation(const Quaternion &rotation, 
-		const PackedVector3Array &moved, double tolerance = 1e-6);
+	static bool validate_point_alignment(const Quaternion &rotation, const Vector3 &translation,
+			const PackedVector3Array &moved, const PackedVector3Array &target, double tolerance = 1e-6);
+	static bool validate_distance_preservation(const Quaternion &rotation,
+			const PackedVector3Array &moved, double tolerance = 1e-6);
 	static double calculate_rmsd(const Quaternion &rotation, const Vector3 &translation,
-		const PackedVector3Array &moved, const PackedVector3Array &target);
-private:
+			const PackedVector3Array &moved, const PackedVector3Array &target);
 
+private:
 	void inner_product(PackedVector3Array &coords1, PackedVector3Array &coords2);
 	void set(PackedVector3Array &r_target, PackedVector3Array &r_moved);
 	Quaternion calculate_rotation();

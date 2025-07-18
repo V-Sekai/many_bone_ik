@@ -112,7 +112,6 @@ public:
 			Quaternion &r_swing,
 			Quaternion &r_twist);
 
-
 	static Quaternion get_quaternion_axis_angle(const Vector3 &p_axis, real_t p_angle);
 
 public:

@@ -49,13 +49,13 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	// Use interval arithmetic for robust parallel detection and cross product
 	Interval3D A_interval(A);
 	Interval3D B_interval(B);
-	
+
 	Vector3 arc_normal;
 	if (are_parallel(A_interval, B_interval)) {
 		// Handle singularity case - use interval-based safe cross product
 		Interval3D safe_cross = safe_cross_product(A_interval, B_interval);
 		arc_normal = safe_cross.to_vector3();
-		
+
 		// Additional validation - if still degenerate, use a completely different approach
 		if (!arc_normal.is_finite() || arc_normal.is_zero_approx()) {
 			// For parallel vectors, create a perpendicular plane using the most orthogonal axis
@@ -144,7 +144,7 @@ void IKLimitCone3D::update_tangent_handles(Ref<IKLimitCone3D> p_next) {
 	set_tangent_circle_center_next_1(sphereIntersect1);
 	set_tangent_circle_center_next_2(sphereIntersect2);
 	set_tangent_circle_radius_next(tRadius);
-	
+
 	// Handle degenerate tangent centers (NaN or zero)
 	if (!tangent_circle_center_next_1.is_finite() || Math::is_zero_approx(tangent_circle_center_next_1.length_squared())) {
 		tangent_circle_center_next_1 = get_orthogonal(control_point);
@@ -331,17 +331,17 @@ Vector3 IKLimitCone3D::get_orthogonal(Vector3 p_in) {
 
 Vector3 IKLimitCone3D::get_on_great_tangent_triangle(Ref<IKLimitCone3D> next, Vector3 input) const {
 	ERR_FAIL_COND_V(next.is_null(), input);
-	
+
 	// Use interval arithmetic for robust cross products
 	Interval3D control_interval(control_point);
 	Interval3D next_control_interval(next->control_point);
 	Interval3D input_interval(input);
 	Interval3D tan1_interval(tangent_circle_center_next_1);
 	Interval3D tan2_interval(tangent_circle_center_next_2);
-	
+
 	Vector3 c1xc2 = safe_cross_product(control_interval, next_control_interval).to_vector3();
 	double c1c2dir = input.dot(c1xc2);
-	
+
 	if (c1c2dir < 0.0) {
 		Vector3 c1xt1 = safe_cross_product(control_interval, tan1_interval).to_vector3();
 		Vector3 t1xc2 = safe_cross_product(tan1_interval, next_control_interval).to_vector3();
@@ -428,12 +428,12 @@ Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds)
 		}
 		return Vector3(NAN, NAN, NAN);
 	}
-	
+
 	// Use interval arithmetic for safe cross product when input is aligned with control point
 	Interval3D control_interval(normalized_control_point);
 	Interval3D input_interval(normalized_input);
 	Vector3 axis = safe_cross_product(control_interval, input_interval).to_vector3();
-	
+
 	// Additional validation for the axis
 	if (!axis.is_finite() || Math::is_zero_approx(axis.length_squared())) {
 		// Fallback: use the most orthogonal axis to the control point
@@ -443,7 +443,7 @@ Vector3 IKLimitCone3D::closest_to_cone(Vector3 input, Vector<double> *in_bounds)
 		}
 		axis.normalize();
 	}
-	
+
 	Quaternion rot_to = IKKusudama3D::get_quaternion_axis_angle(axis, get_radius());
 	Vector3 axis_control_point = normalized_control_point;
 	if (Math::is_zero_approx(axis_control_point.length_squared())) {
@@ -468,16 +468,16 @@ Vector3 IKLimitCone3D::_get_on_path_sequence(Ref<IKLimitCone3D> next, Vector3 in
 	if (next.is_null()) {
 		return Vector3(NAN, NAN, NAN);
 	}
-	
+
 	// Use interval arithmetic for robust cross products
 	Interval3D control_interval(get_control_point());
 	Interval3D next_control_interval(next->control_point);
 	Interval3D tan1_interval(tangent_circle_center_next_1);
 	Interval3D tan2_interval(tangent_circle_center_next_2);
-	
+
 	Vector3 c1xc2 = safe_cross_product(control_interval, next_control_interval).to_vector3();
 	double c1c2dir = input.dot(c1xc2);
-	
+
 	if (c1c2dir < 0.0) {
 		Vector3 c1xt1 = safe_cross_product(control_interval, tan1_interval).to_vector3();
 		Vector3 t1xc2 = safe_cross_product(tan1_interval, next_control_interval).to_vector3();

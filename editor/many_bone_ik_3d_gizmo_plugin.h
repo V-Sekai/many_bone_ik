@@ -65,7 +65,7 @@ class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	bool edit_mode = false;
 
 	ObjectID current_many_bone_ik_id;
-	
+
 protected:
 	static void _bind_methods();
 	void _notifications(int32_t p_what);

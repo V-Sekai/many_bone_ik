@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  test_ik_kusudama_3d_singularities.h                                  */
+/*  test_ik_kusudama_3d_singularities.h                                   */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -42,7 +42,7 @@ void check_quaternion_valid(const Quaternion &quat, const String &context = "") 
 	CHECK_MESSAGE(!Math::is_nan(quat.y), vformat("Quaternion.y should not be NaN in %s", context));
 	CHECK_MESSAGE(!Math::is_nan(quat.z), vformat("Quaternion.z should not be NaN in %s", context));
 	CHECK_MESSAGE(!Math::is_nan(quat.w), vformat("Quaternion.w should not be NaN in %s", context));
-	
+
 	real_t length_sq = quat.length_squared();
 	CHECK_MESSAGE(Math::is_equal_approx(length_sq, real_t(1.0)), vformat("Quaternion should be normalized in %s", context));
 }
@@ -65,9 +65,9 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion From Zer
 	// Test get_quaternion_axis_angle with zero-length axis
 	Vector3 zero_axis = Vector3(0, 0, 0);
 	real_t angle = Math::PI / 4;
-	
+
 	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(zero_axis, angle);
-	
+
 	// Should return identity quaternion for zero-length axis
 	check_quaternion_valid(result, "zero-length axis quaternion");
 	CHECK(result.is_equal_approx(Quaternion()));
@@ -77,9 +77,9 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion From Ver
 	// Test get_quaternion_axis_angle with very small axis
 	Vector3 tiny_axis = Vector3(1e-10, 1e-10, 1e-10);
 	real_t angle = Math::PI / 4;
-	
+
 	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(tiny_axis, angle);
-	
+
 	// Should handle tiny axis gracefully
 	check_quaternion_valid(result, "tiny axis quaternion");
 }
@@ -88,9 +88,9 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion From Ver
 	// Test get_quaternion_axis_angle with very small angle
 	Vector3 axis = Vector3(0, 1, 0);
 	real_t tiny_angle = 1e-10;
-	
+
 	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(axis, tiny_angle);
-	
+
 	// Should return identity quaternion for very small angle
 	check_quaternion_valid(result, "tiny angle quaternion");
 	CHECK(result.is_equal_approx(Quaternion()));
@@ -100,9 +100,9 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion From Lar
 	// Test get_quaternion_axis_angle with large axis values
 	Vector3 large_axis = Vector3(1e6, 1e6, 1e6);
 	real_t angle = Math::PI / 3;
-	
+
 	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(large_axis, angle);
-	
+
 	// Should normalize the axis and produce valid quaternion
 	check_quaternion_valid(result, "large axis values quaternion");
 }
@@ -112,9 +112,9 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Swing Twist With Ze
 	Quaternion rotation = Quaternion(Vector3(1, 0, 0), Math::PI / 4);
 	Vector3 zero_axis = Vector3(0, 0, 0);
 	Quaternion swing, twist;
-	
+
 	IKKusudama3D::get_swing_twist(rotation, zero_axis, swing, twist);
-	
+
 	// Should return identity quaternions for zero-length axis
 	check_quaternion_valid(swing, "zero-length axis swing");
 	check_quaternion_valid(twist, "zero-length axis twist");
@@ -127,9 +127,9 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Swing Twist With Ne
 	Quaternion near_identity = Quaternion(1e-10, 1e-10, 1e-10, 1.0 - 1e-12).normalized();
 	Vector3 axis = Vector3(0, 1, 0);
 	Quaternion swing, twist;
-	
+
 	IKKusudama3D::get_swing_twist(near_identity, axis, swing, twist);
-	
+
 	// Should handle near-identity rotation gracefully
 	check_quaternion_valid(swing, "near-identity rotation swing");
 	check_quaternion_valid(twist, "near-identity rotation twist");
@@ -140,9 +140,9 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Swing Twist With 18
 	Quaternion rotation_180 = Quaternion(Vector3(1, 0, 0), Math::PI);
 	Vector3 axis = Vector3(1, 0, 0); // Same axis as rotation
 	Quaternion swing, twist;
-	
+
 	IKKusudama3D::get_swing_twist(rotation_180, axis, swing, twist);
-	
+
 	// Should handle 180-degree rotation without producing NaN
 	check_quaternion_valid(swing, "180-degree rotation swing");
 	check_quaternion_valid(twist, "180-degree rotation twist");
@@ -153,9 +153,9 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Swing Twist With Ne
 	Quaternion negative_w = Quaternion(0.1, 0.2, 0.3, -0.9).normalized();
 	Vector3 axis = Vector3(0, 1, 0);
 	Quaternion swing, twist;
-	
+
 	IKKusudama3D::get_swing_twist(negative_w, axis, swing, twist);
-	
+
 	// Should handle negative w quaternion correctly
 	check_quaternion_valid(swing, "negative w quaternion swing");
 	check_quaternion_valid(twist, "negative w quaternion twist");
@@ -164,23 +164,23 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Swing Twist With Ne
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Swing Twist Decomposition Consistency") {
 	// Test that swing * twist = original rotation for various cases
 	Vector3 axis = Vector3(0, 1, 0);
-	
+
 	// Test with various rotation angles
 	real_t test_angles[] = { 0.0, Math::PI / 6, Math::PI / 4, Math::PI / 2, Math::PI, 3 * Math::PI / 2 };
-	
+
 	for (int i = 0; i < 6; i++) {
 		Quaternion original_rotation = Quaternion(Vector3(1, 1, 1).normalized(), test_angles[i]);
 		Quaternion swing, twist;
-		
+
 		IKKusudama3D::get_swing_twist(original_rotation, axis, swing, twist);
-		
+
 		check_quaternion_valid(swing, vformat("swing at angle %f", test_angles[i]));
 		check_quaternion_valid(twist, vformat("twist at angle %f", test_angles[i]));
-		
+
 		// Verify swing * twist ≈ original (within tolerance)
 		Quaternion reconstructed = swing * twist;
 		check_quaternion_valid(reconstructed, vformat("reconstructed at angle %f", test_angles[i]));
-		
+
 		// Allow for quaternion double-cover (q and -q represent same rotation)
 		bool matches_positive = original_rotation.is_equal_approx(reconstructed);
 		bool matches_negative = original_rotation.is_equal_approx(-reconstructed);
@@ -194,9 +194,9 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Degenerate Twist Qu
 	Quaternion rotation = Quaternion(0, 0, 0, 1); // Identity
 	Vector3 axis = Vector3(0, 1, 0);
 	Quaternion swing, twist;
-	
+
 	IKKusudama3D::get_swing_twist(rotation, axis, swing, twist);
-	
+
 	check_quaternion_valid(swing, "degenerate case swing");
 	check_quaternion_valid(twist, "degenerate case twist");
 }
@@ -205,27 +205,27 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Extreme Floating Po
 	// Test with extreme floating-point values
 	Vector3 extreme_axis = Vector3(1e-38, 1e38, 1e-20);
 	real_t extreme_angle = 1e-30;
-	
+
 	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(extreme_axis, extreme_angle);
-	
+
 	// Should handle extreme values gracefully
 	check_quaternion_valid(result, "extreme floating-point values");
 }
 
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Clamp To Quadrance Angle Edge Cases") {
 	// Test clamp_to_quadrance_angle with edge cases
-	
+
 	// Test with identity quaternion
 	Quaternion identity = Quaternion();
 	double cos_half_angle = Math::cos(Math::PI / 8);
 	Quaternion clamped_identity = IKKusudama3D::clamp_to_quadrance_angle(identity, cos_half_angle);
 	check_quaternion_valid(clamped_identity, "clamped identity quaternion");
-	
+
 	// Test with quaternion at the limit
 	Quaternion at_limit = Quaternion(Vector3(1, 0, 0), Math::PI / 4);
 	Quaternion clamped_at_limit = IKKusudama3D::clamp_to_quadrance_angle(at_limit, cos_half_angle);
 	check_quaternion_valid(clamped_at_limit, "clamped at-limit quaternion");
-	
+
 	// Test with quaternion beyond the limit
 	Quaternion beyond_limit = Quaternion(Vector3(1, 0, 0), Math::PI / 2);
 	Quaternion clamped_beyond = IKKusudama3D::clamp_to_quadrance_angle(beyond_limit, cos_half_angle);
@@ -243,16 +243,16 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Multiple Axis Orien
 		Vector3(0, 1, 1).normalized(),
 		Vector3(1, 1, 1).normalized()
 	};
-	
+
 	Quaternion test_rotation = Quaternion(Vector3(0.5, 0.5, 0.7).normalized(), Math::PI / 3);
-	
+
 	for (int i = 0; i < 7; i++) {
 		Quaternion swing, twist;
 		IKKusudama3D::get_swing_twist(test_rotation, test_axes[i], swing, twist);
-		
+
 		check_quaternion_valid(swing, vformat("swing for axis %d", i));
 		check_quaternion_valid(twist, vformat("twist for axis %d", i));
-		
+
 		// Verify twist is actually around the specified axis
 		Vector3 twist_axis = twist.get_axis();
 		if (!twist.is_equal_approx(Quaternion())) { // Skip for identity quaternion
@@ -266,17 +266,17 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Numerical Stability
 	// Test numerical stability over multiple decomposition iterations
 	Quaternion rotation = Quaternion(Vector3(1, 1, 1).normalized(), Math::PI / 6);
 	Vector3 axis = Vector3(0, 1, 0);
-	
+
 	for (int i = 0; i < 1000; i++) {
 		Quaternion swing, twist;
 		IKKusudama3D::get_swing_twist(rotation, axis, swing, twist);
-		
+
 		check_quaternion_valid(swing, vformat("iteration %d swing", i));
 		check_quaternion_valid(twist, vformat("iteration %d twist", i));
-		
+
 		// Use the swing as input for next iteration to test stability
 		rotation = swing;
-		
+
 		// Every 100 iterations, verify we haven't accumulated errors
 		if (i % 100 == 99) {
 			CHECK_MESSAGE(swing.is_finite(), vformat("Swing should remain finite at iteration %d", i));
@@ -289,18 +289,18 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Zero Vector Input H
 	// Test that functions properly handle Vector3() (zero vector) input
 	Vector3 zero_vector = Vector3();
 	Quaternion rotation = Quaternion(Vector3(1, 0, 0), Math::PI / 4);
-	
+
 	// Test get_swing_twist with zero axis - should return identity quaternions
 	Quaternion swing, twist;
 	IKKusudama3D::get_swing_twist(rotation, zero_vector, swing, twist);
-	
+
 	check_quaternion_valid(swing, "zero vector swing");
 	check_quaternion_valid(twist, "zero vector twist");
-	
+
 	// Should return identity quaternions for zero-length axis
 	CHECK(swing.is_equal_approx(Quaternion()));
 	CHECK(twist.is_equal_approx(Quaternion()));
-	
+
 	// Test get_quaternion_axis_angle with zero axis - should return identity
 	Quaternion result = IKKusudama3D::get_quaternion_axis_angle(zero_vector, Math::PI / 4);
 	check_quaternion_valid(result, "zero vector quaternion");
@@ -309,13 +309,13 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Zero Vector Input H
 
 TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Quaternion Normalization Edge Cases") {
 	// Test quaternion normalization in edge cases
-	
+
 	// Test with very small quaternion components
 	Vector3 tiny_axis = Vector3(1e-20, 1e-20, 1e-20);
 	real_t tiny_angle = 1e-15;
 	Quaternion tiny_result = IKKusudama3D::get_quaternion_axis_angle(tiny_axis, tiny_angle);
 	check_quaternion_valid(tiny_result, "tiny components quaternion");
-	
+
 	// Test with very large quaternion components (before normalization)
 	Vector3 huge_axis = Vector3(1e20, 1e20, 1e20);
 	real_t normal_angle = Math::PI / 4;
@@ -327,13 +327,13 @@ TEST_CASE("[Modules][ManyBoneIK][IKKusudama3D] Singularity - Axis Alignment Edge
 	// Test swing-twist with axis aligned with rotation axis
 	Vector3 rotation_axis = Vector3(1, 0, 0);
 	Quaternion aligned_rotation = Quaternion(rotation_axis, Math::PI / 3);
-	
+
 	Quaternion swing, twist;
 	IKKusudama3D::get_swing_twist(aligned_rotation, rotation_axis, swing, twist);
-	
+
 	check_quaternion_valid(swing, "axis-aligned swing");
 	check_quaternion_valid(twist, "axis-aligned twist");
-	
+
 	// For axis-aligned rotation, swing should be identity and twist should be the full rotation
 	CHECK(swing.is_equal_approx(Quaternion()));
 	bool twist_matches = twist.is_equal_approx(aligned_rotation) || twist.is_equal_approx(-aligned_rotation);

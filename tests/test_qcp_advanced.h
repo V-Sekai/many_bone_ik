@@ -35,7 +35,6 @@
 #include "test_qcp_validation.h"
 #include "tests/test_macros.h"
 
-
 using namespace TestQCPHelpers;
 using namespace TestQCPValidation;
 using namespace TestQCPFixtures;
