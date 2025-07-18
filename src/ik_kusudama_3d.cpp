@@ -398,7 +398,7 @@ Quaternion IKKusudama3D::clamp_to_quadrance_angle(Quaternion p_rotation, double 
 	ERR_FAIL_COND_V_MSG(!p_rotation.is_normalized(), Quaternion(), "The quaternion must be normalized.");
 #endif
 	Quaternion rotation = p_rotation;
-	double newCoeff = 1.0 - (p_cos_half_angle * abs(p_cos_half_angle));
+	double newCoeff = 1.0 - (p_cos_half_angle * Math::abs(p_cos_half_angle));
 	double currentCoeff = rotation.x * rotation.x + rotation.y * rotation.y + rotation.z * rotation.z;
 	if (newCoeff >= currentCoeff) {
 		return rotation;

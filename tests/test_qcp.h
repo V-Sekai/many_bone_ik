@@ -746,7 +746,6 @@ TEST_CASE("[Modules][QCP] Geometric Validation - Rotation Normalization") {
 
 	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
 	Quaternion rotation = result[0];
-	Vector3 translation = result[1];
 
 	// Use geometric validation functions
 	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation));
@@ -885,7 +884,6 @@ TEST_CASE("[Modules][QCP] Geometric Validation - Zero Length Vectors") {
 
 	Array result = QuaternionCharacteristicPolynomial::weighted_superpose(moved_points, target_points, weights, translate, epsilon);
 	Quaternion rotation = result[0];
-	Vector3 translation = result[1];
 
 	// Should return identity rotation for zero-length input
 	CHECK(QuaternionCharacteristicPolynomial::validate_rotation_normalization(rotation));
