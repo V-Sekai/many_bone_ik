@@ -262,7 +262,7 @@ void QuaternionCharacteristicPolynomial::set(PackedVector3Array &r_target, Packe
 Quaternion QuaternionCharacteristicPolynomial::_get_rotation() {
 	if (!transformation_calculated) {
 		if (!inner_product_calculated) {
-			inner_product(target, moved);
+			inner_product(moved, target);
 		}
 		rotation = calculate_rotation();
 		transformation_calculated = true;
