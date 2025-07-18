@@ -165,9 +165,19 @@ inline void validate_single_point_behavior(const Vector3 &moved_point,
 		Vector3 expected_translation = target_point - moved_point;
 		CHECK((translation_result - expected_translation).length() < epsilon);
 	} else {
-		// Should return identity rotation and zero translation
-		CHECK_IDENTITY_ROTATION(rotation, epsilon);
+		// Should calculate the rotation needed to align the points
+		CHECK_ROTATION_NORMALIZED(rotation);
 		CHECK_TRANSLATION_ZERO(translation_result);
+		
+		// Verify that the rotation actually aligns the points
+		Vector3 rotated_point = rotation.xform(moved_point);
+		Vector3 target_normalized = target_point.normalized();
+		Vector3 rotated_normalized = rotated_point.normalized();
+		
+		// Check that the rotated point aligns with the target direction
+		// Use a more reasonable tolerance for single point rotation
+		double alignment_tolerance = MAX(epsilon, 1e-6);
+		CHECK(Math::abs(rotated_normalized.dot(target_normalized) - 1.0) < alignment_tolerance);
 	}
 }
 
