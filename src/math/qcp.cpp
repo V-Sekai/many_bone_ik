@@ -446,21 +446,15 @@ bool QuaternionCharacteristicPolynomial::validate_point_alignment(const Quaterni
 		return false;
 	}
 
-	// Use a more reasonable tolerance for point alignment
-	double effective_tolerance = MAX(tolerance, 1e-6);
-
+	// Direct geometric test: apply the transformation and check if points align
 	for (int i = 0; i < moved.size(); i++) {
-		// Apply transformation: rotated = rotation * moved[i] + translation
-		Vector3 rotated = rotation.xform(moved[i]) + translation;
-		Vector3 target_point = target[i];
-
-		// Check if transformed point is close to target
-		Vector3 diff = rotated - target_point;
-		if (diff.length() > effective_tolerance) {
+		Vector3 transformed = rotation.xform(moved[i]) + translation;
+		Vector3 diff = transformed - target[i];
+		if (diff.length() > tolerance) {
 			return false;
 		}
 	}
-
+	
 	return true;
 }
 
