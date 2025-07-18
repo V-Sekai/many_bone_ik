@@ -103,9 +103,6 @@ class QuaternionCharacteristicPolynomial : Object {
 	bool are_points_degenerate(const PackedVector3Array &points);
 	double calculate_point_span(const PackedVector3Array &points);
 
-	// Enhanced single point rotation calculation
-	Quaternion calculate_single_point_rotation(const Vector3 &moved_point, const Vector3 &target_point);
-	
 	// Quaternion canonicalization
 	Quaternion apply_canonical_form(const Quaternion &q);
 
