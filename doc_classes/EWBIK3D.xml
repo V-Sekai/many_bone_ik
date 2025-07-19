@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="ManyBoneIK3D" inherits="SkeletonModifier3D" experimental="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+<class name="EWBIK3D" inherits="SkeletonModifier3D" experimental="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
 		A general inverse kinematics system with constraints.
 	</brief_description>
 	<description>
-		The ManyBoneIK3D class provides a comprehensive system for inverse kinematics (IK) with support for various constraints. It allows for complex IK setups involving multiple bones, each with their own constraints and parameters.
+		The EWBIK3D class provides a comprehensive system for inverse kinematics (IK) with support for various constraints. It allows for complex IK setups involving multiple bones, each with their own constraints and parameters.
 	</description>
 	<tutorials>
 	</tutorials>
