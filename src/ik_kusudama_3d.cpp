@@ -197,7 +197,7 @@ bool IKKusudama3D::is_axially_constrained() {
 	return axially_constrained;
 }
 
-bool IKKusudama3D::is_orientationally_constrained() {
+bool IKKusudama3D::is_orientationally_constrained() const {
 	return orientationally_constrained;
 }
 
@@ -225,7 +225,7 @@ void IKKusudama3D::toggle_axial_limits() {
 	axially_constrained = !axially_constrained;
 }
 
-bool IKKusudama3D::is_enabled() {
+bool IKKusudama3D::is_enabled() const {
 	return axially_constrained || orientationally_constrained;
 }
 
@@ -344,6 +344,26 @@ Vector3 IKKusudama3D::get_local_point_in_limits(Vector3 in_point, Vector<double>
 
 	// Return the closest boundary point between cones
 	return closest_collision_point;
+}
+
+Vector3 IKKusudama3D::_solve(const Vector3 &p_direction) const {
+	// If constraints are disabled, return the original direction
+	if (!is_enabled() || !is_orientationally_constrained()) {
+		return p_direction;
+	}
+
+	// Use the existing sophisticated constraint solving algorithm
+	Vector<double> bounds;
+	bounds.resize(2);
+	bounds.write[0] = -1.0; // Initialize as out of bounds
+	bounds.write[1] = 0.0;
+
+	// Cast away const for the existing method (this is safe as we're not modifying the object state)
+	IKKusudama3D *mutable_this = const_cast<IKKusudama3D *>(this);
+	Vector3 constrained = mutable_this->get_local_point_in_limits(p_direction, &bounds);
+
+	// Ensure the result is normalized
+	return constrained.normalized();
 }
 
 void IKKusudama3D::_bind_methods() {

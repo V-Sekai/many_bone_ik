@@ -41,11 +41,12 @@
 #include "core/object/ref_counted.h"
 #include "core/variant/typed_array.h"
 #include "scene/3d/node_3d.h"
+#include "scene/resources/3d/joint_limitation_3d.h"
 
 class IKBone3D;
 class IKLimitCone3D;
-class IKKusudama3D : public Resource {
-	GDCLASS(IKKusudama3D, Resource);
+class IKKusudama3D : public JointLimitation3D {
+	GDCLASS(IKKusudama3D, JointLimitation3D);
 
 	/**
 	 * An array containing all of the Kusudama's open_cones. The kusudama is built up
@@ -81,6 +82,9 @@ class IKKusudama3D : public Resource {
 
 protected:
 	static void _bind_methods();
+
+	// JointLimitation3D interface implementation
+	virtual Vector3 _solve(const Vector3 &p_direction) const override;
 
 public:
 	~IKKusudama3D() {}
@@ -181,14 +185,14 @@ public:
 	real_t get_range_angle();
 
 	bool is_axially_constrained();
-	bool is_orientationally_constrained();
+	bool is_orientationally_constrained() const;
 	void disable_orientational_limits();
 	void enable_orientational_limits();
 	void toggle_orientational_limits();
 	void disable_axial_limits();
 	void enable_axial_limits();
 	void toggle_axial_limits();
-	bool is_enabled();
+	bool is_enabled() const;
 	void disable();
 	void enable();
 	void clear_open_cones();
