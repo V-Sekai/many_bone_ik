@@ -449,6 +449,9 @@ EWBIK3D::EWBIK3D() {
 }
 
 EWBIK3D::~EWBIK3D() {
+    pins.clear();
+    segmented_skeletons.clear();
+    bone_list.clear();
 }
 
 float EWBIK3D::get_pin_motion_propagation_factor(int32_t p_effector_index) const {
