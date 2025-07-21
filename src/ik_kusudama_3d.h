@@ -41,12 +41,11 @@
 #include "core/object/ref_counted.h"
 #include "core/variant/typed_array.h"
 #include "scene/3d/node_3d.h"
-#include "scene/resources/3d/joint_limitation_3d.h"
 
 class IKBone3D;
 class IKLimitCone3D;
-class IKKusudama3D : public JointLimitation3D {
-	GDCLASS(IKKusudama3D, JointLimitation3D);
+class IKKusudama3D : public Resource {
+	GDCLASS(IKKusudama3D, Resource);
 
 	/**
 	 * An array containing all of the Kusudama's open_cones. The kusudama is built up
@@ -84,7 +83,7 @@ protected:
 	static void _bind_methods();
 
 	// JointLimitation3D interface implementation
-	virtual Vector3 _solve(const Vector3 &p_direction) const override;
+	virtual Vector3 _solve(const Vector3 &p_direction) const;
 
 public:
 	~IKKusudama3D() {}
