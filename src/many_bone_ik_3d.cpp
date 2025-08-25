@@ -448,10 +448,62 @@ void EWBIK3D::_bind_methods() {
 EWBIK3D::EWBIK3D() {
 }
 
-EWBIK3D::~EWBIK3D() {
-	pins.clear();
-	segmented_skeletons.clear();
+void EWBIK3D::cleanup() {
+	// Force immediate cleanup of all resources
+	set_active(false); // Stop any processing
+
+	// Clear all collections to break cycles
 	bone_list.clear();
+	segmented_skeletons.clear();
+	pins.clear();
+
+	is_dirty = true;
+}
+
+EWBIK3D::~EWBIK3D() {
+	// Clear all references explicitly to break potential cycles
+	if (!segmented_skeletons.is_empty()) {
+		for (Ref<IKBoneSegment3D> &segment : segmented_skeletons) {
+			if (segment.is_valid()) {
+				segment.unref();
+			}
+		}
+		segmented_skeletons.clear();
+	}
+
+	if (!bone_list.is_empty()) {
+		for (Ref<IKBone3D> &bone : bone_list) {
+			if (bone.is_valid()) {
+				bone.unref();
+			}
+		}
+		bone_list.clear();
+	}
+
+	// Clear pins and their effector templates
+	if (!pins.is_empty()) {
+		for (Ref<IKEffectorTemplate3D> &pin : pins) {
+			if (pin.is_valid()) {
+				pin.unref();
+			}
+		}
+		pins.clear();
+	}
+
+	// Clear constraint data
+	constraint_names.clear();
+	joint_twist.clear();
+	kusudama_open_cones.clear();
+	kusudama_open_cone_count.clear();
+	bone_damp.clear();
+
+	// Clear transform references
+	if (godot_skeleton_transform.is_valid()) {
+		godot_skeleton_transform.unref();
+	}
+	if (ik_origin.is_valid()) {
+		ik_origin.unref();
+	}
 }
 
 float EWBIK3D::get_pin_motion_propagation_factor(int32_t p_effector_index) const {

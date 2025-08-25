@@ -147,6 +147,8 @@ public:
 	void set_kusudama_open_cone_count(int32_t p_constraint_index, int32_t p_count);
 	void set_kusudama_open_cone_center(int32_t p_constraint_index, int32_t p_index, Vector3 p_center);
 	void set_kusudama_open_cone_radius(int32_t p_constraint_index, int32_t p_index, float p_radius);
+	void cleanup();
+
 	EWBIK3D();
 	~EWBIK3D();
 	void set_dirty();
