@@ -525,10 +525,6 @@ void ManyBoneIK3DGizmoPlugin::_notifications(int32_t p_what) {
 	switch (p_what) {
 		case EditorNode3DGizmoPlugin::NOTIFICATION_POSTINITIALIZE: {
 			EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "editors/3d_gizmos/gizmo_settings/bone_shape", PROPERTY_HINT_ENUM, "Wire,Octahedron"));
-			Node3DEditor::get_singleton()->add_control_to_menu_panel(edit_mode_button);
-		} break;
-		case EditorNode3DGizmoPlugin::NOTIFICATION_PREDELETE: {
-			Node3DEditor::get_singleton()->remove_control_from_menu_panel(edit_mode_button);
 		} break;
 	}
 }
@@ -570,20 +566,6 @@ ManyBoneIK3DGizmoPlugin::ManyBoneIK3DGizmoPlugin() {
 	handles_mesh_instance = memnew(MeshInstance3D);
 	handles_mesh_instance->set_cast_shadows_setting(GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
 	handles_mesh_instance->set_mesh(handles_mesh);
-	edit_mode_button = memnew(Button);
-	// Use icon-only button to avoid TextServerAdvanced leaks
-	Ref<Texture2D> edit_icon = EditorNode::get_singleton()->get_gui_base()->get_theme_icon(SNAME("Edit"), SNAME("EditorIcons"));
-	if (edit_icon.is_valid()) {
-		edit_mode_button->set_icon(edit_icon);
-	}
-	// Don't set text to avoid triggering TextServerAdvanced
-	// edit_mode_button->set_text(TTR("Edit Mode"));
-	edit_mode_button->set_flat(true);
-	edit_mode_button->set_toggle_mode(true);
-	edit_mode_button->set_focus_mode(Control::FOCUS_NONE);
-	// Use simpler tooltip or none at all to avoid text rendering
-	// edit_mode_button->set_tooltip_text(TTR("Edit Mode\nShow buttons on joints."));
-	edit_mode_button->connect("toggled", callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
 	edit_mode = false;
 	create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
 

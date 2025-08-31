@@ -61,7 +61,6 @@ class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	Ref<ShaderMaterial> handle_material = memnew(ShaderMaterial);
 	Ref<Shader> handle_shader;
 	EWBIK3D *many_bone_ik = nullptr;
-	Button *edit_mode_button = nullptr;
 	bool edit_mode = false;
 
 	ObjectID current_many_bone_ik_id;
