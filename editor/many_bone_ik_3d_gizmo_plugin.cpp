@@ -373,7 +373,7 @@ void ManyBoneIK3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo,
 	ERR_FAIL_COND(!ne);
 
 	EditorUndoRedoManager *ur = EditorUndoRedoManager::get_singleton();
-	ur->create_action(TTR("Set Bone Transform"));
+	ur->create_action("Set Bone Transform"); // Avoid TTR to reduce text rendering
 	if (ne->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || ne->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE) {
 		for (int i = 0; i < p_ids.size(); i++) {
 			int32_t constraint_i = many_bone_ik->find_constraint(skeleton->get_bone_name(p_ids[i]));
@@ -571,11 +571,18 @@ ManyBoneIK3DGizmoPlugin::ManyBoneIK3DGizmoPlugin() {
 	handles_mesh_instance->set_cast_shadows_setting(GeometryInstance3D::SHADOW_CASTING_SETTING_OFF);
 	handles_mesh_instance->set_mesh(handles_mesh);
 	edit_mode_button = memnew(Button);
-	edit_mode_button->set_text(TTR("Edit Mode"));
+	// Use icon-only button to avoid TextServerAdvanced leaks
+	Ref<Texture2D> edit_icon = EditorNode::get_singleton()->get_gui_base()->get_theme_icon(SNAME("Edit"), SNAME("EditorIcons"));
+	if (edit_icon.is_valid()) {
+		edit_mode_button->set_icon(edit_icon);
+	}
+	// Don't set text to avoid triggering TextServerAdvanced
+	// edit_mode_button->set_text(TTR("Edit Mode"));
 	edit_mode_button->set_flat(true);
 	edit_mode_button->set_toggle_mode(true);
 	edit_mode_button->set_focus_mode(Control::FOCUS_NONE);
-	edit_mode_button->set_tooltip_text(TTR("Edit Mode\nShow buttons on joints."));
+	// Use simpler tooltip or none at all to avoid text rendering
+	// edit_mode_button->set_tooltip_text(TTR("Edit Mode\nShow buttons on joints."));
 	edit_mode_button->connect("toggled", callable_mp(this, &ManyBoneIK3DGizmoPlugin::edit_mode_toggled));
 	edit_mode = false;
 	create_material("lines_primary", Color(0.93725490570068, 0.19215686619282, 0.22352941334248), true, true, true);
