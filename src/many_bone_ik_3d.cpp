@@ -461,34 +461,10 @@ void EWBIK3D::cleanup() {
 }
 
 EWBIK3D::~EWBIK3D() {
-	// Clear all references explicitly to break potential cycles
-	if (!segmented_skeletons.is_empty()) {
-		for (Ref<IKBoneSegment3D> &segment : segmented_skeletons) {
-			if (segment.is_valid()) {
-				segment.unref();
-			}
-		}
-		segmented_skeletons.clear();
-	}
-
-	if (!bone_list.is_empty()) {
-		for (Ref<IKBone3D> &bone : bone_list) {
-			if (bone.is_valid()) {
-				bone.unref();
-			}
-		}
-		bone_list.clear();
-	}
-
-	// Clear pins and their effector templates
-	if (!pins.is_empty()) {
-		for (Ref<IKEffectorTemplate3D> &pin : pins) {
-			if (pin.is_valid()) {
-				pin.unref();
-			}
-		}
-		pins.clear();
-	}
+	// Clear all collections - Ref<> objects handle their own cleanup automatically
+	segmented_skeletons.clear();
+	bone_list.clear();
+	pins.clear();
 
 	// Clear constraint data
 	constraint_names.clear();
@@ -497,13 +473,9 @@ EWBIK3D::~EWBIK3D() {
 	kusudama_open_cone_count.clear();
 	bone_damp.clear();
 
-	// Clear transform references
-	if (godot_skeleton_transform.is_valid()) {
-		godot_skeleton_transform.unref();
-	}
-	if (ik_origin.is_valid()) {
-		ik_origin.unref();
-	}
+	// Clear transform references - Ref<> will handle cleanup automatically
+	godot_skeleton_transform.unref();
+	ik_origin.unref();
 }
 
 float EWBIK3D::get_pin_motion_propagation_factor(int32_t p_effector_index) const {
@@ -1054,10 +1026,15 @@ void EWBIK3D::_bone_list_changed() {
 	}
 	bone_list.clear();
 	segmented_skeletons.clear();
+
+	// Create ik_origin once outside the loop
+	if (ik_origin.is_null()) {
+		ik_origin.instantiate();
+	}
+
 	for (BoneId root_bone_index : roots) {
 		String parentless_bone = skeleton->get_bone_name(root_bone_index);
 		Ref<IKBoneSegment3D> segmented_skeleton = Ref<IKBoneSegment3D>(memnew(IKBoneSegment3D(skeleton, parentless_bone, pins, this, nullptr, root_bone_index, -1, stabilize_passes)));
-		ik_origin.instantiate();
 		segmented_skeleton->get_root()->get_ik_transform()->set_parent(ik_origin);
 		segmented_skeleton->generate_default_segments(pins, root_bone_index, -1, this);
 		Vector<Ref<IKBone3D>> new_bone_list;
