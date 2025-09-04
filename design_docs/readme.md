@@ -113,7 +113,6 @@ proceeds rootward as follows:
    bone.
 
 3. Rectify the bone's orientation to reside back within an allowable
-
    orientation as per any limits imposed by dampening parameters or
    joint constraint on the bone if necessary, then proceed to the
    next bone.
