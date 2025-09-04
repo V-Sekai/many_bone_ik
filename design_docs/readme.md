@@ -103,23 +103,23 @@ proceeds rootward as follows:
 
 1. Create working copies of the origin and basis vectors and origins of
 
-    all target and effector transforms relevant to a given bone, and
-    translate them along with the given bone transform's origin such
-    that the bone transform's origin is at (0,0,0).
+   all target and effector transforms relevant to a given bone, and
+   translate them along with the given bone transform's origin such
+   that the bone transform's origin is at (0,0,0).
 
 2. Find the rotation that minimizes the average of the discrepancy
 
-    between each effector-target pair, and apply that rotation to the
-    bone.
+   between each effector-target pair, and apply that rotation to the
+   bone.
 
 3. Rectify the bone's orientation to reside back within an allowable
 
-    orientation as per any limits imposed by dampening parameters or
-    joint constraint on the bone if necessary, then proceed to the
-    next bone.
+   orientation as per any limits imposed by dampening parameters or
+   joint constraint on the bone if necessary, then proceed to the
+   next bone.
 
 4. Once the root bone has been reached, repeat the process starting
-    from the outermost bones until convergence or budget exhaustion.
+   from the outermost bones until convergence or budget exhaustion.
 
 \*Figure 1.1 - 1.2: A simplified sketch of a step in the algorithm.
 Effector basis vectors are marked in orange, target basis vectors are
@@ -242,17 +242,18 @@ From there, the simplest and fastest version of the EWBIK procedure
 starts from the outermost segments and works inward to the root segment,
 doing as follows for each bone in each segment:
 
-1. Reset the working copies of the targets and effector to correspond
+1.  Reset the working copies of the targets and effector to correspond
 
-    to their original values. Subtract the current bone's origin from
-    all _c_basisTarget_, *c_basisEffector, c_originTarget,*and*
-c_originEffector* points.
+        to their original values. Subtract the current bone's origin from
+        all _c_basisTarget_, *c_basisEffector, c_originTarget,*and*
 
-    a. Scale any *c_basisTargets*about their corresponding *c_originTargets*such that their distance from their corresponding _c_originTarget_ is no less than 1, and also no less than the magnitude of their corresponding _c_originTarget,_
+    c_originEffector\* points.
 
-    b. Scale any *c_basisEffectors*about their corresponding _c_originEffectors_ such that their distance from their corresponding _c_originEffectors_ is no less than 1, and no less than the magnitude of their corresponding _c_originTargets._
+        a. Scale any *c_basisTargets*about their corresponding *c_originTargets*such that their distance from their corresponding _c_originTarget_ is no less than 1, and also no less than the magnitude of their corresponding _c_originTarget,_
 
-2. Use The Minimizer to compute the rotation that brings all
+        b. Scale any *c_basisEffectors*about their corresponding _c_originEffectors_ such that their distance from their corresponding _c_originEffectors_ is no less than 1, and no less than the magnitude of their corresponding _c_originTargets._
+
+2.  Use The Minimizer to compute the rotation that brings all
 
     _c\_\*Effector_ points as close as possible to their corresponding
     _c\_\*Target_ points.
@@ -261,12 +262,12 @@ c_originEffector* points.
 
     b. Apply the clamped rotation to the bone.
 
-3. Check if the bone has violated any of its orientation constraints as
+3.  Check if the bone has violated any of its orientation constraints as
 
     a result of this rotation. If it has, rotate the bone to reside
     within a valid region of its orientation constraint.
 
-4. If the bone's parent is contained in the current segment, repeat
+4.  If the bone's parent is contained in the current segment, repeat
     this process for the parent bone. Otherwise, traversal for this
     segment is complete.
 
@@ -359,21 +360,21 @@ light gray outlines in _figure_ _8(a2)_.
 
 1. We check to see if the point is within the two sequence-circles depicted in blue and green in _figure 8(b)_.
 
-    a. If the point is within either sequence-circle, we terminate, as the point is within the allowable region.
+   a. If the point is within either sequence-circle, we terminate, as the point is within the allowable region.
 
-    b. Otherwise, we proceed to step 2.
+   b. Otherwise, we proceed to step 2.
 
 2. We check to see if the point is within either of the two triangles depicted in amethyst in figure 8(c), which are formed by the centers of our pair of sequence-circle with the centers of the adjacent pair of tangent-circles.
 
-    a. If the point is within either triangle, we proceed to step 3
+   a. If the point is within either triangle, we proceed to step 3
 
-    b. Otherwise, we skip to step 4.
+   b. Otherwise, we skip to step 4.
 
 3. We check to see if the point is within either of the adjacent tangent circles as depicted in _figure 8(d)_.
 
-    a. If it is within one of the tangent-circles, then we transform it away from the center of the tangent-circle within which it resides such that its distance from the tangent-circle's center is equal to the radius of that tangent-circle (_figure 8(d2)_). Then terminate, as we have finished moving the point to the boundary of the allowable region.
+   a. If it is within one of the tangent-circles, then we transform it away from the center of the tangent-circle within which it resides such that its distance from the tangent-circle's center is equal to the radius of that tangent-circle (_figure 8(d2)_). Then terminate, as we have finished moving the point to the boundary of the allowable region.
 
-    b. If it isn't within either circle, then proceed to step 4.
+   b. If it isn't within either circle, then proceed to step 4.
 
 4. Proceed to the next pair in the sequence (_figure 8(f)_), treating the blue sequence-circle from the previous steps as if it were the new green sequence-circle, and treating the next circle in the sequence as being the new blue sequence-circle. Repeat steps 1 through 4 (_figure 8(g)_) until the blue sequence-circle under consideration is the last one in the sequence, then proceed to step 6.
 
@@ -426,11 +427,11 @@ are met.
 
 1. As the sum of the apex angles of our pair of sequence-cones
 
-    approaches zero, the apex angles of the tangent cones must
-    approach π.
+   approaches zero, the apex angles of the tangent cones must
+   approach π.
 
 2. As the sum of the apex angles of our pair of sequence-cones
-    approaches π, the apex angles of the tangent cones must approach 0.
+   approaches π, the apex angles of the tangent cones must approach 0.
 
 A straightforward function for automatically determining a reasonable
 tangent cone radius in absence of any information aside from the radii
@@ -460,29 +461,29 @@ topology. It goes as follows:
 
 1. We check to see if the angle between the bone's direction and the
 
-    direction of the axis of each sequence-cone is less than the apex
-    angle of the sequence cones under consideration.
+   direction of the axis of each sequence-cone is less than the apex
+   angle of the sequence cones under consideration.
 
-    a. If it is, we terminate, as the bone orientation is within the allowable region.
+   a. If it is, we terminate, as the bone orientation is within the allowable region.
 
-    b. Otherwise, we proceed to step 2.
+   b. Otherwise, we proceed to step 2.
 
 2. For each adjacent pair of sequence cones, we check to see if the
 
-    bone direction is within either of the tetrahedrons formed by the
-    constraint origin, the line connecting the vectors representing
-    the two sequence-cone axes to each other, and the lines connecting
-    each sequence-cone axis to each tangent cone axis.
+   bone direction is within either of the tetrahedrons formed by the
+   constraint origin, the line connecting the vectors representing
+   the two sequence-cone axes to each other, and the lines connecting
+   each sequence-cone axis to each tangent cone axis.
 
-    a. If the bone direction is within either tetrahedron, we proceed to step 3
+   a. If the bone direction is within either tetrahedron, we proceed to step 3
 
-    b. Otherwise, we skip to step 4.
+   b. Otherwise, we skip to step 4.
 
 3. We check to see if the angle between the bone's direction and the direction of the axis of the tangent-cone coinciding with this tetrahedron is less than the apex half-angle of the tangent-cone under consideration.
 
-    a. If it is, then we find the rotation which would transform the bone direction away from the tangent-cone in which it resides such that the angle between the bone direction and the tangent-cone's direction is equal to the apex half-angle of that tangent-cone. We do not terminate or apply this rotation. If the angle of this rotation is less than any currently stored rotation, we replace that rotation with this rotation, otherwise, we ignore this rotation. We then proceed to step 4.
+   a. If it is, then we find the rotation which would transform the bone direction away from the tangent-cone in which it resides such that the angle between the bone direction and the tangent-cone's direction is equal to the apex half-angle of that tangent-cone. We do not terminate or apply this rotation. If the angle of this rotation is less than any currently stored rotation, we replace that rotation with this rotation, otherwise, we ignore this rotation. We then proceed to step 4.
 
-    b. If it isn't, then proceed to step 4.
+   b. If it isn't, then proceed to step 4.
 
 4. We shift to the next pair of adjacent sequence cones and repeat steps 1 through 4 until one of the sequence cones under consideration is the last cone defined. Then proceed to step 5
 
