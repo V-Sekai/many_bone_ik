@@ -33,9 +33,9 @@
 #include "../src/ik_bone_3d.h"
 #include "../src/many_bone_ik_3d.h"
 
-#include "editor/editor_inspector.h"
-#include "editor/editor_settings.h"
-#include "editor/plugins/skeleton_3d_editor_plugin.h"
+#include "editor/inspector/editor_inspector.h"
+#include "editor/scene/3d/skeleton_3d_editor_plugin.h"
+#include "editor/settings/editor_settings.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/node_3d.h"
@@ -60,12 +60,12 @@ class ManyBoneIK3DGizmoPlugin : public EditorNode3DGizmoPlugin {
 	Ref<ImmediateMesh> handles_mesh = memnew(ImmediateMesh);
 	Ref<ShaderMaterial> handle_material = memnew(ShaderMaterial);
 	Ref<Shader> handle_shader;
-	ManyBoneIK3D *many_bone_ik = nullptr;
+	EWBIK3D *many_bone_ik = nullptr;
 	Button *edit_mode_button = nullptr;
 	bool edit_mode = false;
 
 	ObjectID current_many_bone_ik_id;
-	
+
 protected:
 	static void _bind_methods();
 	void _notifications(int32_t p_what);
@@ -78,7 +78,7 @@ public:
 	String get_gizmo_name() const override;
 	void redraw(EditorNode3DGizmo *p_gizmo) override;
 	int32_t get_priority() const override;
-	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik);
+	void create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, EWBIK3D *p_many_bone_ik);
 	int subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const override;
 	Transform3D get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const override;
 	void set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) override;

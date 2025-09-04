@@ -33,8 +33,8 @@
 #include "editor/editor_interface.h"
 #include "editor/editor_node.h"
 #include "editor/many_bone_ik_shader.h"
-#include "editor/plugins/node_3d_editor_gizmos.h"
-#include "editor/plugins/node_3d_editor_plugin.h"
+#include "editor/scene/3d/node_3d_editor_gizmos.h"
+#include "editor/scene/3d/node_3d_editor_plugin.h"
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/resources/surface_tool.h"
@@ -54,16 +54,16 @@ void ManyBoneIK3DGizmoPlugin::_bind_methods() {
 }
 
 bool ManyBoneIK3DGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-	return cast_to<ManyBoneIK3D>(p_spatial);
+	return cast_to<EWBIK3D>(p_spatial);
 }
 
 String ManyBoneIK3DGizmoPlugin::get_gizmo_name() const {
-	return "ManyBoneIK3D";
+	return "EWBIK3D";
 }
 
 void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
-	many_bone_ik = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d());
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+	many_bone_ik = Object::cast_to<EWBIK3D>(p_gizmo->get_node_3d());
+	Skeleton3D *skeleton = Object::cast_to<EWBIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	p_gizmo->clear();
 	if (!skeleton || !skeleton->get_bone_count()) {
 		current_many_bone_ik_id = ObjectID(); // Reset if no valid skeleton
@@ -127,7 +127,7 @@ void ManyBoneIK3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	}
 }
 
-void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, ManyBoneIK3D *p_many_bone_ik) {
+void ManyBoneIK3DGizmoPlugin::create_gizmo_mesh(BoneId current_bone_idx, Ref<IKBone3D> ik_bone, EditorNode3DGizmo *p_gizmo, Color current_bone_color, Skeleton3D *many_bone_ik_skeleton, EWBIK3D *p_many_bone_ik) {
 	Ref<IKKusudama3D> ik_kusudama = ik_bone->get_constraint();
 	if (ik_kusudama.is_null()) {
 		return;
@@ -285,7 +285,7 @@ EditorPluginManyBoneIK::EditorPluginManyBoneIK() {
 }
 
 int ManyBoneIK3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_gizmo, Camera3D *p_camera, const Vector2 &p_point) const {
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+	Skeleton3D *skeleton = Object::cast_to<EWBIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND_V(!skeleton, -1);
 
 	if (!edit_mode) {
@@ -325,7 +325,7 @@ int ManyBoneIK3DGizmoPlugin::subgizmos_intersect_ray(const EditorNode3DGizmo *p_
 }
 
 Transform3D ManyBoneIK3DGizmoPlugin::get_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id) const {
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+	Skeleton3D *skeleton = Object::cast_to<EWBIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND_V(!skeleton, Transform3D());
 
 	Transform3D constraint_relative_to_the_skeleton = many_bone_ik->get_relative_transform(many_bone_ik->get_owner()).affine_inverse() *
@@ -334,7 +334,7 @@ Transform3D ManyBoneIK3DGizmoPlugin::get_subgizmo_transform(const EditorNode3DGi
 }
 
 void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_gizmo, int p_id, Transform3D p_transform) {
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+	Skeleton3D *skeleton = Object::cast_to<EWBIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND(!skeleton);
 	// Prepare for global to local.
 	Transform3D original_to_local;
@@ -366,7 +366,7 @@ void ManyBoneIK3DGizmoPlugin::set_subgizmo_transform(const EditorNode3DGizmo *p_
 }
 
 void ManyBoneIK3DGizmoPlugin::commit_subgizmos(const EditorNode3DGizmo *p_gizmo, const Vector<int> &p_ids, const Vector<Transform3D> &p_restore, bool p_cancel) {
-	Skeleton3D *skeleton = Object::cast_to<ManyBoneIK3D>(p_gizmo->get_node_3d())->get_skeleton();
+	Skeleton3D *skeleton = Object::cast_to<EWBIK3D>(p_gizmo->get_node_3d())->get_skeleton();
 	ERR_FAIL_COND(!skeleton);
 
 	Node3DEditor *ne = Node3DEditor::get_singleton();

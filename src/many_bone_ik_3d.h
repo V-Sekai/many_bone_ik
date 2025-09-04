@@ -41,8 +41,8 @@
 #include "scene/3d/skeleton_modifier_3d.h"
 
 class ManyBoneIK3DState;
-class ManyBoneIK3D : public SkeletonModifier3D {
-	GDCLASS(ManyBoneIK3D, SkeletonModifier3D);
+class EWBIK3D : public SkeletonModifier3D {
+	GDCLASS(EWBIK3D, SkeletonModifier3D);
 
 	bool is_constraint_mode = false;
 	NodePath skeleton_path;
@@ -147,7 +147,7 @@ public:
 	void set_kusudama_open_cone_count(int32_t p_constraint_index, int32_t p_count);
 	void set_kusudama_open_cone_center(int32_t p_constraint_index, int32_t p_index, Vector3 p_center);
 	void set_kusudama_open_cone_radius(int32_t p_constraint_index, int32_t p_index, float p_radius);
-	ManyBoneIK3D();
-	~ManyBoneIK3D();
+	EWBIK3D();
+	~EWBIK3D();
 	void set_dirty();
 };
