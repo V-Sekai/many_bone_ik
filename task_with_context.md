@@ -4,6 +4,27 @@
 
 This document outlines our strategy for implementing MultiIK (Multi-Effector Inverse Kinematics) in the AriaEwbik system, based on insights from the Godot ManyBoneIK3D implementation and the broader EWBIK (Entirely Wahba's-problem Based Inverse Kinematics) research.
 
+### Current Godot ManyBoneIK3D Implementation Insights
+
+**Existing GUI System:**
+- **Sphere Visualization**: Current GUI uses small spheres (0.02f scale) to represent kusudama constraints
+- **Shader Rendering**: Custom shader system for cone visualization with RGBA color data
+- **Bone Selection**: Click-to-select bones with yellow/blue visual feedback
+- **Edit Mode**: Toggle button for switching between view and edit modes
+- **Real-time Updates**: Gizmos update dynamically with bone transformations
+
+**Technical Architecture:**
+- **Gizmo Plugin System**: EditorNode3DGizmoPlugin with Node3DEditor integration
+- **Mesh Generation**: Procedural sphere creation with 8×8 ring/radial segments
+- **Coordinate Transforms**: Complex skeleton ↔ gizmo ↔ constraint space transformations
+- **Material System**: ShaderMaterial with custom parameters for constraint visualization
+
+**Current Limitations:**
+- Basic sphere visualization (not advanced cone rendering)
+- Limited multi-effector management
+- No pole target visualization
+- Manual constraint setup process
+
 ## Current Status
 
 ### EWBIK Implementation Progress
@@ -70,22 +91,26 @@ defmodule AriaEwbik.MultiEffectorSolver do
 end
 ```
 
-### GUI Design Requirements
+### GUI Design Requirements (Based on Current Godot Implementation)
 
-#### Core Features
+#### Core Features (Existing in Godot ManyBoneIK3D)
 
-1. **Root Selection**: Visual picker for IK chain root
-2. **Effector Management**: Add/remove multiple end effectors
-3. **Junction Visualization**: Show automatic branch detection
-4. **Pole Target Controls**: Per-junction orientation controls
-5. **Constraint Editor**: Kusudama cone visualization and editing
+1. **Sphere-based Kusudama Visualization**: 0.02f scale spheres with 8×8 ring/radial segments for smooth constraint rendering
+2. **Bone Selection System**: Click-to-select bones with visual feedback (yellow selected, blue unselected)
+3. **Edit Mode Toggle**: Button to switch between view and edit modes with joint handle display
+4. **Shader-based Constraint Rendering**: Custom shader with RGBA color data for kusudama cone visualization
+5. **Real-time Gizmo Updates**: Dynamic constraint visualization that updates with bone transformations
 
-#### Advanced Features
+#### Advanced Features (To Be Implemented)
 
-1. **Effector Priority**: Weight sliders for each effector
-2. **Chain Preview**: Real-time IK solution visualization
-3. **Constraint Library**: Preset anatomical constraints
-4. **Animation Integration**: Keyframe animation compatibility
+1. **Root Selection Interface**: Visual picker for IK chain root with skeleton hierarchy display
+2. **Multi-Effector Management**: Add/remove multiple end effectors with drag-and-drop
+3. **Junction Visualization**: Show automatic branch detection with colored indicators
+4. **Pole Target Controls**: Per-junction orientation controls with visual pole target spheres
+5. **Effector Priority Sliders**: Weight controls for each effector influence
+6. **Real-time IK Preview**: Live solution visualization with performance metrics
+7. **Constraint Library**: Preset anatomical constraints (humanoid, quadruped, etc.)
+8. **Animation Integration**: Keyframe animation compatibility with procedural IK baking
 
 ## Technical Implementation Plan
 
@@ -104,12 +129,16 @@ end
 - [ ] Add pole target support to solver
 - [ ] Integrate with existing decomposition algorithm
 
-### Phase 2: GUI Framework
+### Phase 2: GUI Framework (Based on Godot Gizmo Plugin Architecture)
 
-- [ ] Design root/effector selection interface
-- [ ] Implement junction visualization
-- [ ] Create constraint editing tools
-- [ ] Add real-time preview system
+- [ ] **Implement Gizmo Plugin System**: Create EditorNode3DGizmoPlugin with gizmo registration
+- [ ] **Sphere Mesh Generation**: 8 rings × 8 radial segments for smooth kusudama visualization (0.02f scale)
+- [ ] **Shader Material System**: Custom ShaderMaterial with RGBA color data for constraint rendering
+- [ ] **Bone Selection Interface**: Click-to-select with visual feedback (yellow/blue color coding)
+- [ ] **Edit Mode Toggle**: Button integration with Node3DEditor menu panel
+- [ ] **Transform Coordinate Handling**: Complex skeleton ↔ gizmo ↔ constraint space transformations
+- [ ] **Real-time Gizmo Updates**: Dynamic constraint visualization with bone pose changes
+- [ ] **Handle Mesh System**: Point-based bone handles with custom shader materials
 
 ### Phase 3: Advanced Features
 
