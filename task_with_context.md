@@ -7,11 +7,13 @@ This document outlines our strategy for implementing MultiIK (Multi-Effector Inv
 ## Current Status
 
 ### EWBIK Implementation Progress
+
 - ✅ **Phase 1**: Internal modules complete (Segmentation, Solver, Kusudama, Propagation)
 - ✅ **Phase 1.5**: External API implementation (IN PROGRESS - Critical Priority)
 - 🔄 **MultiIK Design**: Strategy documented and ready for implementation
 
 ### Technical Foundation
+
 - **37 tests passing** across 4 modules
 - **Decomposition algorithm** implemented for multi-effector coordination
 - **AriaJoint integration** for optimized transform calculations
@@ -26,16 +28,19 @@ This document outlines our strategy for implementing MultiIK (Multi-Effector Inv
 ### Key Design Decisions
 
 #### 1. Single Root, Multiple End Effectors
+
 - **Root Node**: Single skeleton root for the entire IK chain
 - **End Effectors**: Multiple target points (hands, feet, head, etc.)
 - **Automatic Junction Detection**: System identifies branch points in skeleton hierarchy
 
 #### 2. Junction-Based Chain Splitting
+
 - **Branch Detection**: Automatic identification of skeleton junctions
 - **Chain Segmentation**: Split effector lists at each junction
 - **Dependency Management**: Ensure proper solve order (parents before children)
 
 #### 3. Pole Target and Limitation Support
+
 - **Pole Targets**: Control twist/swing orientation at each junction
 - **Joint Limitations**: Per-joint angle constraints (Kusudama cones)
 - **Priority Weighting**: Effector opacity and influence control
@@ -68,6 +73,7 @@ end
 ### GUI Design Requirements
 
 #### Core Features
+
 1. **Root Selection**: Visual picker for IK chain root
 2. **Effector Management**: Add/remove multiple end effectors
 3. **Junction Visualization**: Show automatic branch detection
@@ -75,6 +81,7 @@ end
 5. **Constraint Editor**: Kusudama cone visualization and editing
 
 #### Advanced Features
+
 1. **Effector Priority**: Weight sliders for each effector
 2. **Chain Preview**: Real-time IK solution visualization
 3. **Constraint Library**: Preset anatomical constraints
@@ -82,25 +89,37 @@ end
 
 ## Technical Implementation Plan
 
+### Phase 0: QCP Algorithm Migration (FOUNDATIONAL TASK)
+
+- [ ] **Migrate QCP Insights**: Port Quaternion Characteristic Polynomial algorithm insights from Elixir (69/69 tests passing) to C++ Many Bone IK
+- [ ] **Test Suite Translation**: Convert comprehensive Elixir QCP test suite to C++ unit tests
+- [ ] **Performance Benchmarking**: Establish baseline performance metrics for C++ QCP implementation
+- [ ] **Integration Validation**: Ensure C++ QCP produces identical results to Elixir reference implementation
+- [ ] **Documentation**: Document QCP algorithm insights and mathematical foundations for C++ implementation
+
 ### Phase 1: Core MultiIK Algorithm
+
 - [ ] Implement junction detection algorithm
 - [ ] Create effector list splitting logic
 - [ ] Add pole target support to solver
 - [ ] Integrate with existing decomposition algorithm
 
 ### Phase 2: GUI Framework
+
 - [ ] Design root/effector selection interface
 - [ ] Implement junction visualization
 - [ ] Create constraint editing tools
 - [ ] Add real-time preview system
 
 ### Phase 3: Advanced Features
+
 - [ ] Effector priority weighting system
 - [ ] Pole target visualization and editing
 - [ ] Constraint library and presets
 - [ ] Animation integration
 
 ### Phase 4: Optimization and Testing
+
 - [ ] Performance optimization for complex rigs
 - [ ] Comprehensive test suite for multi-effector scenarios
 - [ ] Integration testing with AriaJoint and AriaQCP
@@ -109,12 +128,14 @@ end
 ## Use Cases and Applications
 
 ### Primary Scenarios
+
 1. **Character Animation**: Full-body procedural IK for games
 2. **Bouldering/Climbing**: Complex hand-foot coordination
 3. **Foot Placement**: Automatic foot positioning on uneven terrain
 4. **Interactive Characters**: Real-time response to environmental changes
 
 ### Technical Requirements
+
 1. **Real-time Performance**: 30+ FPS for character animation
 2. **Complex Rigs**: Support for 100+ joint skeletons
 3. **Stability**: Robust convergence for edge cases
@@ -123,16 +144,19 @@ end
 ## Integration with Existing Systems
 
 ### AriaJoint Integration
+
 - **HierarchyManager**: Optimized transform calculations
 - **Batch Updates**: Efficient dirty flag propagation
 - **Nested Sets**: Fast subtree operations
 
 ### AriaQCP Integration
+
 - **Wahba's Problem**: Multi-effector coordinate solving
 - **Quaternion Mathematics**: Stable orientation calculations
 - **Performance**: Optimized for real-time use
 
 ### AriaMath Integration
+
 - **IEEE-754 Compliance**: Numerical stability
 - **Quaternion Operations**: Dot, angle, normalize functions
 - **Matrix Operations**: Transform calculations
@@ -140,12 +164,14 @@ end
 ## Challenges and Solutions
 
 ### Technical Challenges
+
 1. **Branch Detection**: Identifying skeleton junctions automatically
 2. **Solve Order**: Determining optimal processing sequence
 3. **Convergence**: Ensuring stable solutions for complex scenarios
 4. **Performance**: Maintaining real-time performance with multiple effectors
 
 ### GUI Challenges
+
 1. **Complex Visualization**: Showing multi-effector relationships
 2. **User Experience**: Intuitive controls for complex IK setup
 3. **Real-time Feedback**: Live preview of IK solutions
@@ -154,6 +180,7 @@ end
 ## Success Criteria
 
 ### Functional Requirements
+
 - [ ] Single root with multiple end effectors
 - [ ] Automatic junction detection and chain splitting
 - [ ] Pole target support for each junction
@@ -161,6 +188,7 @@ end
 - [ ] Stable convergence for complex character rigs
 
 ### User Experience Requirements
+
 - [ ] Intuitive GUI for IK chain setup
 - [ ] Visual feedback for junction detection
 - [ ] Easy constraint editing and visualization
@@ -169,12 +197,14 @@ end
 ## Future Considerations
 
 ### Extended Features
+
 1. **Animation Baking**: Convert procedural IK to keyframe animation
 2. **Motion Capture Integration**: Use IK for retargeting mocap data
 3. **Physics Integration**: Combine IK with physical simulation
 4. **Machine Learning**: AI-assisted IK solving for complex poses
 
 ### Research Opportunities
+
 1. **Advanced Constraints**: Soft constraints and spring systems
 2. **Predictive IK**: Anticipate and prevent unnatural poses
 3. **Adaptive IK**: Learn from user corrections and preferences
